@@ -1,0 +1,159 @@
+# Cameo: Anwar, the developer of the Shiftella app. Flavour only.
+
+# --- scene anwar_sticker
+scene.anwar_sticker.01
+cs Ke stolu u zásuvky si sedne kluk s notebookem. Na víku fialová nálepka: Shiftella.
+en A guy with a laptop takes the table by the socket. On the lid, a purple sticker: Shiftella.
+sk K stolu pri zásuvke si sadne chalan s notebookom. Na veku fialová nálepka: Shiftella.
+uk За столик біля розетки сідає хлопець із ноутбуком. На кришці — фіолетова наліпка: Shiftella.
+
+scene.anwar_sticker.02
+cs To je appka, ve které máme rozpis.
+en That's the app we keep our rozpis in.
+sk To je appka, v ktorej máme rozpis.
+uk Це ж застосунок, де в нас розклад.
+
+scene.anwar_sticker.03
+cs Já vím. Dělám ji. …To znělo nafoukaně, promiň. Jak se vám s tím rozpisem pracuje? Upřímně.
+en I know. I make it. …That sounded smug, sorry. How does the rozpis work for you? Honestly.
+sk Ja viem. Robím ju. …To znelo nafúkane, prepáč. Ako sa vám s tým rozpisom pracuje? Úprimne.
+uk Я знаю. Я його роблю. …Прозвучало пихато, вибач. Як вам працюється з розкладом? Чесно.
+
+scene.anwar_sticker.04
+cs Funguje. Nikdo mi ve čtyři ráno nevolá, kdy mu začíná směna.
+en It works. Nobody calls me at four in the morning to ask when their shift starts.
+sk Funguje. Nikto mi o štvrtej ráno nevolá, kedy mu začína zmena.
+uk Працює. Ніхто не дзвонить мені о четвертій ранку, щоб спитати, коли в нього зміна.
+
+scene.anwar_sticker.05
+cs To je vlastně celý sen. Ovesné flat white, prosím.
+en That's the whole dream, really. Oat flat white, please.
+sk To je vlastne celý sen. Ovsené flat white, prosím.
+uk Власне, це і є вся мрія. Вівсяний флет вайт, будь ласка.
+
+# --- scene anwar_codenames
+scene.anwar_codenames.01
+cs Zvláštní ta vaše trať. Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant.
+en Funny thing about this line. Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant.
+sk Zvláštna tá vaša trať. Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant.
+uk Дивна у вас лінія. Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant.
+
+scene.anwar_codenames.02
+cs Tak se jmenují moje verze. Česká města od A do Z. Přísahám, že železnici jsem neplánoval.
+en Those are my release names. Czech towns, A to Z. I swear I didn't plan the railway.
+sk Tak sa volajú moje verzie. České mestá od A po Z. Prisahám, že železnicu som neplánoval.
+uk Так називаються мої релізи. Чеські міста від A до Z. Клянуся, залізницю я не планував.
+
+scene.anwar_codenames.03
+cs A další bude?
+en And the next one?
+sk A ďalšia bude?
+uk А наступний?
+
+scene.anwar_codenames.04
+cs Něco na G. Vymyslím to ve vlaku. …Jenže tady žádný na G nejezdí, že?
+en Something with G. I'll think of it on the train. …Except no train here goes to a G, does it?
+sk Niečo na G. Vymyslím to vo vlaku. …Lenže tu žiadny na G nejazdí, však?
+uk Щось на G. Придумаю в поїзді. …Тільки ж тут жоден поїзд не їде на G, правда?
+
+# --- scene anwar_bugfix
+scene.anwar_bugfix.01
+cs Je po jedné. Anwar rychle píše a mračí se na obrazovku. Káva mu vystydla před hodinou.
+en Past one. Anwar types fast and frowns at the screen. His coffee went cold an hour ago.
+sk Je po jednej. Anwar rýchlo píše a mračí sa na obrazovku. Káva mu vychladla pred hodinou.
+uk Перша ночі минула. Anwar швидко друкує й хмуриться на екран. Кава вистигла ще годину тому.
+
+scene.anwar_bugfix.02
+cs Výměna směny někomu odešla špatnému člověku. V noci. Samozřejmě v noci.
+en Someone's shift swap went to the wrong person. At night. Of course at night.
+sk Výmena zmeny niekomu odišla zlému človeku. V noci. Samozrejme v noci.
+uk Чийсь обмін змінами пішов не тій людині. Уночі. Аякже, вночі.
+
+scene.anwar_bugfix.03
+cs Vedle notebooku se objeví čerstvá káva. O deset minut později se opře do židle.
+en A fresh coffee appears beside his laptop. Ten minutes later he leans back.
+sk Vedľa notebooku sa objaví čerstvá káva. O desať minút neskôr sa oprie o stoličku.
+uk Біля ноутбука з'являється свіжа кава. За десять хвилин він відкидається на стільці.
+
+scene.anwar_bugfix.04
+cs Opraveno. Nikdo si ničeho nevšimne. To je ta nejlepší oprava.
+en Fixed. Nobody will even notice. That's the best kind of fix.
+sk Opravené. Nikto si nič nevšimne. To je tá najlepšia oprava.
+uk Виправлено. Ніхто навіть не помітить. Це найкращий вид виправлень.
+
+# --- scene anwar_game
+scene.anwar_game.01
+cs Můžu ti něco prozradit? Dělám malou hru. O noční kavárně. V dešti.
+en Can I tell you a secret? I'm making a small game. About a night café. In the rain.
+sk Môžem ti niečo prezradiť? Robím malú hru. O nočnej kaviarni. V daždi.
+uk Можна, я скажу тобі секрет? Я роблю маленьку гру. Про нічну кав'ярню. Під дощем.
+
+scene.anwar_game.02
+cs Asi to nikoho nebude zajímat. Ale chtěl jsem, aby působila jako tohle místo.
+en Probably nobody will care. But I wanted it to feel like this place.
+sk Asi to nikoho nebude zaujímať. Ale chcel som, aby pôsobila ako toto miesto.
+uk Мабуть, це нікого не зацікавить. Але я хотів, щоб вона відчувалася, як це місце.
+
+scene.anwar_game.03
+cs Tu si zahraju.
+en I'll play it.
+sk Tú si zahrám.
+uk Я в неї зіграю.
+
+scene.anwar_game.04
+cs Tak to je jeden hráč. Dobrý začátek.
+en That's one player. A good start.
+sk Tak to je jeden hráč. Dobrý začiatok.
+uk Отже, один гравець уже є. Гарний початок.
+
+# --- scene anwar_cake
+scene.anwar_cake.01
+cs Anwar přichází s krabicí od dortu pod paží, trochu mokrou od deště.
+en Anwar arrives with a cake box under his arm, a little wet from the rain.
+sk Anwar prichádza so škatuľou od torty pod pazuchou, trochu mokrou od dažďa.
+uk Anwar приходить із коробкою торта під пахвою, трохи мокрою від дощу.
+
+scene.anwar_cake.02
+cs Pro tým. Kdo pracuje v noci, zaslouží si dort víc než kdokoli jiný.
+en For the team. People who work nights deserve cake more than anyone.
+sk Pre tím. Kto pracuje v noci, zaslúži si tortu viac ako ktokoľvek iný.
+uk Для команди. Хто працює ночами, заслуговує на торт більше за всіх.
+
+scene.anwar_cake.03
+cs Pro mě medovník, prosím. A díky — že tu svítí světlo.
+en Honey cake for me, please. And thank you — for keeping the light on.
+sk Pre mňa medovník, prosím. A vďaka — že tu svieti svetlo.
+uk Мені медовик, будь ласка. І дякую — що тут горить світло.
+
+regular.guest_anwar.name
+* Anwar
+
+regular.guest_anwar.bio
+cs Anwar, 28, vývojář aplikace Shiftella. Občas se staví po vlastní směně, sedne si k zásuvce a objedná ovesné flat white.
+en Anwar, 28, the developer of the Shiftella app. Drops in now and then after his own shift, sits by the socket and orders an oat flat white.
+sk Anwar, 28, vývojár aplikácie Shiftella. Občas sa zastaví po vlastnej zmene, sadne si k zásuvke a objedná ovsené flat white.
+uk Anwar, 28, розробник застосунку Shiftella. Іноді заходить після власної зміни, сідає біля розетки й замовляє вівсяний флет вайт.
+
+regular.guest_anwar.line.0a
+cs Ovesné flat white, prosím. A zásuvku, jestli je volná.
+en Oat flat white, please. And the socket, if it's free.
+sk Ovsené flat white, prosím. A zásuvku, ak je voľná.
+uk Вівсяний флет вайт, будь ласка. І розетку, якщо вільна.
+
+regular.guest_anwar.line.0b
+cs Release notes ve dvě ráno. Klasika.
+en Release notes at two in the morning. Classic.
+sk Release notes o druhej ráno. Klasika.
+uk Реліз-ноти о другій ночі. Класика.
+
+regular.guest_anwar.line.0c
+cs Lidi, co pracují v noci, si zaslouží lepší aplikace. A lepší kávu.
+en People who work nights deserve better apps. And better coffee.
+sk Ľudia, čo pracujú v noci, si zaslúžia lepšie aplikácie. A lepšiu kávu.
+uk Люди, які працюють уночі, заслуговують на кращі застосунки. І на кращу каву.
+
+ui.ending.credits_thanks
+cs Díky, Anwar, za Shiftellu — a za každou noční směnu, která je díky ní o kousek lehčí.
+en Thank you, Anwar, for Shiftella — and for every night shift it makes a little lighter.
+sk Vďaka, Anwar, za Shiftellu — a za každú nočnú zmenu, ktorá je vďaka nej o kúsok ľahšia.
+uk Дякуємо, Anwar, за Shiftella — і за кожну нічну зміну, яку вона робить трохи легшою.

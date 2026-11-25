@@ -1,0 +1,667 @@
+# Base UI vocabulary, part 1: common, language, menu, settings, units, counts, enums.
+
+ui.common.ok
+cs OK
+en OK
+sk OK
+uk OK
+
+ui.common.confirm
+cs Potvrdit
+en Confirm
+sk Potvrdiť
+uk Підтвердити
+
+ui.common.cancel
+cs Zrušit
+en Cancel
+sk Zrušiť
+uk Скасувати
+
+ui.common.undo
+cs Zpět
+en Undo
+sk Späť
+uk Скасувати дію
+
+ui.common.redo
+cs Znovu
+en Redo
+sk Znova
+uk Повторити
+
+ui.common.close
+cs Zavřít
+en Close
+sk Zavrieť
+uk Закрити
+
+ui.common.back
+cs Zpět
+en Back
+sk Späť
+uk Назад
+
+ui.common.next
+cs Další
+en Next
+sk Ďalej
+uk Далі
+
+ui.common.yes
+cs Ano
+en Yes
+sk Áno
+uk Так
+
+ui.common.no
+cs Ne
+en No
+sk Nie
+uk Ні
+
+ui.common.on
+cs Zapnuto
+en On
+sk Zapnuté
+uk Увімк.
+
+ui.common.off
+cs Vypnuto
+en Off
+sk Vypnuté
+uk Вимк.
+
+ui.common.done
+cs Hotovo
+en Done
+sk Hotovo
+uk Готово
+
+ui.common.more
+cs Podrobnosti
+en Details
+sk Podrobnosti
+uk Детальніше
+
+ui.common.collapse
+cs Sbalit
+en Collapse
+sk Zbaliť
+uk Згорнути
+
+ui.common.show_on_map
+cs Ukázat na mapě
+en Show on map
+sk Ukázať na mape
+uk Показати на мапі
+
+ui.common.undone
+cs Vráceno
+en Undone
+sk Vrátené
+uk Скасовано
+
+ui.common.works_while_paused
+cs Tlačítka fungují i v pauze
+en Buttons work while paused, too
+sk Tlačidlá fungujú aj počas pauzy
+uk Кнопки працюють і на паузі
+
+ui.common.not_enough_money
+cs Chybí {money}
+en {money} short
+sk Chýba {money}
+uk Бракує {money}
+
+ui.lang.title
+cs Vyber jazyk
+en Choose your language
+sk Vyber jazyk
+uk Обери мову
+
+ui.lang.hint
+cs Jazyk můžeš kdykoli změnit v Nastavení.
+en You can change it any time in Settings.
+sk Jazyk môžeš kedykoľvek zmeniť v Nastaveniach.
+uk Мову можна змінити будь-коли в Налаштуваннях.
+
+ui.menu.subtitle
+cs Kavárna U Výhybky · 22:00–06:00
+en Café U Výhybky · 22:00–06:00
+sk Kaviareň U Výhybky · 22:00–06:00
+uk Кав'ярня U Výhybky · 22:00–06:00
+
+ui.menu.continue
+cs Pokračovat
+en Continue
+sk Pokračovať
+uk Продовжити
+
+ui.menu.continue_hint
+cs noc {night} · {time}
+en night {night} · {time}
+sk noc {night} · {time}
+uk ніч {night} · {time}
+
+ui.menu.new_story
+cs Příběh
+en Story
+sk Príbeh
+uk Історія
+
+ui.menu.new_story_hint
+cs 30 nocí U Výhybky
+en 30 nights at U Výhybky
+sk 30 nocí U Výhybky
+uk 30 ночей у U Výhybky
+
+ui.menu.sandbox
+cs Sandbox
+en Sandbox
+sk Sandbox
+uk Пісочниця
+
+ui.menu.sandbox_hint
+cs nekonečné noci, náhodné město
+en endless nights, a random town
+sk nekonečné noci, náhodné mesto
+uk безкінечні ночі, випадкове місто
+
+ui.menu.load
+cs Načíst
+en Load
+sk Načítať
+uk Завантажити
+
+ui.menu.settings
+cs Nastavení
+en Settings
+sk Nastavenia
+uk Налаштування
+
+ui.menu.quit
+cs Konec
+en Quit
+sk Koniec
+uk Вихід
+
+ui.menu.quit_unsaved
+cs Odejít bez uložení?
+en Quit without saving?
+sk Odísť bez uloženia?
+uk Вийти без збереження?
+
+ui.menu.footer
+cs ↑ ↓ — vybrat · Enter — otevřít · Esc — zpět
+en ↑ ↓ — select · Enter — open · Esc — back
+sk ↑ ↓ — vybrať · Enter — otvoriť · Esc — späť
+uk ↑ ↓ — вибрати · Enter — відкрити · Esc — назад
+
+ui.menu.version
+cs verze {version}
+en version {version}
+sk verzia {version}
+uk версія {version}
+
+ui.pause.title
+cs Pauza
+en Paused
+sk Pauza
+uk Пауза
+
+ui.pause.resume
+cs Pokračovat
+en Resume
+sk Pokračovať
+uk Продовжити
+
+ui.pause.save
+cs Uložit hru
+en Save game
+sk Uložiť hru
+uk Зберегти гру
+
+ui.pause.main_menu
+cs Hlavní menu
+en Main menu
+sk Hlavné menu
+uk Головне меню
+
+ui.settings.title
+cs Nastavení
+en Settings
+sk Nastavenia
+uk Налаштування
+
+ui.settings.language
+cs Jazyk
+en Language
+sk Jazyk
+uk Мова
+
+ui.settings.volume_master
+cs Hlasitost
+en Master volume
+sk Hlasitosť
+uk Загальна гучність
+
+ui.settings.volume_music
+cs Hudba
+en Music
+sk Hudba
+uk Музика
+
+ui.settings.volume_sfx
+cs Zvuky
+en Sound effects
+sk Zvuky
+uk Звуки
+
+ui.settings.volume_ambience
+cs Atmosféra (déšť, vlaky)
+en Ambience (rain, trains)
+sk Atmosféra (dážď, vlaky)
+uk Атмосфера (дощ, поїзди)
+
+ui.settings.mute
+cs Ztlumit zvuk (M)
+en Mute (M)
+sk Stlmiť zvuk (M)
+uk Вимкнути звук (M)
+
+ui.settings.ui_scale
+cs Velikost rozhraní
+en UI scale
+sk Veľkosť rozhrania
+uk Масштаб інтерфейсу
+
+ui.settings.difficulty
+cs Obtížnost
+en Difficulty
+sk Obťažnosť
+uk Складність
+
+ui.settings.pause_on_events
+cs Pauza při důležitých událostech
+en Pause on important events
+sk Pauza pri dôležitých udalostiach
+uk Пауза під час важливих подій
+
+ui.settings.fullscreen
+cs Celá obrazovka
+en Fullscreen
+sk Celá obrazovka
+uk Повний екран
+
+ui.settings.reset
+cs Obnovit výchozí
+en Reset to defaults
+sk Obnoviť predvolené
+uk Скинути до типових
+
+ui.unit.minutes_short
+cs {m} min
+en {m} min
+sk {m} min
+uk {m} хв
+
+ui.unit.hours_short
+cs {h} h
+en {h} h
+sk {h} h
+uk {h} год
+
+ui.unit.hours_minutes_short
+cs {h} h {m} min
+en {h} h {m} min
+sk {h} h {m} min
+uk {h} год {m} хв
+
+ui.unit.percent
+cs {n} %
+en {n}%
+sk {n} %
+uk {n}%
+
+ui.unit.celsius
+cs {n} °C
+en {n} °C
+sk {n} °C
+uk {n} °C
+
+ui.count.guests.one
+cs {n} host
+en {n} guest
+sk {n} hosť
+uk {n} гість
+
+ui.count.guests.few
+cs {n} hosté
+en {n} guests
+sk {n} hostia
+uk {n} гості
+
+ui.count.guests.many
+cs {n} hostů
+en {n} guests
+sk {n} hostí
+uk {n} гостей
+
+ui.count.nights.one
+cs {n} noc
+en {n} night
+sk {n} noc
+uk {n} ніч
+
+ui.count.nights.few
+cs {n} noci
+en {n} nights
+sk {n} noci
+uk {n} ночі
+
+ui.count.nights.many
+cs {n} nocí
+en {n} nights
+sk {n} nocí
+uk {n} ночей
+
+ui.count.events.one
+cs {n} událost
+en {n} event
+sk {n} udalosť
+uk {n} подія
+
+ui.count.events.few
+cs {n} události
+en {n} events
+sk {n} udalosti
+uk {n} події
+
+ui.count.events.many
+cs {n} událostí
+en {n} events
+sk {n} udalostí
+uk {n} подій
+
+ui.count.staff.one
+cs {n} člověk
+en {n} person
+sk {n} človek
+uk {n} людина
+
+ui.count.staff.few
+cs {n} lidé
+en {n} people
+sk {n} ľudia
+uk {n} людини
+
+ui.count.staff.many
+cs {n} lidí
+en {n} people
+sk {n} ľudí
+uk {n} людей
+
+ui.count.notes.one
+cs {n} vzkaz
+en {n} note
+sk {n} odkaz
+uk {n} записка
+
+ui.count.notes.few
+cs {n} vzkazy
+en {n} notes
+sk {n} odkazy
+uk {n} записки
+
+ui.count.notes.many
+cs {n} vzkazů
+en {n} notes
+sk {n} odkazov
+uk {n} записок
+
+ui.count.minutes.one
+cs {n} minuta
+en {n} minute
+sk {n} minúta
+uk {n} хвилина
+
+ui.count.minutes.few
+cs {n} minuty
+en {n} minutes
+sk {n} minúty
+uk {n} хвилини
+
+ui.count.minutes.many
+cs {n} minut
+en {n} minutes
+sk {n} minút
+uk {n} хвилин
+
+ui.count.hours.one
+cs {n} hodina
+en {n} hour
+sk {n} hodina
+uk {n} година
+
+ui.count.hours.few
+cs {n} hodiny
+en {n} hours
+sk {n} hodiny
+uk {n} години
+
+ui.count.hours.many
+cs {n} hodin
+en {n} hours
+sk {n} hodín
+uk {n} годин
+
+ui.job.bar
+cs Bar
+en Bar
+sk Bar
+uk Бар
+
+ui.job.kitchen
+cs Kuchyň
+en Kitchen
+sk Kuchyňa
+uk Кухня
+
+ui.job.register
+cs Pokladna
+en Register
+sk Pokladňa
+uk Каса
+
+ui.job.cleaning
+cs Úklid
+en Cleaning
+sk Upratovanie
+uk Прибирання
+
+ui.job.serving
+cs Obsluha
+en Serving
+sk Obsluha
+uk Обслуговування
+
+ui.skill.bar
+cs Baristika
+en Barista
+sk Baristika
+uk Бариста
+
+ui.skill.kitchen
+cs Vaření
+en Cooking
+sk Varenie
+uk Кулінарія
+
+ui.skill.register
+cs Pokladna
+en Cash desk
+sk Pokladňa
+uk Каса
+
+ui.skill.cleaning
+cs Úklid
+en Cleaning
+sk Upratovanie
+uk Прибирання
+
+ui.skill.serving
+cs Obsluha
+en Service
+sk Obsluha
+uk Сервіс
+
+ui.need.energy
+cs Energie
+en Energy
+sk Energia
+uk Енергія
+
+ui.need.mood
+cs Nálada
+en Mood
+sk Nálada
+uk Настрій
+
+ui.need.hunger
+cs Sytost
+en Fullness
+sk Sýtosť
+uk Ситість
+
+ui.need.low
+cs {need}: nízko
+en {need} is low
+sk {need}: nízko
+uk {need}: мало
+
+ui.weather.clear
+cs Jasno
+en Clear
+sk Jasno
+uk Ясно
+
+ui.weather.rain
+cs Déšť
+en Rain
+sk Dážď
+uk Дощ
+
+ui.weather.downpour
+cs Liják
+en Downpour
+sk Lejak
+uk Злива
+
+ui.weather.fog
+cs Mlha
+en Fog
+sk Hmla
+uk Туман
+
+ui.weather.storm
+cs Bouřka
+en Storm
+sk Búrka
+uk Гроза
+
+ui.weather.snow
+cs Sníh
+en Snow
+sk Sneh
+uk Сніг
+
+ui.weather.line
+cs {weather}, {temp} °C
+en {weather}, {temp} °C
+sk {weather}, {temp} °C
+uk {weather}, {temp} °C
+
+ui.weekday.mon
+cs Po
+en Mon
+sk Po
+uk Пн
+
+ui.weekday.mon.long
+cs pondělí
+en Monday
+sk pondelok
+uk понеділок
+
+ui.weekday.tue
+cs Út
+en Tue
+sk Ut
+uk Вт
+
+ui.weekday.tue.long
+cs úterý
+en Tuesday
+sk utorok
+uk вівторок
+
+ui.weekday.wed
+cs St
+en Wed
+sk St
+uk Ср
+
+ui.weekday.wed.long
+cs středa
+en Wednesday
+sk streda
+uk середа
+
+ui.weekday.thu
+cs Čt
+en Thu
+sk Št
+uk Чт
+
+ui.weekday.thu.long
+cs čtvrtek
+en Thursday
+sk štvrtok
+uk четвер
+
+ui.weekday.fri
+cs Pá
+en Fri
+sk Pi
+uk Пт
+
+ui.weekday.fri.long
+cs pátek
+en Friday
+sk piatok
+uk п'ятниця
+
+ui.weekday.sat
+cs So
+en Sat
+sk So
+uk Сб
+
+ui.weekday.sat.long
+cs sobota
+en Saturday
+sk sobota
+uk субота
+
+ui.weekday.sun
+cs Ne
+en Sun
+sk Ne
+uk Нд
+
+ui.weekday.sun.long
+cs neděle
+en Sunday
+sk nedeľa
+uk неділя

@@ -1,0 +1,133 @@
+# Difficulty presets and sandbox setup.
+
+difficulty.cozy.name
+cs Útulně
+en Cozy
+sk Útulne
+uk Затишно
+
+difficulty.cozy.desc
+cs Žádný konec hry. Zmeškaná splátka jen zabručí. Víc peněz, trpělivější hosté. Výchozí.
+en No game over. A missed payment just grumbles. More money, more patient guests. Default.
+sk Žiadny koniec hry. Zmeškaná splátka len zahundre. Viac peňazí, trpezlivejší hostia. Predvolené.
+uk Жодного кінця гри. Пропущений платіж лише побурчить. Більше грошей, терплячіші гості. За замовчуванням.
+
+difficulty.classic.name
+cs Klasika
+en Classic
+sk Klasika
+uk Класика
+
+difficulty.classic.desc
+cs Splátky se počítají. Dvě zmeškané a kavárna zavírá — je to konec příběhu, ne prohra.
+en Payments matter. Miss two and the café closes — an ending to the story, not a defeat.
+sk Splátky sa počítajú. Dve zmeškané a kaviareň zatvára — je to koniec príbehu, nie prehra.
+uk Платежі мають значення. Пропустиш два — кав'ярня зачиниться. Це кінець історії, а не поразка.
+
+sandbox.character.quiet.name
+cs Tiché
+en Quiet
+sk Tiché
+uk Тихі
+
+sandbox.character.quiet.desc
+cs 1–3 události za noc, skoro žádné velké. Na odpočinek.
+en 1–3 events a night, hardly any big ones. For winding down.
+sk 1–3 udalosti za noc, skoro žiadne veľké. Na oddych.
+uk 1–3 події за ніч, майже без великих. Для відпочинку.
+
+sandbox.character.calm.name
+cs Klidné
+en Calm
+sk Pokojné
+uk Спокійні
+
+sandbox.character.calm.desc
+cs 2–4 události za noc, občas větší. Po špatné noci přijde klidná.
+en 2–4 events a night, the occasional big one. A bad night is followed by a calm one.
+sk 2–4 udalosti za noc, občas väčšia. Po zlej noci príde pokojná.
+uk 2–4 події за ніч, іноді велика. Після поганої ночі буде спокійна.
+
+sandbox.character.changeable.name
+cs Proměnlivé
+en Changeable
+sk Premenlivé
+uk Мінливі
+
+sandbox.character.changeable.desc
+cs 3–5 událostí za noc. Jednou klid, jednou fofr.
+en 3–5 events a night. Calm one night, chaos the next.
+sk 3–5 udalostí za noc. Raz pokoj, raz fofr.
+uk 3–5 подій за ніч. То тиша, то шал.
+
+sandbox.character.stormy.name
+cs Bouřlivé
+en Stormy
+sk Búrlivé
+uk Бурхливі
+
+sandbox.character.stormy.desc
+cs 4–6 událostí za noc, potíže chodí ve dvojicích.
+en 4–6 events a night; trouble comes in pairs.
+sk 4–6 udalostí za noc, problémy chodia v pároch.
+uk 4–6 подій за ніч, біда не ходить сама.
+
+sandbox.character.chaotic.name
+cs Chaotické
+en Chaotic
+sk Chaotické
+uk Хаотичні
+
+sandbox.character.chaotic.desc
+cs 5–8 událostí za noc, bez oddechu. Pro otrlé noční ptáky.
+en 5–8 events a night, no breathers. For hardened night owls.
+sk 5–8 udalostí za noc, bez oddychu. Pre otrlé nočné vtáky.
+uk 5–8 подій за ніч, без перепочинку. Для загартованих нічних птахів.
+
+sandbox.institution.taxi_rank
+cs Stanoviště taxi
+en Taxi rank
+sk Stanovisko taxi
+uk Стоянка таксі
+
+sandbox.institution.hospital
+cs Nemocnice
+en Hospital
+sk Nemocnica
+uk Лікарня
+
+sandbox.institution.college
+cs Vysoká škola a koleje
+en College and dorms
+sk Vysoká škola a internáty
+uk Коледж і гуртожитки
+
+sandbox.institution.drone_hub
+cs Dronový uzel
+en Drone hub
+sk Dronový uzol
+uk Вузол дронів
+
+sandbox.institution.depot
+cs Logistické depo
+en Logistics depot
+sk Logistické depo
+uk Логістичне депо
+
+sandbox.institution.culture_house
+cs Kulturní dům
+en Culture house
+sk Kultúrny dom
+uk Будинок культури
+
+sandbox.institution.police
+cs Policie a hasiči
+en Police and fire station
+sk Polícia a hasiči
+uk Поліція й пожежна частина
+
+sandbox.institution.highway
+cs Dálniční odpočívadlo
+en Motorway rest stop
+sk Diaľničné odpočívadlo
+uk Зупинка на автотрасі

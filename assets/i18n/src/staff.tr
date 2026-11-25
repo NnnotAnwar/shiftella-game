@@ -1,0 +1,170 @@
+# Staff archetypes: staff.<id>.role / .bio / .likes / .dislikes
+# Bio describes the story person (story_name); generated sandbox staff show role/likes/dislikes only.
+
+staff.barista.role
+cs Noční baristka
+en Night barista
+sk Nočná baristka
+uk Нічна бариста
+
+staff.barista.bio
+cs Bára utekla z vysoké v Praze a rodičům to neřekla. Kávu dělá líp než diplomovou práci.
+en Bára dropped out of university in Prague and hasn't told her parents. Her coffee is better than her thesis was.
+sk Bára odišla z vysokej v Prahe a rodičom to nepovedala. Kávu robí lepšie ako diplomovku.
+uk Бара покинула університет у Празі й не сказала батькам. Каву вона варить краще, ніж писала диплом.
+
+staff.barista.likes
+cs Hudbu v sále, povídání s hosty
+en Music in the hall, chatting with guests
+sk Hudbu v sále, rozhovory s hosťami
+uk Музику в залі, балачки з гостями
+
+staff.barista.dislikes
+cs Ticho, mytí nádobí
+en Silence, washing up
+sk Ticho, umývanie riadu
+uk Тишу, миття посуду
+
+staff.cook.role
+cs Kuchař
+en Cook
+sk Kuchár
+uk Кухар
+
+staff.cook.bio
+cs Pan Holub vařil dvacet let v závodní jídelně sklárny. Lídu znal a bručí, že „za ní to bylo jinak".
+en Mr Holub cooked for twenty years in the glassworks canteen. He knew Lída and grumbles that "it was different in her day".
+sk Pán Holub varil dvadsať rokov v závodnej jedálni sklárne. Lídu poznal a hundre, že „za nej to bolo inak".
+uk Пан Голуб двадцять років варив у їдальні склозаводу. Він знав Ліду й бурчить, що «за неї все було інакше».
+
+staff.cook.likes
+cs Pořádek v kuchyni, vlastní nůž
+en An orderly kitchen, his own knife
+sk Poriadok v kuchyni, vlastný nôž
+uk Порядок на кухні, власний ніж
+
+staff.cook.dislikes
+cs Spěch, když mu někdo sahá na věci
+en Rushing, people touching his things
+sk Zhon, keď mu niekto siaha na veci
+uk Поспіх, коли хтось чіпає його речі
+
+staff.porter.role
+cs Pomocník a úklid
+en Helper & cleaning
+sk Pomocník a upratovanie
+uk Помічник і прибирання
+
+staff.porter.bio
+cs Kuba dřív tahal bedny ve skladu. Je hodný a všechno mu padá z rukou. Potajmu se učí péct.
+en Kuba used to haul crates at a warehouse. He's kind and drops everything. Secretly, he's learning to bake.
+sk Kuba predtým ťahal debny v sklade. Je dobrý a všetko mu padá z rúk. Potajomky sa učí piecť.
+uk Куба раніше тягав ящики на складі. Він добрий, і в нього все падає з рук. Потай вчиться пекти.
+
+staff.porter.likes
+cs Zvířata (kočky!), jídlo
+en Animals (cats!), food
+sk Zvieratá (mačky!), jedlo
+uk Тварин (котів!), їжу
+
+staff.porter.dislikes
+cs Hlasité hádky
+en Loud arguments
+sk Hlasné hádky
+uk Гучні сварки
+
+staff.cashier.role
+cs Pokladní a sál
+en Register & floor
+sk Pokladníčka a sála
+uk Каса й зала
+
+staff.cashier.bio
+cs Ivana pracuje v noci, zatímco dcera spí u sousedky. Jeden telefonát může rozbít celou směnu.
+en Ivana works nights while her daughter sleeps at the neighbour's. One phone call can upend a whole shift.
+sk Ivana pracuje v noci, kým dcéra spí u susedy. Jeden telefonát môže rozbiť celú zmenu.
+uk Івана працює ночами, поки донька спить у сусідки. Один дзвінок може зірвати всю зміну.
+
+staff.cashier.likes
+cs Přesnost, když ji někdo pochválí
+en Precision, being praised
+sk Presnosť, keď ju niekto pochváli
+uk Точність, коли її хвалять
+
+staff.cashier.dislikes
+cs Zpoždění, chaos
+en Lateness, chaos
+sk Meškanie, chaos
+uk Запізнення, хаос
+
+staff.sound_tech.role
+cs Bar a sál
+en Bar & floor
+sk Bar a sála
+uk Бар і зала
+
+staff.sound_tech.bio
+cs Oleh byl zvukař ve Lvově. „Dočasně" tu pracuje už druhý rok. Umí opravit staré rádio.
+en Oleh was a sound engineer in Lviv. He's been here "temporarily" for two years now. He can fix an old radio.
+sk Oleh bol zvukár vo Ľvove. „Dočasne" tu pracuje už druhý rok. Vie opraviť staré rádio.
+uk Олег був звукорежисером у Львові. «Тимчасово» працює тут уже другий рік. Уміє полагодити старе радіо.
+
+staff.sound_tech.likes
+cs Staré desky, rádio
+en Old records, the radio
+sk Staré platne, rádio
+uk Старі платівки, радіо
+
+staff.sound_tech.dislikes
+cs Levnou kávu
+en Cheap coffee
+sk Lacnú kávu
+uk Дешеву каву
+
+staff.quiet_one.role
+cs Všeuměl
+en All-rounder
+sk Všeumelec
+uk Універсал
+
+staff.quiet_one.bio
+cs Ema slyší houkání vlaků, které nejsou v jízdním řádu. Jako jediná si všimne, že ve 3:33 stojí hodiny.
+en Ema hears the horns of trains that aren't in the timetable. She's the only one who notices the clock stopping at 3:33.
+sk Ema počuje húkanie vlakov, ktoré nie sú v cestovnom poriadku. Ako jediná si všimne, že o 3:33 stoja hodiny.
+uk Ема чує гудки поїздів, яких немає в розкладі. Лише вона помічає, що о 3:33 зупиняється годинник.
+
+staff.quiet_one.likes
+cs Déšť, tiché hodiny mezi druhou a čtvrtou
+en Rain, the quiet hours between two and four
+sk Dážď, tiché hodiny medzi druhou a štvrtou
+uk Дощ, тихі години між другою й четвертою
+
+staff.quiet_one.dislikes
+cs Dav, ostré světlo
+en Crowds, harsh light
+sk Dav, ostré svetlo
+uk Натовп, різке світло
+
+staff.server.role
+cs Obsluha
+en Server
+sk Obsluha
+uk Офіціантка
+
+staff.server.bio
+cs Natália přijela z Košic na týden a zůstala. Nosí čtyři talíře najednou a pamatuje si každé jméno.
+en Natália came from Košice for a week and stayed. She carries four plates at once and remembers every name.
+sk Natália prišla z Košíc na týždeň a zostala. Nosí štyri taniere naraz a pamätá si každé meno.
+uk Наталія приїхала з Košice на тиждень і лишилася. Носить чотири тарілки водночас і пам'ятає кожне ім'я.
+
+staff.server.likes
+cs Čisté stoly, deštivé noci
+en Clean tables, rainy nights
+sk Čisté stoly, daždivé noci
+uk Чисті столи, дощові ночі
+
+staff.server.dislikes
+cs Ulepené podlahy
+en Sticky floors
+sk Ulepené podlahy
+uk Липку підлогу

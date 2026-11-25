@@ -1,0 +1,457 @@
+# Furniture: furniture.<id>.name / furniture.<id>.desc
+
+furniture.table_round.name
+cs Kulatý stolek
+en Round table
+sk Okrúhly stolík
+uk Круглий столик
+
+furniture.table_round.desc
+cs Pro dva a jedno tajemství.
+en For two and one secret.
+sk Pre dvoch a jedno tajomstvo.
+uk Для двох і одного секрету.
+
+furniture.table_socket.name
+cs Stolek se zásuvkou
+en Table with a socket
+sk Stolík so zásuvkou
+uk Столик із розеткою
+
+furniture.table_socket.desc
+cs Studenti za něj prodají duši. A koupí jednu kávu.
+en Students would sell their souls for it. And buy one coffee.
+sk Študenti zaň predajú dušu. A kúpia jednu kávu.
+uk Студенти продадуть за нього душу. І куплять одну каву.
+
+furniture.table_square.name
+cs Velký stůl
+en Large table
+sk Veľký stôl
+uk Великий стіл
+
+furniture.table_square.desc
+cs Pro partu ze směny nebo koncertu.
+en For a group off the shift or out of the concert.
+sk Pre partiu zo zmeny alebo z koncertu.
+uk Для компанії після зміни чи концерту.
+
+furniture.chair.name
+cs Židle
+en Chair
+sk Stolička
+uk Стілець
+
+furniture.chair.desc
+cs Obyčejná, poctivá, z hospody po dědovi někoho.
+en Plain and honest, from someone's grandad's pub.
+sk Obyčajná, poctivá, z krčmy po niečom dedovi.
+uk Звичайний, чесний, із чиєїсь дідової пивнички.
+
+furniture.stool.name
+cs Barová stolička
+en Bar stool
+sk Barová stolička
+uk Барний стілець
+
+furniture.stool.desc
+cs Pro ty, kdo mají čtyři minuty.
+en For those who have four minutes.
+sk Pre tých, čo majú štyri minúty.
+uk Для тих, у кого є чотири хвилини.
+
+furniture.sofa.name
+cs Pohovka
+en Sofa
+sk Pohovka
+uk Диван
+
+furniture.sofa.desc
+cs Měkká jako konec směny. Hosté zůstanou déle.
+en Soft as the end of a shift. Guests stay longer.
+sk Mäkká ako koniec zmeny. Hostia zostanú dlhšie.
+uk М'який, як кінець зміни. Гості затримуються довше.
+
+furniture.armchair.name
+cs Křeslo
+en Armchair
+sk Kreslo
+uk Крісло
+
+furniture.armchair.desc
+cs S lampou vedle tvoří tichý kout.
+en With a lamp beside it, it makes a quiet corner.
+sk S lampou vedľa tvorí tichý kút.
+uk Разом із лампою поруч утворює тихий куточок.
+
+furniture.window_seat.name
+cs Lavice u okna
+en Window seat
+sk Lavica pri okne
+uk Лавка біля вікна
+
+furniture.window_seat.desc
+cs Výhled na nástupiště a déšť. Někdo tu sedává ve 3:33.
+en A view of the platform and the rain. Someone sits here at 3:33.
+sk Výhľad na nástupište a dážď. Niekto tu sedáva o 3:33.
+uk Вид на перон і дощ. Хтось сідає тут о 3:33.
+
+furniture.bar_counter.name
+cs Barový pult
+en Bar counter
+sk Barový pult
+uk Барна стійка
+
+furniture.bar_counter.desc
+cs Za dlaždici. Lídin byl z jednoho kusu dubu.
+en Per tile. Lída's was a single piece of oak.
+sk Za dlaždicu. Lídin bol z jedného kusa duba.
+uk За клітинку. Лідина була з цілого дуба.
+
+furniture.counter_corner.name
+cs Rohový pult
+en Corner counter
+sk Rohový pult
+uk Кутова стійка
+
+furniture.counter_corner.desc
+cs Aby pult mohl zahnout za roh.
+en So the counter can turn a corner.
+sk Aby pult mohol zabočiť za roh.
+uk Щоб стійка могла повернути за ріг.
+
+furniture.register.name
+cs Pokladna
+en Register
+sk Pokladňa
+uk Каса
+
+furniture.register.desc
+cs Bere karty, telefony i staré dobré mince. Ty československé ne.
+en Takes cards, phones and good old coins. Not the Czechoslovak ones.
+sk Berie karty, telefóny aj staré dobré mince. Tie československé nie.
+uk Приймає картки, телефони й старі добрі монети. Крім чехословацьких.
+
+furniture.coffee_machine.name
+cs Kávovar Rapid
+en Rapid coffee machine
+sk Kávovar Rapid
+uk Кавоварка «Рапід»
+
+furniture.coffee_machine.desc
+cs Syčí, jako by se urazil. Kouše.
+en Hisses as if offended. Bites.
+sk Syčí, akoby sa urazil. Hryzie.
+uk Шипить, ніби образилася. Кусається.
+
+furniture.espresso_grinder.name
+cs Mlýnek na kávu
+en Coffee grinder
+sk Mlynček na kávu
+uk Кавомолка
+
+furniture.espresso_grinder.desc
+cs Čerstvě namletá vůně, která láká z nástupiště.
+en A freshly ground scent that lures people in from the platform.
+sk Čerstvo zomletá vôňa, ktorá láka z nástupišťa.
+uk Аромат свіжого помелу, що вабить із перону.
+
+furniture.stove.name
+cs Sporák
+en Stove
+sk Sporák
+uk Плита
+
+furniture.stove.desc
+cs Polévky, topinky a všechno, co hřeje.
+en Soups, toast and everything that warms you up.
+sk Polievky, hrianky a všetko, čo hreje.
+uk Супи, грінки й усе, що зігріває.
+
+furniture.oven.name
+cs Trouba
+en Oven
+sk Rúra
+uk Духовка
+
+furniture.oven.desc
+cs Koláče jsou z ní pořád teplé.
+en Keeps the kolaches warm.
+sk Koláčiky sú z nej stále teplé.
+uk Колачі з неї завжди теплі.
+
+furniture.fridge.name
+cs Lednice
+en Fridge
+sk Chladnička
+uk Холодильник
+
+furniture.fridge.desc
+cs Bručí hlasitěji než rádio. Chlebíčky a medovník.
+en Hums louder than the radio. Open sandwiches and honey cake.
+sk Hučí hlasnejšie ako rádio. Obložené chlebíky a medovník.
+uk Гуде гучніше за радіо. Канапки й медовик.
+
+furniture.sink.name
+cs Dřez
+en Sink
+sk Drez
+uk Мийка
+
+furniture.sink.desc
+cs Bez něj se hrnky nemyjí samy. Bohužel.
+en Cups won't wash themselves without it. Sadly.
+sk Bez neho sa šálky neumývajú samy. Bohužiaľ.
+uk Без неї чашки самі не помиються. На жаль.
+
+furniture.dish_rack.name
+cs Odkapávač
+en Dish rack
+sk Odkvapkávač
+uk Сушарка для посуду
+
+furniture.dish_rack.desc
+cs Víc místa na čisté nádobí.
+en More room for clean dishes.
+sk Viac miesta na čistý riad.
+uk Більше місця для чистого посуду.
+
+furniture.drone_dock.name
+cs Dok pro drony
+en Drone dock
+sk Dok pre drony
+uk Док для дронів
+
+furniture.drone_dock.desc
+cs Zásoby přiletí i v mlze. Dodavatelé se už nezpozdí.
+en Supplies fly in even through the fog. No more late deliveries.
+sk Zásoby priletia aj v hmle. Dodávatelia už nebudú meškať.
+uk Запаси прилітають навіть крізь туман. Постачальники більше не запізнюються.
+
+furniture.trash_bin.name
+cs Koš
+en Bin
+sk Kôš
+uk Смітник
+
+furniture.trash_bin.desc
+cs Méně papírků na podlaze.
+en Fewer napkins on the floor.
+sk Menej papierikov na podlahe.
+uk Менше серветок на підлозі.
+
+furniture.menu_holo_board.name
+cs Holo tabule s menu
+en Holo menu board
+sk Holo tabuľa s menu
+uk Голодошка з меню
+
+furniture.menu_holo_board.desc
+cs Svítí fialově do deště. Písmo jde zvětšit.
+en Glows violet into the rain. The font can be enlarged.
+sk Svieti fialovo do dažďa. Písmo sa dá zväčšiť.
+uk Світиться фіолетовим у дощ. Шрифт можна збільшити.
+
+furniture.plant_small.name
+cs Malá květina
+en Small plant
+sk Malá kvetina
+uk Маленька рослина
+
+furniture.plant_small.desc
+cs Zelená tečka v noci.
+en A green dot in the night.
+sk Zelená bodka v noci.
+uk Зелена цятка в ночі.
+
+furniture.plant_tall.name
+cs Velká monstera
+en Tall monstera
+sk Veľká monstera
+uk Велика монстера
+
+furniture.plant_tall.desc
+cs Roste rychleji než dluh. Skoro.
+en Grows faster than the debt. Almost.
+sk Rastie rýchlejšie ako dlh. Skoro.
+uk Росте швидше за борг. Майже.
+
+furniture.floor_lamp.name
+cs Stojací lampa
+en Floor lamp
+sk Stojacia lampa
+uk Торшер
+
+furniture.floor_lamp.desc
+cs Teplá jantarová louže světla.
+en A warm amber pool of light.
+sk Teplá jantárová kaluž svetla.
+uk Тепла бурштинова калюжа світла.
+
+furniture.pendant_lamp.name
+cs Závěsná lampa
+en Pendant lamp
+sk Závesná lampa
+uk Підвісна лампа
+
+furniture.pendant_lamp.desc
+cs Visí nad stolem a nepřekáží.
+en Hangs over a table and stays out of the way.
+sk Visí nad stolom a neprekáža.
+uk Висить над столом і не заважає.
+
+furniture.bookshelf.name
+cs Knihovna
+en Bookshelf
+sk Knižnica
+uk Книжкова шафа
+
+furniture.bookshelf.desc
+cs Staré knihy, křížovky a jedna kuchařka.
+en Old books, crosswords and one recipe book.
+sk Staré knihy, krížovky a jedna kuchárska kniha.
+uk Старі книжки, кросворди й одна кулінарна книга.
+
+furniture.jukebox.name
+cs Jukebox
+en Jukebox
+sk Jukebox
+uk Музичний автомат
+
+furniture.jukebox.desc
+cs Hraje sám, když někdo smutní.
+en Plays by itself when someone is sad.
+sk Hrá sám, keď niekto smúti.
+uk Грає сам, коли комусь сумно.
+
+furniture.radio.name
+cs Lídino rádio
+en Lída's radio
+sk Lídino rádio
+uk Лідине радіо
+
+furniture.radio.desc
+cs Staré lampové rádio. Kdo ho opraví, možná uslyší víc než hudbu.
+en An old valve radio. Whoever fixes it may hear more than music.
+sk Staré lampové rádio. Kto ho opraví, možno začuje viac ako hudbu.
+uk Старий ламповий приймач. Хто його полагодить, може почути більше, ніж музику.
+
+furniture.rug.name
+cs Koberec
+en Rug
+sk Koberec
+uk Килим
+
+furniture.rug.desc
+cs Tlumí kroky i hádky.
+en Muffles footsteps and arguments.
+sk Tlmí kroky aj hádky.
+uk Глушить кроки й сварки.
+
+furniture.stage_corner.name
+cs Malé pódium
+en Little stage
+sk Malé pódium
+uk Маленька сцена
+
+furniture.stage_corner.desc
+cs Koberec, mikrofon a odvaha. Otevírá večery u mikrofonu.
+en A rug, a microphone and courage. Unlocks open-mic nights.
+sk Koberec, mikrofón a odvaha. Otvára večery pri mikrofóne.
+uk Килим, мікрофон і сміливість. Відкриває вечори біля мікрофона.
+
+furniture.coat_rack.name
+cs Věšák
+en Coat rack
+sk Vešiak
+uk Вішак
+
+furniture.coat_rack.desc
+cs Mokré kabáty mají kam jít. Hosté sedí pohodlněji.
+en Wet coats have somewhere to go. Guests sit more comfortably.
+sk Mokré kabáty majú kam ísť. Hostia sedia pohodlnejšie.
+uk Мокрим пальтам є де висіти. Гостям сидиться зручніше.
+
+furniture.grandma_photo.name
+cs Fotka babičky
+en Grandma's photo
+sk Fotka babky
+uk Бабусине фото
+
+furniture.grandma_photo.desc
+cs Lída se směje někomu mimo záběr. Nikdy neprodávat.
+en Lída laughing at someone outside the frame. Never for sale.
+sk Lída sa smeje na niekom mimo záberu. Nikdy nepredávať.
+uk Ліда сміється до когось за кадром. Ніколи не продавати.
+
+furniture.floor_wood.name
+cs Dřevěná podlaha
+en Wooden floor
+sk Drevená podlaha
+uk Дерев'яна підлога
+
+furniture.floor_wood.desc
+cs Za dlaždici. Vrže tam, kde má.
+en Per tile. Creaks where it should.
+sk Za dlaždicu. Vŕzga tam, kde má.
+uk За клітинку. Рипить там, де треба.
+
+furniture.floor_tile.name
+cs Dlažba
+en Tiled floor
+sk Dlažba
+uk Плитка
+
+furniture.floor_tile.desc
+cs Za dlaždici. Snadno se myje.
+en Per tile. Easy to mop.
+sk Za dlaždicu. Ľahko sa umýva.
+uk За клітинку. Легко мити.
+
+furniture.floor_carpet.name
+cs Koberec na podlahu
+en Carpet
+sk Koberec na podlahu
+uk Ковролін
+
+furniture.floor_carpet.desc
+cs Za dlaždici. Útulné, ale špína je na něm vidět.
+en Per tile. Cosy, but dirt shows.
+sk Za dlaždicu. Útulné, ale špina je na ňom vidieť.
+uk За клітинку. Затишно, але бруд видно.
+
+furniture.wall.name
+cs Zeď
+en Wall
+sk Stena
+uk Стіна
+
+furniture.wall.desc
+cs Drží střechu a fotky.
+en Holds up the roof and the photos.
+sk Drží strechu a fotky.
+uk Тримає дах і фотографії.
+
+furniture.window.name
+cs Okno
+en Window
+sk Okno
+uk Вікно
+
+furniture.window.desc
+cs Ven je vidět déšť. Dovnitř je vidět světlo.
+en From inside you see the rain. From outside, the light.
+sk Von je vidieť dážď. Dnu je vidieť svetlo.
+uk Зсередини видно дощ. Ззовні — світло.
+
+furniture.door.name
+cs Dveře
+en Door
+sk Dvere
+uk Двері
+
+furniture.door.desc
+cs Se zvonkem, který Lída nikdy nedala vyměnit.
+en With the bell Lída never let anyone replace.
+sk So zvončekom, ktorý Lída nikdy nedala vymeniť.
+uk Із дзвіночком, який Ліда так і не дала замінити.
