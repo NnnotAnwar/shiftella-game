@@ -1,0 +1,124 @@
+{
+  "_comment": "Prompts for design/audio/generate.py. Edit text, then run: python3 -I design/audio/generate.py --only <id>. Fields: id (unique), out (path relative to repo root; extension decides the final format: .ogg = Vorbis, .wav = PCM 16-bit), kind music|sfx. Music: prompt, length_ms (3000-600000), force_instrumental, model_id (music_v2_5 recommended; music_v1 is deprecated and removed 2027-01-31). SFX: text, duration_seconds (0.5-30 or null), loop, prompt_influence (0-1), optional model_id (eleven_text_to_sound_v2 | eleven_text_to_sound_v3). normalize: music | ambience | none.",
+  "music": [
+    {
+      "id": "menu_theme",
+      "out": "assets/audio/music/mus_menu_theme.ogg",
+      "prompt": "Instrumental theme for the main menu of a cozy pixel-art management game set in a small café next to a railway station, at night, in the rain. Soft felt piano melody over warm Rhodes chords, gentle vinyl crackle and tape warmth, brushed drums and a round upright bass enter after the first phrase. Nostalgic, tender, slightly melancholic, with a faint hint of mystery from a quiet detuned synth pad. Around 75 BPM, D minor. No vocals. Calm ending that fades out softly.",
+      "length_ms": 75000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
+    },
+    {
+      "id": "night_calm_loop",
+      "out": "assets/audio/music/mus_night_calm_loop.ogg",
+      "prompt": "Loopable instrumental lo-fi hip-hop beat for a quiet late-night shift in a small station café while rain falls outside. Mellow Rhodes and nylon guitar chords, warm muted bass, dusty soft kick and snare with lazy swing, light tape wobble and vinyl hiss, a sparse, simple melody. Leaves plenty of space in the mids and highs for a rain ambience layer. Steady, unchanging energy from start to finish, no intro build-up, no big drop, no fade-out, so the end can loop back to the beginning. Around 72 BPM. No vocals.",
+      "length_ms": 105000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
+    },
+    {
+      "id": "rush_loop",
+      "out": "assets/audio/music/mus_rush_loop.ogg",
+      "prompt": "Loopable upbeat instrumental jazz-hop for a busy rush hour in a cozy café at night: many guests, clinking cups, staff hurrying but still smiling. Brisk swung drums with crisp hi-hats, walking upright bass, bright Rhodes comping, short playful vibraphone and muted trumpet riffs, light vinyl texture. Energetic and warm, never aggressive. Consistent energy throughout, no fade-in and no fade-out, so it loops cleanly. Around 96 BPM. No vocals.",
+      "length_ms": 75000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
+    }
+  ],
+  "sfx": [
+    {
+      "id": "door_bell",
+      "out": "assets/audio/sfx/sfx_door_bell.wav",
+      "text": "A small brass shop bell hanging on a café door jingles as the door opens, short and bright, close indoor perspective, small room",
+      "duration_seconds": 1.5,
+      "loop": false,
+      "prompt_influence": 0.5,
+      "normalize": "none"
+    },
+    {
+      "id": "coffee_machine",
+      "out": "assets/audio/sfx/sfx_coffee_machine.wav",
+      "text": "Espresso machine making a coffee: pump buzzing, liquid pouring into a cup, then a short steam wand hiss and gurgle, café interior, close mic",
+      "duration_seconds": 6,
+      "loop": false,
+      "prompt_influence": 0.5,
+      "normalize": "none"
+    },
+    {
+      "id": "cash_register",
+      "out": "assets/audio/sfx/sfx_cash_register.wav",
+      "text": "Old mechanical cash register ka-ching bell with the drawer sliding open, single short event",
+      "duration_seconds": 1.5,
+      "loop": false,
+      "prompt_influence": 0.5,
+      "normalize": "none"
+    },
+    {
+      "id": "cup_saucer",
+      "out": "assets/audio/sfx/sfx_cup_saucer.wav",
+      "text": "A ceramic coffee cup set down gently on a porcelain saucer, one soft clink, dry close sound",
+      "duration_seconds": 1,
+      "loop": false,
+      "prompt_influence": 0.6,
+      "normalize": "none"
+    },
+    {
+      "id": "footsteps_tile",
+      "out": "assets/audio/sfx/sfx_footsteps_tile.wav",
+      "text": "Footsteps of one person in soft shoes walking at a steady pace across a tiled café floor, about six steps, indoor",
+      "duration_seconds": 3,
+      "loop": false,
+      "prompt_influence": 0.5,
+      "normalize": "none"
+    },
+    {
+      "id": "rain_window_loop",
+      "out": "assets/audio/sfx/amb_rain_window_loop.ogg",
+      "text": "Steady medium rain against a café window at night, soft drips on glass and a gutter trickle, muffled indoor perspective, no thunder, no voices, constant texture",
+      "duration_seconds": 30,
+      "loop": true,
+      "prompt_influence": 0.4,
+      "normalize": "ambience"
+    },
+    {
+      "id": "train_pass_far",
+      "out": "assets/audio/sfx/amb_train_pass_far.ogg",
+      "text": "A passenger train passing a small railway station at night, heard from inside a nearby café through the window: low rumble swelling up, rhythmic wheel clacks over rail joints, then fading away into the distance",
+      "duration_seconds": 12,
+      "loop": false,
+      "prompt_influence": 0.4,
+      "normalize": "ambience"
+    },
+    {
+      "id": "power_outage",
+      "out": "assets/audio/sfx/sfx_power_outage.wav",
+      "text": "Electrical hum of a refrigerator and neon lights in a small café abruptly cuts out with a relay click and a dying electrical buzz, followed by silence",
+      "duration_seconds": 3,
+      "loop": false,
+      "prompt_influence": 0.5,
+      "normalize": "none"
+    },
+    {
+      "id": "ui_click",
+      "out": "assets/audio/sfx/ui_click.wav",
+      "text": "Very short soft user interface click for a cozy pixel-art game menu, warm wooden tick, no reverb",
+      "duration_seconds": 0.5,
+      "loop": false,
+      "prompt_influence": 0.6,
+      "normalize": "none"
+    },
+    {
+      "id": "event_alert",
+      "out": "assets/audio/sfx/ui_alert_event.wav",
+      "text": "Gentle two-note chime notification for a cozy game event alert, soft glassy bell tones, warm and slightly mysterious, short tail",
+      "duration_seconds": 1.5,
+      "loop": false,
+      "prompt_influence": 0.5,
+      "normalize": "none"
+    }
+  ]
+}
