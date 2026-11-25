@@ -1,0 +1,146 @@
+# Main menu, language picker, settings extras and cutscene chrome (owner: cutscene agent).
+# Base vocabulary lives in ui_core.tr / ui_screens.tr (ui.menu.*, ui.settings.*, ui.cutscene.* …).
+
+mainmenu.subtitle
+cs Noční kavárna U Výhybky
+en The night café U Výhybky
+sk Nočná kaviareň U Výhybky
+uk Нічна кав'ярня «U Výhybky»
+
+mainmenu.newgame.title
+cs Nový příběh
+en A new story
+sk Nový príbeh
+uk Нова історія
+
+mainmenu.newgame.hint
+cs Jak mají noci plynout? Obtížnost platí pro celý příběh.
+en How should the nights feel? Difficulty applies to the whole story.
+sk Ako majú noci plynúť? Obtiažnosť platí pre celý príbeh.
+uk Якими мають бути ночі? Складність діє на всю історію.
+
+mainmenu.newgame.recommended
+cs Doporučeno
+en Recommended
+sk Odporúčané
+uk Рекомендовано
+
+mainmenu.newgame.start
+cs Vystoupit v Mlhově
+en Step off at Mlhov
+sk Vystúpiť v Mlhove
+uk Зійти в Млгові
+
+mainmenu.sandbox.dice
+cs Hodit kostkou
+en Roll the dice
+sk Hodiť kockou
+uk Кинути кубик
+
+mainmenu.continue_none
+cs Zatím žádná uložená hra
+en No saved game yet
+sk Zatiaľ žiadna uložená hra
+uk Збережених ігор ще немає
+
+mainmenu.settings.section.language
+cs Jazyk
+en Language
+sk Jazyk
+uk Мова
+
+mainmenu.settings.section.sound
+cs Zvuk
+en Sound
+sk Zvuk
+uk Звук
+
+mainmenu.settings.section.display
+cs Obraz
+en Display
+sk Obraz
+uk Екран
+
+mainmenu.settings.section.story
+cs Příběh
+en Story
+sk Príbeh
+uk Історія
+
+mainmenu.settings.text_speed
+cs Rychlost textu
+en Text speed
+sk Rýchlosť textu
+uk Швидкість тексту
+
+mainmenu.settings.text_speed.slow
+cs Pomalu
+en Slow
+sk Pomaly
+uk Повільно
+
+mainmenu.settings.text_speed.normal
+cs Běžně
+en Normal
+sk Bežne
+uk Звичайно
+
+mainmenu.settings.text_speed.fast
+cs Rychle
+en Fast
+sk Rýchlo
+uk Швидко
+
+mainmenu.settings.text_speed.instant
+cs Hned
+en Instant
+sk Hneď
+uk Одразу
+
+mainmenu.settings.auto_advance
+cs Automaticky pokračovat
+en Auto-advance dialogue
+sk Automaticky pokračovať
+uk Автопрогортання діалогів
+
+mainmenu.settings.pause_hint
+cs Vypnuto: noc plyne dál, události počkají v liště.
+en Off: the night flows on, events wait in the feed.
+sk Vypnuté: noc plynie ďalej, udalosti počkajú v lište.
+uk Вимкнено: ніч триває, події чекають у стрічці.
+
+mainmenu.settings.saved_auto
+cs Ukládá se samo
+en Saved automatically
+sk Ukladá sa samo
+uk Зберігається автоматично
+
+cutsceneui.letter.envelope
+cs Tomu, kdo bude držet světlo
+en To whoever keeps the light
+sk Tomu, kto bude držať svetlo
+uk Тому, хто триматиме світло
+
+cutsceneui.phone.today
+cs Dnes
+en Today
+sk Dnes
+uk Сьогодні
+
+cutsceneui.phone.caption
+cs Noc první
+en Night one
+sk Noc prvá
+uk Ніч перша
+
+cutsceneui.phone.caption_sub
+cs Otevíráme ve 22:00. Světlo v okně už svítí.
+en We open at 22:00. The light in the window is on.
+sk Otvárame o 22:00. Svetlo v okne už svieti.
+uk Відчиняємося о 22:00. Світло у вікні вже горить.
+
+cutsceneui.auto
+cs Auto
+en Auto
+sk Auto
+uk Авто
