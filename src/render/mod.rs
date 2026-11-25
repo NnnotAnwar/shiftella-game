@@ -17,7 +17,7 @@
 //! - Люди: [`PersonLook`] (+ `random(seed, staff)`, `preset(id)`), [`Facing`], [`Pose`],
 //!   [`PersonPose`], [`draw_person`] / [`draw_person_ex`] (с [`Expression`]),
 //!   [`draw_emote`] / [`draw_emote_ex`] ([`Emote`]), [`emote_anchor`], [`draw_selection`],
-//!   [`draw_actor_highlight`], [`sit_anchor`], [`person_sort_key`], [`draw_cup`], [`draw_steam`].
+//!   [`draw_actor_highlight`], [`draw_laptop`], [`draw_shiftella_logo`], [`sit_anchor`], [`person_sort_key`], [`draw_cup`], [`draw_steam`].
 //! - Портреты для диалогов: [`draw_portrait`]`(look, expression, rect, t)` — в текущей
 //!   (UI) камере, фон прозрачный. Пресеты: [`PersonLook::PRESETS`].
 //! - Мебель: [`draw_furniture`]`(id, tile_origin_px, (w,h), &FurnitureState)` для всех
@@ -78,8 +78,9 @@ pub use look::{
 };
 pub use outside::{Weather, draw_holo_sign, draw_outside, draw_train, outside_lights, world_text};
 pub use person::{
-    draw_actor_highlight, draw_cup, draw_emote, draw_emote_ex, draw_person, draw_person_ex,
-    draw_portrait, draw_selection, draw_steam, emote_anchor, person_sort_key, sit_anchor,
+    draw_actor_highlight, draw_cup, draw_emote, draw_emote_ex, draw_laptop, draw_person,
+    draw_person_ex, draw_portrait, draw_selection, draw_shiftella_logo, draw_steam, emote_anchor,
+    person_sort_key, sit_anchor,
 };
 pub use queue::RenderQueue;
 pub use tiles::{
