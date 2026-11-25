@@ -103,3 +103,34 @@ fn sandbox_starts_in_the_day() {
     assert_eq!(g.world.mode(), sim::Mode::Sandbox);
     assert_eq!(g.world.phase(), Phase::Day);
 }
+
+#[test]
+fn story_reaches_an_ending_and_asks_for_credits() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 30, None, true);
+    assert_eq!(g.world.night(), 30);
+    g.start_night(&c);
+    let mut exit = None;
+    let mut guard = 0;
+    while exit.is_none() && guard < 40_000 {
+        if g.cutscene_playing() {
+            g.finish_cutscene_now(&c, &loc);
+        }
+        // the morning summary is closed like the player would
+        g.summary = None;
+        g.advance(&c, TICK_SECONDS * 4.0, Some(&loc));
+        exit = g.exit();
+        guard += 1;
+    }
+    match exit {
+        Some(GameExit::Credits { ending, .. }) => {
+            let e = ending.expect("an ending id");
+            assert!(e == "light" || e == "last_train", "{e}");
+        }
+        other => panic!("expected credits, got {other:?}"),
+    }
+    assert!(g.extra.ending_played);
+}

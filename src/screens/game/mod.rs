@@ -599,11 +599,6 @@ impl GameScreen {
                 self.push_ticker(Icon::Warning, t.clone());
                 self.toast(ToastKind::Warning, Icon::Crew, t, None);
             }
-            SimEvent::DishBroken { staff } => {
-                let n = staff_name(&self.world, staff);
-                let t = tr("ui.ticker.dish_broken", &[("name".into(), n)]);
-                self.push_ticker(Icon::Cup, t);
-            }
             SimEvent::WeatherChanged { weather } => {
                 let w = tr(wv::weather_key(weather), &[]);
                 let t = tr("ui.ticker.weather", &[("weather".into(), w)]);
@@ -1041,7 +1036,9 @@ impl GameScreen {
         if self.player.is_playing() {
             self.player.draw_ui(ui, &loc);
         } else {
-            hud::bubble(self, ui, cx);
+            if !matches!(self.panel, Some(Panel::App | Panel::Priorities)) {
+                hud::bubble(self, ui, cx);
+            }
             hud::draw(self, ui, cx);
             match self.panel {
                 Some(Panel::Crew) => panels::crew(self, ui, cx),
