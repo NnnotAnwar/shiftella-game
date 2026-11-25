@@ -21,6 +21,15 @@ pub struct WorldCamera {
 }
 
 impl WorldCamera {
+    /// A camera at `center` (world px) with `zoom` — no window needed (headless tests).
+    pub fn at(center: Vec2, zoom: f32) -> Self {
+        Self {
+            center,
+            zoom: zoom.clamp(MIN_ZOOM, MAX_ZOOM),
+            drag_last: None,
+        }
+    }
+
     /// Камера, которая целиком показывает мир размером `world_size`
     /// внутри прямоугольника экрана `area` (в пикселях экрана).
     pub fn fit(world_size: Vec2, area: Rect) -> Self {
