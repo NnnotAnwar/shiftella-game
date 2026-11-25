@@ -77,6 +77,10 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   Nothing in rendering mutates the sim.
 - Content is data: `assets/data/*.ron`; text in `assets/i18n/{cs,en,sk,uk}.ron`.
 - Run before every commit: `cargo fmt && cargo clippy --all-targets && cargo test` — zero warnings.
+- **Repository language: English.** Code comments, doc comments, docs, README and commit messages are in
+  English (the repo will be public). Player-visible text lives only in `assets/i18n` (cs/en/sk/uk).
+- **Audio is not committed** (ElevenLabs licence: no redistribution outside the game). `assets/audio/` and
+  `design/audio/raw/` are git-ignored; they ship only inside release builds. The game must run without them.
 
 ## 4. Module ownership (to avoid conflicts between parallel agents)
 | Area | Owner | Files |
