@@ -653,6 +653,9 @@ impl MainMenu {
         let ids = self.difficulties.clone();
         for (i, (r, id)) in cards.iter().zip(ids.iter()).enumerate() {
             let uid = ui.id(("diff", i));
+            // Draw the card's glass first: `glass` registers an input region, and a
+            // region declared after `interact` would block this very card next frame.
+            ui.glass(*r, &Glass::card().solid().radius(12.0));
             let resp = ui.interact(uid, *r);
             if resp.clicked {
                 // a second click on the selected card starts
@@ -662,7 +665,6 @@ impl MainMenu {
             }
             let on = self.diff_sel == i;
             let hk = ui.ease_value(uid.with("on"), if on { 1.0 } else { 0.0 }, 0.07);
-            ui.glass(*r, &Glass::card().solid().radius(12.0));
             if hk > 0.01 {
                 crate::ui::draw::push_alpha(hk);
                 fill_rrect(
