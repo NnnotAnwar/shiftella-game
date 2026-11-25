@@ -10,9 +10,11 @@ use macroquad::prelude::*;
 use super::world_view::{self as wv, sim};
 use crate::camera::WorldCamera;
 use crate::content::Content;
+use crate::cutscene::CutscenePlayer;
+use crate::cutscene::scene::{draw_suitcase, is_lamp_sprite};
 use crate::map::TILE;
 use crate::render::colors as pal;
-use crate::render::draw::{alpha, radial};
+use crate::render::draw::{alpha, mix, radial};
 use crate::render::*;
 use sim::{AgentRef, AgentView, World};
 
@@ -298,6 +300,44 @@ impl WorldScene {
         hovered: Option<AgentRef>,
         extra: &mut dyn FnMut(&mut RenderQueue),
     ) {
+        self.draw_with(world, content, cam, t, selected, hovered, extra, None);
+    }
+
+    /// Draws the live café as the set of a story cutscene: the player's camera, actors,
+    /// train and lamps (dark café, the lighting-up cascade) over the real map, furniture,
+    /// weather and the frozen night. People the scene plays itself are hidden here.
+    pub fn draw_cutscene(
+        &mut self,
+        world: &World,
+        content: &Content,
+        t: f32,
+        player: &CutscenePlayer,
+    ) {
+        let cam = player.world_camera();
+        self.draw_with(
+            world,
+            content,
+            &cam,
+            t,
+            None,
+            None,
+            &mut |_| {},
+            Some(player),
+        );
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn draw_with(
+        &mut self,
+        world: &World,
+        content: &Content,
+        cam: &Camera2D,
+        t: f32,
+        selected: Option<AgentRef>,
+        hovered: Option<AgentRef>,
+        extra: &mut dyn FnMut(&mut RenderQueue),
+        cs: Option<&CutscenePlayer>,
+    ) {
         if self.lighting.is_none() {
             self.lighting = Some(Lighting::new());
         }
@@ -310,7 +350,17 @@ impl WorldScene {
             }
         }
         let blackout = world.blackout();
-        let weather = wv::rain_of(world.weather());
+        let mut weather = wv::rain_of(world.weather());
+        // the opening always arrives in the rain
+        if cs.is_some_and(|p| p.current_id() == "opening") && weather.intensity < 0.5 {
+            weather = Weather::default();
+        }
+        // stage lights: 1 = the café as the sim has it, 0 = dark and closed
+        let level = cs.map_or(1.0, |p| p.scene.light_level());
+        let lamp_k = |sprite: &str, origin: Vec2| match cs {
+            Some(p) if is_lamp_sprite(sprite) => p.scene.lamp_at(origin),
+            _ => 1.0,
+        };
         set_camera(cam);
         clear_background(pal::NIGHT_0);
         let ms = vec2(self.size.0 as f32, self.size.1 as f32) * TILE;
@@ -322,7 +372,10 @@ impl WorldScene {
             pal::VIOLET_NIGHT_1,
             alpha(pal::NIGHT_0, 0.0),
         );
-        let train_p = self.train.unwrap_or(-1.0);
+        let train_p = match cs {
+            Some(p) => p.train_progress().unwrap_or(-1.0),
+            None => self.train.unwrap_or(-1.0),
+        };
         draw_outside(self.street, t);
         draw_train(self.street, train_p, t);
         draw_holo_sign(
@@ -358,7 +411,7 @@ impl WorldScene {
                 .unwrap_or_else(|| p.def.clone());
             let origin = vec2(v.tile.0 as f32, v.tile.1 as f32) * TILE;
             let st = FurnitureState {
-                active: v.active,
+                active: v.active && lamp_k(&sprite, origin) > 0.5,
                 dirty: v.dirty,
                 t,
                 facing: wv::facing(v.facing),
@@ -378,17 +431,37 @@ impl WorldScene {
             if is_table && !lamps_at.contains(&(v.tile.0, v.tile.1)) {
                 let origin = vec2(v.tile.0 as f32, v.tile.1 as f32) * TILE;
                 let st = FurnitureState {
-                    active: !blackout,
+                    active: !blackout && lamp_k("pendant_lamp", origin) > 0.5,
                     t,
                     ..Default::default()
                 };
                 pieces.push(("pendant_lamp".into(), origin, (1, 1), st));
             }
         }
-        // people
+        // people (in a cutscene: the frozen night minus the ones the scene plays itself)
         let mut looks = Vec::with_capacity(self.people.len());
-        let people = std::mem::take(&mut self.people);
-        for v in &people {
+        let all_people = std::mem::take(&mut self.people);
+        let staged_people: Vec<AgentView>;
+        let people: &[AgentView] = match cs {
+            None => &all_people,
+            Some(p) => {
+                let staged: Vec<&str> = p.stage_cast().collect();
+                staged_people = all_people
+                    .iter()
+                    .filter(|v| !staged.contains(&v.look.source.as_str()))
+                    .cloned()
+                    .map(|mut v| {
+                        // the clock is stopped: nobody walks on the spot
+                        if v.pose == sim::Pose::Walk {
+                            v.pose = sim::Pose::Idle;
+                        }
+                        v
+                    })
+                    .collect();
+                &staged_people
+            }
+        };
+        for v in people {
             looks.push(self.look(&v.look));
         }
         let poses: Vec<PersonPose> = people.iter().map(|v| wv::person_pose(v, t)).collect();
@@ -431,6 +504,27 @@ impl WorldScene {
                 }
             }
         }
+        // the scene's own actors
+        let actor_poses: Vec<PersonPose> = cs
+            .map(|p| p.actors.iter().map(|a| a.pose(t)).collect())
+            .unwrap_or_default();
+        if let Some(p) = cs {
+            for (a, pose) in p.actors.iter().zip(&actor_poses) {
+                if a.gone || a.alpha <= 0.01 {
+                    continue;
+                }
+                if a.suitcase {
+                    let feet = pose.feet;
+                    let side = if pose.facing == Facing::Left {
+                        16.0
+                    } else {
+                        -16.0
+                    };
+                    q.push_custom(feet.y + 0.5, move || draw_suitcase(feet + vec2(side, 0.0)));
+                }
+                q.push_person(&a.look, *pose);
+            }
+        }
         // roof leaks: a bucket under the drip
         let buckets: Vec<(Vec2, FurnitureState)> = world
             .bucket_tiles()
@@ -455,19 +549,26 @@ impl WorldScene {
         let ambient = if blackout {
             ambient_blackout()
         } else {
-            ambient_for(if world.phase() == sim::Phase::Day {
-                0.02
+            let p = if world.phase() == sim::Phase::Day {
+                // a cutscene before the first night plays in the evening, not at noon
+                if cs.is_some() { 0.15 } else { 0.02 }
             } else {
                 world.night_progress().clamp(0.0, 1.0)
-            })
+            };
+            mix(ambient_blackout(), ambient_for(p), level)
         };
         let lighting = self.lighting.as_mut().expect("created above");
         lighting.begin(cam, ambient);
         lighting.set_time(t);
-        lighting.add_window_light(if blackout { 0.55 } else { 1.0 });
+        lighting.add_window_light(if blackout { 0.55 } else { 0.35 + 0.65 * level });
         lighting.train_sweep(train_p);
-        for (sprite, origin, size, st) in &pieces {
-            for l in furniture_lights(sprite, *origin, *size, st) {
+        for (i, (sprite, origin, size, st)) in pieces.iter().enumerate() {
+            let k = lamp_k(sprite, *origin);
+            for mut l in furniture_lights(sprite, *origin, *size, st) {
+                // switching on: a short warm flicker
+                if k < 1.0 {
+                    l.intensity *= k * (0.75 + 0.25 * (t * 41.0 + i as f32).sin().abs());
+                }
                 lighting.add_light(l);
             }
         }
@@ -506,9 +607,28 @@ impl WorldScene {
                 ));
             }
         }
+        if let Some(p) = cs {
+            for (a, pose) in p.actors.iter().zip(&actor_poses) {
+                if a.gone {
+                    continue;
+                }
+                if a.hand_light {
+                    lighting.add_light(
+                        Light::new(pose.feet - vec2(0.0, 30.0), 3.0 * TILE, pal::AMBER, 1.1)
+                            .flicker(0.04),
+                    );
+                } else if level < 0.5 {
+                    lighting.add_light(Light::actor_spot(pose.feet));
+                }
+            }
+        }
         lighting.apply();
 
-        // hover ring + emotes on top of the light
+        // hover ring + emotes on top of the light (not in cutscenes)
+        if cs.is_some() {
+            self.people = all_people;
+            return;
+        }
         for ((v, look), pose) in people.iter().zip(&looks).zip(&poses) {
             if Some(v.agent) == hovered && Some(v.agent) != selected {
                 draw_actor_highlight(pose.feet, t);
@@ -518,7 +638,7 @@ impl WorldScene {
                 draw_emote_ex(emote_anchor(look, pose), *e, age, t);
             }
         }
-        self.people = people;
+        self.people = all_people;
     }
 
     /// What is under the world point `p` (people first, then furniture, then the tile).

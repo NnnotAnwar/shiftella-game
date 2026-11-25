@@ -112,6 +112,21 @@ impl Map {
         }
     }
 
+    /// A map filled by `tile(x, y)` (e.g. a walkability copy of the live sim grid).
+    pub fn from_fn(width: usize, height: usize, mut tile: impl FnMut(usize, usize) -> Tile) -> Map {
+        let mut tiles = Vec::with_capacity(width * height);
+        for y in 0..height {
+            for x in 0..width {
+                tiles.push(tile(x, y));
+            }
+        }
+        Map {
+            width,
+            height,
+            tiles,
+        }
+    }
+
     pub fn get(&self, x: usize, y: usize) -> Option<Tile> {
         if x < self.width && y < self.height {
             Some(self.tiles[y * self.width + x])

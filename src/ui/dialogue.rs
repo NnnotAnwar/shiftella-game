@@ -430,7 +430,9 @@ impl DialogueBox {
         ui.end_scroll(s);
     }
 
-    /// Centred narration over a dim overlay. Same advance / skip rules as the box.
+    /// Narration: a solid glass card low on the screen (where the dialogue box sits), so the
+    /// scene stays visible and the text reads on any background. Same advance / skip rules
+    /// as the box.
     pub fn narration_box(&mut self, ui: &mut Ui, text: &str) -> DialogueResponse {
         self.track(None, text);
         let t = ui.theme.clone();
@@ -438,35 +440,63 @@ impl DialogueBox {
         let id = ui.id("narration_box");
         ui.region(screen);
         let catcher = ui.interact(id, screen);
-        fill_rrect(screen, 0.0, Color::new(0.027, 0.024, 0.07, 0.62));
-        let st = TextStyle::new(17.0, Weight::Medium, t.text)
-            .line_height(1.6)
+        let st = TextStyle::new(16.0, Weight::Medium, t.text)
+            .line_height(1.55)
             .tracking(0.1);
-        let w = (screen.w - 96.0).min(580.0);
-        let lines = ui.fonts.wrap(text, w, &st);
+        let pad_x = 30.0;
+        let pad_y = 20.0;
+        let max_w = (screen.w - 48.0).min(760.0);
+        let lines = ui.fonts.wrap(text, max_w - 2.0 * pad_x, &st);
+        // shrink the card to the longest line (short lines don't float in a wide box)
+        let widest = lines
+            .iter()
+            .map(|l| ui.fonts.measure(l, &st))
+            .fold(0.0, f32::max);
+        let w = (widest + 2.0 * pad_x).clamp(360.0_f32.min(max_w), max_w);
         let total = reveal_len(&lines);
         let skipping = self.wants_skip(ui);
         let visible = self.tick(ui, total, skipping);
-        let h = lines.len() as f32 * st.line_h();
-        let r = Rect::new((screen.w - w) / 2.0, (screen.h - h) / 2.0 - 12.0, w, h);
-        // soft vignette glow behind the text
-        draw::glow_circle(
-            vec2(screen.w / 2.0, r.center_y()),
-            w * 0.62,
-            with_a(t.indigo_600, 0.10),
+        let text_h = lines.len().max(1) as f32 * st.line_h();
+        let h = text_h + 2.0 * pad_y;
+        let r = Rect::new(
+            ((screen.w - w) / 2.0).round(),
+            (screen.h - 20.0 - self.bottom_inset - h).round(),
+            w.round(),
+            h.round(),
         );
+        // a soft dark wash behind the card keeps it legible over bright lamps
+        let wash = Rect::new(0.0, r.y - 80.0, screen.w, screen.h - r.y + 80.0);
+        fill_rrect(
+            wash,
+            0.0,
+            Paint::vertical(
+                wash,
+                Color::new(0.027, 0.024, 0.07, 0.0),
+                Color::new(0.027, 0.024, 0.07, 0.55),
+            ),
+        );
+        ui.glass(r, &Glass::panel().solid().radius(14.0));
+        // a thin violet accent marks narration (vs. a spoken line)
+        let accent = Rect::new(r.x + 12.0, r.y + 16.0, 3.0, r.h - 32.0);
+        fill_rrect(
+            accent,
+            1.5,
+            Paint::vertical(accent, with_a(t.indigo_300, 0.9), with_a(t.violet, 0.5)),
+        );
+        let text_r = Rect::new(r.x + pad_x, r.y + pad_y, r.w - 2.0 * pad_x, text_h);
         ui.fonts
-            .draw_lines(&lines, r, &st, Align::Center, None, visible);
+            .draw_lines(&lines, text_r, &st, Align::Left, None, visible);
         let revealed = visible >= total;
         if revealed {
-            let blink = 0.5 + 0.5 * ((ui.time() * 3.2).sin() as f32);
+            let blink = 0.55 + 0.45 * ((ui.time() * 3.2).sin() as f32);
+            let bob = ((ui.time() * 3.2).sin() as f32) * 1.5;
             draw::push_alpha(blink);
-            let c = vec2(screen.w / 2.0, r.bottom() + 22.0);
+            let c = vec2(r.right() - 16.0 + bob, r.bottom() - 16.0);
             fill_convex(
                 &[
-                    c + vec2(-5.0, -3.5),
-                    c + vec2(5.0, -3.5),
-                    c + vec2(0.0, 4.0),
+                    c + vec2(-4.0, -5.5),
+                    c + vec2(5.0, 0.0),
+                    c + vec2(-4.0, 5.5),
                 ],
                 Paint::Solid(t.indigo_300),
             );

@@ -134,6 +134,16 @@ impl App {
         Screen::Game(Box::new(g))
     }
 
+    /// A game screen whose cutscene text appears at once in screenshot runs
+    /// (set after [`App::game`], which applies the player's text speed).
+    fn game_instant_text(&mut self, g: GameScreen, shot: bool) -> Screen {
+        let mut s = self.game(g);
+        if shot && let Screen::Game(g) = &mut s {
+            g.player.set_text_speed(0.0);
+        }
+        s
+    }
+
     fn load(&mut self, slot: Option<Slot>) -> Option<Screen> {
         let slot = slot.or_else(|| self.store.latest().map(|(s, _)| s))?;
         match self
@@ -172,10 +182,7 @@ impl App {
                     let loc = Locale::new(&self.i18n, lang);
                     g.player.fast_forward(&loc, t);
                 }
-                if shot {
-                    g.player.set_text_speed(0.0);
-                }
-                self.game(g)
+                self.game_instant_text(g, shot)
             }
             "story_day1" => {
                 let g = GameScreen::new_story(&content, "cozy", true);
@@ -229,10 +236,7 @@ impl App {
                 if let Some(t) = env("SHIFTELLA_T").and_then(|t| t.parse::<f32>().ok()) {
                     g.player.fast_forward(&Locale::new(&self.i18n, lang), t);
                 }
-                if shot {
-                    g.player.set_text_speed(0.0);
-                }
-                self.game(g)
+                self.game_instant_text(g, shot)
             }
             "credits" => Screen::Credits(Box::new(Credits::new(
                 &self.ui,

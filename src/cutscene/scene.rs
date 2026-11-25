@@ -43,24 +43,32 @@ impl Piece {
         self
     }
     fn is_lamp(&self) -> bool {
-        matches!(
-            self.sprite,
-            "floor_lamp"
-                | "pendant_lamp"
-                | "jukebox"
-                | "menu_holo_board"
-                | "register"
-                | "coffee_machine"
-                | "radio"
-                | "stove"
-                | "oven"
-                | "fridge"
-                | "candle"
-                | "table_round_2"
-                | "table_square_4"
-        )
+        is_lamp_sprite(self.sprite)
     }
 }
+
+/// Furniture that goes dark with the closed café and lights up in the opening cascade.
+pub fn is_lamp_sprite(sprite: &str) -> bool {
+    matches!(
+        sprite,
+        "floor_lamp"
+            | "pendant_lamp"
+            | "jukebox"
+            | "menu_holo_board"
+            | "register"
+            | "coffee_machine"
+            | "radio"
+            | "stove"
+            | "oven"
+            | "fridge"
+            | "candle"
+            | "table_round_2"
+            | "table_square_4"
+    )
+}
+
+/// Where the opening's lamp cascade starts: the lamp in the window.
+const CASCADE_FIRST: Vec2 = Vec2::new(4.5 * TILE, 2.5 * TILE);
 
 /// The café + street stage.
 pub struct CafeScene {
@@ -84,6 +92,8 @@ pub struct CafeScene {
     pub weather: Weather,
     /// Train progress 0..1 (right → left), `None` = no train.
     pub train: Option<f32>,
+    /// Distance of the farthest lamp from the cascade start (normalises `lamp_at`).
+    cascade_max_d: f32,
     /// 0..1 how "lived-in night" the café looks (ambient when lit).
     pub night_progress: f32,
 }
@@ -113,7 +123,7 @@ impl CafeScene {
             8.55 * TILE,
         );
         // cascade order: the lamp in the window first, then outward
-        let first = vec2(4.5, 2.5) * TILE;
+        let first = CASCADE_FIRST;
         let lamps: Vec<(usize, f32)> = furniture
             .iter()
             .enumerate()
@@ -145,6 +155,7 @@ impl CafeScene {
             weather: Weather::default(),
             train: None,
             night_progress: 0.15,
+            cascade_max_d: max_d,
         }
     }
 
@@ -163,6 +174,23 @@ impl CafeScene {
     pub fn lights_cascade(&mut self, seconds: f32) {
         self.lights_target = 1.0;
         self.cascade = Some((0.0, seconds.max(0.1)));
+    }
+
+    /// Brightness 0..1 of a lamp standing at `origin` (world px). Lets the live café follow
+    /// the stage lights: dark in the opening, then lit one by one from the window outward.
+    pub fn lamp_at(&self, origin: Vec2) -> f32 {
+        match self.cascade {
+            Some((p, dur)) => {
+                let d = origin.distance(CASCADE_FIRST);
+                let at = if d < TILE {
+                    0.0
+                } else {
+                    0.18 + 0.82 * (d / self.cascade_max_d).min(1.0)
+                };
+                ((p - at) * dur / 0.35).clamp(0.0, 1.0)
+            }
+            None => self.light_level(),
+        }
     }
 
     pub fn cascade_done(&self) -> bool {
@@ -408,7 +436,8 @@ impl CafeScene {
     }
 }
 
-fn draw_suitcase(p: Vec2) {
+/// The heir's suitcase beside the feet (opening).
+pub fn draw_suitcase(p: Vec2) {
     soft_shadow(p.x, p.y, 11.0, 3.5, 0.5);
     rrect_v(
         p.x - 9.0,

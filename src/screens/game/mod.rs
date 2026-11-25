@@ -211,6 +211,7 @@ impl GameScreen {
         if skip_opening {
             g.extra.opening_seen = Some(Vec::new());
         } else if let Some(def) = content.cutscene("opening") {
+            g.stage_player();
             g.player.start(def);
             g.intro = true;
         }
@@ -339,6 +340,32 @@ impl GameScreen {
         }
     }
 
+    /// Hands the live café to the cutscene player: walkability for actor paths (around the
+    /// player's own furniture) and where tonight's people already are.
+    fn stage_player(&mut self) {
+        use crate::map::{Map, Tile};
+        let g = self.world.grid();
+        let map = Map::from_fn(g.width.max(0) as usize, g.height.max(0) as usize, |x, y| {
+            let (x, y) = (x as i32, y as i32);
+            match g.tile(x, y).map(|t| t.kind) {
+                Some(sim::TileKind::Wall) => Tile::Wall,
+                Some(sim::TileKind::Window) => Tile::Window,
+                Some(sim::TileKind::Door) => Tile::Door,
+                _ if g.walkable(x, y) => Tile::Floor,
+                _ => Tile::Table,
+            }
+        });
+        self.player.set_nav_map(Some(map));
+        let live: Vec<(String, Vec2)> = self
+            .world
+            .staff_views()
+            .into_iter()
+            .chain(self.world.guest_views())
+            .map(|v| (v.look.source.clone(), vec2(v.feet.0, v.feet.1)))
+            .collect();
+        self.player.set_live_cast(live);
+    }
+
     fn start_cutscene(&mut self, content: &Rc<Content>, id: &str) {
         // the opening was shown before Day 1: hand its choices straight to the sim
         if id == "opening"
@@ -364,6 +391,7 @@ impl GameScreen {
             return;
         };
         *self.snapshot.borrow_mut() = Some(self.world.clone());
+        self.stage_player();
         self.player.start(def);
         self.intro = false;
         self.bubble = None;
@@ -865,6 +893,7 @@ impl GameScreen {
     pub fn play_scene(&mut self, content: &Rc<Content>, id: &str) {
         if let Some(def) = content.cutscene(id) {
             *self.snapshot.borrow_mut() = Some(self.world.clone());
+            self.stage_player();
             self.player.start(def);
             self.intro = true;
         }
@@ -996,7 +1025,9 @@ impl GameScreen {
 
         // 2. world
         if self.player.is_playing() {
-            self.player.draw_world();
+            // story scenes play on the live café (its furniture, lamps, weather, people)
+            self.scene
+                .draw_cutscene(&self.world, content, self.time, &self.player);
         } else {
             let wants_mouse = ui.wants_mouse();
             if !wants_mouse && self.pause.is_none() && !self.automation {
