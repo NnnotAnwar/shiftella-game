@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ночная смена — макеты UI</title>
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: #07060F; color: #EEEDF7;
+    font: 14px/1.5 Inter, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  header { max-width: 1320px; margin: 0 auto; padding: 32px 16px 8px; }
+  h1 { font: 700 22px/1.2 Manrope, Inter, sans-serif; margin: 0 0 6px; }
+  header p { margin: 0; color: #A9A7C9; }
+  header a { color: #FF78B4; }
+  nav { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 6px; }
+  nav a { color: #A9A7C9; text-decoration: none; padding: 3px 10px; border-radius: 999px; background: #17162E; font-size: 12px; }
+  nav a:hover { color: #EEEDF7; background: #24223F; }
+  main { max-width: 1320px; margin: 0 auto; padding: 8px 16px 48px; }
+  figure { margin: 28px 0 0; }
+  figure img {
+    display: block; width: 100%; height: auto; aspect-ratio: 16 / 9;
+    border-radius: 10px; box-shadow: 0 10px 40px rgba(0,0,0,.55); background: #0B0A18;
+  }
+  figcaption { margin-top: 10px; display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+  figcaption b { font-size: 15px; }
+  figcaption span { color: #A9A7C9; font-size: 13px; }
+  figcaption code { color: #6F6D97; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Ночная смена — макеты интерфейса</h1>
+  <p>Опорный экран 1280×720 pt, карта под HUD — заглушка. Спецификации: <a href="style-guide.md">style-guide.md</a> · <a href="screens.md">screens.md</a>. Пересборка: <code>python3 tools/gen_mockups.py</code></p>
+  <nav>
+    <a href="#hud">HUD</a><a href="#staff">Персонал</a><a href="#priorities">Приоритеты</a><a href="#schedule">Расписание</a>
+    <a href="#build">Стройка</a><a href="#event">Подсказка и событие</a><a href="#menu">Меню</a><a href="#sandbox">Песочница</a><a href="#components">Компоненты</a>
+  </nav>
+</header>
+<main>
+  <figure id="hud"><img src="hud.svg" alt="HUD поверх карты кафе">
+    <figcaption><b>1. HUD</b><span>часы и шкала ночи с поездами, скорость (Space, 1/2/3), лента событий, ресурсы, состав смены, тулбар Q/W/E/B/L, тост</span><code>hud.svg</code></figcaption></figure>
+  <figure id="staff"><img src="staff.svg" alt="Панель персонала">
+    <figcaption><b>2. Персонал (Q)</b><span>список с нуждами и текущей работой, карточка: нужды, черты, навыки, отношения</span><code>staff.svg</code></figcaption></figure>
+  <figure id="priorities"><img src="priorities.svg" alt="Сетка приоритетов">
+    <figcaption><b>3. Приоритеты работ (W)</b><span>сотрудники × кухня / бар / касса / уборка; ЛКМ/ПКМ/колесо/кисть, без цифровых клавиш</span><code>priorities.svg</code></figcaption></figure>
+  <figure id="schedule"><img src="schedule.svg" alt="Расписание смен">
+    <figcaption><b>4. Расписание (E, дневная фаза)</b><span>смены по получасам 22:00–06:00, перерывы, покрытие, прогноз гостей и поезда, встроенное предупреждение</span><code>schedule.svg</code></figcaption></figure>
+  <figure id="build"><img src="build.svg" alt="Меню стройки">
+    <figcaption><b>5. Стройка (B)</b><span>вкладки, карточки с ценами, призрак размещения и ценник у курсора, снос X, поворот R</span><code>build.svg</code></figcaption></figure>
+  <figure id="event"><img src="tooltip-and-event.svg" alt="Подсказка гостя и уведомление">
+    <figcaption><b>6–7. Подсказка гостя и событие</b><span>желание, терпение, настроение; «Отключили свет» — неблокирующий тост с «Подробнее» и действиями в один клик</span><code>tooltip-and-event.svg</code></figcaption></figure>
+  <figure id="menu"><img src="main-menu.svg" alt="Главное меню">
+    <figcaption><b>8. Главное меню</b><span>Продолжить / Сюжет / Песочница / Настройки / Выход</span><code>main-menu.svg</code></figcaption></figure>
+  <figure id="sandbox"><img src="sandbox-setup.svg" alt="Настройка песочницы">
+    <figcaption><b>9. Песочница</b><span>название, сложность, характер ночей, капитал, сид, опции — без выпадающих списков</span><code>sandbox-setup.svg</code></figcaption></figure>
+  <figure id="components"><img src="components.svg" alt="Компоненты и токены">
+    <figcaption><b>Компоненты и токены</b><span>палитра, шрифты, кнопки и состояния, поля, чипы, ячейки, тосты, иконки, образец арта мира</span><code>components.svg</code></figcaption></figure>
+</main>
+</body>
+</html>

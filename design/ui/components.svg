@@ -1,0 +1,364 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+<title>Ночная смена — компоненты и токены</title>
+<style>text{font-family:Inter, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;font-variant-numeric:tabular-nums}.h{font-family:Manrope, Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif}</style>
+<defs>
+
+<filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity=".45"/></filter>
+<filter id="sh-s" x="-20%" y="-30%" width="140%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#000" flood-opacity=".35"/></filter>
+<filter id="blur3" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+<filter id="blur8" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
+<filter id="glow" x="-50%" y="-80%" width="200%" height="260%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="g-panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E1C3A"/><stop offset="1" stop-color="#17162E"/></linearGradient>
+<linearGradient id="g-accent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF62A8"/><stop offset="1" stop-color="#E23C88"/></linearGradient>
+<linearGradient id="g-shift" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0559C"/><stop offset="1" stop-color="#B8306F"/></linearGradient>
+<linearGradient id="g-night" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6A5CFF"/><stop offset="1" stop-color="#52D6E6"/></linearGradient>
+<linearGradient id="g-dawn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFB454" stop-opacity="0"/><stop offset="1" stop-color="#FFB454" stop-opacity=".45"/></linearGradient>
+<linearGradient id="g-guests" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#52D6E6" stop-opacity=".45"/><stop offset="1" stop-color="#52D6E6" stop-opacity=".03"/></linearGradient>
+<radialGradient id="g-lamp"><stop offset="0" stop-color="#FFC37A" stop-opacity=".55"/><stop offset=".55" stop-color="#FFB454" stop-opacity=".18"/><stop offset="1" stop-color="#FFB454" stop-opacity="0"/></radialGradient>
+<radialGradient id="g-candle"><stop offset="0" stop-color="#FFC37A" stop-opacity=".7"/><stop offset=".6" stop-color="#FF9A3D" stop-opacity=".15"/><stop offset="1" stop-color="#FF9A3D" stop-opacity="0"/></radialGradient>
+<radialGradient id="g-hole"><stop offset="0" stop-color="#000"/><stop offset=".6" stop-color="#555"/><stop offset="1" stop-color="#fff"/></radialGradient>
+<radialGradient id="g-table" cx=".4" cy=".35"><stop offset="0" stop-color="#B98457"/><stop offset="1" stop-color="#8C5D3C"/></radialGradient>
+<radialGradient id="g-neon"><stop offset="0" stop-color="#FF4F9A" stop-opacity=".55"/><stop offset="1" stop-color="#FF4F9A" stop-opacity="0"/></radialGradient>
+<linearGradient id="g-win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3C5591"/><stop offset="1" stop-color="#22305A"/></linearGradient>
+<linearGradient id="g-winlight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8EA6FF" stop-opacity=".22"/><stop offset="1" stop-color="#8EA6FF" stop-opacity="0"/></linearGradient>
+<linearGradient id="g-counter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C79A6B"/><stop offset=".45" stop-color="#A9784E"/><stop offset=".5" stop-color="#5E3A27"/><stop offset="1" stop-color="#4A2D1F"/></linearGradient>
+<linearGradient id="g-sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0A0918"/><stop offset=".6" stop-color="#1A1840"/><stop offset="1" stop-color="#2A2357"/></linearGradient>
+<linearGradient id="g-facade" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2A2748"/><stop offset="1" stop-color="#1C1A35"/></linearGradient>
+<linearGradient id="g-warmwin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFC77F"/><stop offset="1" stop-color="#E8893A"/></linearGradient>
+<pattern id="p-planks" width="192" height="48" patternUnits="userSpaceOnUse">
+ <rect width="192" height="48" fill="#6A432F"/>
+ <rect y="0" width="192" height="12" fill="#704732"/><rect y="24" width="192" height="12" fill="#734A34"/>
+ <rect y="11" width="192" height="1" fill="#4E3022"/><rect y="23" width="192" height="1" fill="#4E3022"/><rect y="35" width="192" height="1" fill="#4E3022"/><rect y="47" width="192" height="1" fill="#4E3022"/>
+ <rect x="40" y="0" width="1" height="12" fill="#4E3022"/><rect x="136" y="0" width="1" height="12" fill="#4E3022"/>
+ <rect x="88" y="12" width="1" height="12" fill="#4E3022"/><rect x="184" y="12" width="1" height="12" fill="#4E3022"/>
+ <rect x="20" y="24" width="1" height="12" fill="#4E3022"/><rect x="116" y="24" width="1" height="12" fill="#4E3022"/>
+ <rect x="64" y="36" width="1" height="12" fill="#4E3022"/><rect x="160" y="36" width="1" height="12" fill="#4E3022"/>
+</pattern>
+<pattern id="p-tiles" width="32" height="32" patternUnits="userSpaceOnUse">
+ <rect width="32" height="32" fill="#262C47"/><rect x="1" y="1" width="14" height="14" rx="1.5" fill="#323A5E"/><rect x="17" y="17" width="14" height="14" rx="1.5" fill="#323A5E"/><rect x="17" y="1" width="14" height="14" rx="1.5" fill="#2C3354"/><rect x="1" y="17" width="14" height="14" rx="1.5" fill="#2C3354"/>
+</pattern>
+<pattern id="p-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="6" fill="#FF5F6D" fill-opacity=".35"/></pattern>
+<pattern id="p-grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#fff" stroke-opacity=".09"/></pattern>
+
+<symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
+<symbol id="i-pause" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6v12M15 6v12"/></g></symbol>
+<symbol id="i-play" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 5.5l10 6.5-10 6.5z"/></g></symbol>
+<symbol id="i-ff2" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6.5l7.5 5.5L4 17.5zM12.5 6.5L20 12l-7.5 5.5z"/></g></symbol>
+<symbol id="i-ff3" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5l5 4.5-5 4.5zM9.5 7.5l5 4.5-5 4.5zM16.5 7.5l5 4.5-5 4.5z"/></g></symbol>
+<symbol id="i-coin" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/></g></symbol>
+<symbol id="i-star" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8z"/></g></symbol>
+<symbol id="i-staff" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M3 20c0-3.5 2.7-6 6-6s6 2.5 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16.5 14c2.6.2 4.5 2.2 4.5 5"/></g></symbol>
+<symbol id="i-guest" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 21c0-4.2 3.4-7 7.5-7s7.5 2.8 7.5 7"/></g></symbol>
+<symbol id="i-prio" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M14 17h6M17 14v6"/></g></symbol>
+<symbol id="i-calendar" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4M7.5 14h4M12.5 17h4"/></g></symbol>
+<symbol id="i-hammer" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 4.5l6 6-2.5 2.5-6-6z"/><path d="M12 9L4.5 16.5a1.8 1.8 0 0 0 2.5 2.5L14.5 11.5"/></g></symbol>
+<symbol id="i-log" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/></g></symbol>
+<symbol id="i-menu" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M4 12h16M4 17h16"/></g></symbol>
+<symbol id="i-bolt" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3L5 13.5h6L10 21l8-10.5h-6z"/></g></symbol>
+<symbol id="i-smile" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8M9 9.5h.01M15 9.5h.01"/></g></symbol>
+<symbol id="i-bowl" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 12h17a8.5 8.5 0 0 1-17 0z"/><path d="M9 3.5c-1 1.4 1 2.4 0 4M15 3.5c-1 1.4 1 2.4 0 4"/></g></symbol>
+<symbol id="i-pan" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="13" r="7"/><circle cx="10" cy="13" r="2.5"/><path d="M17 13h4.5"/></g></symbol>
+<symbol id="i-cup" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h12v4.5a5.5 5.5 0 0 1-5.5 5.5h-1A5.5 5.5 0 0 1 4 13.5z"/><path d="M16 10.5h1.5a2.5 2.5 0 0 1 0 5H16M8 3c-.8 1.2.8 2 0 3.2M12 3c-.8 1.2.8 2 0 3.2"/></g></symbol>
+<symbol id="i-register" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="9.5" rx="2"/><rect x="6.5" y="3.5" width="9" height="5" rx="1"/><path d="M7 15h.01M11 15h.01M15 15h.01M7 17.5h10"/></g></symbol>
+<symbol id="i-broom" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3l-5 8"/><path d="M7.5 11h7l3 9.5h-13z"/><path d="M9.5 15l-1 5.5M12.5 15v5.5"/></g></symbol>
+<symbol id="i-bulb_off" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 18h5M10.5 21h3"/><path d="M12 3a6 6 0 0 0-3.6 10.8c.7.5 1.1 1.3 1.1 2.2h5c0-.9.4-1.7 1.1-2.2A6 6 0 0 0 12 3z"/><path d="M4 4l16 16"/></g></symbol>
+<symbol id="i-train" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="14" rx="3.5"/><path d="M5 10.5h14M9 21l1.5-4M15 21l-1.5-4M9 13.8h.01M15 13.8h.01"/></g></symbol>
+<symbol id="i-rain" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 14.5a4 4 0 0 1 .4-8 5.5 5.5 0 0 1 10.6 1.5 3.3 3.3 0 0 1-.5 6.5z"/><path d="M8.5 18l-1 2.5M12.5 18l-1 2.5M16.5 18l-1 2.5"/></g></symbol>
+<symbol id="i-warn" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17h.01"/></g></symbol>
+<symbol id="i-info" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></g></symbol>
+<symbol id="i-close" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></g></symbol>
+<symbol id="i-chev_d" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></g></symbol>
+<symbol id="i-chev_u" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 15l6-6 6 6"/></g></symbol>
+<symbol id="i-chev_r" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></g></symbol>
+<symbol id="i-dice" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3.5"/><path d="M9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01"/></g></symbol>
+<symbol id="i-heart" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/></g></symbol>
+<symbol id="i-heart_broken" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-10.2A4.2 4.2 0 0 1 12 7.3a4.2 4.2 0 0 1 7.5 2.5C19.5 15.4 12 20 12 20z"/><path d="M12 7.3l-1.5 4 3 2-1.5 3"/></g></symbol>
+<symbol id="i-hourglass" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 3.5h11M6.5 20.5h11M8 3.5v2.2c0 2 4 3.8 4 6.3s-4 4.3-4 6.3v2.2M16 3.5v2.2c0 2-4 3.8-4 6.3s4 4.3 4 6.3v2.2"/></g></symbol>
+<symbol id="i-bubble" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h13a2.5 2.5 0 0 1 2.5 2.5v7.5a2.5 2.5 0 0 1-2.5 2.5h-7l-4.5 3.5V17H5.5A2.5 2.5 0 0 1 3 14.5V7a2.5 2.5 0 0 1 2.5-2.5z"/></g></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></g></symbol>
+<symbol id="i-target" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></g></symbol>
+<symbol id="i-undo" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></g></symbol>
+<symbol id="i-copy" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8.5" y="8.5" width="12" height="12" rx="2.5"/><path d="M15.5 8.5V6A2.5 2.5 0 0 0 13 3.5H6A2.5 2.5 0 0 0 3.5 6v7A2.5 2.5 0 0 0 6 15.5h2.5"/></g></symbol>
+<symbol id="i-trash" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></g></symbol>
+<symbol id="i-rotate" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.4-5.7"/><path d="M20 4v5h-5"/></g></symbol>
+<symbol id="i-candle" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21h6M10 11h4v10h-4z"/><path d="M12 3c2 2 2.2 4 0 5.5C9.8 7 10 5 12 3z"/></g></symbol>
+<symbol id="i-leaf" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 19C5 10 11 5 20 5c0 9-5 15-14 15"/><path d="M5 19l7-7"/></g></symbol>
+<symbol id="i-lamp" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3.5h7l3 7h-13z"/><path d="M12 10.5v9M8 20.5h8"/></g></symbol>
+<symbol id="i-table" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="9" rx="9" ry="3.5"/><path d="M12 12.5V20M8 20.5h8"/></g></symbol>
+<symbol id="i-chair" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3.5v17M7 12.5h10v8M7 12.5V3.5h8"/></g></symbol>
+<symbol id="i-counter" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="8" width="19" height="4" rx="1"/><path d="M4.5 12v8.5M19.5 12v8.5M4.5 16h15"/></g></symbol>
+<symbol id="i-stove" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="2.5"/><circle cx="8.5" cy="8.5" r="2"/><circle cx="15.5" cy="8.5" r="2"/><path d="M3.5 13.5h17M8 17h.01M12 17h.01M16 17h.01"/></g></symbol>
+<symbol id="i-machine" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3.5" width="16" height="7" rx="2"/><path d="M6 10.5v10h12v-10M10 10.5v3h4v-3"/><path d="M9.5 17.5h5"/></g></symbol>
+<symbol id="i-neon" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M7 14.5l2-5 2 5M13 9.5v5l4-5v5"/></g></symbol>
+<symbol id="i-exit" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H5.5v16H10"/><path d="M15 8l4 4-4 4M19 12H9.5"/></g></symbol>
+<symbol id="i-book" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V5.5A2 2 0 0 1 6 3.5h14v14H6a2 2 0 0 0-2 2zm0 0A2 2 0 0 0 6 21.5h14"/></g></symbol>
+<symbol id="i-cube" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></g></symbol>
+<symbol id="i-sliders" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h9M18 6h2M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15.5" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></g></symbol>
+<symbol id="i-continue" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5 3.5-5 3.5z"/></g></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+<symbol id="i-cursor" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3l14 7-6 1.5L10 18z"/></g></symbol>
+</defs>
+<rect x="0" y="0" width="1280" height="720" fill="#12112A" />
+<text x="32" y="44" font-size="20" fill="#EEEDF7" font-weight="700" class="h">Компоненты и токены</text>
+<text x="32" y="66" font-size="12" fill="#A9A7C9">опорный экран 1280×720 pt · Inter / Manrope · иконки 24 pt, обводка 2 pt</text>
+<text x="32" y="100" font-size="11" fill="#6F6D97" font-weight="700" letter-spacing=".6">ПАЛИТРА</text>
+<rect x="32" y="112" width="60" height="40" rx="8" fill="#0B0A18" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="32" y="166" font-size="11" fill="#EEEDF7">фон</text>
+<text x="32" y="180" font-size="10" fill="#6F6D97">#0B0A18</text>
+<rect x="100" y="112" width="60" height="40" rx="8" fill="#17162E" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="100" y="166" font-size="11" fill="#EEEDF7">панель</text>
+<text x="100" y="180" font-size="10" fill="#6F6D97">#17162E</text>
+<rect x="168" y="112" width="60" height="40" rx="8" fill="#24223F" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="168" y="166" font-size="11" fill="#EEEDF7">поле</text>
+<text x="168" y="180" font-size="10" fill="#6F6D97">#24223F</text>
+<rect x="236" y="112" width="60" height="40" rx="8" fill="#2E2B52" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="236" y="166" font-size="11" fill="#EEEDF7">hover</text>
+<text x="236" y="180" font-size="10" fill="#6F6D97">#2E2B52</text>
+<rect x="304" y="112" width="60" height="40" rx="8" fill="#34315C" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="304" y="166" font-size="11" fill="#EEEDF7">линия</text>
+<text x="304" y="180" font-size="10" fill="#6F6D97">#34315C</text>
+<rect x="372" y="112" width="60" height="40" rx="8" fill="#EEEDF7" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="372" y="166" font-size="11" fill="#EEEDF7">текст</text>
+<text x="372" y="180" font-size="10" fill="#6F6D97">#EEEDF7</text>
+<rect x="440" y="112" width="60" height="40" rx="8" fill="#A9A7C9" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="440" y="166" font-size="11" fill="#EEEDF7">текст 2</text>
+<text x="440" y="180" font-size="10" fill="#6F6D97">#A9A7C9</text>
+<rect x="508" y="112" width="60" height="40" rx="8" fill="#6F6D97" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="508" y="166" font-size="11" fill="#EEEDF7">приглуш.</text>
+<text x="508" y="180" font-size="10" fill="#6F6D97">#6F6D97</text>
+<rect x="576" y="112" width="60" height="40" rx="8" fill="#FF4F9A" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="576" y="166" font-size="11" fill="#EEEDF7">акцент</text>
+<text x="576" y="180" font-size="10" fill="#6F6D97">#FF4F9A</text>
+<rect x="32" y="190" width="60" height="40" rx="8" fill="#FF78B4" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="32" y="244" font-size="11" fill="#EEEDF7">акцент hi</text>
+<text x="32" y="258" font-size="10" fill="#6F6D97">#FF78B4</text>
+<rect x="100" y="190" width="60" height="40" rx="8" fill="#B8306F" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="100" y="244" font-size="11" fill="#EEEDF7">акцент lo</text>
+<text x="100" y="258" font-size="10" fill="#6F6D97">#B8306F</text>
+<rect x="168" y="190" width="60" height="40" rx="8" fill="#52D6E6" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="168" y="244" font-size="11" fill="#EEEDF7">инфо</text>
+<text x="168" y="258" font-size="10" fill="#6F6D97">#52D6E6</text>
+<rect x="236" y="190" width="60" height="40" rx="8" fill="#6A5CFF" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="236" y="244" font-size="11" fill="#EEEDF7">ночь</text>
+<text x="236" y="258" font-size="10" fill="#6F6D97">#6A5CFF</text>
+<rect x="304" y="190" width="60" height="40" rx="8" fill="#FFB454" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="304" y="244" font-size="11" fill="#EEEDF7">деньги/свет</text>
+<text x="304" y="258" font-size="10" fill="#6F6D97">#FFB454</text>
+<rect x="372" y="190" width="60" height="40" rx="8" fill="#E8893A" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="372" y="244" font-size="11" fill="#EEEDF7">мёд</text>
+<text x="372" y="258" font-size="10" fill="#6F6D97">#E8893A</text>
+<rect x="440" y="190" width="60" height="40" rx="8" fill="#6BD48C" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="440" y="244" font-size="11" fill="#EEEDF7">хорошо</text>
+<text x="440" y="258" font-size="10" fill="#6F6D97">#6BD48C</text>
+<rect x="508" y="190" width="60" height="40" rx="8" fill="#FFCC4D" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="508" y="244" font-size="11" fill="#EEEDF7">внимание</text>
+<text x="508" y="258" font-size="10" fill="#6F6D97">#FFCC4D</text>
+<rect x="576" y="190" width="60" height="40" rx="8" fill="#FF5F6D" stroke="#fff" stroke-width="1" stroke-opacity=".08"/>
+<text x="576" y="244" font-size="11" fill="#EEEDF7">плохо</text>
+<text x="576" y="258" font-size="10" fill="#6F6D97">#FF5F6D</text>
+<text x="680" y="100" font-size="11" fill="#6F6D97" font-weight="700" letter-spacing=".6">ШРИФТЫ</text>
+<text x="680" y="128" font-size="18" fill="#EEEDF7" font-weight="700" class="h">Заголовок 18 · Manrope 700</text>
+<text x="680" y="154" font-size="16" fill="#EEEDF7" font-weight="700" class="h">Подзаголовок 16 · 700</text>
+<text x="680" y="180" font-size="13" fill="#EEEDF7">Основной 13 · Inter 400 — Příliš žluťoučký кот</text>
+<text x="680" y="206" font-size="13" fill="#EEEDF7" font-weight="600">Акцент 13 · Inter 600 — 12 480 Kč</text>
+<text x="680" y="232" font-size="12" fill="#A9A7C9">Мелкий 12 · Inter 400 — подписи, второстепенное</text>
+<text x="680" y="258" font-size="11" fill="#A9A7C9" font-weight="700">СЕКЦИЯ 11 · INTER 700 · РАЗРЯДКА 0.6</text>
+<text x="32" y="300" font-size="11" fill="#6F6D97" font-weight="700" letter-spacing=".6">КНОПКИ · 28 PT (ОСНОВНАЯ), 24 (КОМПАКТНАЯ), 32 (ЭКРАН)</text>
+<rect x="32" y="312" width="82.6" height="28" rx="6" fill="#24223F" /><rect x="32.5" y="312.5" width="81.6" height="27" rx="5.5" fill="none" stroke="#fff" stroke-width="1" stroke-opacity=".06"/><text x="46" y="330.68" font-size="13" fill="#EEEDF7" font-weight="600">Обычная</text>
+<rect x="122.6" y="312" width="98.2" height="28" rx="6" fill="#2E2B52" /><rect x="123.1" y="312.5" width="97.2" height="27" rx="5.5" fill="none" stroke="#fff" stroke-width="1" stroke-opacity=".06"/><text x="136.6" y="330.68" font-size="13" fill="#EEEDF7" font-weight="600">Наведение</text>
+<rect x="228.8" y="312" width="74.8" height="28" rx="6" fill="#1A1933" /><rect x="228.8" y="312" width="74.8" height="2" rx="6" fill="#000" fill-opacity="0.25" /><text x="242.8" y="331.68" font-size="13" fill="#A9A7C9" font-weight="600">Нажата</text>
+<rect x="311.6" y="312" width="82.6" height="28" rx="6" fill="url(#g-accent)" /><text x="325.6" y="330.68" font-size="13" fill="#fff" font-weight="600">Выбрана</text>
+<rect x="402.2" y="312" width="82.6" height="28" rx="6" fill="url(#g-accent)" /><text x="416.2" y="330.68" font-size="13" fill="#fff" font-weight="600">Главная</text>
+<rect x="492.8" y="312" width="106" height="28" rx="6" fill="#24223F" fill-opacity="0.45" /><text x="506.8" y="330.68" font-size="13" fill="#6F6D97" font-weight="600">Недоступна</text>
+<text x="620.8" y="330.68" font-size="13" fill="#A9A7C9" font-weight="600">Тихая</text>
+<rect x="32" y="352" width="132" height="28" rx="6" fill="#24223F" /><rect x="32.5" y="352.5" width="131" height="27" rx="5.5" fill="none" stroke="#fff" stroke-width="1" stroke-opacity=".06"/><use href="#i-plus" x="50.6" y="357" width="18" height="18" color="#EEEDF7"/><text x="74.6" y="370.68" font-size="13" fill="#EEEDF7" font-weight="600">Нанять</text><rect x="140" y="357" width="18" height="18" rx="4" fill="#0B0A18" fill-opacity="0.7" stroke="#34315C" stroke-width="1" /><text x="149" y="370" font-size="11" fill="#A9A7C9" text-anchor="middle" font-weight="600">H</text>
+<rect x="532" y="352" width="92" height="28" rx="6" fill="#24223F" stroke="#FF5F6D" stroke-width="1" /><use href="#i-trash" x="551.6" y="357" width="18" height="18" color="#FF5F6D"/><text x="575.6" y="370.32" font-size="12" fill="#FF5F6D" font-weight="600">Снос</text>
+<rect x="170" y="350" width="136" height="32" rx="8" fill="none" stroke="#52D6E6" stroke-width="2" />
+<rect x="174" y="352" width="128" height="28" rx="6" fill="#24223F" /><rect x="174.5" y="352.5" width="127" height="27" rx="5.5" fill="none" stroke="#fff" stroke-width="1" stroke-opacity=".06"/><text x="195.1" y="370.68" font-size="13" fill="#EEEDF7" font-weight="600">Фокус (Tab)</text>
+<rect x="316" y="352" width="28" height="28" rx="6" fill="#24223F" /><rect x="316.5" y="352.5" width="27" height="27" rx="5.5" fill="none" stroke="#fff" stroke-width="1" stroke-opacity=".06"/><use href="#i-pause" x="321" y="357" width="18" height="18" color="#EEEDF7"/>
+<rect x="346" y="352" width="28" height="28" rx="6" fill="url(#g-accent)" /><use href="#i-play" x="351" y="357" width="18" height="18" color="#fff"/>
+<rect x="376" y="352" width="28" height="28" rx="6" fill="#24223F" /><rect x="376.5" y="352.5" width="27" height="27" rx="5.5" fill="none" stroke="#fff" stroke-width="1" stroke-opacity=".06"/><use href="#i-ff2" x="381" y="357" width="18" height="18" color="#EEEDF7"/>
+<rect x="406" y="352" width="28" height="28" rx="6" fill="#24223F" /><rect x="406.5" y="352.5" width="27" height="27" rx="5.5" fill="none" stroke="#fff" stroke-width="1" stroke-opacity=".06"/><use href="#i-ff3" x="411" y="357" width="18" height="18" color="#EEEDF7"/>
+<rect x="448" y="357" width="43" height="18" rx="4" fill="#0B0A18" fill-opacity="0.7" stroke="#34315C" stroke-width="1" /><text x="469.5" y="370" font-size="11" fill="#A9A7C9" text-anchor="middle" font-weight="600">Space</text>
+<rect x="500" y="357" width="18" height="18" rx="4" fill="#0B0A18" fill-opacity="0.7" stroke="#34315C" stroke-width="1" /><text x="509" y="370" font-size="11" fill="#A9A7C9" text-anchor="middle" font-weight="600">Q</text>
+<text x="32" y="412" font-size="11" fill="#6F6D97" font-weight="700" letter-spacing=".6">ПОЛОСЫ НУЖД · ЧИПЫ · ПОЛЯ</text>
+<rect x="32" y="428" width="120" height="6" rx="3" fill="#fff" fill-opacity="0.08" /><rect x="32" y="428" width="98.4" height="6" rx="3" fill="#6BD48C" />
+<rect x="32" y="442" width="120" height="6" rx="3" fill="#fff" fill-opacity="0.08" /><rect x="32" y="442" width="50.4" height="6" rx="3" fill="#FFCC4D" />
+<rect x="32" y="456" width="120" height="6" rx="3" fill="#fff" fill-opacity="0.08" /><rect x="32" y="456" width="21.6" height="6" rx="3" fill="#FF5F6D" />
+<rect x="172" y="426" width="94.58" height="22" rx="11" fill="#6BD48C" fill-opacity="0.16" /><text x="182" y="441.32" font-size="12" fill="#6BD48C" font-weight="500">Ночная сова</text>
+<rect x="272.58" y="426" width="74.24" height="22" rx="11" fill="#fff" fill-opacity="0.08" /><text x="282.58" y="441.32" font-size="12" fill="#EEEDF7" font-weight="500">Болтушка</text>
+<rect x="352.82" y="426" width="114.92" height="22" rx="11" fill="#FF5F6D" fill-opacity="0.16" /><text x="362.82" y="441.32" font-size="12" fill="#FF5F6D" font-weight="500">Боится темноты</text>
+<rect x="473.74" y="426" width="101.36" height="22" rx="11" fill="#FF4F9A" fill-opacity="0.18" /><text x="483.74" y="441.32" font-size="12" fill="#FF78B4" font-weight="500">переменчивые</text>
+<rect x="581.1" y="426" width="87.8" height="22" rx="11" fill="#52D6E6" fill-opacity="0.14" /><text x="591.1" y="441.32" font-size="12" fill="#52D6E6" font-weight="500">дождь 80 %</text>
+<rect x="172" y="458" width="200" height="32" rx="6" fill="#0B0A18" fill-opacity="0.7" stroke="#34315C" stroke-width="1" />
+<text x="184" y="479" font-size="13" fill="#A9A7C9">Поле ввода</text>
+<rect x="380" y="458" width="200" height="32" rx="6" fill="#0B0A18" fill-opacity="0.7" stroke="#FF4F9A" stroke-width="1.5" />
+<text x="392" y="479" font-size="13" fill="#EEEDF7">Фокус</text>
+<rect x="592" y="463" width="20" height="20" rx="5" fill="url(#g-accent)" />
+<use href="#i-check" x="595" y="466" width="14" height="14" color="#fff"/>
+<rect x="620.5" y="463.5" width="19" height="19" rx="5" fill="#0B0A18" fill-opacity="0.6" stroke="#6F6D97" stroke-width="1" />
+<rect x="172" y="500" width="48" height="26" rx="6" fill="url(#g-accent)" />
+<text x="196" y="518" font-size="14" fill="#fff" text-anchor="middle" font-weight="700">1</text>
+<rect x="228" y="500" width="48" height="26" rx="6" fill="#FFB454" fill-opacity="0.9" />
+<text x="252" y="518" font-size="14" fill="#2A1A0A" text-anchor="middle" font-weight="700">2</text>
+<rect x="284" y="500" width="48" height="26" rx="6" fill="#fff" fill-opacity="0.14" />
+<text x="308" y="518" font-size="14" fill="#EEEDF7" text-anchor="middle" font-weight="700">3</text>
+<rect x="340" y="500" width="48" height="26" rx="6" fill="#fff" fill-opacity="0.07" />
+<text x="364" y="518" font-size="14" fill="#A9A7C9" text-anchor="middle" font-weight="700">4</text>
+<rect x="396.5" y="500.5" width="47" height="25" rx="6" fill="none" stroke="#fff" stroke-width="1" stroke-opacity=".1" stroke-dasharray="3 3"/>
+<text x="420" y="518" font-size="14" fill="#6F6D97" text-anchor="middle" font-weight="700">—</text>
+<rect x="452" y="500" width="48" height="26" rx="6" fill="url(#p-hatch)" />
+<text x="476" y="518" font-size="12" fill="#FF5F6D" text-anchor="middle" font-weight="700">✕</text>
+<text x="32" y="518" font-size="12" fill="#A9A7C9">Ячейки приоритета</text>
+<text x="32" y="552" font-size="11" fill="#6F6D97" font-weight="700" letter-spacing=".6">ПАНЕЛЬ · ТОСТ</text>
+<g filter="url(#sh)"><rect x="32" y="564" width="260" height="144" rx="12" fill="url(#g-panel)" fill-opacity="0.92"/></g><rect x="32.5" y="564.5" width="259" height="143" rx="11.5" fill="none" stroke="#fff" stroke-opacity=".07"/>
+<text x="48" y="590" font-size="17" fill="#EEEDF7" font-weight="700" class="h">Панель</text>
+<rect x="256" y="574" width="24" height="24" rx="6" fill="#fff" fill-opacity="0.06" /><use href="#i-close" x="260" y="578" width="16" height="16" color="#A9A7C9"/>
+<rect x="44" y="604" width="236" height="1" fill="#fff" fill-opacity="0.07" />
+<text x="48" y="626" font-size="12" fill="#A9A7C9">радиус 12 · заливка 92 %</text>
+<text x="48" y="644" font-size="12" fill="#A9A7C9">тень 0/6/16 · #000 45 %</text>
+<text x="48" y="662" font-size="12" fill="#A9A7C9">обводка 1 pt · белый 7 %</text>
+<text x="48" y="680" font-size="12" fill="#A9A7C9">поля 12–16 pt</text>
+<g filter="url(#sh)"><rect x="316" y="564" width="320" height="56" rx="10" fill="url(#g-panel)" fill-opacity="0.92"/></g><rect x="316.5" y="564.5" width="319" height="55" rx="9.5" fill="none" stroke="#fff" stroke-opacity=".07"/>
+<rect x="316" y="574" width="3" height="36" rx="1.5" fill="#FF5F6D"/>
+<circle cx="346" cy="592" r="16" fill="#FF5F6D" fill-opacity=".14"/>
+<use href="#i-bulb_off" x="336" y="582" width="20" height="20" color="#FF5F6D"/>
+<text x="372" y="588" font-size="13" fill="#EEEDF7" font-weight="600">Отключили свет</text>
+<text x="372" y="606" font-size="12" fill="#A9A7C9">весь вокзал · ~20 мин</text>
+<text x="624" y="588" font-size="12" fill="#FF78B4" text-anchor="end" font-weight="600">Подробнее</text>
+<rect x="326" y="616" width="300" height="2" rx="1" fill="#fff" fill-opacity="0.06" />
+<rect x="326" y="616" width="180" height="2" rx="1" fill="#FF5F6D" fill-opacity="0.7" />
+<g filter="url(#sh)"><rect x="316" y="628" width="320" height="56" rx="10" fill="url(#g-panel)" fill-opacity="0.92"/></g><rect x="316.5" y="628.5" width="319" height="55" rx="9.5" fill="none" stroke="#fff" stroke-opacity=".07"/>
+<rect x="316" y="638" width="3" height="36" rx="1.5" fill="#52D6E6"/>
+<circle cx="346" cy="656" r="16" fill="#52D6E6" fill-opacity=".14"/>
+<use href="#i-train" x="336" y="646" width="20" height="20" color="#52D6E6"/>
+<text x="372" y="652" font-size="13" fill="#EEEDF7" font-weight="600">Поезд опаздывает</text>
+<text x="372" y="670" font-size="12" fill="#A9A7C9">00:15 → 00:35 · будет толпа</text>
+<text x="624" y="652" font-size="12" fill="#FF78B4" text-anchor="end" font-weight="600">Подробнее</text>
+<rect x="326" y="680" width="300" height="2" rx="1" fill="#fff" fill-opacity="0.06" />
+<rect x="326" y="680" width="90" height="2" rx="1" fill="#52D6E6" fill-opacity="0.7" />
+<text x="680" y="300" font-size="11" fill="#6F6D97" font-weight="700" letter-spacing=".6">ИКОНКИ 24 PT · ОБВОДКА 2 PT · СКРУГЛ. КОНЦЫ</text>
+<rect x="680" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-clock" x="685" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="716" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-pause" x="721" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="752" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-play" x="757" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="788" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-ff2" x="793" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="824" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-ff3" x="829" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="860" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-coin" x="865" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="896" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-star" x="901" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="932" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-staff" x="937" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="968" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-guest" x="973" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="1004" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-prio" x="1009" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="1040" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-calendar" x="1045" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="1076" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-hammer" x="1081" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="1112" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-log" x="1117" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="1148" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-menu" x="1153" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="1184" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-bolt" x="1189" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="1220" y="312" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-smile" x="1225" y="317" width="24" height="24" color="#EEEDF7"/>
+<rect x="680" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-bowl" x="685" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="716" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-pan" x="721" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="752" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-cup" x="757" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="788" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-register" x="793" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="824" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-broom" x="829" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="860" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-bulb_off" x="865" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="896" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-train" x="901" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="932" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-rain" x="937" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="968" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-warn" x="973" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="1004" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-info" x="1009" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="1040" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-close" x="1045" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="1076" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-chev_d" x="1081" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="1112" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-chev_u" x="1117" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="1148" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-chev_r" x="1153" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="1184" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-dice" x="1189" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="1220" y="348" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-heart" x="1225" y="353" width="24" height="24" color="#EEEDF7"/>
+<rect x="680" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-heart_broken" x="685" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="716" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-hourglass" x="721" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="752" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-bubble" x="757" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="788" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-check" x="793" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="824" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-target" x="829" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="860" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-undo" x="865" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="896" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-copy" x="901" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="932" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-trash" x="937" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="968" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-rotate" x="973" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="1004" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-candle" x="1009" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="1040" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-leaf" x="1045" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="1076" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-lamp" x="1081" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="1112" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-table" x="1117" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="1148" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-chair" x="1153" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="1184" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-counter" x="1189" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="1220" y="384" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-stove" x="1225" y="389" width="24" height="24" color="#EEEDF7"/>
+<rect x="680" y="420" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-machine" x="685" y="425" width="24" height="24" color="#EEEDF7"/>
+<rect x="716" y="420" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-neon" x="721" y="425" width="24" height="24" color="#EEEDF7"/>
+<rect x="752" y="420" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-exit" x="757" y="425" width="24" height="24" color="#EEEDF7"/>
+<rect x="788" y="420" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-book" x="793" y="425" width="24" height="24" color="#EEEDF7"/>
+<rect x="824" y="420" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-cube" x="829" y="425" width="24" height="24" color="#EEEDF7"/>
+<rect x="860" y="420" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-sliders" x="865" y="425" width="24" height="24" color="#EEEDF7"/>
+<rect x="896" y="420" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-continue" x="901" y="425" width="24" height="24" color="#EEEDF7"/>
+<rect x="932" y="420" width="34" height="34" rx="8" fill="#fff" fill-opacity="0.04" />
+<use href="#i-plus" x="937" y="425" width="24" height="24" color="#EEEDF7"/>
+<text x="680" y="476" font-size="11" fill="#6F6D97" font-weight="700" letter-spacing=".6">МИР: ПЕРСОНАЖ СВЕРХУ, МЕБЕЛЬ, СВЕТ</text>
+<rect x="680" y="488" width="568" height="200" rx="12" fill="url(#p-planks)" />
+<circle cx="820" cy="588" r="110" fill="url(#g-lamp)" style="mix-blend-mode:screen" opacity=".6"/>
+<g transform="translate(786,588) rotate(-90)"><rect x="-10" y="-8" width="22" height="22" rx="6" fill="#000" opacity=".35" filter="url(#blur3)"/><rect x="-11" y="-11" width="22" height="22" rx="6" fill="#5E3B29"/><rect x="-11" y="-11" width="22" height="6" rx="3" fill="#43291C"/><rect x="-8" y="-3" width="16" height="11" rx="4" fill="#6E4731"/></g>
+<g transform="translate(854,588) rotate(90)"><rect x="-10" y="-8" width="22" height="22" rx="6" fill="#000" opacity=".35" filter="url(#blur3)"/><rect x="-11" y="-11" width="22" height="22" rx="6" fill="#5E3B29"/><rect x="-11" y="-11" width="22" height="6" rx="3" fill="#43291C"/><rect x="-8" y="-3" width="16" height="11" rx="4" fill="#6E4731"/></g>
+<ellipse cx="823" cy="594" rx="25" ry="23" fill="#000" opacity=".4" filter="url(#blur8)"/><circle cx="820" cy="588" r="22" fill="url(#g-table)" stroke="#5C3A26" stroke-width="2"/><circle cx="813" cy="584" r="5" fill="#F4EEE6"/><circle cx="813" cy="584" r="3" fill="#5A3222"/><ellipse cx="827" cy="593" rx="7" ry="6" fill="#F4EEE6"/><ellipse cx="827" cy="593" rx="4" ry="3" fill="#E8A65A"/>
+<g transform="translate(748,588) rotate(-90) scale(1.0)"><ellipse cx="2" cy="6" rx="17" ry="13" fill="#000" opacity=".38" filter="url(#blur3)"/><rect x="-15" y="-9" width="30" height="19" rx="9.5" fill="#3E7C8C" stroke="#000" stroke-opacity=".28" stroke-width="1.5"/><circle cx="-13.5" cy="7" r="4" fill="#F2CBA8" stroke="#000" stroke-opacity=".22"/><circle cx="13.5" cy="7" r="4" fill="#F2CBA8" stroke="#000" stroke-opacity=".22"/><circle cx="0" cy="1.5" r="10" fill="#F2CBA8" stroke="#000" stroke-opacity=".25" stroke-width="1.2"/><circle cx="0" cy="-1.8" r="9.3" fill="#2A1A14"/><ellipse cx="-3" cy="-5" rx="3.5" ry="2" fill="#fff" opacity=".12"/></g>
+<g transform="translate(960,590) rotate(0) scale(1.0)"><ellipse cx="0" cy="2" rx="22" ry="22" fill="none" stroke="#FF4F9A" stroke-width="2" stroke-dasharray="5 4"/><ellipse cx="2" cy="6" rx="17" ry="13" fill="#000" opacity=".38" filter="url(#blur3)"/><rect x="-15" y="-9" width="30" height="19" rx="9.5" fill="#4A6FB8" stroke="#000" stroke-opacity=".28" stroke-width="1.5"/><path d="M-7 -8.5L-5 9M7 -8.5L5 9" stroke="#FF4F9A" stroke-width="3" stroke-linecap="round"/><rect x="-9" y="5" width="18" height="6" rx="3" fill="#FF4F9A"/><circle cx="-13.5" cy="7" r="4" fill="#A8714E" stroke="#000" stroke-opacity=".22"/><circle cx="13.5" cy="7" r="4" fill="#A8714E" stroke="#000" stroke-opacity=".22"/><circle cx="0" cy="1.5" r="10" fill="#A8714E" stroke="#000" stroke-opacity=".25" stroke-width="1.2"/><circle cx="0" cy="-1.8" r="9.3" fill="#7A3B2A"/><ellipse cx="-3" cy="-5" rx="3.5" ry="2" fill="#fff" opacity=".12"/></g>
+<g transform="translate(1040,590) rotate(90) scale(1.0)"><ellipse cx="2" cy="6" rx="17" ry="13" fill="#000" opacity=".38" filter="url(#blur3)"/><rect x="-15" y="-9" width="30" height="19" rx="9.5" fill="#2F7D52" stroke="#000" stroke-opacity=".28" stroke-width="1.5"/><path d="M-7 -8.5L-5 9M7 -8.5L5 9" stroke="#FF4F9A" stroke-width="3" stroke-linecap="round"/><rect x="-9" y="5" width="18" height="6" rx="3" fill="#FF4F9A"/><circle cx="-13.5" cy="7" r="4" fill="#D9A47C" stroke="#000" stroke-opacity=".22"/><circle cx="13.5" cy="7" r="4" fill="#D9A47C" stroke="#000" stroke-opacity=".22"/><circle cx="0" cy="1.5" r="10" fill="#D9A47C" stroke="#000" stroke-opacity=".25" stroke-width="1.2"/><circle cx="0" cy="-1.8" r="9.3" fill="#1C1410"/><ellipse cx="-3" cy="-5" rx="3.5" ry="2" fill="#fff" opacity=".12"/></g>
+<g><rect x="1112" y="572" width="60" height="40" rx="7" fill="#000" opacity=".4" filter="url(#blur3)"/><rect x="1110" y="566" width="60" height="40" rx="7" fill="#2C2F3E"/><rect x="1114" y="570" width="52" height="14" rx="4" fill="#8E96AD"/><rect x="1114" y="570" width="52" height="4" rx="2" fill="#fff" opacity=".35"/><circle cx="1160" cy="594" r="3" fill="#FFB454"/><circle cx="1160" cy="594" r="6" fill="#FFB454" opacity=".25"/><rect x="1124" y="588" width="14" height="10" rx="3" fill="#B9C0D3"/><circle cx="1131" cy="601" r="3.5" fill="#F4EEE6"/></g>
+<circle cx="1213" cy="645" r="16" fill="#000" opacity=".35" filter="url(#blur3)"/><circle cx="1210" cy="640" r="9.92" fill="#7A4E35"/><ellipse cx="1218.8" cy="640.0" rx="8" ry="4.16" fill="#2F7D52" transform="rotate(0 1218.8 640.0)"/><ellipse cx="1216.2" cy="646.2" rx="8" ry="4.16" fill="#3E9C67" transform="rotate(45 1216.2 646.2)"/><ellipse cx="1210.0" cy="648.8" rx="8" ry="4.16" fill="#2F7D52" transform="rotate(90 1210.0 648.8)"/><ellipse cx="1203.8" cy="646.2" rx="8" ry="4.16" fill="#3E9C67" transform="rotate(135 1203.8 646.2)"/><ellipse cx="1201.2" cy="640.0" rx="8" ry="4.16" fill="#2F7D52" transform="rotate(180 1201.2 640.0)"/><ellipse cx="1203.8" cy="633.8" rx="8" ry="4.16" fill="#3E9C67" transform="rotate(225 1203.8 633.8)"/><ellipse cx="1210.0" cy="631.2" rx="8" ry="4.16" fill="#2F7D52" transform="rotate(270 1210.0 631.2)"/><ellipse cx="1216.2" cy="633.8" rx="8" ry="4.16" fill="#3E9C67" transform="rotate(315 1216.2 633.8)"/><circle cx="1210" cy="640" r="4" fill="#57B67D"/>
+</svg>

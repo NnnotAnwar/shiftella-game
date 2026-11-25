@@ -1,30 +1,17 @@
-//! Night Shift — точка входа и главный цикл.
+//! Shiftella — точка входа и главный цикл. Сама игра — в библиотеке (`src/lib.rs`).
 //!
 //! Каждый кадр:
 //!   1. читаем ввод (игра + камера)
 //!   2. двигаем симуляцию фиксированными шагами (тиками)
 //!   3. рисуем мир через камеру, потом интерфейс поверх
 
-mod audio;
-mod camera;
-mod clock;
-mod content;
-mod game;
-mod hud;
-mod i18n;
-mod map;
-mod palette;
-mod render;
-mod shapes;
-mod sim;
-mod ui;
-
 use macroquad::prelude::*;
 
-use audio::Audio;
-use camera::WorldCamera;
-use game::{Game, Speed};
-use map::TILE;
+use shiftella_game::audio::Audio;
+use shiftella_game::camera::WorldCamera;
+use shiftella_game::game::{Game, Speed};
+use shiftella_game::map::TILE;
+use shiftella_game::{hud, palette};
 
 /// Длина одного тика симуляции в реальных секундах (при скорости ×1).
 const TICK_SECONDS: f32 = 0.1;
@@ -70,9 +57,9 @@ async fn main() {
     let mut camera = WorldCamera::fit(game.map.size_px(), hud::map_area());
     let mut accumulator = 0.0;
 
-    // Помощник для разработки: NIGHT_SHIFT_SHOT=shot.png cargo run
+    // Помощник для разработки: SHIFTELLA_SHOT=shot.png cargo run
     // сохранит скриншот через полсекунды и закроет игру.
-    let shot_path = std::env::var("NIGHT_SHIFT_SHOT").ok();
+    let shot_path = std::env::var("SHIFTELLA_SHOT").ok();
     let mut frame = 0;
 
     loop {

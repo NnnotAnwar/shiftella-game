@@ -1,0 +1,81 @@
+# Shiftella — game brief (source of truth for all agents)
+
+Read this first. Where `design/*` docs disagree with this file, **this file wins**.
+
+## 1. What the game is
+- **Name:** Shiftella (repo/crate `shiftella-game`). A cozy, very atmospheric management game
+  for relaxing in the evening after a shift. Low stress, gentle pacing, beautiful night mood.
+- **Setting:** near future, **2039**. Night café «U Výhybky» by the railway station of the small
+  fictional Czech town **Mlhov nad Šeřavou**. Open 22:00–06:00. Rain, warm lamps, quiet
+  autonomous night trains, soft holographic signs, small delivery drones over wet roofs —
+  near-future but intimate and human, never cyberpunk-grim.
+- **Story & content:** `design/story/*` (written in Russian — the *ideas* are canon, the text must be
+  written fresh in the four game languages). Grandma Lída's café, 30 nights, regulars with arcs,
+  the 3:33 guest, endings. Dates: grandma's fiancé left on night train Rn 333 in **1979**;
+  the game is 60 years later (2039).
+- **Modes:** Story (30 nights) and Sandbox (endless, random town/seed). Difficulty presets:
+  **Cozy (default)** — no game over, debt payments soft (miss = mild story consequence),
+  generous money; **Classic** — payments matter, the café can close (still an ending, not a fail screen).
+- **Shiftella references (owner's real app — weave them in lovingly):**
+  - The shift schedule, staff management and messages happen in an in-game phone/tablet app
+    called **Shiftella** (same glass look as the UI). Features mirrored from the real app:
+    publishing the weekly rozpis (schedule), shift swap requests, time-off / leave requests
+    (dovolená, náhradní volno), late-arrival alerts, handover notes between shifts (předávka),
+    announcements board, opening/closing checklists, a night digest, a weekly
+    "payroll basis" export (podklady pro mzdy) as a cute summary screen.
+  - Notifications arrive from **@shiftella_bot**. Never implement clock-in/out through the bot.
+  - Easter eggs: stations on the train line are named after Shiftella release codenames —
+    **Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant** … then Mlhov. Train announcements use them.
+- **Languages:** **CZ / EN / SK / UA** → codes `cs`, `en`, `sk`, `uk`. Every player-visible string goes
+  through i18n keys. First launch shows a language picker; choice saved in settings. Fallback: `en`, then the key.
+  No Russian in the game.
+
+## 2. Visual style — our own, not a RimWorld copy
+- **Palette = Shiftella's universe (purple/indigo):** accent indigo `#6366F1` (600 `#4F46E5`,
+  glow `#818CF8`/`#A5B4FC`), second accent violet `#7C3AED` / `#A78BFA`; ink `#1B1A2E`;
+  night canvas gradient `#0D0C17 → #121022 → #1A1730`; violet night `#120C1F → #201634`.
+  Warm counterpoint: amber lamp light `#FFC46B`/`#F99C4E`. Status: emerald `#10B981`, red sparingly.
+  This **replaces** the neon pink `#FF4F9A` in `design/ui/*` — use indigo/violet for active/primary.
+- **UI:** frosted-glass panels with a lit 1 px gradient edge and soft shadow (like the app),
+  rounded 8–12 pt, compact and legible (body 13 pt, small 12, headings 16–18; Inter from
+  `assets/fonts/`). No blocking modals in frequent flows: one-click actions + undo, toasts.
+  Layout/screens from `design/ui/screens.md`, but hotkeys: camera **WASD/arrows/right-drag/wheel**;
+  screens **C** crew/staff, **P** priorities, **T** Shiftella app (schedule), **B** build, **L** log,
+  **Space** pause, **1/2/3** speed, **M** sound, **Esc** back/menu.
+- **World art — "violet dollhouse":** floor and rugs seen from above, but furniture, walls and
+  characters drawn as a gentle **3/4 front view** (visible front face + top, height, y-sorted),
+  like a lit dollhouse at night. Smooth vector shapes with soft gradients, no black outlines,
+  rim light in lavender from windows, warm amber pools from lamps, subtle bloom/glow on screens
+  and holo signs. Characters: original, upright, friendly proportions (~1.3 tiles tall),
+  readable faces/hair/clothes, staff in indigo aprons with a small Shiftella badge.
+  Not RimWorld's strict top-down, not its limbless pawns, not its UI.
+- **Atmosphere is the core feature:** day→night lighting, rain on windows (animated streaks),
+  puddle reflections outside, trains passing with light sweeping across the room, flickering
+  holo sign, steam from cups and coffee machine, ambient sound layers.
+
+## 3. Tech & architecture
+- Rust edition 2024, macroquad 0.4.16 (`audio` feature), serde + ron. No other crates unless an
+  agent really needs one (prefer writing small code — e.g. own seeded RNG for the sim).
+- Crate = library (`src/lib.rs`) + thin binary (`src/main.rs`). Demos in `examples/*.rs` may use
+  the library; each demo supports `SHIFTELLA_SHOT=path.png` → render ~30 frames, save
+  `get_screen_data().export_png(path)`, exit (note: the image may come out vertically flipped
+  on some setups — compare with what you drew). On this macOS setup, Camera2D for the
+  **screen** needs a **positive** `zoom.y` (macroquad inverts Y for non-render-target cameras);
+  `Camera2D::from_display_rect` is only correct for render targets — for the screen flip `zoom.y`.
+- World coordinates: world pixels, `map::TILE = 64.0`. UI: logical points (`screen / screen_dpi_scale()`),
+  text rasterised at physical size (see `hud.rs::text`).
+- Simulation is pure logic in `tick()` (10 ticks = 1 game minute); it emits events; audio/UI react.
+  Nothing in rendering mutates the sim.
+- Content is data: `assets/data/*.ron`; text in `assets/i18n/{cs,en,sk,uk}.ron`.
+- Run before every commit: `cargo fmt && cargo clippy --all-targets && cargo test` — zero warnings.
+
+## 4. Module ownership (to avoid conflicts between parallel agents)
+| Area | Owner | Files |
+|---|---|---|
+| Content + i18n | content agent | `src/content/**`, `src/i18n/**`, `assets/data/**`, `assets/i18n/**`, `examples/content_*.rs` |
+| World rendering | render agent | `src/render/**`, `examples/render_*.rs` |
+| UI kit | ui-kit agent | `src/ui/**`, `examples/ui_*.rs` |
+| Simulation | sim agent (wave 2) | `src/sim/**` |
+| Screens, flow, save/load, integration | integration agent (wave 3) | `src/main.rs`, `src/game.rs`, `src/hud.rs`, new `src/screens/**`, `src/save/**` |
+Do not edit files outside your area. If you need something from another area, write it in
+your final report as an interface request.
