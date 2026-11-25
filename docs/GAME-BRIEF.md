@@ -80,7 +80,23 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
 | Content + i18n | content agent | `src/content/**`, `src/i18n/**`, `assets/data/**`, `assets/i18n/**`, `examples/content_*.rs` |
 | World rendering | render agent | `src/render/**`, `examples/render_*.rs` |
 | UI kit | ui-kit agent | `src/ui/**`, `examples/ui_*.rs` |
-| Simulation | sim agent (wave 2) | `src/sim/**` |
-| Screens, flow, save/load, integration | integration agent (wave 3) | `src/main.rs`, `src/game.rs`, `src/hud.rs`, new `src/screens/**`, `src/save/**` |
+| Simulation | sim agent (wave 2) | `src/sim/**`, `examples/sim_*.rs` |
+| Cutscene player, main menu, language picker, settings | cutscene agent (wave 2) | `src/cutscene/**`, `src/screens/menu/**`, `src/settings/**`, `examples/cutscene_*.rs`, `examples/menu_*.rs` |
+| Gameplay screens, flow, save/load, integration | integration agent (wave 3) | `src/main.rs`, `src/game.rs`, `src/hud.rs`, `src/screens/**` (except menu), `src/save/**` |
+
+## 5. Simulation facade (contract between sim and the rest)
+`sim::World` holds the whole game state (`Serialize + Deserialize` for saves). Commands in, events out:
+- `World::new_story(&Content, Difficulty)`, `World::new_sandbox(&Content, SandboxSetup)`.
+- `tick(&mut self, &Content)` — one tick (10 per game minute); `drain_events() -> Vec<SimEvent>`.
+- `phase() -> Phase { Day /*planning, paused clock*/, Night }`, `start_night(&Content)`, night ends at 06:00 → Day.
+- `apply(Command) -> Result<(), CommandError>` for every player action (place/move/remove furniture,
+  hire/fire, set job priorities, set schedule, publish schedule, approve/deny time off & swaps,
+  answer an event choice, buy supplies, set prices, rename café…) and `undo()` for the last reversible one.
+- Read-only queries used by render/UI: map/tiles, placed furniture (+ state), staff (look seed, pose,
+  facing, feet pos, needs, skills, traits, current job), guests (same + wish/patience/mood),
+  money, reputation, night number, clock, story flags, notes found, ending reached, Shiftella-app data
+  (schedule, requests, announcements, checklists, digest, payroll basis), event log.
+- Story director lives in sim (decides which `CutsceneDef` should play: emits `SimEvent::PlayCutscene(id)`,
+  pauses the clock until `Command::CutsceneFinished { id, choices }`).
 Do not edit files outside your area. If you need something from another area, write it in
 your final report as an interface request.
