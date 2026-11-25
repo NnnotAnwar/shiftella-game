@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
-<title>Ночная смена — главное меню</title>
-<style>text{font-family:Inter, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;font-variant-numeric:tabular-nums}.h{font-family:Manrope, Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif}</style>
+<title>Shiftella — main menu</title>
+<style>text{font-family:Inter, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;font-variant-numeric:tabular-nums}.h{font-family:Inter, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif}</style>
 <defs>
 
 <filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#000" flood-opacity=".45"/></filter>
@@ -9,16 +9,16 @@
 <filter id="blur8" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>
 <filter id="glow" x="-50%" y="-80%" width="200%" height="260%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
 <linearGradient id="g-panel" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1E1C3A"/><stop offset="1" stop-color="#17162E"/></linearGradient>
-<linearGradient id="g-accent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FF62A8"/><stop offset="1" stop-color="#E23C88"/></linearGradient>
-<linearGradient id="g-shift" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F0559C"/><stop offset="1" stop-color="#B8306F"/></linearGradient>
-<linearGradient id="g-night" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6A5CFF"/><stop offset="1" stop-color="#52D6E6"/></linearGradient>
-<linearGradient id="g-dawn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFB454" stop-opacity="0"/><stop offset="1" stop-color="#FFB454" stop-opacity=".45"/></linearGradient>
-<linearGradient id="g-guests" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#52D6E6" stop-opacity=".45"/><stop offset="1" stop-color="#52D6E6" stop-opacity=".03"/></linearGradient>
-<radialGradient id="g-lamp"><stop offset="0" stop-color="#FFC37A" stop-opacity=".55"/><stop offset=".55" stop-color="#FFB454" stop-opacity=".18"/><stop offset="1" stop-color="#FFB454" stop-opacity="0"/></radialGradient>
+<linearGradient id="g-accent" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6366F1"/><stop offset="1" stop-color="#4F46E5"/></linearGradient>
+<linearGradient id="g-shift" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#818CF8"/><stop offset="1" stop-color="#4F46E5"/></linearGradient>
+<linearGradient id="g-night" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7C3AED"/><stop offset="1" stop-color="#818CF8"/></linearGradient>
+<linearGradient id="g-dawn" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FFC46B" stop-opacity="0"/><stop offset="1" stop-color="#FFC46B" stop-opacity=".45"/></linearGradient>
+<linearGradient id="g-guests" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#818CF8" stop-opacity=".45"/><stop offset="1" stop-color="#818CF8" stop-opacity=".03"/></linearGradient>
+<radialGradient id="g-lamp"><stop offset="0" stop-color="#FFC37A" stop-opacity=".55"/><stop offset=".55" stop-color="#FFC46B" stop-opacity=".18"/><stop offset="1" stop-color="#FFC46B" stop-opacity="0"/></radialGradient>
 <radialGradient id="g-candle"><stop offset="0" stop-color="#FFC37A" stop-opacity=".7"/><stop offset=".6" stop-color="#FF9A3D" stop-opacity=".15"/><stop offset="1" stop-color="#FF9A3D" stop-opacity="0"/></radialGradient>
 <radialGradient id="g-hole"><stop offset="0" stop-color="#000"/><stop offset=".6" stop-color="#555"/><stop offset="1" stop-color="#fff"/></radialGradient>
 <radialGradient id="g-table" cx=".4" cy=".35"><stop offset="0" stop-color="#B98457"/><stop offset="1" stop-color="#8C5D3C"/></radialGradient>
-<radialGradient id="g-neon"><stop offset="0" stop-color="#FF4F9A" stop-opacity=".55"/><stop offset="1" stop-color="#FF4F9A" stop-opacity="0"/></radialGradient>
+<radialGradient id="g-neon"><stop offset="0" stop-color="#6366F1" stop-opacity=".55"/><stop offset="1" stop-color="#6366F1" stop-opacity="0"/></radialGradient>
 <linearGradient id="g-win" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3C5591"/><stop offset="1" stop-color="#22305A"/></linearGradient>
 <linearGradient id="g-winlight" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8EA6FF" stop-opacity=".22"/><stop offset="1" stop-color="#8EA6FF" stop-opacity="0"/></linearGradient>
 <linearGradient id="g-counter" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#C79A6B"/><stop offset=".45" stop-color="#A9784E"/><stop offset=".5" stop-color="#5E3A27"/><stop offset="1" stop-color="#4A2D1F"/></linearGradient>
@@ -37,7 +37,7 @@
 <pattern id="p-tiles" width="32" height="32" patternUnits="userSpaceOnUse">
  <rect width="32" height="32" fill="#262C47"/><rect x="1" y="1" width="14" height="14" rx="1.5" fill="#323A5E"/><rect x="17" y="17" width="14" height="14" rx="1.5" fill="#323A5E"/><rect x="17" y="1" width="14" height="14" rx="1.5" fill="#2C3354"/><rect x="1" y="17" width="14" height="14" rx="1.5" fill="#2C3354"/>
 </pattern>
-<pattern id="p-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="6" fill="#FF5F6D" fill-opacity=".35"/></pattern>
+<pattern id="p-hatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2" height="6" fill="#F87171" fill-opacity=".35"/></pattern>
 <pattern id="p-grid" width="48" height="48" patternUnits="userSpaceOnUse"><path d="M48 0H0V48" fill="none" stroke="#fff" stroke-opacity=".09"/></pattern>
 
 <symbol id="i-clock" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></g></symbol>
@@ -141,28 +141,28 @@
 <circle cx="180" cy="9" r="0.6" fill="#fff" opacity="0.47"/>
 <circle cx="897" cy="250" r="0.6" fill="#fff" opacity="0.37"/>
 <path d="M0 430V360h60v-30h50v40h40v-60h20l14-40 14 40h20v80h70v-24h60v34h80v-50h40v60h90v-30h60v30h80v-40h60v50h120v-20h80v30h200v-40h80v40h52v70z" fill="#1A1838"/>
-<rect x="80" y="345" width="6" height="8" rx="1" fill="#FFB454" fill-opacity="0.55" />
-<rect x="120" y="380" width="6" height="8" rx="1" fill="#FFB454" fill-opacity="0.55" />
-<rect x="232" y="350" width="6" height="8" rx="1" fill="#FFB454" fill-opacity="0.55" />
-<rect x="420" y="390" width="6" height="8" rx="1" fill="#FFB454" fill-opacity="0.55" />
-<rect x="520" y="380" width="6" height="8" rx="1" fill="#FFB454" fill-opacity="0.55" />
-<rect x="700" y="395" width="6" height="8" rx="1" fill="#FFB454" fill-opacity="0.55" />
-<rect x="990" y="390" width="6" height="8" rx="1" fill="#FFB454" fill-opacity="0.55" />
+<rect x="80" y="345" width="6" height="8" rx="1" fill="#FFC46B" fill-opacity="0.55" />
+<rect x="120" y="380" width="6" height="8" rx="1" fill="#FFC46B" fill-opacity="0.55" />
+<rect x="232" y="350" width="6" height="8" rx="1" fill="#FFC46B" fill-opacity="0.55" />
+<rect x="420" y="390" width="6" height="8" rx="1" fill="#FFC46B" fill-opacity="0.55" />
+<rect x="520" y="380" width="6" height="8" rx="1" fill="#FFC46B" fill-opacity="0.55" />
+<rect x="700" y="395" width="6" height="8" rx="1" fill="#FFC46B" fill-opacity="0.55" />
+<rect x="990" y="390" width="6" height="8" rx="1" fill="#FFC46B" fill-opacity="0.55" />
 <rect x="0" y="418" width="560" height="66" rx="14" fill="#2B2A4C" />
-<rect x="22" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.35" />
-<rect x="82" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.44999999999999996" />
-<rect x="142" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.55" />
-<rect x="202" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.35" />
-<rect x="262" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.44999999999999996" />
-<rect x="322" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.55" />
-<rect x="382" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.35" />
-<rect x="442" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.44999999999999996" />
-<rect x="502" y="432" width="40" height="22" rx="4" fill="#52D6E6" fill-opacity="0.55" />
-<rect x="0" y="470" width="560" height="4" fill="#FF4F9A" fill-opacity="0.5" />
+<rect x="22" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.35" />
+<rect x="82" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.44999999999999996" />
+<rect x="142" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.55" />
+<rect x="202" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.35" />
+<rect x="262" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.44999999999999996" />
+<rect x="322" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.55" />
+<rect x="382" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.35" />
+<rect x="442" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.44999999999999996" />
+<rect x="502" y="432" width="40" height="22" rx="4" fill="#818CF8" fill-opacity="0.55" />
+<rect x="0" y="470" width="560" height="4" fill="#6366F1" fill-opacity="0.5" />
 <rect x="0" y="484" width="1280" height="6" fill="#3A3A5E" />
 <rect x="640" y="250" width="560" height="270" rx="6" fill="url(#g-facade)" />
 <rect x="640" y="250" width="560" height="10" fill="#fff" fill-opacity="0.05" />
-<path d="M660 330h520l-20 34H680z" fill="#B8306F"/>
+<path d="M660 330h520l-20 34H680z" fill="#4F46E5"/>
 <path d="M660 330h20l-1.5 34h-20z" fill="#2A2748" opacity=".55"/>
 <path d="M700 330h20l-1.5 34h-20z" fill="#2A2748" opacity=".55"/>
 <path d="M740 330h20l-1.5 34h-20z" fill="#2A2748" opacity=".55"/>
@@ -185,34 +185,34 @@
 <rect x="1048" y="390" width="64" height="70" rx="3" fill="url(#g-warmwin)" fill-opacity="0.8" />
 <ellipse cx="910" cy="296" rx="200" ry="60" fill="url(#g-neon)"/>
 <rect x="790" y="272" width="240" height="46" rx="8" fill="#120E20" />
-<text x="910" y="305" font-size="28" font-weight="800" class="h" fill="#FF78B4" text-anchor="middle" letter-spacing="5" filter="url(#glow)">KAVÁRNA</text>
-<text x="1160" y="290" font-size="14" fill="#52D6E6" text-anchor="end" font-weight="700">22–06</text>
+<text x="910" y="305" font-size="28" font-weight="800" class="h" fill="#A5B4FC" text-anchor="middle" letter-spacing="5" filter="url(#glow)">KAVÁRNA</text>
+<text x="1160" y="290" font-size="14" fill="#818CF8" text-anchor="end" font-weight="700">22–06</text>
 <rect x="0" y="520" width="1280" height="200" fill="#11102A" />
-<path d="M690 520h320l70 200H620z" fill="#FFB454" opacity=".10" filter="url(#blur8)"/>
-<ellipse cx="910" cy="560" rx="170" ry="10" fill="#FF4F9A" opacity=".30" filter="url(#blur8)"/>
-<ellipse cx="850" cy="610" rx="190" ry="9" fill="#FFB454" opacity=".22" filter="url(#blur8)"/>
-<rect x="700" y="540" width="300" height="3" rx="1.5" fill="#FFC77F" opacity=".35"/><rect x="760" y="575" width="220" height="2" rx="1" fill="#FF78B4" opacity=".35"/>
+<path d="M690 520h320l70 200H620z" fill="#FFC46B" opacity=".10" filter="url(#blur8)"/>
+<ellipse cx="910" cy="560" rx="170" ry="10" fill="#6366F1" opacity=".30" filter="url(#blur8)"/>
+<ellipse cx="850" cy="610" rx="190" ry="9" fill="#FFC46B" opacity=".22" filter="url(#blur8)"/>
+<rect x="700" y="540" width="300" height="3" rx="1.5" fill="#FFC77F" opacity=".35"/><rect x="760" y="575" width="220" height="2" rx="1" fill="#A5B4FC" opacity=".35"/>
 <path d="M86 224l-3.5 11M96 393l-3.5 16M1015 659l-3.5 13M1153 627l-3.5 13M1105 412l-3.5 15M485 9l-3.5 11M818 715l-3.5 17M497 529l-3.5 15M592 390l-3.5 14M397 63l-3.5 10M636 442l-3.5 17M1147 265l-3.5 11M664 543l-3.5 13M638 174l-3.5 13M254 310l-3.5 16M1127 277l-3.5 15M269 97l-3.5 13M910 684l-3.5 12M144 339l-3.5 17M490 374l-3.5 15M410 597l-3.5 12M868 202l-3.5 13M820 292l-3.5 12M304 101l-3.5 10M571 454l-3.5 15M1227 493l-3.5 12M328 514l-3.5 16M229 196l-3.5 13M504 570l-3.5 17M525 643l-3.5 13M581 450l-3.5 17M704 470l-3.5 14M594 469l-3.5 12M273 648l-3.5 18M687 569l-3.5 13M446 60l-3.5 14M983 351l-3.5 10M549 25l-3.5 14M602 720l-3.5 17M1211 355l-3.5 18M970 316l-3.5 14M669 607l-3.5 14M859 687l-3.5 17M390 102l-3.5 14M733 145l-3.5 14M775 20l-3.5 18M696 712l-3.5 11M884 47l-3.5 14M1179 576l-3.5 13M606 91l-3.5 13M672 78l-3.5 13M1184 93l-3.5 16M46 112l-3.5 10M412 256l-3.5 15M640 419l-3.5 17M919 505l-3.5 17M481 298l-3.5 14M689 622l-3.5 14M678 613l-3.5 15M298 533l-3.5 16M404 227l-3.5 17M996 140l-3.5 11M170 63l-3.5 13M1065 304l-3.5 16M257 452l-3.5 16M257 491l-3.5 17M148 364l-3.5 16M1028 347l-3.5 10M188 133l-3.5 12M1268 667l-3.5 11M172 490l-3.5 11M418 336l-3.5 14M269 269l-3.5 15M1081 131l-3.5 14M519 140l-3.5 11M414 61l-3.5 17M729 137l-3.5 15M1030 186l-3.5 17M1043 292l-3.5 17M982 551l-3.5 13M90 246l-3.5 14M1137 713l-3.5 17M297 680l-3.5 15M277 292l-3.5 11M499 720l-3.5 15M975 706l-3.5 10M946 185l-3.5 13M974 467l-3.5 10M321 652l-3.5 14M1238 409l-3.5 18M1036 55l-3.5 15M495 676l-3.5 13M1095 390l-3.5 15M1210 303l-3.5 14M468 206l-3.5 15M849 538l-3.5 10M750 456l-3.5 13M68 227l-3.5 13M94 652l-3.5 13M321 544l-3.5 10M1200 520l-3.5 14M773 83l-3.5 15M151 620l-3.5 13M159 319l-3.5 15M769 461l-3.5 15M996 382l-3.5 18M940 172l-3.5 11M1004 450l-3.5 13M781 522l-3.5 16M810 542l-3.5 12M643 470l-3.5 12M804 7l-3.5 12M798 74l-3.5 14M967 657l-3.5 11M808 269l-3.5 14M433 356l-3.5 11M1027 322l-3.5 17M569 538l-3.5 13M472 471l-3.5 18M372 546l-3.5 17M547 266l-3.5 11M100 60l-3.5 15M1044 334l-3.5 17M97 154l-3.5 15M890 356l-3.5 16M362 103l-3.5 13M469 85l-3.5 16M561 578l-3.5 12M283 697l-3.5 16M108 597l-3.5 10M749 573l-3.5 16M1020 389l-3.5 17M226 546l-3.5 17M1039 159l-3.5 10M726 696l-3.5 15M82 394l-3.5 16M428 197l-3.5 11M108 457l-3.5 11M314 159l-3.5 16M979 284l-3.5 13M861 355l-3.5 14M906 659l-3.5 13M1092 580l-3.5 17M1226 461l-3.5 14M1027 304l-3.5 13M315 117l-3.5 15M411 280l-3.5 14M1241 43l-3.5 12M388 112l-3.5 17M964 12l-3.5 14M400 142l-3.5 13M768 340l-3.5 14M237 202l-3.5 11M802 678l-3.5 14M620 290l-3.5 18M618 159l-3.5 10M1026 277l-3.5 14M1008 42l-3.5 17M1119 652l-3.5 14M913 436l-3.5 11M988 104l-3.5 17M815 715l-3.5 12M193 555l-3.5 10M1052 59l-3.5 12M1139 499l-3.5 11M24 135l-3.5 12M1000 317l-3.5 10M673 113l-3.5 17M405 292l-3.5 14M854 48l-3.5 11M135 284l-3.5 14M837 9l-3.5 13M304 406l-3.5 14M1096 608l-3.5 16M372 271l-3.5 14M1221 544l-3.5 14M328 144l-3.5 16M396 197l-3.5 14M572 275l-3.5 11M168 454l-3.5 11M515 603l-3.5 15M129 23l-3.5 18M521 52l-3.5 17M1186 100l-3.5 12M1051 278l-3.5 13M797 523l-3.5 15M1257 569l-3.5 15M334 136l-3.5 12M136 272l-3.5 14M1056 440l-3.5 11M702 254l-3.5 14M735 143l-3.5 17M726 19l-3.5 15M174 344l-3.5 13M421 669l-3.5 13M1130 326l-3.5 16M1157 391l-3.5 14M216 537l-3.5 17M770 88l-3.5 17M877 262l-3.5 16M1063 134l-3.5 14M582 290l-3.5 16M394 483l-3.5 16M787 461l-3.5 16M255 337l-3.5 11M151 292l-3.5 13M337 409l-3.5 13M924 567l-3.5 13M768 338l-3.5 13M962 350l-3.5 18M1056 85l-3.5 11M672 311l-3.5 17M1161 213l-3.5 15M937 430l-3.5 16M1130 631l-3.5 12M310 629l-3.5 18M889 379l-3.5 12M841 677l-3.5 17M1109 303l-3.5 16M831 304l-3.5 11M126 570l-3.5 11M1 176l-3.5 12M220 317l-3.5 14M181 498l-3.5 12M40 647l-3.5 12M183 559l-3.5 16M259 618l-3.5 16M250 603l-3.5 13M21 457l-3.5 16M682 170l-3.5 18M832 220l-3.5 17M1113 513l-3.5 11M531 122l-3.5 17M909 141l-3.5 11M642 213l-3.5 12M755 165l-3.5 12M854 199l-3.5 15M592 55l-3.5 17M679 33l-3.5 15M688 305l-3.5 15M365 544l-3.5 12M940 21l-3.5 16M1264 24l-3.5 14M3 642l-3.5 10M712 464l-3.5 13M1002 372l-3.5 14M760 555l-3.5 11M301 317l-3.5 16M332 392l-3.5 17M335 146l-3.5 18M733 628l-3.5 11M779 438l-3.5 16M926 617l-3.5 10M1161 410l-3.5 14M798 39l-3.5 13M1049 532l-3.5 16M113 591l-3.5 11M318 358l-3.5 15M78 296l-3.5 13M901 689l-3.5 11M185 328l-3.5 16M4 295l-3.5 14M503 215l-3.5 13M1244 489l-3.5 16M378 86l-3.5 17M591 671l-3.5 13M1211 665l-3.5 12M516 468l-3.5 10M726 657l-3.5 17M592 283l-3.5 17M485 35l-3.5 13M235 396l-3.5 11M512 428l-3.5 16M572 715l-3.5 15M262 276l-3.5 11M464 198l-3.5 10M949 369l-3.5 15M344 260l-3.5 11M175 173l-3.5 17M26 232l-3.5 13M1094 275l-3.5 12M387 438l-3.5 14M193 429l-3.5 10M526 345l-3.5 16M402 325l-3.5 13M1068 385l-3.5 14M495 623l-3.5 12M474 440l-3.5 11M956 348l-3.5 10M845 48l-3.5 17M853 688l-3.5 17M1003 187l-3.5 16M502 43l-3.5 13M364 506l-3.5 12M258 553l-3.5 13M666 535l-3.5 17M612 185l-3.5 17M896 17l-3.5 13M1164 657l-3.5 12M634 422l-3.5 14M1134 52l-3.5 10M1141 407l-3.5 12M822 277l-3.5 13M40 509l-3.5 12M803 447l-3.5 13M81 49l-3.5 14M489 655l-3.5 10M875 196l-3.5 14M1251 108l-3.5 12M330 158l-3.5 14M4 394l-3.5 17M799 404l-3.5 17M338 75l-3.5 10M890 494l-3.5 18M204 448l-3.5 14M473 206l-3.5 16M303 179l-3.5 13M1174 531l-3.5 17M1047 638l-3.5 12M656 489l-3.5 10M1113 38l-3.5 12M324 457l-3.5 13M235 616l-3.5 12M726 303l-3.5 16M1026 90l-3.5 13M296 133l-3.5 10M343 195l-3.5 12M495 489l-3.5 11M913 85l-3.5 10M456 388l-3.5 16M422 19l-3.5 14M219 49l-3.5 14M286 520l-3.5 13M1256 280l-3.5 16M1024 106l-3.5 11M712 646l-3.5 17M154 233l-3.5 10M350 288l-3.5 13M617 263l-3.5 12M194 5l-3.5 16M5 242l-3.5 11M1269 294l-3.5 10M1033 285l-3.5 10M355 676l-3.5 17M731 677l-3.5 10M1209 388l-3.5 15M459 543l-3.5 12M13 151l-3.5 18M982 191l-3.5 12M511 578l-3.5 17M1198 347l-3.5 17M321 655l-3.5 10M291 280l-3.5 13M1038 263l-3.5 15M400 48l-3.5 15M339 154l-3.5 11M951 393l-3.5 15M445 112l-3.5 13M551 7l-3.5 14M121 684l-3.5 17M27 126l-3.5 11M741 232l-3.5 14M639 562l-3.5 17M90 281l-3.5 17M995 378l-3.5 10M1166 40l-3.5 15M1136 617l-3.5 15M155 532l-3.5 16M852 302l-3.5 13M481 390l-3.5 10M676 325l-3.5 12M761 671l-3.5 11M420 184l-3.5 15M943 712l-3.5 13M964 646l-3.5 11M1075 467l-3.5 18M1021 368l-3.5 18M237 28l-3.5 13M581 386l-3.5 17M626 692l-3.5 12M710 567l-3.5 14M92 358l-3.5 10M1020 109l-3.5 13M427 669l-3.5 18M1067 85l-3.5 11M40 491l-3.5 14M92 711l-3.5 12M1122 524l-3.5 12M484 588l-3.5 16M843 150l-3.5 12M220 418l-3.5 10M149 678l-3.5 15M393 6l-3.5 11M942 259l-3.5 12M256 51l-3.5 12M1050 294l-3.5 14M1205 249l-3.5 16M630 85l-3.5 11M1219 56l-3.5 15M1195 279l-3.5 16M574 46l-3.5 13M748 474l-3.5 12M860 176l-3.5 13M759 624l-3.5 13M437 591l-3.5 17M699 72l-3.5 17M1011 12l-3.5 10M1267 587l-3.5 17M601 260l-3.5 14M614 469l-3.5 10M1250 715l-3.5 13M832 505l-3.5 18M1280 472l-3.5 16M663 421l-3.5 14M660 69l-3.5 16M214 467l-3.5 15M849 698l-3.5 14M554 112l-3.5 13M1209 645l-3.5 10M529 404l-3.5 18M386 365l-3.5 11M166 64l-3.5 14M452 177l-3.5 15M70 157l-3.5 14M588 613l-3.5 11M184 406l-3.5 11M529 8l-3.5 11M940 513l-3.5 11M518 355l-3.5 17M499 216l-3.5 12M841 302l-3.5 17M837 638l-3.5 18M505 216l-3.5 16M282 61l-3.5 16M459 310l-3.5 14M398 382l-3.5 11M701 288l-3.5 12M913 23l-3.5 13M665 379l-3.5 16M520 696l-3.5 10M1230 263l-3.5 15M1075 151l-3.5 16M403 358l-3.5 14M68 67l-3.5 12M1034 679l-3.5 15M515 206l-3.5 15M508 162l-3.5 12M406 590l-3.5 16M73 550l-3.5 10M707 668l-3.5 15M790 492l-3.5 12M1054 345l-3.5 13M221 60l-3.5 15M484 322l-3.5 13M570 646l-3.5 16M1224 256l-3.5 17M900 286l-3.5 16M1181 152l-3.5 13M1074 89l-3.5 17M522 646l-3.5 17M863 668l-3.5 14M655 347l-3.5 14M989 233l-3.5 10M834 271l-3.5 16M580 424l-3.5 14M615 706l-3.5 13M299 188l-3.5 16M329 46l-3.5 17M311 154l-3.5 17M716 703l-3.5 17M495 85l-3.5 11M870 360l-3.5 11M727 397l-3.5 13M572 699l-3.5 13M125 565l-3.5 12M1102 531l-3.5 13M979 419l-3.5 17M882 262l-3.5 18M779 598l-3.5 18M319 15l-3.5 14M855 206l-3.5 14M621 196l-3.5 12M1208 110l-3.5 13M780 392l-3.5 16M392 308l-3.5 16M616 494l-3.5 13M1208 364l-3.5 15M1133 54l-3.5 14M387 2l-3.5 17M250 265l-3.5 13M79 480l-3.5 11M529 103l-3.5 17M559 489l-3.5 11M784 666l-3.5 17M534 350l-3.5 11M38 677l-3.5 17M173 216l-3.5 13M1202 703l-3.5 18M1099 673l-3.5 10M1018 718l-3.5 15M1195 62l-3.5 14M140 215l-3.5 12M530 107l-3.5 11M1 49l-3.5 16M1067 293l-3.5 13M502 647l-3.5 12M750 379l-3.5 13M582 169l-3.5 17M257 152l-3.5 14M1003 240l-3.5 12M762 413l-3.5 15M236 167l-3.5 12M946 147l-3.5 10M691 57l-3.5 16M565 32l-3.5 14M475 257l-3.5 17M1280 302l-3.5 15M433 569l-3.5 13M720 680l-3.5 11M67 24l-3.5 18" stroke="#A9BBFF" stroke-opacity=".22" stroke-width="1.2" stroke-linecap="round"/>
 <rect width="640" height="720" fill="url(#g-left)"/>
-<!-- Логотип — отдельный растровый/векторный спрайт; здесь текст-заглушка -->
-<text x="64" y="152" font-size="52" font-weight="800" class="h" fill="#FF4F9A" opacity=".55" filter="url(#glow)">Ночная смена</text>
-<text x="64" y="152" font-size="52" font-weight="800" class="h" fill="#FFF1F7">Ночная смена</text>
-<text x="66" y="182" font-size="15" fill="#A9A7C9" font-weight="500">Kavárna U Nádraží  ·  22:00–06:00</text>
+<!-- Logo — a separate sprite; placeholder text here -->
+<text x="64" y="152" font-size="52" font-weight="800" class="h" fill="#6366F1" opacity=".55" filter="url(#glow)">Shiftella</text>
+<text x="64" y="152" font-size="52" font-weight="800" class="h" fill="#EEF0FF">Shiftella</text>
+<text x="66" y="182" font-size="15" fill="#A9A7C9" font-weight="500">U Výhybky  ·  22:00–06:00</text>
 <g filter="url(#sh)"><rect x="56" y="250" width="300" height="236" rx="14" fill="url(#g-panel)" fill-opacity="0.82"/></g><rect x="56.5" y="250.5" width="299" height="235" rx="13.5" fill="none" stroke="#fff" stroke-opacity=".07"/>
 <use href="#i-continue" x="80" y="268" width="20" height="20" color="#A9A7C9"/>
-<text x="112" y="284" font-size="16" fill="#EEEDF7" font-weight="600">Продолжить</text>
-<text x="340" y="284" font-size="12" fill="#6F6D97" text-anchor="end">ночь 3 · 01:40</text>
+<text x="112" y="284" font-size="16" fill="#EEEDF7" font-weight="600">Continue</text>
+<text x="340" y="284" font-size="12" fill="#6F6D97" text-anchor="end">night 3 · 01:40</text>
 <use href="#i-book" x="80" y="312" width="20" height="20" color="#A9A7C9"/>
-<text x="112" y="328" font-size="16" fill="#EEEDF7" font-weight="600">Сюжет</text>
-<rect x="64" y="346" width="284" height="40" rx="10" fill="#FF4F9A" fill-opacity="0.16" />
-<rect x="64" y="356" width="3" height="20" rx="1.5" fill="#FF4F9A" />
-<use href="#i-cube" x="80" y="356" width="20" height="20" color="#FF78B4"/>
-<text x="112" y="372" font-size="16" fill="#EEEDF7" font-weight="600">Песочница</text>
-<use href="#i-chev_r" x="322" y="358" width="16" height="16" color="#FF78B4"/>
+<text x="112" y="328" font-size="16" fill="#EEEDF7" font-weight="600">Story</text>
+<rect x="64" y="346" width="284" height="40" rx="10" fill="#6366F1" fill-opacity="0.16" />
+<rect x="64" y="356" width="3" height="20" rx="1.5" fill="#6366F1" />
+<use href="#i-cube" x="80" y="356" width="20" height="20" color="#A5B4FC"/>
+<text x="112" y="372" font-size="16" fill="#EEEDF7" font-weight="600">Sandbox</text>
+<use href="#i-chev_r" x="322" y="358" width="16" height="16" color="#A5B4FC"/>
 <use href="#i-sliders" x="80" y="400" width="20" height="20" color="#A9A7C9"/>
-<text x="112" y="416" font-size="16" fill="#EEEDF7" font-weight="600">Настройки</text>
+<text x="112" y="416" font-size="16" fill="#EEEDF7" font-weight="600">Settings</text>
 <use href="#i-exit" x="80" y="444" width="20" height="20" color="#A9A7C9"/>
-<text x="112" y="460" font-size="16" fill="#EEEDF7" font-weight="600">Выход</text>
-<text x="64" y="690" font-size="12" fill="#A9A7C9">↑ ↓ — выбрать  ·  Enter — открыть  ·  Esc — назад</text>
-<text x="1256" y="690" font-size="12" fill="#6F6D97" text-anchor="end">v0.1.0 · сборка 2026-11-25</text>
+<text x="112" y="460" font-size="16" fill="#EEEDF7" font-weight="600">Quit</text>
+<text x="64" y="690" font-size="12" fill="#A9A7C9">↑ ↓ — select  ·  Enter — open  ·  Esc — back</text>
+<text x="1256" y="690" font-size="12" fill="#6F6D97" text-anchor="end">v0.1.0</text>
 </svg>

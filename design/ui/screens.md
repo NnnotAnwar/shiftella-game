@@ -1,218 +1,233 @@
-# «Ночная смена» — экраны
+# Shiftella — screens
 
-Все координаты даны в **логических точках (pt) на опорном экране 1280 × 720** (`x, y, w × h`, начало координат в левом верхнем углу).
-У каждого блока указан **якорь**: при другом размере окна блок держится за этот край или угол, а размеры остаются в pt и умножаются на `ui_scale` (см. `style-guide.md`, п. 1).
-Обозначения: `W`, `H` — размер окна в pt; «baseline» — базовая линия текста.
+> **Layout spec, written before implementation (v2).** The shipped screens live in `src/screens/**` and
+> follow this spec loosely: the panels, toasts, tooltips and one-click/undo rules below all made it in, but
+> exact positions changed, the schedule became the weekly **rozpis** inside the in-game **Shiftella** app
+> (`T`), and the hotkeys changed to `C/P/T/B/L` with a `WASD` camera. The hotkey table below is the shipped
+> one; the per-screen details are kept as design history. For how the game plays today, see
+> [`docs/PLAYING.md`](../../docs/PLAYING.md).
 
-Макеты: `hud.svg`, `staff.svg`, `priorities.svg`, `schedule.svg`, `build.svg`, `tooltip-and-event.svg`, `main-menu.svg`, `sandbox-setup.svg`, плюс `components.svg` (все компоненты и токены). Превью — `index.html`.
+All coordinates are in **logical points (pt) on the 1280 × 720 reference screen** (`x, y, w × h`, origin at the top left).
+Every block has an **anchor**: in a different window size the block holds on to that edge or corner, and its sizes stay in pt, multiplied by `ui_scale` (see `style-guide.md`, §1).
+Notation: `W`, `H` — the window size in pt; "baseline" — the text baseline.
+
+Mockups: `hud.svg`, `staff.svg`, `priorities.svg`, `schedule.svg`, `build.svg`, `tooltip-and-event.svg`, `main-menu.svg`, `sandbox-setup.svg`, plus `components.svg` (all the components and tokens). Preview — `index.html`.
 
 ---
 
-## Горячие клавиши (сводка)
+## Hotkeys (summary, shipped)
 
-| Клавиша | Действие | Где |
+| Key | Action | Where |
 |---|---|---|
-| `Space` | пауза / продолжить | везде в ночи |
-| `1` `2` `3` | скорость ×1 / ×2 / ×3 (на паузе сразу запускает) | везде в ночи |
-| `Q` | Персонал | ночь |
-| `W` | Приоритеты работ | ночь |
-| `E` | Расписание (днём редактируется, ночью только просмотр) | везде |
-| `B` | Стройка | ночь и день |
-| `L` | Журнал событий | везде |
-| `F` | развернуть / свернуть последнее событие | ночь |
-| `Shift+F` | скрыть все тосты (они остаются в журнале) | ночь |
-| `Esc` | закрыть верхнюю панель, а если открытых нет — меню паузы | везде |
-| `Ctrl+Z` / `Ctrl+Shift+Z` | отменить / вернуть (стройка, расписание, приоритеты, снос) | везде |
-| `R` · `X` · `Tab` | повернуть · режим сноса · следующая вкладка | Стройка |
-| `H` | нанять (открывает список кандидатов в той же панели) | Персонал |
-| `C` | «как вчера» (скопировать расписание) | Расписание |
-| `Enter` | «Начать ночь» / «Начать» | План / Песочница |
-| стрелки, колесо, средняя кнопка, `Home` | камера: сдвиг, зум, перетаскивание, к кафе | мир |
+| `Space` | pause / resume | the whole night |
+| `1` `2` `3` | speed ×1 / ×2 / ×3 (starts the clock if paused) | the whole night |
+| `C` | Crew — needs, skills, traits, relationships; hire, let go | day and night |
+| `P` | Work priorities | day and night |
+| `T` | The Shiftella app — rozpis, requests, messages, board, checklists, digest, payroll | day and night |
+| `B` | Build | day and night |
+| `L` | Event log (tonight / story) — also a click on the ticker | everywhere |
+| `M` | sound on / off | everywhere |
+| `Esc` | close the top panel; with nothing open — the pause menu | everywhere |
+| `Ctrl+Z` | undo (build, rozpis, priorities, demolish) | everywhere |
+| `R` · `X` | rotate · demolish mode | Build |
+| `Enter` | "Start the night" (day) · close the morning summary | planning / summary |
+| `WASD` / arrows, right-drag, wheel, `Home` | camera: pan, drag, zoom, frame the whole café | the world |
 
-Цифры заняты скоростью, поэтому в приоритетах и расписании они **не используются**, там всё делается мышью.
-Клавиши привязаны к физическим кнопкам (KeyCode), поэтому работают и при русской или чешской раскладке.
+In cutscenes: click / `Space` — next line, `1–4` — choices, hold `Esc` — skip, `A` — auto-advance, hold `Ctrl` — faster.
+
+Digits are taken by the speed controls, so priorities and the rozpis **don't use them** — everything there is done with the mouse.
+Keys are bound to physical keys (KeyCode), so they also work with a Czech, Slovak or Ukrainian keyboard layout.
+
+*(historical)* The v2 spec used `Q` crew, `W` priorities, `E` schedule, `F` / `Shift+F` to expand or hide toasts,
+`H` hire, `C` "same as yesterday", `Tab` for build tabs and arrow / middle-button panning.
 
 ---
 
-## 1. HUD поверх карты — `hud.svg`
+## 1. HUD over the map — `hud.svg`
 
-Карта занимает весь экран. Сверху и снизу её перекрывают HUD-карточки (полупрозрачные, 92 %).
+The map fills the whole screen. HUD cards (translucent glass) overlap it at the top and bottom.
 
-| Блок | Якорь | Рамка (pt) | Содержимое |
+| Block | Anchor | Frame (pt) | Contents |
 |---|---|---|---|
-| **Часы и скорость** | левый верх | `12, 12, 340 × 64`, радиус 10 | иконка `clock` 20 `cyan` @ (24, 24) · время `01:40` Manrope 22/700, x 50, baseline 42 · «Пт · ночь 3» 12 `text2`, x 118 · 4 кнопки скорости 28×28 @ x 222 / 252 / 282 / 312, y 20 (шаг 30): `pause`, `play` ×1, `ff2` ×2, `ff3` ×3, выбранная в состоянии active · **шкала ночи** `24, 58, 316 × 6`, радиус 3 |
-| **Лента событий** | центр верх | `W/2 − 200, 12, 400 × 32`, радиус 8 | иконка категории 16 @ (+12, +8) · время 12/600 `muted` @ +36 · текст 13/500 @ +76 (обрезается многоточием) · разделитель @ w − 44 · иконка `log` 16 и буква «L» справа |
-| **Ресурсы** | правый верх | `W − 352, 12, 340 × 64`, радиус 10 | ряд 1 (baseline 38): `coin` 18 `amber` + «12 480 Kč» 16/700 `amber` · `star` 18 `warn` + «4,2» 15/700 и изменение за ночь «+0,1» 11 `good` · `guest` 18 + «14 / 20» 15/700 · разделитель y 48 · ряд 2 (baseline 66, 12 pt): «+1 860 Kč за ночь» `good` · «очередь 3» · `rain` 14 + «дождь, 9 °C» |
-| **Состав смены** | левый край | `12, 88, 56 × (12 + n·52)` | портреты 40×40, радиус 8, @ (20, 96 + i·52) · под каждым полоса худшей нужды 40×3 · красная точка r 5 @ (57, y+3), если нужда < 25 % · выбранный обведён кольцом `accent` |
-| **Тулбар экранов** | левый низ | `12, H − 48, auto × 36`, радиус 10 | ghost-кнопки h 28 @ y + 4, шаг 4: [`staff` Персонал `Q`] [`prio` Приоритеты `W`] [`calendar` Расписание `E`] [`hammer` Стройка `B`] [`log` Журнал `L`] [`menu` 28×28]. Ширина кнопки = 8 + 18 + 6 + текст + 10 + 18 + 6. Открытый экран подсвечен состоянием active |
-| **Стек событий** | правый низ | `W − 332, низ H − 12, 320 × 56` каждый, зазор 8 | новые снизу, видно максимум 3, старшие уходят в журнал (см. п. 7) |
-| **Плашка-имя** | над выбранным персонажем (мир) | 64 × 20, радиус 10 | имя 12/600 + мини-полоса худшей нужды 8×3 |
+| **Clock and speed** | top left | `12, 12, 340 × 64`, radius 10 | `clock` icon 20 @ (24, 24) · time `01:40` 22/Bold, x 50, baseline 42 · "Fri · night 3" 12 `text_dim`, x 118 · 4 speed buttons 28×28 @ x 222 / 252 / 282 / 312, y 20 (step 30): `pause`, `play` ×1, `ff2` ×2, `ff3` ×3, the chosen one active · **night progress bar** `24, 58, 316 × 6`, radius 3 |
+| **Event ticker** | top centre | `W/2 − 200, 12, 400 × 32`, radius 8 | category icon 16 @ (+12, +8) · time 12/SemiBold muted @ +36 · text 13/Medium @ +76 (cut with an ellipsis) · divider @ w − 44 · a `log` icon 16 and the letter "L" on the right |
+| **Resources** | top right | `W − 352, 12, 340 × 64`, radius 10 | row 1 (baseline 38): `coin` 18 `amber` + "12 480 Kč" 16/Bold `amber` · `star` 18 + "4.2" 15/Bold and tonight's change "+0.1" 11 `good` · `guest` 18 + "14 / 20" 15/Bold · divider y 48 · row 2 (baseline 66, 12 pt): "+1 860 Kč tonight" `good` · "queue 3" · `rain` 14 + "rain, 9 °C" |
+| **Crew on shift** | left edge | `12, 88, 56 × (12 + n·52)` | portraits 40×40, radius 8, @ (20, 96 + i·52) · under each, a 40×3 bar of their worst need · a red r 5 dot @ (57, y+3) if a need is < 25 % · the selected one has an `indigo` ring |
+| **Screen toolbar** | bottom left | `12, H − 48, auto × 36`, radius 10 | ghost buttons h 28 @ y + 4, step 4: [`staff` Crew `C`] [`prio` Priorities `P`] [`calendar` Shiftella `T`] [`hammer` Build `B`] [`log` Log `L`] [`menu` 28×28]. Button width = 8 + 18 + 6 + text + 10 + 18 + 6. The open screen is shown as active |
+| **Toast stack** | bottom right | `W − 332, bottom H − 12, 320 × 56` each, gap 8 | newest at the bottom, at most 3 visible, older ones go to the log (see §7) |
+| **Name tag** | above the selected character (world) | 64 × 20, radius 10 | name 12/SemiBold + a mini 8×3 bar of their worst need |
 
-**Шкала ночи** (22:00 → 06:00, 8 часов, 39,5 pt на час):
-- трек белый 8 %, пройденная часть идёт градиентом `violet → cyan`, текущий момент отмечен белым кругом r 5 с тенью;
-- часовые засечки 1×4 чёрные 35 %; последний час (05–06) тонирован «рассветом» (`amber` 0 → 45 %);
-- **поезда** обозначены треугольниками `amber` 6×4 над шкалой (22:47, 00:15, 04:52) и предупреждают о наплыве гостей;
-- hover над шкалой показывает подсказку со временем и ближайшим событием, клик по треугольнику — «Поезд 00:15 · ожидается ~8 гостей».
+**Night progress bar** (22:00 → 06:00, 8 hours, 39.5 pt per hour):
+- track white 8 %, the elapsed part in a `violet → indigo` gradient, the current moment a white r 5 circle with a shadow;
+- hour ticks 1×4, black 35 %; the last hour (05–06) tinted with "dawn" (`amber` 0 → 45 %);
+- **trains** are small `amber` 6×4 triangles above the bar (e.g. 22:47, 00:15, 01:52, 05:20) and warn of a rush of guests;
+- hovering the bar shows a tooltip with the time and the nearest event; clicking a triangle — "Train 00:15 · ~8 guests expected".
 
-**Взаимодействия.** Клик по портрету в составе смены выделяет сотрудника и центрирует камеру (двойной клик открывает «Персонал» на нём). Клик по ленте открывает журнал. По ресурсам при наведении видна разбивка (выручка, зарплаты, закупки). На кнопках скорости всплывает подсказка с клавишей.
-
----
-
-## 2. Персонал — `staff.svg` (клавиша `Q`)
-
-Панель **прикреплена слева** и заменяет колонку «Состав смены». Игра **не встаёт на паузу**. Клик по карте вне панели её не закрывает, закрывают `Esc`, `Q` или ✕.
-
-| Элемент | Рамка / позиция |
-|---|---|
-| Панель | `12, 88, 600 × min(H − 148, 760)` (на 720 получается 572), радиус 12 |
-| Шапка | «Персонал» `h1` @ (28, baseline 116) · keycap `Q` · «5 на смене · 7 всего» 12 `text2` · ✕ 24×24 @ (576, 100) · разделитель y 132 |
-| **Список** | x 24 … 328 · заголовки колонок baseline 152: «СОТРУДНИК» (`micro`) и иконки `bolt` / `smile` / `bowl` 16 по центрам x 230 / 266 / 302 |
-| Строка | `24, 160 + i·48, 304 × 44`, радиус 8 · портрет 32 @ (34, y+6) · имя 13/600 @ (76, y+19) · точка статуса r 3 (`cyan` работает, `warn` перерыв, `muted` не на смене) + текущее занятие 12 `text2` @ (89, y+36) · три полосы нужд 28×4 @ (центр − 14, y+20) |
-| Состояния строки | hover — белый 5 % · **выбрана** — `accent` 13 % + полоска 3×28 слева · не на смене — имя `text2` |
-| Сортировка | «Сортировка» 12 `muted` @ (32, 520) + сегменты h 24 @ y 506: [Имя] [Энергия] [Настроение]. Клик по выбранному сегменту меняет направление |
-| Нанять | кнопка `24, 620, 132 × 28` (`plus`, keycap `H`) + «кандидаты: 3» 12 `muted` |
-| Разделитель | вертикальный x 340, y 140 … 648 |
-| **Карточка** | x 352 … 600 |
-| · шапка | портрет 64 @ (352, 144), радиус 12 · имя `h2` 16 @ (428, 162) · «Официант · 22 года · 150 Kč/ч» 12 @ baseline 181 · чип текущей работы `info` h 22 @ (428, 192) |
-| · НУЖДЫ | заголовок baseline 236 · строки y 246 + i·24: иконка 16 @ x 352, подпись 13 @ x 376, полоса 96×6 @ x 466, значение 12/600 справа по x 600 (красным, если < 25 %) |
-| · ЧЕРТЫ | заголовок baseline 340 · чипы h 22 с y 350, зазор 6, перенос строки +28 · цвет: позитивная `good`, нейтральная белый 8 %, негативная `bad` |
-| · НАВЫКИ | заголовок baseline 420 · строки y 430 + i·22: название 13, `heart` 14 `accent_hi` = «любимое дело», полоса `amber` 132×6 @ x 440 (0–10), число справа x 600 |
-| · ОТНОШЕНИЯ | заголовок baseline 560 · строки y 570 + i·28: портрет 22, сердце / разбитое сердце 14, имя 13/600 + тип отношений 12 `text2`, значение справа (`good` / `bad`) |
-
-**Взаимодействия.** Клик по строке выделяет сотрудника и двигает к нему камеру (без зума), двойной клик открывает «Следовать камерой». Наведение на полосу показывает число и причины («−12: долго без перерыва»). Клик по навыку открывает «Приоритеты», где подсвечивается этот сотрудник. Всё правится прямо здесь, вложенных окон нет. «Уволить» лежит в карточке внизу как текстовая кнопка `danger` (на макете не показана): срабатывает сразу, а в течение 10 с можно нажать Undo.
+**Interactions.** Clicking a portrait in the crew column selects that person and centres the camera (a double click opens Crew on them). Clicking the ticker opens the log. Hovering the resources shows a breakdown (revenue, wages, supplies). The speed buttons show a tooltip with their key.
 
 ---
 
-## 3. Приоритеты работ — `priorities.svg` (клавиша `W`)
+## 2. Crew — `staff.svg` (key `C`)
 
-| Элемент | Рамка / позиция |
+The panel is **docked on the left** and replaces the crew column. The game **doesn't pause**. Clicking the map outside the panel doesn't close it; `Esc`, `C` or ✕ do.
+
+| Element | Frame / position |
 |---|---|
-| Панель | `12, 88, 516 × 420`, якорь левый край, радиус 12 |
-| Шапка | «Приоритеты работ» `h1` + keycap `W` · ✕ @ (492, 100) · разделитель y 132 |
-| Колонки работ | `x0 = 216 + i·72`, ширина 72 · иконка 24 @ (x0 + 24, 146) · подпись 12/600 по центру x0 + 36, baseline 186 · колонка под курсором подсвечена белым 5 % (`x0 + 4, 140, 64 × 52`) |
-| Работы | `pan` Кухня · `cup` Бар · `register` Касса · `broom` Уборка |
-| Строка | `24, 200 + r·36, 492 × 34` (чётные строки белый 2,5 %) · портрет 24 @ (30, y+5) · имя 13/500 @ (62, y+22) |
-| Ячейка | `x0 + 12, y + 4, 48 × 26`, радиус 6 (стили см. стайлгайд 5.3) · полоска навыка 2 pt внизу |
-| Hover ячейки | кольцо `cyan` 2 pt + подсказка 196×52 справа: «Míša · Касса» / «навык 5 · колесо ↑↓ — сменить» |
-| Легенда | разделитель y 456 · 12 `text2` baseline 478: «ЛКМ — выше · ПКМ — ниже · колесо · тянуть — кистью» · 12 `muted` baseline 496: «Shift + клик по столбцу — всем · 1 = важнее всего, — = не делает» |
+| Panel | `12, 88, 600 × min(H − 148, 760)` (572 at 720), radius 12 |
+| Header | "Crew" `h1` @ (28, baseline 116) · keycap `C` · "5 on shift · 7 in total" 12 `text_dim` · ✕ 24×24 @ (576, 100) · divider y 132 |
+| **List** | x 24 … 328 · column headers baseline 152: "CREW MEMBER" (`micro`) and the `bolt` / `smile` / `bowl` 16 icons centred at x 230 / 266 / 302 |
+| Row | `24, 160 + i·48, 304 × 44`, radius 8 · portrait 32 @ (34, y+6) · name 13/SemiBold @ (76, y+19) · status dot r 3 (indigo working, `amber` on a break, muted off shift) + the current activity 12 `text_dim` @ (89, y+36) · three need bars 28×4 @ (centre − 14, y+20) |
+| Row states | hover — white 5 % · **selected** — `indigo` 13 % + a 3×28 bar on the left · off shift — name in `text_dim` |
+| Sorting | "Sort by" 12 muted @ (32, 520) + h 24 segments @ y 506: [Name] [Energy] [Mood]. Clicking the selected segment flips the direction |
+| Hire | button `24, 620, 132 × 28` (`plus`) + "candidates: 3" 12 muted |
+| Divider | vertical x 340, y 140 … 648 |
+| **Card** | x 352 … 600 |
+| · header | portrait 64 @ (352, 144), radius 12 · name `h2` @ (428, 162) · "Server · 22 years · 150 Kč/h" 12 @ baseline 181 · current-job chip `info` h 22 @ (428, 192) |
+| · NEEDS | header baseline 236 · rows y 246 + i·24: icon 16 @ x 352, label 13 @ x 376, bar 96×6 @ x 466, value 12/SemiBold right-aligned at x 600 (red if < 25 %) |
+| · TRAITS | header baseline 340 · chips h 22 from y 350, gap 6, wrapping +28 · colour: positive `good`, neutral white 8 %, negative `bad` |
+| · SKILLS | header baseline 420 · rows y 430 + i·22: name 13, a `heart` 14 = "favourite job", an `amber` bar 132×6 @ x 440 (0–10), the number right-aligned at x 600 |
+| · RELATIONSHIPS | header baseline 560 · rows y 570 + i·28: portrait 22, heart / broken heart 14, name 13/SemiBold + relationship type 12 `text_dim`, value on the right (`good` / `bad`) |
 
-**Значения:** `1` (важнее всего) → `2` → `3` → `4` → `—` (не делает). Персонаж берёт работу с наименьшим числом, при равенстве — ближайшую.
-**Ввод — только мышь, ничего не подтверждается:**
-- ЛКМ поднимает приоритет на ступень (`—` → 4 → 3 → 2 → 1), ПКМ опускает, колесо над ячейкой листает;
-- **кисть**: зажать ЛКМ и провести по ячейкам, и всем им проставится значение первой ячейки;
-- `Shift` + клик по заголовку колонки ставит значение всем, `Shift` + клик по имени — всем работам сотрудника;
-- «не может» (черта, травма) показан штриховкой и ✕, клик игнорируется, причина в подсказке.
+**Interactions.** Clicking a row selects the person and moves the camera to them (no zoom). Hovering a bar shows the number and the reasons ("−12: a long time without a break"). Clicking a skill opens Priorities with this person highlighted. Everything is edited right here — no nested windows. "Let go" sits at the bottom of the card as a `danger` text button (not shown in the mockup): it acts at once, and Undo works for a while afterwards.
 
 ---
 
-## 4. Расписание смен (дневная фаза) — `schedule.svg` (клавиша `E`)
+## 3. Work priorities — `priorities.svg` (key `P`)
 
-Полноэкранный экран фазы планирования. Карта видна под ним, затемнённая (темнота 55 % + `bg0` 55 %).
-
-| Элемент | Рамка / позиция |
+| Element | Frame / position |
 |---|---|
-| Верхняя полоса | `0, 0, W × 48`, панель без радиуса · «Планирование · день 4» `h1` @ (24, baseline 31) · «следующая ночь: пятница, 22:00–06:00» 12 `text2` @ x 232 · справа деньги (`coin` + 16/700 `amber`) |
-| Главная панель | `24, 64, W − 48 × 520` (max-width 1440, по центру), радиус 12 |
-| Заголовок | «Расписание смен» 16/700 @ (40, 94) + keycap `E` · справа прогноз-чипы h 24 @ y 76: `rain` «дождь 80 %» (`info`), `train` «поезда 22:47 · 00:15 · 04:52», `guest` «прогноз ~46 гостей» · разделитель y 110 |
-| Сетка | `GX = 264`, слот = **30 мин = 44 pt**, час = 88 pt, 16 слотов (264 … 968) · подписи часов 11/600 `text2` baseline 128 на границах часов · вертикали: час — белый 7 %, полчаса — 4 % |
-| Правые колонки | «ЧАСЫ» центр x 1010 · «KČ» центр x 1090 · «ЭНЕРГИЯ» полоса 70×5 @ x 1150 + `warn` 14 @ x 1226, если < 25 % |
-| Строка | `40, 136 + i·40, 1200 × 36` (чётные белый 3,5 %) · портрет 24 @ (46, y+6) · имя 13/600 @ (80, y+17) · роль 11 `text2` @ (80, y+31) |
-| **Блок смены** | `GX + a·44 + 2, y + 6, (b − a)·44 − 4 × 24`, радиус 6, градиент `#F0559C → accent_lo`, блик сверху 2 pt (белый 25 %) · подпись «22:00–01:00» 12/600 белым, если ширина ≥ 90 · проблемная смена обведена `warn` 1,5 pt |
-| Перерыв | слот `amber` 22 % + `cup` 14 `amber` по центру |
-| Выходной | «выходной» 12 `muted` по центру сетки |
-| Призрак перетаскивания | пунктир `accent_hi` + заливка `accent` 22 %, над курсором плашка «+1 ч» |
-| **Покрытие** | строка y 424: «Покрытие» 13/600 + «есть / нужно» 11 `muted` · в каждом слоте плашка 38×22 «3/4», тон `good` (хватает) / `warn` (−1) / `bad` (−2 и хуже) 18 % |
-| **Гости (прогноз)** | область y 460 … 516: кривая `cyan` 2 pt + заливка-градиент · поезда — вертикальные линии `amber` 60 % + `train` 14 + время 11/600 |
-| Подвал панели | разделитель y 552 · подсказка 12 `text2` baseline 572 · справа «Итого 30,5 ч · 4 575 Kč» 14/700 |
-| **Встроенное предупреждение** | `24, 596, W − 48 × 36`, `warn` 12 % + обводка `warn` 35 %, радиус 8 · `warn` 18 + текст 13 · справа кнопки в одно действие: «Сократить до 4 ч» (normal, 120×28) и «Оставить» (ghost, 82×28) |
-| Нижние действия | y 652, h 32: [`undo` Отменить `⌃Z`] `24, w 148` · [`copy` Как вчера `C`] `180, w 152` · [`trash` Очистить] ghost `340, w 120` · справа **[`play` Начать ночь `Enter`] primary** `W − 204, w 180` |
+| Panel | `12, 88, 516 × 420`, anchored to the left edge, radius 12 |
+| Header | "Work priorities" `h1` + keycap `P` · ✕ @ (492, 100) · divider y 132 |
+| Job columns | `x0 = 216 + i·72`, width 72 · icon 24 @ (x0 + 24, 146) · label 12/SemiBold centred at x0 + 36, baseline 186 · the column under the cursor is highlighted white 5 % (`x0 + 4, 140, 64 × 52`) |
+| Jobs | `pan` Kitchen · `cup` Bar · `register` Register · `broom` Cleaning *(the shipped game adds Serving)* |
+| Row | `24, 200 + r·36, 492 × 34` (even rows white 2.5 %) · portrait 24 @ (30, y+5) · name 13/Medium @ (62, y+22) |
+| Cell | `x0 + 12, y + 4, 48 × 26`, radius 6 (styles in style-guide §5.3) · a 2 pt skill bar at the bottom |
+| Cell hover | a 2 pt indigo ring + a 196×52 tooltip to the right: "Míša · Register" / "skill 5 · wheel ↑↓ — change" |
+| Legend | divider y 456 · 12 `text_dim` baseline 478: "Left-click — higher · right-click — lower · wheel · drag — paint" · 12 muted baseline 496: "Shift + click a column — everyone · 1 = most important, — = never" |
 
-**Ввод:** протянуть ЛКМ по строке — рисуется смена, `Shift` + протяжка — перерыв, ПКМ / протяжка ПКМ — стирание. Края блока тянутся за ручки (курсор ↔). Клик по пустому месту ставит 1 слот. Действие «Очистить» срабатывает сразу, вернуть можно через Undo.
-Предупреждения (переработка > 8 ч, энергия < 25 %, не хватает людей) показываются **в полосе под сеткой** и в ячейках покрытия, модальных окон нет. Ночью экран открывается только на просмотр: блоки полупрозрачные, а вверху надпись «Изменения — днём».
+**Values:** `1` (most important) → `2` → `3` → `4` → `—` (never). A person takes the job with the lowest number; on a tie, the nearest one.
+**Input — mouse only, nothing to confirm:**
+- left-click raises the priority one step (`—` → 4 → 3 → 2 → 1), right-click lowers it, the wheel over a cell cycles it;
+- **paint**: hold the left button and drag across cells, and they all get the first cell's value;
+- `Shift` + click a column header sets the value for everyone; `Shift` + click a name — for all of that person's jobs;
+- "can't" (a trait, an injury) is shown with hatching and ✕; clicks are ignored and the reason is in the tooltip.
 
 ---
 
-## 5. Стройка и мебель — `build.svg` (клавиша `B`)
+## 4. Shift schedule (day phase) — `schedule.svg` (key `T`)
 
-| Элемент | Рамка / позиция |
+*(historical)* The v2 layout below is a free-form half-hour slot grid. The shipped game replaced it with the
+**rozpis** tab of the in-game Shiftella app: a weekly grid of shifts per person (22–06, 22–02, 02–06, off),
+edited as a **draft** and sent to everyone with **Publish**; the night uses the published rozpis. The app's
+other tabs are Requests (swaps, dovolená, náhradní volno), Messages (@shiftella_bot), Board (announcements and
+the předávka), Checklists, the Night digest and the Payroll basis (podklady pro mzdy).
+
+A full-screen screen of the planning phase. The map is visible underneath, dimmed (darkness 55 % + `ink` 55 %).
+
+| Element | Frame / position |
 |---|---|
-| Панель | `12, H − 208, 1000 × 148` (на 720: y 512), якорь левый низ, над тулбаром, радиус 12 |
-| Вкладки | «таблетки» h 26, радиус 13, @ y 524 с x 24, шаг 4: **[Все]** Мебель · Техника · Стойки · Декор (выбранная active, остальные ghost) · затем `danger` «Снос» `X` 92×26 · справа подсказка 12 `muted` baseline 541 по x 1000: «R — повернуть · ПКМ / Esc — отмена · Tab — вкладки» |
-| Карточки | `24 + i·92, 560, 84 × 88`, радиус 10, фон белый 5 % · круг-подложка r 22 · иконка/миниатюра 32 @ (+26, +12) · название 12/500 по центру baseline +64 · цена 12/700 `amber` baseline +80 |
-| Состояния карточки | hover — белый 8 % · **выбрана** — `accent` 14 % + обводка `accent` 1,5 · **не хватает денег** — иконка и название `muted`, цена `bad`, клик даёт тост «Не хватает 2 420 Kč» |
-| Инфо выбранного | разделитель x 772 · с x 788: название 15/700 baseline 578 · цена и ограничение 12/600 `amber` baseline 598 · эффект 12 `good` baseline 618 · прочее 12 `text2` baseline 636 |
-| На карте | сетка тайлов (белый 9 %, 1 pt) пока открыт режим стройки · **призрак** объекта 55 % + рамка следа: `good` (можно, пунктир 6/4) / `bad` (нельзя) · ценник у курсора: плашка 92×26 радиус 8, «−3 400 Kč» 12/700 `amber`, смещение (+8, −44) |
+| Top bar | `0, 0, W × 48`, a panel with no radius · "Planning · day 4" `h1` @ (24, baseline 31) · "next night: Friday, 22:00–06:00" 12 `text_dim` @ x 232 · money on the right (`coin` + 16/Bold `amber`) |
+| Main panel | `24, 64, W − 48 × 520` (max-width 1440, centred), radius 12 |
+| Title | "Shift rozpis" 16/Bold @ (40, 94) + keycap `T` · forecast chips h 24 @ y 76 on the right: `rain` "rain 80 %" (`info`), `train` "trains 22:47 · 00:15 · 04:52", `guest` "forecast ~46 guests" · divider y 110 |
+| Grid | `GX = 264`, slot = **30 min = 44 pt**, hour = 88 pt, 16 slots (264 … 968) · hour labels 11/SemiBold `text_dim` baseline 128 at hour boundaries · verticals: hour — white 7 %, half hour — 4 % |
+| Right columns | "HOURS" centred at x 1010 · "KČ" centred at x 1090 · "ENERGY" bar 70×5 @ x 1150 + a warning icon 14 @ x 1226 if < 25 % |
+| Row | `40, 136 + i·40, 1200 × 36` (even rows white 3.5 %) · portrait 24 @ (46, y+6) · name 13/SemiBold @ (80, y+17) · role 11 `text_dim` @ (80, y+31) |
+| **Shift block** | `GX + a·44 + 2, y + 6, (b − a)·44 − 4 × 24`, radius 6, gradient `indigo_400 → indigo_600`, a 2 pt highlight on top (white 25 %) · label "22:00–01:00" 12/SemiBold white if the width is ≥ 90 · a problem shift has a 1.5 pt warning outline |
+| Break | slot `amber` 22 % + a `cup` 14 `amber` in the middle |
+| Day off | "day off" 12 muted, centred in the grid |
+| Drag ghost | a dashed `indigo_300` outline + `indigo` 22 % fill, a "+1 h" tag above the cursor |
+| **Coverage** | row y 424: "Coverage" 13/SemiBold + "have / need" 11 muted · in every slot a 38×22 "3/4" tag in `good` (enough) / warning (−1) / `bad` (−2 or worse) at 18 % |
+| **Guests (forecast)** | area y 460 … 516: a 2 pt indigo curve + a gradient fill · trains — vertical `amber` 60 % lines + `train` 14 + time 11/SemiBold |
+| Panel footer | divider y 552 · hint 12 `text_dim` baseline 572 · "Total 30.5 h · 4 575 Kč" 14/Bold on the right |
+| **Inline warning** | `24, 596, W − 48 × 36`, warning colour 12 % + a 35 % outline, radius 8 · warning icon 18 + text 13 · one-click buttons on the right: "Cut to 4 h" (normal, 120×28) and "Keep" (ghost, 82×28) |
+| Bottom actions | y 652, h 32: [`undo` Undo `⌃Z`] `24, w 148` · [`copy` Like yesterday] `180, w 152` · [`trash` Clear] ghost `340, w 120` · on the right **[`play` Start the night `Enter`] primary** `W − 204, w 180` |
 
-**Ввод:** клик по карточке берёт предмет, ЛКМ по карте ставит его. **Деньги списываются сразу, без подтверждения.** Режим остаётся активным, чтобы ставить подряд, а выходят из него по ПКМ или `Esc`. `R` поворачивает, `X` включает снос: клик по объекту убирает его и возвращает 50 % цены. Любое действие отменяется через `Ctrl+Z`.
-Названия предметов (пример): Столик 1 200 · Стул 450 · Кофемашина «Рапид» 3 400 · Плита 14 900 · Стойка 900 (за тайл) · Растение 350 · Неон 1 800 · Лампа 600 Kč.
-Пока открыта панель, тосты поднимаются над ней: низ стека = верх панели − 8 (при ширине окна < 1340 pt).
+**Input:** drag the left button along a row to draw a shift, `Shift` + drag for a break, right-click / right-drag to erase. Block edges can be dragged by their handles (↔ cursor). A click on an empty spot places one slot. "Clear" acts at once and can be undone.
+Warnings (over 8 h, energy < 25 %, not enough people) are shown **in the strip under the grid** and in the coverage cells — no modal windows. At night the screen is read-only: blocks are translucent and the top says "Changes — during the day". *(Shipped: last-minute rozpis edits make the crew a little grumpy instead.)*
 
 ---
 
-## 6. Подсказка гостя — `tooltip-and-event.svg` (левая часть)
+## 5. Build and furniture — `build.svg` (key `B`)
 
-Появляется через **250 мс** наведения на гостя и следует за курсором со смещением **(+16, +18)**. У правого или нижнего края переворачивается. Клик по гостю **закрепляет** подсказку (рядом появляется булавка), повторный клик или `Esc` открепляет.
-
-| Элемент | Позиция (от левого верхнего угла подсказки) |
+| Element | Frame / position |
 |---|---|
-| Рамка | `264 × auto` (в макете 196), радиус 10, заливка 95 % |
-| Заголовок | тип гостя 14/700 @ (14, 24) · справа чип «`train` поезд 00:15» 11 h 22 (или «спешит», «завсегдатай») · разделитель y 40 |
-| Желание | `bubble` 16 `cyan` @ (14, 50) · «капучино + круассан» 13/500 @ (38, 63) · статус 12 `text2` @ (38, 80): «заказ готовится · ~2 мин» |
-| Терпение | `hourglass` 16 @ (14, 92) · «Терпение» 13 · полоса 90×6 @ (110, 97) (цвет по значению) · «~6 мин» 12/600 справа |
-| Настроение | `smile` 16 @ (14, 118) · «Довольна» 13/600 (`good` / `warn` / `bad`) · «+12» справа 13/700 |
-| Модификаторы | до 4 строк с y 152, шаг 17: знак 12/700 (`good` / `bad`) @ x 38 + причина 12 `text2` @ x 64 |
+| Panel | `12, H − 208, 1000 × 148` (y 512 at 720), anchored bottom left above the toolbar, radius 12 |
+| Tabs | pills h 26, radius 13, @ y 524 from x 24, step 4: **[All]** Furniture · Appliances · Counters · Decor (the selected one active, the rest ghost) · then a `danger` "Demolish" `X` button · a hint 12 muted on the right, baseline 541, ending at x 1000: "R — rotate · right-click / Esc — cancel" |
+| Cards | `24 + i·92, 560, 84 × 88`, radius 10, background white 5 % · a backing circle r 22 · icon/thumbnail 32 @ (+26, +12) · name 12/Medium centred at baseline +64 · price 12/Bold `amber` at baseline +80 |
+| Card states | hover — white 8 % · **selected** — `indigo` 14 % + a 1.5 `indigo` outline · **not enough money** — icon and name muted, price `bad`; a click gives the toast "2 420 Kč short" |
+| Selected item info | divider x 772 · from x 788: name 15/Bold baseline 578 · price and constraint 12/SemiBold `amber` baseline 598 · effect 12 `good` baseline 618 · other 12 `text_dim` baseline 636 |
+| On the map | a tile grid (white 9 %, 1 pt) while build mode is open · the object's **ghost** at 55 % + its footprint: `good` (allowed, dashed 6/4) / `bad` (not allowed) · a price tag by the cursor: a 92×26 tag, radius 8, "−3 400 Kč" 12/Bold `amber`, offset (+8, −44) |
+
+**Input:** click a card to pick an item, left-click the map to place it. **Money is taken at once, with no confirmation.** The mode stays on so you can place several in a row; leave it with a right-click or `Esc`. `R` rotates, `X` toggles demolish: clicking an object removes it and refunds 50 % of its price. Any action can be undone with `Ctrl+Z`.
+Example items: Table 1 200 · Chair 450 · Coffee machine «Rapid» 3 400 · Stove 14 900 · Counter 900 (per tile) · Plant 350 · Holo sign 1 800 · Lamp 600 Kč. *(The shipped catalogue has 38 pieces; see `assets/data/furniture.ron`.)*
+While the panel is open, toasts move up above it: the bottom of the stack = the top of the panel − 8 (when the window is narrower than 1340 pt).
 
 ---
 
-## 7. Уведомление о событии — `tooltip-and-event.svg` (правая часть)
+## 6. Guest tooltip — `tooltip-and-event.svg` (left part)
 
-**Никогда не модальное и не ставит игру на паузу** (пауза на важных событиях — опция в настройках и песочнице, по умолчанию выключена).
+Appears after **250 ms** of hovering a guest and follows the cursor at an offset of **(+16, +18)**. It flips at the right or bottom edge. Clicking a guest **pins** the tooltip (a pin appears beside it); clicking again or `Esc` unpins it. *(Shipped: regulars show a mood line instead and offer a **Talk** button when they have something to say tonight.)*
 
-| Элемент | Позиция |
+| Element | Position (from the tooltip's top-left corner) |
 |---|---|
-| Стек | якорь правый низ: `x = W − 332`, низ = `H − 12`, ширина 320, зазор 8, новые снизу, видно ≤ 3 |
-| **Свёрнутый тост** 320×56 | полоска категории 3×36 @ (0, 10) · круг r 16 + иконка 20 @ (20, 18) · заголовок 13/600 @ (56, 24) · подзаголовок 12 `text2` @ (56, 42) · «Подробнее» 12/600 `accent_hi` справа @ (308, 24) · таймер 2 pt @ (10, 52) |
-| **Развёрнутый** 320 × auto | та же шапка 56, справа вместо «Подробнее»: `target` 16 (показать на карте) @ (262, 12) и `chev_u` 16 (свернуть) @ (290, 12) · разделитель y 56 · описание 12/18 `text2` с y 76 (≤ 4 строк) · действия h 28 @ y 132: primary «`candle` Зажечь свечи» 160 + normal «Закрыть кухню» 126 · примечание 11 `muted` @ y 182: «−150 Kč · кнопки работают и на паузе» |
-
-Категории (цвет полоски и иконки): `bad` — авария, кража, жалоба · `warn` — риск, проверка · `info` — поезд, гости, погода · `good` — чаевые, рецензия.
-Время показа: info 6 с, warn 10 с, bad 14 с. **Наведение останавливает таймер**, развёрнутый тост не исчезает сам.
-Ввод: клик по тосту или «Подробнее» (или `F` для последнего) — развернуть; ПКМ — скрыть; `target` — камера к месту; кнопка действия срабатывает сразу, после неё тост сворачивается с итогом («Свечи зажжены · −150 Kč · Отменить»).
-**Лента событий** вверху дублирует последнее событие одной строкой (цвет категории), а полная история лежит в журнале (`L`).
-В макете показан блэкаут: темнота 80 %, свечи на столах, над нервничающими гостями значки `warn`, неон погас.
+| Frame | `264 × auto` (196 in the mockup), radius 10, nearly opaque glass |
+| Header | guest type 14/Bold @ (14, 24) · a chip on the right "`train` train 00:15" 11 h 22 (or "in a hurry", "regular") · divider y 40 |
+| Wish | `bubble` 16 @ (14, 50) · "cappuccino + croissant" 13/Medium @ (38, 63) · status 12 `text_dim` @ (38, 80): "order being made · ~2 min" |
+| Patience | `hourglass` 16 @ (14, 92) · "Patience" 13 · bar 90×6 @ (110, 97) (colour by value) · "~6 min" 12/SemiBold on the right |
+| Mood | `smile` 16 @ (14, 118) · "Happy" 13/SemiBold (`good` / warning / `bad`) · "+12" on the right 13/Bold |
+| Modifiers | up to 4 rows from y 152, step 17: sign 12/Bold (`good` / `bad`) @ x 38 + reason 12 `text_dim` @ x 64 |
 
 ---
 
-## 8. Главное меню — `main-menu.svg`
+## 7. Event notification — `tooltip-and-event.svg` (right part)
 
-| Элемент | Позиция |
+**Never modal, and it doesn't pause the game** (pausing on important events is an option in the settings and in Sandbox, off by default).
+
+| Element | Position |
 |---|---|
-| Фон | иллюстрация: ночное небо, силуэт городка с башней, проходящий поезд, фасад кафе с вывеской «KAVÁRNA» и тёплым окном, мокрый асфальт с отражениями, дождь. Слева затемнение (`bg0` 85 % → 0 к x 640), чтобы текст читался |
-| Логотип | заглушка: «Ночная смена» Manrope 52/800 @ (64, baseline 152) + розовое свечение. Финальный логотип будет отдельным спрайтом ≈ 440×64 |
-| Подзаголовок | «Kavárna U Nádraží · 22:00–06:00» 15/500 `text2` @ (66, 182) |
-| Панель меню | `56, 250, 300 × 236`, радиус 14, 82 % · пункты h 40 @ y 258 + i·44: иконка 20 @ x 80, текст 16/600 @ x 112, справа подсказка 12 `muted` |
-| Пункты | `continue` **Продолжить** «ночь 3 · 01:40» (только если есть сохранение) · `book` Сюжет · `cube` Песочница · `sliders` Настройки · `exit` Выход |
-| Выбранный пункт | `accent` 16 % + полоска 3×20 слева + иконка `accent_hi` + `chev_r` справа |
-| Подвал | «↑ ↓ — выбрать · Enter — открыть · Esc — назад» 12 `text2` @ (64, 690) · версия 12 `muted` справа @ (W − 24, 690) |
+| Stack | anchored bottom right: `x = W − 332`, bottom = `H − 12`, width 320, gap 8, newest at the bottom, ≤ 3 visible |
+| **Collapsed toast** 320×56 | category bar 3×36 @ (0, 10) · circle r 16 + icon 20 @ (20, 18) · title 13/SemiBold @ (56, 24) · subtitle 12 `text_dim` @ (56, 42) · "More" 12/SemiBold `indigo_300` on the right @ (308, 24) · 2 pt timer @ (10, 52) |
+| **Expanded** 320 × auto | the same 56 header; instead of "More" on the right: `target` 16 (show on the map) @ (262, 12) and `chev_u` 16 (collapse) @ (290, 12) · divider y 56 · description 12/18 `text_dim` from y 76 (≤ 4 lines) · actions h 28 @ y 132: primary "`candle` Light candles" 160 + normal "Close kitchen" 126 · a note 11 muted @ y 182: "−150 Kč · buttons work while paused" |
 
-Ввод: мышь (hover = выбор) или `↑ ↓ Enter`. «Выход» срабатывает сразу, если игра сохранена (автосейв каждые 30 игровых минут). Если нет — пункт меняется на «Выйти без сохранения?» (вторым нажатием), окна не появляется.
+Categories (bar and icon colour): `bad` — breakdown, theft, complaint · warning — risk, inspection · `info` — train, guests, weather · `good` — tips, a review · *(shipped: uncanny events use violet)*.
+Display time: info 6 s, warning 10 s, bad 14 s. **Hovering stops the timer**, and an expanded toast never disappears on its own.
+Input: click the toast or "More" — expand; right-click — dismiss; `target` — move the camera there; an action button acts at once, and the toast then collapses to the result ("Candles lit · −150 Kč · Undo"). If nobody answers, the event falls back to its default choice after a while.
+The **event ticker** at the top repeats the latest event in one line (in the category colour), and the full history is in the log (`L`).
+The mockup shows a blackout: darkness 80 %, candles on the tables, warning icons above nervous guests, the holo sign off.
 
 ---
 
-## 9. Песочница: настройка — `sandbox-setup.svg`
+## 8. Main menu — `main-menu.svg`
 
-Фон — тот же экран меню, затемнённый `bg0` 72 %.
-
-| Элемент | Позиция |
+| Element | Position |
 |---|---|
-| Панель | по центру: `W/2 − 400, 40, 800 × 640`, радиус 14, 96 % · заголовок «Песочница — новая игра» 18/700 @ (+32, +42) · ✕ · разделитель y +62 |
-| Колонки | подписи 13/600 @ x 272 (подпись-пояснение 11 `muted` под ней) · контролы @ x 460 |
-| Название кафе | y 122: поле 320×32 «Kavárna U Nádraží» |
-| Сложность | y 174: 4 сегмента 132×32, шаг 136: Уютно · **Обычно** · Тяжело · Кошмар · описание 12 `text2` baseline y + 52 |
-| Характер ночей | y 250: ползунок 420 pt, 5 ступеней (шаг 105): спокойные … хаотичные · справа чип `accent` с названием ступени: «тихие», «спокойные», «переменчивые», «бурные», «хаотичные» · описание baseline y + 64: «2–4 события за ночь, изредка крупные…» |
-| Стартовый капитал | y 338: 3 сегмента 160×32, шаг 164: 10 000 · **25 000** · 50 000 Kč |
-| Сид | y 390: поле 200×32 (14/600, разрядка 1) · `dice` 32×32 · ghost «`copy` Копировать» 132×32 · «R — случайный» 12 `muted` · пояснение baseline y + 52 |
-| Опции | y 462: флажки 20×20, шаг 28: ☑ Дождь каждую ночь · ☐ Пауза на важных событиях · ☑ Разрешить уйти в минус (кредит) |
-| Итог | `272, 558, 736 × 48`, `bg0` 55 %, радиус 8 · `info` 20 `cyan` · «Ожидается: 2–4 события за ночь · 30–50 гостей · старт 25 000 Kč» 13 · «Рекорд на этом сиде: ещё нет» 12 `muted` |
-| Кнопки | y 628, h 32: «Назад `Esc`» 132 слева · **«`play` Начать `Enter`» primary 168** справа |
+| Background | an illustration: the night sky, the silhouette of the little town with a tower, a passing train, the café front with its holo sign and a warm window, wet asphalt with reflections, rain. A dark gradient on the left (`ink` 85 % → 0 by x 640) keeps the text readable |
+| Logo | placeholder text "Shiftella" 52/Bold @ (64, baseline 152) + a soft indigo glow (shipped: 44/Bold). A final logo could be a separate sprite ≈ 440×64 |
+| Subtitle | "U Výhybky · 22:00–06:00" 15/Medium `text_dim` @ (66, 182) |
+| Menu panel | `56, 250, 300 × 236`, radius 14 · items h 40 @ y 258 + i·44: icon 20 @ x 80, text 16/SemiBold @ x 112, a hint 12 muted on the right |
+| Items | `continue` **Continue** "night 3 · 01:40" (only if there is a save) · `book` Story · `cube` Sandbox · `sliders` Settings · `exit` Quit |
+| Selected item | `indigo` 16 % + a 3×20 bar on the left + an `indigo_300` icon + `chev_r` on the right |
+| Footer | "↑ ↓ — select · Enter — open · Esc — back" 12 `text_dim` @ (64, 690) · the version 12 muted on the right @ (W − 24, 690) |
 
-Ввод: `Tab` / `Shift+Tab` переводят фокус (кольцо `cyan`), `← →` меняют сегмент или ступень, `Space` переключает флажок, `R` даёт случайный сид, `Enter` — «Начать». Выпадающих списков нет, всё выбирается одним кликом.
+Input: mouse (hover = select) or `↑ ↓ Enter`. *(Shipped: the very first launch shows a language picker — CZ / EN / SK / UA — and the choice is saved in the settings. The game autosaves at the start of every day and on quit; there are three manual slots in the pause menu.)*
+
+---
+
+## 9. Sandbox setup — `sandbox-setup.svg`
+
+The background is the same menu screen, dimmed with `ink` 72 %.
+
+| Element | Position |
+|---|---|
+| Panel | centred: `W/2 − 400, 40, 800 × 640`, radius 14 · title "Sandbox — new game" 18/Bold @ (+32, +42) · ✕ · divider y +62 |
+| Columns | labels 13/SemiBold @ x 272 (an 11 muted explanation under them) · controls @ x 460 |
+| Café name | y 122: a 320×32 field, "U Výhybky" |
+| Difficulty | y 174: segments 132×32, step 136: **Cozy** · Classic · a description 12 `text_dim` at baseline y + 52 *(v2 had four: Cozy · Normal · Hard · Nightmare)* |
+| Night character | y 250: a 420 pt slider with 5 steps (step 105): quiet … chaotic · on the right an accent chip with the step name: "quiet", "calm", "changeable", "stormy", "chaotic" · description at baseline y + 64: "2–4 events a night, now and then a big one…" |
+| Start money | y 338: 3 segments 160×32, step 164: 10 000 · **25 000** · 50 000 Kč |
+| Seed | y 390: a 200×32 field (14/SemiBold, tracking 1) · `dice` 32×32 · ghost "`copy` Copy" 132×32 · "R — random" 12 muted · explanation at baseline y + 52 |
+| Options | y 462: 20×20 checkboxes, step 28: ☑ Rain every night · ☐ Pause on important events · ☑ Allow going into debt |
+| Summary | `272, 558, 736 × 48`, `ink` 55 %, radius 8 · `info` 20 · "Expect: 2–4 events a night · 30–50 guests · start 25 000 Kč" 13 · "Best run on this seed: none yet" 12 muted |
+| Buttons | y 628, h 32: "Back `Esc`" 132 on the left · **"`play` Start `Enter`" primary 168** on the right |
+
+Input: `Tab` / `Shift+Tab` move the focus (an indigo ring), `← →` change a segment or step, `Space` toggles a checkbox, `R` gives a random seed, `Enter` — "Start". No drop-down lists: everything is one click.

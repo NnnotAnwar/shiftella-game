@@ -1,142 +1,160 @@
-# Персонажи — «Ночная смена»
+# Characters — Shiftella
 
-> Шкалы и id черт — в traits.md. **[MVP]** = нужно для первого прототипа.
-> Навыки: `kitchen`, `bar`, `register`, `cleaning` — 0..10.
+> Trait scales and ids are in traits.md. **[MVP]** = needed for the first prototype.
+> Skills: kitchen, bar, register, cleaning — 0..10. *(The shipped game adds a fifth skill, `serving`.)*
+>
+> **Design notes, written before implementation.** The shipped people live in `assets/data/staff.ron`,
+> `regulars.ron` and `guests.ron`; the menu in `menu.ron` (see [`docs/CONTENT.md`](../../docs/CONTENT.md) §2).
+> Shipped ids are shorter than the draft ones below (e.g. `barista` instead of `arch_student_barista`,
+> `mirek` instead of `guest_mirek`). Where the notes and the data differ, the data wins.
 
 ---
 
-## 1. Персонал — архетипы для найма
+## 1. Staff — archetypes for hiring
 
-В сюжете это конкретные люди с именами. В песочнице — шаблоны: генератор берёт архетип, случайное имя и разброс навыков ±2.
+In Story mode these are specific people with names. In Sandbox they are templates: the generator takes an
+archetype, a random name and a ±2 spread of skills. Staff wear indigo aprons with a small Shiftella badge.
 
-| id | пример имени | роль | навыки (кух/бар/касса/уборка) | черты | любит | не любит | крючок истории |
+| draft id (shipped id) | example name | role | skills (kitchen/bar/register/cleaning) | traits | likes | dislikes | story hook |
 |---|---|---|---|---|---|---|---|
-| `arch_student_barista` **[MVP]** | Бара Новакова, 21 | бариста | 2 / 6 / 4 / 2 | `night_owl`, `chatterbox` | музыку в зале, болтать с гостями | тишину, мыть посуду | Бросила университет в Праге, родителям не сказала. Через 10 ночей может попросить выходной «на экзамен». |
-| `arch_old_cook` **[MVP]** | пан Зденек Голуб, 58 | повар | 7 / 2 / 2 / 3 | `perfectionist`, `grumpy` | порядок на кухне, свой нож | спешку, когда трогают его вещи | Двадцать лет варил в заводской столовой стекольного завода. Знал Лиду, ворчит, что «всё не так, как при ней». |
-| `arch_gentle_giant` **[MVP]** | Куба Шрамек, 26 | уборка / помощник | 3 / 1 / 2 / 6 | `clumsy`, `kind` | животных (кота!), еду | громкие ссоры | Бывший грузчик на складе. Добрый, всё роняет. Тайно учится печь — если не мешать, может стать вторым поваром. |
-| `arch_single_mom` | Ивана Пешкова, 34 | касса / зал | 2 / 3 / 7 / 3 | `hard_worker`, `anxious` | точность, когда хвалят | опоздания, хаос | Пока она работает ночью, дочка спит у соседки. Звонок «дочка заболела» может сорвать смену (см. `ev_staff_sick`). |
-| `arch_sound_guy` | Олег Мельник, 30 | бар / зал | 2 / 5 / 3 / 3 | `music_lover`, `calm` | старые пластинки, радио | дешёвый кофе | Бывший звукорежиссёр из Львова, работает тут временно уже два года. Может починить радиоприёмник (открывает `note_09`). |
-| `arch_quiet_one` | Эма Ржигова, 19 | универсал | 3 / 3 / 3 / 4 | `light_sleeper`, `loner` | дождь, тихие часы 2–4 | толпу, яркий свет | Слышит гудки поездов, которых нет в расписании. Единственная из персонала, кто замечает остановившиеся часы в 3:33. |
+| `arch_student_barista` (`barista`) **[MVP]** | Bára Nováková, 21 | barista | 2 / 6 / 4 / 2 | `night_owl`, `chatterbox` | music in the hall, chatting with guests | silence, washing up | Dropped out of university in Prague and hasn't told her parents. After about ten nights she may ask for a night off "for an exam". |
+| `arch_old_cook` (`cook`) **[MVP]** | Mr Zdeněk Holub, 58 | cook | 7 / 2 / 2 / 3 | `perfectionist`, `grumpy` | an orderly kitchen, his own knife | being rushed, people touching his things | Cooked for twenty years in the glassworks canteen. Knew Lída and grumbles that "nothing is the way it was in her day". |
+| `arch_gentle_giant` (`porter`) **[MVP]** | Kuba Šrámek, 26 | cleaning / helper | 3 / 1 / 2 / 6 | `clumsy`, `kind` | animals (the cat!), food | loud quarrels | A former warehouse porter. Kind-hearted, drops everything. Secretly learning to bake — leave him be and he may become a second cook. |
+| `arch_single_mom` (`cashier`) | Ivana Pešková, 34 | register / floor | 2 / 3 / 7 / 3 | `hard_worker`, `anxious` | accuracy, being praised | lateness, chaos | While she works nights, her daughter sleeps at the neighbour's. A call saying "my daughter is ill" can wreck a shift (see the staff-sick event). |
+| `arch_sound_guy` (`sound_tech`) | Oleh Melnyk, 30 | bar / floor | 2 / 5 / 3 / 3 | `music_lover`, `calm` | old records, the radio | cheap coffee | A former sound engineer from Lviv, here "temporarily" for two years now. Can repair the old radio (unlocks `note_09`). |
+| `arch_quiet_one` (`quiet_one`) | Ema Říhová, 19 | all-rounder | 3 / 3 / 3 / 4 | `light_sleeper`, `loner` | rain, the quiet hours 2–4 | crowds, harsh light | Hears the horns of trains that aren't in the timetable. The only one on the staff who notices the clock stopping at 3:33. |
+| — (`server`) | Natália Horváthová, 24 | server (added in the shipped game) | 2 / 3 / 4 / 3, serving 7 | `neat`, `romantic` | clean tables, rainy nights | sticky floors | Came from Košice for a week and stayed. Carries four plates at once and remembers every name. |
 
-**Найм в сюжете:** в ночь 2 предлагаются три кандидата из трёх MVP-архетипов. С ночи 8 открываются остальные три.
+**Hiring in Story mode:** on night 2 three candidates are offered from the three MVP archetypes. The rest open up from night 8.
 
 ---
 
-## 2. Меню (на него ссылаются заказы)
+## 2. Menu (orders refer to it)
 
-| id | блюдо | станция | время, мин | цена, Kč | MVP |
+*(historical)* The MVP draft menu. The shipped menu has 16 items (`assets/data/menu.ron`), including an oat
+flat white, chai, varenyky, bryndzové pirohy, medovník and a "night train" special; grandma's recipe became
+`grandma_kulajda`.
+
+| id | dish | station | time, min | price, Kč | MVP |
 |---|---|---|---|---|---|
-| `coffee_black` | чёрный кофе | bar | 2 | 45 | да |
-| `cappuccino` | капучино | bar | 3 | 65 | да |
-| `tea_lemon` | чай с лимоном | bar | 2 | 40 | да |
-| `hot_choco` | горячий шоколад | bar | 3 | 60 | позже |
-| `topinka` | топинка (жареный хлеб с чесноком) | kitchen | 4 | 55 | да |
-| `cesnecka` | чесночный суп | kitchen | 5 | 75 | да |
-| `chlebicek` | хлебичек | kitchen | 3 | 40 | позже |
-| `kolac` | колач | kitchen (готовый) | 1 | 35 | позже |
-| `lida_soup` | «Лидина чесночная» (рецепт из `note_05`) | kitchen, навык ≥ 5 | 6 | 95 | позже |
-| `svarak` | глинтвейн (нужен апгрейд «лицензия») | bar | 3 | 70 | позже |
+| `coffee_black` | black coffee | bar | 2 | 45 | yes |
+| `cappuccino` | cappuccino | bar | 3 | 65 | yes |
+| `tea_lemon` | tea with lemon | bar | 2 | 40 | yes |
+| `hot_choco` | hot chocolate | bar | 3 | 60 | later |
+| `topinka` | topinka (fried bread with garlic) | kitchen | 4 | 55 | yes |
+| `cesnecka` | garlic soup | kitchen | 5 | 75 | yes |
+| `chlebicek` | chlebíček (open sandwich) | kitchen | 3 | 40 | later |
+| `kolac` | koláč (round pastry) | kitchen (ready-made) | 1 | 35 | later |
+| `lida_soup` | "Lída's soup" (recipe from `note_05`) | kitchen, skill ≥ 5 | 6 | 95 | later |
+| `svarak` | mulled wine (needs a "licence" upgrade) | bar | 3 | 70 | later |
 
 ---
 
-## 3. Постоянные гости — арки
+## 3. Regulars — arcs
 
-Формат: **кто** · **когда** (окно прихода) · **заказ** · **этапы арки** (условие → что происходит) · **что может игрок** · **награда**.
-Арка движется на один этап за ночь, когда выполнено условие. Хороший финал считается для концовок.
+Format: **who** · **when** (arrival window) · **order** · **arc stages** (condition → what happens) · **what the player can do** · **reward**.
+An arc moves one stage per night when its condition holds. A good arc ending counts towards the endings.
 
-### 3.1 Мирек — старый таксист **[MVP: только как гость, без арки]**
-- `guest_mirek`, Мирослав Дворжак, 71. Каждую ночь, 23:00–00:30, иногда ещё раз в 04:00.
-- **Заказ:** `coffee_black` + `topinka`. Терпение высокое. Платит ровно, без чаевых.
-- **Скрывает:** (1) у него садится зрение, водить ему уже нельзя; (2) у него письмо Лиды (story.md §4).
-- **Этапы:**
-  | этап | условие | событие |
+### 3.1 Mirek — the old taxi driver **[MVP: as a guest only, no arc]**
+- `mirek`, Miroslav Dvořák, 71. Every night, 23:00–00:30, sometimes again at 04:00.
+- **Order:** black coffee + topinka. High patience. Pays exactly, no tip.
+- **Hides:** (1) his eyesight is failing and he really shouldn't drive any more; (2) he has Lída's letter (story.md §4).
+- **Stages:**
+  | stage | condition | event |
   |---|---|---|
-  | 0 | — | обычный гость, рассказывает, как «тут было при Лиде» |
-  | 1 | 3 ночи подряд обслужен быстро (≤ 5 мин) | просит налить «как Лиде»; первый намёк на тайну |
-  | 2 | ночь 8 (скрипт) | задевает бордюр, щурится на меню → игрок может предложить меню крупным шрифтом (апгрейд, +доверие) |
-  | 3 | ночь 20 (скрипт) | чуть не сбивает пешехода. **Выбор:** забрать ключи / позвонить дочери / промолчать |
-  | 4 | доверие ≥ 60 (ключи или дочь) | признание про письмо → `letter_state = confessed` |
-  | 5 | ночь 28–30 | **Выбор по письму** (story.md §7) |
-- **Хороший финал:** Мирек больше не водит (дочь возит его, или он приходит пешком) и сам отдаёт письмо. **Плохой:** промолчали → в ночь 25 авария (без жертв), Мирек больше не приходит.
+  | 0 | — | an ordinary guest who tells you how things were "in Lída's day" |
+  | 1 | served quickly (≤ 5 min) three nights in a row | asks for his coffee "the way Lída poured it"; the first hint of the secret |
+  | 2 | night 8 (scripted) | clips the kerb, squints at the menu → the player can offer a large-print menu (upgrade, +trust) |
+  | 3 | night 20 (scripted) | nearly hits a pedestrian. **Choice:** take his keys / call his daughter / say nothing |
+  | 4 | trust ≥ 60 (keys or daughter) | confesses about the letter → `letter = confessed` |
+  | 5 | nights 28–30 | **The letter choice** (story.md §7) |
+- **Good ending:** Mirek stops driving (his daughter drives him, or he walks) and delivers the letter himself. **Bad:** you said nothing → on night 25 there is an accident (nobody hurt) and Mirek stops coming.
 
-### 3.2 Гана — ночная медсестра
-- `guest_hana`, Гана Яноушкова, 38, районная больница. Приходит на перерыв 02:00–02:30, после смены 05:40–06:00.
-- **Заказ:** перерыв — `cappuccino` (быстро! терпение низкое — 6 мин); после смены — `cesnecka`.
-- **Арка — выгорание:**
-  | этап | условие | событие |
+### 3.2 Hana — the night nurse
+- `hana`, Hana Janoušková, 38, district hospital. Comes on her break 02:00–02:30 and after her shift 05:40–06:00.
+- **Order:** on her break — cappuccino (quickly! low patience — 6 min); after her shift — garlic soup.
+- **Arc — burnout:**
+  | stage | condition | event |
   |---|---|---|
-  | 0 | — | молчит, смотрит в телефон |
-  | 1 | обслужена за ≤ 4 мин 3 раза | улыбается, рассказывает о тяжёлой ночи |
-  | 2 | ночь 12 (скрипт): засыпает за столиком | **Выбор:** разбудить (−) / укрыть пледом (+) / «тихий угол» (мебель: кресло + лампа; ++) → `note_04` |
-  | 3 | есть «тихий угол» или плед | говорит, что ей предлагают работу в Германии |
-  | 4 | ночь 26 | решение. Если этапы 2–3 пройдены «+», она остаётся («здесь меня ждут»); иначе уезжает, но тепло прощается |
-- **Что может игрок:** ставить её заказ в приоритет, давать еду бесплатно, пересменка медсестёр (`ev_hospital_shift`) приводит её коллег.
-- **Награда:** остаётся → +5 гостей-медиков в пул; уезжает → открытка с репутацией +5.
+  | 0 | — | silent, staring at her phone |
+  | 1 | served within 4 min, three times | smiles, tells you about a hard night |
+  | 2 | night 12 (scripted): falls asleep at a table | **Choice:** wake her (−) / cover her with a blanket (+) / a "quiet corner" (furniture: armchair + lamp; ++) → `note_04` |
+  | 3 | there is a quiet corner or a blanket | says she has been offered a job in Dresden |
+  | 4 | night 26 | the decision. If stages 2–3 went well she stays ("people wait for me here"); otherwise she leaves, but says a warm goodbye |
+- **What the player can do:** put her order first, give her food for free; the hospital shift-change event brings her colleagues.
+- **Reward:** she stays → +5 medical guests in the pool; she leaves → a postcard, reputation +5.
 
-### 3.3 Гость в 3:33 — «пан в сером пальто» **[MVP: появление + часы, без арки]**
-- `guest_333`. Имени не называет. Приходит **ровно в 03:33**, уходит в 03:50. Не приходит, если свет в окне выключен или `offer_state = accepted`.
-- **Заказ:** `tea_lemon`, «два сахара». Всегда один и тот же стол у окна (если его убрали — стоит у стены и ждёт).
-- **Платит** старыми чехословацкими монетами (предмет `old_coin`, денег 0 Kč). Можно не брать с него платы — это скрытый +флаг.
-- **Особые правила:** в 3:33 часы встают на 60 секунд. Персонал с `light_sleeper` замечает гостя и получает настроение +5 (не страх, а «тихое чудо»). Остальные видят «кого-то у окна».
-- **Этапы:**
-  | этап | условие | событие |
+### 3.3 The 3:33 guest — "the gentleman in the grey coat" **[MVP: appearance + the clock, no arc]**
+- `guest_333`. Never gives his name. Comes **at exactly 03:33**, leaves at 03:50. Doesn't come if the window light is off or the franchise was accepted.
+- **Order:** tea with lemon, "two sugars". Always the same table by the window (if it was removed, he stands by the wall and waits).
+- **Pays** with old Czechoslovak coins (item `old_coin`, 0 Kč). You can choose not to charge him — a hidden plus.
+- **Special rules:** at 3:33 the clock stops for 60 seconds. Staff with `light_sleeper` notice the guest and get mood +5 (not fear — "a quiet wonder"). Everyone else sees "someone by the window".
+- **Stages:**
+  | stage | condition | event |
   |---|---|---|
-  | 0 | ночь 4 | первое появление |
-  | 1 | его стол свободен 3 ночи подряд | монеты складываются → `note_06` |
-  | 2 | ночь 15 | «Она ещё ждёт?» → ответ игрока в флаг `answer_333` |
-  | 3 | `notes_found ≥ 6` | приносит билет Rn 333, 1979; кладёт его на стол и оставляет |
-  | 4 | ночь 30, 3:33 | сцена письма → эпилог `epi_answer` |
+  | 0 | night 4 | first appearance |
+  | 1 | his table kept free three nights in a row | the coins add up → `note_06` |
+  | 2 | night 15 | "Is she still waiting?" → the player's answer is stored in `answer_333` |
+  | 3 | 6 or more notes found | brings an Rn 333 ticket from 1979, lays it on the table and leaves it |
+  | 4 | night 30, 3:33 | the letter scene → the optional "Answer" scene |
 
-### 3.4 Пани Вера — бессонница
-- `guest_vera`, Вера Соукупова, 74, вдова. 00:30–03:00, сидит долго и разгадывает кроссворды.
-- **Заказ:** `tea_lemon`, потом `kolac`. Терпение среднее, но **строгая**: грязный стол даёт отзыв ×2.
-- **Арка — примирение:** со школы подруга-соперница Лиды, знает историю с Индржихом.
-  | этап | условие | событие |
+### 3.4 Mrs Věra — insomnia
+- `vera`, Věra Soukupová, 74, a widow. 00:30–03:00, stays a long time doing crosswords.
+- **Order:** tea with lemon, then a koláč. Medium patience, but **strict**: a dirty table makes her review count double.
+- **Arc — reconciliation:** Lída's friend and rival since school; she knows the story of Jindřich.
+  | stage | condition | event |
   |---|---|---|
-  | 0 | ночь 5 | «Лида бы так не сделала» |
-  | 1 | чистота зала ≥ 80 % три её визита | помогает с кроссвордом персоналу (шутка) |
-  | 2 | ночь 14, отношение ≥ 30 | приносит книгу рецептов → `note_05`, рецепт `lida_soup` |
-  | 3 | подали ей `lida_soup` | плачет, рассказывает о Лиде молодой |
-  | 4 | ночь 27, `notes_found ≥ 6` | рассказывает про Индржиха и Rn 333 |
-- **Награда:** рецепт, ключ к загадке, в финале — «Вера привела подруг» (+3 гостя/ночь).
+  | 0 | night 5 | "Lída wouldn't have done it like that" |
+  | 1 | hall cleanliness ≥ 80 % on three of her visits | helps the staff with the crossword (a joke) |
+  | 2 | night 14, relationship ≥ 30 | brings the recipe book → `note_05`, grandma's recipe |
+  | 3 | you served her grandma's recipe | cries and tells you about young Lída |
+  | 4 | night 27, 6 or more notes found | tells you about Jindřich and Rn 333 |
+- **Reward:** the recipe, a key to the mystery, and in the finale "Věra brought her friends" (+3 guests per night).
 
-### 3.5 Филип — студент
-- `guest_filip`, Филип Кадлец, 22, техникум. 23:30–05:00, сидит у розетки с ноутбуком.
-- **Заказ:** `coffee_black` каждый час, мало платит. Хочет розетку + Wi-Fi (апгрейд) — без них настроение падает.
-- **Арка — бросить или доучиться:**
-  - 0: «занимает стол на всю ночь» — дилемма для игрока (стол против лояльного гостя).
-  - 1: есть Wi-Fi → начинает приводить друзей (+2 студента в пул).
-  - 2: ночь 18, провалил экзамен. **Выбор:** поговорить (сотрудник с `kind` или `chatterbox`) / бесплатный кофе / не вмешиваться.
-  - 3: если поддержали — пересдаёт; ночь 29 приносит торт «за то, что не выгнали».
-- **Награда:** студенты-постоянные гости; негатив: если выгоняли со стола 3 раза → плохой отзыв в сети (−5 реп).
+### 3.5 Filip — the student
+- `filip`, Filip Kadlec, 22, technical college. 23:30–05:00, sits by the power socket with his laptop.
+- **Order:** black coffee every hour, pays little. Wants a socket + Wi-Fi (upgrade) — without them his mood drops.
+- **Arc — drop out or finish:**
+  - 0: "takes a table all night" — a dilemma for the player (a table versus a loyal guest).
+  - 1: there is Wi-Fi → he starts bringing friends (+2 students in the pool).
+  - 2: night 18, he has failed an exam. **Choice:** talk to him (a staff member with `kind` or `chatterbox`) / free coffee / stay out of it.
+  - 3: if supported — he passes the resit; on night 29 he brings a cake "for not throwing me out".
+- **Reward:** students as regulars; the downside: kick him off his table three times → a bad online review (reputation −5).
 
-### 3.6 Радек — ночной диспетчер
-- `guest_radek`, Радек Мацек, 52. Приходит два раза за ночь «на 5 минут»: 01:00 и 04:30.
-- **Заказ:** `coffee_black` **с собой** — нужно очень быстро, терпение 3 мин.
-- **Арка — последняя смена:** вокзал переводят на автоматику.
-  - 0: ночь 9 — рассказывает новость, упоминает Rn 333.
-  - 1: ни разу не ждал дольше 3 мин 5 визитов → «Дам знать, если поезд опоздает» (событие `ev_late_train` приходит с предупреждением за 30 мин).
-  - 2: ночь 23 — последняя смена, дарит расписание → `note_08`.
-  - 3: если отношение высокое — после ночи 23 становится обычным гостем «на пенсии» (сидит долго, рассказывает истории = настроение персонала +).
+### 3.6 Radek — the night dispatcher
+- `radek`, Radek Macek, 52. Comes twice a night "for five minutes": 01:00 and 04:30.
+- **Order:** black coffee **to go** — it has to be very fast, patience 3 min.
+- **Arc — the last shift:** the station is being automated.
+  - 0: night 9 — tells you the news, mentions Rn 333.
+  - 1: never waited longer than 3 min over five visits → "I'll let you know if a train's late" (the late-train event now comes with a 30-minute warning).
+  - 2: night 23 — his last shift; he gives you the timetable → `note_08`.
+  - 3: if the relationship is high — after night 23 he becomes an ordinary "retired" guest (stays long, tells stories = staff mood +).
 
-### 3.7 Лори — уличная музыкантка
-- `guest_lori`, Лорета «Лори» Бенешова, 27. Играет на перроне под дождём. Приходит только в дождливые ночи, 22:30–01:00.
-- **Заказ:** `hot_choco` — денег нет, предлагает «сыграю за шоколад».
-- **Арка — сцена:**
-  - 0: ночь 11 — играет снаружи. **Выбор:** позвать внутрь / нет.
-  - 1: позвали → играет у окна: настроение гостей +5, но очередь медленнее (зал шумнее).
-  - 2: купили «маленькую сцену» (мебель 2×1) → `ev_open_mic` доступно.
-  - 3: ночь 24 — её вечер: полный зал, реп +10. В финале остаётся «музыкантом по пятницам».
-- **Связи:** персонал с `music_lover` получает настроение +10, пока она играет.
+### 3.7 Lori — the street musician
+- `lori`, Loreta "Lori" Benešová, 27. Plays on the platform in the rain. Comes only on rainy nights, 22:30–01:00.
+- **Order:** hot chocolate — she has no money and offers "I'll play for a chocolate".
+- **Arc — the stage:**
+  - 0: night 11 — plays outside. **Choice:** invite her in / don't.
+  - 1: invited → plays by the window: guests' mood +5, but the queue moves slower (the hall is louder).
+  - 2: you bought a "small stage" (2×1 furniture) → the open-mic event becomes available.
+  - 3: night 24 — her evening: a full house, reputation +10. In the finale she stays on as "the Friday musician".
+- **Links:** staff with `music_lover` get mood +10 while she plays.
+
+### 3.8 Anwar — a quiet cameo (shipped)
+- `guest_anwar`, "Anwar", 28. A quiet young man in an indigo hoodie, working on a laptop with headphones. His identity is deliberately understated.
+- **Visits:** exactly two per game — **nights 9 and 24** (in Story and Sandbox), 23:00–02:00, at the socket table.
+- **Order:** an oat flat white. Pays, leaves.
+- **Talking:** hovering shows one of 8 ambient lines (rain, fog, a passing train, midnight, late, busy, quiet, coffee). The **Talk** action plays `anwar_talk_9` / `anwar_talk_24`: he is making a small game about a night café.
+- **Flavour only:** no arc, choices, flags or effects, and no part in the endings. The credits thank him (`ui.ending.credits_thanks`).
 
 ---
 
-## 4. Странные гости (редкий пул, сюжет + песочница) **[позже]**
+## 4. Odd guests (a rare pool, Story + Sandbox) **[later]**
 
-| id | кто | что хочет | особенность |
+| id | who | what they want | special |
 |---|---|---|---|
-| `odd_postman` | почтальон без писем | «есть ли для меня что-нибудь?» | если отвечать «нет» 3 ночи — оставляет пустой конверт (предмет, +настроение) |
-| `odd_birdcage` | женщина с пустой клеткой для птиц | тёплое молоко | если открыть окно — уходит довольной, реп +2 |
-| `odd_compass` | путник с компасом, который всегда показывает на кафе | карту города | дарит «легенду города» (коллекция в песочнице) |
-| `odd_twin` | гость, очень похожий на одного из сотрудников | то, что любит этот сотрудник | сотрудник получает настроение +/− в зависимости от черт |
-| `odd_moth` | тихий человек, который садится только под лампу | ничего, просто посидеть | если лампа горит всю ночь — к утру на столе лежат чаевые 200 Kč |
+| `odd_postman` | a postman with no letters | "is there anything for me?" | answer "no" three nights running and he leaves an empty envelope (item, +mood) |
+| `odd_birdcage` | a woman with an empty birdcage | warm milk | open the window and she leaves happy, reputation +2 |
+| `odd_compass` | a traveller whose compass always points at the café | a map of the town | gives you a "town legend" (a Sandbox collection) |
+| `odd_twin` | a guest who looks a lot like one of the staff | whatever that staff member likes | the staff member gets mood + or − depending on their traits |
+| `odd_moth` | a quiet person who only sits under a lamp | nothing, just to sit | if the lamp stays on all night, by morning there's a 200 Kč tip on the table |
