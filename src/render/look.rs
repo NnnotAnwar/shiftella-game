@@ -169,6 +169,8 @@ pub enum Accessory {
     FlatCap,
     Hat,
     Hairclip,
+    /// Маленький логотип Shiftella на груди (худи/свитер).
+    ShiftellaLogo,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -211,6 +213,8 @@ pub struct PersonLook {
     pub phase: f32,
     /// Не человек, а аватар @shiftella_bot (маленький индиговый робот).
     pub bot: bool,
+    /// Чуть уставшие глаза (тени под глазами, тяжелее веки) при любом выражении.
+    pub tired: bool,
 }
 
 const SKINS: [u32; 9] = [
@@ -348,6 +352,7 @@ impl PersonLook {
             tone: Tone::Normal,
             phase: r.f(),
             bot: false,
+            tired: false,
         }
     }
 
@@ -375,6 +380,7 @@ impl PersonLook {
                 tone: Tone::Memory,
                 phase: 0.21,
                 bot: false,
+                tired: false,
             },
             "mirek" => PersonLook {
                 skin: hex(0xe3ad88),
@@ -392,6 +398,7 @@ impl PersonLook {
                 tone: Tone::Normal,
                 phase: 0.63,
                 bot: false,
+                tired: false,
             },
             "hana" => PersonLook {
                 skin: hex(0xd09872),
@@ -409,6 +416,7 @@ impl PersonLook {
                 tone: Tone::Normal,
                 phase: 0.37,
                 bot: false,
+                tired: false,
             },
             "333" => PersonLook {
                 skin: hex(0xe6d2c2),
@@ -426,6 +434,7 @@ impl PersonLook {
                 tone: Tone::Faded,
                 phase: 0.333,
                 bot: false,
+                tired: false,
             },
             "vera" => PersonLook {
                 skin: hex(0xf3d1b8),
@@ -443,6 +452,7 @@ impl PersonLook {
                 tone: Tone::Normal,
                 phase: 0.81,
                 bot: false,
+                tired: false,
             },
             "filip" => PersonLook {
                 skin: hex(0xf0c6a6),
@@ -460,6 +470,7 @@ impl PersonLook {
                 tone: Tone::Normal,
                 phase: 0.12,
                 bot: false,
+                tired: false,
             },
             "radek" => PersonLook {
                 skin: hex(0xb67c58),
@@ -477,6 +488,7 @@ impl PersonLook {
                 tone: Tone::Normal,
                 phase: 0.55,
                 bot: false,
+                tired: false,
             },
             "lori" => PersonLook {
                 skin: hex(0xe3ad88),
@@ -494,6 +506,7 @@ impl PersonLook {
                 tone: Tone::Normal,
                 phase: 0.47,
                 bot: false,
+                tired: false,
             },
             "player" => PersonLook {
                 skin: hex(0xe3ad88),
@@ -511,6 +524,26 @@ impl PersonLook {
                 tone: Tone::Normal,
                 phase: 0.0,
                 bot: false,
+                tired: false,
+            },
+            // Анвар — постоянный гость, разработчик приложения Shiftella (под конец 20-х)
+            "anwar" => PersonLook {
+                skin: hex(0xd09872),
+                hair: hex(0x251c22),
+                hair_style: HairStyle::Short,
+                top: hex(0x2f2c72),
+                top_style: TopStyle::Hoodie,
+                bottom: hex(0x2d2b3a),
+                accessory: Accessory::ShiftellaLogo,
+                accent: hex(0x6366f1),
+                facial_hair: FacialHair::Stubble,
+                apron: false,
+                height: 1.02,
+                elder: false,
+                tone: Tone::Normal,
+                phase: 0.71,
+                bot: false,
+                tired: true,
             },
             "shiftella_bot" | "bot" => PersonLook {
                 bot: true,
@@ -525,7 +558,7 @@ impl PersonLook {
     }
 
     /// Все ids сюжетных пресетов.
-    pub const PRESETS: [&'static str; 10] = [
+    pub const PRESETS: [&'static str; 11] = [
         "grandma_lida",
         "mirek",
         "hana",
@@ -535,6 +568,7 @@ impl PersonLook {
         "radek",
         "lori",
         "player",
+        "anwar",
         "shiftella_bot",
     ];
 }
@@ -587,6 +621,9 @@ mod tests {
             PersonLook::preset("mirek")
         );
         assert!(PersonLook::preset("shiftella_bot").bot);
+        let a = PersonLook::preset("anwar");
+        assert!(a.tired && a.top_style == TopStyle::Hoodie && !a.apron);
+        assert_eq!(a.accessory, Accessory::ShiftellaLogo);
         assert_eq!(
             PersonLook::preset("someone_new"),
             PersonLook::preset("someone_new")

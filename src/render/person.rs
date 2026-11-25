@@ -253,7 +253,9 @@ impl Head<'_> {
         match l.facial_hair {
             FacialHair::Stubble => {
                 let x = if side { 4.0 } else { 0.0 };
-                self.ell(x, 8.0, 9.0, 4.8, alpha(shade(l.hair, 0.7), 0.25));
+                // лёгкая щетина: только подбородок и линия челюсти
+                self.ell(x, 9.4, 8.4, 3.8, alpha(shade(l.hair, 0.8), 0.14));
+                self.ell(x, 10.6, 6.0, 2.6, alpha(shade(l.hair, 0.8), 0.1));
             }
             FacialHair::Beard => {
                 let x = if side { 3.0 } else { 0.0 };
@@ -292,6 +294,28 @@ impl Head<'_> {
             let g = vec2(gaze.x * 0.7, gaze.y * 0.6);
             self.ell(ex + g.x, ey + g.y, rx, ry, EYE);
             self.ell(ex + g.x - 0.6, ey + g.y - 0.9, 0.75, 0.75, WHITE);
+            if l.tired && expr != Expression::Tired {
+                // чуть уставшие глаза: лёгкое веко сверху и мягкие тени снизу
+                self.rr(
+                    ex - 2.4,
+                    ey - 3.1,
+                    4.8,
+                    1.3,
+                    0.6,
+                    l.skin,
+                    shade(l.skin, 0.95),
+                );
+                self.arc(
+                    ex,
+                    ey + 1.6,
+                    2.1,
+                    1.0,
+                    PI * 0.2,
+                    PI * 0.8,
+                    0.55,
+                    alpha(shade(l.skin, 0.55), 0.3),
+                );
+            }
             if expr == Expression::Tired {
                 // тяжёлые веки + мешки
                 self.rr(
@@ -1036,6 +1060,9 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
                 );
             }
             TopStyle::Hoodie => {
+                if l.accessory == Accessory::ShiftellaLogo {
+                    draw_shiftella_logo(r.p(-5.5, sh_y - 9.0), 4.2 * r.k);
+                }
                 r.cap(
                     vec2(-2.0, sh_y - 1.0),
                     vec2(-2.5, sh_y - 8.0),
@@ -1618,6 +1645,9 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
             ellipse(cx, neck_y + 0.6 * u, 5.0 * u, 2.4 * u, shade(l.skin, 0.84));
         }
     }
+    if l.accessory == Accessory::ShiftellaLogo {
+        draw_shiftella_logo(vec2(cx - 9.0 * u, sh_top + 11.0 * u), 5.5 * u);
+    }
     // фартук
     if l.apron {
         let (aa, ab) = apron_colors(&l);
@@ -1695,6 +1725,129 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
     head.face(expression, blink_amount(t, l.phase), gaze);
     head.hair_front();
     head.accessory();
+}
+
+// ───────────────────────── Shiftella-логотип и ноутбук ─────────────────────────
+
+/// Логотип Shiftella: индиговый скруглённый квадрат с белой «S»-волной.
+/// `c` — центр, `size` — сторона. Для нашивки на худи, стикера на ноутбуке, вывесок.
+pub fn draw_shiftella_logo(c0: Vec2, size: f32) {
+    let h = size / 2.0;
+    glow(c0.x, c0.y, size * 1.1, alpha(c::INDIGO_GLOW, 0.35));
+    rrect_v(
+        c0.x - h,
+        c0.y - h,
+        size,
+        size,
+        size * 0.28,
+        c::INDIGO_GLOW,
+        c::INDIGO_600,
+    );
+    let w = (size * 0.11).max(0.6);
+    let r = size * 0.2;
+    arc(
+        c0 + vec2(0.0, -r * 0.95),
+        r,
+        r * 0.95,
+        PI * 0.45,
+        PI * 1.95,
+        w,
+        WHITE,
+    );
+    arc(
+        c0 + vec2(0.0, r * 0.95),
+        r,
+        r * 0.95,
+        PI * 1.45,
+        PI * 2.95,
+        w,
+        WHITE,
+    );
+}
+
+/// Ноутбук на столе. `p` — точка на поверхности стола под центром ноутбука (мировые px),
+/// `user_facing` — куда смотрит владелец (экран повёрнут к нему). Со спины крышки виден
+/// стикер Shiftella, с лицевой — светящийся экран. Для света добавьте `Light::phone(p)`.
+pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
+    let shell = Color::from_hex(0x3a3d52);
+    let shell_l = Color::from_hex(0x5a5f7a);
+    let glow_on = 0.85 + (t * 0.7).sin() * 0.05;
+    soft_shadow(p.x + 1.0, p.y + 1.0, 13.0, 5.0, 0.35);
+    match user_facing {
+        Facing::Up | Facing::Down => {
+            // база
+            rrect_v(p.x - 12.0, p.y - 4.0, 24.0, 7.0, 2.0, shell_l, shell);
+            let (lx, ly, lw, lh) = (p.x - 11.0, p.y - 20.0, 22.0, 16.0);
+            if user_facing == Facing::Up {
+                // владелец к нам спиной → видим экран
+                rrect_v(lx, ly, lw, lh, 2.0, shell, shade(shell, 0.8));
+                rrect_v(
+                    lx + 1.5,
+                    ly + 1.5,
+                    lw - 3.0,
+                    lh - 3.0,
+                    1.0,
+                    alpha(c::INDIGO_SOFT, glow_on),
+                    alpha(c::INDIGO_600, glow_on),
+                );
+                for i in 0..3 {
+                    let y = ly + 4.5 + i as f32 * 3.2;
+                    draw_line(
+                        lx + 4.0,
+                        y,
+                        lx + 4.0 + 6.0 + (i % 2) as f32 * 6.0,
+                        y,
+                        0.9,
+                        alpha(WHITE, 0.7),
+                    );
+                }
+                glow(p.x, ly + lh / 2.0, 18.0, alpha(c::INDIGO_GLOW, 0.35));
+            } else {
+                // владелец лицом к нам → крышка спиной, на ней стикер
+                rrect_v(lx, ly, lw, lh, 2.0, shell_l, shell);
+                draw_shiftella_logo(vec2(p.x, ly + lh / 2.0), 7.0);
+                glow(p.x, p.y - 2.0, 14.0, alpha(c::INDIGO_GLOW, 0.25));
+            }
+        }
+        Facing::Left | Facing::Right => {
+            // в профиль: база и наклонная крышка, экран смотрит на владельца
+            // петля и крышка — на дальней от владельца стороне
+            let s = if user_facing == Facing::Right {
+                1.0
+            } else {
+                -1.0
+            };
+            rrect_v(p.x - 11.0, p.y - 4.0, 22.0, 6.0, 2.0, shell_l, shell);
+            let hinge = vec2(p.x + s * 9.0, p.y - 3.0);
+            let top = hinge + vec2(s * 4.0, -16.0);
+            // свет экрана на базу и в сторону владельца
+            glow(
+                p.x - s * 4.0,
+                p.y - 8.0,
+                16.0,
+                alpha(c::INDIGO_GLOW, 0.35 * glow_on),
+            );
+            quad(
+                [
+                    hinge + vec2(0.0, 4.0),
+                    top + vec2(0.0, 3.0),
+                    top + vec2(-s * 3.0, 4.0),
+                    hinge + vec2(-s * 3.0, 4.5),
+                ],
+                [shell, shell_l, shell_l, shell],
+            );
+            draw_line(hinge.x, hinge.y, top.x, top.y, 3.0, shell_l);
+            draw_line(
+                hinge.x - s * 1.6,
+                hinge.y,
+                top.x - s * 1.6,
+                top.y + 0.5,
+                1.2,
+                alpha(c::INDIGO_SOFT, 0.9 * glow_on),
+            );
+            draw_shiftella_logo(hinge.lerp(top, 0.55) + vec2(s * 1.4, 0.0), 4.5);
+        }
+    }
 }
 
 // ───────────────────────── эмоции и выделение ─────────────────────────
