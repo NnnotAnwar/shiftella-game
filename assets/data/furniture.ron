@@ -1,0 +1,50 @@
+// Buildable furniture, appliances, decor, floors and structure.
+// Keys: furniture.<id>.name / furniture.<id>.desc. `sprite` = render contract id (see SPRITES).
+// price in CZK (floors: per tile); demolish refunds 50 %. size = (w, h) tiles before rotation.
+#![enable(implicit_some)]
+[
+    // --- seating & tables ---
+    (id: "table_round", sprite: "table_round_2", category: Furniture, size: (1, 1), price: 1200, tags: ["table"], beauty: 1.0),
+    (id: "table_socket", sprite: "table_round_2", category: Furniture, size: (1, 1), price: 1800, tags: ["table", "power_socket"], beauty: 0.5, unlock_night: 6),
+    (id: "table_square", sprite: "table_square_4", category: Furniture, size: (2, 2), price: 1900, tags: ["table"], beauty: 1.0),
+    (id: "chair", sprite: "chair", category: Furniture, size: (1, 1), price: 450, tags: ["seat"], comfort: 2.0, walkable: true, seats: 1),
+    (id: "stool", sprite: "stool", category: Furniture, size: (1, 1), price: 350, tags: ["seat"], comfort: 1.0, walkable: true, seats: 1),
+    (id: "sofa", sprite: "sofa", category: Furniture, size: (2, 1), price: 4800, tags: ["seat", "comfort"], comfort: 6.0, beauty: 2.0, seats: 2, unlock_night: 5),
+    (id: "armchair", sprite: "armchair", category: Furniture, size: (1, 1), price: 2600, tags: ["seat", "comfort", "quiet_corner"], comfort: 7.0, beauty: 2.0, seats: 1, unlock_night: 8),
+    (id: "window_seat", sprite: "window_seat", category: Furniture, size: (2, 1), price: 3200, tags: ["seat", "window_spot", "comfort"], comfort: 5.0, beauty: 3.0, seats: 2),
+    // --- counters ---
+    (id: "bar_counter", sprite: "bar_counter", category: Counters, size: (1, 1), price: 900, tags: ["counter"]),
+    (id: "counter_corner", sprite: "counter_corner", category: Counters, size: (1, 1), price: 1100, tags: ["counter"]),
+    (id: "register", sprite: "register", category: Counters, size: (1, 1), price: 2900, tags: ["register"]),
+    // --- appliances ---
+    (id: "coffee_machine", sprite: "coffee_machine", category: Appliances, size: (1, 1), price: 3400, tags: ["station:coffee"], wear_per_night: 0.04),
+    (id: "espresso_grinder", sprite: "espresso_grinder", category: Appliances, size: (1, 1), price: 1500, tags: ["counter", "decor"], beauty: 1.0, unlock_night: 4),
+    (id: "stove", sprite: "stove", category: Appliances, size: (2, 1), price: 14900, tags: ["station:stove"], wear_per_night: 0.03),
+    (id: "oven", sprite: "oven", category: Appliances, size: (1, 1), price: 6800, tags: ["station:oven"], wear_per_night: 0.02, unlock_night: 2),
+    (id: "fridge", sprite: "fridge", category: Appliances, size: (1, 1), price: 5200, tags: ["station:fridge"], wear_per_night: 0.02),
+    (id: "sink", sprite: "sink", category: Appliances, size: (1, 1), price: 2200, tags: ["sink", "dishes"]),
+    (id: "dish_rack", sprite: "dish_rack", category: Appliances, size: (1, 1), price: 900, tags: ["dishes"]),
+    (id: "drone_dock", sprite: "drone_dock", category: Appliances, size: (1, 1), price: 7800, tags: ["drone"], unlock_night: 10),
+    (id: "trash_bin", sprite: "trash_bin", category: Appliances, size: (1, 1), price: 400, tags: ["trash"]),
+    // --- decor & light ---
+    (id: "menu_holo_board", sprite: "menu_holo_board", category: Decor, size: (2, 1), price: 1800, tags: ["decor", "light"], beauty: 3.0, light_radius: 1.5),
+    (id: "plant_small", sprite: "plant_small", category: Decor, size: (1, 1), price: 350, tags: ["decor"], beauty: 2.0),
+    (id: "plant_tall", sprite: "plant_tall", category: Decor, size: (1, 1), price: 900, tags: ["decor"], beauty: 3.0),
+    (id: "floor_lamp", sprite: "floor_lamp", category: Decor, size: (1, 1), price: 600, tags: ["light", "decor"], beauty: 1.0, light_radius: 3.0),
+    (id: "pendant_lamp", sprite: "pendant_lamp", category: Decor, size: (1, 1), price: 750, tags: ["light", "decor"], beauty: 1.0, walkable: true, light_radius: 2.5),
+    (id: "bookshelf", sprite: "bookshelf", category: Decor, size: (1, 1), price: 2100, tags: ["decor", "comfort"], comfort: 1.0, beauty: 3.0),
+    (id: "jukebox", sprite: "jukebox", category: Decor, size: (1, 1), price: 5600, tags: ["music", "decor", "light"], beauty: 3.0, light_radius: 1.0, unlock_night: 6),
+    (id: "radio", sprite: "radio", category: Decor, size: (1, 1), price: 1200, tags: ["music", "grandma"], beauty: 2.0, unique: true, unlock_night: 8),
+    (id: "rug", sprite: "rug", category: Decor, size: (2, 2), price: 1400, tags: ["decor"], comfort: 1.0, beauty: 2.0, walkable: true),
+    (id: "stage_corner", sprite: "rug", category: Decor, size: (2, 2), price: 3500, tags: ["stage", "decor"], beauty: 2.0, walkable: true, unique: true, unlock_flag: "lori_invited"),
+    (id: "coat_rack", sprite: "coat_rack", category: Decor, size: (1, 1), price: 650, tags: ["coats", "decor"], comfort: 1.0),
+    (id: "grandma_photo", sprite: "grandma_photo", category: Decor, size: (1, 1), price: 0, tags: ["grandma", "decor"], beauty: 4.0, unique: true),
+    // --- floors (price per tile) ---
+    (id: "floor_wood", sprite: "floor_wood", category: Floors, size: (1, 1), price: 120, tags: ["floor"], beauty: 0.3, walkable: true),
+    (id: "floor_tile", sprite: "floor_tile", category: Floors, size: (1, 1), price: 90, tags: ["floor"], walkable: true),
+    (id: "floor_carpet", sprite: "floor_carpet", category: Floors, size: (1, 1), price: 150, tags: ["floor", "comfort"], comfort: 0.5, beauty: 0.4, walkable: true),
+    // --- structure ---
+    (id: "wall", sprite: "wall", category: Structure, size: (1, 1), price: 400, tags: ["wall"]),
+    (id: "window", sprite: "window", category: Structure, size: (1, 1), price: 1500, tags: ["window"], beauty: 2.0),
+    (id: "door", sprite: "door", category: Structure, size: (1, 1), price: 2000, tags: ["door"], walkable: true),
+]

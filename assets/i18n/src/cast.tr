@@ -1,0 +1,40 @@
+# Cutscene cast names: cast.<id>.name
+
+cast.player.name
+cs Ty
+en You
+sk Ty
+uk Ти
+
+cast.grandma.name
+cs Babička Lída
+en Grandma Lída
+sk Babka Lída
+uk Бабуся Ліда
+
+cast.bot.name
+* @shiftella_bot
+
+cast.announcer.name
+cs Nádražní hlášení
+en Station announcement
+sk Staničné hlásenie
+uk Вокзальне оголошення
+
+cast.sindelar.name
+cs Ing. Šindelář
+en Mr Šindelář
+sk Ing. Šindelář
+uk Пан Шинделарж
+
+cast.landlord.name
+cs Pan Kubíček, majitel budovy
+en Mr Kubíček, the landlord
+sk Pán Kubíček, majiteľ budovy
+uk Пан Кубічек, власник будівлі
+
+cast.jana.name
+cs Jana, Mirkova dcera
+en Jana, Mirek's daughter
+sk Jana, Mirkova dcéra
+uk Яна, Міркова донька
