@@ -13,6 +13,11 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   written fresh in the four game languages). Grandma Lída's café, 30 nights, regulars with arcs,
   the 3:33 guest, endings. Dates: grandma's fiancé left on night train Rn 333 in **1979**;
   the game is 60 years later (2039).
+- **Cutscenes & dialogue:** story moments play as cutscenes — letterbox, camera moves, actors walking,
+  glass dialogue box with portrait + typewriter text, 2–4 choices, narration, fades. Data-driven (`CutsceneDef`).
+- **Exactly two endings:** «Light in the Window» (café saved, stays itself) and «Last Train» (café closes /
+  sold to NONSTOP 24, bittersweet farewell). The letter / 3:33-guest resolution is an optional extra scene
+  inside either ending, not a third ending.
 - **Modes:** Story (30 nights) and Sandbox (endless, random town/seed). Difficulty presets:
   **Cozy (default)** — no game over, debt payments soft (miss = mild story consequence),
   generous money; **Classic** — payments matter, the café can close (still an ending, not a fail screen).
