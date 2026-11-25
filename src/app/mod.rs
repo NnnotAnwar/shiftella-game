@@ -388,7 +388,11 @@ pub async fn run() {
     step(&mut ui, 0.2, &mut t);
     next_frame().await;
     let mut audio = Audio::silent();
-    let silent = shot.is_some() || env("SHIFTELLA_MUTE").is_some();
+    let mut silent = shot.is_some() || env("SHIFTELLA_MUTE").is_some();
+    if !silent && !crate::audio::audio_available() {
+        eprintln!("info: assets/audio not found — playing without sound");
+        silent = true;
+    }
     if !silent {
         for i in 0..Audio::FILES {
             audio.load_step(i).await;

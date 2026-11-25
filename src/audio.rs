@@ -215,6 +215,10 @@ pub struct Audio {
 }
 
 async fn load(path: &str) -> Option<Sound> {
+    // release builds ship the audio; a source checkout may not have it — stay silent
+    if !std::path::Path::new(path).exists() {
+        return None;
+    }
     match load_sound(path).await {
         Ok(sound) => Some(sound),
         Err(e) => {
@@ -222,6 +226,11 @@ async fn load(path: &str) -> Option<Sound> {
             None
         }
     }
+}
+
+/// `assets/audio/` is present (it is not in the source repository).
+pub fn audio_available() -> bool {
+    std::path::Path::new("assets/audio").is_dir()
 }
 
 impl Audio {
