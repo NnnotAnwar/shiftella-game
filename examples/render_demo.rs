@@ -238,6 +238,7 @@ fn build_furniture(map: &Map, stress: bool) -> Vec<Piece> {
         Piece::at("window_seat", 14.0, 1.0, (4, 1)),
         Piece::at("coat_rack", 4.0, 14.0, (1, 1)),
         Piece::at("candle", 27.0, 9.0, (1, 1)),
+        Piece::at("bucket", 6.0, 12.0, (1, 1)).dirty(0.5),
         Piece::at("pendant_lamp", 17.0, 13.0, (1, 1)),
         Piece::at("pendant_lamp", 20.0, 13.0, (1, 1)),
         Piece::at("pendant_lamp", 18.0, 10.0, (1, 1)),
@@ -463,10 +464,16 @@ async fn main() {
         -TILE,
         -2.0 * TILE,
         (map.width as f32 + 2.0) * TILE,
-        (map.height as f32 + 3.0) * TILE,
+        (map.height as f32 + 4.0) * TILE,
     );
     let mut low_walls = Vec::new();
     statics.build(static_rect, 2.0, || {
+        // мокрая мостовая перед фасадом и дверью
+        for y in map.height..map.height + 2 {
+            for x in -1..=map.width as i32 {
+                draw_floor("pavement", vec2(x as f32, y as f32));
+            }
+        }
         for y in 0..map.height {
             for x in 0..map.width {
                 let tile = map.get(x, y).unwrap();
@@ -619,6 +626,10 @@ async fn main() {
             }
         }
         if !blackout {
+            // лампа над дверью освещает мокрую мостовую
+            lighting.add_light(
+                Light::new(vec2(2.0, 16.4) * TILE, 2.6 * TILE, pal::AMBER, 0.8).flicker(0.03),
+            );
             for l in &street_lights {
                 lighting.add_light(*l);
             }
@@ -913,12 +924,9 @@ async fn furniture_demo(shot: Option<String>, t0: f32) {
         clear_background(pal::NIGHT_1);
         for y in 0..(wh / TILE) as i32 {
             for x in 0..(ww / TILE) as i32 {
+                let kinds = ["floor_wood", "floor_tile", "pavement", "floor_carpet"];
                 draw_floor(
-                    if (x / 3 + y / 3) % 2 == 0 {
-                        "floor_wood"
-                    } else {
-                        "floor_tile"
-                    },
+                    kinds[((x / 3 + y / 3) % 4) as usize],
                     vec2(x as f32, y as f32),
                 );
             }

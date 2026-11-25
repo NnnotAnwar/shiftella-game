@@ -40,7 +40,7 @@ impl Default for FurnitureState {
 }
 
 /// Все id, которые умеет рисовать `draw_furniture` (контракт с content-агентом).
-pub const FURNITURE_IDS: [&str; 31] = [
+pub const FURNITURE_IDS: [&str; 32] = [
     "table_round_2",
     "table_square_4",
     "chair",
@@ -72,6 +72,7 @@ pub const FURNITURE_IDS: [&str; 31] = [
     "grandma_photo",
     "radio",
     "candle",
+    "bucket",
 ];
 
 /// Высота рабочей поверхности стойки/кухонных модулей.
@@ -1187,6 +1188,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             }
         }
         "candle" => draw_candle(vec2(cx, cy), t, seed),
+        "bucket" => draw_bucket(vec2(cx, cy + 8.0), state, seed),
         _ => {
             // заглушка: мягкая лавандовая коробка со знаком «?»
             let (x, y0) = (o.x + 8.0, o.y + 10.0);
@@ -1204,6 +1206,129 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             arc(q + vec2(0.0, -3.0), 4.0, 4.0, PI, PI * 2.4, 2.0, WHITE);
             draw_line(q.x, q.y + 1.0, q.x, q.y + 3.5, 2.0, WHITE);
             ellipse(q.x, q.y + 6.5, 1.3, 1.3, WHITE);
+        }
+    }
+}
+
+/// Металлическое ведро под протечкой крыши. `p` — точка дна на полу.
+/// `active` — капает (капля падает с потолка, по воде расходится круг),
+/// `dirty` — уровень воды 0..1.
+fn draw_bucket(p: Vec2, st: &FurnitureState, seed: u32) {
+    let (w_top, w_bot, h) = (13.0, 10.5, 20.0);
+    soft_shadow(p.x + 2.0, p.y, 15.0, 5.0, 0.4);
+    // корпус-усечённый конус с вертикальным градиентом и обручами
+    poly_v(
+        &[
+            vec2(p.x - w_top, p.y - h),
+            vec2(p.x + w_top, p.y - h),
+            vec2(p.x + w_bot, p.y),
+            vec2(p.x - w_bot, p.y),
+        ],
+        c::STEEL_LIGHT,
+        c::STEEL_DARK,
+    );
+    ellipse_v(p.x, p.y, w_bot, 3.0, c::STEEL, c::STEEL_DARK);
+    for k in [0.3_f32, 0.75] {
+        let y = p.y - h + h * k;
+        let hw = w_top + (w_bot - w_top) * k;
+        draw_line(p.x - hw, y, p.x + hw, y, 1.2, alpha(c::STEEL_DARK, 0.8));
+    }
+    draw_line(
+        p.x - w_top + 2.0,
+        p.y - h + 3.0,
+        p.x - w_bot + 2.0,
+        p.y - 3.0,
+        1.2,
+        alpha(WHITE, 0.35),
+    );
+    // горловина и вода внутри
+    let rim = vec2(p.x, p.y - h);
+    ellipse(rim.x, rim.y, w_top, 4.4, c::STEEL_DARK);
+    let level = st.dirty.clamp(0.0, 1.0);
+    let (wx, wy) = (w_top - 1.5, 3.4);
+    ellipse_v(
+        rim.x,
+        rim.y + 0.6 - level * 0.8,
+        wx,
+        wy,
+        Color::from_hex(0x3b3f8a),
+        Color::from_hex(0x23265a),
+    );
+    draw_line(
+        rim.x - wx * 0.6,
+        rim.y - 0.6,
+        rim.x + wx * 0.1,
+        rim.y - 1.2,
+        0.9,
+        alpha(c::LAVENDER_RIM, 0.55),
+    );
+    // дужка
+    arc(
+        rim + vec2(0.0, 1.0),
+        w_top + 0.5,
+        9.0,
+        PI * 1.05,
+        PI * 1.95,
+        1.0,
+        c::STEEL,
+    );
+    if !st.active {
+        return;
+    }
+    // капля: падает с «потолка», у воды — круги
+    let period = 1.6 + hash01(seed) * 0.6;
+    let a = ((st.t + hash01(seed + 1) * period) % period) / period;
+    let fall = 0.55;
+    let top = rim.y - 88.0;
+    if a < fall {
+        let k = a / fall;
+        let y = top + (rim.y - top) * k * k;
+        let fade = (k * 4.0).min(1.0);
+        draw_line(
+            rim.x,
+            y - 6.0 * k,
+            rim.x,
+            y,
+            0.9,
+            alpha(c::INDIGO_SOFT, 0.35 * fade),
+        );
+        ellipse(
+            rim.x,
+            y,
+            1.3,
+            1.8,
+            alpha(Color::new(0.85, 0.9, 1.0, 1.0), 0.85 * fade),
+        );
+    } else {
+        let k = (a - fall) / (1.0 - fall);
+        for (i, delay) in [0.0_f32, 0.25].iter().enumerate() {
+            let kk = ((k - delay) / (1.0 - delay)).clamp(0.0, 1.0);
+            if kk <= 0.0 {
+                continue;
+            }
+            let rx = 1.5 + kk * (wx - 2.5);
+            draw_ellipse_lines(
+                rim.x,
+                rim.y + 0.4,
+                rx,
+                rx * 0.3,
+                0.0,
+                0.9,
+                alpha(c::LAVENDER_RIM, 0.7 * (1.0 - kk) / (1.0 + i as f32)),
+            );
+        }
+        // брызги в первые мгновения
+        if k < 0.25 {
+            let up = (k / 0.25) * PI;
+            for sx in [-1.0_f32, 1.0] {
+                ellipse(
+                    rim.x + sx * 2.5 * (k / 0.25),
+                    rim.y - up.sin() * 4.0,
+                    0.7,
+                    0.9,
+                    alpha(WHITE, 0.7),
+                );
+            }
         }
     }
 }
@@ -1920,6 +2045,7 @@ mod tests {
         assert_eq!(table, o.y + TILE);
         assert_eq!(furniture_sort_key("sofa", o, (2, 1)), o.y + TILE);
         assert_eq!(furniture_sort_key("bookshelf", o, (1, 2)), o.y + 2.0 * TILE);
+        assert!(FURNITURE_IDS.contains(&"bucket"));
     }
 
     #[test]

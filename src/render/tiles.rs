@@ -113,7 +113,7 @@ pub fn wall_sort_key(tile: Vec2) -> f32 {
 // ───────────────────────── пол ─────────────────────────
 
 /// Пол тайла `tile` (координаты тайла: столбец, строка). `kind`:
-/// `floor_wood` | `floor_tile` | `floor_carpet` (другое → дерево).
+/// `floor_wood` | `floor_tile` | `floor_carpet` | `pavement` (другое → дерево).
 pub fn draw_floor(kind: &str, tile: Vec2) {
     let p = tile_px(tile);
     let (tx, ty) = (tile.x as i32, tile.y as i32);
@@ -152,6 +152,7 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
                 }
             }
         }
+        "pavement" => draw_pavement(p, tx, ty),
         "floor_carpet" => {
             let base = Color::from_hex(0x3e3678);
             draw_rectangle(p.x, p.y, TILE, TILE, base);
@@ -240,6 +241,74 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
                 );
             }
         }
+    }
+}
+
+/// Мокрая уличная брусчатка (как в `draw_outside`): камни со сдвигом рядов,
+/// блики, иногда лужица с отражением фонаря. Статична — годится для кэша.
+fn draw_pavement(p: Vec2, tx: i32, ty: i32) {
+    draw_rectangle(p.x, p.y, TILE, TILE, Color::from_hex(0x2e2842));
+    let (sw, sh) = (16.0, 11.2);
+    let rows = (TILE / sh).ceil() as i32;
+    for r in 0..rows {
+        let gy = ty * 6 + r;
+        let y = p.y + r as f32 * sh;
+        let off = if gy % 2 == 0 { 0.0 } else { sw / 2.0 };
+        let mut x = p.x - off;
+        let mut k = 0;
+        while x < p.x + TILE {
+            let x0 = x.max(p.x);
+            let x1 = (x + sw).min(p.x + TILE);
+            let h = (sh - 2.0).min(p.y + TILE - y - 1.0);
+            if x1 - x0 > 2.0 && h > 1.0 {
+                let v = hash2(tx * 8 + k, gy);
+                let col = mix(Color::from_hex(0x4a4266), Color::from_hex(0x5a5078), v);
+                rrect_v(
+                    x0 + 1.0,
+                    y + 1.0,
+                    x1 - x0 - 2.0,
+                    h,
+                    3.0,
+                    col,
+                    shade(col, 0.8),
+                );
+                if v > 0.6 {
+                    draw_line(
+                        x0 + 3.0,
+                        y + 2.5,
+                        x1 - 4.0,
+                        y + 2.5,
+                        1.0,
+                        alpha(c::LAVENDER_RIM, 0.35),
+                    );
+                }
+            }
+            x += sw;
+            k += 1;
+        }
+    }
+    // лужа примерно на каждом четвёртом тайле
+    if hash2(tx * 3 + 1, ty * 7 + 5) > 0.74 {
+        let cx = p.x + TILE * (0.3 + hash2(tx, ty + 9) * 0.4);
+        let cy = p.y + TILE * (0.35 + hash2(tx + 4, ty) * 0.3);
+        let w = 16.0 + hash2(tx + 2, ty + 2) * 10.0;
+        ellipse_v(
+            cx,
+            cy,
+            w,
+            7.0,
+            Color::from_hex(0x1f1a38),
+            Color::from_hex(0x2a2250),
+        );
+        glow(cx + w * 0.25, cy, 6.0, alpha(c::AMBER, 0.28));
+        draw_line(
+            cx - w * 0.5,
+            cy - 2.5,
+            cx + w * 0.05,
+            cy - 3.2,
+            1.0,
+            alpha(c::LAVENDER_RIM, 0.4),
+        );
     }
 }
 

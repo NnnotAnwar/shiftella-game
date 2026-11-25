@@ -25,7 +25,7 @@
 //!   [`furniture_lights`] (свет ламп/экранов, добавлять в `Lighting`).
 //!   `FurnitureState { active, dirty, t, facing }` (`..Default::default()`); у стульев
 //!   `facing` — куда смотрит сидящий, у столов `active` — горит свеча.
-//! - Пол/стены: [`draw_floor`]`("floor_wood"|"floor_tile"|"floor_carpet", tile)`,
+//! - Пол/стены: [`draw_floor`]`("floor_wood"|"floor_tile"|"floor_carpet"|"pavement", tile)`,
 //!   [`draw_wall`]`(tile, WallMask::compute(..), WallKind)`, [`window_glass_rect`],
 //!   [`StaticLayer`] — кэш статики в render target.
 //! - Улица: [`draw_outside`]`(rect, t)`, [`draw_train`], [`outside_lights`],
