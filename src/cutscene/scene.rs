@@ -74,10 +74,11 @@ pub struct CafeScene {
     lights_target: f32,
     /// Cascade progress 0..1 (`None` = lamps follow `lights_target` directly).
     cascade: Option<(f32, f32)>,
-    statics: StaticLayer,
+    /// GPU resources, created on the first draw (keeps the logic usable without a window).
+    statics: Option<StaticLayer>,
     low_walls: Vec<(Vec2, WallMask, WallKind)>,
     glass: Vec<Rect>,
-    lighting: Lighting,
+    lighting: Option<Lighting>,
     pub street: Rect,
     street_lights: Vec<Light>,
     pub weather: Weather,
@@ -105,8 +106,6 @@ impl CafeScene {
                 }
             }
         }
-        let mut lighting = Lighting::new();
-        lighting.set_windows(glass.clone());
         let street = Rect::new(
             -8.0 * TILE,
             -10.0 * TILE,
@@ -137,10 +136,10 @@ impl CafeScene {
             cascade: None,
             map,
             furniture,
-            statics: StaticLayer::new(),
+            statics: None,
             low_walls: Vec::new(),
             glass,
-            lighting,
+            lighting: None,
             street_lights: outside_lights(street),
             street,
             weather: Weather::default(),
@@ -228,7 +227,8 @@ impl CafeScene {
             (map.height as f32 + 3.0) * TILE,
         );
         let mut low = Vec::new();
-        self.statics.build(static_rect, 2.0, || {
+        let statics = self.statics.get_or_insert_with(StaticLayer::new);
+        statics.build(static_rect, 2.0, || {
             for y in 0..map.height {
                 for x in 0..map.width {
                     let tile = map.get(x, y).unwrap_or(Tile::Floor);
@@ -262,9 +262,13 @@ impl CafeScene {
 
     /// Draws the whole stage with `cam` (sets it). Leaves `cam` active.
     pub fn draw(&mut self, cam: &Camera2D, t: f32, actors: &[Actor]) {
-        if !self.statics.is_built() {
+        if self.lighting.is_none() {
+            let mut l = Lighting::new();
+            l.set_windows(self.glass.clone());
+            self.lighting = Some(l);
+        }
+        if !self.statics.as_ref().is_some_and(|s| s.is_built()) {
             self.build_statics();
-            set_camera(cam);
         }
         set_camera(cam);
         clear_background(pal::NIGHT_0);
@@ -286,7 +290,9 @@ impl CafeScene {
             t,
         );
         self.weather.draw_rain(self.street, t);
-        self.statics.draw();
+        if let Some(st) = &self.statics {
+            st.draw();
+        }
         for g in &self.glass {
             self.weather.draw_window_rain(*g, t);
         }
@@ -333,10 +339,11 @@ impl CafeScene {
         // light
         let lit = ambient_for(self.night_progress);
         let ambient = mix(ambient_blackout(), lit, level);
-        self.lighting.begin(cam, ambient);
-        self.lighting.set_time(t);
-        self.lighting.add_window_light(0.35 + 0.65 * level);
-        self.lighting.train_sweep(train_p);
+        let lighting = self.lighting.as_mut().expect("created above");
+        lighting.begin(cam, ambient);
+        lighting.set_time(t);
+        lighting.add_window_light(0.35 + 0.65 * level);
+        lighting.train_sweep(train_p);
         for (i, (p, st)) in self.furniture.iter().zip(&states).enumerate() {
             let k = if p.is_lamp() { self.lamp[i] } else { 1.0 };
             for mut l in furniture_lights(p.sprite, p.origin, p.size, st) {
@@ -344,13 +351,13 @@ impl CafeScene {
                 if k < 1.0 {
                     l.intensity *= k * (0.75 + 0.25 * (t * 41.0 + i as f32).sin().abs());
                 }
-                self.lighting.add_light(l);
+                lighting.add_light(l);
             }
         }
         for l in &self.street_lights {
-            self.lighting.add_light(*l);
+            lighting.add_light(*l);
         }
-        self.lighting.add_light(
+        lighting.add_light(
             Light::new(
                 vec2(21.0 * TILE, self.street.y + self.street.h - 1.8 * TILE),
                 3.0 * TILE,
@@ -364,15 +371,15 @@ impl CafeScene {
                 continue;
             }
             if a.hand_light {
-                self.lighting.add_light(
+                lighting.add_light(
                     Light::new(pose.feet - vec2(0.0, 30.0), 3.0 * TILE, pal::AMBER, 1.1)
                         .flicker(0.04),
                 );
             } else if level < 0.5 {
-                self.lighting.add_light(Light::actor_spot(pose.feet));
+                lighting.add_light(Light::actor_spot(pose.feet));
             }
         }
-        self.lighting.apply();
+        lighting.apply();
     }
 }
 

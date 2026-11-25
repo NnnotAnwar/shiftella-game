@@ -18,7 +18,7 @@ pub struct SettingsResponse {
 }
 
 /// Preferred size of the panel.
-pub const PANEL_SIZE: Vec2 = Vec2::new(460.0, 486.0);
+pub const PANEL_SIZE: Vec2 = Vec2::new(500.0, 540.0);
 
 /// Draws the settings panel into `r` (use [`PANEL_SIZE`]) and edits `s` in place.
 /// The caller saves (`Settings::save`) and applies the values when `changed`.
@@ -29,7 +29,7 @@ pub fn settings_panel(ui: &mut Ui, loc: &Locale, s: &mut Settings, r: Rect) -> S
     let (body, closed) = ui.panel_header(r, loc.tr("ui.settings.title"), Some("Esc"), None);
     out.close |= closed;
 
-    let label_w = 168.0;
+    let label_w = 184.0;
     let row_h = 34.0;
     let mut y = body.y + 10.0;
     let x0 = body.x + 18.0;
@@ -75,7 +75,7 @@ pub fn settings_panel(ui: &mut Ui, loc: &Locale, s: &mut Settings, r: Rect) -> S
         ("set_sfx", "ui.settings.volume_sfx", &mut s.sfx_volume),
     ] {
         let c = row(ui, &mut y, loc.tr(label));
-        let (sl, val) = c.split_right(44.0, 8.0);
+        let (val, sl) = c.split_right(44.0, 8.0);
         if ui
             .slider(key, val_rect(sl), v, 0.0, 1.0, Some(0.05))
             .changed
@@ -89,7 +89,7 @@ pub fn settings_panel(ui: &mut Ui, loc: &Locale, s: &mut Settings, r: Rect) -> S
     // ── display
     section(ui, &mut y, loc.tr("mainmenu.settings.section.display"));
     let c = row(ui, &mut y, loc.tr("ui.settings.ui_scale"));
-    let (sl, val) = c.split_right(44.0, 8.0);
+    let (val, sl) = c.split_right(44.0, 8.0);
     if ui
         .slider(
             "set_scale",
@@ -135,7 +135,7 @@ pub fn settings_panel(ui: &mut Ui, loc: &Locale, s: &mut Settings, r: Rect) -> S
     }
     ui.fonts.draw_in(
         loc.tr("mainmenu.settings.pause_hint"),
-        Rect::new(x0, y - 8.0, w - 48.0, 14.0),
+        Rect::new(x0, y - 6.0, w, 14.0),
         &t.small(),
         Align::Left,
     );

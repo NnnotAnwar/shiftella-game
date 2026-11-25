@@ -274,6 +274,11 @@ impl CutscenePlayer {
         self.train = None;
         self.scene.train = None;
         self.scene.set_lights(true);
+        // a scene that starts in the dark café must not flash lit for a frame
+        while let Some(Op::Stage(Stage::CafeDark)) = self.queue.front() {
+            self.queue.pop_front();
+            self.scene.set_lights(false);
+        }
         self.fade = 0.0;
         self.letter = None;
         self.letter_appear = 0.0;
@@ -1247,5 +1252,221 @@ impl CutscenePlayer {
         );
         crate::ui::draw::pop_alpha();
         let _ = s.inset(0.0);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::content::{ChoiceOption, CutsceneTrigger, Focus};
+    use crate::i18n::{I18n, Lang};
+
+    const ROOT: &str = env!("CARGO_MANIFEST_DIR");
+
+    fn setup() -> (CutscenePlayer, I18n, Content) {
+        let content = Content::load(&format!("{ROOT}/assets/data")).expect("content");
+        let i18n = crate::settings::load_i18n(&format!("{ROOT}/assets/i18n")).expect("i18n");
+        (CutscenePlayer::new(&content), i18n, content)
+    }
+
+    fn def(id: &str, steps: Vec<CutsceneStep>) -> CutsceneDef {
+        CutsceneDef {
+            id: id.into(),
+            trigger: CutsceneTrigger::Manual,
+            conditions: vec![],
+            skippable: true,
+            repeat: false,
+            steps,
+        }
+    }
+
+    fn narration(k: &str) -> CutsceneStep {
+        CutsceneStep::Narration { text_key: k.into() }
+    }
+
+    fn opt(label: &str, flag: Option<&str>, conds: Vec<Condition>) -> ChoiceOption {
+        ChoiceOption {
+            label_key: label.into(),
+            effects: vec![Effect::Money(-10)],
+            set_flag: flag.map(str::to_string),
+            conditions: conds,
+        }
+    }
+
+    fn advance() -> StepInput {
+        StepInput {
+            advance: true,
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn steps_run_in_order_and_wait_for_clicks() {
+        let (mut p, i18n, _) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        p.start(&def(
+            "t",
+            vec![
+                CutsceneStep::Music {
+                    track: Some("mus_night_calm_loop".into()),
+                },
+                narration("scene.opening.01"),
+                CutsceneStep::Wait { seconds: 1.0 },
+                CutsceneStep::Sfx {
+                    id: "sfx_door_bell".into(),
+                },
+                CutsceneStep::Camera {
+                    focus: Focus::Overview,
+                    zoom: 1.2,
+                },
+                narration("scene.opening.03"),
+            ],
+        ));
+        // music starts at once, then the first narration waits
+        for _ in 0..30 {
+            assert_eq!(
+                p.step(&loc, 0.1, StepInput::default()),
+                CutsceneStatus::Playing
+            );
+        }
+        assert_eq!(
+            p.drain_audio_requests(),
+            vec![AudioRequest::Music {
+                track: Some("mus_night_calm_loop".into())
+            }]
+        );
+        p.step(&loc, 0.016, advance());
+        // the wait blocks the sfx for a second
+        p.step(&loc, 0.5, StepInput::default());
+        assert!(p.drain_audio_requests().is_empty());
+        p.step(&loc, 0.6, StepInput::default());
+        assert_eq!(p.drain_audio_requests().len(), 1);
+        // the camera is non-blocking: we are on the last narration now
+        assert_eq!(
+            p.step(&loc, 0.1, advance()),
+            CutsceneStatus::Finished {
+                id: "t".into(),
+                choices: vec![]
+            }
+        );
+        assert!(!p.is_playing());
+    }
+
+    #[test]
+    fn choices_are_collected_with_their_flags_and_branches() {
+        let (mut p, i18n, _) = setup();
+        let loc = Locale::new(&i18n, Lang::Cs);
+        p.set_condition_check(|c| !matches!(c, Condition::Flag(f) if f == "never"));
+        p.start(&def(
+            "c",
+            vec![
+                CutsceneStep::Choice {
+                    options: vec![
+                        opt("a", None, vec![]),
+                        opt("hidden", None, vec![Condition::Flag("never".into())]),
+                        opt("b", Some("picked_b"), vec![]),
+                    ],
+                },
+                CutsceneStep::If {
+                    conditions: vec![Condition::Flag("picked_b".into())],
+                    then: vec![CutsceneStep::Apply {
+                        effects: vec![Effect::GiveItem("old_coin".into())],
+                    }],
+                    otherwise: vec![],
+                },
+            ],
+        ));
+        p.step(&loc, 0.1, StepInput::default());
+        // the hidden option is not offered: shown index 1 is data index 2
+        let status = p.step(
+            &loc,
+            0.1,
+            StepInput {
+                choice: Some(1),
+                ..Default::default()
+            },
+        );
+        let CutsceneStatus::Finished { choices, .. } = status else {
+            panic!("should finish, got {status:?}");
+        };
+        assert_eq!(choices.len(), 1);
+        assert_eq!(choices[0].index, 2);
+        assert_eq!(choices[0].set_flag.as_deref(), Some("picked_b"));
+        let o = p.outcome().clone();
+        assert_eq!(o.flags, vec!["picked_b".to_string()]);
+        assert!(o.effects.contains(&Effect::GiveItem("old_coin".into())));
+        assert!(o.effects.contains(&Effect::Money(-10)));
+        assert_eq!(p.drain_effects().len(), o.effects.len());
+    }
+
+    #[test]
+    fn hold_skip_applies_effects_and_notes_but_answers_no_choice() {
+        let (mut p, i18n, _) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        p.start(&def(
+            "s",
+            vec![
+                narration("scene.opening.01"),
+                CutsceneStep::Choice {
+                    options: vec![opt("a", Some("x"), vec![])],
+                },
+                CutsceneStep::ShowNote {
+                    note_id: "note_01".into(),
+                },
+                CutsceneStep::Apply {
+                    effects: vec![Effect::GiveItem("cafe_keys".into())],
+                },
+                CutsceneStep::Music { track: None },
+            ],
+        ));
+        p.step(&loc, 0.1, StepInput::default());
+        let status = p.step(
+            &loc,
+            0.1,
+            StepInput {
+                skip: true,
+                ..Default::default()
+            },
+        );
+        assert!(
+            matches!(status, CutsceneStatus::Finished { ref choices, .. } if choices.is_empty())
+        );
+        let o = p.outcome().clone();
+        assert!(o.skipped);
+        assert_eq!(o.notes, vec!["note_01".to_string()]);
+        assert!(o.effects.contains(&Effect::GiveItem("cafe_keys".into())));
+        assert!(o.flags.is_empty());
+        assert!(
+            p.drain_audio_requests()
+                .contains(&AudioRequest::Music { track: None })
+        );
+    }
+
+    #[test]
+    fn the_opening_plays_through_with_its_stage_directions() {
+        let (mut p, i18n, content) = setup();
+        let loc = Locale::new(&i18n, Lang::Uk);
+        p.start(content.cutscene("opening").expect("opening exists"));
+        assert!(p.scene.light_level() < 0.01, "the café starts dark");
+        p.fast_forward(&loc, 400.0);
+        assert!(!p.is_playing(), "auto-play reaches the end");
+        assert!(p.scene.light_level() > 0.99, "the lamps are on at the end");
+        assert!(
+            p.outcome()
+                .effects
+                .contains(&Effect::GiveItem("cafe_keys".into()))
+        );
+        assert!(p.actors.iter().any(|a| a.id == "player"));
+    }
+
+    #[test]
+    fn every_real_cutscene_finishes_on_auto_play() {
+        let (mut p, i18n, content) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        for def in &content.cutscenes.cutscenes {
+            p.start(def);
+            p.fast_forward(&loc, 900.0);
+            assert!(!p.is_playing(), "cutscene {} did not finish", def.id);
+        }
     }
 }
