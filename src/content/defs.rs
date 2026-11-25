@@ -925,6 +925,17 @@ pub struct ArcStage {
     pub effects: Vec<Effect>,
 }
 
+/// A one-liner shown in a small speech bubble when the player hovers / clicks a regular.
+///
+/// Selection: among lines with a non-empty `when` whose conditions all hold, pick one at random;
+/// if none hold, pick among the lines with an empty `when` (the fallbacks).
+#[derive(Debug, Clone, Deserialize)]
+pub struct AmbientLine {
+    pub key: String,
+    #[serde(default)]
+    pub when: Vec<Condition>,
+}
+
 #[derive(Debug, Clone, Deserialize)]
 pub struct RegularDef {
     pub id: String,
@@ -960,6 +971,12 @@ pub struct RegularDef {
     /// Sandbox: chance per night to drop in as a rare regular (0 = story only).
     #[serde(default)]
     pub sandbox_chance: f32,
+    /// Sandbox: comes only on these nights of a save (empty = governed by `sandbox_chance`).
+    #[serde(default)]
+    pub sandbox_nights: Vec<u32>,
+    /// Context mood lines for the hover/click speech bubble (see [`AmbientLine`]).
+    #[serde(default)]
+    pub ambient_lines: Vec<AmbientLine>,
     /// Render preset id when the render agent draws this character specially (e.g. `anwar`).
     #[serde(default)]
     pub look_preset: Option<String>,
@@ -976,6 +993,18 @@ impl RegularDef {
     pub fn arc_counter(&self) -> String {
         format!("arc.{}", self.id)
     }
+    /// Does this regular come on sandbox night `night` (before the `sandbox_chance` roll)?
+    /// `Some(true)` = always, `Some(false)` = never, `None` = roll `sandbox_chance`.
+    pub fn sandbox_visit_rule(&self, night: u32) -> Option<bool> {
+        if !self.sandbox_nights.is_empty() {
+            Some(self.sandbox_nights.contains(&night))
+        } else if self.sandbox_chance <= 0.0 {
+            Some(false)
+        } else {
+            None
+        }
+    }
+
     /// Does this regular come on story night `night` (ignores weather / `absent_if`)?
     pub fn visits_story_night(&self, night: u32) -> bool {
         night >= self.first_night

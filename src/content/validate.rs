@@ -57,6 +57,7 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
         for st in &r.stages {
             keys.extend(st.lines.iter().cloned());
         }
+        keys.extend(r.ambient_lines.iter().map(|l| l.key.clone()));
     }
     for f in &c.furniture {
         keys.push(f.name_key());
@@ -493,6 +494,12 @@ pub(super) fn validate(c: &Content, i18n: &I18n) -> Vec<String> {
                 c.story.nights_total
             ));
         }
+        for l in &r.ambient_lines {
+            visit_conditions(&l.when, &mut |x| ix.check(x, i18n, &ctx, &mut out));
+        }
+        if r.sandbox_nights.contains(&0) {
+            out.push(format!("{ctx}: sandbox_nights start at 1"));
+        }
         if !(0.0..=1.0).contains(&r.sandbox_chance) {
             out.push(format!("{ctx}: sandbox_chance must be 0–1"));
         }
@@ -682,6 +689,16 @@ pub(super) fn validate(c: &Content, i18n: &I18n) -> Vec<String> {
             CutsceneTrigger::Ending(e) => {
                 if !s.endings.iter().any(|x| &x.id == e) {
                     out.push(format!("{ctx}: unknown ending `{e}`"));
+                }
+            }
+            CutsceneTrigger::Talk { regular, night } => {
+                if !ix.regulars.contains_key(regular.as_str()) {
+                    out.push(format!("{ctx}: unknown regular `{regular}`"));
+                }
+                if let Some(n) = night
+                    && !nights.contains(n)
+                {
+                    out.push(format!("{ctx}: talk night {n} not in story"));
                 }
             }
             CutsceneTrigger::Manual => {}
