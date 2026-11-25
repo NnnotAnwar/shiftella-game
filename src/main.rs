@@ -8,11 +8,16 @@
 mod audio;
 mod camera;
 mod clock;
+mod content;
 mod game;
 mod hud;
+mod i18n;
 mod map;
 mod palette;
+mod render;
 mod shapes;
+mod sim;
+mod ui;
 
 use macroquad::prelude::*;
 
@@ -26,7 +31,7 @@ const TICK_SECONDS: f32 = 0.1;
 
 fn window_conf() -> Conf {
     Conf {
-        window_title: "Night Shift".to_owned(),
+        window_title: "Shiftella".to_owned(),
         window_width: 1280,
         window_height: 720,
         high_dpi: true,  // чёткая картинка на Retina

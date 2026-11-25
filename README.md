@@ -1,4 +1,4 @@
-# Night Shift / Ночная смена
+# Shiftella (shiftella-game)
 
 Менеджмент про ночное кафе у вокзала: живые сотрудники, ночные гости, события.
 Гладкая 2D-графика, вид сверху. Rust + [macroquad](https://macroquad.rs).

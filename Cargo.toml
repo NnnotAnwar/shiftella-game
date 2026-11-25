@@ -1,10 +1,12 @@
 [package]
-name = "night-shift"
+name = "shiftella-game"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 macroquad = { version = "0.4", features = ["audio"] }
+ron = "0.10"
+serde = { version = "1.0.229", features = ["derive"] }
 
 # Зависимости (macroquad, декодер звука) собираем с оптимизацией даже в dev-режиме:
 # иначе загрузка музыки и FPS в `cargo run` заметно медленнее. Наш код остаётся быстрым в сборке.
