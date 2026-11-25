@@ -1,0 +1,19 @@
+// Narrator pacing ("the Night"): per-minute event chance =
+//   character.base_rate × curve_at(time) × act_mult(night)
+// then a weighted pick among events whose conditions hold, not on cooldown, within the tension budget.
+(
+    night_curve: [
+        ("22:00", 0.5), ("23:00", 0.8), ("00:00", 1.3), ("01:00", 1.5),
+        ("02:00", 0.9), ("03:00", 0.8), ("04:00", 0.5), ("05:30", 0.6),
+    ],
+    witching_hour: ("02:00", "04:00", 3.0),
+    story_acts: [
+        (nights: (1, 3), act_mult: 0.3, max_severity: 1),
+        (nights: (4, 7), act_mult: 0.6, max_severity: 2),
+        (nights: (8, 16), act_mult: 0.9, max_severity: 2),
+        (nights: (17, 24), act_mult: 1.1, max_severity: 3),
+        (nights: (25, 29), act_mult: 1.2, max_severity: 3, warm_event_guaranteed: true),
+        (nights: (30, 30), act_mult: 0.5, max_severity: 1, warm_event_guaranteed: true),
+    ],
+    calm_before_payment: true,
+)

@@ -1,0 +1,739 @@
+# Events: event.<id>.title / .text, event.<id>.choice.<c> (button), event.<id>.result.<c> (collapsed toast after the choice)
+
+event.rain.title
+cs Déšť
+en Rain
+sk Dážď
+uk Дощ
+
+event.rain.text
+cs Okna v kapkách, holo nápis se rozpíjí. Lidé se chodí schovat.
+en Raindrops on the glass, the holo sign blurs. People come in to wait it out.
+sk Okná v kvapkách, holo nápis sa rozpíja. Ľudia sa chodia schovať.
+uk Краплі на склі, голографічна вивіска розпливається. Люди заходять перечекати.
+
+event.downpour.title
+cs Liják
+en Downpour
+sk Lejak
+uk Злива
+
+event.downpour.text
+cs Nebe se protrhlo. Půlka nádraží se schovává u tebe.
+en The sky has burst. Half the station is hiding in your café.
+sk Nebo sa pretrhlo. Polovica stanice sa schováva u teba.
+uk Небо прорвало. Пів вокзалу ховається в тебе.
+
+event.fog.title
+cs Mlha od řeky
+en Fog off the river
+sk Hmla od rieky
+uk Туман із річки
+
+event.fog.text
+cs Od Šeřavy stoupá mléko. Okno kavárny je vidět. Nic jiného.
+en Milk rises off the Šeřava. You can see the café window. Nothing else.
+sk Od Šeřavy stúpa mlieko. Okno kaviarne je vidieť. Nič iné.
+uk Від Šeřava підіймається молоко. Видно вікно кав'ярні. І більше нічого.
+
+event.storm.title
+cs Bouřka
+en Thunderstorm
+sk Búrka
+uk Гроза
+
+event.storm.text
+cs Na nádraží zhasínají lampy. Svítí jen tvoje okno. Hosté zůstávají déle.
+en The station lamps go out. Only your window is lit. Guests stay longer.
+sk Na stanici zhasínajú lampy. Svieti len tvoje okno. Hostia zostávajú dlhšie.
+uk На вокзалі гаснуть ліхтарі. Світиться лише твоє вікно. Гості затримуються довше.
+
+event.first_snow.title
+cs První sníh
+en First snow
+sk Prvý sneh
+uk Перший сніг
+
+event.first_snow.text
+cs Ticho. Hosté mluví šeptem, jako by se báli ho vyplašit.
+en Silence. The guests whisper, as if afraid to scare it away.
+sk Ticho. Hostia hovoria šeptom, akoby sa ho báli vyplašiť.
+uk Тиша. Гості говорять пошепки, ніби бояться його сполохати.
+
+event.roof_leak.title
+cs Teče střecha
+en Leaking roof
+sk Tečie strecha
+uk Протікає дах
+
+event.roof_leak.text
+cs Kap. Kap. Přímo vedle pultu.
+en Drip. Drip. Right next to the counter.
+sk Kvap. Kvap. Priamo vedľa pultu.
+uk Кап. Кап. Просто біля стійки.
+
+event.roof_leak.choice.bucket
+cs Postavit kbelík
+en Put a bucket under it
+sk Postaviť vedro
+uk Підставити відро
+
+event.roof_leak.result.bucket
+cs Kbelík cinká do rytmu deště.
+en The bucket plinks along with the rain.
+sk Vedro cinká do rytmu dažďa.
+uk Відро дзенькає в ритм дощу.
+
+event.roof_leak.choice.roofer
+cs Zavolat pokrývače (−900 Kč)
+en Call a roofer (−900 CZK)
+sk Zavolať pokrývača (−900 Kč)
+uk Викликати покрівельника (−900 Kč)
+
+event.roof_leak.result.roofer
+cs Střecha opravena. Tohle místo už nekape.
+en Roof fixed. That spot won't drip again.
+sk Strecha opravená. Toto miesto už nekvapká.
+uk Дах полагоджено. Тут більше не капатиме.
+
+event.concert_crowd.title
+cs Lidé z koncertu
+en Concert crowd
+sk Ľudia z koncertu
+uk Натовп після концерту
+
+event.concert_crowd.text
+cs V kulturáku skončil koncert. Dvanáct mokrých bund — a všichni mají hlad.
+en The concert at the culture house is over. Twelve wet jackets — and all of them hungry.
+sk V kultúrnom dome skončil koncert. Dvanásť mokrých búnd — a všetci sú hladní.
+uk У будинку культури закінчився концерт. Дванадцять мокрих курток — і всі голодні.
+
+event.late_train.title
+cs Zpožděný vlak
+en Late train
+sk Meškajúci vlak
+uk Поїзд запізнюється
+
+event.late_train.text
+cs Rychlík uvízl na dvě hodiny. Na nástupišti nerudní cestující s kufry.
+en The express is stuck for two hours. Grumpy passengers with suitcases on the platform.
+sk Rýchlik uviazol na dve hodiny. Na nástupišti nevrlí cestujúci s kuframi.
+uk Експрес застряг на дві години. На пероні сердиті пасажири з валізами.
+
+event.taxi_break.title
+cs Taxikáři na pauze
+en Taxi break
+sk Taxikári na prestávke
+uk Таксисти на перерві
+
+event.taxi_break.text
+cs Auta stojí v řadě před vchodem. Kafe, rychle, a zase jedou. Za rychlost dýško.
+en Cars lined up outside. Coffee, fast, and off they go. Speed earns tips.
+sk Autá stoja v rade pred vchodom. Kávu, rýchlo, a zase idú. Za rýchlosť prepitné.
+uk Машини вишикувалися біля входу. Кава, швидко, і знову в дорогу. За швидкість — чайові.
+
+event.hospital_shift.title
+cs Střídání v nemocnici
+en Hospital shift change
+sk Striedanie v nemocnici
+uk Перезмінка в лікарні
+
+event.hospital_shift.text
+cs Uniformy pod bundami. Potřebují polévku a pět minut ticha.
+en Scrubs under jackets. They need soup and five minutes of quiet.
+sk Uniformy pod bundami. Potrebujú polievku a päť minút ticha.
+uk Медичні костюми під куртками. Їм би супу й п'ять хвилин тиші.
+
+event.depot_shift.title
+cs Střídání v depu
+en Depot shift change
+sk Striedanie v depe
+uk Перезмінка в депо
+
+event.depot_shift.text
+cs Reflexní vesty a telefony s Shiftellou: „Kdo mi vzal středu?" Hlad mají všichni.
+en Hi-vis vests and phones open on Shiftella: "Who took my Wednesday?" Everyone's hungry.
+sk Reflexné vesty a telefóny so Shiftellou: „Kto mi zobral stredu?" Hlad majú všetci.
+uk Світловідбивні жилети й телефони з Shiftella: «Хто забрав мою середу?» Голодні всі.
+
+event.student_party.title
+cs Studenti po párty
+en Students after a party
+sk Študenti po párty
+uk Студенти після вечірки
+
+event.student_party.text
+cs Nahlas, vesele a hodně lepkavě.
+en Loud, cheerful and very sticky.
+sk Nahlas, veselo a veľmi lepkavo.
+uk Гучно, весело й дуже липко.
+
+event.lost_bus.title
+cs Zabloudilý autobus
+en Lost coach
+sk Zablúdený autobus
+uk Заблукалий автобус
+
+event.lost_bus.text
+cs Zájezdový autobus odbočil špatně. Průvodkyně se ptá, jestli máte třicet porcí polévky.
+en A tour coach took a wrong turn. The guide asks if you have thirty portions of soup.
+sk Zájazdový autobus odbočil zle. Sprievodkyňa sa pýta, či máte tridsať porcií polievky.
+uk Туристичний автобус звернув не туди. Гідеса питає, чи є у вас тридцять порцій супу.
+
+event.open_mic.title
+cs Večer u mikrofonu
+en Open-mic night
+sk Večer pri mikrofóne
+uk Вечір біля мікрофона
+
+event.open_mic.text
+cs Někdo ladí kytaru a sál ztichne.
+en Someone tunes a guitar and the room falls quiet.
+sk Niekto ladí gitaru a sála stíchne.
+uk Хтось налаштовує гітару, і зала затихає.
+
+event.staff_sick.title
+cs Někdo onemocněl
+en Someone's sick
+sk Niekto ochorel
+uk Хтось захворів
+
+event.staff_sick.text
+cs Telefon ve 21:40: „Promiňte, dneska to nezvládnu."
+en A call at 21:40: "Sorry, I can't make it tonight."
+sk Telefón o 21:40: „Prepáčte, dnes to nezvládnem."
+uk Дзвінок о 21:40: «Вибачте, сьогодні я не зможу».
+
+event.staff_walkout.title
+cs Odešel ze směny
+en Walked out
+sk Odišiel zo zmeny
+uk Пішли зі зміни
+
+event.staff_walkout.text
+cs Zástěra na háčku, bouchnutí dveří. Někdo má dost.
+en An apron on the hook, a slammed door. Someone has had enough.
+sk Zástera na háčiku, buchnutie dverí. Niekto má dosť.
+uk Фартух на гачку, грюкіт дверей. Комусь досить.
+
+event.broken_dishes.title
+cs Rozbité nádobí
+en Broken dishes
+sk Rozbitý riad
+uk Розбитий посуд
+
+event.broken_dishes.text
+cs Cink. Všichni se otočí do kuchyně.
+en Crash. Everyone looks towards the kitchen.
+sk Cink. Všetci sa otočia do kuchyne.
+uk Дзень. Усі обертаються до кухні.
+
+event.staff_quarrel.title
+cs Hádka v kuchyni
+en Kitchen quarrel
+sk Hádka v kuchyni
+uk Сварка на кухні
+
+event.staff_quarrel.text
+cs „To je můj nůž!" — „A tohle je moje směna!"
+en "That's my knife!" — "And this is my shift!"
+sk „To je môj nôž!" — „A toto je moja zmena!"
+uk «Це мій ніж!» — «А це моя зміна!»
+
+event.staff_quarrel.choice.talk
+cs Promluvit s nimi
+en Talk to them
+sk Porozprávať sa s nimi
+uk Поговорити з ними
+
+event.staff_quarrel.result.talk
+cs Vydechli. Nůž zůstal v šuplíku.
+en They breathed out. The knife stayed in the drawer.
+sk Vydýchli. Nôž zostal v šuplíku.
+uk Видихнули. Ніж лишився в шухляді.
+
+event.staff_quarrel.choice.let_be
+cs Nechat je, ať si to vyříkají
+en Let them sort it out
+sk Nechať ich, nech si to vyjasnia
+uk Хай самі розберуться
+
+event.staff_quarrel.result.let_be
+cs V kuchyni je dusno.
+en The air in the kitchen is thick.
+sk V kuchyni je dusno.
+uk На кухні задушливо.
+
+event.staff_romance.title
+cs Zamilovali se
+en Two in love
+sk Zaľúbili sa
+uk Закохалися
+
+event.staff_romance.text
+cs Smějí se jednomu vtipu déle než všichni ostatní.
+en They laugh at the same joke longer than anyone else.
+sk Smejú sa na jednom vtipe dlhšie ako všetci ostatní.
+uk Вони сміються з одного жарту довше за всіх.
+
+event.staff_inspired.title
+cs Inspirace
+en Inspiration
+sk Inšpirácia
+uk Натхнення
+
+event.staff_inspired.text
+cs „Hele, co kdybychom do topinky dali…"
+en "Hey, what if we put some… on the toast?"
+sk „Počuj, čo keby sme do hrianky dali…"
+uk «Слухай, а якщо в грінку додати…»
+
+event.staff_birthday.title
+cs Narozeniny
+en Birthday
+sk Narodeniny
+uk День народження
+
+event.staff_birthday.text
+cs Někdo přinesl koláč se svíčkou.
+en Someone brought a kolach with a candle in it.
+sk Niekto priniesol koláčik so sviečkou.
+uk Хтось приніс колач зі свічкою.
+
+event.staff_birthday.choice.cake
+cs Koupit dort (−150 Kč)
+en Buy a cake (−150 CZK)
+sk Kúpiť tortu (−150 Kč)
+uk Купити торт (−150 Kč)
+
+event.staff_birthday.result.cake
+cs Dort, svíčky, falešný zpěv. Tým drží pohromadě.
+en Cake, candles, off-key singing. The team holds together.
+sk Torta, sviečky, falošný spev. Tím drží pokope.
+uk Торт, свічки, фальшивий спів. Команда тримається разом.
+
+event.staff_birthday.choice.sing
+cs Jen zazpívat
+en Just sing
+sk Len zaspievať
+uk Просто заспівати
+
+event.staff_birthday.result.sing
+cs Všechno nejlepší! Aspoň zazpívali čistě. Skoro.
+en Happy birthday! At least they sang in tune. Almost.
+sk Všetko najlepšie! Aspoň zaspievali čisto. Skoro.
+uk З днем народження! Хоч заспівали чисто. Майже.
+
+event.power_outage.title
+cs Vypadl proud
+en Power cut
+sk Vypadol prúd
+uk Світло згасло
+
+event.power_outage.text
+cs Cvak — a tma. Jen neon nádraží přes okno. Kávovar i sporák stojí.
+en Click — and darkness. Only the station neon through the window. The coffee machine and stove are dead.
+sk Cvak — a tma. Len neón stanice cez okno. Kávovar aj sporák stoja.
+uk Клац — і темрява. Лише неон вокзалу крізь вікно. Кавоварка й плита стоять.
+
+event.power_outage.choice.candles
+cs Zapálit svíčky (−150 Kč)
+en Light candles (−150 CZK)
+sk Zapáliť sviečky (−150 Kč)
+uk Запалити свічки (−150 Kč)
+
+event.power_outage.result.candles
+cs Svíčky hoří. Hostům se to líbí — „útulné".
+en Candles lit. The guests like it — "cosy".
+sk Sviečky horia. Hosťom sa to páči — „útulné".
+uk Свічки горять. Гостям подобається — «затишно».
+
+event.power_outage.choice.close_kitchen
+cs Zavřít kuchyň
+en Close the kitchen
+sk Zavrieť kuchyňu
+uk Зачинити кухню
+
+event.power_outage.result.close_kitchen
+cs Kuchyň zavřená. Prodáváme jen studené.
+en Kitchen closed. Cold food only.
+sk Kuchyňa zatvorená. Predávame len studené.
+uk Кухню зачинено. Продаємо лише холодне.
+
+event.coffee_machine.title
+cs Kávovar trucuje
+en The coffee machine sulks
+sk Kávovar trucuje
+uk Кавоварка вередує
+
+event.coffee_machine.text
+cs Syčí, jako by se urazil. Káva teče poloviční rychlostí.
+en It hisses as if offended. Coffee flows at half speed.
+sk Syčí, akoby sa urazil. Káva tečie polovičnou rýchlosťou.
+uk Шипить, ніби образилася. Кава тече вдвічі повільніше.
+
+event.coffee_machine.choice.fix_ourselves
+cs Opravit sami (20 min)
+en Fix it ourselves (20 min)
+sk Opraviť sami (20 min)
+uk Полагодити самим (20 хв)
+
+event.coffee_machine.result.fix_ourselves
+cs Šroubovák, trpělivost, a jede zase.
+en A screwdriver, some patience, and it's running again.
+sk Skrutkovač, trpezlivosť, a ide zase.
+uk Викрутка, терпіння — і знову працює.
+
+event.coffee_machine.choice.call_service
+cs Zavolat servis (−400 Kč)
+en Call the service (−400 CZK)
+sk Zavolať servis (−400 Kč)
+uk Викликати сервіс (−400 Kč)
+
+event.coffee_machine.result.call_service
+cs Technik přijel dronem. Kávovar je jako nový.
+en The technician came by drone. The machine is good as new.
+sk Technik priletel dronom. Kávovar je ako nový.
+uk Технік прилетів дроном. Кавоварка як нова.
+
+event.fridge_fail.title
+cs Lednice zabručela
+en The fridge groans
+sk Chladnička zahučala
+uk Холодильник загудів
+
+event.fridge_fail.text
+cs Bručí hlasitěji než rádio. A pak zmlkne. Část zásob je pryč.
+en It hums louder than the radio. Then it goes silent. Some of the stock is lost.
+sk Hučí hlasnejšie ako rádio. A potom zmĺkne. Časť zásob je preč.
+uk Гуде гучніше за радіо. А потім замовкає. Частину запасів утрачено.
+
+event.supplier_late.title
+cs Dodávka mešká
+en Delivery's late
+sk Dodávka mešká
+uk Постачання запізнюється
+
+event.supplier_late.text
+cs Zásobovací dron uvízl v mlze. Mléko bude. Někdy po druhé.
+en The supply drone is stuck in the fog. Milk will come. Sometime after two.
+sk Zásobovací dron uviazol v hmle. Mlieko bude. Niekedy po druhej.
+uk Дрон із постачанням застряг у тумані. Молоко буде. Десь після другої.
+
+event.health_inspection.title
+cs Hygiena
+en Health inspection
+sk Hygiena
+uk Санінспекція
+
+event.health_inspection.text
+cs Přísné brýle, tablet. „Nevšímejte si mě."
+en Stern glasses, a tablet. "Don't mind me."
+sk Prísne okuliare, tablet. „Nevšímajte si ma."
+uk Суворі окуляри, планшет. «Не зважайте на мене».
+
+event.health_inspection.pass
+cs Inspekce odchází spokojená. Reputace +5.
+en The inspector leaves satisfied. Reputation +5.
+sk Inšpekcia odchádza spokojná. Reputácia +5.
+uk Інспекторка йде задоволена. Репутація +5.
+
+event.health_inspection.warning
+cs Napomenutí: „Příště bych to viděla čistší."
+en A warning: "Next time I'd like to see it cleaner."
+sk Napomenutie: „Nabudúce by som to chcela vidieť čistejšie."
+uk Попередження: «Наступного разу хотілося б бачити чистіше».
+
+event.health_inspection.fine
+cs Pokuta 2 000 Kč a reputace −10. Inspekce mlčky odchází.
+en A 2,000 CZK fine and reputation −10. The inspector leaves without a word.
+sk Pokuta 2 000 Kč a reputácia −10. Inšpekcia mlčky odchádza.
+uk Штраф 2 000 Kč і репутація −10. Інспекторка мовчки йде.
+
+event.night_blogger.title
+cs Noční streamer
+en Night streamer
+sk Nočný streamer
+uk Нічний стример
+
+event.night_blogger.text
+cs Natáčí šálek ze tří stran, než ochutná. Jeho recenze se počítá třikrát.
+en Films the cup from three angles before tasting. Their review counts three times.
+sk Natáča šálku z troch strán, než ochutná. Jeho recenzia sa počíta trikrát.
+uk Знімає чашку з трьох боків, перш ніж скуштувати. Його відгук рахується втричі.
+
+event.dine_and_dash.title
+cs Odešel bez placení
+en Dine and dash
+sk Odišiel bez platenia
+uk Пішов, не заплативши
+
+event.dine_and_dash.text
+cs Prázdný stůl a nedojedená polévka.
+en An empty table and a half-eaten soup.
+sk Prázdny stôl a nedojedená polievka.
+uk Порожній стіл і недоїдений суп.
+
+event.big_tip.title
+cs Štědrý cizinec
+en A generous stranger
+sk Štedrý cudzinec
+uk Щедрий незнайомець
+
+event.big_tip.text
+cs Pod šálkem bankovka a ubrousek: „Díky, že máte otevřeno."
+en Under the cup, a banknote and a napkin: "Thank you for being open."
+sk Pod šálkou bankovka a obrúsok: „Vďaka, že máte otvorené."
+uk Під чашкою — банкнота й серветка: «Дякую, що ви відчинені».
+
+event.police_patrol.title
+cs Noční hlídka
+en Night patrol
+sk Nočná hliadka
+uk Нічний патруль
+
+event.police_patrol.text
+cs Dva policisté, dvě kávy, jedno „všechno v pořádku?". Pár nocí bude klid.
+en Two officers, two coffees, one "everything all right?". A few quiet nights ahead.
+sk Dvaja policajti, dve kávy, jedno „všetko v poriadku?". Pár nocí bude pokoj.
+uk Двоє поліцейських, дві кави, одне «усе гаразд?». Кілька ночей буде спокійно.
+
+event.drone_lost.title
+cs Ztracený dron
+en Lost drone
+sk Stratený dron
+uk Заблукалий дрон
+
+event.drone_lost.text
+cs Na prahu přistál rozvážkový dron s krabicí citronů. Bliká a vypadá provinile.
+en A delivery drone has landed on the doorstep with a box of lemons. It blinks and looks guilty.
+sk Na prahu pristál rozvozový dron so škatuľou citrónov. Bliká a vyzerá previnilo.
+uk На порозі сів дрон-кур'єр із коробкою лимонів. Блимає й має винуватий вигляд.
+
+event.drone_lost.choice.return_it
+cs Nahlásit ho majiteli
+en Report it to its owner
+sk Nahlásiť ho majiteľovi
+uk Повідомити власника
+
+event.drone_lost.result.return_it
+cs Majitel poděkoval a nechal citrony. Na čaj jako dělaný.
+en The owner said thanks and let you keep the lemons. Perfect for tea.
+sk Majiteľ poďakoval a nechal citróny. Na čaj ako stvorené.
+uk Власник подякував і залишив лимони. Якраз до чаю.
+
+event.drone_lost.choice.charge_it
+cs Dobít ho a poslat dál (−20 Kč)
+en Charge it and send it on (−20 CZK)
+sk Nabiť ho a poslať ďalej (−20 Kč)
+uk Зарядити й відправити далі (−20 Kč)
+
+event.drone_lost.result.charge_it
+cs Dron odletěl a zamával vrtulí. Ve městě se o tom mluví.
+en The drone flew off with a wave of its rotor. The town is talking about it.
+sk Dron odletel a zamával vrtuľou. V meste sa o tom hovorí.
+uk Дрон полетів, помахавши гвинтом. Місто про це говорить.
+
+event.clock_333.title
+cs Hodiny se zastavily
+en The clock stopped
+sk Hodiny sa zastavili
+uk Годинник зупинився
+
+event.clock_333.text
+cs 3:33. Vteřinová ručička ztuhne a rádio na minutu zašumí.
+en 3:33. The second hand freezes and the radio hisses for a minute.
+sk 3:33. Sekundová ručička stuhne a rádio na minútu zašumí.
+uk 3:33. Секундна стрілка завмирає, а радіо на хвилину шипить.
+
+event.phantom_horn.title
+cs Houkání bez vlaku
+en A horn without a train
+sk Húkanie bez vlaku
+uk Гудок без поїзда
+
+event.phantom_horn.text
+cs Dlouhé zahoukání. Tabule je prázdná.
+en A long horn. The departure board is empty.
+sk Dlhé zahúkanie. Tabuľa je prázdna.
+uk Довгий гудок. Табло порожнє.
+
+event.holo_flicker.title
+cs Blikající nápis
+en Flickering sign
+sk Blikajúci nápis
+uk Блимає вивіска
+
+event.holo_flicker.text
+cs Holo nápis nad dveřmi chvíli ukazuje „U VÝHYBKY", chvíli „ČEKÁME". Kolemjdoucí se zastavují.
+en The holo sign over the door flickers between "U VÝHYBKY" and "WE'RE WAITING". Passers-by stop to look.
+sk Holo nápis nad dverami chvíľu ukazuje „U VÝHYBKY", chvíľu „ČAKÁME". Okoloidúci sa zastavujú.
+uk Голографічна вивіска над дверима блимає то «U VÝHYBKY», то «МИ ЧЕКАЄМО». Перехожі зупиняються.
+
+event.station_cat.title
+cs Nádražní kocour
+en The station cat
+sk Staničný kocúr
+uk Вокзальний кіт
+
+event.station_cat.text
+cs Zrzavý, drzý, s natrženým uchem. Dívá se na smetanu.
+en Ginger, cheeky, with a torn ear. Eyeing the cream.
+sk Ryšavý, drzý, s natrhnutým uchom. Pozerá na smotanu.
+uk Рудий, нахабний, з надірваним вухом. Дивиться на вершки.
+
+event.station_cat.choice.feed
+cs Nakrmit (−10 Kč)
+en Feed him (−10 CZK)
+sk Nakŕmiť (−10 Kč)
+uk Нагодувати (−10 Kč)
+
+event.station_cat.result.feed
+cs Kocour zamňoukal. Asi „díky".
+en The cat meowed. Probably "thanks".
+sk Kocúr zamňaukal. Asi „vďaka".
+uk Кіт нявкнув. Мабуть, «дякую».
+
+event.station_cat.choice.shoo
+cs Odehnat
+en Shoo him away
+sk Odohnať
+uk Прогнати
+
+event.station_cat.result.shoo
+cs Kocour odešel s uraženou důstojností.
+en The cat left with offended dignity.
+sk Kocúr odišiel s urazenou dôstojnosťou.
+uk Кіт пішов з ображеною гідністю.
+
+event.cat_stays.title
+cs Kocour zůstává
+en The cat stays
+sk Kocúr zostáva
+uk Кіт лишається
+
+event.cat_stays.text
+cs Třetí noc za sebou. Kocour si lehl na topení a prohlásil kavárnu za svou. Teď tu taky pracuje.
+en The third night in a row. The cat lay down on the radiator and declared the café his. He works here now, too.
+sk Tretiu noc po sebe. Kocúr si ľahol na radiátor a vyhlásil kaviareň za svoju. Teraz tu tiež pracuje.
+uk Третя ніч поспіль. Кіт розлігся на батареї й оголосив кав'ярню своєю. Тепер він теж тут працює.
+
+event.forgotten_item.title
+cs Zapomenutá věc
+en Forgotten item
+sk Zabudnutá vec
+uk Забута річ
+
+event.forgotten_item.text
+cs Na židli starý deštník s monogramem.
+en An old umbrella with a monogram, left on a chair.
+sk Na stoličke starý dáždnik s monogramom.
+uk На стільці — стара парасолька з монограмою.
+
+event.forgotten_item.choice.lost_and_found
+cs Do ztrát a nálezů
+en Lost and found
+sk Do strát a nálezov
+uk У бюро знахідок
+
+event.forgotten_item.result.lost_and_found
+cs Druhou noc si pro něj přišla dáma. Byla dojatá.
+en The next night a lady came back for it. She was touched.
+sk Druhú noc si poň prišla dáma. Bola dojatá.
+uk Наступної ночі по неї прийшла пані. Вона була зворушена.
+
+event.forgotten_item.choice.keep
+cs Nechat si ho
+en Keep it
+sk Nechať si ho
+uk Залишити собі
+
+event.forgotten_item.result.keep
+cs Deštník visí na věšáku. Čeká.
+en The umbrella hangs on the coat rack. Waiting.
+sk Dáždnik visí na vešiaku. Čaká.
+uk Парасолька висить на вішаку. Чекає.
+
+event.strange_order.title
+cs Zvláštní objednávka
+en A strange order
+sk Zvláštna objednávka
+uk Дивне замовлення
+
+event.strange_order.text
+cs „Dejte mi to, co pila Lída."
+en "Give me what Lída used to drink."
+sk „Dajte mi to, čo pila Lída."
+uk «Дайте мені те, що пила Ліда».
+
+event.strange_order.choice.tea_two_sugars
+cs Čaj s citronem, dva cukry
+en Tea with lemon, two sugars
+sk Čaj s citrónom, dva cukry
+uk Чай із лимоном, два цукри
+
+event.strange_order.result.tea_two_sugars
+cs „Přesně tak." Host se usměje, jako by si na něco vzpomněl.
+en "Exactly." The guest smiles, as if remembering something.
+sk „Presne tak." Hosť sa usmeje, akoby si na niečo spomenul.
+uk «Саме так». Гість усміхається, ніби щось пригадав.
+
+event.strange_order.choice.black_coffee
+cs Černou kávu
+en Black coffee
+sk Čiernu kávu
+uk Чорну каву
+
+event.strange_order.result.black_coffee
+cs „Ne, ne. Tu pil Mirek."
+en "No, no. That was Mirek's."
+sk „Nie, nie. Tú pil Mirek."
+uk «Ні-ні. Це пив Мірек».
+
+event.strange_order.choice.dont_know
+cs „Nevím. Povíte mi?"
+en "I don't know. Will you tell me?"
+sk „Neviem. Poviete mi?"
+uk «Не знаю. Розкажете?»
+
+event.strange_order.result.dont_know
+cs Host vypráví půl hodiny. O čaji ani slovo.
+en The guest talks for half an hour. Not a word about tea.
+sk Hosť rozpráva pol hodiny. O čaji ani slovo.
+uk Гість розповідає пів години. Про чай — ані слова.
+
+event.lonely_night.title
+cs Prázdná noc
+en An empty night
+sk Prázdna noc
+uk Порожня ніч
+
+event.lonely_night.text
+cs Nikdo. Jen déšť, bzučení lednice a rádio. Čas na velký úklid — a na řeči.
+en Nobody. Just rain, the fridge humming and the radio. Time for a big clean — and for talking.
+sk Nikto. Len dážď, bzučanie chladničky a rádio. Čas na veľké upratovanie — a na reči.
+uk Нікого. Лише дощ, гудіння холодильника й радіо. Час для великого прибирання — і для розмов.
+
+event.mirek_accident.title
+cs Nehoda u nádraží
+en Accident by the station
+sk Nehoda pri stanici
+uk Аварія біля вокзалу
+
+event.mirek_accident.text
+cs Mirkovo taxi skončilo v zábradlí. Nikomu se nic vážného nestalo. Mirek už nepřijde.
+en Mirek's taxi ended up in the railings. Nobody was badly hurt. Mirek won't be coming back.
+sk Mirkov taxík skončil v zábradlí. Nikomu sa nič vážne nestalo. Mirek už nepríde.
+uk Міркове таксі врізалося в огорожу. Ніхто серйозно не постраждав. Мірек більше не прийде.
+
+event.storm_blackout.title
+cs Celé město ve tmě
+en The whole town in the dark
+sk Celé mesto v tme
+uk Усе місто в темряві
+
+event.storm_blackout.text
+cs Svítí jen tvoje okno. Kdo nespí, jde za ním.
+en Only your window is lit. Everyone who's awake follows it.
+sk Svieti len tvoje okno. Kto nespí, ide za jeho svetlom.
+uk Світиться тільки твоє вікно. Усі, хто не спить, ідуть на нього.

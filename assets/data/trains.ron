@@ -1,0 +1,26 @@
+// The night line. Stations are Shiftella release codenames (A→Z) and then Mlhov.
+// Station names are proper nouns and are never translated. Train display keys: train.<id lowercased, _>.name
+// Announcements: announce_arrival / announce_delay keys with {train} {from} {to} {time} {platform}.
+#![enable(implicit_some)]
+(
+    stations: [
+        (id: "adamov", name: "Adamov"),
+        (id: "beroun", name: "Beroun"),
+        (id: "cheb", name: "Cheb"),
+        (id: "decin", name: "Děčín"),
+        (id: "ejpovice", name: "Ejpovice"),
+        (id: "frydlant", name: "Frýdlant"),
+        (id: "mlhov", name: "Mlhov nad Šeřavou"),
+    ],
+    home: "mlhov",
+    trains: [
+        (id: "Os 2141", kind: Regional, from: "adamov", to: "mlhov", arrives: "22:47", guests: (2, 5), guest: "travelers"),
+        (id: "EN 471", kind: Night, from: "cheb", to: "frydlant", arrives: "00:15", guests: (4, 8), guest: "travelers"),
+        (id: "Nex 9002", kind: Freight, from: "decin", to: "beroun", arrives: "01:52", guests: (0, 1), guest: "train_crew"),
+        (id: "Rn 333", kind: Phantom, from: "adamov", to: "mlhov", arrives: "03:33", guests: (0, 0), guest: "night_wanderer",
+         announce_if: [NightAtLeast(30), WindowLightOn]),
+        (id: "R 815", kind: Express, from: "frydlant", to: "beroun", arrives: "05:20", guests: (3, 6), guest: "train_crew"),
+    ],
+    announce_arrival: "train.announce.arrival",
+    announce_delay: "train.announce.delay",
+)
