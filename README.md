@@ -1,66 +1,57 @@
 # Shiftella (shiftella-game)
 
-Менеджмент про ночное кафе у вокзала: живые сотрудники, ночные гости, события.
-Гладкая 2D-графика, вид сверху. Rust + [macroquad](https://macroquad.rs).
+A cozy, very atmospheric night-café management game. 2039, the small Czech railway town
+Mlhov nad Šeřavou, grandma Lída's café «U Výhybky», open 22:00–06:00. Rain, warm lamps, quiet
+night trains, regulars with stories — and the crew's shifts run through the in-game **Shiftella**
+app. Story (30 nights, two endings) and an endless Sandbox. CZ / EN / SK / UA.
 
-## Запуск
+Rust (edition 2024) + [macroquad](https://macroquad.rs) 0.4.
+
+## Run
 
 ```bash
-cargo run            # игра
-cargo test           # тесты
-cargo clippy         # линтер
+cargo run --release      # the game
+cargo test               # tests (content, i18n, sim, saves, the game flow headless)
+cargo clippy --all-targets
+scripts/package-macos.sh # dist/Shiftella.app
 ```
 
-Управление: `Space` — пауза, `1/2/3` — скорость, `WASD` / стрелки или правая кнопка мыши — двигать камеру,
-колесо — зум, `M` — звук вкл/выкл, `N` — следующая ночь (после 06:00).
+How to play, controls and tips: **[docs/PLAYING.md](docs/PLAYING.md)**.
 
-Скриншот для отладки: `SHIFTELLA_SHOT=shot.png cargo run` — сохранит кадр и закроет игру.
+## Layout
 
-## Как устроен каркас
-
-| Файл | Что внутри |
+| Path | What |
 |---|---|
-| `src/main.rs` | окно, главный цикл: ввод → тики симуляции → мир → интерфейс |
-| `src/game.rs` | состояние игры (`Game`) и `tick()` — **сюда пишутся механики** |
-| `src/clock.rs` | часы 22:00→06:00, 10 тиков = 1 игровая минута |
-| `src/map.rs` | карта из текста (`CAFE_LAYOUT`), тайлы 64×64, `walkable()`, отрисовка слоями |
-| `src/camera.rs` | камера мира: панорама, зум к курсору, `screen_to_world()` |
-| `src/hud.rs` | интерфейс в логических точках: часы, скорость, панель персонала |
-| `src/shapes.rs` | скруглённые прямоугольники, тени, мягкий свет — заглушки вместо спрайтов |
-| `src/palette.rs` | все цвета |
-| `src/audio.rs` | музыка, дождь, звуки; реагирует на `GameEvent` |
+| `src/main.rs` | the window; calls `app::run()` |
+| `src/app/` | the app state machine: boot → language → menu → game → credits (`route` is the pure transition table) |
+| `src/screens/game/` | a running game: `world_view` (the sim adapter), `scene` (the live café), `hud`, `panels` (crew, priorities, log), `phone_app` (Shiftella), `build`, `day` (planning + morning summary), `pause` |
+| `src/screens/menu/`, `boot.rs`, `credits.rs` | main menu & language picker, loading screen, credits |
+| `src/sim/` | the simulation behind `sim::World` (see `docs/SIM.md`) |
+| `src/content/`, `src/i18n/` | data model + loader, translations (see `docs/CONTENT.md`) |
+| `src/render/`, `src/ui/`, `src/cutscene/` | world renderer, UI kit, cutscene player |
+| `src/save/` | save slots (RON, versioned) |
+| `src/audio.rs` | music crossfades, rain ambience, SFX |
+| `assets/` | data, translations (`assets/i18n/src/*.tr` → `cargo run --example content_i18n_build`), fonts, audio |
 
-**Звук.** Игра не играет звуки сама — она сообщает о событиях (`GameEvent` в `game.rs`):
-`NightStarted` → спокойная музыка + дождь, `TrainPassing` → далёкий поезд (по расписанию,
-один из них в 3:33), `NightEnded` → музыка стихает, сигнал. Новый звук = новое событие в
-`GameEvent` + строчка в `Audio::handle`. Файлы лежат в `assets/audio/`, перегенерировать —
-`python3 -I design/audio/generate.py` (описания треков в `design/audio/prompts.json`).
+Saves and settings live in `~/Library/Application Support/Shiftella/` (macOS; `%APPDATA%\Shiftella`,
+`~/.config/shiftella` elsewhere; fallback `./`). Overrides: `SHIFTELLA_SETTINGS=<file>`, `SHIFTELLA_SAVES=<dir>`.
 
-Две системы координат:
-- **мир** — мировые пиксели, 1 тайл = `TILE` (64). В них живут гости, сотрудники и мебель.
-- **интерфейс** — логические точки (на Retina 1 точка = 2 пикселя). Мышь в них: `hud::ui_mouse()`.
+## Test automation
 
-Главное правило: **логика — только в `Game::tick()`**, отрисовка ничего не меняет.
-Тогда пауза и ×2/×3 работают сами.
+The game binary can jump straight into a state and save a screenshot:
 
-Папка `design/` — сюжет, интерфейсы и звук, `assets/` — файлы для игры.
+```bash
+SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=5 SHIFTELLA_TIME=01:30 SHIFTELLA_LANG=cs \
+  SHIFTELLA_SHOT=shots/night.png cargo run --release
+```
 
-## Первые механики (пишешь ты)
+* `SHIFTELLA_SCENE` = `menu | language | newgame | sandbox_setup | opening | story_day1 | night |
+  night9_anwar | crew | app | priorities | log | build | pause | summary | ending_light |
+  ending_last_train | credits | sandbox`
+* `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`, `SHIFTELLA_T=<s>` (cutscene fast-forward),
+  `SHIFTELLA_LANG=cs|en|sk|uk`, `SHIFTELLA_FRAMES=n` (default 45), `SHIFTELLA_MUTE=1`.
+* With `SHIFTELLA_SHOT` the game ignores keyboard/mouse world input, never autosaves and uses
+  a temporary saves folder unless `SHIFTELLA_SAVES` is set.
 
-Делай по одному шагу. После каждого: `cargo run`, посмотреть, `cargo test`.
-
-1. **Клик по кнопкам скорости.** `hud::speed_buttons()` уже отдаёт кнопки и их прямоугольники.
-   В `main.rs` по `is_mouse_button_pressed(MouseButton::Left)` найди кнопку, в которую попал
-   `hud::ui_mouse()` (`Rect::contains`), и вызови `game.set_speed`.
-2. **Первый гость.** Создай `src/guest.rs` со структурой `Guest { pos: Vec2, state }`, где
-   `state` — enum: `Entering`, `Sitting { minutes_left }`, `Leaving`. `pos` — в мировых пикселях.
-   В `Game` добавь `guests: Vec<Guest>`. В `tick()` раз в 15 игровых минут спавни гостя у двери.
-   Нарисуй его кружком (`draw_circle`) после `game.map.draw()` — он попадёт в мир, под камеру.
-   Добавь событие `GameEvent::GuestArrived` и в `audio.rs` играй на него `Sfx::DoorBell`.
-3. **Гость идёт к стулу.** Найди свободный `Tile::Chair` и двигай гостя к нему понемногу каждый тик.
-   Сначала по прямой, потом заменим на поиск пути A*.
-4. **Посидел — ушёл.** `Sitting` уменьшает `minutes_left`, потом `Leaving` → к двери → удалить из `Vec`.
-5. **Деньги.** Ушедший гость платит (`Sfx::CashRegister`). Добавь `money` в `Game` и выведи в верхней панели.
-6. **Час пик.** Если гостей больше 5 — `audio.play_music(Track::Rush)`, меньше — `Track::Calm`.
-
-Когда застрял, пиши, разберём на твоём коде.
+Demos: `cargo run --release --example render_demo | ui_demo | menu_demo | cutscene_demo`
+(each supports `SHIFTELLA_SHOT`).

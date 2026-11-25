@@ -1,28 +1,37 @@
-//! Камера мира: панорама и зум, как в колони-симах.
+//! The world camera: pan and zoom, like in colony sims.
 //!
-//! Мир измеряется в «мировых пикселях»: один тайл = `map::TILE` (64).
-//! `zoom` — сколько пикселей экрана приходится на один мировой пиксель.
+//! The world is measured in world pixels: one tile = `map::TILE` (64).
+//! `zoom` = screen pixels per world pixel.
 //!
-//! Управление: WASD / стрелки или перетаскивание правой (средней) кнопкой — двигать,
-//! колесо мыши — зум к курсору.
+//! Controls: WASD / arrows or right (middle) button drag to move,
+//! mouse wheel to zoom towards the cursor.
 
 use macroquad::prelude::*;
 
 const MIN_ZOOM: f32 = 0.2;
 const MAX_ZOOM: f32 = 3.0;
-/// Скорость панорамы клавишами, в пикселях экрана в секунду.
+/// Keyboard pan speed, in screen pixels per second.
 const PAN_SPEED: f32 = 900.0;
 
 pub struct WorldCamera {
-    /// Какая точка мира сейчас в центре экрана.
+    /// The world point at the centre of the screen.
     pub center: Vec2,
     pub zoom: f32,
     drag_last: Option<Vec2>,
 }
 
 impl WorldCamera {
-    /// Камера, которая целиком показывает мир размером `world_size`
-    /// внутри прямоугольника экрана `area` (в пикселях экрана).
+    /// A camera at `center` (world px) with `zoom` — no window needed (headless tests).
+    pub fn at(center: Vec2, zoom: f32) -> Self {
+        Self {
+            center,
+            zoom: zoom.clamp(MIN_ZOOM, MAX_ZOOM),
+            drag_last: None,
+        }
+    }
+
+    /// A camera that shows the whole world of `world_size`
+    /// inside the screen rectangle `area` (screen pixels).
     pub fn fit(world_size: Vec2, area: Rect) -> Self {
         let zoom = (area.w / world_size.x)
             .min(area.h / world_size.y)
@@ -36,18 +45,18 @@ impl WorldCamera {
         }
     }
 
-    /// Точка экрана → точка мира.
+    /// Screen point → world point.
     pub fn screen_to_world(&self, screen: Vec2) -> Vec2 {
         let screen_center = vec2(screen_width(), screen_height()) / 2.0;
         self.center + (screen - screen_center) / self.zoom
     }
 
-    /// Камера macroquad, через которую рисуется мир.
+    /// The macroquad camera the world is drawn with.
     pub fn to_camera2d(&self) -> Camera2D {
         Camera2D {
             target: self.center,
-            // Y положительный: для экрана (без render target) macroquad сам
-            // переворачивает ось, и тогда Y мира смотрит вниз, как на экране.
+            // Positive Y: for the screen (no render target) macroquad flips the axis
+            // itself, so world Y points down like the screen.
             zoom: vec2(
                 2.0 * self.zoom / screen_width(),
                 2.0 * self.zoom / screen_height(),
@@ -56,11 +65,11 @@ impl WorldCamera {
         }
     }
 
-    /// Ввод камеры. Работает и на паузе (использует реальное время кадра).
+    /// Camera input. Works while paused too (uses real frame time).
     pub fn update(&mut self) {
         let dt = get_frame_time();
 
-        // Клавиши
+        // Keys
         let mut dir = Vec2::ZERO;
         if is_key_down(KeyCode::W) || is_key_down(KeyCode::Up) {
             dir.y -= 1.0;
@@ -76,7 +85,7 @@ impl WorldCamera {
         }
         self.center += dir.normalize_or_zero() * PAN_SPEED * dt / self.zoom;
 
-        // Перетаскивание правой или средней кнопкой
+        // Drag with the right or middle button
         let mouse = Vec2::from(mouse_position());
         if is_mouse_button_down(MouseButton::Right) || is_mouse_button_down(MouseButton::Middle) {
             if let Some(last) = self.drag_last {
@@ -87,7 +96,7 @@ impl WorldCamera {
             self.drag_last = None;
         }
 
-        // Зум колесом — так, чтобы точка под курсором осталась на месте
+        // Wheel zoom that keeps the point under the cursor in place
         let wheel = mouse_wheel().1;
         if wheel != 0.0 {
             let before = self.screen_to_world(mouse);

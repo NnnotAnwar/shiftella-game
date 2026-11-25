@@ -1,0 +1,1278 @@
+//! A running game: the live café, HUD, panels, day planning, the morning summary, the pause
+//! menu and story cutscenes.
+//!
+//! Split in two halves so the flow can be tested without a window:
+//! * **logic** ([`GameScreen::advance`], [`GameScreen::handle_event`], commands, saving) —
+//!   no `Ui`, no GPU;
+//! * **frame** ([`GameScreen::frame`], [`GameScreen::hotkeys`]) — input, drawing, widgets.
+
+mod build;
+mod day;
+mod hud;
+mod panels;
+mod pause;
+mod phone_app;
+pub mod scene;
+pub mod world_view;
+
+use std::cell::RefCell;
+use std::rc::Rc;
+
+use macroquad::prelude::*;
+
+use crate::audio::{Audio, Sfx, Track};
+use crate::camera::WorldCamera;
+use crate::content::Content;
+use crate::cutscene::{CutscenePlayer, CutsceneStatus};
+use crate::save::{SaveFile, SaveMeta, SaveStore, SessionExtra, Slot};
+use crate::settings::{Locale, Settings};
+use crate::ui::{Icon, Toast, ToastAnchor, ToastId, ToastKind, Ui};
+use scene::{Pick, WorldScene};
+use sim::{AgentRef, Command, NightSummary, Phase, SimEvent, World};
+use world_view::{self as wv, sim};
+
+/// Real seconds per sim tick at ×1 (10 ticks = 1 game minute → a night ≈ 8 min).
+pub const TICK_SECONDS: f32 = 0.1;
+
+/// Everything a game frame needs from the app.
+pub struct Ctx<'a> {
+    pub content: &'a Rc<Content>,
+    pub loc: Locale<'a>,
+    pub settings: &'a mut Settings,
+    pub audio: &'a mut Audio,
+    pub store: &'a SaveStore,
+}
+
+/// What the game asks the app to do.
+#[derive(Debug, Clone, PartialEq)]
+pub enum GameExit {
+    MainMenu,
+    Quit,
+    /// The story ended (or the sandbox café closed): play the credits.
+    Credits {
+        ending: Option<String>,
+        variant: Option<String>,
+    },
+    /// Load this slot (from the pause menu).
+    Load(crate::save::Slot),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Panel {
+    Crew,
+    Priorities,
+    App,
+    Build,
+    Log,
+}
+
+/// A line in the top ticker / log.
+#[derive(Debug, Clone)]
+pub struct Ticker {
+    pub icon: Icon,
+    pub time: String,
+    pub text: String,
+}
+
+/// Something for the UI layer to show (produced by the logic half).
+#[derive(Debug, Clone)]
+pub enum Notice {
+    Toast {
+        kind: ToastKind,
+        icon: Icon,
+        title: String,
+        body: Option<String>,
+    },
+    Choice {
+        event: String,
+        choices: Vec<String>,
+    },
+    ChoiceResolved {
+        event: String,
+        choice: String,
+    },
+}
+
+/// Speech bubble over a guest.
+#[derive(Debug, Clone)]
+pub struct Bubble {
+    pub agent: AgentRef,
+    pub text: String,
+    pub talk: Option<String>,
+    pub pinned: bool,
+    pub until: f32,
+}
+
+pub struct GameScreen {
+    pub world: World,
+    pub scene: WorldScene,
+    pub cam: WorldCamera,
+    cam_ready: bool,
+    /// 0 = paused, 1..=3.
+    pub speed: u8,
+    speed_before_pause: u8,
+    acc: f32,
+    pub time: f32,
+    pub panel: Option<Panel>,
+    pub pause: Option<pause::PauseMenu>,
+    pub summary: Option<NightSummary>,
+    /// Summary waiting for a night-end cutscene to finish.
+    summary_pending: Option<NightSummary>,
+    pub selected: Option<AgentRef>,
+    pub hovered: Option<AgentRef>,
+    pub bubble: Option<Bubble>,
+    pub ticker: Vec<Ticker>,
+    pub notices: Vec<Notice>,
+    choice_toasts: Vec<(ToastId, String, Vec<String>)>,
+    pub player: CutscenePlayer,
+    /// Shared world snapshot the cutscene condition callback reads.
+    snapshot: Rc<RefCell<Option<World>>>,
+    /// The cutscene now on screen is the pre-Day-1 opening (not asked for by the sim).
+    intro: bool,
+    pub extra: SessionExtra,
+    ending: Option<String>,
+    exit: Option<GameExit>,
+    pub ui_state: UiState,
+    /// Something changed that the autosave should catch at the next safe point.
+    autosave_due: bool,
+    /// Screenshot automation: ignore keyboard / mouse world input.
+    pub automation: bool,
+    /// Events with text that arrived without a locale (handled next frame).
+    deferred: Vec<SimEvent>,
+    /// Real seconds the 3:33 clock stop still holds the sim.
+    clock_stop: f32,
+    /// Last game minute a footstep / coffee ambience sound was considered.
+    last_ambience_minute: u32,
+}
+
+/// Panel-local state that survives frames.
+#[derive(Debug, Clone, Default)]
+pub struct UiState {
+    pub crew_selected: Option<u32>,
+    pub crew_sort: usize,
+    pub app_tab: usize,
+    pub build: build::BuildState,
+    pub handover_text: String,
+    pub log_filter: usize,
+}
+
+impl GameScreen {
+    fn with_world(content: &Rc<Content>, world: World, extra: SessionExtra) -> GameScreen {
+        let mut player = CutscenePlayer::new(content);
+        let snapshot: Rc<RefCell<Option<World>>> = Rc::new(RefCell::new(None));
+        {
+            let snap = snapshot.clone();
+            let c = content.clone();
+            player.set_condition_check(move |cond| {
+                snap.borrow()
+                    .as_ref()
+                    .is_some_and(|w| w.eval_conditions(&c, std::slice::from_ref(cond)))
+            });
+        }
+        GameScreen {
+            world,
+            scene: WorldScene::new(),
+            cam: WorldCamera::at(vec2(15.0, 8.0) * crate::map::TILE, 1.0),
+            cam_ready: false,
+            speed: 1,
+            speed_before_pause: 1,
+            acc: 0.0,
+            time: 0.0,
+            panel: None,
+            pause: None,
+            summary: None,
+            summary_pending: None,
+            selected: None,
+            hovered: None,
+            bubble: None,
+            ticker: Vec::new(),
+            notices: Vec::new(),
+            choice_toasts: Vec::new(),
+            player,
+            snapshot,
+            intro: false,
+            extra,
+            ending: None,
+            exit: None,
+            ui_state: UiState::default(),
+            autosave_due: false,
+            last_ambience_minute: u32::MAX,
+            deferred: Vec::new(),
+            clock_stop: 0.0,
+            automation: std::env::var("SHIFTELLA_SHOT").is_ok(),
+        }
+    }
+
+    /// A new story. Plays the opening before Day 1 unless `skip_opening`.
+    pub fn new_story(content: &Rc<Content>, difficulty: &str, skip_opening: bool) -> GameScreen {
+        let world = World::new_story(content, wv::difficulty_from_id(difficulty));
+        let mut g = GameScreen::with_world(content, world, SessionExtra::default());
+        g.deferred = g.world.drain_events();
+        if skip_opening {
+            g.extra.opening_seen = Some(Vec::new());
+        } else if let Some(def) = content.cutscene("opening") {
+            g.player.start(def);
+            g.intro = true;
+        }
+        g
+    }
+
+    pub fn new_sandbox(content: &Rc<Content>, setup: sim::SandboxSetup) -> GameScreen {
+        let world = World::new_sandbox(content, setup);
+        let mut g = GameScreen::with_world(content, world, SessionExtra::default());
+        g.deferred = g.world.drain_events();
+        g
+    }
+
+    pub fn from_save(content: &Rc<Content>, file: &SaveFile) -> Result<GameScreen, String> {
+        let mut world = World::load_from_str(&file.world)?;
+        world.rebuild_caches(content);
+        let mut g = GameScreen::with_world(content, world, file.extra.clone());
+        if let Some((x, y, z)) = file.extra.camera {
+            g.cam.center = vec2(x, y) * crate::map::TILE;
+            g.cam.zoom = z;
+            g.cam_ready = true;
+        }
+        // a cutscene that was on screen when saving starts again
+        if let Some(id) = g.world.playing_cutscene().map(str::to_string) {
+            g.start_cutscene(content, &id);
+        }
+        if g.world.ending().is_some() {
+            g.ending = g.world.ending().map(str::to_string);
+        }
+        Ok(g)
+    }
+
+    // ───────────────────────── logic (no window needed) ─────────────────────────
+
+    pub fn exit(&mut self) -> Option<GameExit> {
+        self.exit.take()
+    }
+
+    pub fn cutscene_playing(&self) -> bool {
+        self.player.is_playing()
+    }
+
+    /// Clock frozen for the player (overlays, cutscenes, pause).
+    pub fn frozen(&self) -> bool {
+        self.speed == 0
+            || self.pause.is_some()
+            || self.cutscene_playing()
+            || self.summary.is_some()
+            || self.world.phase() == Phase::Day
+    }
+
+    pub fn set_speed(&mut self, s: u8) {
+        self.speed = s.min(3);
+        if s > 0 {
+            self.speed_before_pause = s;
+        }
+    }
+
+    pub fn toggle_pause(&mut self) {
+        if self.speed == 0 {
+            self.speed = self.speed_before_pause.max(1);
+        } else {
+            self.speed_before_pause = self.speed;
+            self.speed = 0;
+        }
+    }
+
+    /// Runs the sim for `dt` real seconds at the current speed; handles the events.
+    pub fn advance(&mut self, content: &Rc<Content>, dt: f32, loc: Option<&Locale>) {
+        if !self.frozen() {
+            self.acc += dt.min(0.25) * self.speed as f32;
+            let mut guard = 0;
+            while self.acc >= TICK_SECONDS && guard < 64 {
+                self.acc -= TICK_SECONDS;
+                self.world.tick(content);
+                guard += 1;
+                // stop stepping as soon as something needs the player
+                if self.world.playing_cutscene().is_some() {
+                    self.acc = 0.0;
+                    break;
+                }
+            }
+        }
+        self.drain_and_handle(content, loc);
+        if self.world.phase() == Phase::Day && !self.cutscene_playing() {
+            self.acc = 0.0;
+        }
+    }
+
+    pub fn drain_and_handle(&mut self, content: &Rc<Content>, loc: Option<&Locale>) {
+        let mut events = self.world.drain_events();
+        if let Some(l) = loc {
+            let mut all = std::mem::take(&mut self.deferred);
+            all.append(&mut events);
+            for e in all {
+                self.handle_event(content, e, Some(l));
+            }
+        } else {
+            // flow events now; text waits for the next frame's locale
+            for e in events {
+                if is_flow_event(&e) {
+                    self.handle_event(content, e, None);
+                } else {
+                    self.deferred.push(e);
+                }
+            }
+        }
+        // a queued summary shows once no cutscene is on screen
+        if !self.cutscene_playing()
+            && self.world.playing_cutscene().is_none()
+            && let Some(s) = self.summary_pending.take()
+        {
+            self.summary = Some(s);
+        }
+        if self.ending.is_some()
+            && !self.cutscene_playing()
+            && self.world.playing_cutscene().is_none()
+            && self.summary.is_none()
+            && self.exit.is_none()
+        {
+            self.extra.ending_played = true;
+            self.exit = Some(GameExit::Credits {
+                ending: self.ending.clone(),
+                variant: self.world.ending_variant().map(str::to_string),
+            });
+        }
+    }
+
+    fn start_cutscene(&mut self, content: &Rc<Content>, id: &str) {
+        // the opening was shown before Day 1: hand its choices straight to the sim
+        if id == "opening"
+            && let Some(choices) = self.extra.opening_seen.clone()
+        {
+            let _ = self.world.apply(
+                content,
+                Command::CutsceneFinished {
+                    id: id.to_string(),
+                    choices,
+                },
+            );
+            return;
+        }
+        let Some(def) = content.cutscene(id) else {
+            let _ = self.world.apply(
+                content,
+                Command::CutsceneFinished {
+                    id: id.to_string(),
+                    choices: Vec::new(),
+                },
+            );
+            return;
+        };
+        *self.snapshot.borrow_mut() = Some(self.world.clone());
+        self.player.start(def);
+        self.intro = false;
+        self.bubble = None;
+    }
+
+    /// The player finished a scene (or a test fast-forwarded it).
+    pub fn cutscene_finished(&mut self, content: &Rc<Content>, id: String, choices: Vec<usize>) {
+        if self.intro {
+            self.intro = false;
+            self.extra.opening_seen = Some(choices);
+            self.autosave_due = true;
+            return;
+        }
+        let _ = self
+            .world
+            .apply(content, Command::CutsceneFinished { id, choices });
+        self.drain_and_handle(content, None);
+        // the next queued scene may already be waiting
+        if !self.player.is_playing()
+            && let Some(next) = self.world.playing_cutscene().map(str::to_string)
+        {
+            self.start_cutscene(content, &next);
+        }
+    }
+
+    /// Skips whatever scene is on screen (tests, `SHIFTELLA_SCENE`).
+    pub fn finish_cutscene_now(&mut self, content: &Rc<Content>, loc: &Locale) {
+        let mut guard = 0;
+        while self.player.is_playing() && guard < 8 {
+            self.player.fast_forward(loc, 600.0);
+            let id = self.player.current_id().to_string();
+            let choices = self
+                .player
+                .outcome()
+                .choices
+                .iter()
+                .map(|c| c.index)
+                .collect();
+            // fast_forward leaves `playing` false; report it like the UI would
+            if !self.player.is_playing() {
+                self.cutscene_finished(content, id, choices);
+            }
+            guard += 1;
+        }
+    }
+
+    fn push_ticker(&mut self, icon: Icon, text: String) {
+        let time = if self.world.phase() == Phase::Night {
+            wv::clock_of_minute(self.world.minute())
+        } else {
+            String::new()
+        };
+        self.ticker.push(Ticker { icon, time, text });
+        if self.ticker.len() > 200 {
+            self.ticker.remove(0);
+        }
+    }
+
+    fn toast(&mut self, kind: ToastKind, icon: Icon, title: String, body: Option<String>) {
+        self.notices.push(Notice::Toast {
+            kind,
+            icon,
+            title,
+            body,
+        });
+    }
+
+    pub fn handle_event(&mut self, content: &Rc<Content>, e: SimEvent, loc: Option<&Locale>) {
+        // text needs a locale; tests may run without one
+        let tr = |key: &str, args: &[(String, String)]| -> String {
+            loc.map(|l| wv::tr_args(l, key, args))
+                .unwrap_or_else(|| key.to_string())
+        };
+        let staff_name = |w: &World, id: u32| -> String {
+            match (w.staff_by_id(id), loc) {
+                (Some(s), Some(l)) => wv::staff_name(l, s),
+                (Some(s), None) => s.name.clone(),
+                _ => String::from("?"),
+            }
+        };
+        match e {
+            SimEvent::DayStarted { .. } => {
+                self.autosave_due = true;
+            }
+            SimEvent::ClockStop { seconds } => {
+                self.clock_stop = self.clock_stop.max(seconds);
+            }
+            SimEvent::NightStarted { night } => {
+                let t = tr(
+                    "ui.ticker.night_started",
+                    &[("night".into(), night.to_string())],
+                );
+                self.push_ticker(Icon::Moon, t);
+            }
+            SimEvent::NightEnded { summary } => {
+                self.summary_pending = Some(*summary);
+                self.panel = None;
+                self.selected = None;
+                self.bubble = None;
+            }
+            SimEvent::PlayCutscene(id) => {
+                if !self.player.is_playing() {
+                    self.start_cutscene(content, &id);
+                }
+            }
+            SimEvent::EndingReached(id) => {
+                self.ending = Some(id);
+            }
+            SimEvent::CafeClosed => {
+                if self.world.mode() == sim::Mode::Sandbox {
+                    self.ending = Some("closed".into());
+                }
+            }
+            SimEvent::GuestArrived {
+                regular: Some(r), ..
+            } => {
+                let name = tr(&format!("regular.{r}.name"), &[]);
+                let t = tr("ui.ticker.regular_arrived", &[("name".into(), name)]);
+                self.push_ticker(Icon::Heart, t);
+            }
+            SimEvent::TrainPassing { train, station } => {
+                self.scene.start_train();
+                let name = tr(
+                    &format!("train.{}.name", train.to_lowercase().replace(' ', "_")),
+                    &[],
+                );
+                let st = content
+                    .trains
+                    .stations
+                    .iter()
+                    .find(|s| s.id == station)
+                    .map(|s| s.name.clone())
+                    .unwrap_or(station);
+                let t = tr(
+                    "ui.ticker.train",
+                    &[("train".into(), name), ("station".into(), st)],
+                );
+                self.push_ticker(Icon::Train, t);
+            }
+            SimEvent::Blackout { on } => {
+                let key = if on {
+                    "ui.ticker.blackout"
+                } else {
+                    "ui.ticker.power_back"
+                };
+                let t = tr(key, &[]);
+                self.push_ticker(Icon::Warning, t.clone());
+                if on {
+                    self.toast(ToastKind::Warning, Icon::Warning, t, None);
+                }
+            }
+            SimEvent::EventStarted { id } => {
+                let title = tr(&format!("event.{id}.title"), &[]);
+                let body = tr(&format!("event.{id}.text"), &[]);
+                self.push_ticker(Icon::Sparkle, title.clone());
+                let has_choice = content.event(&id).is_some_and(|d| !d.choices.is_empty());
+                if !has_choice {
+                    let kind = match content.event(&id).map(|d| d.kind) {
+                        Some(crate::content::EventKind::Bad) => ToastKind::Warning,
+                        Some(crate::content::EventKind::Good) => ToastKind::Success,
+                        _ => ToastKind::Event,
+                    };
+                    self.toast(kind, Icon::Sparkle, title, Some(body));
+                }
+            }
+            SimEvent::ChoiceNeeded { id, choices, .. } => {
+                self.notices.push(Notice::Choice { event: id, choices });
+                if loc.is_some() && self.speed == 0 {
+                    // choices work while paused, nothing else to do
+                }
+            }
+            SimEvent::ChoiceResolved { id, choice } => {
+                self.notices
+                    .push(Notice::ChoiceResolved { event: id, choice });
+            }
+            SimEvent::Toast { key } => {
+                let t = tr(&key, &[]);
+                self.push_ticker(Icon::Info, t.clone());
+                self.toast(ToastKind::Info, Icon::Info, t, None);
+            }
+            SimEvent::Hint { key } => {
+                let t = tr(&key, &[]);
+                self.toast(ToastKind::Info, Icon::Info, t, None);
+            }
+            SimEvent::BotMessage { key, args, .. } => {
+                let t = tr(&key, &args);
+                self.push_ticker(Icon::Phone, t.clone());
+                let title = tr("cast.bot.name", &[]);
+                self.toast(ToastKind::Info, Icon::Phone, title, Some(t));
+            }
+            SimEvent::NoteFound(id) => {
+                let t = tr(
+                    "ui.ticker.note_found",
+                    &[("n".into(), self.world.notes_found().len().to_string())],
+                );
+                let _ = id;
+                self.push_ticker(Icon::Note, t.clone());
+                self.toast(ToastKind::Event, Icon::Note, t, None);
+            }
+            SimEvent::PaymentMade { amount, .. } => {
+                let money = loc
+                    .map(|l| crate::i18n::format_money(l.lang, amount))
+                    .unwrap_or_default();
+                let t = tr("ui.ticker.payment_made", &[("money".into(), money)]);
+                self.push_ticker(Icon::Money, t.clone());
+                self.toast(ToastKind::Success, Icon::Money, t, None);
+            }
+            SimEvent::PaymentMissed { amount } => {
+                let money = loc
+                    .map(|l| crate::i18n::format_money(l.lang, amount))
+                    .unwrap_or_default();
+                let t = tr("ui.ticker.payment_missed", &[("money".into(), money)]);
+                self.push_ticker(Icon::Warning, t.clone());
+                self.toast(ToastKind::Warning, Icon::Money, t, None);
+            }
+            SimEvent::StaffLate { staff, minutes } => {
+                let n = staff_name(&self.world, staff);
+                let t = tr(
+                    "ui.ticker.staff_late",
+                    &[("name".into(), n), ("min".into(), minutes.to_string())],
+                );
+                self.push_ticker(Icon::Clock, t);
+            }
+            SimEvent::StaffSick { staff } => {
+                let n = staff_name(&self.world, staff);
+                let t = tr("ui.ticker.staff_sick", &[("name".into(), n)]);
+                self.push_ticker(Icon::Warning, t.clone());
+                self.toast(ToastKind::Warning, Icon::Crew, t, None);
+            }
+            SimEvent::StaffWalkedOut { staff } => {
+                let n = staff_name(&self.world, staff);
+                let t = tr("ui.ticker.staff_walked_out", &[("name".into(), n)]);
+                self.push_ticker(Icon::Warning, t.clone());
+                self.toast(ToastKind::Warning, Icon::Crew, t, None);
+            }
+            SimEvent::WeatherChanged { weather } => {
+                let w = tr(wv::weather_key(weather), &[]);
+                let t = tr("ui.ticker.weather", &[("weather".into(), w)]);
+                self.push_ticker(Icon::Rain, t);
+            }
+            SimEvent::MenuUnlocked(id) => {
+                let name = tr(&format!("menu.{id}.name"), &[]);
+                let t = tr("ui.ticker.menu_unlocked", &[("item".into(), name)]);
+                self.push_ticker(Icon::Coffee, t.clone());
+                self.toast(ToastKind::Success, Icon::Coffee, t, None);
+            }
+            SimEvent::FurnitureUnlocked(id) => {
+                let name = tr(&format!("furniture.{id}.name"), &[]);
+                let t = tr("ui.ticker.furniture_unlocked", &[("item".into(), name)]);
+                self.push_ticker(Icon::Build, t.clone());
+                self.toast(ToastKind::Success, Icon::Build, t, None);
+            }
+            SimEvent::Speech {
+                agent: Some(AgentRef::Guest(g)),
+                key,
+                ..
+            } => {
+                let text = tr(&key, &[]);
+                if self.bubble.as_ref().is_none_or(|b| !b.pinned) {
+                    self.bubble = Some(Bubble {
+                        agent: AgentRef::Guest(g),
+                        text,
+                        talk: None,
+                        pinned: false,
+                        until: self.time + 6.0,
+                    });
+                }
+            }
+            _ => {}
+        }
+    }
+
+    /// Audio reactions for an event (kept apart from the logic so tests stay silent).
+    fn event_audio(audio: &mut Audio, e: &SimEvent) {
+        match e {
+            SimEvent::GuestArrived { .. } => audio.play_sfx_vol(Sfx::DoorBell, 0.7),
+            SimEvent::Payment { .. } => audio.play_sfx_vol(Sfx::CashRegister, 0.7),
+            SimEvent::OrderReady { .. } => audio.play_sfx_vol(Sfx::CoffeeMachine, 0.6),
+            SimEvent::OrderServed { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.7),
+            SimEvent::DishBroken { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 1.0),
+            SimEvent::TrainPassing { .. } => audio.play_sfx(Sfx::TrainPass),
+            SimEvent::Blackout { on: true } => audio.play_sfx(Sfx::PowerOutage),
+            SimEvent::ChoiceNeeded { .. } | SimEvent::EventStarted { .. } => {
+                audio.play_sfx_vol(Sfx::EventAlert, 0.8)
+            }
+            _ => {}
+        }
+    }
+
+    /// Sends a player command; returns the error text for a toast.
+    pub fn command(&mut self, content: &Rc<Content>, cmd: Command) -> Result<(), String> {
+        let r = self.world.apply(content, cmd).map_err(|e| format!("{e:?}"));
+        self.drain_and_handle(content, None);
+        r
+    }
+
+    /// Day → Night.
+    pub fn start_night(&mut self, content: &Rc<Content>) {
+        if self.world.phase() != Phase::Day || self.cutscene_playing() {
+            return;
+        }
+        self.summary = None;
+        self.panel = None;
+        let _ = self.world.apply(content, Command::StartNight);
+        if self.speed == 0 {
+            self.speed = self.speed_before_pause.max(1);
+        }
+        self.drain_and_handle(content, None);
+    }
+
+    pub fn save_file(&self, content: &Content) -> Result<SaveFile, String> {
+        let _ = content;
+        let w = &self.world;
+        let clock = if w.phase() == Phase::Night {
+            wv::clock_of_minute(w.minute())
+        } else {
+            "day".into()
+        };
+        let meta = SaveMeta {
+            mode: wv::mode_id(w).into(),
+            night: w.night(),
+            clock,
+            cafe: w.cafe_name().to_string(),
+            difficulty: w.difficulty().id().into(),
+            saved_at: crate::save::now(),
+            finished: w.ending().is_some(),
+            money: w.money(),
+        };
+        let mut extra = self.extra.clone();
+        extra.camera = Some((
+            self.cam.center.x / crate::map::TILE,
+            self.cam.center.y / crate::map::TILE,
+            self.cam.zoom,
+        ));
+        Ok(SaveFile::new(meta, extra, w.save_to_string()?))
+    }
+
+    pub fn save(&self, content: &Content, store: &SaveStore, slot: Slot) -> Result<(), String> {
+        store.write(slot, &self.save_file(content)?).map(|_| ())
+    }
+
+    /// Autosave at a safe point (start of a day, not inside a cutscene).
+    pub fn autosave_if_due(&mut self, content: &Content, store: &SaveStore) {
+        if self.autosave_due
+            && !self.cutscene_playing()
+            && self.world.playing_cutscene().is_none()
+            && std::env::var("SHIFTELLA_NO_AUTOSAVE").is_err()
+        {
+            self.autosave_due = false;
+            if let Err(e) = self.save(content, store, Slot::Auto) {
+                eprintln!("warning: autosave failed: {e}");
+            }
+        }
+    }
+
+    /// Music by guest load (calm ↔ rush), rain by weather.
+    fn update_audio(&mut self, audio: &mut Audio) {
+        if self.cutscene_playing() {
+            return;
+        }
+        let night = self.world.phase() == Phase::Night;
+        let busy = self.world.guests_inside() >= 12 || self.world.queue_len() >= 4;
+        let quiet = self.world.guests_inside() <= 7 && self.world.queue_len() <= 1;
+        let track = match audio.music() {
+            _ if !night => Track::Calm,
+            Some(Track::Rush) if !quiet => Track::Rush,
+            _ if busy => Track::Rush,
+            _ => Track::Calm,
+        };
+        audio.set_music(Some(track));
+        audio.set_rain(self.world.weather().is_wet());
+        // café life: an occasional footstep / coffee machine while it is busy
+        if night && self.speed > 0 {
+            let m = self.world.minute();
+            if m != self.last_ambience_minute {
+                self.last_ambience_minute = m;
+                let n = self.world.guests_inside() as u32;
+                if n > 3 && m.is_multiple_of(7) {
+                    audio.play_sfx_vol(Sfx::Footsteps, 0.6);
+                }
+            }
+        }
+    }
+
+    // ───────────────────────── test / automation helpers ─────────────────────────
+
+    /// Jumps to `night` (from Day 1) and, if `minute` is set, runs that night up to that
+    /// minute. Cutscenes on the way are finished at once with their default path.
+    pub fn fast_forward(
+        &mut self,
+        content: &Rc<Content>,
+        loc: &Locale,
+        night: u32,
+        minute: Option<u32>,
+        hire: bool,
+    ) {
+        let mut guard = 0;
+        while self.world.night() < night && guard < 400 && !self.world.is_closed() {
+            if self.world.phase() == Phase::Day && hire {
+                let ids: Vec<u32> = self.world.candidates().iter().map(|c| c.id).collect();
+                for id in ids {
+                    let _ = self.world.apply(content, Command::Hire { candidate: id });
+                }
+            }
+            if self.world.phase() == Phase::Day {
+                self.world.start_night(content);
+            }
+            let _ = self.world.run_night_headless(content);
+            guard += 1;
+        }
+        let _ = self.world.drain_events();
+        self.deferred.clear();
+        self.summary = None;
+        self.summary_pending = None;
+        if let Some(m) = minute {
+            self.world.start_night(content);
+            let mut g = 0;
+            while self.world.phase() == Phase::Night && self.world.minute() < m && g < 20_000 {
+                if let Some(id) = self.world.playing_cutscene().map(str::to_string) {
+                    let _ = self.world.apply(
+                        content,
+                        Command::CutsceneFinished {
+                            id,
+                            choices: Vec::new(),
+                        },
+                    );
+                }
+                self.world.tick(content);
+                let evs = self.world.drain_events();
+                for e in evs {
+                    if !matches!(e, SimEvent::PlayCutscene(_)) {
+                        self.handle_event(content, e, Some(loc));
+                    }
+                }
+                g += 1;
+            }
+            while let Some(id) = self.world.playing_cutscene().map(str::to_string) {
+                let _ = self.world.apply(
+                    content,
+                    Command::CutsceneFinished {
+                        id,
+                        choices: Vec::new(),
+                    },
+                );
+            }
+            let _ = self.world.drain_events();
+            self.notices.clear();
+        }
+        self.player = {
+            let mut p = CutscenePlayer::new(content);
+            let snap = self.snapshot.clone();
+            let c = content.clone();
+            p.set_condition_check(move |cond| {
+                snap.borrow()
+                    .as_ref()
+                    .is_some_and(|w| w.eval_conditions(&c, std::slice::from_ref(cond)))
+            });
+            p
+        };
+        self.intro = false;
+    }
+
+    /// Runs the current night to 06:00 and shows the morning summary.
+    pub fn run_to_morning(&mut self, content: &Rc<Content>, loc: &Locale) {
+        let mut g = 0;
+        while self.world.phase() == Phase::Night && g < 60_000 {
+            if let Some(id) = self.world.playing_cutscene().map(str::to_string) {
+                let _ = self.world.apply(
+                    content,
+                    Command::CutsceneFinished {
+                        id,
+                        choices: Vec::new(),
+                    },
+                );
+            }
+            self.world.tick(content);
+            for e in self.world.drain_events() {
+                if !matches!(e, SimEvent::PlayCutscene(_)) {
+                    self.handle_event(content, e, Some(loc));
+                }
+            }
+            g += 1;
+        }
+        while let Some(id) = self.world.playing_cutscene().map(str::to_string) {
+            let _ = self.world.apply(
+                content,
+                Command::CutsceneFinished {
+                    id,
+                    choices: Vec::new(),
+                },
+            );
+        }
+        let _ = self.world.drain_events();
+        self.summary = self.summary_pending.take();
+        self.notices.clear();
+    }
+
+    /// Plays any cutscene by id (endings preview, tests) without the sim asking.
+    pub fn play_scene(&mut self, content: &Rc<Content>, id: &str) {
+        if let Some(def) = content.cutscene(id) {
+            *self.snapshot.borrow_mut() = Some(self.world.clone());
+            self.player.start(def);
+            self.intro = true;
+        }
+    }
+
+    /// Selects a regular by id and opens their bubble (with Talk if available).
+    pub fn focus_regular(&mut self, content: &Rc<Content>, loc: &Locale, regular: &str) {
+        let party = self
+            .world
+            .parties()
+            .iter()
+            .find(|p| p.regular.as_deref() == Some(regular))
+            .map(|p| p.id);
+        let Some(guest) = party.and_then(|pid| {
+            self.world
+                .guests()
+                .iter()
+                .find(|g| g.party == pid && g.leader)
+                .map(|g| g.id)
+        }) else {
+            return;
+        };
+        let a = AgentRef::Guest(guest);
+        self.selected = Some(a);
+        let text = self
+            .world
+            .ambient_line_for(content, guest)
+            .map(|k| loc.tr_owned(&k))
+            .unwrap_or_default();
+        self.bubble = Some(Bubble {
+            agent: a,
+            text,
+            talk: self.world.talk_available(content, guest),
+            pinned: true,
+            until: f32::MAX,
+        });
+        self.speed = 0;
+        if let Some(g) = self.world.guests().iter().find(|g| g.id == guest) {
+            self.cam =
+                self.scene
+                    .overview_camera(Rect::new(0.0, 0.0, screen_width(), screen_height()));
+            self.cam.center = vec2(g.pos.0, g.pos.1 - 20.0);
+            self.cam.zoom *= 2.2;
+            self.cam_ready = true;
+        }
+    }
+
+    // ───────────────────────── frame ─────────────────────────
+
+    /// One frame: logic, world, HUD and panels. Call between `ui.begin_frame()` and
+    /// `ui.end_frame()`; then call [`GameScreen::hotkeys`].
+    pub fn frame(&mut self, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
+        let content = cx.content;
+        // 3:33 — everything holds its breath
+        if self.clock_stop <= 0.0 {
+            self.time += dt;
+        }
+        let loc = cx.loc;
+        for e in std::mem::take(&mut self.deferred) {
+            self.handle_event(content, e, Some(&loc));
+        }
+
+        // camera fits the café on the first frame
+        if !self.cam_ready {
+            self.cam =
+                self.scene
+                    .overview_camera(Rect::new(0.0, 0.0, screen_width(), screen_height()));
+            self.cam_ready = true;
+        }
+
+        // 1. cutscene or sim
+        let mut finished = None;
+        if self.player.is_playing() {
+            if let CutsceneStatus::Finished { id, choices } = self.player.update(ui, &loc, dt) {
+                finished = Some((id, choices.iter().map(|c| c.index).collect::<Vec<_>>()));
+            }
+            for a in self.player.drain_audio_requests() {
+                cx.audio.request(&a);
+            }
+            let _ = self.player.drain_effects();
+        }
+        if let Some((id, choices)) = finished {
+            self.cutscene_finished(content, id, choices);
+        }
+        let events_before = self.world.drain_events();
+        for e in &events_before {
+            Self::event_audio(cx.audio, e);
+        }
+        for e in events_before {
+            self.handle_event(content, e, Some(&loc));
+        }
+        if self.clock_stop > 0.0 {
+            self.clock_stop = (self.clock_stop - dt).max(0.0);
+        } else if !self.frozen() {
+            self.acc += dt.min(0.25) * self.speed as f32;
+            let mut guard = 0;
+            while self.acc >= TICK_SECONDS && guard < 64 {
+                self.acc -= TICK_SECONDS;
+                self.world.tick(content);
+                guard += 1;
+                let evs = self.world.drain_events();
+                for e in &evs {
+                    Self::event_audio(cx.audio, e);
+                }
+                for e in evs {
+                    self.handle_event(content, e, Some(&loc));
+                }
+                if self.cutscene_playing() || self.world.playing_cutscene().is_some() {
+                    self.acc = 0.0;
+                    break;
+                }
+            }
+        }
+        self.drain_and_handle(content, Some(&loc));
+        self.autosave_if_due(content, cx.store);
+        self.update_audio(cx.audio);
+        let anim_dt = if self.frozen() && !self.cutscene_playing() {
+            dt * 0.35
+        } else {
+            dt * self.speed.max(1) as f32
+        };
+        self.scene.update(anim_dt);
+        let alpha = if self.frozen() || self.clock_stop > 0.0 {
+            1.0
+        } else {
+            self.acc / TICK_SECONDS
+        };
+        self.scene.refresh(&self.world, self.time, alpha);
+
+        // 2. world
+        if self.player.is_playing() {
+            self.player.draw_world();
+        } else {
+            let wants_mouse = ui.wants_mouse();
+            if !wants_mouse && self.pause.is_none() && !self.automation {
+                self.cam.update();
+            }
+            self.scene.clamp_camera(&mut self.cam);
+            let cam = self.cam.to_camera2d();
+            let mouse_world = self.cam.screen_to_world(Vec2::from(mouse_position()));
+            self.hovered = None;
+            let mut pick = None;
+            if !wants_mouse && self.pause.is_none() {
+                pick = self
+                    .scene
+                    .pick(&self.world, content, mouse_world, self.time);
+                if let Some(Pick::Agent(a)) = pick {
+                    self.hovered = Some(a);
+                }
+            }
+            let ghost = build::ghost(self, content, mouse_world, wants_mouse);
+            let t = self.time;
+            let (sel, hov) = (self.selected, self.hovered);
+            let mut extra = |q: &mut crate::render::RenderQueue| {
+                if let Some(g) = &ghost {
+                    g.push(q, t);
+                }
+            };
+            self.scene
+                .draw(&self.world, content, &cam, t, sel, hov, &mut extra);
+            if self.panel == Some(Panel::Build) {
+                build::draw_world_overlay(self, content, ghost.as_ref());
+            }
+            self.world_click(ui, content, pick, mouse_world, ghost.as_ref(), &loc);
+        }
+
+        // 3. UI
+        ui.set_camera();
+        if self.player.is_playing() {
+            self.player.draw_ui(ui, &loc);
+        } else {
+            if !matches!(self.panel, Some(Panel::App | Panel::Priorities)) {
+                hud::bubble(self, ui, cx);
+            }
+            hud::draw(self, ui, cx);
+            match self.panel {
+                Some(Panel::Crew) => panels::crew(self, ui, cx),
+                Some(Panel::Priorities) => panels::priorities(self, ui, cx),
+                Some(Panel::Log) => panels::log(self, ui, cx),
+                Some(Panel::App) => phone_app::draw(self, ui, cx),
+                Some(Panel::Build) => build::panel(self, ui, cx),
+                None => {}
+            }
+            if self.world.phase() == Phase::Day && self.summary.is_none() {
+                day::planning(self, ui, cx);
+            }
+            if self.summary.is_some() {
+                day::summary(self, ui, cx);
+            }
+            if self.pause.is_some() {
+                pause::draw(self, ui, cx);
+            }
+        }
+        // toasts wait while a scene is on screen
+        if !self.player.is_playing() {
+            self.flush_notices(ui, &loc);
+            ui.set_toast_bottom_inset(56.0);
+            for ev in ui.draw_toasts(ToastAnchor::BottomRight) {
+                self.toast_clicked(content, ev.toast, ev.tag);
+            }
+        }
+    }
+
+    fn flush_notices(&mut self, ui: &mut Ui, loc: &Locale) {
+        for n in std::mem::take(&mut self.notices) {
+            match n {
+                Notice::Toast {
+                    kind,
+                    icon,
+                    title,
+                    body,
+                } => {
+                    let mut t = Toast::new(kind, title).icon(icon);
+                    if let Some(b) = body {
+                        t = t.body(b);
+                    }
+                    ui.push_toast(t);
+                }
+                Notice::Choice { event, choices } => {
+                    let title = loc.tr_owned(&format!("event.{event}.title"));
+                    let body = loc.tr_owned(&format!("event.{event}.text"));
+                    let mut t = Toast::new(ToastKind::Event, title)
+                        .body(body)
+                        .icon(Icon::Sparkle)
+                        .sticky();
+                    for (i, c) in choices.iter().enumerate() {
+                        let label = loc.tr_owned(&format!("event.{event}.choice.{c}"));
+                        t = if i == 0 {
+                            t.primary_action(label, i as u32)
+                        } else {
+                            t.action(label, i as u32)
+                        };
+                    }
+                    let id = ui.push_toast(t);
+                    self.choice_toasts.push((id, event, choices));
+                }
+                Notice::ChoiceResolved { event, choice } => {
+                    if let Some(i) = self.choice_toasts.iter().position(|c| c.1 == event) {
+                        let (id, _, _) = self.choice_toasts.remove(i);
+                        ui.dismiss_toast(id);
+                    }
+                    let key = format!("event.{event}.result.{choice}");
+                    if loc.has(&key) {
+                        let title = loc.tr_owned(&format!("event.{event}.title"));
+                        ui.push_toast(
+                            Toast::new(ToastKind::Event, title)
+                                .body(loc.tr_owned(&key))
+                                .icon(Icon::Sparkle),
+                        );
+                    }
+                }
+            }
+        }
+    }
+
+    fn toast_clicked(&mut self, content: &Rc<Content>, toast: ToastId, tag: u32) {
+        if let Some(i) = self.choice_toasts.iter().position(|c| c.0 == toast) {
+            let (_, event, choices) = self.choice_toasts[i].clone();
+            if let Some(choice) = choices.get(tag as usize) {
+                let _ = self.command(
+                    content,
+                    Command::AnswerEvent {
+                        event,
+                        choice: choice.clone(),
+                    },
+                );
+            }
+        }
+    }
+
+    fn world_click(
+        &mut self,
+        ui: &mut Ui,
+        content: &Rc<Content>,
+        pick: Option<Pick>,
+        mouse_world: Vec2,
+        ghost: Option<&build::Ghost>,
+        loc: &Locale,
+    ) {
+        if ui.wants_mouse() || self.pause.is_some() || self.summary.is_some() || self.automation {
+            return;
+        }
+        if !is_mouse_button_pressed(MouseButton::Left) {
+            return;
+        }
+        if self.panel == Some(Panel::Build) {
+            build::click(self, ui, content, ghost, mouse_world, loc);
+            return;
+        }
+        match pick {
+            Some(Pick::Agent(a)) => {
+                self.selected = Some(a);
+                match a {
+                    AgentRef::Staff(id) => {
+                        self.ui_state.crew_selected = Some(id);
+                        self.panel = Some(Panel::Crew);
+                        self.bubble = None;
+                    }
+                    AgentRef::Guest(g) => {
+                        let line = self.world.ambient_line_for(content, g);
+                        let talk = self.world.talk_available(content, g);
+                        let text = match line {
+                            Some(k) => loc.tr_owned(&k),
+                            None => hud::guest_line(self, content, g, loc),
+                        };
+                        self.bubble = Some(Bubble {
+                            agent: a,
+                            text,
+                            talk,
+                            pinned: true,
+                            until: self.time + 12.0,
+                        });
+                    }
+                }
+            }
+            _ => {
+                self.selected = None;
+                if self.bubble.as_ref().is_some_and(|b| b.pinned) {
+                    self.bubble = None;
+                }
+            }
+        }
+    }
+
+    /// Hotkeys — after `ui.end_frame()` (widgets consumed their keys first).
+    pub fn hotkeys(&mut self, ui: &mut Ui, cx: &mut Ctx) {
+        let content = cx.content;
+        if self.player.is_playing() || self.automation {
+            return;
+        }
+        if ui.key(KeyCode::M) {
+            cx.audio.toggle_mute();
+        }
+        if self.pause.is_some() {
+            if ui.esc() {
+                self.pause = None;
+            }
+            return;
+        }
+        if self.summary.is_some() {
+            if ui.enter() || ui.esc() || ui.key(KeyCode::Space) {
+                self.summary = None;
+            }
+            return;
+        }
+        if ui.esc() {
+            if self.panel == Some(Panel::Build) && self.ui_state.build.active() {
+                self.ui_state.build.cancel();
+            } else if self.bubble.as_ref().is_some_and(|b| b.pinned) || self.selected.is_some() {
+                self.bubble = None;
+                self.selected = None;
+            } else if self.panel.is_some() {
+                self.panel = None;
+            } else {
+                self.pause = Some(pause::PauseMenu::default());
+            }
+            return;
+        }
+        let toggle = |p: &mut Option<Panel>, which: Panel| {
+            *p = if *p == Some(which) { None } else { Some(which) };
+        };
+        if ui.key(KeyCode::C) {
+            toggle(&mut self.panel, Panel::Crew);
+        }
+        if ui.key(KeyCode::P) {
+            toggle(&mut self.panel, Panel::Priorities);
+        }
+        if ui.key(KeyCode::T) {
+            toggle(&mut self.panel, Panel::App);
+        }
+        if ui.key(KeyCode::B) {
+            toggle(&mut self.panel, Panel::Build);
+        }
+        if ui.key(KeyCode::L) {
+            toggle(&mut self.panel, Panel::Log);
+        }
+        if ui.key(KeyCode::Space) {
+            self.toggle_pause();
+        }
+        for (k, s) in [(KeyCode::Key1, 1), (KeyCode::Key2, 2), (KeyCode::Key3, 3)] {
+            if ui.key(k) {
+                self.set_speed(s);
+            }
+        }
+        if ui.key(KeyCode::Home) {
+            self.cam_ready = false;
+        }
+        if self.panel == Some(Panel::Build) {
+            build::hotkeys(self, ui, content);
+        }
+        if self.world.phase() == Phase::Day && ui.enter() {
+            self.start_night(content);
+        }
+    }
+}
+
+/// Events that drive the flow (handled even without a locale).
+fn is_flow_event(e: &SimEvent) -> bool {
+    matches!(
+        e,
+        SimEvent::DayStarted { .. }
+            | SimEvent::NightEnded { .. }
+            | SimEvent::PlayCutscene(_)
+            | SimEvent::EndingReached(_)
+            | SimEvent::CafeClosed
+            | SimEvent::ClockStop { .. }
+    )
+}
+
+#[cfg(test)]
+mod tests;
