@@ -1,0 +1,220 @@
+// Story mode: 30 nights at «U Výhybky», Mlhov nad Šeřavou, autumn 2039.
+// Night keys: story.night.NN.title / .hint. Beat times "HH:MM"; before 22:00 = day phase.
+// Big moments are cutscenes (cutscenes.ron, triggered by night/time/arc/flag); beats are the small,
+// non-blocking things: bubbles, hints, scripted events, notes, payments, train boards, bot messages.
+// Player lines are written gender-neutral in all languages (the player is Lída's grandchild).
+#![enable(implicit_some)]
+(
+    nights_total: 30,
+    debt: 90000,
+    payments: [
+        (night: 7, amount: 15000),
+        (night: 14, amount: 15000),
+        (night: 21, amount: 15000),
+        (night: 28, amount: 15000),
+        (night: 30, amount: 30000, is_final: true),
+    ],
+    acts: [
+        (act: 1, nights: (1, 7)),
+        (act: 2, nights: (8, 16)),
+        (act: 3, nights: (17, 24)),
+        (act: 4, nights: (25, 30)),
+    ],
+    nights: [
+        (night: 1, act: 1, weekday: Mon, weather: Rain, beats: [
+            (at: "21:55", what: Bot("hello")),
+            (at: "22:00", what: Hint("story.hint.first_order")),
+            (at: "22:47", what: Train("Os 2141")),
+            (at: "23:20", what: Hint("story.hint.payment")),
+            (at: "05:50", what: Hint("story.hint.morning")),
+        ]),
+        (night: 2, act: 1, weekday: Tue, beats: [
+            (at: "21:30", what: Hint("story.hint.hire")),
+            (at: "21:45", what: Hint("story.hint.schedule")),
+            (at: "22:05", what: Note("note_01")),
+            (at: "23:30", what: Hint("story.hint.priorities")),
+        ]),
+        (night: 3, act: 1, weekday: Wed, weather: Rain, beats: [
+            (at: "22:00", what: Event("rain")),
+            (at: "01:50", what: Hint("story.hint.regulars")),
+            (at: "04:00", what: Hint("story.hint.build")),
+        ]),
+        (night: 4, act: 1, weekday: Thu, beats: [
+            (at: "23:10", what: Line(speaker: "mirek", text_key: "story.line.04_mirek")),
+            (at: "03:20", what: Hint("story.hint.window_light")),
+        ]),
+        (night: 5, act: 1, weekday: Fri, beats: [
+            (at: "21:50", what: Bot("schedule_published")),
+            (at: "00:15", what: Train("EN 471")),
+        ]),
+        (night: 6, act: 1, weekday: Sat, beats: [
+            (at: "23:10", what: Event("concert_crowd")),
+            (at: "23:15", what: Hint("story.hint.rush")),
+            (at: "23:50", what: Line(speaker: "filip", text_key: "story.line.06_filip")),
+        ]),
+        (night: 7, act: 1, weekday: Sun, beats: [
+            (at: "21:40", what: Bot("payment_reminder")),
+            (at: "03:00", what: Line(speaker: "cook", text_key: "story.line.07_cook"),
+             conditions: [StaffArchetype("cook")]),
+            (at: "06:00", what: PaymentDue),
+        ]),
+        (night: 8, act: 2, weekday: Mon, beats: [
+            (at: "21:40", what: Hint("story.hint.new_staff")),
+            (at: "22:00", what: Hint("story.hint.app")),
+        ]),
+        (night: 9, act: 2, weekday: Tue, beats: [
+            (at: "22:10", what: Hint("story.hint.special")),
+            (at: "01:52", what: Train("Nex 9002")),
+        ]),
+        (night: 10, act: 2, weekday: Wed, beats: [
+            (at: "01:30", what: Event("power_outage")),
+            (at: "01:32", what: Hint("story.hint.candles")),
+        ]),
+        (night: 11, act: 2, weekday: Thu, weather: Rain, beats: [
+            (at: "22:30", what: Train("Os 2141")),
+            (at: "02:30", what: Line(speaker: "quiet_one", text_key: "story.line.11_ema"),
+             conditions: [StaffArchetype("quiet_one")]),
+        ]),
+        (night: 12, act: 2, weekday: Fri, beats: [
+            (at: "21:45", what: Hint("story.hint.armchair")),
+            (at: "23:00", what: Event("concert_crowd")),
+        ]),
+        (night: 13, act: 2, weekday: Sat, beats: [
+            (at: "21:50", what: Hint("story.hint.inspection")),
+            (at: "23:30", what: Event("health_inspection")),
+        ]),
+        (night: 14, act: 2, weekday: Sun, beats: [
+            (at: "21:40", what: Bot("payment_reminder")),
+            (at: "06:00", what: PaymentDue),
+        ]),
+        (night: 15, act: 2, weekday: Mon, weather: Fog, beats: [
+            (at: "01:00", what: Event("fog")),
+            (at: "03:20", what: Hint("story.hint.window_light")),
+        ]),
+        (night: 16, act: 2, weekday: Tue, beats: [
+            (at: "22:00", what: Event("lonely_night")),
+            (at: "02:00", what: Line(speaker: "porter", text_key: "story.line.16_kuba"),
+             conditions: [StaffArchetype("porter")]),
+        ]),
+        (night: 17, act: 3, weekday: Wed, beats: [
+            (at: "21:59", what: Apply([SetVar("offer", "pending"), SetFlag("franchise_met")])),
+            (at: "00:00", what: Bot("swap_request")),
+        ]),
+        (night: 18, act: 3, weekday: Thu, beats: [
+            (at: "23:30", what: Line(speaker: "filip", text_key: "story.line.18_filip")),
+        ]),
+        (night: 19, act: 3, weekday: Fri, weather: Rain, beats: [
+            (at: "23:00", what: Event("downpour")),
+            (at: "23:05", what: Hint("story.hint.downpour")),
+        ]),
+        (night: 20, act: 3, weekday: Sat, beats: [
+            (at: "22:20", what: Event("concert_crowd")),
+        ]),
+        (night: 21, act: 3, weekday: Sun, beats: [
+            (at: "21:40", what: Bot("payment_reminder")),
+            (at: "04:00", what: Bot("time_off_vacation")),
+            (at: "06:00", what: PaymentDue),
+        ]),
+        (night: 22, act: 3, weekday: Mon, beats: [
+            (at: "02:00", what: Line(speaker: "vera", text_key: "story.line.22_vera"),
+             conditions: [VarIs("offer", "rejected")]),
+            (at: "02:00", what: Line(speaker: "vera", text_key: "story.line.22_vera_sold"),
+             conditions: [VarIs("offer", "accepted")]),
+        ]),
+        (night: 23, act: 3, weekday: Tue, beats: [
+            (at: "04:30", what: Train("R 815")),
+        ]),
+        (night: 24, act: 3, weekday: Wed, weather: Rain, beats: [
+            (at: "22:15", what: Hint("story.hint.lori_night"), conditions: [Flag("lori_invited")]),
+        ]),
+        (night: 25, act: 4, weekday: Thu, weather: Storm, beats: [
+            (at: "22:30", what: Event("storm_blackout")),
+            (at: "23:30", what: Event("mirek_accident"), conditions: [Flag("mirek_silence")]),
+        ]),
+        (night: 26, act: 4, weekday: Fri, beats: [
+            (at: "21:50", what: Bot("time_off_toil")),
+        ]),
+        (night: 27, act: 4, weekday: Sat, weather: Snow, beats: [
+            (at: "22:00", what: Event("first_snow")),
+        ]),
+        (night: 28, act: 4, weekday: Sun, beats: [
+            (at: "21:40", what: Bot("payment_reminder")),
+            (at: "06:00", what: PaymentDue),
+        ]),
+        (night: 29, act: 4, weekday: Mon, beats: [
+            (at: "22:00", what: Hint("story.hint.farewell")),
+            (at: "04:00", what: Line(speaker: "radek", text_key: "story.line.29_radek"), conditions: [Flag("arc.radek.good")]),
+        ]),
+        (night: 30, act: 4, weekday: Tue, weather: Clear, beats: [
+            (at: "21:40", what: Bot("payment_reminder")),
+            (at: "03:30", what: Train("Rn 333")),
+            (at: "06:00", what: PaymentDue),
+        ]),
+    ],
+    notes: [
+        // found_when empty = only found through an effect / beat (FindNote, Beat::Note, ShowNote).
+        (id: "note_01", number: 1),
+        (id: "note_02", number: 2, found_when: [NightAtLeast(3), Not(DirtAtLeast(0.02)), TimeBetween("05:30", "06:00")]),
+        (id: "note_03", number: 3, found_when: [EventHappenedTonight("power_outage")]),
+        (id: "note_04", number: 4, found_when: [ArcAtLeast("hana", 2)]),
+        (id: "note_05", number: 5),
+        (id: "note_06", number: 6),
+        (id: "note_07", number: 7, found_when: [ArcAtLeast("mirek", 2)]),
+        (id: "note_08", number: 8),
+        (id: "note_09", number: 9, found_when: [HasFurniture("radio"), StaffArchetype("sound_tech")]),
+        (id: "note_10", number: 10, found_when: [ReputationAtLeast(70.0)]),
+    ],
+    endings: [
+        (
+            id: "last_train",
+            order: 1,
+            conditions: [Any([
+                VarIs("offer", "accepted"),
+                All([Difficulty("classic"), Any([CounterAtLeast("missed_payments", 2), Flag("final_payment_missed")])]),
+                All([ReputationBelow(20.0), Not(ArcsGoodAtLeast(1))]),
+            ])],
+            cutscene: "ending_last_train",
+            variants: [
+                (id: "sold", conditions: [VarIs("offer", "accepted")]),
+                (id: "farewell", conditions: [ArcsGoodAtLeast(3)]),
+                (id: "closed"),
+            ],
+        ),
+        (
+            id: "light",
+            order: 2,
+            cutscene: "ending_light",
+            variants: [
+                (id: "full", conditions: [ReputationAtLeast(60.0), ArcsGoodAtLeast(3)]),
+                (id: "quiet"),
+            ],
+        ),
+    ],
+    ending_extra: (
+        id: "answer",
+        conditions: [
+            Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]),
+            NotesFoundAtLeast(8),
+            Not(VarIs("offer", "accepted")),
+        ],
+        cutscene: "answer",
+    ),
+    flags: [
+        "tutorial_done", "recipe_kulajda", "big_font_menu",
+        "lori_invited", "lori_sent_away",
+        "hana_blanket", "hana_woken", "hana_quiet_corner", "hana_left", "hana_stays",
+        "mirek_keys_taken", "mirek_daughter_called", "mirek_silence", "mirek_gone",
+        "filip_friends", "filip_talked", "filip_free_coffee", "filip_alone",
+        "radek_warns_trains", "vera_friends", "coins_refused",
+        "franchise_met", "landlord_grumbling", "final_payment_missed",
+        "roof_fixed", "cat_adopted",
+    ],
+    vars: [
+        (id: "letter", default: "hidden",
+         values: ["hidden", "confessed", "with_player", "with_mirek", "burned", "persuaded", "delivered", "delivered_by_mirek"]),
+        (id: "offer", default: "none", values: ["none", "pending", "accepted", "rejected"]),
+        (id: "answer_333", default: "none", values: ["none", "yes", "unsure", "gone"]),
+    ],
+    counters: ["missed_payments", "payments_made", "cat_fed_nights", "coins_collected", "filip_kicked_out"],
+    items: ["cafe_keys", "old_coin", "rn333_ticket", "letter", "recipe_book", "timetable_1979", "lost_umbrella"],
+)

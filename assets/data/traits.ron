@@ -1,0 +1,161 @@
+// Staff traits. Names/descriptions: trait.<id>.name / trait.<id>.desc.
+// Effects: see TraitEffect in src/content/defs.rs and docs/CONTENT.md.
+#![enable(implicit_some)]
+[
+    (
+        id: "night_owl",
+        group: Positive,
+        conflicts: ["early_bird"],
+        effects: [
+            NeedRate(need: Energy, mul: 0.7, when: TimeFrom("00:00")),
+            Mood(add: 5.0, when: ShiftStart),
+        ],
+    ),
+    (
+        id: "early_bird",
+        group: Mixed,
+        conflicts: ["night_owl"],
+        effects: [
+            NeedRate(need: Energy, mul: 0.8, when: TimeBefore("00:00")),
+            NeedRate(need: Energy, mul: 1.4, when: TimeFrom("02:00")),
+            Speed(job: None, mul: 1.1, when: TimeBefore("00:00")),
+        ],
+    ),
+    (
+        id: "chatterbox",
+        group: Mixed,
+        conflicts: ["loner"],
+        effects: [
+            GuestSatisfaction(add: 10.0, when: Serving),
+            Speed(job: None, mul: 0.85, when: QueueAtMost(2)),
+            Relationship(with: All, per_hour: 1.0),
+            Relationship(with: Trait("loner"), per_hour: -2.0),
+        ],
+    ),
+    (
+        id: "loner",
+        group: Mixed,
+        conflicts: ["chatterbox"],
+        irritated_by: ["chatterbox"],
+        effects: [
+            Speed(job: None, mul: 1.2, when: AloneInRoom),
+            Mood(add: -1.0, when: StaffNearbyAtLeast(2)),
+        ],
+    ),
+    (
+        id: "clumsy",
+        group: Negative,
+        conflicts: ["perfectionist", "neat"],
+        effects: [
+            Mishap(chance: 0.06),
+            Skill(job: Kitchen, add: -1.0),
+        ],
+    ),
+    (
+        id: "perfectionist",
+        group: Mixed,
+        conflicts: ["clumsy", "lazy"],
+        irritated_by: ["clumsy", "lazy"],
+        effects: [
+            Speed(job: None, mul: 0.8),
+            OrderQuality(25.0),
+            Mood(add: -4.0, when: DirtAbove(0.3)),
+        ],
+    ),
+    (
+        id: "lazy",
+        group: Negative,
+        conflicts: ["hard_worker", "perfectionist"],
+        effects: [
+            Speed(job: None, mul: 0.85),
+            BreakLength(1.5),
+            NeedRate(need: Energy, mul: 0.8),
+        ],
+    ),
+    (
+        id: "hard_worker",
+        group: Positive,
+        conflicts: ["lazy"],
+        effects: [
+            Speed(job: None, mul: 1.15),
+            SkipsBreakIfQueue(3),
+            NeedRate(need: Energy, mul: 1.2, when: QueueAtLeast(4)),
+        ],
+    ),
+    (
+        id: "grumpy",
+        group: Negative,
+        irritated_by: ["chatterbox"],
+        effects: [
+            Mood(add: -10.0, when: ShiftStart),
+            Relationship(with: All, per_hour: -1.0),
+            PatientGuestSatisfaction(5.0),
+        ],
+    ),
+    (
+        id: "kind",
+        group: Positive,
+        effects: [
+            AuraMood(1.0),
+            ComfortGuest(15.0),
+        ],
+    ),
+    (
+        id: "anxious",
+        group: Negative,
+        conflicts: ["calm"],
+        effects: [
+            ErrorChance(mul: 2.0, when: QueueAtLeast(4)),
+            Skill(job: Register, add: 1.0),
+            Mood(add: -10.0, when: BadEvent),
+        ],
+    ),
+    (
+        id: "calm",
+        group: Positive,
+        conflicts: ["anxious"],
+        effects: [
+            BadEventMoodMul(0.5),
+            MoodFloor(20.0),
+        ],
+    ),
+    (
+        id: "music_lover",
+        group: Mixed,
+        effects: [
+            Mood(add: 2.0, when: MusicOn),
+            Mood(add: -1.0, when: MusicOff),
+            PlaysMusic,
+        ],
+    ),
+    (
+        id: "light_sleeper",
+        group: Positive,
+        effects: [
+            SeesUncanny,
+            Mood(add: 5.0, when: MetGuest333),
+            Foresight(chance: 0.3, minutes: 15),
+            NeedRate(need: Energy, mul: 1.1),
+        ],
+    ),
+    (
+        id: "neat",
+        group: Positive,
+        conflicts: ["clumsy"],
+        irritated_by: ["clumsy"],
+        effects: [
+            Speed(job: Cleaning, mul: 1.3),
+            AutoClean,
+            Mood(add: -3.0, when: DirtAbove(0.4)),
+        ],
+    ),
+    (
+        id: "romantic",
+        group: Mixed,
+        effects: [
+            RomanceThreshold(60.0),
+            Mood(add: 1.0, when: Raining),
+            Mood(add: -25.0, when: RomanceEnded),
+        ],
+    ),
+]

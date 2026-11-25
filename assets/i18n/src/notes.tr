@@ -1,0 +1,121 @@
+# Lída's notes: note.<id>.text (the note itself) / note.<id>.where (where it was found)
+
+note.note_01.where
+cs Pod pokladnou
+en Under the register
+sk Pod pokladňou
+uk Під касою
+
+note.note_01.text
+cs Světlo v okně nezhasínat do šesti. Není to pověra. Je to slib.
+en Don't switch off the light in the window before six. It isn't superstition. It's a promise.
+sk Svetlo v okne nezhasínať do šiestej. Nie je to povera. Je to sľub.
+uk Світло у вікні не гасити до шостої. Це не забобон. Це обіцянка.
+
+note.note_02.where
+cs Ve skříňce za pultem, když je všude čisto
+en In the cupboard behind the counter, once everything is spotless
+sk V skrinke za pultom, keď je všade čisto
+uk У шафці за стійкою, коли всюди чисто
+
+note.note_02.text
+cs Mirek: černou, topinku. Hana: cappuccino, rychle! Věra: čaj, koláč, a nehádat se. Pán u okna: čaj s citronem, dva cukry. Nebrat od něj peníze.
+en Mirek: black, toast. Hana: cappuccino, quickly! Věra: tea, kolach, and don't argue. The gentleman by the window: tea with lemon, two sugars. Don't take his money.
+sk Mirek: čiernu, hrianku. Hana: cappuccino, rýchlo! Věra: čaj, koláčik, a nehádať sa. Pán pri okne: čaj s citrónom, dva cukry. Nebrať od neho peniaze.
+uk Мірек: чорну, грінку. Гана: капучино, швидко! Віра: чай, колач, і не сперечатися. Пан біля вікна: чай із лимоном, два цукри. Грошей із нього не брати.
+
+note.note_03.where
+cs V pojistkové skříni
+en In the fuse box
+sk V poistkovej skrini
+uk У щитку із запобіжниками
+
+note.note_03.text
+cs Když zhasne světlo, lidi mluví pravdu. Svíčky drž v suchu.
+en When the lights go out, people tell the truth. Keep the candles dry.
+sk Keď zhasne svetlo, ľudia hovoria pravdu. Sviečky drž v suchu.
+uk Коли гасне світло, люди кажуть правду. Тримай свічки сухими.
+
+note.note_04.where
+cs Pod polštářem křesla
+en Under the armchair cushion
+sk Pod vankúšom kresla
+uk Під подушкою крісла
+
+note.note_04.text
+cs Těm, kdo léčí, nalévej bez fronty.
+en Those who heal get served without queueing.
+sk Tým, čo liečia, nalievaj bez radu.
+uk Тим, хто лікує, наливай без черги.
+
+note.note_05.where
+cs V kuchařce, kterou měla Věra
+en In the recipe book Věra kept
+sk V kuchárskej knihe, ktorú mala Věra
+uk У кулінарній книзі, що була у Віри
+
+note.note_05.text
+cs Kulajda: kopr, houby, ztracené vejce a lžička octa z láhve, kterou mi dal J. Věra ví víc, než říká.
+en Kulajda: dill, mushrooms, a poached egg and a spoonful of vinegar from the bottle J. gave me. Věra knows more than she says.
+sk Kulajda: kôpor, huby, stratené vajce a lyžička octu z fľaše, ktorú mi dal J. Věra vie viac, než hovorí.
+uk Кулайда: кріп, гриби, яйце-пашот і ложка оцту з пляшки, яку мені подарував І. Віра знає більше, ніж каже.
+
+note.note_06.where
+cs Mezi mincemi z okenního stolu
+en Among the coins from the window table
+sk Medzi mincami z okenného stola
+uk Серед монет зі столика біля вікна
+
+note.note_06.text
+cs Platí vždycky mincemi, které už nejsou. Neberu od něj peníze.
+en He always pays with coins that no longer exist. I don't take his money.
+sk Platí vždy mincami, ktoré už nie sú. Neberiem od neho peniaze.
+uk Він завжди платить монетами, яких більше нема. Я не беру з нього грошей.
+
+note.note_07.where
+cs Na zadní straně starého účtu
+en On the back of an old bill
+sk Na zadnej strane starého účtu
+uk На звороті старого рахунку
+
+note.note_07.text
+cs M. se na mě dívá, jako by byl vinen. Odpustila jsem mu dávno — ať je to cokoli.
+en M. looks at me as if he were guilty. I forgave him long ago — whatever it is.
+sk M. sa na mňa pozerá, akoby bol vinný. Odpustila som mu dávno — nech je to čokoľvek.
+uk М. дивиться на мене, ніби винен. Я давно йому пробачила — хоч би що це було.
+
+note.note_08.where
+cs Ve starém jízdním řádu od Radka
+en Inside Radek's old timetable
+sk V starom cestovnom poriadku od Radka
+uk У старому розкладі від Радека
+
+note.note_08.text
+cs 3:33. Na nástupiště jsem přišla o dvě minuty pozdě. Celý život o dvě minuty.
+en 3:33. I reached the platform two minutes late. All my life, two minutes.
+sk 3:33. Na nástupište som prišla o dve minúty neskoro. Celý život o dve minúty.
+uk 3:33. Я прибігла на перон на дві хвилини пізніше. Усе життя — на дві хвилини.
+
+note.note_09.where
+cs Uvnitř opraveného rádia
+en Inside the repaired radio
+sk Vnútri opraveného rádia
+uk Усередині полагодженого радіо
+
+note.note_09.text
+cs Jestli zase přijde, řekni mu, že jsem čekala. Ne kvůli sobě. Kvůli světlu.
+en If he comes again, tell him I waited. Not for my sake. For the light's.
+sk Ak zase príde, povedz mu, že som čakala. Nie kvôli sebe. Kvôli svetlu.
+uk Якщо він знову прийде, скажи йому, що я чекала. Не заради себе. Заради світла.
+
+note.note_10.where
+cs Za fotkou na zdi, když má kavárna dobré jméno
+en Behind the photo on the wall, once the café has a good name
+sk Za fotkou na stene, keď má kaviareň dobré meno
+uk За фотографією на стіні, коли в кав'ярні добре ім'я
+
+note.note_10.text
+cs Kavárna nejsou zdi. Jsou to ti, kdo chodí. Neprodávej je.
+en A café isn't its walls. It's the people who come. Don't sell them.
+sk Kaviareň nie sú steny. Sú to tí, čo chodia. Nepredávaj ich.
+uk Кав'ярня — це не стіни. Це ті, хто приходить. Не продавай їх.
