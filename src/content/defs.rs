@@ -953,6 +953,16 @@ pub struct RegularDef {
     pub absent_if: Vec<Condition>,
     pub look: Look,
     pub stages: Vec<ArcStage>,
+    /// Story: comes only on these nights (empty = every night from `first_night`).
+    /// Used for cameo guests such as `guest_anwar`.
+    #[serde(default)]
+    pub story_nights: Vec<u32>,
+    /// Sandbox: chance per night to drop in as a rare regular (0 = story only).
+    #[serde(default)]
+    pub sandbox_chance: f32,
+    /// Render preset id when the render agent draws this character specially (e.g. `anwar`).
+    #[serde(default)]
+    pub look_preset: Option<String>,
 }
 
 impl RegularDef {
@@ -966,6 +976,13 @@ impl RegularDef {
     pub fn arc_counter(&self) -> String {
         format!("arc.{}", self.id)
     }
+    /// Does this regular come on story night `night` (ignores weather / `absent_if`)?
+    pub fn visits_story_night(&self, night: u32) -> bool {
+        night >= self.first_night
+            && self.last_night.is_none_or(|last| night <= last)
+            && (self.story_nights.is_empty() || self.story_nights.contains(&night))
+    }
+
     pub fn stage(&self, stage: u32) -> Option<&ArcStage> {
         self.stages.iter().find(|s| s.stage == stage)
     }

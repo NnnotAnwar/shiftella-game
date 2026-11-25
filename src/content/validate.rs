@@ -484,6 +484,18 @@ pub(super) fn validate(c: &Content, i18n: &I18n) -> Vec<String> {
             out.push(format!("{ctx}: unknown seat tag `{seat}`"));
         }
         visit_conditions(&r.absent_if, &mut |x| ix.check(x, i18n, &ctx, &mut out));
+        if r.story_nights
+            .iter()
+            .any(|n| !(1..=c.story.nights_total).contains(n))
+        {
+            out.push(format!(
+                "{ctx}: story_nights outside 1..={}",
+                c.story.nights_total
+            ));
+        }
+        if !(0.0..=1.0).contains(&r.sandbox_chance) {
+            out.push(format!("{ctx}: sandbox_chance must be 0–1"));
+        }
         for (i, st) in r.stages.iter().enumerate() {
             let sctx = format!("{ctx} stage {}", st.stage);
             if st.stage != i as u32 {
