@@ -43,7 +43,7 @@ done
 # Иконка
 ICONSET="$(mktemp -d)/AppIcon.iconset"
 mkdir -p "$ICONSET"
-python3 -I tools/make_icon.py assets/fonts/Inter-Bold.ttf "$ICONSET/icon_512x512@2x.png"
+python3 -I tools/make_icon.py assets/fonts/Inter-Bold.ttf "$ICONSET/icon_512x512@2x.png" --rgba assets/icon
 for s in 16 32 128 256 512; do
     sips -z $s $s "$ICONSET/icon_512x512@2x.png" --out "$ICONSET/icon_${s}x${s}.png" >/dev/null
     d=$((s * 2))
