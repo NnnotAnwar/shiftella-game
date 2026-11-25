@@ -140,7 +140,7 @@
      default_choice: "return_it"),
 
     // ---------------------------------------------------------------- the uncanny (quiet wonder, never fear)
-    (id: "clock_333", kind: Uncanny, severity: 1, trigger: Auto,
+    (id: "clock_333", kind: Uncanny, severity: 1, trigger: Auto, min_night: 4,
      conditions: [TimeBetween("03:33", "03:34"), WindowLightOn],
      effects: [ClockStop(seconds: 60.0)]),
     (id: "phantom_horn", kind: Uncanny, severity: 1, weight: 10.0, cooldown: 2,
