@@ -380,6 +380,13 @@ fn build_actors(stress: bool) -> Vec<Actor> {
             emote: Some((Emote::Angry, 3.0)),
             selected: false,
         },
+        // Анвар с ноутбуком (ноутбук рисуется отдельно, см. main)
+        Actor {
+            look: PersonLook::preset("anwar"),
+            motion: still(chair(11.0, 8.0, Facing::Right), Facing::Right, Pose::Sit),
+            emote: Some((Emote::Coffee, 1.9)),
+            selected: false,
+        },
         Actor {
             look: PersonLook::random(9, false),
             motion: still(chair(5.0, 8.0, Facing::Left), Facing::Left, Pose::Sit),
@@ -579,6 +586,11 @@ async fn main() {
             states.push(st);
             q.push_furniture(p.sprite, p.origin, p.size, st);
         }
+        // ноутбук Анвара на столе (12, 8): после стола, до самого Анвара
+        let laptop_at = vec2(12.42, 8.5) * TILE - vec2(0.0, 24.0);
+        q.push_custom(9.0 * TILE + 0.01, move || {
+            draw_laptop(laptop_at, Facing::Right, t)
+        });
         for (pos, m, k) in &low_walls {
             q.push_wall(*pos, *m, *k);
         }
@@ -626,6 +638,9 @@ async fn main() {
             }
             if a.selected {
                 lighting.add_light(Light::new(pose.feet, 0.8 * TILE, pal::INDIGO_GLOW, 0.5));
+            }
+            if a.look.accessory == Accessory::ShiftellaLogo && pose.pose == Pose::Sit {
+                lighting.add_light(Light::phone(vec2(12.2, 8.5) * TILE - vec2(0.0, 34.0)));
             }
         }
         lighting.apply();
@@ -709,7 +724,8 @@ async fn portraits_demo(shot: Option<String>, t0: f32) {
         let s = screen_dpi_scale();
         let (w, h) = (screen_width() / s, screen_height() / s);
         let page = env_f("SHIFTELLA_PAGE").unwrap_or(0.0) as usize;
-        let ids = &PersonLook::PRESETS[(page * 5).min(5)..(page * 5 + 5).min(10)];
+        let all = PersonLook::PRESETS;
+        let ids = &all[(page * 6).min(all.len())..(page * 6 + 6).min(all.len())];
         let cols = Expression::ALL.len() as f32;
         let label_w = 96.0;
         let cell = ((w - label_w - 16.0) / cols).min((h - 34.0) / ids.len() as f32);

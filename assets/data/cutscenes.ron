@@ -212,6 +212,7 @@
         (
             id: "vera_tears",
             trigger: ArcStage(regular: "vera", stage: 3),
+            conditions: [ServedItem(regular: "vera", item: "grandma_kulajda")],
             steps: [
                 Camera(focus: Actor("vera"), zoom: 1.6),
                 Line(speaker: "vera", expression: Surprised, text_key: "scene.vera_tears.01"),
@@ -577,6 +578,68 @@
                 If(conditions: [VarIs("letter", "delivered_by_mirek")], then: [Narration(text_key: "scene.answer.12")]),
                 Apply(effects: [ArcGood("guest_333")]),
                 Music(track: Some("mus_night_calm_loop")),
+            ],
+        ),
+        // --- cameo: Anwar, the developer of the Shiftella app (flavour only: no choices, flags or effects) ---
+        (
+            id: "anwar_sticker",
+            trigger: At(night: 3, time: "23:30"),
+            steps: [
+                ActorEnter(actor: "guest_anwar", to_tile: Spot("corner_table")),
+                Camera(focus: Actor("guest_anwar"), zoom: 1.5),
+                Narration(text_key: "scene.anwar_sticker.01"),
+                Line(speaker: "player", expression: Surprised, text_key: "scene.anwar_sticker.02"),
+                Line(speaker: "guest_anwar", expression: Smile, text_key: "scene.anwar_sticker.03"),
+                Line(speaker: "player", expression: Thinking, text_key: "scene.anwar_sticker.04"),
+                Line(speaker: "guest_anwar", expression: Laugh, text_key: "scene.anwar_sticker.05"),
+            ],
+        ),
+        (
+            id: "anwar_codenames",
+            trigger: At(night: 9, time: "23:30"),
+            steps: [
+                ActorEnter(actor: "guest_anwar", to_tile: Spot("corner_table")),
+                Camera(focus: Actor("guest_anwar"), zoom: 1.5),
+                Line(speaker: "guest_anwar", expression: Thinking, text_key: "scene.anwar_codenames.01"),
+                Line(speaker: "guest_anwar", expression: Smile, text_key: "scene.anwar_codenames.02"),
+                Line(speaker: "player", expression: Neutral, text_key: "scene.anwar_codenames.03"),
+                Line(speaker: "guest_anwar", expression: Laugh, text_key: "scene.anwar_codenames.04"),
+            ],
+        ),
+        (
+            id: "anwar_bugfix",
+            trigger: At(night: 16, time: "01:40"),
+            steps: [
+                ActorEnter(actor: "guest_anwar", to_tile: Spot("corner_table")),
+                Camera(focus: Actor("guest_anwar"), zoom: 1.6),
+                Narration(text_key: "scene.anwar_bugfix.01"),
+                Line(speaker: "guest_anwar", expression: Tired, text_key: "scene.anwar_bugfix.02"),
+                Narration(text_key: "scene.anwar_bugfix.03"),
+                Line(speaker: "guest_anwar", expression: Smile, text_key: "scene.anwar_bugfix.04"),
+            ],
+        ),
+        (
+            id: "anwar_game",
+            trigger: At(night: 24, time: "01:30"),
+            steps: [
+                ActorEnter(actor: "guest_anwar", to_tile: Spot("corner_table")),
+                Camera(focus: Actor("guest_anwar"), zoom: 1.6),
+                Line(speaker: "guest_anwar", expression: Thinking, text_key: "scene.anwar_game.01"),
+                Line(speaker: "guest_anwar", expression: Neutral, text_key: "scene.anwar_game.02"),
+                Line(speaker: "player", expression: Smile, text_key: "scene.anwar_game.03"),
+                Line(speaker: "guest_anwar", expression: Laugh, text_key: "scene.anwar_game.04"),
+            ],
+        ),
+        (
+            id: "anwar_cake",
+            trigger: At(night: 29, time: "23:15"),
+            steps: [
+                Sfx(id: "sfx_door_bell"),
+                ActorEnter(actor: "guest_anwar", to_tile: Spot("bar_front")),
+                Camera(focus: Actor("guest_anwar"), zoom: 1.5),
+                Narration(text_key: "scene.anwar_cake.01"),
+                Line(speaker: "guest_anwar", expression: Smile, text_key: "scene.anwar_cake.02"),
+                Line(speaker: "guest_anwar", expression: Neutral, text_key: "scene.anwar_cake.03"),
             ],
         ),
     ],

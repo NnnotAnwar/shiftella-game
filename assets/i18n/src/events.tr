@@ -178,7 +178,7 @@ event.lost_bus.text
 cs Zájezdový autobus odbočil špatně. Průvodkyně se ptá, jestli máte třicet porcí polévky.
 en A tour coach took a wrong turn. The guide asks if you have thirty portions of soup.
 sk Zájazdový autobus odbočil zle. Sprievodkyňa sa pýta, či máte tridsať porcií polievky.
-uk Туристичний автобус звернув не туди. Гідеса питає, чи є у вас тридцять порцій супу.
+uk Туристичний автобус звернув не туди. Екскурсоводка питає, чи є у вас тридцять порцій супу.
 
 event.open_mic.title
 cs Večer u mikrofonu
