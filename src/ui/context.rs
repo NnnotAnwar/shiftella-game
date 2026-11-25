@@ -377,10 +377,18 @@ impl Ui {
         self.focus.is_some()
     }
 
-    fn blocked(&self, p: Vec2) -> bool {
+    /// Is `p` covered by a higher layer? A region with the widget's own rect (its glass /
+    /// card background, often declared right after `interact`) never blocks the widget.
+    fn blocked(&self, p: Vec2, own: Rect) -> bool {
+        let same = |a: &Rect| {
+            (a.x - own.x).abs() < 1.0
+                && (a.y - own.y).abs() < 1.0
+                && (a.w - own.w).abs() < 1.0
+                && (a.h - own.h).abs() < 1.0
+        };
         self.prev_regions
             .iter()
-            .any(|(r, z)| *z > self.z && r.contains(p))
+            .any(|(r, z)| *z > self.z && r.contains(p) && !same(r))
     }
 
     /// Intersect with the current clip and enable the GPU scissor.
@@ -403,7 +411,7 @@ impl Ui {
     /// Is the mouse over `r`, not blocked by a higher layer and inside the clip?
     pub fn hovering(&self, r: Rect) -> bool {
         let m = self.mouse;
-        r.contains(m) && !self.blocked(m) && self.clip.last().is_none_or(|c| c.contains(m))
+        r.contains(m) && !self.blocked(m, r) && self.clip.last().is_none_or(|c| c.contains(m))
     }
 
     // --- animation ---------------------------------------------------------

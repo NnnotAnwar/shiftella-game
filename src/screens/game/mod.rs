@@ -143,6 +143,18 @@ pub struct GameScreen {
     clock_stop: f32,
     /// Last game minute a footstep / coffee ambience sound was considered.
     last_ambience_minute: u32,
+    /// Timings of the last frame (debug overlay).
+    pub times: FrameTimes,
+}
+
+/// CPU time of the last frame's parts (the F3 debug overlay).
+#[derive(Debug, Clone, Copy, Default)]
+pub struct FrameTimes {
+    pub sim_ms: f32,
+    pub world_ms: f32,
+    pub ui_ms: f32,
+    /// Sim ticks run this frame.
+    pub ticks: u32,
 }
 
 /// Panel-local state that survives frames.
@@ -199,6 +211,7 @@ impl GameScreen {
             last_ambience_minute: u32::MAX,
             deferred: Vec::new(),
             clock_stop: 0.0,
+            times: FrameTimes::default(),
             automation: std::env::var("SHIFTELLA_SHOT").is_ok(),
         }
     }
@@ -946,6 +959,8 @@ impl GameScreen {
     /// One frame: logic, world, HUD and panels. Call between `ui.begin_frame()` and
     /// `ui.end_frame()`; then call [`GameScreen::hotkeys`].
     pub fn frame(&mut self, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
+        let t_start = std::time::Instant::now();
+        let mut ticks_run = 0u32;
         let content = cx.content;
         // 3:33 — everything holds its breath
         if self.clock_stop <= 0.0 {
@@ -994,6 +1009,7 @@ impl GameScreen {
                 self.acc -= TICK_SECONDS;
                 self.world.tick(content);
                 guard += 1;
+                ticks_run += 1;
                 let evs = self.world.drain_events();
                 for e in &evs {
                     Self::event_audio(cx.audio, e);
@@ -1023,6 +1039,7 @@ impl GameScreen {
         };
         self.scene.refresh(&self.world, self.time, alpha);
 
+        let t_sim = std::time::Instant::now();
         // 2. world
         if self.player.is_playing() {
             // story scenes play on the live café (its furniture, lamps, weather, people)
@@ -1062,6 +1079,7 @@ impl GameScreen {
             self.world_click(ui, content, pick, mouse_world, ghost.as_ref(), &loc);
         }
 
+        let t_world = std::time::Instant::now();
         // 3. UI
         ui.set_camera();
         if self.player.is_playing() {
@@ -1097,6 +1115,14 @@ impl GameScreen {
                 self.toast_clicked(content, ev.toast, ev.tag);
             }
         }
+        let ms = |a: std::time::Instant, b: std::time::Instant| (b - a).as_secs_f32() * 1000.0;
+        let t_end = std::time::Instant::now();
+        self.times = FrameTimes {
+            sim_ms: ms(t_start, t_sim),
+            world_ms: ms(t_sim, t_world),
+            ui_ms: ms(t_world, t_end),
+            ticks: ticks_run,
+        };
     }
 
     fn flush_notices(&mut self, ui: &mut Ui, loc: &Locale) {

@@ -102,6 +102,83 @@ pub struct App {
     host: SaveHost,
 }
 
+/// F3 / `SHIFTELLA_FPS=1`: frame rate, frame time (avg / max over the last second),
+/// sim ticks and the CPU split of a game frame.
+#[derive(Default)]
+struct DebugOverlay {
+    on: bool,
+    /// (seconds since start, frame ms) of the last second.
+    frames: std::collections::VecDeque<(f64, f32)>,
+}
+
+impl DebugOverlay {
+    fn record(&mut self, now: f64, frame_ms: f32) {
+        self.frames.push_back((now, frame_ms));
+        while self.frames.front().is_some_and(|(t, _)| now - t > 1.0) {
+            self.frames.pop_front();
+        }
+    }
+
+    fn stats(&self) -> (f32, f32, f32) {
+        let n = self.frames.len().max(1) as f32;
+        let sum: f32 = self.frames.iter().map(|f| f.1).sum();
+        let max = self.frames.iter().map(|f| f.1).fold(0.0, f32::max);
+        let span = match (self.frames.front(), self.frames.back()) {
+            (Some(a), Some(b)) if b.0 > a.0 => (b.0 - a.0) as f32,
+            _ => 1.0,
+        };
+        let fps = if self.frames.len() > 1 {
+            (self.frames.len() - 1) as f32 / span
+        } else {
+            0.0
+        };
+        (fps, sum / n, max)
+    }
+
+    fn draw(&self, ui: &mut Ui, times: Option<game::FrameTimes>) {
+        if !self.on {
+            return;
+        }
+        let (fps, avg, max) = self.stats();
+        let mut lines = vec![
+            format!("{fps:.0} fps"),
+            format!("frame {avg:.1} ms avg · {max:.1} max"),
+        ];
+        if let Some(t) = times {
+            lines.push(format!(
+                "sim {:.1} · world {:.1} · ui {:.1} ms",
+                t.sim_ms, t.world_ms, t.ui_ms
+            ));
+            lines.push(format!("ticks/frame {}", t.ticks));
+        }
+        let (sw, sh) = (screen_width(), screen_height());
+        lines.push(format!(
+            "{:.0}×{:.0} @{:.1}x",
+            sw / screen_dpi_scale(),
+            sh / screen_dpi_scale(),
+            screen_dpi_scale()
+        ));
+        ui.set_camera();
+        let st = ui.theme.small().size(11.0).color(ui.theme.text);
+        let w = lines
+            .iter()
+            .map(|l| ui.fonts.measure(l, &st))
+            .fold(0.0, f32::max)
+            + 20.0;
+        let r = Rect::new(8.0, 64.0, w, lines.len() as f32 * 15.0 + 12.0);
+        crate::ui::draw_glass(&ui.theme, r, &crate::ui::Glass::tooltip());
+        for (i, l) in lines.iter().enumerate() {
+            let c = if i == 0 && fps < 55.0 {
+                ui.theme.amber
+            } else {
+                ui.theme.text
+            };
+            ui.fonts
+                .draw(l, r.x + 10.0, r.y + 18.0 + i as f32 * 15.0, &st.color(c));
+        }
+    }
+}
+
 fn env(name: &str) -> Option<String> {
     std::env::var(name).ok().filter(|s| !s.trim().is_empty())
 }
@@ -433,7 +510,22 @@ pub async fn run() {
 
     let mut frame = 0u32;
     let mut route_now = Route::Menu;
+    let mut debug = DebugOverlay {
+        on: env("SHIFTELLA_FPS").is_some_and(|v| v != "0"),
+        ..Default::default()
+    };
+    let clock = std::time::Instant::now();
+    let mut last_frame = clock;
     loop {
+        let now = std::time::Instant::now();
+        debug.record(
+            (now - clock).as_secs_f64(),
+            (now - last_frame).as_secs_f32() * 1000.0,
+        );
+        last_frame = now;
+        if is_key_pressed(KeyCode::F3) {
+            debug.on = !debug.on;
+        }
         app.ui.begin_frame();
         let dt = if shot.is_some() {
             1.0 / 60.0
@@ -483,6 +575,11 @@ pub async fn run() {
                 }
             }
         }
+        let times = match &app.screen {
+            Screen::Game(g) => Some(g.times),
+            _ => None,
+        };
+        debug.draw(&mut app.ui, times);
         for s in app.ui.drain_sounds() {
             app.audio.ui_sound(s);
         }
@@ -509,6 +606,14 @@ pub async fn run() {
             }
             img.export_png(path);
             println!("saved {path}");
+            if debug.on {
+                let (fps, avg, max) = debug.stats();
+                let t = times.unwrap_or_default();
+                println!(
+                    "perf: {fps:.1} fps, frame {avg:.2} ms avg / {max:.2} max, sim {:.2} world {:.2} ui {:.2} ms, {} ticks",
+                    t.sim_ms, t.world_ms, t.ui_ms, t.ticks
+                );
+            }
             break;
         }
         next_frame().await;
