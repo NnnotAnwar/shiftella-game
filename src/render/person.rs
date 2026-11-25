@@ -1765,9 +1765,22 @@ pub fn draw_shiftella_logo(c0: Vec2, size: f32) {
     );
 }
 
+/// Нейтральный стикер: кремовый полумесяц на тёмном кружке (радиус `r`).
+fn draw_moon_sticker(c0: Vec2, r: f32) {
+    ellipse(c0.x, c0.y, r, r, Color::from_hex(0x2a2550));
+    ellipse(c0.x, c0.y, r * 0.7, r * 0.7, c::CREAM);
+    ellipse(
+        c0.x + r * 0.32,
+        c0.y - r * 0.22,
+        r * 0.58,
+        r * 0.58,
+        Color::from_hex(0x2a2550),
+    );
+}
+
 /// Ноутбук на столе. `p` — точка на поверхности стола под центром ноутбука (мировые px),
 /// `user_facing` — куда смотрит владелец (экран повёрнут к нему). Со спины крышки виден
-/// стикер Shiftella, с лицевой — светящийся экран. Для света добавьте `Light::phone(p)`.
+/// маленький стикер-луна, с лицевой — светящийся экран. Для света добавьте `Light::phone(p)`.
 pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
     let shell = Color::from_hex(0x3a3d52);
     let shell_l = Color::from_hex(0x5a5f7a);
@@ -1805,7 +1818,7 @@ pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
             } else {
                 // владелец лицом к нам → крышка спиной, на ней стикер
                 rrect_v(lx, ly, lw, lh, 2.0, shell_l, shell);
-                draw_shiftella_logo(vec2(p.x, ly + lh / 2.0), 7.0);
+                draw_moon_sticker(vec2(p.x + 4.0, ly + lh / 2.0 - 2.0), 4.0);
                 glow(p.x, p.y - 2.0, 14.0, alpha(c::INDIGO_GLOW, 0.25));
             }
         }
@@ -1845,7 +1858,7 @@ pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
                 1.2,
                 alpha(c::INDIGO_SOFT, 0.9 * glow_on),
             );
-            draw_shiftella_logo(hinge.lerp(top, 0.55) + vec2(s * 1.4, 0.0), 4.5);
+            draw_moon_sticker(hinge.lerp(top, 0.55) + vec2(s * 1.4, 0.0), 2.6);
         }
     }
 }

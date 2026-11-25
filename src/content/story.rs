@@ -192,6 +192,9 @@ pub enum CutsceneTrigger {
     ArcStage { regular: String, stage: u32 },
     /// Played as the ending with this id.
     Ending(String),
+    /// The player chose "Talk" on this regular. `night: None` = any night.
+    /// The UI offers "Talk" only while an unplayed talk cutscene matches the current night.
+    Talk { regular: String, night: Option<u32> },
     /// Only via `Call`, `Effect::StartCutscene` or an arc stage's `cutscene`.
     Manual,
 }
