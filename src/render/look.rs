@@ -534,7 +534,7 @@ impl PersonLook {
                 top: hex(0x2f2c72),
                 top_style: TopStyle::Hoodie,
                 bottom: hex(0x2d2b3a),
-                accessory: Accessory::ShiftellaLogo,
+                accessory: Accessory::None,
                 accent: hex(0x6366f1),
                 facial_hair: FacialHair::Stubble,
                 apron: false,
@@ -623,7 +623,7 @@ mod tests {
         assert!(PersonLook::preset("shiftella_bot").bot);
         let a = PersonLook::preset("anwar");
         assert!(a.tired && a.top_style == TopStyle::Hoodie && !a.apron);
-        assert_eq!(a.accessory, Accessory::ShiftellaLogo);
+        assert_eq!(a.accessory, Accessory::None, "identity stays subtle");
         assert_eq!(
             PersonLook::preset("someone_new"),
             PersonLook::preset("someone_new")
