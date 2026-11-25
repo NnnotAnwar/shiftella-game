@@ -5,12 +5,16 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
 ## 1. What the game is
 - **Name:** Shiftella (repo/crate `shiftella-game`). A cozy, very atmospheric management game
   for relaxing in the evening after a shift. Low stress, gentle pacing, beautiful night mood.
-- **Setting:** near future, **2039**. Night café «U Výhybky» by the railway station of the small
-  fictional Czech town **Mlhov nad Šeřavou**. Open 22:00–06:00. Rain, warm lamps, quiet
-  autonomous night trains, soft holographic signs, small delivery drones over wet roofs —
-  near-future but intimate and human, never cyberpunk-grim.
+- **Setting:** near future, **2039**. Night café **Café Nocturne** (sign subtitle: "kavárna u nádraží")
+  next to **Praha-Holešovice** station in Prague. Open 22:00–06:00. Rain, warm lamps, quiet autonomous
+  night trains, soft holographic signs, small delivery drones over wet roofs — near-future but intimate
+  and human, never cyberpunk-grim. International feel with a Czech note (renamed 2026-11-26 from the
+  former fictional town "Mlhov nad Šeřavou" and café "U Výhybky").
+- **Names:** simplified, international-friendly with a Czech note: grandma **Lida**, her fiancé **Jindra**,
+  regulars Mirek, Hana, **Vera**, Filip, Radek, Lori; the 3:33 guest; Anwar (cameo). Staff/guest name pools: an
+  international mix (Czech, Slovak, Ukrainian, European) with few diacritics.
 - **Story & content:** `design/story/*` (written in Russian — the *ideas* are canon, the text must be
-  written fresh in the four game languages). Grandma Lída's café, 30 nights, regulars with arcs,
+  written fresh in the four game languages). Grandma Lida's café, 30 nights, regulars with arcs,
   the 3:33 guest, endings. Dates: grandma's fiancé left on night train Rn 333 in **1979**;
   the game is 60 years later (2039).
 - **Cutscenes & dialogue:** story moments play as cutscenes — letterbox, camera moves, actors walking,
@@ -34,7 +38,7 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
     "payroll basis" export (podklady pro mzdy) as a cute summary screen.
   - Notifications arrive from **@shiftella_bot**. Never implement clock-in/out through the bot.
   - Easter eggs: stations on the train line are named after Shiftella release codenames —
-    **Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant** … then Mlhov. Train announcements use them.
+    **Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant** … then Praha-Holešovice. Train announcements use them.
 - **Languages:** **CZ / EN / SK / UA** → codes `cs`, `en`, `sk`, `uk`. Every player-visible string goes
   through i18n keys. First launch shows a language picker; choice saved in settings. Fallback: `en`, then the key.
   No Russian in the game.
