@@ -976,6 +976,11 @@ impl World {
     // Time & phases
     // -----------------------------------------------------------------------------------------
 
+    /// Ticks since 22:00 (10 per game minute).
+    pub fn tick_count(&self) -> u32 {
+        self.tick
+    }
+
     /// Minutes since 22:00.
     pub fn minute(&self) -> u32 {
         self.tick / TICKS_PER_MINUTE

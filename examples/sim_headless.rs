@@ -44,6 +44,9 @@ fn main() {
     println!(
         "night  guests served left away | revenue  tips  wages supply  rent  pay |   money   rep  sat | ev bad | exh stuck tick-µs"
     );
+    // SIM_STRESS=1: 60 extra guests arrive at 23:00 every night (perf check)
+    let stress = std::env::var("SIM_STRESS").is_ok();
+    let mut worst_tick = 0f64;
     let mut total_ticks = 0u64;
     let mut total_time = 0f64;
     let mut max_agents = 0usize;
@@ -72,7 +75,12 @@ fn main() {
                     let _ = world.apply(&content, Command::TickChecklist { id: id.into() });
                 }
             }
+            if stress && world.minute() == 60 && world.tick_count() % 10 == 0 {
+                world.debug_spawn_guests(&content, "students", 60, 10);
+            }
+            let t1 = Instant::now();
             world.tick(&content);
+            worst_tick = worst_tick.max(t1.elapsed().as_secs_f64());
             ticks += 1;
             max_agents = max_agents.max(world.guests().len() + world.staff().len());
             for e in world.drain_events() {
@@ -115,11 +123,12 @@ fn main() {
         println!("ending: {e} ({:?})", world.ending_variant());
     }
     println!(
-        "notes {:?} · staff {} · max agents {} · avg tick {:.1} µs",
+        "notes {:?} · staff {} · max agents {} · avg tick {:.1} µs · worst tick {:.0} µs",
         world.notes_found(),
         world.staff().len(),
         max_agents,
-        total_time * 1e6 / total_ticks.max(1) as f64
+        total_time * 1e6 / total_ticks.max(1) as f64,
+        worst_tick * 1e6
     );
 }
 
