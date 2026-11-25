@@ -212,6 +212,7 @@
         (
             id: "vera_tears",
             trigger: ArcStage(regular: "vera", stage: 3),
+            conditions: [ServedItem(regular: "vera", item: "grandma_kulajda")],
             steps: [
                 Camera(focus: Actor("vera"), zoom: 1.6),
                 Line(speaker: "vera", expression: Surprised, text_key: "scene.vera_tears.01"),
