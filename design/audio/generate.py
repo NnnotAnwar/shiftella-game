@@ -1,22 +1,27 @@
 #!/usr/bin/env python3
-"""Генератор музыки и SFX для «Ночной смены» через ElevenLabs API.
+"""Music and SFX generator for Shiftella, using the ElevenLabs API.
 
-Запуск (из корня репозитория night-shift):
-    python3 -I design/audio/generate.py                 # всё, что ещё не сгенерировано
+The generated audio is NOT committed to the public repository (the ElevenLabs
+licence allows use inside the game, not redistribution). Use your own key to make
+your own local copies; the game also runs without any audio.
+
+Run (from the repository root):
+    python3 -I design/audio/generate.py                 # everything not generated yet
     python3 -I design/audio/generate.py --only rush_loop,ui_click
-    python3 -I design/audio/generate.py --kind sfx --force   # перегенерировать все SFX
-    python3 -I design/audio/generate.py --dry-run        # показать план, без запросов
-    python3 -I design/audio/generate.py --reconvert      # только пересобрать OGG/WAV из raw/
+    python3 -I design/audio/generate.py --kind sfx --force   # regenerate all SFX
+    python3 -I design/audio/generate.py --dry-run        # show the plan, no requests
+    python3 -I design/audio/generate.py --reconvert      # only rebuild OGG/WAV from raw/
 
-Ключ: переменная окружения ELEVENLABS_API_KEY или строка
-ELEVENLABS_API_KEY=... в night-shift/.env. Ключ никогда не печатается и не пишется в логи.
+Key: the ELEVENLABS_API_KEY environment variable, or a line
+ELEVENLABS_API_KEY=... in .env at the repository root (git-ignored).
+The key is never printed and never written to the logs.
 
-Эндпоинты (проверено по docs 2026-11-25):
+Endpoints (checked against the docs on 2026-11-25):
     POST /v1/music            body: prompt, music_length_ms (3000..600000), force_instrumental, model_id
     POST /v1/sound-generation body: text, duration_seconds (0.5..30), loop, prompt_influence (0..1), model_id
-    output_format — query-параметр; берём mp3_44100_128 (доступен на всех тарифах),
-    затем ffmpeg конвертирует в OGG Vorbis / WAV PCM для macroquad.
-Только стандартная библиотека Python, никаких зависимостей.
+    output_format is a query parameter; we use mp3_44100_128 (available on every plan),
+    then ffmpeg converts to OGG Vorbis / PCM WAV for macroquad.
+Python standard library only, no dependencies.
 """
 from __future__ import annotations
 
@@ -35,23 +40,23 @@ API = "https://api.elevenlabs.io"
 RAW_FORMAT = "mp3_44100_128"
 
 HERE = Path(__file__).resolve().parent          # design/audio
-ROOT = HERE.parents[1]                          # корень night-shift
+ROOT = HERE.parents[1]                          # repository root
 PROMPTS = HERE / "prompts.json"
 RAW_DIR = HERE / "raw"
 LOG_JSONL = HERE / "generation-log.jsonl"
 
-# Цели громкости (см. sound-design.md, раздел «Громкость и микс»).
+# Loudness targets (see sound-design.md, section "Loudness and mix").
 LOUDNESS = {
     "music": {"I": -18.0, "TP": -1.5, "LRA": 11.0},
     "ambience": {"I": -24.0, "TP": -2.0, "LRA": 7.0},
 }
 
-# Заголовки ответа, которые безопасно сохранять в лог (ключа в них нет).
+# Response headers that are safe to keep in the log (they never contain the key).
 SAFE_HEADERS = ("request-id", "x-request-id", "song-id", "character-cost",
                 "x-character-count", "history-item-id", "content-type")
 
 
-# ---------------------------------------------------------------- ключ
+# ---------------------------------------------------------------- key
 def load_key() -> str | None:
     key = os.environ.get("ELEVENLABS_API_KEY", "").strip()
     if key:
@@ -84,12 +89,12 @@ def _request(method: str, path: str, key: str, body: dict | None = None,
 
 
 def credits_used(key: str) -> int | None:
-    """Счётчик использованных кредитов за период (character_count) или None."""
+    """Credits used in the current period (character_count), or None."""
     try:
         raw, _ = _request("GET", "/v1/user/subscription", key, timeout=30)
         return int(json.loads(raw).get("character_count"))
     except Exception:
-        return None  # у ключа может не быть права user_read — это не критично
+        return None  # the key may lack the user_read permission; that's fine
 
 
 def subscription_summary(key: str) -> dict | None:
@@ -125,12 +130,12 @@ def vorbis_args() -> list[str]:
                          capture_output=True, text=True).stdout
     if "libvorbis" in enc:
         return ["-c:a", "libvorbis", "-q:a", "6"]
-    # встроенный кодер ffmpeg: экспериментальный, только стерео
+    # ffmpeg's built-in encoder: experimental, stereo only
     return ["-c:a", "vorbis", "-strict", "-2", "-ac", "2", "-q:a", "6"]
 
 
 def loudnorm_filter(src: Path, target: dict) -> str:
-    """Двухпроходная линейная нормализация (не ломает шов у лупов)."""
+    """Two-pass linear normalisation (keeps loop seams intact)."""
     base = f"loudnorm=I={target['I']}:TP={target['TP']}:LRA={target['LRA']}"
     res = subprocess.run(
         ["ffmpeg", "-hide_banner", "-nostats", "-i", str(src),
@@ -151,7 +156,7 @@ def convert(raw: Path, out: Path, normalize: str) -> Path:
     if not have("ffmpeg"):
         dst = out.with_suffix(raw.suffix)
         shutil.copyfile(raw, dst)
-        print(f"   ! ffmpeg не найден — сохранён исходный {dst.suffix}, конвертация отложена")
+        print(f"   ! ffmpeg not found — kept the original {dst.suffix}; convert later with --reconvert")
         return dst
     cmd = ["ffmpeg", "-hide_banner", "-loglevel", "error", "-y", "-i", str(raw)]
     if normalize in LOUDNESS:
@@ -166,7 +171,7 @@ def convert(raw: Path, out: Path, normalize: str) -> Path:
     return out
 
 
-# ---------------------------------------------------------------- генерация
+# ---------------------------------------------------------------- generation
 def build_request(kind: str, item: dict) -> tuple[str, dict]:
     if kind == "music":
         body = {"prompt": item["prompt"],
@@ -192,12 +197,12 @@ def log(entry: dict) -> None:
 
 def main() -> int:
     ap = argparse.ArgumentParser(description="ElevenLabs → assets/audio")
-    ap.add_argument("--only", help="id через запятую")
+    ap.add_argument("--only", help="comma-separated ids")
     ap.add_argument("--kind", choices=["music", "sfx"])
-    ap.add_argument("--force", action="store_true", help="перезаписать существующие")
-    ap.add_argument("--dry-run", action="store_true", help="без запросов к API")
-    ap.add_argument("--no-convert", action="store_true", help="только raw mp3")
-    ap.add_argument("--reconvert", action="store_true", help="пересобрать из raw/ без API")
+    ap.add_argument("--force", action="store_true", help="overwrite existing files")
+    ap.add_argument("--dry-run", action="store_true", help="no API requests")
+    ap.add_argument("--no-convert", action="store_true", help="raw mp3 only")
+    ap.add_argument("--reconvert", action="store_true", help="rebuild from raw/ without the API")
     args = ap.parse_args()
 
     spec = json.loads(PROMPTS.read_text(encoding="utf-8"))
@@ -207,7 +212,7 @@ def main() -> int:
     if only:
         missing = only - {it["id"] for _, it in jobs}
         if missing:
-            print(f"Неизвестные id: {', '.join(sorted(missing))}")
+            print(f"Unknown ids: {', '.join(sorted(missing))}")
             return 2
 
     RAW_DIR.mkdir(parents=True, exist_ok=True)
@@ -217,27 +222,28 @@ def main() -> int:
             raw = RAW_DIR / f"{it['id']}.mp3"
             if raw.exists():
                 out = convert(raw, ROOT / it["out"], it.get("normalize", "none"))
-                print(f"✓ {it['id']}: {out.relative_to(ROOT)} ({probe_duration(out)} с)")
+                print(f"✓ {it['id']}: {out.relative_to(ROOT)} ({probe_duration(out)} s)")
         return 0
 
     key = None if args.dry_run else load_key()
     if not args.dry_run and not key:
-        print("ELEVENLABS_API_KEY не найден (ни в окружении, ни в night-shift/.env).\n"
-              "Добавьте строку ELEVENLABS_API_KEY=... в night-shift/.env и запустите снова.")
+        print("ELEVENLABS_API_KEY not found (neither in the environment nor in .env at the repo root).\n"
+              "Add a line ELEVENLABS_API_KEY=... with your own key to .env and run again.\n"
+              ".env is git-ignored — never commit it.")
         return 1
 
     if key:
         summary = subscription_summary(key)
         if summary:
-            print(f"Тариф: {summary.get('tier')}, использовано "
-                  f"{summary.get('character_count')} / {summary.get('character_limit')} кредитов")
+            print(f"Plan: {summary.get('tier')}, used "
+                  f"{summary.get('character_count')} / {summary.get('character_limit')} credits")
 
     total = 0
     for kind, it in jobs:
         out = ROOT / it["out"]
         raw = RAW_DIR / f"{it['id']}.mp3"
         if out.exists() and not args.force:
-            print(f"· {it['id']}: уже есть {it['out']} — пропуск (--force для перезаписи)")
+            print(f"· {it['id']}: {it['out']} already exists — skipped (--force to overwrite)")
             continue
         path, body = build_request(kind, it)
         if args.dry_run:
@@ -256,7 +262,7 @@ def main() -> int:
                  "detail": detail, "at": dt.datetime.now().isoformat(timespec="seconds")})
             continue
         except urllib.error.URLError as e:
-            print(f"   ✗ сеть: {e.reason}")
+            print(f"   ✗ network: {e.reason}")
             continue
         raw.write_bytes(audio)
         after = credits_used(key)
@@ -273,13 +279,13 @@ def main() -> int:
                  "headers": {h: headers[h] for h in SAFE_HEADERS if h in headers},
                  "at": dt.datetime.now().isoformat(timespec="seconds")}
         log(entry)
-        print(f"   ✓ {entry['out']}  {dur} с  кредиты: {cost if cost is not None else 'н/д'}")
+        print(f"   ✓ {entry['out']}  {dur} s  credits: {cost if cost is not None else 'n/a'}")
 
     if key and not args.dry_run:
-        print(f"Итого кредитов за запуск: {total}")
+        print(f"Credits used in this run: {total}")
         summary = subscription_summary(key)
         if summary:
-            print(f"Остаток: {summary.get('character_count')} / {summary.get('character_limit')}")
+            print(f"Usage now: {summary.get('character_count')} / {summary.get('character_limit')}")
     return 0
 
 
