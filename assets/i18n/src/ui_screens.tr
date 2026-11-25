@@ -338,7 +338,7 @@ uk Shiftella
 
 ui.app.tab.schedule
 cs Rozpis
-en Rozpis
+en Schedule
 sk Rozpis
 uk Розклад
 
@@ -392,13 +392,13 @@ uk Повідомлення
 
 ui.app.schedule_title
 cs Rozpis směn
-en Shift rozpis
+en Shift schedule
 sk Rozpis zmien
 uk Розклад змін
 
 ui.app.publish
 cs Zveřejnit rozpis
-en Publish rozpis
+en Publish schedule
 sk Zverejniť rozpis
 uk Опублікувати розклад
 
@@ -799,9 +799,9 @@ sk Zostáva dlh
 uk Залишок боргу
 
 ui.summary.notes_found
-cs Lídiny vzkazy: {n} z 10
-en Lída's notes: {n} of 10
-sk Lídine odkazy: {n} z 10
+cs Lidiny vzkazy: {n} z 10
+en Lida's notes: {n} of 10
+sk Lidine odkazy: {n} z 10
 uk Записки Ліди: {n} з 10
 
 ui.summary.continue

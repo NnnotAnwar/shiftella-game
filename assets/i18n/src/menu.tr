@@ -1,9 +1,9 @@
 # Menu: menu.<id>.name / menu.<id>.desc
 
 menu.black_coffee.name
-cs Černá jako u Lídy
-en Black, Lída-style
-sk Čierna ako u Lídy
+cs Černá jako u Lidy
+en Black, Lida-style
+sk Čierna ako u Lidy
 uk Чорна, як у Ліди
 
 menu.black_coffee.desc
@@ -115,9 +115,9 @@ sk Babkina kulajda
 uk Бабусина кулайда
 
 menu.grandma_kulajda.desc
-cs Kopr, houby, ztracené vejce — a tajná přísada z Lídiny kuchařky.
-en Dill, mushrooms, a poached egg — and the secret ingredient from Lída's book.
-sk Kôpor, huby, stratené vajce — a tajná prísada z Lídinej kuchárskej knihy.
+cs Kopr, houby, ztracené vejce — a tajná přísada z Lidiny kuchařky.
+en Dill, mushrooms, a poached egg — and the secret ingredient from Lida's book.
+sk Kôpor, huby, stratené vajce — a tajná prísada z Lidinej kuchárskej knihy.
 uk Кріп, гриби, яйце-пашот — і таємний інгредієнт із Лідиної книги.
 
 menu.varenyky.name

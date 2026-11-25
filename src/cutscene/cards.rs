@@ -217,7 +217,7 @@ fn draw_key(p: Vec2, t: f32) {
     crate::ui::draw::fill_circle(p + vec2(-4.0, -4.0), 1.6, with_a(WHITE, 0.5 * glint));
 }
 
-/// One of Lída's notes (`note.<id>.text`), with where it was found and its number.
+/// One of Lida's notes (`note.<id>.text`), with where it was found and its number.
 pub fn note_card(
     ui: &mut Ui,
     where_found: &str,

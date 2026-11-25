@@ -1,4 +1,4 @@
-//! The standalone stage for cutscenes: café «U Výhybky» (`map::CAFE_LAYOUT`) with the rainy
+//! The standalone stage for cutscenes: Café Nocturne (`map::CAFE_LAYOUT`) with the rainy
 //! street, platform and tracks behind it. Lamps can be switched off (the dark café of the
 //! opening) and back on one by one; trains pass with the light sweep.
 //!
@@ -339,7 +339,7 @@ impl CafeScene {
         draw_train(self.street, train_p, t);
         draw_holo_sign(
             vec2(21.0 * TILE, self.street.y + self.street.h - 0.35 * TILE),
-            "U Výhybky",
+            "Café Nocturne",
             t,
         );
         self.weather.draw_rain(self.street, t);

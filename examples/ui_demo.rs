@@ -96,7 +96,7 @@ async fn main() {
         seg: 1,
         tab: 0,
         lang: 0,
-        seed: "MLHOV-2039".to_string(),
+        seed: "PRAHA-2039".to_string(),
         cafe: String::new(),
         selected_row: 1,
         checklist: [true, true, true, false, false, true, false],
@@ -118,7 +118,7 @@ async fn main() {
                 "Dobrý večer, paní Lído. Venku leje jako z konve.",
             ),
             (None, "Za oknem tiše projel prázdný vlak."),
-            (Some("Babička Lída"), "Zase o minutu dřív. Jako vždycky."),
+            (Some("Babička Lida"), "Zase o minutu dřív. Jako vždycky."),
             (
                 Some("Matěj"),
                 "Ďakujem, že ste ma zastúpili. Їжак ґречно їсть, jak se říká.",
@@ -621,7 +621,7 @@ fn gallery(ui: &mut Ui, d: &mut Demo) {
         ("Shiftella", t.display().size(30.0)),
         ("Příliš žluťoučký kůň", t.title()),
         ("Ďakujem, ľúbim · Їжак ґречно їсть", t.h2()),
-        ("Body 13 — Kavárna U Výhybky, Mlhov nad Šeřavou.", t.body()),
+        ("Body 13 — Café Nocturne, Praha-Holešovice.", t.body()),
         ("Small 12 — noční vlak Rn 333 přijede ve 03:33", t.small()),
         ("SECTION · MICRO 11", t.micro()),
     ];
@@ -646,7 +646,7 @@ fn gallery(ui: &mut Ui, d: &mut Demo) {
         &clock.color(t.text_dim),
     );
     y += 30.0;
-    let para = "Babička Lída věří, že vlak Rn 333 jednou přiveze zpět jejího snoubence. Uplynulo šedesát let, ale v kavárně se pořád svítí až do rána.";
+    let para = "Babička Lida věří, že vlak Rn 333 jednou přiveze zpět jejího snoubence. Uplynulo šedesát let, ale v kavárně se pořád svítí až do rána.";
     let used = ui.fonts.draw_wrapped(
         para,
         Rect::new(inner.x, y, inner.w, 60.0),
@@ -710,7 +710,7 @@ fn hud(ui: &mut Ui, d: &mut Demo) {
         );
         ui.push_toast(
             Toast::new(ToastKind::Event, "Vlak Rn 333 přijíždí")
-                .body("Stanice Frýdlant → Mlhov · ~8 hostů za 4 minuty")
+                .body("Stanice Frýdlant → Holešovice · ~8 hostů za 4 minuty")
                 .icon(Icon::Train)
                 .primary_action("Ukázat", 3)
                 .sticky(),
@@ -786,7 +786,7 @@ fn hud(ui: &mut Ui, d: &mut Demo) {
     );
     ui.label(
         Rect::new(er.x + 76.0, er.y, er.w - 120.0, er.h),
-        "Vlak Rn 333 projel stanicí Frýdlant — příští zastávka Mlhov",
+        "Vlak Rn 333 projel stanicí Frýdlant — příští zastávka Holešovice",
         &t.body_medium(),
         Align::Left,
     );
@@ -1021,7 +1021,7 @@ fn app(ui: &mut Ui, d: &mut Demo) {
         tablet_r,
         &PhoneFrame::new("03:33", &TABS)
             .tablet()
-            .subtitle("U Výhybky · Mlhov")
+            .subtitle("Café Nocturne · Holešovice")
             .selected(d.tablet_tab)
             .badge(2)
             .user("Lída Nováková"),
@@ -1398,7 +1398,7 @@ fn swaps_screen(ui: &mut Ui, d: &mut Demo, r: Rect) {
 
 const LINES: [(&str, &str); 3] = [
     (
-        "Babička Lída",
+        "Babička Lida",
         "Ten vlak… Rn 333. V roce 1979 jím odjel a slíbil, že se vrátí. Každou noc ve 03:33 nechám na stole jeden šálek navíc.",
     ),
     (
@@ -1406,7 +1406,7 @@ const LINES: [(&str, &str); 3] = [
         "Пані Лідо, сьогодні знову дощ. Може, цього разу він таки приїде?",
     ),
     (
-        "Babička Lída",
+        "Babička Lida",
         "Uvidíme, děvče. Uvař mi, prosím, ještě jedno kakao.",
     ),
 ];
@@ -1489,7 +1489,7 @@ fn cutscene(ui: &mut Ui, d: &mut Demo) {
 fn narration(ui: &mut Ui, d: &mut Demo) {
     let resp = d.narration.narration_box(
         ui,
-        "Mlhov nad Šeřavou, listopad 2039. Déšť ťuká na okna kavárny U Výhybky a poslední noční vlak se ztrácí v mlze. Ніч тільки починається.",
+        "Praha-Holešovice, listopad 2039. Déšť ťuká na okna Café Nocturne a poslední noční vlak se ztrácí v mlze. Ніч тільки починається.",
     );
     ui.fade(0.0);
     if resp.advance {

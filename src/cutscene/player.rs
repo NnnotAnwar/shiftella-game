@@ -1204,7 +1204,7 @@ impl CutscenePlayer {
                 let pl = PhoneLabels {
                     time: "22:04",
                     title: loc.tr("ui.app.title"),
-                    subtitle: "U Výhybky · Mlhov",
+                    subtitle: "Café Nocturne · Holešovice",
                     today,
                     bot_handle: "@shiftella_bot",
                     tab_schedule: loc.tr("ui.app.tab.schedule"),

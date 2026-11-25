@@ -226,7 +226,7 @@ mod tests {
             mode: "story".into(),
             night,
             clock: "day".into(),
-            cafe: "U Výhybky".into(),
+            cafe: "Café Nocturne".into(),
             difficulty: "cozy".into(),
             saved_at: at,
             finished: false,

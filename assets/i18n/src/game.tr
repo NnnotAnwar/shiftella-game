@@ -428,7 +428,7 @@ uk Тиха ніч. Кавоварка відпочине, і ти теж.
 
 ui.summary.mood_hard
 cs Těžká noc. Zítra je nová směna — a nový rozpis.
-en A rough night. Tomorrow is a new shift — and a new rozpis.
+en A rough night. Tomorrow is a new shift — and a new schedule.
 sk Ťažká noc. Zajtra je nová zmena — a nový rozpis.
 uk Важка ніч. Завтра нова зміна — і новий розпис.
 
@@ -607,10 +607,10 @@ sk {name} opúšťa zmenu
 uk {name} залишає зміну
 
 ui.ticker.train
-cs {train} přijíždí do Mlhova
-en {train} pulls into Mlhov
-sk {train} prichádza do Mlhova
-uk {train} прибуває в Mlhov
+cs {train} přijíždí do Holešovic
+en {train} pulls into Holešovice
+sk {train} prichádza do Holešovíc
+uk {train} прибуває в Голешовиці
 
 ui.ticker.weather
 cs Počasí: {weather}

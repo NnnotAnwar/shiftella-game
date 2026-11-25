@@ -84,7 +84,7 @@ impl Credits {
         v.push(Line::Gap(36.0));
         v.push(Line::Heading(loc.tr_owned("ui.credits.places_title")));
         v.push(Line::Text(
-            "Adamov · Beroun · Cheb · Děčín · Ejpovice · Frýdlant · Mlhov nad Šeřavou".into(),
+            "Adamov · Beroun · Cheb · Děčín · Ejpovice · Frýdlant · Praha-Holešovice".into(),
         ));
         v.push(Line::Gap(60.0));
         v.push(Line::Text(loc.tr_owned("ui.ending.credits_thanks")));

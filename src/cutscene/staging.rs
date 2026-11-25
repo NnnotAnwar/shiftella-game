@@ -1,6 +1,6 @@
 //! Stage directions: purely visual beats woven around the data-driven steps of a few
 //! cutscenes (the content only says *what* happens; this says how it looks). Today only
-//! the opening is staged: the train stops at Mlhov, you step out with a suitcase, walk to the
+//! the opening is staged: the train stops at Praha-Holešovice, you step out with a suitcase, walk to the
 //! dark café, grandma's letter is written on a paper card, you go in with a warm light,
 //! switch the lamps on one by one, and Shiftella greets you on the phone.
 //!

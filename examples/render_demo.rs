@@ -555,7 +555,7 @@ async fn main() {
         draw_train(street, train_p, t);
         draw_holo_sign(
             vec2(21.0 * TILE, street.y + street.h - 0.35 * TILE),
-            "U Výhybky",
+            "Café Nocturne",
             t,
         );
         weather.draw_rain(street, t);

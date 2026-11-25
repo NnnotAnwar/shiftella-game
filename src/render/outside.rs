@@ -237,15 +237,21 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
     // табличка станции
     let sign_x = r.x + r.w * 0.62;
     rrect_v(
-        sign_x - 46.0,
+        sign_x - 78.0,
         py0 + 14.0,
-        92.0,
+        156.0,
         22.0,
         4.0,
         Color::from_hex(0x2f3b7a),
         Color::from_hex(0x232c60),
     );
-    world_text("MLHOV", vec2(sign_x, py0 + 30.0), 14.0, WHITE, true);
+    world_text(
+        "PRAHA-HOLEŠOVICE",
+        vec2(sign_x, py0 + 30.0),
+        12.0,
+        WHITE,
+        true,
+    );
     draw_line(
         sign_x - 30.0,
         py0 + 36.0,

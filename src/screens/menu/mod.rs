@@ -75,7 +75,7 @@ pub struct SandboxSetup {
 }
 
 /// Turns a typed seed into a number: plain digits parse directly, anything else is hashed
-/// (FNV-1a, case-insensitive), so "MLHOV-2039" is the same town for everyone.
+/// (FNV-1a, case-insensitive), so "PRAHA-2039" is the same town for everyone.
 pub fn seed_from_text(text: &str) -> u64 {
     let t = text.trim();
     if let Ok(n) = t.parse::<u64>() {
@@ -263,7 +263,7 @@ impl MainMenu {
             .seed_roots
             .get((r % self.seed_roots.len().max(1) as u64) as usize)
             .cloned()
-            .unwrap_or_else(|| "MLHOV".into());
+            .unwrap_or_else(|| "PRAHA".into());
         format!("{}-{:04}", root.to_uppercase(), (r >> 20) % 10_000)
     }
 
@@ -324,7 +324,7 @@ impl MainMenu {
         let th = ui.theme.clone();
         let sub = TextStyle::new(16.0, Weight::Medium, th.text);
         let micro = th.micro().color(with_a(th.indigo_300, 0.8)).tracking(1.4);
-        let place = "2039 · MLHOV NAD ŠEŘAVOU";
+        let place = "2039 · PRAHA-HOLEŠOVICE";
         if centered {
             ui.fonts
                 .draw_centered(loc.tr("mainmenu.subtitle"), x, y + 34.0, &sub);
@@ -812,7 +812,7 @@ impl MainMenu {
             "sb_seed",
             Rect::new(cx, y, 190.0, 32.0),
             &mut self.form.seed,
-            "MLHOV-2039",
+            "PRAHA-2039",
             24,
         );
         let dice = ui.icon_button(
@@ -926,7 +926,7 @@ impl MainMenu {
                 self.cafe_names
                     .first()
                     .cloned()
-                    .unwrap_or_else(|| "U Výhybky".into())
+                    .unwrap_or_else(|| "Café Nocturne".into())
             } else {
                 self.form.cafe_name.trim().to_string()
             };
@@ -991,7 +991,7 @@ mod tests {
     #[test]
     fn seeds_are_stable_and_case_insensitive() {
         assert_eq!(seed_from_text("2039"), 2039);
-        assert_eq!(seed_from_text("mlhov-2039"), seed_from_text("MLHOV-2039"));
-        assert_ne!(seed_from_text("MLHOV-2039"), seed_from_text("MLHOV-2040"));
+        assert_eq!(seed_from_text("praha-2039"), seed_from_text("PRAHA-2039"));
+        assert_ne!(seed_from_text("PRAHA-2039"), seed_from_text("PRAHA-2040"));
     }
 }

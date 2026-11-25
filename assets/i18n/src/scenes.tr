@@ -2,10 +2,10 @@
 
 # --- scene opening
 scene.opening.01
-cs Mlhov nad Šeřavou, podzim 2039. Devět tisíc lidí, jedna řeka a spousta mlhy.
-en Mlhov nad Šeřavou, autumn 2039. Nine thousand people, one river and a great deal of fog.
-sk Mlhov nad Šeřavou, jeseň 2039. Deväťtisíc ľudí, jedna rieka a poriadne veľa hmly.
-uk Mlhov nad Šeřavou, осінь 2039-го. Дев'ять тисяч людей, одна річка і дуже багато туману.
+cs Praha-Holešovice, podzim 2039. Velké město, které v noci ztichne na jedno nádraží, jednu řeku a spoustu mlhy.
+en Praha-Holešovice, autumn 2039. A big city that, at night, shrinks to one station, one river and a great deal of fog.
+sk Praha-Holešovice, jeseň 2039. Veľké mesto, ktoré sa v noci zmenší na jednu stanicu, jednu rieku a poriadne veľa hmly.
+uk Прага-Голешовиці, осінь 2039-го. Велике місто, що вночі стискається до одного вокзалу, однієї річки й дуже густого туману.
 
 scene.opening.02
 cs Vážení cestující, osobní vlak Os 2141 z Adamova přijel k prvnímu nástupišti. Děkujeme, že cestujete v noci.
@@ -26,10 +26,10 @@ sk Naposledy, čo si pamätám, mi ten pult siahal po nos.
 uk Скільки пам'ятаю, цей прилавок тоді був мені по ніс.
 
 scene.opening.05
-cs Vedle nádraží jedno tmavé okno. Nad ním holografický nápis s prasklým písmenem: U VÝHYBKY.
-en Beside the station, one dark window. Above it, a holo sign with a cracked letter: U VÝHYBKY.
-sk Vedľa stanice jedno tmavé okno. Nad ním holografický nápis s prasknutým písmenom: U VÝHYBKY.
-uk Поруч із вокзалом — одне темне вікно. Над ним голографічна вивіска з тріснутою літерою: U VÝHYBKY.
+cs Vedle nádraží jedno tmavé okno. Nad ním holografický nápis s prasklým písmenem: CAFÉ NOCTURNE — kavárna u nádraží.
+en Beside the station, one dark window. Above it, a holo sign with a cracked letter: CAFÉ NOCTURNE — kavárna u nádraží.
+sk Vedľa stanice jedno tmavé okno. Nad ním holografický nápis s prasknutým písmenom: CAFÉ NOCTURNE — kavárna u nádraží.
+uk Поруч із вокзалом — одне темне вікно. Над ним голографічна вивіска з тріснутою літерою: CAFÉ NOCTURNE — kavárna u nádraží.
 
 scene.opening.06
 cs V kapse máš dopis od notáře. A ještě jeden, psaný rukou. Na obálce: „Tomu, kdo bude držet světlo."
@@ -44,10 +44,10 @@ sk Ak toto čítaš, kávovar ma prežil. Správaj sa k nemu pekne. Hryzie.
 uk Якщо ти це читаєш, кавоварка мене пережила. Поводься з нею лагідно. Вона кусається.
 
 scene.opening.08
-cs Klíč je pod rohožkou. Samozřejmě. V Mlhově rohožky nikdo nekrade.
-en The key is under the mat. Of course it is. Nobody in Mlhov steals mats.
-sk Kľúč je pod rohožkou. Samozrejme. V Mlhove rohožky nikto nekradne.
-uk Ключ під килимком. Аякже. У Mlhov килимків ніхто не краде.
+cs Klíč je pod rohožkou. Samozřejmě. V Holešovicích rohožky nikdo nekrade.
+en The key is under the mat. Of course it is. Nobody in Holešovice steals mats.
+sk Kľúč je pod rohožkou. Samozrejme. V Holešoviciach rohožky nikto nekradne.
+uk Ключ під килимком. Аякже. У Голешовицях килимків ніхто не краде.
 
 scene.opening.09
 cs Nebudu ti lhát: jsou tu dluhy. Devadesát tisíc. Majitel budovy ti dá třicet nocí.
@@ -62,9 +62,9 @@ sk Otvára sa o desiatej večer, zatvára o šiestej ráno. A svetlo v okne svie
 uk Відчиняємось о десятій вечора, зачиняємось о шостій ранку. А світло у вікні горить до шостої. Завжди.
 
 scene.opening.11
-cs Proč, to ti do dopisu nenapíšu. Přijdeš na to. Tvoje Lída.
-en Why, I can't put in a letter. You'll find out. Your Lída.
-sk Prečo, to ti do listu nenapíšem. Prídeš na to. Tvoja Lída.
+cs Proč, to ti do dopisu nenapíšu. Přijdeš na to. Tvoje Lida.
+en Why, I can't put in a letter. You'll find out. Your Lida.
+sk Prečo, to ti do listu nenapíšem. Prídeš na to. Tvoja Lida.
 uk Чому — у листі не напишу. Ти дізнаєшся. Твоя Ліда.
 
 scene.opening.12
@@ -99,9 +99,9 @@ sk Tak zase svieti. Myslel som, že už vidím strašidlá.
 uk Отже, знову світиться. А я думав, мені вже привиди ввижаються.
 
 scene.mirek_first.03
-cs Černou. Jako dělala Lída — aby v ní stála lžička.
-en Black coffee. Like Lída made it — strong enough to stand a spoon in.
-sk Čiernu. Ako robila Lída — aby v nej stála lyžička.
+cs Černou. Jako dělala Lida — aby v ní stála lžička.
+en Black coffee. Like Lida made it — strong enough to stand a spoon in.
+sk Čiernu. Ako robila Lida — aby v nej stála lyžička.
 uk Чорну. Як робила Ліда — щоб ложечка стояла.
 
 scene.mirek_first.04
@@ -167,15 +167,15 @@ uk Годинник знову цокає. 03:34.
 
 # --- scene vera_first
 scene.vera_first.01
-cs Tak ty jsi to vnouče. Lídino.
-en So you're the grandchild. Lída's.
-sk Tak ty si to vnúča. Lídino.
+cs Tak ty jsi to vnouče. Lidino.
+en So you're the grandchild. Lida's.
+sk Tak ty si to vnúča. Lidino.
 uk Так ось хто ти. Лідина рідня.
 
 scene.vera_first.02
-cs Čaj s citronem. A otři ten stůl. Lída by ho takhle nikdy nenechala.
-en Tea with lemon. And wipe that table. Lída would never have left it like that.
-sk Čaj s citrónom. A utri ten stôl. Lída by ho takto nikdy nenechala.
+cs Čaj s citronem. A otři ten stůl. Lida by ho takhle nikdy nenechala.
+en Tea with lemon. And wipe that table. Lida would never have left it like that.
+sk Čaj s citrónom. A utri ten stôl. Lida by ho takto nikdy nenechala.
 uk Чай із лимоном. І витри цей стіл. Ліда б його так ніколи не залишила.
 
 scene.vera_first.03
@@ -185,9 +185,9 @@ sk Robím, čo môžem.
 uk Я роблю все, що можу.
 
 scene.vera_first.04
-cs Každý dělá, co může. Lída mohla víc.
-en Everyone does their best. Lída's best was better.
-sk Každý robí, čo môže. Lída mohla viac.
+cs Každý dělá, co může. Lida mohla víc.
+en Everyone does their best. Lida's best was better.
+sk Každý robí, čo môže. Lida mohla viac.
 uk Усі роблять, що можуть. Ліда могла більше.
 
 scene.vera_first.05
@@ -242,7 +242,7 @@ uk Містом пішла чутка: вікно біля вокзалу зно
 
 scene.act2.03
 cs Tvůj rozpis viděli další uchazeči. Noční směny chtějí tři noví lidé.
-en More applicants have seen your rozpis. Three new people want night shifts.
+en More applicants have seen your schedule. Three new people want night shifts.
 sk Tvoj rozpis videli ďalší uchádzači. Nočné smeny chcú traja noví ľudia.
 uk Твій розклад побачили нові кандидати. Нічні зміни хочуть ще троє людей.
 
@@ -267,7 +267,7 @@ uk Надворі скрегоче метал. Стара Міркова маш�
 
 scene.mirek_curb.02
 cs Obrubník se pohnul. V noci je přesouvají, víš. Radnice.
-en The kerb moved. They move them at night, you know. The town council.
+en The kerb moved. They move them at night, you know. The city council.
 sk Obrubník sa pohol. V noci ich presúvajú, vieš. Radnica.
 uk Бордюр посунувся. Їх уночі пересувають, знаєш. Мерія.
 
@@ -278,9 +278,9 @@ sk Dlho žmúri na tabuľu s menu. Priveľmi dlho.
 uk Він довго мружиться на дошку з меню. Задовго.
 
 scene.mirek_curb.04
-cs Ta písmenka na tabuli se od Lídiných časů nějak zmenšila.
-en The letters on that board have got smaller since Lída's day.
-sk Tie písmenká na tabuli sa od Lídiných čias nejako zmenšili.
+cs Ta písmenka na tabuli se od Lidiných časů nějak zmenšila.
+en The letters on that board have got smaller since Lida's day.
+sk Tie písmenká na tabuli sa od Lidiných čias nejako zmenšili.
 uk Літери на тій дошці з Лідиних часів якось поменшали.
 
 scene.mirek_curb.05
@@ -315,10 +315,10 @@ sk Čiernu so sebou. Mám štyri minúty.
 uk Чорну з собою. У мене чотири хвилини.
 
 scene.radek_news.02
-cs Nádraží převádějí na automat. Za dva týdny jsem poslední výpravčí v Mlhově — pak už jen počítač a mlha.
-en They're automating the station. In two weeks I'm the last dispatcher in Mlhov — after that, just the computer and the fog.
-sk Stanicu prevádzajú na automat. O dva týždne som posledný výpravca v Mlhove — potom už len počítač a hmla.
-uk Вокзал переводять на автоматику. За два тижні я — останній черговий у Mlhov. Далі тільки комп'ютер і туман.
+cs Nádraží převádějí na automat. Za dva týdny jsem poslední noční výpravčí v Holešovicích — pak už jen počítač a mlha.
+en They're automating the station. In two weeks I'm the last night dispatcher at Holešovice — after that, just the computer and the fog.
+sk Stanicu prevádzajú na automat. O dva týždne som posledný nočný výpravca v Holešoviciach — potom už len počítač a hmla.
+uk Вокзал переводять на автоматику. За два тижні я — останній нічний черговий у Голешовицях. Далі тільки комп'ютер і туман.
 
 scene.radek_news.03
 cs Zvláštní. Na starém jízdním řádu na zdi pořád visí Rn 333. Příjezd 3:33. Zrušený v devětasedmdesátém a nikdo ho nikdy nesundal.
@@ -426,9 +426,9 @@ uk Я так не спала вже місяць. …Тільки не кажи 
 
 # --- scene vera_recipe
 scene.vera_recipe.01
-cs Tady. Lídina kuchařka. Dala mi ji „schovat před mastnotou". V roce 1994.
-en Here. Lída's recipe book. She gave it to me to "keep away from the grease". In 1994.
-sk Tu. Lídina kuchárska kniha. Dala mi ju „schovať pred mastnotou". V roku 1994.
+cs Tady. Lidina kuchařka. Dala mi ji „schovat před mastnotou". V roce 1994.
+en Here. Lida's recipe book. She gave it to me to "keep away from the grease". In 1994.
+sk Tu. Lidina kuchárska kniha. Dala mi ju „schovať pred mastnotou". V roku 1994.
 uk Ось. Лідина кулінарна книга. Віддала мені її «сховати від жиру». У 1994-му.
 
 scene.vera_recipe.02
@@ -457,9 +457,9 @@ sk Hádali sme sa o všetko. O chlapcov, o skúšky, kto má krajšie vlasy. Vž
 uk Ми сперечалися через усе. Через хлопців, іспити, у кого гарніше волосся. Я завжди програвала. І переймалася цим менше, ніж казала.
 
 scene.vera_tears.03
-cs Věra tiše pláče do polévky. Pak si řekne o další chleba.
-en Věra cries quietly into the soup. Then she asks for more bread.
-sk Věra potichu plače do polievky. Potom si pýta ďalší chlieb.
+cs Vera tiše pláče do polévky. Pak si řekne o další chleba.
+en Vera cries quietly into the soup. Then she asks for more bread.
+sk Vera potichu plače do polievky. Potom si pýta ďalší chlieb.
 uk Віра тихо плаче над супом. Потім просить ще хліба.
 
 # --- scene payment_2
@@ -538,10 +538,10 @@ uk Значить, хтось тримає його замість неї.
 
 # --- scene guest333_ticket
 scene.guest333_ticket.01
-cs Dnes nenechal mince. Na stole leží jízdenka: Rn 333, Mlhov 3:33, 14. listopadu 1979. Zpáteční.
-en Tonight he left no coins. On the table lies a ticket: Rn 333, Mlhov 3:33, 14 November 1979. A return.
-sk Dnes nenechal mince. Na stole leží cestovný lístok: Rn 333, Mlhov 3:33, 14. novembra 1979. Spiatočný.
-uk Цього разу він не залишив монет. На столі лежить квиток: Rn 333, Mlhov 3:33, 14 листопада 1979. Туди й назад.
+cs Dnes nenechal mince. Na stole leží jízdenka: Rn 333, Praha-Holešovice 3:33, 14. listopadu 1979. Zpáteční.
+en Tonight he left no coins. On the table lies a ticket: Rn 333, Praha-Holešovice 3:33, 14 November 1979. A return.
+sk Dnes nenechal mince. Na stole leží cestovný lístok: Rn 333, Praha-Holešovice 3:33, 14. novembra 1979. Spiatočný.
+uk Цього разу він не залишив монет. На столі лежить квиток: Rn 333, Praha-Holešovice 3:33, 14 листопада 1979. Туди й назад.
 
 scene.guest333_ticket.02
 cs Zpáteční polovina nikdy nebyla použitá.
@@ -673,9 +673,9 @@ sk Mlčať
 uk Промовчати
 
 scene.mirek_pedestrian.08
-cs …Lída by udělala totéž. Jen by nejdřív křičela.
-en …Lída would have done the same. Only she'd have shouted first.
-sk …Lída by urobila to isté. Len by najprv kričala.
+cs …Lida by udělala totéž. Jen by nejdřív křičela.
+en …Lida would have done the same. Only she'd have shouted first.
+sk …Lida by urobila to isté. Len by najprv kričala.
 uk …Ліда зробила б те саме. Тільки спершу накричала б.
 
 scene.mirek_pedestrian.09
@@ -704,16 +704,16 @@ sk Musím ti niečo povedať. Nosím to šesťdesiat rokov. Váži to asi dvadsa
 uk Мушу тобі дещо сказати. Ношу це шістдесят років. Важить грамів двадцять.
 
 scene.mirek_confession.02
-cs Z náprsní kapsy vytáhne obálku. Zažloutlou. Zalepenou. Lídiným písmem: „Jindřichovi."
-en From his inside pocket he takes an envelope. Yellowed. Sealed. In Lída's hand: "For Jindřich."
-sk Z náprsného vrecka vytiahne obálku. Zažltnutú. Zalepenú. Lídiným písmom: „Jindřichovi."
-uk Із внутрішньої кишені він дістає конверт. Пожовклий. Заклеєний. Лідиним почерком: «Індржихові».
+cs Z náprsní kapsy vytáhne obálku. Zažloutlou. Zalepenou. Lidiným písmem: „Jindrovi."
+en From his inside pocket he takes an envelope. Yellowed. Sealed. In Lida's hand: "For Jindra."
+sk Z náprsného vrecka vytiahne obálku. Zažltnutú. Zalepenú. Lidiným písmom: „Jindrovi."
+uk Із внутрішньої кишені він дістає конверт. Пожовклий. Заклеєний. Лідиним почерком: «Їндрі».
 
 scene.mirek_confession.03
-cs Listopad devětasedmdesát. Jindřich odjížděl nočním, tím Rn 333. Pohádali se. Ona napsala tohle a poprosila mě, ať mu to doběhnu dát na nástupiště.
-en November '79. Jindřich was leaving on the night train, the Rn 333. They'd quarrelled. She wrote this and asked me to run it to him on the platform.
-sk November sedemdesiatdeväť. Jindřich odchádzal nočným, tým Rn 333. Pohádali sa. Ona napísala toto a poprosila ma, aby som mu to dobehol dať na nástupište.
-uk Листопад сімдесят дев'ятого. Індржих їхав нічним, тим самим Rn 333. Вони посварилися. Вона написала оце й попросила мене збігати віддати йому на перон.
+cs Listopad devětasedmdesát. Jindra odjížděl nočním, tím Rn 333. Pohádali se. Ona napsala tohle a poprosila mě, ať mu to doběhnu dát na nástupiště.
+en November '79. Jindra was leaving on the night train, the Rn 333. They'd quarrelled. She wrote this and asked me to run it to him on the platform.
+sk November sedemdesiatdeväť. Jindra odchádzal nočným, tým Rn 333. Pohádali sa. Ona napísala toto a poprosila ma, aby som mu to dobehol dať na nástupište.
+uk Листопад сімдесят дев'ятого. Їндра їхав нічним, тим самим Rn 333. Вони посварилися. Вона написала оце й попросила мене збігати віддати йому на перон.
 
 scene.mirek_confession.04
 cs Bylo mi dvacet a byl jsem do ní blázen. Stál jsem v dešti, díval se, jak vlak odjíždí. A nechal jsem si to.
@@ -734,9 +734,9 @@ sk Každú noc. Šesťdesiat rokov.
 uk Щоночі. Шістдесят років.
 
 scene.mirek_confession.07
-cs Černou, jako dělala Lída. Jo. Každou noc.
-en Black, like Lída made it. Yes. Every night.
-sk Čiernu, ako robila Lída. Áno. Každú noc.
+cs Černou, jako dělala Lida. Jo. Každou noc.
+en Black, like Lida made it. Yes. Every night.
+sk Čiernu, ako robila Lida. Áno. Každú noc.
 uk Чорну, як робила Ліда. Так. Щоночі.
 
 # --- scene payment_3
@@ -772,10 +772,10 @@ sk Podpísať. Dlh zmizne, kaviareň bude NONSTOP 24.
 uk Підписати. Борг зникне, кав'ярня стане NONSTOP 24.
 
 scene.franchise_decision.04
-cs Odmítnout. U Výhybky zůstane U Výhybky.
-en Refuse. U Výhybky stays U Výhybky.
-sk Odmietnuť. U Výhybky zostane U Výhybky.
-uk Відмовитися. U Výhybky лишиться U Výhybky.
+cs Odmítnout. Café Nocturne zůstane Café Nocturne.
+en Refuse. Café Nocturne stays Café Nocturne.
+sk Odmietnuť. Café Nocturne zostane Café Nocturne.
+uk Відмовитися. Café Nocturne лишиться Café Nocturne.
 
 scene.franchise_decision.05
 cs Výborně! Zítra přijede tým s novým nápisem. To osvětlení si zamilujete.
@@ -847,10 +847,10 @@ sk Od Frýdlantu cez kopce prichádza búrka.
 uk Від Frýdlant через пагорби насувається гроза.
 
 scene.act4_storm.02
-cs Ve 22:30 zhasnou světla na nádraží, pak lampy v ulicích, pak celé město.
-en At 22:30 the station lights go out, then the street lamps, then the whole town.
-sk O 22:30 zhasnú svetlá na stanici, potom lampy v uliciach, potom celé mesto.
-uk О 22:30 гасне світло на вокзалі, потім ліхтарі на вулицях, потім усе місто.
+cs Ve 22:30 zhasnou světla na nádraží, pak lampy v ulicích, pak celé Holešovice.
+en At 22:30 the station lights go out, then the street lamps, then all of Holešovice.
+sk O 22:30 zhasnú svetlá na stanici, potom lampy v uliciach, potom celé Holešovice.
+uk О 22:30 гасне світло на вокзалі, потім ліхтарі на вулицях, потім усі Голешовиці.
 
 scene.act4_storm.03
 cs Svítí jen jedno okno. Babiččina lampa běží na baterku starší než ty.
@@ -878,10 +878,10 @@ sk Rozhodla som sa. Kvôli Drážďanom.
 uk Я вирішила. Щодо Дрездена.
 
 scene.hana_decision.02
-cs Zůstávám. Drážďany platí líp. Mlhov má křeslo pod lampou, kde mě někdo nechá spát.
-en I'm staying. Dresden pays better. Mlhov has a chair under a lamp where somebody lets me sleep.
-sk Zostávam. Drážďany platia lepšie. Mlhov má kreslo pod lampou, kde ma niekto nechá spať.
-uk Я лишаюся. Дрезден платить більше. А в Mlhov є крісло під лампою, де мені дають поспати.
+cs Zůstávám. Drážďany platí líp. Praha má křeslo pod lampou, kde mě někdo nechá spát.
+en I'm staying. Dresden pays better. Prague has a chair under a lamp where somebody lets me sleep.
+sk Zostávam. Drážďany platia lepšie. Praha má kreslo pod lampou, kde ma niekto nechá spať.
+uk Я лишаюся. Дрезден платить більше. А в Празі є крісло під лампою, де мені дають поспати.
 
 scene.hana_decision.03
 cs Jedu. Je to dobrá práce. …Díky za všechna kafe. Byli jste vždycky rychlí.
@@ -891,10 +891,10 @@ uk Я їду. Це хороша робота. …Дякую за всю каву
 
 # --- scene vera_jindrich
 scene.vera_jindrich.01
-cs První sníh. Lída ho milovala. Sedni si, povím ti o Jindřichovi.
-en First snow. Lída loved it. Sit down, I'll tell you about Jindřich.
-sk Prvý sneh. Lída ho milovala. Sadni si, porozprávam ti o Jindřichovi.
-uk Перший сніг. Ліда його любила. Сідай, розкажу тобі про Індржиха.
+cs První sníh. Lida ho milovala. Sedni si, povím ti o Jindrovi.
+en First snow. Lida loved it. Sit down, I'll tell you about Jindra.
+sk Prvý sneh. Lida ho milovala. Sadni si, porozprávam ti o Jindrovi.
+uk Перший сніг. Ліда його любила. Сідай, розкажу тобі про Їндру.
 
 scene.vera_jindrich.02
 cs Opravoval rádia. Vysoký, plachý, tancoval příšerně. Vybrala si ho před půlkou města. I před Mirkem.
@@ -1010,7 +1010,7 @@ uk Тридцята ніч. Останній платіж — о шостій.
 
 scene.final_night.02
 cs Rozpis na dnešek: všichni. Nikdo nechtěl výměnu směny. Nikdo nechtěl volno.
-en Tonight's rozpis: everyone. Nobody asked for a swap. Nobody asked for time off.
+en Tonight's schedule: everyone. Nobody asked for a swap. Nobody asked for time off.
 sk Rozpis na dnes: všetci. Nikto nechcel výmenu zmeny. Nikto nechcel voľno.
 uk Розклад на сьогодні: усі. Ніхто не просив помінятися змінами. Ніхто не просив вихідного.
 
@@ -1034,9 +1034,9 @@ sk To je môj. Ešte čaj, prosím, kým pôjdem. Dva cukry.
 uk Це мій. Ще чаю, будь ласка, перш ніж я поїду. Два цукри.
 
 scene.last_333.03
-cs Položit vedle šálku Lídin dopis
-en Place Lída's letter beside his cup
-sk Položiť vedľa šálky Lídin list
+cs Položit vedle šálku Lidin dopis
+en Place Lida's letter beside his cup
+sk Položiť vedľa šálky Lidin list
 uk Покласти біля чашки Лідин лист
 
 scene.last_333.04
@@ -1046,10 +1046,10 @@ sk Nechať list vo vrecku
 uk Залишити лист у кишені
 
 scene.last_333.05
-cs Jindřichu.
-en Jindřich.
-sk Jindřich.
-uk Індржиху.
+cs Jindro.
+en Jindra.
+sk Jindra.
+uk Їндро.
 
 scene.last_333.06
 cs Mirku. Zestárls.
@@ -1155,9 +1155,9 @@ sk Piatky. Moja gitara. Vaša čokoláda. Platí?
 uk П'ятниці. Моя гітара. Ваш шоколад. Домовились?
 
 scene.ending_light.11
-cs Lída by řekla, že je to všechno špatně. A pak by si sedla a zůstala.
-en Lída would have said it's all wrong. And then she'd have sat down and stayed.
-sk Lída by povedala, že je to celé zle. A potom by si sadla a zostala.
+cs Lida by řekla, že je to všechno špatně. A pak by si sedla a zůstala.
+en Lida would have said it's all wrong. And then she'd have sat down and stayed.
+sk Lida by povedala, že je to celé zle. A potom by si sadla a zostala.
 uk Ліда сказала б, що все не так. А потім сіла б і лишилася.
 
 scene.ending_light.12
@@ -1167,16 +1167,16 @@ sk Niekto postaví na čaj. Niekto iný začne umývať šálky bez toho, aby ho
 uk Хтось ставить чайник. Хтось інший без прохання береться мити чашки. О шостій ранку кав'ярня повна, і ніхто не хоче йти додому.
 
 scene.ending_light.13
-cs V kavárně je ticho. Pár hrnků, pár židlí. Světlo svítí — a zatím není na koho čekat. Ale noc je dlouhá a město malé.
-en The café is quiet. A few cups, a few chairs. The light is on — and for now, there's nobody to wait for. But the night is long, and the town is small.
-sk V kaviarni je ticho. Pár šálok, pár stoličiek. Svetlo svieti — a zatiaľ nie je na koho čakať. Ale noc je dlhá a mesto malé.
-uk У кав'ярні тихо. Кілька чашок, кілька стільців. Світло горить — і поки що нема на кого чекати. Але ніч довга, а місто маленьке.
+cs V kavárně je ticho. Pár hrnků, pár židlí. Světlo svítí — a zatím není na koho čekat. Ale noc je dlouhá a čtvrť malá.
+en The café is quiet. A few cups, a few chairs. The light is on — and for now, there's nobody to wait for. But the night is long, and the neighbourhood is small.
+sk V kaviarni je ticho. Pár šálok, pár stoličiek. Svetlo svieti — a zatiaľ nie je na koho čakať. Ale noc je dlhá a štvrť malá.
+uk У кав'ярні тихо. Кілька чашок, кілька стільців. Світло горить — і поки що нема на кого чекати. Але ніч довга, а район маленький.
 
 scene.ending_light.14
-cs Dojdeš k oknu. Venku se Mlhov probouzí: první samořízená tramvaj, dron s chlebem, liška na cestě domů.
-en You walk to the window. Outside, Mlhov is waking up: the first self-driving tram, a drone carrying bread, a fox on its way home.
-sk Prídeš k oknu. Vonku sa Mlhov prebúdza: prvá samoriadená električka, dron s chlebom, líška na ceste domov.
-uk Ти підходиш до вікна. Надворі прокидається Mlhov: перший безпілотний трамвай, дрон із хлібом, лисиця, що йде додому.
+cs Dojdeš k oknu. Venku se Holešovice probouzejí: první samořízená tramvaj, dron s rohlíky, liška na cestě domů.
+en You walk to the window. Outside, Holešovice is waking up: the first self-driving tram, a drone carrying bread, a fox on its way home.
+sk Prídeš k oknu. Vonku sa Holešovice prebúdzajú: prvá samoriadená električka, dron s rožkami, líška na ceste domov.
+uk Ти підходиш до вікна. Надворі прокидаються Голешовиці: перший безпілотний трамвай, дрон із хлібом, лисиця, що йде додому.
 
 scene.ending_light.15
 cs Kavárna nejsou zdi. Jsou to ti, kdo chodí. Neprodávej je.
@@ -1222,10 +1222,10 @@ sk Je mi ľúto. Čísla nevyšli. Nájom dnes ráno končí.
 uk Мені шкода. Цифри не зійшлися. Оренда закінчується сьогодні вранці.
 
 scene.ending_last_train.05
-cs Poslední noc U Výhybky. Žádný konec hry. Jen konec jedné dlouhé směny.
-en The last night of U Výhybky. Not a game over. Just the end of a long shift.
-sk Posledná noc U Výhybky. Žiadny koniec hry. Len koniec jednej dlhej zmeny.
-uk Остання ніч U Výhybky. Не кінець гри. Лише кінець однієї довгої зміни.
+cs Poslední noc v Café Nocturne. Žádný konec hry. Jen konec jedné dlouhé směny.
+en The last night of Café Nocturne. Not a game over. Just the end of a long shift.
+sk Posledná noc v Café Nocturne. Žiadny koniec hry. Len koniec jednej dlhej zmeny.
+uk Остання ніч Café Nocturne. Не кінець гри. Лише кінець однієї довгої зміни.
 
 scene.ending_last_train.06
 cs Ale oni přijdou. Jeden po druhém, před svítáním, bez pozvání.
@@ -1234,9 +1234,9 @@ sk Ale oni prídu. Jeden po druhom, pred svitaním, bez pozvania.
 uk Але вони приходять. Один за одним, до світанку, без запрошення.
 
 scene.ending_last_train.07
-cs Dej sem tu krabici. Balíš hrnky špatně. Lída je balila taky špatně.
-en Give me that box. You're packing the cups wrong. Lída packed them wrong too.
-sk Daj sem tú škatuľu. Bališ šálky zle. Lída ich balila tiež zle.
+cs Dej sem tu krabici. Balíš hrnky špatně. Lida je balila taky špatně.
+en Give me that box. You're packing the cups wrong. Lida packed them wrong too.
+sk Daj sem tú škatuľu. Bališ šálky zle. Lida ich balila tiež zle.
 uk Дай-но сюди коробку. Ти неправильно пакуєш чашки. Ліда теж пакувала неправильно.
 
 scene.ending_last_train.08
@@ -1270,10 +1270,10 @@ sk Vlak o 6:12 do Berouna. Kontroloval som to. Ide načas. Jasné, že ide, už 
 uk Поїзд о 6:12 до Beroun. Я перевірив. Іде вчасно. Ну звісно, я ж ним більше не керую.
 
 scene.ending_last_train.13
-cs Štamgasti přijdou na poslední kafe. Pár slov, pár podání rukou. Mlhov není město velkých loučení.
-en The regulars come for a last coffee. A few words, a few handshakes. Mlhov isn't a town for big goodbyes.
-sk Štamgasti prídu na poslednú kávu. Pár slov, pár podaní rúk. Mlhov nie je mesto veľkých lúčení.
-uk Постійні гості приходять на останню каву. Кілька слів, кілька потисків рук. Mlhov — не місто великих прощань.
+cs Štamgasti přijdou na poslední kafe. Pár slov, pár podání rukou. Holešovice v noci nejsou na velká loučení.
+en The regulars come for a last coffee. A few words, a few handshakes. Holešovice at night isn't a place for big goodbyes.
+sk Štamgasti prídu na poslednú kávu. Pár slov, pár podaní rúk. Holešovice v noci nie sú na veľké lúčenia.
+uk Постійні гості приходять на останню каву. Кілька слів, кілька потисків рук. Нічні Голешовиці — не місце для великих прощань.
 
 scene.ending_last_train.14
 cs Vezmeš si babiččinu kuchařku, fotku ze zdi a klíč, který ležel pod rohožkou.
