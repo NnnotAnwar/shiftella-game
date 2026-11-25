@@ -15,6 +15,10 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   the game is 60 years later (2039).
 - **Cutscenes & dialogue:** story moments play as cutscenes — letterbox, camera moves, actors walking,
   glass dialogue box with portrait + typewriter text, 2–4 choices, narration, fades. Data-driven (`CutsceneDef`).
+- **Talking to guests:** hovering/clicking a regular shows a small speech bubble with a context mood line
+  (`ambient_lines`); a "Talk" action on a regular plays their talk dialogue for that night if one exists.
+- **Anwar (cameo):** appears only on nights 9 and 24, quiet guy working on a laptop; identity not obvious;
+  talk dialogue about making a small game about a night café; no story impact.
 - **Exactly two endings:** «Light in the Window» (café saved, stays itself) and «Last Train» (café closes /
   sold to NONSTOP 24, bittersweet farewell). The letter / 3:33-guest resolution is an optional extra scene
   inside either ending, not a third ending.
