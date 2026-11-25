@@ -45,7 +45,7 @@ cast.bot.name
 
 `\n` inside a text = line break. No Russian anywhere. Place names stay Czech (Latin script) in every
 language; person names are transliterated in Ukrainian prose (Мірек, Ліда). **Player lines are
-gender-neutral** in cs/sk/uk (the player is Lída's grandchild of either gender) — keep it that way.
+gender-neutral** in cs/sk/uk (the player is Lida's grandchild of either gender) — keep it that way.
 
 ### Key naming
 
@@ -91,7 +91,7 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | story.ron | `StoryDef` | 30 nights, payments, 10 notes, **2 endings** + the optional "Answer" extra, declared flags/vars/counters/items |
 | cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 36 cutscenes (34 story + 2 Anwar talks), 7 cast members, named map spots |
 | shiftella.ron | `ShiftellaApp` | announcements, checklists, bot templates, digest / payroll / handover lines |
-| trains.ron | `TrainLine` | stations Adamov → … → Mlhov nad Šeřavou, 5 night trains incl. `Rn 333` |
+| trains.ron | `TrainLine` | stations Adamov → … → Praha-Holešovice (home), 5 night trains incl. `Rn 333` |
 | difficulty.ron | `Vec<DifficultyDef>` | `cozy` (default), `classic` |
 | sandbox.ron | `SandboxDef` | 5 night characters, town-name parts + stoplist, institutions, café names, options |
 

@@ -245,7 +245,7 @@ characters seen from above and middle-button panning. The brief replaced it with
 1. **Base darkness:** a `#07061A` layer at 35–40 % over the world, with "holes" under the lamps (a light mask).
 2. **Warm lamp pools:** an amber radial gradient r ≈ 2.5–3 tiles, additive/screen blend, 50–60 %. A pendant lamp over each table gives its own little island.
 3. **Cool window light:** lavender rim light from the windows into the room. Rain streaks run down the glass, animated.
-4. **Holo signs outside:** a soft indigo/violet glow around the «U Výhybky» holo sign (it flickers now and then) and reflections in the puddles on the platform.
+4. **Holo signs outside:** a soft indigo/violet glow around the «Café Nocturne» holo sign (it flickers now and then) and reflections in the puddles on the platform.
 5. **Rain outside:** slanted streaks over the whole outdoor area, 2 parallax layers. No rain indoors.
 6. **Trains:** a passing train sweeps a band of light across the room.
 7. **Through the night:** the darkness is colour-graded — 22:00 violet, 03:00 the deepest, 05:30 a blue-lavender dawn (darkness drops to 25 %).

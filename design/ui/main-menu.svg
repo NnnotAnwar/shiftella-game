@@ -185,7 +185,7 @@
 <rect x="1048" y="390" width="64" height="70" rx="3" fill="url(#g-warmwin)" fill-opacity="0.8" />
 <ellipse cx="910" cy="296" rx="200" ry="60" fill="url(#g-neon)"/>
 <rect x="790" y="272" width="240" height="46" rx="8" fill="#120E20" />
-<text x="910" y="305" font-size="28" font-weight="800" class="h" fill="#A5B4FC" text-anchor="middle" letter-spacing="5" filter="url(#glow)">KAVÁRNA</text>
+<text x="910" y="305" font-size="28" font-weight="800" class="h" fill="#A5B4FC" text-anchor="middle" letter-spacing="5" filter="url(#glow)">NOCTURNE</text>
 <text x="1160" y="290" font-size="14" fill="#818CF8" text-anchor="end" font-weight="700">22–06</text>
 <rect x="0" y="520" width="1280" height="200" fill="#11102A" />
 <path d="M690 520h320l70 200H620z" fill="#FFC46B" opacity=".10" filter="url(#blur8)"/>
@@ -197,7 +197,7 @@
 <!-- Logo — a separate sprite; placeholder text here -->
 <text x="64" y="152" font-size="52" font-weight="800" class="h" fill="#6366F1" opacity=".55" filter="url(#glow)">Shiftella</text>
 <text x="64" y="152" font-size="52" font-weight="800" class="h" fill="#EEF0FF">Shiftella</text>
-<text x="66" y="182" font-size="15" fill="#A9A7C9" font-weight="500">U Výhybky  ·  22:00–06:00</text>
+<text x="66" y="182" font-size="15" fill="#A9A7C9" font-weight="500">Café Nocturne  ·  22:00–06:00</text>
 <g filter="url(#sh)"><rect x="56" y="250" width="300" height="236" rx="14" fill="url(#g-panel)" fill-opacity="0.82"/></g><rect x="56.5" y="250.5" width="299" height="235" rx="13.5" fill="none" stroke="#fff" stroke-opacity=".07"/>
 <use href="#i-continue" x="80" y="268" width="20" height="20" color="#A9A7C9"/>
 <text x="112" y="284" font-size="16" fill="#EEEDF7" font-weight="600">Continue</text>

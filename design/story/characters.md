@@ -18,7 +18,7 @@ archetype, a random name and a ±2 spread of skills. Staff wear indigo aprons wi
 | draft id (shipped id) | example name | role | skills (kitchen/bar/register/cleaning) | traits | likes | dislikes | story hook |
 |---|---|---|---|---|---|---|---|
 | `arch_student_barista` (`barista`) **[MVP]** | Bára Nováková, 21 | barista | 2 / 6 / 4 / 2 | `night_owl`, `chatterbox` | music in the hall, chatting with guests | silence, washing up | Dropped out of university in Prague and hasn't told her parents. After about ten nights she may ask for a night off "for an exam". |
-| `arch_old_cook` (`cook`) **[MVP]** | Mr Zdeněk Holub, 58 | cook | 7 / 2 / 2 / 3 | `perfectionist`, `grumpy` | an orderly kitchen, his own knife | being rushed, people touching his things | Cooked for twenty years in the glassworks canteen. Knew Lída and grumbles that "nothing is the way it was in her day". |
+| `arch_old_cook` (`cook`) **[MVP]** | Mr Zdeněk Holub, 58 | cook | 7 / 2 / 2 / 3 | `perfectionist`, `grumpy` | an orderly kitchen, his own knife | being rushed, people touching his things | Cooked for twenty years in a factory canteen in Holešovice. Knew Lida and grumbles that "nothing is the way it was in her day". |
 | `arch_gentle_giant` (`porter`) **[MVP]** | Kuba Šrámek, 26 | cleaning / helper | 3 / 1 / 2 / 6 | `clumsy`, `kind` | animals (the cat!), food | loud quarrels | A former warehouse porter. Kind-hearted, drops everything. Secretly learning to bake — leave him be and he may become a second cook. |
 | `arch_single_mom` (`cashier`) | Ivana Pešková, 34 | register / floor | 2 / 3 / 7 / 3 | `hard_worker`, `anxious` | accuracy, being praised | lateness, chaos | While she works nights, her daughter sleeps at the neighbour's. A call saying "my daughter is ill" can wreck a shift (see the staff-sick event). |
 | `arch_sound_guy` (`sound_tech`) | Oleh Melnyk, 30 | bar / floor | 2 / 5 / 3 / 3 | `music_lover`, `calm` | old records, the radio | cheap coffee | A former sound engineer from Lviv, here "temporarily" for two years now. Can repair the old radio (unlocks `note_09`). |
@@ -45,7 +45,7 @@ flat white, chai, varenyky, bryndzové pirohy, medovník and a "night train" spe
 | `cesnecka` | garlic soup | kitchen | 5 | 75 | yes |
 | `chlebicek` | chlebíček (open sandwich) | kitchen | 3 | 40 | later |
 | `kolac` | koláč (round pastry) | kitchen (ready-made) | 1 | 35 | later |
-| `lida_soup` | "Lída's soup" (recipe from `note_05`) | kitchen, skill ≥ 5 | 6 | 95 | later |
+| `lida_soup` | "Lida's soup" (recipe from `note_05`) | kitchen, skill ≥ 5 | 6 | 95 | later |
 | `svarak` | mulled wine (needs a "licence" upgrade) | bar | 3 | 70 | later |
 
 ---
@@ -58,12 +58,12 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
 ### 3.1 Mirek — the old taxi driver **[MVP: as a guest only, no arc]**
 - `mirek`, Miroslav Dvořák, 71. Every night, 23:00–00:30, sometimes again at 04:00.
 - **Order:** black coffee + topinka. High patience. Pays exactly, no tip.
-- **Hides:** (1) his eyesight is failing and he really shouldn't drive any more; (2) he has Lída's letter (story.md §4).
+- **Hides:** (1) his eyesight is failing and he really shouldn't drive any more; (2) he has Lida's letter (story.md §4).
 - **Stages:**
   | stage | condition | event |
   |---|---|---|
-  | 0 | — | an ordinary guest who tells you how things were "in Lída's day" |
-  | 1 | served quickly (≤ 5 min) three nights in a row | asks for his coffee "the way Lída poured it"; the first hint of the secret |
+  | 0 | — | an ordinary guest who tells you how things were "in Lida's day" |
+  | 1 | served quickly (≤ 5 min) three nights in a row | asks for his coffee "the way Lida poured it"; the first hint of the secret |
   | 2 | night 8 (scripted) | clips the kerb, squints at the menu → the player can offer a large-print menu (upgrade, +trust) |
   | 3 | night 20 (scripted) | nearly hits a pedestrian. **Choice:** take his keys / call his daughter / say nothing |
   | 4 | trust ≥ 60 (keys or daughter) | confesses about the letter → `letter = confessed` |
@@ -98,18 +98,18 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
   | 3 | 6 or more notes found | brings an Rn 333 ticket from 1979, lays it on the table and leaves it |
   | 4 | night 30, 3:33 | the letter scene → the optional "Answer" scene |
 
-### 3.4 Mrs Věra — insomnia
-- `vera`, Věra Soukupová, 74, a widow. 00:30–03:00, stays a long time doing crosswords.
+### 3.4 Mrs Vera — insomnia
+- `vera`, Vera Soukupova, 74, a widow. 00:30–03:00, stays a long time doing crosswords.
 - **Order:** tea with lemon, then a koláč. Medium patience, but **strict**: a dirty table makes her review count double.
-- **Arc — reconciliation:** Lída's friend and rival since school; she knows the story of Jindřich.
+- **Arc — reconciliation:** Lida's friend and rival since school; she knows the story of Jindra.
   | stage | condition | event |
   |---|---|---|
-  | 0 | night 5 | "Lída wouldn't have done it like that" |
+  | 0 | night 5 | "Lida wouldn't have done it like that" |
   | 1 | hall cleanliness ≥ 80 % on three of her visits | helps the staff with the crossword (a joke) |
   | 2 | night 14, relationship ≥ 30 | brings the recipe book → `note_05`, grandma's recipe |
-  | 3 | you served her grandma's recipe | cries and tells you about young Lída |
-  | 4 | night 27, 6 or more notes found | tells you about Jindřich and Rn 333 |
-- **Reward:** the recipe, a key to the mystery, and in the finale "Věra brought her friends" (+3 guests per night).
+  | 3 | you served her grandma's recipe | cries and tells you about young Lida |
+  | 4 | night 27, 6 or more notes found | tells you about Jindra and Rn 333 |
+- **Reward:** the recipe, a key to the mystery, and in the finale "Vera brought her friends" (+3 guests per night).
 
 ### 3.5 Filip — the student
 - `filip`, Filip Kadlec, 22, technical college. 23:30–05:00, sits by the power socket with his laptop.

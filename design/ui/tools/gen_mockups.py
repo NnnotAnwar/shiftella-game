@@ -500,7 +500,7 @@ def cafe_map(doc, mode='night', build=False):
     o.append(R(744, 70, 112, 22, '#140F22', rx=5))
     neon_col = '#A5B4FC' if mode != 'blackout' else '#4A3550'
     filt = ' filter="url(#glow)"' if mode != 'blackout' else ''
-    o.append(f'<text x="800" y="86.5" font-size="15" font-weight="800" class="h" fill="{neon_col}" text-anchor="middle" letter-spacing="2"{filt}>KAVÁRNA</text>')
+    o.append(f'<text x="800" y="86.5" font-size="15" font-weight="800" class="h" fill="{neon_col}" text-anchor="middle" letter-spacing="2"{filt}>NOCTURNE</text>')
     # back shelf + counter
     o.append(R(500, 112, 360, 22, '#4A2E20'))
     for i in range(16):
@@ -1133,7 +1133,7 @@ def menu_bg(d, rng):
     # neon sign
     d.add('<ellipse cx="910" cy="296" rx="200" ry="60" fill="url(#g-neon)"/>')
     d.add(R(790, 272, 240, 46, '#120E20', rx=8))
-    d.add('<text x="910" y="305" font-size="28" font-weight="800" class="h" fill="#A5B4FC" text-anchor="middle" letter-spacing="5" filter="url(#glow)">KAVÁRNA</text>')
+    d.add('<text x="910" y="305" font-size="28" font-weight="800" class="h" fill="#A5B4FC" text-anchor="middle" letter-spacing="5" filter="url(#glow)">NOCTURNE</text>')
     d.add(T(1160, 290, '22–06', 14, 'cyan', 'end', 700))
     # ground + reflections
     d.add(R(0, 520, W, 200, '#11102A'))
@@ -1153,7 +1153,7 @@ def screen_main_menu():
     d.note('Logo — a separate sprite; placeholder text here')
     d.add('<text x="64" y="152" font-size="52" font-weight="800" class="h" fill="#6366F1" opacity=".55" filter="url(#glow)">Shiftella</text>')
     d.add('<text x="64" y="152" font-size="52" font-weight="800" class="h" fill="#EEF0FF">Shiftella</text>')
-    d.add(T(66, 182, 'U Výhybky  ·  22:00–06:00', 15, 'text2', weight=500))
+    d.add(T(66, 182, 'Café Nocturne  ·  22:00–06:00', 15, 'text2', weight=500))
     items = [('continue', 'Continue', 'night 3 · 01:40'), ('book', 'Story', ''), ('cube', 'Sandbox', ''),
              ('sliders', 'Settings', ''), ('exit', 'Quit', '')]
     x, y = 56, 250
@@ -1195,8 +1195,8 @@ def screen_sandbox():
     yy = y + 82
     label(yy, 'Café name')
     d.add(R(CX, yy, 320, 32, 'bg0', rx=6, op=.7, stroke='accent', sw=1.5))
-    d.add(T(CX + 12, yy + 21, 'U Výhybky', 13, 'text'))
-    d.add(R(CX + 12 + tw('U Výhybky', 13) * .86 + 2, yy + 8, 1.5, 16, 'accent'))
+    d.add(T(CX + 12, yy + 21, 'Café Nocturne', 13, 'text'))
+    d.add(R(CX + 12 + tw('Café Nocturne', 13) * .86 + 2, yy + 8, 1.5, 16, 'accent'))
     yy += 52
     label(yy, 'Difficulty')
     for i, lbl in enumerate(('Cozy', 'Classic')):

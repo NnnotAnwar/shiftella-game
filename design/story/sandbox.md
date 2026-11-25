@@ -1,7 +1,7 @@
 # Sandbox — Shiftella
 
 > Endless nights in a random little town. There's no story here — there's **your** story, made by the people, their traits and the Night storyteller.
-> All of the sandbox was **[later]** in the plan. The MVP was one endless night in a fixed town (Mlhov) with no generation.
+> All of the sandbox was **[later]** in the plan. The MVP was one endless night at the fixed story station (Praha-Holešovice) with no generation.
 >
 > **Design notes, written before implementation.** What shipped is in `assets/data/sandbox.ron` and
 > `difficulty.ron` (see [`docs/CONTENT.md`](../../docs/CONTENT.md) §7): a seeded random town with a name
@@ -92,7 +92,7 @@ All of these are numbers in `difficulty.ron`. A menu isn't needed: a few ready-m
 
 | id | legend | when they come | what's needed | arc reward |
 |---|---|---|---|---|
-| `legend_333` | the 3:33 guest (as in Story, but without Lída) | 03:33 | their table free, the light on | coins → a collection; the clock "stops" forever (decor) |
+| `legend_333` | the 3:33 guest (as in Story, but without Lida) | 03:33 | their table free, the light on | coins → a collection; the clock "stops" forever (decor) |
 | `legend_lamplighter` | a lamplighter who lights lamps that no longer exist | 04:44 | a lamp in the window | +5 % guests in fog |
 | `legend_conductor` | the conductor of a cancelled train | only in fog | a "ticket" (a ticket punch — furniture) | the rare `odd_*` guest pool ×2 |
 | `legend_letters` | a woman who writes letters and leaves them unsent | 01:11 | a postbox (furniture) | letters → staff mood, flavour lore about the town |

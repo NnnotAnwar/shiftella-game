@@ -43,7 +43,7 @@ Event(
 |---|---|---|---|---|---|---|---|
 | `ev_rain` | Rain | The glass is beaded with drops, the holo signs blur. People come in to wait it out. | weather = rain (start of the night) | `mul(guests.rate, 1.2)` all night; `add(dirt, +)` by the entrance | 50 | S+P | **yes** |
 | `ev_downpour` | Downpour | The sky has burst. Half the station is hiding at your place. | `ev_rain` is on, 22:30–03:00 | `mul(guests.rate, 2.0)` 120 min; `mul(dirt.rate, 2.0)` 120 min | 30 | S+P | **yes** |
-| `ev_fog` | Fog from the river | Milk rises from the Šeřava. You can see the café window — and nothing else. | autumn/winter, after 01:00 | `mul(guests.rate, 0.6)`; odd-guest chance ×3 until morning | 20 | S+P | no |
+| `ev_fog` | Fog from the river | Milk rises from the Vltava. You can see the café window — and nothing else. | autumn/winter, after 01:00 | `mul(guests.rate, 0.6)`; odd-guest chance ×3 until morning | 20 | S+P | no |
 | `ev_storm` | Storm | The station lamps go out. Only your window is lit. | summer/autumn, `kind=bad` allowed | `mul(guests.rate, 1.5)`, guests stay longer (+30 min); 30 % chance of `ev_power_outage` | 10 | S+P | no |
 | `ev_first_snow` | First snow | Silence. Guests whisper, as if afraid to scare it away. | once per season, night ≥ 20 (Story: night 27) | everyone `add(need.mood, 10)`; guests `add(satisfaction, 10)` | 5 | S+P | no |
 | `ev_roof_leak` | Leaking roof | Drip. Drip. Straight into the bucket by the counter. | rain + the "roof" upgrade not bought | 1 hall tile blocked; `add(dirt, +)` every 30 min until cleaned | 15 | S+P | no |
@@ -94,7 +94,7 @@ Event(
 | `ev_phantom_horn` | A horn with no train | A long horn. The board is empty. | 02:00–04:00, fog ×2 | `light_sleeper`: `add(need.mood, 5)`; `anxious`: `add(need.mood, −5)`; everyone else shrugs | 10 | S+P | no |
 | `ev_station_cat` | The station cat | Ginger, cheeky, with a torn ear. Eyeing the sour cream. | autumn/winter | feed it three nights in a row (−10 Kč/night) → the cat stays: everyone `add(need.mood, 3)`/night, ×2 for `kind` / the porter | 10 | S+P | no |
 | `ev_forgotten_item` | A forgotten item | On a chair — an old umbrella with a monogram. | after a guest leaves | the item goes to "lost and found"; if the owner comes back the next night and it's intact — reputation +3 | 12 | S+P | no |
-| `ev_strange_order` | A strange order | "I'll have what Lída used to drink." | Story: night ≥ 8; Sandbox: "what the previous owner drank" | the guest waits for grandma's recipe or a hint from the notes; guess right — reputation +5 and a note found (if not yet found) | 6 | S+P | no |
+| `ev_strange_order` | A strange order | "I'll have what Lida used to drink." | Story: night ≥ 8; Sandbox: "what the previous owner drank" | the guest waits for grandma's recipe or a hint from the notes; guess right — reputation +5 and a note found (if not yet found) | 6 | S+P | no |
 | `ev_lonely_night` | An empty night | Nobody. Just the rain, the hum of the fridge and the radio. | after 2 hard nights in a row (the storyteller's safety valve) | `mul(guests.rate, 0.3)`; staff `rel(all, +3)/hour`; handy for a deep clean | auto | S+P | no |
 
 ---

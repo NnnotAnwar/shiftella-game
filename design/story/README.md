@@ -7,21 +7,22 @@
 > marked *(historical)*.
 
 A cozy management game in a smooth vector "violet dollhouse" style. The year is **2039**. The night
-café «U Výhybky» stands by the railway station of the small fictional Czech town **Mlhov nad Šeřavou**
-and is open 22:00–06:00. The staff live their own lives: each person has skills, needs, traits and
+café **Café Nocturne** ("kavárna u nádraží") stands next to **Praha-Holešovice** station in Prague and is
+open 22:00–06:00. *(Earlier drafts used the fictional town "Mlhov nad Šeřavou" and the café «U Výhybky»;
+renamed on 2026-11-26, together with simpler names: Lida, Jindra, Vera.)* The staff live their own lives: each person has skills, needs, traits and
 relationships. The player never controls people directly — you write the rozpis (shift schedule) in the
 in-game **Shiftella** app, set work priorities, arrange furniture and buy supplies. Events are dealt by
 the **Night**, the game's storyteller.
 
 **Story hook:** you inherit your grandmother's café along with a 90 000 Kč debt, and you have 30 nights to
-save it. For sixty years grandma Lída kept a light burning in the window until morning. Every night at
+save it. For sixty years grandma Lida kept a light burning in the window until morning. Every night at
 exactly 3:33 a quiet guest in an old coat comes in, and an old taxi driver keeps a letter he never delivered.
 
 ## Files
 
 | file | what's inside |
 |---|---|
-| [story.md](story.md) | tone, world, grandma Lída, the 3:33 mystery, the 30 nights by act, notes, branching, the two endings |
+| [story.md](story.md) | tone, world, grandma Lida, the 3:33 mystery, the 30 nights by act, notes, branching, the two endings |
 | [characters.md](characters.md) | staff archetypes, the menu, the 7 regulars and their arcs, the Anwar cameo, odd guests |
 | [traits.md](traits.md) | base scales (needs, skills, relationships), 16 traits, an example in RON |
 | [events.md](events.md) | the event catalogue + how the Night paces things (night curve, 30-night curve, calm/chaotic) |
@@ -44,7 +45,7 @@ and in the morning we show a summary. All of this (and much more) is in the ship
 7. **Mirek the taxi driver** — the first regular (fixed time, favourite order, no arc yet). *(characters.md §3.1)*
 8. **The 3:33 guest + the `clock_333` event** — the clock stops, the guest drinks tea by the window and leaves coins. The main atmospheric hook, and cheap to build. *(characters.md §3.3)*
 9. **Night storyteller v0** — `base_rate × curve(time)`, weights, `cooldown`. Ten MVP events, starting with five: rain, downpour, concert crowd, staff sick, big tip. *(events.md)*
-10. **Lída's note no. 1** under the till + a morning summary screen (revenue, reviews, debt). Gives a sense of story from the very first night. *(story.md §6)*
+10. **Lida's note no. 1** under the till + a morning summary screen (revenue, reviews, debt). Gives a sense of story from the very first night. *(story.md §6)*
 
 ## Suggested order after the MVP *(historical)*
 
@@ -53,6 +54,6 @@ endings → the remaining notes → sandbox and generation.
 
 ## Originality
 
-All names, the town, the café, the NONSTOP 24 chain, the events and the Night storyteller were invented for
+All the characters, the café, the NONSTOP 24 chain, the events and the Night storyteller were invented for
 this game. Shiftella is related to colony sims by genre, not by borrowing: there are no other games'
 storytellers, factions, characters or texts here.

@@ -1,6 +1,6 @@
 # Playing Shiftella
 
-You inherit grandma Lída's night café «U Výhybky» by the station of Mlhov nad Šeřavou.
+You inherit grandma Lida's night café, Café Nocturne, next to Praha-Holešovice station in Prague.
 It opens at 22:00 and closes at 06:00. Keep the light in the window on, keep the regulars
 warm, pay off the debt — or let the café go, gently. Nothing here is meant to stress you.
 
@@ -45,7 +45,7 @@ Hover a guest to see a little bubble: who they are and what they're waiting for.
 say something about the night instead. Click a regular to pin the bubble — when they have
 something to tell you tonight, a **Talk** button appears.
 
-Mirek, Hana, Věra, Filip, Radek, Lori and the quiet guest of 3:33 each have a small story
+Mirek, Hana, Vera, Filip, Radek, Lori and the quiet guest of 3:33 each have a small story
 over the month. Serve them well and in time, keep their seat free, keep the place clean.
 
 ## The Shiftella app (T)

@@ -201,9 +201,9 @@ The mockup shows a blackout: darkness 80 %, candles on the tables, warning icons
 
 | Element | Position |
 |---|---|
-| Background | an illustration: the night sky, the silhouette of the little town with a tower, a passing train, the café front with its holo sign and a warm window, wet asphalt with reflections, rain. A dark gradient on the left (`ink` 85 % → 0 by x 640) keeps the text readable |
+| Background | an illustration: the night sky, the silhouette of the city with a tower, a passing train, the café front with its holo sign and a warm window, wet asphalt with reflections, rain. A dark gradient on the left (`ink` 85 % → 0 by x 640) keeps the text readable |
 | Logo | placeholder text "Shiftella" 52/Bold @ (64, baseline 152) + a soft indigo glow (shipped: 44/Bold). A final logo could be a separate sprite ≈ 440×64 |
-| Subtitle | "U Výhybky · 22:00–06:00" 15/Medium `text_dim` @ (66, 182) |
+| Subtitle | "Café Nocturne · 22:00–06:00" 15/Medium `text_dim` @ (66, 182) |
 | Menu panel | `56, 250, 300 × 236`, radius 14 · items h 40 @ y 258 + i·44: icon 20 @ x 80, text 16/SemiBold @ x 112, a hint 12 muted on the right |
 | Items | `continue` **Continue** "night 3 · 01:40" (only if there is a save) · `book` Story · `cube` Sandbox · `sliders` Settings · `exit` Quit |
 | Selected item | `indigo` 16 % + a 3×20 bar on the left + an `indigo_300` icon + `chev_r` on the right |
@@ -221,7 +221,7 @@ The background is the same menu screen, dimmed with `ink` 72 %.
 |---|---|
 | Panel | centred: `W/2 − 400, 40, 800 × 640`, radius 14 · title "Sandbox — new game" 18/Bold @ (+32, +42) · ✕ · divider y +62 |
 | Columns | labels 13/SemiBold @ x 272 (an 11 muted explanation under them) · controls @ x 460 |
-| Café name | y 122: a 320×32 field, "U Výhybky" |
+| Café name | y 122: a 320×32 field, "Café Nocturne" |
 | Difficulty | y 174: segments 132×32, step 136: **Cozy** · Classic · a description 12 `text_dim` at baseline y + 52 *(v2 had four: Cozy · Normal · Hard · Nightmare)* |
 | Night character | y 250: a 420 pt slider with 5 steps (step 105): quiet … chaotic · on the right an accent chip with the step name: "quiet", "calm", "changeable", "stormy", "chaotic" · description at baseline y + 64: "2–4 events a night, now and then a big one…" |
 | Start money | y 338: 3 segments 160×32, step 164: 10 000 · **25 000** · 50 000 Kč |

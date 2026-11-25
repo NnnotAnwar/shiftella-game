@@ -12,7 +12,7 @@
 ## 1. Tone and themes
 
 - **Tone:** cozy, but a little sad. Rain, soft holographic signs, steam over a cup, quiet music from an old radio. A touch of the uncanny — never horror: nothing is frightening, it only makes you wonder.
-- **Feeling:** "the only window with a light on". At night the town sleeps, and the café is there for those who can't sleep or mustn't.
+- **Feeling:** "the only window with a light on". At night the city sleeps, and the café is there for those who can't sleep or mustn't.
 - **Near future, never grim:** it is 2039 — autonomous night trains glide in almost silently, small delivery drones cross the wet roofs, signs are holograms. But the café is intimate and human, never cyberpunk.
 - **Themes:**
   - **Waiting.** Everyone is waiting for something: a train, the end of a shift, an answer, the morning.
@@ -26,34 +26,38 @@
 
 ## 2. The world
 
-### The town — Mlhov nad Šeřavou
-- A fictional little town in Czechia, ~9 000 inhabitants. The name comes from *mlha* (fog); the river Šeřava from *šero* (dusk).
-- At night fog lies over the river, so the café window can be seen from far away.
-- Once: the glassworks «Sklárna Mlhov» ran three shifts and closed in 2009. The town's night life nearly disappeared with it.
-- Now: a district hospital (night shifts), a branch of a technical college (students), a culture house (concerts on Fridays), a taxi rank by the station, a highway nearby, a drone delivery depot.
+*(Renamed on 2026-11-26: earlier drafts set the game in the fictional small town "Mlhov nad Šeřavou", with the
+café «U Výhybky», grandma "Lída", her fiancé "Jindřich" and "Věra". The ideas stayed; the names moved to Prague and
+lost their diacritics.)*
 
-### The station — «Mlhov»
-- A small junction station: two lines, local trains plus a couple of night expresses — by 2039 mostly autonomous.
-- The station building dates from 1912 and is half empty. The ticket office is open only during the day. At night there is a single dispatcher left — and soon not even him.
-- The departure board sometimes "blinks". On the old timetable on the wall there is a train **Rn 333, arriving 3:33** — officially cancelled in 1979.
-- Easter egg: the stations on the line are named after Shiftella release codenames — Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant … and then Mlhov.
+### The district — Holešovice, Prague
+- An old industrial quarter of Prague on the bend of the Vltava, with warehouses turned into studios, tram lines and late-night workers.
+- At night fog rises from the river, and the café window can be seen from far down the street.
+- Once: factories and warehouses ran night shifts, and the buffet by the station fed them. As they closed, the district's night life thinned out.
+- Now: hospitals (night shifts), students, concert halls and clubs, a taxi rank by the station, a drone delivery depot — and plenty of people who can't sleep.
 
-### The café — «U Výhybky» ("At the Switch")
-- It occupies the former station buffet in the left wing of the building. A 16×16-tile plan: a hall with 6–8 tables, a bar counter, a small kitchen, a storeroom, a toilet, a back yard.
+### The station — Praha-Holešovice
+- A busy station in the daytime, quiet at night: local trains plus a couple of night expresses — by 2039 mostly autonomous.
+- At night there is a single dispatcher left — and soon not even him.
+- The departure board sometimes "blinks". On the old timetable on the café wall there is a train **Rn 333, arriving 3:33** — officially cancelled in 1979.
+- Easter egg: the stations on the line are named after Shiftella release codenames — Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant … and then Praha-Holešovice.
+
+### The café — «Café Nocturne» (sign subtitle: "kavárna u nádraží", "the café by the station")
+- A small night café next to the station. A 16×16-tile plan: a hall with 6–8 tables, a bar counter, a small kitchen, a storeroom, a toilet, a back yard.
 - **History:**
-  - 1968 — «Bufet ČSD» opens for the night shifts of the glassworks and for passengers.
-  - 1979 — young Ludmila "Lída" Kratochvílová (grandma) takes over the buffet.
-  - 1991 — Lída buys the business and renames it «U Výhybky».
-  - 2009 — the glassworks closes and the café slowly grows poorer.
-  - 2039, autumn — Lída dies. She leaves debts, a lease that is running out, and the keys — to the player.
-- **Lída's rule:** the café is open **only at night, 22:00–06:00**, and the light in the window stays on until six. Why — that is the central mystery.
+  - 1968 — a station buffet opens for night-shift workers and passengers.
+  - 1979 — young Ludmila "Lida" Kratochvilova (grandma) takes over the buffet.
+  - 1991 — Lida buys the business and renames it «Café Nocturne».
+  - 2000s — the factories close one by one and the café slowly grows poorer.
+  - 2039, autumn — Lida dies. She leaves debts, a lease that is running out, and the keys — to the player.
+- **Lida's rule:** the café is open **only at night, 22:00–06:00**, and the light in the window stays on until six. Why — that is the central mystery.
 
 ---
 
-## 3. Grandma — Ludmila "Lída" Kratochvílová (1956–2039)
+## 3. Grandma — Ludmila "Lida" Kratochvilova (1956–2039)
 
 - Short, sharp with words, generous with deeds. She remembered what everyone drank but mixed up names.
-- For sixty years she kept the light in the window. Friends called it stubbornness; the town called it a habit.
+- For sixty years she kept the light in the window. Friends called it stubbornness; the neighbourhood called it a habit.
 - She left **10 notes** (see §6) — on napkins, on the back of bills, in the recipe book. She writes them "to whoever keeps the light".
 - The player is her grandchild (player lines are gender-neutral in every language). You were last here as a child.
 
@@ -61,14 +65,14 @@
 
 ## 4. The central mystery
 
-**The question:** why did Lída keep the café open at night for sixty years — and who is the quiet guest who comes **at exactly 3:33**?
+**The question:** why did Lida keep the café open at night for sixty years — and who is the quiet guest who comes **at exactly 3:33**?
 
 **The truth (revealed gradually; the player is never told it outright):**
-1. In 1979 Lída's fiancé, **Jindřich**, left to work abroad on the night train Rn 333. They had quarrelled the day before.
-2. That night Lída wrote him a letter: *"I'll wait. The light in the window will be on."* She asked a young taxi driver, **Mirek**, to take it to the platform.
-3. Mirek was in love with Lída and **never delivered the letter**. Jindřich left believing nobody was waiting for him, and he never came back. No letters came from him either.
-4. Lída kept waiting — and kept the light on. Mirek has carried the letter all his life and said nothing. It is his secret.
-5. The 3:33 guest wears an old coat, and in his pocket is a ticket for Rn 333 from 1979. Is it Jindřich? His echo? Or just a strange old man? **The game doesn't say.** One thing is clear: he is still waiting for an answer.
+1. In 1979 Lida's fiancé, **Jindra**, left to work abroad on the night train Rn 333. They had quarrelled the day before.
+2. That night Lida wrote him a letter: *"I'll wait. The light in the window will be on."* She asked a young taxi driver, **Mirek**, to take it to the platform.
+3. Mirek was in love with Lida and **never delivered the letter**. Jindra left believing nobody was waiting for him, and he never came back. No letters came from him either.
+4. Lida kept waiting — and kept the light on. Mirek has carried the letter all his life and said nothing. It is his secret.
+5. The 3:33 guest wears an old coat, and in his pocket is a ticket for Rn 333 from 1979. Is it Jindra? His echo? Or just a strange old man? **The game doesn't say.** One thing is clear: he is still waiting for an answer.
 
 **Resolving it in play:** if the letter reaches the guest at 3:33 on night 30, the story closes — the optional **"Answer"** scene (§8), played inside either ending.
 
@@ -86,18 +90,18 @@ In the shipped data these are vars and counters declared in `story.ron` (see `do
 | `missed_payments` | how many payments were missed | on Classic, 2 → the «Last Train» ending early; on Cozy, a mild story consequence |
 | reputation | the café's reputation | 0–100, starts at 25 |
 | `offer` | the franchise offer | `none` / `pending` / `accepted` / `rejected` |
-| notes found | Lída's notes found | 0–10 |
+| notes found | Lida's notes found | 0–10 |
 | `arc.<regular>` | stage of a regular's personal arc | 0..N (see characters.md) |
 | `letter` | the letter's fate | `hidden` → `confessed` → `with_player` / `with_mirek` / `burned` / `persuaded` → `delivered` / `delivered_by_mirek` |
 
 ### Act I — "Keys" (nights 1–7) — learning the ropes **[MVP: nights 1–3 as the tutorial]**
 | night | key moment |
 |---|---|
-| 1 | You arrive on the last train at 21:50. Dust, the key under the mat. The first guest is Mirek the taxi driver: "Black, like Lída made it." You learn to take an order, make coffee, take money. |
+| 1 | You arrive on the last train at 21:50. Dust, the key under the mat. The first guest is Mirek the taxi driver: "Black, like Lida made it." You learn to take an order, make coffee, take money. |
 | 2 | You hire your first colleague (a choice of candidates). You learn the rozpis in the Shiftella app and work priorities. Under the till lies **note no. 1**. |
 | 3 | At 2:10 Hana the nurse comes in for the first time. The first random event is always gentle (rain). |
 | 4 | **The first 3:33.** The clock on the wall stops for a minute. A guest in a grey coat comes in, orders tea with lemon and leaves without a word. Old Czechoslovak coins are left on the table. |
-| 5 | Mrs Věra arrives, Lída's old friend and rival. She is cold: "Lída wouldn't have done it like that." |
+| 5 | Mrs Vera arrives, Lida's old friend and rival. She is cold: "Lida wouldn't have done it like that." |
 | 6 | A scripted crowd after a concert — the first stress test. Filip the student appears. |
 | 7 | **Payment no. 1.** During the day a letter comes from the landlord: the lease ends after night 30 and will be renewed only if the debt is cleared. |
 
@@ -110,7 +114,7 @@ In the shipped data these are vars and counters declared in `story.ron` (see `do
 | 11 | Lori plays on the platform in the rain. Choice: invite her in or not (starts her arc). |
 | 12 | Hana falls asleep at a table. Choice: wake her / cover her with a blanket and let her be / set up a "quiet corner". |
 | 13 | A scripted health inspection. |
-| 14 | **Payment no. 2.** If Věra likes you enough, she brings Lída's recipe book (**note no. 5** + a new recipe). |
+| 14 | **Payment no. 2.** If Vera likes you enough, she brings Lida's recipe book (**note no. 5** + a new recipe). |
 | 15 | The 3:33 guest speaks for the first time: "Is she still waiting?" The player's answer (yes / I don't know / she's gone) is stored. |
 | 16 | A quiet night (guaranteed). Time for staff relationships: a romance or a quarrel may happen. |
 
@@ -123,7 +127,7 @@ In the shipped data these are vars and counters declared in `story.ron` (see `do
 | 20 | **Mirek nearly hits a pedestrian** by the station. Choice: take his keys / call his daughter / say nothing. If his trust is high, he confesses about the letter (`letter = confessed`). |
 | 21 | **Payment no. 3.** |
 | 22 | **The franchise decision.** Accept → `accepted`: the debt is paid off, but the café becomes a NONSTOP 24 — this leads to the «Last Train» ending. Decline → `rejected`. |
-| 23 | Radek's last shift. He gives you the old timetable with the line "Rn 333 Mlhov 3:33" (**note no. 8** tucked inside). |
+| 23 | Radek's last shift. He gives you the old timetable with the line "Rn 333 Praha-Holešovice 3:33" (**note no. 8** tucked inside). |
 | 24 | If Lori was invited in — her evening at the microphone: reputation +10, a full house. The quiet guest with the laptop comes back for his second and last visit (the Anwar cameo). |
 
 ### Act IV — "The Last Train" (nights 25–30) — the resolution **[later]**
@@ -131,14 +135,14 @@ In the shipped data these are vars and counters declared in `story.ron` (see `do
 |---|---|
 | 25 | A storm. The station lights go out; only the café window glows. Everyone who can't sleep comes in. |
 | 26 | Hana decides: a job in Dresden, or stay. What the player did in her arc matters. |
-| 27 | First snow. Věra tells you about Jindřich — if you have found enough notes. |
+| 27 | First snow. Vera tells you about Jindra — if you have found enough notes. |
 | 28 | **Payment no. 4.** Mirek: "If I give him the letter myself — will he see me?" The letter decision (§7). |
 | 29 | A farewell night for the arcs: every regular comes to close their story. |
 | 30 | **The final night.** The final 30 000 Kč payment at 06:00. At 3:33 the Rn 333 "arrives" at the empty platform — if the light in the window is on. The letter scene. Then the ending. |
 
 ---
 
-## 6. Lída's notes (a collection) **[MVP: 1 note; the rest later]**
+## 6. Lida's notes (a collection) **[MVP: 1 note; the rest later]**
 
 The shipped wording is in `assets/i18n/src/notes.tr`; this table gives the meaning and where to find them.
 
@@ -148,7 +152,7 @@ The shipped wording is in `assets/i18n/src/notes.tr`; this table gives the meani
 | `note_02` | clean the storeroom completely | a "who drinks what" list — reveals the favourite orders of the regulars |
 | `note_03` | the fuse box, during the power cut | "When the lights go out, people tell the truth. Keep the candles dry." |
 | `note_04` | Hana's arc, stage 2 or more | "Those who heal get served without queueing." |
-| `note_05` | the recipe book, from Věra (night 14) | the recipe for grandma's kulajda + "Věra knows more than she says" |
+| `note_05` | the recipe book, from Vera (night 14) | the recipe for grandma's kulajda + "Vera knows more than she says" |
 | `note_06` | collect the 3:33 guest's coins | "He always pays with coins that no longer exist. I don't take his money." |
 | `note_07` | Mirek's arc, stage 2 or more | "M. looks at me as if he were guilty. I forgave him long ago — whatever it is." |
 | `note_08` | Radek's timetable (night 23) | "3:33. I reached the platform two minutes late. All my life, two minutes." |
@@ -180,7 +184,7 @@ There are **exactly two endings**. They are checked in order at the end of night
 
 | id | title | conditions | what it is |
 |---|---|---|---|
-| `last_train` | **«Last Train»** | the franchise was accepted, **or** the café failed its payments on Classic, **or** reputation is below 20 with no regular's arc ending well | U Výhybky closes — or lives on under someone else's sign. A bittersweet farewell. Variants: **sold** (NONSTOP 24 — "The window is always lit, and nobody waits in it"; the 3:33 guest never returns), **farewell** (the regulars help you pack and talk you into opening something of your own; you leave on the morning train with the recipe book), **closed** (a quiet goodbye). |
+| `last_train` | **«Last Train»** | the franchise was accepted, **or** the café failed its payments on Classic, **or** reputation is below 20 with no regular's arc ending well | Café Nocturne closes — or lives on under someone else's sign. A bittersweet farewell. Variants: **sold** (NONSTOP 24 — "The window is always lit, and nobody waits in it"; the 3:33 guest never returns), **farewell** (the regulars help you pack and talk you into opening something of your own; you leave on the morning train with the recipe book), **closed** (a quiet goodbye). |
 | `light` | **«Light in the Window»** | everything else (the fallback) | The café is saved and stays itself. Morning: you switch off the light at exactly 6:00 — for the first time as its owner. Variants: **full** (a full café at six in the morning; the regulars are your new family) and **quiet** (the café lives, but is empty: "The light is on. For now, there's nobody to wait for."). |
 
 **The "Answer" scene** is **not a third ending**. It is an optional extra scene that either ending plays when it holds: the letter was delivered at 3:33 on night 30, at least 8 notes were found, and the franchise offer was not accepted. The guest reads the letter and smiles: "So she waited." He walks out to the platform, and for a second the board shows "Rn 333 — ODJEL" (departed). If Mirek handed over the letter himself, he sleeps peacefully for the first time in sixty years. The ending screen shows it as an "Epilogue unlocked: The Answer" badge.
