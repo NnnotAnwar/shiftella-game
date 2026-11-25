@@ -88,6 +88,8 @@ pub enum Condition {
     TrustAtLeast(String, f32),
     /// The window light (lamp at the front window) is on.
     WindowLightOn,
+    /// A train arrives at Mlhov within ±N minutes of now.
+    TrainNear(u32),
 
     // --- café & crew ----------------------------------------------------------------------
     /// At least one placed furniture piece with this tag.
@@ -392,6 +394,7 @@ impl Condition {
             | GuestsAtLeast(_)
             | DirtAtLeast(_)
             | HardNightsInRow(_)
+            | TrainNear(_)
             | Chance(_) => {}
         }
     }

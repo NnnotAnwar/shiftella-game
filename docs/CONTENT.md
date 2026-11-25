@@ -89,7 +89,7 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | events.ron | `Vec<EventDef>` | 41 events |
 | narrator.ron | `NarratorDef` | night curve, witching hour, story act pacing |
 | story.ron | `StoryDef` | 30 nights, payments, 10 notes, **2 endings** + the optional "Answer" extra, declared flags/vars/counters/items |
-| cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 39 cutscenes (34 story + 5 cameo), 7 cast members, named map spots |
+| cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 36 cutscenes (34 story + 2 Anwar talks), 7 cast members, named map spots |
 | shiftella.ron | `ShiftellaApp` | announcements, checklists, bot templates, digest / payroll / handover lines |
 | trains.ron | `TrainLine` | stations Adamov → … → Mlhov nad Šeřavou, 5 night trains incl. `Rn 333` |
 | difficulty.ron | `Vec<DifficultyDef>` | `cozy` (default), `classic` |
@@ -135,7 +135,7 @@ Economy: `MoneyAtLeast/Below`, `ReputationAtLeast/Below` (0–100), `AllPayments
 Story: `Flag`, `NotFlag`, `VarIs(var, value)`, `CounterAtLeast/Below` (missing = 0), `NotesFoundAtLeast(n)`,
 `NoteFound`, `HasItem`, `ArcAtLeast(reg, n)`, `ArcsGoodAtLeast(n)`, `RegularPresent`, `ServedFastStreak{regular, minutes, visits}`,
 `SeatFreeStreak{regular, visits}`, `CleanStreak{regular, clean, visits}`, `ServedItem{regular, item}`, `TrustAtLeast(reg, n)`,
-`WindowLightOn` (the window lamp is on). Café/crew: `HasFurnitureTag`, `FurnitureTagCount`, `HasFurniture(id)`, `MenuHas`,
+`WindowLightOn` (the window lamp is on), `TrainNear(min)`. Café/crew: `HasFurnitureTag`, `FurnitureTagCount`, `HasFurniture(id)`, `MenuHas`,
 `StaffWithTrait` / `StaffArchetype` (on shift), `StaffOnShiftAtLeast`, `StaffMoodBelow`, `StaffInspired{mood, skill}`,
 `RelationshipBelow/Above` (some on-shift pair — that pair is the event's "pair"), `QueueAtLeast`, `GuestsAtLeast`,
 `DirtAtLeast(0–1)`, `WearAtLeast(tag, 0–1)`, `Institution` (sandbox), `EventActive`, `EventHappenedTonight`,
@@ -181,7 +181,7 @@ Control: `Maybe{chance, effects}`, `Later{minutes, effects}` (dropped at night e
 
 `CutsceneDef { id, trigger, conditions, skippable, repeat, steps }` — plays once per save unless `repeat`.
 Triggers: `NightStart(n)` (before the night), `NightEnd(n)` (after 06:00, before the summary), `At{night, time}`,
-`FlagSet(flag)`, `ArcStage{regular, stage}`, `Ending(id)`, `Manual` (only via `Call` / `StartCutscene`).
+`FlagSet(flag)`, `ArcStage{regular, stage}`, `Ending(id)`, `Talk{regular, night}` (see §9), `Manual` (only via `Call` / `StartCutscene`).
 
 Steps run in order; dialogue steps wait for a click, `Camera`/`Music`/`Sfx`/`Letterbox` don't block:
 `Narration{text_key}` (no speaker) · `Line{speaker, expression, text_key}` (portrait + name; `Expression` Neutral/Smile/Sad/Surprised/Thinking/Laugh/Tired) ·
@@ -212,10 +212,19 @@ matching `PaymentDue`; payments sum to the debt; notes numbered 1..10; exactly 2
 cutscene has trigger `Ending(id)`; cutscene speakers/actors/spots/music/sfx; every required i18n key in all four
 languages; placeholder parity.
 
-## 9. Cameo: Anwar
+## 9. Talking to regulars & the Anwar cameo
 
-`guest_anwar` ("Anwar", render preset `anwar`) is a loving reference to the developer of the real Shiftella app.
-**Flavour only:** one arc stage (ambient lines), no flags, effects, choices or gating, not in the endings.
-Story: nights 3, 9, 16, 24, 29 (23:00–02:00, socket table, oat flat white / medovník, pays like a normal guest) with five tiny
-choice-free cutscenes `anwar_sticker`, `anwar_codenames`, `anwar_bugfix`, `anwar_game`, `anwar_cake` (`At` triggers).
-Sandbox: rare drop-in (`sandbox_chance: 0.05`). Credits line: `ui.ending.credits_thanks`. Texts: `assets/i18n/src/cameo_anwar.tr`.
+* **Ambient bubble (hover / click):** `RegularDef.ambient_lines: Vec<AmbientLine { key, when: Vec<Condition> }>`.
+  Pick randomly among lines whose non-empty `when` holds; if none, among lines with empty `when` (fallbacks).
+  Shown as a small speech bubble, no cutscene. (Arc-stage `lines` remain the generic per-stage bubbles.)
+* **Talk:** `CutsceneTrigger::Talk { regular, night: Option<u32> }`. Offer a "Talk" action on the regular while an
+  unplayed talk cutscene matches (`night: None` = any night); choosing it plays the cutscene. Usable for any regular.
+* **Visit schedule:** `story_nights` / `sandbox_nights` (non-empty → only on those nights; `sandbox_visit_rule(n)`),
+  `sandbox_chance` (random per-night roll when `sandbox_nights` is empty; 0 = never), `look_preset` (render preset id).
+* Condition `TrainNear(minutes)`: a train arrives within ±N minutes.
+
+`guest_anwar` ("Anwar", render preset `anwar`) is a quiet guest with a laptop — identity deliberately understated.
+Exactly two visits per game: nights 9 and 24 (story and sandbox), 23:00–02:00, socket table, oat flat white, pays, leaves.
+8 ambient lines (rain, fog, train, midnight, late, busy, quiet, coffee fallback) and talk cutscenes `anwar_talk_9`,
+`anwar_talk_24` (no choices, flags or effects; not in the endings). Credits line: `ui.ending.credits_thanks`.
+Texts: `assets/i18n/src/cameo_anwar.tr`.
