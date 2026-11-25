@@ -138,8 +138,9 @@ fn ticker(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let s = ui.screen();
     let w = (s.w - 2.0 * 364.0).clamp(220.0, 460.0);
     let er = anchored(s, Anchor::Top, vec2(w, 32.0), 12.0);
-    let resp = ui.interact(ui.id("ticker"), er);
+    // glass before interact: a region declared after `interact` blocks it next frame
     ui.glass(er, &Glass::hud().radius(8.0));
+    let resp = ui.interact(ui.id("ticker"), er);
     if resp.hovered {
         fill_rrect(er, 8.0, with_a(t.indigo, 0.08));
     }
