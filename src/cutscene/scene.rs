@@ -213,9 +213,34 @@ impl CafeScene {
     pub fn camera(&self, center: Vec2, zoom: f32) -> Camera2D {
         let screen = Rect::new(0.0, 0.0, screen_width(), screen_height());
         let mut cam = WorldCamera::fit(OVERVIEW_SIZE, screen);
-        cam.center = center;
         cam.zoom *= zoom;
+        // keep the view on the stage (no black void beside the café)
+        let half = vec2(screen.w, screen.h) / cam.zoom / 2.0;
+        let b = self.bounds();
+        let clamp = |c: f32, lo: f32, hi: f32, h: f32| {
+            if hi - lo <= 2.0 * h {
+                (lo + hi) / 2.0
+            } else {
+                c.clamp(lo + h, hi - h)
+            }
+        };
+        cam.center = vec2(
+            clamp(center.x, b.x, b.x + b.w, half.x),
+            clamp(center.y, b.y, b.y + b.h, half.y),
+        );
         cam.to_camera2d()
+    }
+
+    /// World area worth looking at: the café and the street strip above it.
+    pub fn bounds(&self) -> Rect {
+        let ms = self.map.size_px();
+        Rect::new(
+            -0.5 * TILE,
+            self.street.y + 1.5 * TILE,
+            ms.x + TILE,
+            // extra floor below the café: room under the dialogue box when framing low actors
+            ms.y + 3.5 * TILE - (self.street.y + 1.5 * TILE),
+        )
     }
 
     fn build_statics(&mut self) {

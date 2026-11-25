@@ -125,11 +125,17 @@ pub fn letter_card(
     let w = (s.w - 48.0).min(560.0);
     let body = TextStyle::new(17.0, Weight::Medium, INK).line_height(1.62);
     let inner_w = w - 20.0 - 64.0;
-    let wrapped: Vec<Vec<String>> = lines
+    let mut wrapped: Vec<Vec<String>> = lines
         .iter()
         .map(|l| ui.fonts.wrap(l, inner_w, &body))
         .collect();
-    let n_rows: usize = wrapped.iter().map(|w| w.len()).sum::<usize>() + wrapped.len();
+    // a long letter scrolls: the oldest paragraphs leave the card
+    let max_rows = ((s.h - 150.0 - 96.0) / body.line_h()).floor().max(3.0) as usize;
+    let rows = |w: &[Vec<String>]| w.iter().map(|p| p.len()).sum::<usize>() + w.len();
+    while wrapped.len() > 1 && rows(&wrapped) > max_rows {
+        wrapped.remove(0);
+    }
+    let n_rows = rows(&wrapped);
     let h = (96.0 + n_rows.max(4) as f32 * body.line_h()).min(s.h - 150.0);
     let r = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0 - 34.0, w, h);
     let paper = paper_card(ui, r, appear, 333);
@@ -177,6 +183,10 @@ pub fn letter_card(
         }
         row += 1; // paragraph gap
     }
+    // grandma's brass key, tucked under the letter once she mentions it
+    if lines.len() >= 2 {
+        draw_key(vec2(paper.x + 44.0, paper.bottom() - 26.0), t);
+    }
     // a pen nib blink at the end while writing
     let pulse = 0.5 + 0.5 * (t * 4.0).sin();
     fill_circle(
@@ -186,6 +196,25 @@ pub fn letter_card(
     );
     draw::pop_alpha();
     r
+}
+
+/// A small brass key (the café's) lying at an angle.
+fn draw_key(p: Vec2, t: f32) {
+    let brass = Color::new(0.85, 0.64, 0.3, 1.0);
+    let dark = Color::new(0.55, 0.38, 0.16, 1.0);
+    let dir = vec2(0.94, -0.34);
+    let n = vec2(-dir.y, dir.x);
+    crate::ui::draw::fill_circle(p + vec2(2.0, 3.0), 9.0, Color::new(0.2, 0.12, 0.05, 0.18));
+    crate::ui::draw::fill_circle(p, 9.0, brass);
+    crate::ui::draw::fill_circle(p, 4.0, PAPER_TOP);
+    let a = p + dir * 8.0;
+    let b = p + dir * 38.0;
+    crate::ui::draw::line(a, b, 3.4, brass);
+    crate::ui::draw::line(b - dir * 3.0, b - dir * 3.0 + n * 7.0, 3.0, brass);
+    crate::ui::draw::line(b - dir * 10.0, b - dir * 10.0 + n * 5.0, 3.0, brass);
+    crate::ui::draw::line(a, b, 1.0, dark);
+    let glint = 0.5 + 0.5 * (t * 2.0).sin();
+    crate::ui::draw::fill_circle(p + vec2(-4.0, -4.0), 1.6, with_a(WHITE, 0.5 * glint));
 }
 
 /// One of Lída's notes (`note.<id>.text`), with where it was found and its number.

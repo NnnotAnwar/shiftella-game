@@ -255,6 +255,12 @@ impl CutscenePlayer {
         self.dialogue.chars_per_sec = chars_per_sec;
     }
 
+    /// Applies the player's settings (typewriter speed, auto-advance).
+    pub fn apply_settings(&mut self, s: &crate::settings::Settings) {
+        self.dialogue.chars_per_sec = s.text_speed.chars_per_sec();
+        self.auto_advance = s.auto_advance;
+    }
+
     /// Starts (or restarts) a scene. The stage is reset: lights on, no actors.
     pub fn start(&mut self, def: &CutsceneDef) {
         self.id = def.id.clone();
@@ -442,7 +448,7 @@ impl CutscenePlayer {
             .follow
             .as_ref()
             .and_then(|id| self.actors.iter().find(|a| &a.id == id))
-            .map(|a| a.pos - vec2(0.0, 0.4 * TILE));
+            .map(|a| a.pos - vec2(0.0, 0.4 * TILE) + vec2(0.0, 2.4 * TILE / self.cam.to_zoom));
         if let Some(p) = follow_pos {
             self.cam.to_center = p;
         }
@@ -670,6 +676,11 @@ impl CutscenePlayer {
             },
         };
         let zoom = zoom.clamp(0.4, 4.0);
+        // frame people/spots in the upper part of the view: the dialogue box covers the bottom
+        let center = match focus {
+            Focus::Overview => center,
+            _ => center + vec2(0.0, 2.4 * TILE / zoom),
+        };
         let dist = self.cam.center.distance(center) / TILE;
         let dz = (zoom / self.cam.zoom).ln().abs();
         self.cam.from = (self.cam.center, self.cam.zoom);
@@ -1162,10 +1173,16 @@ impl CutscenePlayer {
                 let sub = ui.theme.body().color(ui.theme.text_dim);
                 let x = 64.0;
                 let y = screen.h * 0.42;
-                crate::ui::draw::glow_circle(
-                    vec2(x + 120.0, y),
-                    300.0,
-                    Color::new(0.03, 0.02, 0.08, 0.75),
+                let shade = Rect::new(0.0, 0.0, 560.0, screen.h);
+                let ink = ui.theme.canvas[0];
+                crate::ui::draw::fill_rrect(
+                    shade,
+                    0.0,
+                    crate::ui::Paint::horizontal(
+                        shade,
+                        crate::ui::draw::with_a(ink, 0.85 * self.card_appear),
+                        crate::ui::draw::with_a(ink, 0.0),
+                    ),
                 );
                 ui.fonts
                     .draw(loc.tr("cutsceneui.phone.caption"), x, y, &cap);
