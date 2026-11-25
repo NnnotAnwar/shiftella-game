@@ -340,6 +340,20 @@ impl CutscenePlayer {
     pub fn is_playing(&self) -> bool {
         self.playing
     }
+    /// Dialogue, narration, a choice, a note, the letter or the phone message is on screen
+    /// (the music ducks under it).
+    pub fn text_on_screen(&self) -> bool {
+        self.playing
+            && matches!(
+                self.active,
+                Some(
+                    Active::Text { .. }
+                        | Active::Choice { .. }
+                        | Active::Note { .. }
+                        | Active::Phone { .. }
+                )
+            )
+    }
     pub fn current_id(&self) -> &str {
         &self.id
     }
@@ -1505,6 +1519,44 @@ mod tests {
             p.drain_audio_requests()
                 .contains(&AudioRequest::Music { track: None })
         );
+    }
+
+    #[test]
+    fn overlays_never_blink_between_frames() {
+        // the letter card used to oscillate 0 → 0.04 → 0 every frame (signum(0.0) == 1.0)
+        let (mut p, i18n, content) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        p.start(content.cutscene("opening").expect("opening exists"));
+        let mut prev = p.letter_appear;
+        let mut was_open = p.letter.is_some();
+        let dt = 1.0 / 60.0;
+        for frame in 0..60 * 120 {
+            p.auto_advance = true;
+            p.step(&loc, dt, StepInput::default());
+            let open = p.letter.is_some();
+            if open == was_open {
+                // while the letter state holds, the card only moves one way
+                if open {
+                    assert!(
+                        p.letter_appear >= prev,
+                        "frame {frame}: card faded while open"
+                    );
+                } else {
+                    assert!(
+                        p.letter_appear <= prev,
+                        "frame {frame}: card flashed while closed"
+                    );
+                }
+            }
+            if !open && !was_open {
+                assert!(p.letter_appear == 0.0 || p.letter_appear < prev);
+            }
+            prev = p.letter_appear;
+            was_open = open;
+            if !p.is_playing() {
+                break;
+            }
+        }
     }
 
     #[test]

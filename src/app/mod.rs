@@ -558,7 +558,7 @@ pub async fn run() {
                     store: &app.store,
                 };
                 g.frame(&mut app.ui, &mut cx, dt);
-                ducked = g.cutscene_playing();
+                ducked = g.dialogue_on_screen();
                 app.ui.end_frame();
                 g.hotkeys(&mut app.ui, &mut cx);
                 if let Some(e) = g.exit() {

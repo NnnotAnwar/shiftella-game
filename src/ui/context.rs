@@ -205,6 +205,10 @@ impl Ui {
     pub fn dt(&self) -> f32 {
         self.dt
     }
+    /// Frames since the Ui was created (detects "not drawn last frame").
+    pub fn frame_count(&self) -> u64 {
+        self.frame
+    }
     /// Converts a UI-unit point to window logical points (what macroquad's default camera uses).
     pub fn to_screen_points(&self, p: Vec2) -> Vec2 {
         p * self.user_scale

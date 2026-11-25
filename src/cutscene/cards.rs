@@ -13,8 +13,10 @@ const PAPER_TOP: Color = Color::new(0.976, 0.937, 0.871, 1.0);
 const PAPER_BOTTOM: Color = Color::new(0.925, 0.871, 0.792, 1.0);
 const INK: Color = Color::new(0.17, 0.14, 0.38, 1.0);
 
-/// Draws text glyph by glyph with a gentle hand-written wobble (baseline, slant, size).
-/// Returns the width. `visible` limits the number of drawn characters.
+/// One line of grandma's writing: calm, static ink (no per-glyph wobble — it must read
+/// easily in every language). A line being "written" fades in as a whole, in step with the
+/// typewriter count `visible`; `seed` only varies the ink a touch per line.
+/// Returns the width.
 pub fn draw_handwritten(
     ui: &Ui,
     text: &str,
@@ -24,38 +26,21 @@ pub fn draw_handwritten(
     seed: u32,
     visible: usize,
 ) -> f32 {
-    let font = ui.fonts.face(style.weight);
-    let mut cx = x;
-    let mut buf = [0u8; 4];
-    for (i, c) in text.chars().enumerate() {
-        let adv = ui.fonts.advance(c, style);
-        if i >= visible {
-            break;
-        }
-        if c != ' ' {
-            let h = hash(seed.wrapping_add(i as u32 * 7919));
-            let wob = (h & 0xff) as f32 / 255.0 - 0.5;
-            let wob2 = ((h >> 8) & 0xff) as f32 / 255.0 - 0.5;
-            let size = style.size * (1.0 + wob2 * 0.08);
-            let fs = (size / draw::px()).round().max(1.0);
-            let k = size / fs;
-            draw_text_ex(
-                c.encode_utf8(&mut buf),
-                cx,
-                y + wob * 1.6 + (i as f32 * 0.37).sin() * 0.7,
-                TextParams {
-                    font: Some(font),
-                    font_size: fs as u16,
-                    font_scale: k,
-                    rotation: -0.07 + wob * 0.05,
-                    color: draw::faded(style.color),
-                    ..Default::default()
-                },
-            );
-        }
-        cx += adv * 0.98 + style.tracking;
+    let n = text.chars().count().max(1);
+    if visible == 0 {
+        return ui.fonts.measure(text, style);
     }
-    cx - x
+    let k = (visible as f32 / n as f32).min(1.0);
+    // ease in, so a fresh line appears softly instead of popping
+    let a = k * k * (3.0 - 2.0 * k);
+    let ink_var = ((hash(seed) & 0xff) as f32 / 255.0 - 0.5) * 0.06;
+    let ink = Color::new(
+        style.color.r + ink_var,
+        style.color.g + ink_var * 0.5,
+        style.color.b,
+        style.color.a * a,
+    );
+    ui.fonts.draw(text, x, y, &style.color(ink))
 }
 
 fn hash(mut x: u32) -> u32 {
@@ -122,8 +107,8 @@ pub fn letter_card(
     t: f32,
 ) -> Rect {
     let s = ui.screen();
-    let w = (s.w - 48.0).min(560.0);
-    let body = TextStyle::new(17.0, Weight::Medium, INK).line_height(1.62);
+    let w = (s.w - 48.0).min(600.0);
+    let body = TextStyle::new(18.0, Weight::Medium, INK).line_height(1.7);
     let inner_w = w - 20.0 - 64.0;
     let mut wrapped: Vec<Vec<String>> = lines
         .iter()
@@ -228,7 +213,7 @@ pub fn note_card(
 ) -> Rect {
     let s = ui.screen();
     let w = (s.w - 48.0).min(440.0);
-    let body = TextStyle::new(17.0, Weight::Medium, INK).line_height(1.6);
+    let body = TextStyle::new(18.0, Weight::Medium, INK).line_height(1.65);
     let lines = ui.fonts.wrap(text, w - 84.0, &body);
     let h = (110.0 + lines.len() as f32 * body.line_h()).min(s.h - 150.0);
     let r = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0 - 30.0, w, h);

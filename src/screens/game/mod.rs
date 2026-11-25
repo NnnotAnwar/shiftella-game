@@ -267,6 +267,11 @@ impl GameScreen {
         self.player.is_playing()
     }
 
+    /// Cutscene text is on screen: the app ducks the music under it.
+    pub fn dialogue_on_screen(&self) -> bool {
+        self.player.text_on_screen()
+    }
+
     /// Clock frozen for the player (overlays, cutscenes, pause).
     pub fn frozen(&self) -> bool {
         self.speed == 0
