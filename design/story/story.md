@@ -1,176 +1,192 @@
-# Сюжет — «Ночная смена»
+# Story — Shiftella
 
-> Сюжетный режим: 30 ночей, чтобы спасти бабушкину кафешку у вокзала.
-> Пометки: **[MVP]** — нужно для первого прототипа, **[позже]** — после.
-
----
-
-## 1. Тон и темы
-
-- **Тон:** уютно, но грустно. Дождь, неон, пар над чашкой, тихая музыка из радиоприёмника. Немного странного — без хоррора: ничего не пугает, а только заставляет задуматься.
-- **Ощущение:** «единственное окно, где горит свет». Ночью город спит, а кафе нужно тем, кому не спится или нельзя спать.
-- **Темы:**
-  - **Ожидание.** Все чего-то ждут: поезда, конца смены, ответа, утра.
-  - **Свет для чужих.** Маленькое место, которое держит на себе людей вокруг.
-  - **Наследство.** Ты не только получаешь дело — ты решаешь, каким оно будет дальше.
-  - **Отпустить или удержать.** Закрыть старую историю или нести её дальше.
-- **Чего НЕ делаем:** смертей на экране, скримеров, крови, злодеев-карикатур. Плохой исход — грусть, а не ужас.
-- **Юмор:** тихий, бытовой (кофемашина с характером, кот, который «тоже работает тут»).
+> Story mode: 30 nights to save grandma's little café by the station.
+> Tags: **[MVP]** — needed for the first prototype, **[later]** — after it.
+>
+> **Design notes, written before implementation.** The shipped nights, beats, notes and endings are in
+> `assets/data/story.ron` and `assets/data/cutscenes.ron` (texts in `assets/i18n/src/story.tr`,
+> `notes.tr`, `scenes.tr`); see [`docs/CONTENT.md`](../../docs/CONTENT.md) §5–6. Where they differ, the data wins.
 
 ---
 
-## 2. Мир
+## 1. Tone and themes
 
-### Город — Млгов-над-Шержавой (Mlhov nad Šeřavou)
-- Выдуманный городок в Чехии, ~9 000 жителей. Название от *mlha* (туман), река Шержава — от *šero* (сумерки).
-- Ночью над рекой туман, поэтому окно кафе видно издалека.
-- Было: стекольный завод «Sklárna Mlhov» — работал в три смены, закрылся в 2009. Ночная жизнь города почти исчезла вместе с ним.
-- Есть сейчас: районная больница (ночные смены), филиал техникума/колледжа (студенты), дом культуры (концерты по пятницам), стоянка такси у вокзала, трасса неподалёку.
-
-### Вокзал — «Млгов»
-- Маленький узловой вокзал: две линии, пригородные поезда + пара ночных скорых.
-- Здание вокзала 1912 года, наполовину пустое. Касса работает только днём. Ночью остаётся один диспетчер.
-- Табло иногда «моргает». На старом расписании на стене есть поезд **Rn 333, прибытие 3:33** — по официальным данным его отменили в 1979.
-
-### Кафе — «U Výhybky» («У стрелки»)
-- Занимает бывший вокзальный буфет в левом крыле здания. 16×16-тайловый план: зал на 6–8 столиков, барная стойка, маленькая кухня, кладовая, туалет, задний двор.
-- **История:**
-  - 1968 — открылся «Bufet ČSD» для ночных смен стекольного завода и пассажиров.
-  - 1979 — буфет принимает молодая Людмила «Лида» Кратохвилова (бабушка).
-  - 1991 — Лида выкупает дело и даёт кафе новое имя «U Výhybky».
-  - 2009 — завод закрывается, кафе постепенно беднеет.
-  - 2026, осень — Лида умирает. Остаются долги, аренда кончается, а ключи она завещала игроку.
-- **Правило Лиды:** кафе работает **только ночью, 22:00–06:00**, а свет в окне не гаснет до шести. Почему — главная загадка.
+- **Tone:** cozy, but a little sad. Rain, soft holographic signs, steam over a cup, quiet music from an old radio. A touch of the uncanny — never horror: nothing is frightening, it only makes you wonder.
+- **Feeling:** "the only window with a light on". At night the city sleeps, and the café is there for those who can't sleep or mustn't.
+- **Near future, never grim:** it is 2039 — autonomous night trains glide in almost silently, small delivery drones cross the wet roofs, signs are holograms. But the café is intimate and human, never cyberpunk.
+- **Themes:**
+  - **Waiting.** Everyone is waiting for something: a train, the end of a shift, an answer, the morning.
+  - **A light for strangers.** A small place that quietly holds up the people around it.
+  - **Inheritance.** You don't just receive a business — you decide what it becomes next.
+  - **Letting go or holding on.** Closing an old story, or carrying it further.
+- **What we DON'T do:** deaths on screen, jump scares, blood, cartoon villains. A bad outcome is sadness, not horror.
+- **Humour:** quiet and everyday (a coffee machine with a personality, a cat that "also works here").
 
 ---
 
-## 3. Бабушка — Людмила «Лида» Кратохвилова (1956–2026)
+## 2. The world
 
-- Невысокая, резкая на словах, щедрая на деле. Помнила, кто что пьёт, но имена путала.
-- Сорок с лишним лет держала свет в окне. Друзья считали это упрямством, а город — просто привычкой.
-- После себя оставила **10 записок** (см. §6) — на салфетках, обороте счетов и в книге рецептов. Пишет в них «тому, кто будет держать свет».
-- Игрок — её внук/внучка (выбирается в начале, влияет только на обращения в диалогах). Последний раз ты был(а) тут ребёнком.
+*(Renamed on 2026-11-26: earlier drafts set the game in the fictional small town "Mlhov nad Šeřavou", with the
+café «U Výhybky», grandma "Lída", her fiancé "Jindřich" and "Věra". The ideas stayed; the names moved to Prague and
+lost their diacritics.)*
+
+### The district — Holešovice, Prague
+- An old industrial quarter of Prague on the bend of the Vltava, with warehouses turned into studios, tram lines and late-night workers.
+- At night fog rises from the river, and the café window can be seen from far down the street.
+- Once: factories and warehouses ran night shifts, and the buffet by the station fed them. As they closed, the district's night life thinned out.
+- Now: hospitals (night shifts), students, concert halls and clubs, a taxi rank by the station, a drone delivery depot — and plenty of people who can't sleep.
+
+### The station — Praha-Holešovice
+- A busy station in the daytime, quiet at night: local trains plus a couple of night expresses — by 2039 mostly autonomous.
+- At night there is a single dispatcher left — and soon not even him.
+- The departure board sometimes "blinks". On the old timetable on the café wall there is a train **Rn 333, arriving 3:33** — officially cancelled in 1979.
+- Easter egg: the stations on the line are named after Shiftella release codenames — Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant … and then Praha-Holešovice.
+
+### The café — «Café Nocturne» (sign subtitle: "kavárna u nádraží", "the café by the station")
+- A small night café next to the station. A 16×16-tile plan: a hall with 6–8 tables, a bar counter, a small kitchen, a storeroom, a toilet, a back yard.
+- **History:**
+  - 1968 — a station buffet opens for night-shift workers and passengers.
+  - 1979 — young Ludmila "Lida" Kratochvilova (grandma) takes over the buffet.
+  - 1991 — Lida buys the business and renames it «Café Nocturne».
+  - 2000s — the factories close one by one and the café slowly grows poorer.
+  - 2039, autumn — Lida dies. She leaves debts, a lease that is running out, and the keys — to the player.
+- **Lida's rule:** the café is open **only at night, 22:00–06:00**, and the light in the window stays on until six. Why — that is the central mystery.
 
 ---
 
-## 4. Главная загадка
+## 3. Grandma — Ludmila "Lida" Kratochvilova (1956–2039)
 
-**Вопрос:** зачем Лида 45 лет держала кафе открытым по ночам — и кто этот тихий гость, который приходит **ровно в 3:33**?
-
-**Правда (открывается постепенно, игроку никогда не говорят её прямо):**
-1. В 1979 жених Лиды, **Индржих**, уезжал на заработки ночным поездом Rn 333. Накануне они поссорились.
-2. Ночью Лида написала ему письмо: *«Я подожду. Свет в окне будет гореть»*. Передать письмо на перрон она попросила молодого таксиста **Мирека**.
-3. Мирек был влюблён в Лиду и **письмо не передал**. Индржих уехал уверенным, что его не ждут, и больше не вернулся. Писем от него тоже не было.
-4. Лида так и ждала — и держала свет. Мирек всю жизнь хранит письмо и молчит. Это его тайна.
-5. Гость в 3:33 носит старое пальто, а в кармане у него билет на Rn 333 от 1979 года. Это Индржих? Его эхо? Или просто странный старик? **Игра не отвечает.** Ясно одно: он всё ещё ждёт ответа.
-
-**Разгадка в действии:** если в 3:33 30-й ночи письмо окажется в руках гостя, история закрывается (секретный эпилог «Ответ», §8).
+- Short, sharp with words, generous with deeds. She remembered what everyone drank but mixed up names.
+- For sixty years she kept the light in the window. Friends called it stubbornness; the neighbourhood called it a habit.
+- She left **10 notes** (see §6) — on napkins, on the back of bills, in the recipe book. She writes them "to whoever keeps the light".
+- The player is her grandchild (player lines are gender-neutral in every language). You were last here as a child.
 
 ---
 
-## 5. Арка 30 ночей
+## 4. The central mystery
 
-### Ресурсы сюжета (флаги для кода)
-| id | что это | диапазон |
+**The question:** why did Lida keep the café open at night for sixty years — and who is the quiet guest who comes **at exactly 3:33**?
+
+**The truth (revealed gradually; the player is never told it outright):**
+1. In 1979 Lida's fiancé, **Jindra**, left to work abroad on the night train Rn 333. They had quarrelled the day before.
+2. That night Lida wrote him a letter: *"I'll wait. The light in the window will be on."* She asked a young taxi driver, **Mirek**, to take it to the platform.
+3. Mirek was in love with Lida and **never delivered the letter**. Jindra left believing nobody was waiting for him, and he never came back. No letters came from him either.
+4. Lida kept waiting — and kept the light on. Mirek has carried the letter all his life and said nothing. It is his secret.
+5. The 3:33 guest wears an old coat, and in his pocket is a ticket for Rn 333 from 1979. Is it Jindra? His echo? Or just a strange old man? **The game doesn't say.** One thing is clear: he is still waiting for an answer.
+
+**Resolving it in play:** if the letter reaches the guest at 3:33 on night 30, the story closes — the optional **"Answer"** scene (§8), played inside either ending.
+
+---
+
+## 5. The 30-night arc
+
+### Story state (flags for the code)
+In the shipped data these are vars and counters declared in `story.ron` (see `docs/CONTENT.md` §5).
+
+| id | what it is | range |
 |---|---|---|
-| `debt` | долг за аренду и поставщикам | старт 90 000 Kč |
-| `payment_N` | платёж 15 000 Kč в ночи 7 / 14 / 21 / 28, финальный 30 000 Kč в ночь 30 | bool (сделан или нет) |
-| `missed_payments` | сколько платежей пропущено | 0–2; на 2 → концовка C раньше срока |
-| `reputation` | репутация кафе | 0–100, старт 25 |
-| `offer_state` | предложение франшизы | `none` / `pending` / `accepted` / `rejected` |
-| `notes_found` | найдено записок Лиды | 0–10 |
-| `arc_<guest>` | этап личной арки постоянного гостя | 0..N (см. characters.md) |
-| `letter_state` | судьба письма | `hidden` / `confessed` / `with_player` / `with_mirek` / `burned` / `delivered` |
+| debt | rent and supplier debt | starts at 90 000 Kč |
+| payments | 15 000 Kč on nights 7 / 14 / 21 / 28, a final 30 000 Kč on night 30 | made or missed |
+| `missed_payments` | how many payments were missed | on Classic, 2 → the «Last Train» ending early; on Cozy, a mild story consequence |
+| reputation | the café's reputation | 0–100, starts at 25 |
+| `offer` | the franchise offer | `none` / `pending` / `accepted` / `rejected` |
+| notes found | Lida's notes found | 0–10 |
+| `arc.<regular>` | stage of a regular's personal arc | 0..N (see characters.md) |
+| `letter` | the letter's fate | `hidden` → `confessed` → `with_player` / `with_mirek` / `burned` / `persuaded` → `delivered` / `delivered_by_mirek` |
 
-### Акт I — «Ключи» (ночи 1–7) — обучение **[MVP: ночи 1–3 как туториал]**
-| ночь | ключевой момент |
+### Act I — "Keys" (nights 1–7) — learning the ropes **[MVP: nights 1–3 as the tutorial]**
+| night | key moment |
 |---|---|
-| 1 | Ты приезжаешь последним поездом в 21:50. Пыль, ключ под ковриком. Первый гость — таксист Мирек: «Чёрный, как у Лиды». Учимся: принять заказ, сварить кофе, взять деньги. |
-| 2 | Нанимаем первого сотрудника (выбор из 3). Учимся: расписание смены и приоритеты работ. Под кассой лежит **записка №1**. |
-| 3 | В 2:10 впервые приходит медсестра Гана. Первое случайное событие — всегда мягкое (`ev_rain`). |
-| 4 | **Первый раз 3:33.** Часы на стене встают на минуту. Входит гость в сером пальто, заказывает чай с лимоном и молча уходит. На столе остаются старые чехословацкие монеты. |
-| 5 | Приходит пани Вера, старая подруга-соперница Лиды. Холодна: «Лида бы так не сделала». |
-| 6 | Скриптовая толпа после концерта (`ev_concert_crowd`) — первая проверка на нагрузку. Появляется студент Филип. |
-| 7 | **Платёж №1.** Днём приходит письмо от владельца здания: аренда кончается после 30-й ночи, продлят только при закрытом долге. |
+| 1 | You arrive on the last train at 21:50. Dust, the key under the mat. The first guest is Mirek the taxi driver: "Black, like Lida made it." You learn to take an order, make coffee, take money. |
+| 2 | You hire your first colleague (a choice of candidates). You learn the rozpis in the Shiftella app and work priorities. Under the till lies **note no. 1**. |
+| 3 | At 2:10 Hana the nurse comes in for the first time. The first random event is always gentle (rain). |
+| 4 | **The first 3:33.** The clock on the wall stops for a minute. A guest in a grey coat comes in, orders tea with lemon and leaves without a word. Old Czechoslovak coins are left on the table. |
+| 5 | Mrs Vera arrives, Lida's old friend and rival. She is cold: "Lida wouldn't have done it like that." |
+| 6 | A scripted crowd after a concert — the first stress test. Filip the student appears. |
+| 7 | **Payment no. 1.** During the day a letter comes from the landlord: the lease ends after night 30 and will be renewed only if the debt is cleared. |
 
-### Акт II — «Постоянные» (ночи 8–16) — арки гостей **[позже]**
-| ночь | ключевой момент |
+### Act II — "Regulars" (nights 8–16) — the guests' arcs **[later]**
+| night | key moment |
 |---|---|
-| 8 | Такси Мирека задевает бордюр у входа. Он отшучивается. Первый намёк на его плохое зрение. |
-| 9 | Ночной диспетчер Радек: «Вокзал переводят на автоматику, я последний». Вспоминает отменённый Rn 333. |
-| 10 | Скриптовое отключение света (`ev_power_outage`), работаем при свечах. В щитке находится **записка №3**. |
-| 11 | Под дождём на перроне играет Лори. Выбор: позвать её внутрь или нет (запускает её арку). |
-| 12 | Гана засыпает за столиком. Выбор: разбудить / укрыть пледом и не трогать / поставить «тихий угол». |
-| 13 | Скриптовая санинспекция (`ev_health_inspection`). |
-| 14 | **Платёж №2.** Если отношения с Верой ≥ 30, она приносит книгу рецептов Лиды (**записка №5** + новый рецепт). |
-| 15 | Гость в 3:33 впервые говорит: «Она ещё ждёт?» Ответ игрока (да / не знаю / её больше нет) пишется во флаг. |
-| 16 | Тихая ночь (`ev_lonely_night`, гарантированно). Время для отношений персонала: возможен роман или ссора. |
+| 8 | Mirek's taxi clips the kerb by the entrance. He laughs it off. The first hint that his eyesight is failing. |
+| 9 | Radek, the night dispatcher: "They're automating the station. I'm the last one." He remembers the cancelled Rn 333. A quiet guest with a laptop sits at the socket table (the Anwar cameo, see characters.md §3.8). |
+| 10 | A scripted power cut — candlelight service. **Note no. 3** turns up in the fuse box. |
+| 11 | Lori plays on the platform in the rain. Choice: invite her in or not (starts her arc). |
+| 12 | Hana falls asleep at a table. Choice: wake her / cover her with a blanket and let her be / set up a "quiet corner". |
+| 13 | A scripted health inspection. |
+| 14 | **Payment no. 2.** If Vera likes you enough, she brings Lida's recipe book (**note no. 5** + a new recipe). |
+| 15 | The 3:33 guest speaks for the first time: "Is she still waiting?" The player's answer (yes / I don't know / she's gone) is stored. |
+| 16 | A quiet night (guaranteed). Time for staff relationships: a romance or a quarrel may happen. |
 
-### Акт III — «Предложение» (ночи 17–24) — главный выбор **[позже]**
-| ночь | ключевой момент |
+### Act III — "The Offer" (nights 17–24) — the big choice **[later]**
+| night | key moment |
 |---|---|
-| 17 | Днём приезжает пан Шинделарж из сети **«NONSTOP 24»**. Предложение: сеть гасит весь долг, а ты остаёшься управляющим. Условия: работа 24/7, их меню, их вывеска, «никаких бабушкиных порядков». Решить нужно до дня 22. `offer_state = pending` |
-| 18 | Филип провалил экзамен и сидит до утра. Можно поддержать (арка) или не вмешиваться. |
-| 19 | Скриптовый ливень (`ev_downpour`): гостей вдвое больше — шанс заработать. |
-| 20 | **Мирек чуть не сбивает пешехода** у вокзала. Выбор: забрать у него ключи / позвонить его дочери / промолчать. Если доверие высокое, он признаётся про письмо (`letter_state = confessed`). |
-| 21 | **Платёж №3.** |
-| 22 | **Решение по франшизе** (день). Принять → `accepted`: долг гасится, ночные лимиты пропадают, лояльность постоянных гостей −50 %, гость 3:33 больше не приходит. Отказаться → `rejected`. |
-| 23 | Последняя смена Радека. Он дарит старое расписание со строкой «Rn 333 Mlhov 3:33» (**записка №8** вложена внутрь). |
-| 24 | Если Лори позвали — её вечер у микрофона: репутация +10, полный зал. |
+| 17 | Mr Šindelář from the **NONSTOP 24** chain visits. The offer: the chain pays off the whole debt and you stay on as manager. The terms: open 24/7, their menu, their sign, "none of grandma's rules". You have until night 22. `offer = pending` |
+| 18 | Filip has failed an exam and sits there until morning. You can support him (arc) or stay out of it. |
+| 19 | A scripted downpour: twice the guests — a chance to earn. |
+| 20 | **Mirek nearly hits a pedestrian** by the station. Choice: take his keys / call his daughter / say nothing. If his trust is high, he confesses about the letter (`letter = confessed`). |
+| 21 | **Payment no. 3.** |
+| 22 | **The franchise decision.** Accept → `accepted`: the debt is paid off, but the café becomes a NONSTOP 24 — this leads to the «Last Train» ending. Decline → `rejected`. |
+| 23 | Radek's last shift. He gives you the old timetable with the line "Rn 333 Praha-Holešovice 3:33" (**note no. 8** tucked inside). |
+| 24 | If Lori was invited in — her evening at the microphone: reputation +10, a full house. The quiet guest with the laptop comes back for his second and last visit (the Anwar cameo). |
 
-### Акт IV — «Последний поезд» (ночи 25–30) — развязка **[позже]**
-| ночь | ключевой момент |
+### Act IV — "The Last Train" (nights 25–30) — the resolution **[later]**
+| night | key moment |
 |---|---|
-| 25 | Гроза (`ev_storm`). На вокзале гаснет свет, светится только окно кафе. Приходят все, кто не спит. |
-| 26 | Гана решает: работа в Германии или остаться. Влияет то, что игрок сделал в её арке. |
-| 27 | Первый снег (`ev_first_snow`). Вера рассказывает про Индржиха — если найдено ≥ 6 записок. |
-| 28 | **Платёж №4.** Мирек: «Если отдам письмо сам — он увидит меня?» Решение по письму (§7). |
-| 29 | Прощальная ночь для арок: каждый постоянный гость приходит закрыть свою историю. |
-| 30 | **Финальная ночь.** Финальный платёж 30 000 Kč в 06:00. В 3:33 на пустой перрон «приходит» Rn 333 — если свет в окне горит. Сцена письма. Затем концовка. |
+| 25 | A storm. The station lights go out; only the café window glows. Everyone who can't sleep comes in. |
+| 26 | Hana decides: a job in Dresden, or stay. What the player did in her arc matters. |
+| 27 | First snow. Vera tells you about Jindra — if you have found enough notes. |
+| 28 | **Payment no. 4.** Mirek: "If I give him the letter myself — will he see me?" The letter decision (§7). |
+| 29 | A farewell night for the arcs: every regular comes to close their story. |
+| 30 | **The final night.** The final 30 000 Kč payment at 06:00. At 3:33 the Rn 333 "arrives" at the empty platform — if the light in the window is on. The letter scene. Then the ending. |
 
 ---
 
-## 6. Записки Лиды (коллекция) **[MVP: 1 записка; остальное позже]**
+## 6. Lida's notes (a collection) **[MVP: 1 note; the rest later]**
 
-| id | где найти (условие) | смысл |
+The shipped wording is in `assets/i18n/src/notes.tr`; this table gives the meaning and where to find them.
+
+| id | where to find it (condition) | meaning |
 |---|---|---|
-| `note_01` | под кассой, ночь 2 (скрипт) | «Свет в окне не гасить до шести. Это не суеверие. Это обещание.» |
-| `note_02` | убрать кладовую на 100 % | список «кто что пьёт» — открывает любимые заказы трёх постоянных гостей |
-| `note_03` | щиток, `ev_power_outage` | «Когда гаснет свет, люди говорят правду. Держи свечи сухими.» |
-| `note_04` | `arc_hana ≥ 2` | «Тем, кто лечит, наливай без очереди.» |
-| `note_05` | книга рецептов, Вера (ночь 14) | рецепт «Лидиной чесночной» + «Вера знает больше, чем говорит» |
-| `note_06` | монеты гостя 3:33 — собрать 3 ночи подряд | «Он всегда платит монетами, которых больше нет. Я не беру с него денег.» |
-| `note_07` | `arc_mirek ≥ 2` | «М. смотрит на меня, будто виноват. Я ему давно всё простила — за что бы ни было.» |
-| `note_08` | расписание Радека (ночь 23) | «3:33. Я опоздала на перрон на две минуты. Всю жизнь — на две минуты.» |
-| `note_09` | починить старый радиоприёмник (апгрейд) | «Если он снова придёт — скажи ему, что я ждала. Не ради себя. Ради света.» |
-| `note_10` | репутация ≥ 70 | «Кафе — это не стены. Это кто приходит. Не продавай их.» |
+| `note_01` | under the till, night 2 (scripted) | "Don't switch off the light in the window before six. It isn't superstition. It's a promise." |
+| `note_02` | clean the storeroom completely | a "who drinks what" list — reveals the favourite orders of the regulars |
+| `note_03` | the fuse box, during the power cut | "When the lights go out, people tell the truth. Keep the candles dry." |
+| `note_04` | Hana's arc, stage 2 or more | "Those who heal get served without queueing." |
+| `note_05` | the recipe book, from Vera (night 14) | the recipe for grandma's kulajda + "Vera knows more than she says" |
+| `note_06` | collect the 3:33 guest's coins | "He always pays with coins that no longer exist. I don't take his money." |
+| `note_07` | Mirek's arc, stage 2 or more | "M. looks at me as if he were guilty. I forgave him long ago — whatever it is." |
+| `note_08` | Radek's timetable (night 23) | "3:33. I reached the platform two minutes late. All my life, two minutes." |
+| `note_09` | repair the old radio (upgrade) | "If he comes again, tell him I waited. Not for my sake. For the light's." |
+| `note_10` | reputation 70 or more | "A café isn't its walls. It's the people who come. Don't sell them." |
 
 ---
 
-## 7. Как ветвится выбор
+## 7. How the choices branch
 
-Сюжет линейный по ночам, а ветвят его **четыре оси**:
+The story is linear night by night, but **four axes** branch it:
 
-1. **Деньги** — платежи (`payment_N`, `missed_payments`). Это механика: сколько игрок заработал.
-2. **Франшиза** — `offer_state` (ночь 22). Это моральный выбор: «безопасно» против «своё».
-3. **Люди** — арки постоянных гостей (сколько закрыто хорошо) + `reputation`.
-4. **Письмо** — `letter_state` (ночи 20–30):
-   - Мирек признался → игрок может **взять письмо себе**, **оставить Миреку**, **сжечь** или **уговорить Мирека отдать самому**.
-   - Если Мирек отдаёт письмо сам в 3:33 30-й ночи, он впервые видит гостя. Это лучший вариант для арки Мирека.
-   - Отдаёт игрок — тоже засчитывается, но Мирек остаётся с виной (отличие в эпилоге).
-   - Сожгли письмо или не открыли тайну → гость в 3:33 уходит без ответа.
+1. **Money** — the payments. This is the mechanics: how much the player earned.
+2. **The franchise** — `offer` (night 22). A moral choice: "safe" versus "our own".
+3. **People** — the regulars' arcs (how many end well) + reputation.
+4. **The letter** — `letter` (nights 20–30):
+   - Mirek has confessed → the player can **keep the letter**, **leave it with Mirek**, **burn it** or **persuade Mirek to deliver it himself**.
+   - If Mirek hands over the letter himself at 3:33 on night 30, he sees the guest for the first time. This is the best outcome for Mirek's arc.
+   - If the player hands it over, it still counts, but Mirek is left with his guilt (the epilogue differs).
+   - If the letter was burned or the secret never came out → the 3:33 guest leaves without an answer.
 
-Мелкие выборы (разбудить Гану, позвать Лори, забрать ключи у Мирека) двигают арки гостей и `reputation`. Каждый из них описан в characters.md.
+Small choices (waking Hana, inviting Lori, taking Mirek's keys) move the guests' arcs and reputation. Each is described in characters.md.
 
 ---
 
-## 8. Концовки
+## 8. Endings
 
-| id | название | условия | суть |
+There are **exactly two endings**. They are checked in order at the end of night 30 (or when the café closes early on Classic). Each has variants that name the outcome on the summary screen.
+
+| id | title | conditions | what it is |
 |---|---|---|---|
-| `end_light` | **«Свет в окне»** | все платежи внесены, `offer_state = rejected`, `reputation ≥ 60`, ≥ 3 арки закрыты хорошо | Кафе спасено и осталось собой. Утро, ты гасишь свет ровно в 6:00 — впервые как хозяин(ка). Постоянные гости — твоя новая семья. |
-| `end_nonstop` | **«Круглосуточно»** | `offer_state = accepted` | Кафе живёт под вывеской NONSTOP 24. Денег хватает, но старые гости приходят всё реже. Окно светится всегда, а значит, в нём больше никого не ждут. Гость 3:33 не возвращается. Горько, но не трагично. |
-| `end_last_train` | **«Последний поезд»** | `missed_payments = 2` или финальный платёж не внесён (и франшиза отклонена) | Кафе закрывается. Прощальная ночь: если ≥ 3 арки закрыты, гости помогают собрать вещи и уговаривают «открыть что-то своё». Ты уезжаешь утренним поездом с книгой рецептов. Светлая грусть. |
-| `epi_answer` | **эпилог «Ответ»** (секретный, накладывается на `end_light` или `end_last_train`) | `letter_state = delivered` в 3:33 ночи 30 + `notes_found ≥ 8` | Гость читает письмо, улыбается: «Значит, ждала». Уходит на перрон, а табло на секунду показывает «Rn 333 — ODJEL». Если письмо отдал сам Мирек, он впервые за 45 лет спит спокойно. |
+| `last_train` | **«Last Train»** | the franchise was accepted, **or** the café failed its payments on Classic, **or** reputation is below 20 with no regular's arc ending well | Café Nocturne closes — or lives on under someone else's sign. A bittersweet farewell. Variants: **sold** (NONSTOP 24 — "The window is always lit, and nobody waits in it"; the 3:33 guest never returns), **farewell** (the regulars help you pack and talk you into opening something of your own; you leave on the morning train with the recipe book), **closed** (a quiet goodbye). |
+| `light` | **«Light in the Window»** | everything else (the fallback) | The café is saved and stays itself. Morning: you switch off the light at exactly 6:00 — for the first time as its owner. Variants: **full** (a full café at six in the morning; the regulars are your new family) and **quiet** (the café lives, but is empty: "The light is on. For now, there's nobody to wait for."). |
 
-**Приоритет проверки:** `end_nonstop` → `end_last_train` → `end_light` (если условия света не дотянуты, но долг закрыт, показываем вариант `end_light` «тихий» — кафе живо, но пусто: «Свет есть. Ждать пока некого»). Потом проверяем эпилог.
+**The "Answer" scene** is **not a third ending**. It is an optional extra scene that either ending plays when it holds: the letter was delivered at 3:33 on night 30, at least 8 notes were found, and the franchise offer was not accepted. The guest reads the letter and smiles: "So she waited." He walks out to the platform, and for a second the board shows "Rn 333 — ODJEL" (departed). If Mirek handed over the letter himself, he sleeps peacefully for the first time in sixty years. The ending screen shows it as an "Epilogue unlocked: The Answer" badge.
+
+*(historical)* Early drafts had a third ending, «Round the Clock» (`end_nonstop`), for accepting the franchise. In the shipped game it became the **sold** variant of «Last Train».

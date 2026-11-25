@@ -1,36 +1,39 @@
-# Бесплатные кандидаты из интернета
+# Free candidates from the web
 
-Ничего не скачано, это список для решения владельца. Проверено 2026-11-25.
-Лицензии взяты со страниц ресурсов. OpenGameArt блокирует автоматическое чтение, поэтому по нему данные из поисковой выдачи. **Перед скачиванием откройте страницу и перепроверьте лицензию.** У одного автора разные файлы бывают под разными лицензиями.
+Nothing has been downloaded — this is a shortlist for the owner to decide on. Checked on 2026-11-25.
+Licences were taken from the resources' pages. OpenGameArt blocks automated reading, so its data comes from search results. **Before downloading, open the page and re-check the licence.** The same author sometimes publishes different files under different licences.
 
-Порядок предпочтения: **CC0** (атрибуция не нужна) → **CC BY** (нужен кредит в титрах). CC BY-SA, NC и «лицензия не указана» не берём.
+Order of preference: **CC0** (no attribution needed) → **CC BY** (a credit in the credits screen is required). We don't take CC BY-SA, NC or "no licence stated".
 
-## Рекомендуемые
+None of these are used in v0.1.0; the shipped audio was generated with ElevenLabs (see `credits-log.md`).
 
-| # | Что | Автор | Лицензия | Размер / длина | Почему подходит |
+## Recommended
+
+| # | What | Author | Licence | Size / length | Why it fits |
 |---|---|---|---|---|---|
-| 1 | [Albi-Madeleine — Railroad crossing, southern-going train, 22:30](https://freesound.org/people/Sadiquecat/sounds/753071/) | Sadiquecat (Freesound) | **CC0** | WAV 96 кГц/32 бит, 4:16, 187.9 МБ | Настоящий ночной переезд маленькой станции, записан в 22:30. Из длинной записи нарезаются 2–3 варианта `amb_train_pass_far`. Свои стыки рельсов, звонок переезда. Файл тяжёлый: скачать один раз, нарезать, оригинал в репозиторий не класть. |
-| 2 | [Coffee Shop, 6 People, low chatter, refrigerator, barista movement](https://freesound.org/s/403065/) | AwenAudio (Freesound) | **CC0** | WAV 48 кГц/24 бит, 2:21, 38.7 МБ | Готовый `amb_cafe_murmur_loop` и room tone: тихий гул голосов без разборчивых слов, холодильник, бариста, входящие гости. Ровно наша сцена. |
-| 3 | [Interface Sounds](https://kenney.nl/assets/interface-sounds) | Kenney | **CC0** | 100 файлов (размер не указан) | Полный UI-набор (click, hover, back, confirm, error, switch) без трат кредитов. Из него можно выбрать самые мягкие и «деревянные» звуки. |
-| 4 | [Rain (loopable)](https://opengameart.org/content/rain-loopable) | Ylmir (OpenGameArt) | **CC0** | 4 лупа по 25–45 с | Готовые бесшовные лупы дождя для `amb_rain_*`: несколько интенсивностей для слоёв погоды. |
-| 5 | [Rain on Window Loop](https://opengameart.org/content/rain-on-window-loop) | alxl (OpenGameArt) | **CC0** (+ другие на выбор) | ~11 с | Дождь именно по стеклу, взгляд изнутри помещения. Короткий, хорош как второй слой поверх №4. |
-| 6 | [Impact Sounds](https://kenney.nl/assets/impact-sounds) | Kenney | **CC0** | 130 файлов (размер не указан) | Foley-удары: могут закрыть шаги, стулья, посуду (`sfx_footsteps_*`, `sfx_chair_move`, `sfx_plate_set`). Состав не описан на странице, нужно прослушать. |
-| 7 | [Lofi again](https://opengameart.org/content/lofi-again) | omfgdude (OpenGameArt) | **CC0** | 4 трека и эмбиенс (размер не показан) | Lo-fi hip-hop, теги loop/chill. Запасной вариант для спокойной ночи или дня, если генерация не понравится. |
-| 8 | [Dimly lit](https://opengameart.org/content/dimly-lit) | iamoneabe (OpenGameArt) | **CC0** | луп (размер не показан) | Lo-fi электро-блюз, лупится. Подходит для глубокой ночи 3–5: «тускло освещённый» зал. |
-| 9 | [FREE Music Pack 14: Lo-fi / Chill](https://retroindiejosh.itch.io/free-music-pack-14-lo-fi-chill) | Retro Indie Josh (itch.io) | **CC BY 4.0** (кредит обязателен, текст кредита указан на странице) | 5 треков; OGG 26 МБ / WAV 172 МБ | Уже есть OGG, сразу подходит macroquad. Lo-fi/chill BGM для спокойной ночи и планирования. |
-| 10 | [FREE MUSIC: Ambient LoFi Jazz (MP3 & MIDI)](https://rustedstudio.itch.io/free-music-ambient-lofi-jazz-mp3-midi) | Rusted Music Studio (itch.io) | **CC BY 4.0** (на странице; в выдаче поисковика встречалось BY-SA, перепроверить) | 23 трека, `.rar` 68 МБ (MP3 + MIDI) | Медленный ambient lo-fi jazz «для ресторанов и баров». Есть MIDI: из него можно сделать вариации или стемы. MP3 придётся сконвертировать в OGG. |
-| 11 | [FREE Music Pack (Lo-fi, Indie, Metal, Horror, Orchestral)](https://ailascott.itch.io/free-music-pack-lo-fi-indie-metal-orchestral) | Aila Scott (itch.io) | **CC BY 4.0** (кредит и ссылка; без атрибуции — платно, $5) | ZIP 330 МБ, WAV 48 кГц, все треки лупятся | Все треки сразу лупятся. Нам нужна только lo-fi часть, остальное (метал, хоррор) не по стилю. Тяжёлый архив. |
+| 1 | [Albi-Madeleine — Railroad crossing, southern-going train, 22:30](https://freesound.org/people/Sadiquecat/sounds/753071/) | Sadiquecat (Freesound) | **CC0** | WAV 96 kHz/32-bit, 4:16, 187.9 MB | A real night-time crossing at a small station, recorded at 22:30. 2–3 variants of `amb_train_pass_far` can be cut from the long recording, with real rail joints and the crossing bell. A heavy file: download once, cut it, and don't put the original in the repository. |
+| 2 | [Coffee Shop, 6 People, low chatter, refrigerator, barista movement](https://freesound.org/s/403065/) | AwenAudio (Freesound) | **CC0** | WAV 48 kHz/24-bit, 2:21, 38.7 MB | A ready-made `amb_cafe_murmur_loop` and room tone: a quiet murmur with no intelligible words, a fridge, a barista, guests coming in. Exactly our scene. |
+| 3 | [Interface Sounds](https://kenney.nl/assets/interface-sounds) | Kenney | **CC0** | 100 files (size not stated) | A full UI set (click, hover, back, confirm, error, switch) without spending credits. Pick the softest, most "wooden" ones. |
+| 4 | [Rain (loopable)](https://opengameart.org/content/rain-loopable) | Ylmir (OpenGameArt) | **CC0** | 4 loops of 25–45 s | Ready seamless rain loops for `amb_rain_*`: several intensities for the weather layers. |
+| 5 | [Rain on Window Loop](https://opengameart.org/content/rain-on-window-loop) | alxl (OpenGameArt) | **CC0** (+ others to choose from) | ~11 s | Rain specifically on glass, heard from inside. Short; good as a second layer over no. 4. |
+| 6 | [Impact Sounds](https://kenney.nl/assets/impact-sounds) | Kenney | **CC0** | 130 files (size not stated) | Foley impacts: could cover footsteps, chairs, dishes (`sfx_footsteps_*`, `sfx_chair_move`, `sfx_plate_set`). The page doesn't list the contents — needs listening. |
+| 7 | [Lofi again](https://opengameart.org/content/lofi-again) | omfgdude (OpenGameArt) | **CC0** | 4 tracks and an ambience (size not shown) | Lo-fi hip-hop, tagged loop/chill. A fallback for the calm night or the day, if the generated tracks don't work out. |
+| 8 | [Dimly lit](https://opengameart.org/content/dimly-lit) | iamoneabe (OpenGameArt) | **CC0** | a loop (size not shown) | Lo-fi electro-blues that loops. Suits the deep night (3–5): a "dimly lit" hall. |
+| 9 | [FREE Music Pack 14: Lo-fi / Chill](https://retroindiejosh.itch.io/free-music-pack-14-lo-fi-chill) | Retro Indie Josh (itch.io) | **CC BY 4.0** (credit required; the credit text is on the page) | 5 tracks; OGG 26 MB / WAV 172 MB | Already in OGG, which macroquad plays directly. Lo-fi/chill background music for the calm night and planning. |
+| 10 | [FREE MUSIC: Ambient LoFi Jazz (MP3 & MIDI)](https://rustedstudio.itch.io/free-music-ambient-lofi-jazz-mp3-midi) | Rusted Music Studio (itch.io) | **CC BY 4.0** (on the page; search results also showed BY-SA — re-check) | 23 tracks, a 68 MB `.rar` (MP3 + MIDI) | Slow ambient lo-fi jazz "for restaurants and bars". Comes with MIDI, which could be used for variations or stems. The MP3s would need converting to OGG. |
+| 11 | [FREE Music Pack (Lo-fi, Indie, Metal, Horror, Orchestral)](https://ailascott.itch.io/free-music-pack-lo-fi-indie-metal-orchestral) | Aila Scott (itch.io) | **CC BY 4.0** (credit and link; without attribution it costs $5) | ZIP 330 MB, WAV 48 kHz, every track loops | Every track loops out of the box. We'd only need the lo-fi part; the rest (metal, horror) doesn't fit the style. A heavy archive. |
 
-## Не рекомендуется (найдено, но есть проблемы)
+## Not recommended (found, but there are problems)
 
-| Что | Причина |
+| What | Why |
 |---|---|
-| [Quiet café](https://freesound.org/s/417682/) (arnaud coutancier) | CC BY-NC 3.0: некоммерческая лицензия, для продаваемой игры нельзя. |
-| [lofi world vol 1](https://kummel.itch.io/lofi-world-vol-1) (kummel), 7 треков, 159 МБ | Лицензия на странице не указана. |
-| [Cozy Game / Lofi Music Collection](https://cristiano-leone-ost.itch.io/freeloficozy) (Cristiano Leone / Redlight_Chill), 22 трека, ~951 МБ WAV | Формальной лицензии нет. Разрешение есть только в комментариях, и требования к кредиту противоречат друг другу. |
-| [lofi compilation](https://opengameart.org/content/lofi-compilation) (TAD) | По комментариям на трек «Morning rain» приходил автоматический copyright-claim (совпадение с чужим треком). Риск. |
+| [Quiet café](https://freesound.org/s/417682/) (arnaud coutancier) | CC BY-NC 3.0: a non-commercial licence, not allowed in a game that is sold. |
+| [lofi world vol 1](https://kummel.itch.io/lofi-world-vol-1) (kummel), 7 tracks, 159 MB | No licence stated on the page. |
+| [Cozy Game / Lofi Music Collection](https://cristiano-leone-ost.itch.io/freeloficozy) (Cristiano Leone / Redlight_Chill), 22 tracks, ~951 MB WAV | No formal licence. Permission is given only in the comments, and the credit requirements there contradict each other. |
+| [lofi compilation](https://opengameart.org/content/lofi-compilation) (TAD) | According to the comments, the track "Morning rain" received an automatic copyright claim (a match with someone else's track). Risky. |
 
-## Если что-то возьмём
-- Файлы переименовать по конвенции из `sound-design.md` (`amb_`, `sfx_`, `ui_`, `mus_`) и нормализовать так же, как сгенерированные.
-- Для CC BY завести `assets/audio/CREDITS.txt` (название, автор, URL, лицензия) и вывести те же строки в титрах игры.
-- Для CC0 кредит не обязателен, но в CREDITS.txt всё равно записать: так проще потом подтвердить происхождение файла.
+## If we use something
+- Rename the files to the convention in `sound-design.md` (`amb_`, `sfx_`, `ui_`, `mus_`) and normalise them like the generated ones.
+- For CC BY, create `assets/audio/CREDITS.txt` (title, author, URL, licence) and show the same lines in the game's credits.
+- For CC0 a credit isn't required, but record it in CREDITS.txt anyway: it makes the file's origin easy to prove later.
+- Unlike the ElevenLabs output, CC0 / CC BY files *may* be committed to the public repo (with their credits).

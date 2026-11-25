@@ -1,40 +1,59 @@
-# «Ночная смена» — сюжет и контент
+# Shiftella — story and content design
 
-Пиксельный менеджмент-симулятор. Ночное кафе «U Výhybky» у вокзала в выдуманном чешском городке **Млгов-над-Шержавой**, работает 22:00–06:00. Персонал живёт сам по себе: у каждого навыки, потребности, черты и отношения. Игрок не управляет людьми напрямую: он составляет расписание, задаёт приоритеты, расставляет мебель и закупает продукты. События подкидывает **Ночь-рассказчик**.
+> **Design notes, written before implementation.** The ideas here are canon; the numbers, ids and
+> final texts that shipped in v0.1.0 live in `assets/data/*.ron` and `assets/i18n/`, documented in
+> [`docs/CONTENT.md`](../../docs/CONTENT.md). Where these notes and the data disagree, the data and
+> [`docs/GAME-BRIEF.md`](../../docs/GAME-BRIEF.md) win. Notes that only describe the early plan are
+> marked *(historical)*.
 
-**Крючок сюжета:** тебе досталось бабушкино кафе с долгом 90 000 Kč, и на спасение есть 30 ночей. Бабушка 45 лет держала свет в окне до утра. Каждую ночь ровно в 3:33 приходит тихий гость в старом пальто, а старый таксист хранит письмо, которое так и не передал.
+A cozy management game in a smooth vector "violet dollhouse" style. The year is **2039**. The night
+café **Café Nocturne** ("kavárna u nádraží") stands next to **Praha-Holešovice** station in Prague and is
+open 22:00–06:00. *(Earlier drafts used the fictional town "Mlhov nad Šeřavou" and the café «U Výhybky»;
+renamed on 2026-11-26, together with simpler names: Lida, Jindra, Vera.)* The staff live their own lives: each person has skills, needs, traits and
+relationships. The player never controls people directly — you write the rozpis (shift schedule) in the
+in-game **Shiftella** app, set work priorities, arrange furniture and buy supplies. Events are dealt by
+the **Night**, the game's storyteller.
 
-## Файлы
+**Story hook:** you inherit your grandmother's café along with a 90 000 Kč debt, and you have 30 nights to
+save it. For sixty years grandma Lida kept a light burning in the window until morning. Every night at
+exactly 3:33 a quiet guest in an old coat comes in, and an old taxi driver keeps a letter he never delivered.
 
-| файл | что внутри |
+## Files
+
+| file | what's inside |
 |---|---|
-| [story.md](story.md) | тон, мир, бабушка Лида, загадка 3:33, 30 ночей по актам, записки, ветвления, концовки |
-| [characters.md](characters.md) | 6 архетипов персонала, меню, 7 постоянных гостей с арками, странные гости |
-| [traits.md](traits.md) | базовые шкалы (потребности, навыки, отношения), 16 черт, пример RON |
-| [events.md](events.md) | 35 событий + как Ночь управляет ритмом (кривая ночи, кривая 30 ночей, спокойная/хаотичная) |
-| [sandbox.md](sandbox.md) | генерация города, пулы гостей, сложность, городские легенды, долгие цели |
+| [story.md](story.md) | tone, world, grandma Lida, the 3:33 mystery, the 30 nights by act, notes, branching, the two endings |
+| [characters.md](characters.md) | staff archetypes, the menu, the 7 regulars and their arcs, the Anwar cameo, odd guests |
+| [traits.md](traits.md) | base scales (needs, skills, relationships), 16 traits, an example in RON |
+| [events.md](events.md) | the event catalogue + how the Night paces things (night curve, 30-night curve, calm/chaotic) |
+| [sandbox.md](sandbox.md) | town generation, guest pools, difficulty, town legends, long-term goals |
 
-**Пометки:** **[MVP]** — нужно для первого прототипа, **[позже]** — потом. Контент описан как данные (`id`, условия, эффекты, веса), чтобы потом перенести его в RON-файлы.
+**Tags:** **[MVP]** — needed for the first prototype, **[later]** — after it. Content is described as data
+(`id`, conditions, effects, weights) so it could be moved into RON files — which is exactly what happened.
 
-## 10 главных вещей для MVP
+## The 10 most important things for the MVP *(historical)*
 
-Цель прототипа — **одна играбельная ночь 22:00–06:00**: гости приходят, персонал сам работает, утром показываем итог.
+The goal of the prototype was **one playable night, 22:00–06:00**: guests arrive, the staff work on their own,
+and in the morning we show a summary. All of this (and much more) is in the shipped game.
 
-1. **Цикл ночи и дня** — игровые часы 22:00→06:00, потом пауза-планирование (найм, расписание, закупка). *(story.md §5, акт I)*
-2. **3 архетипа персонала** — `arch_student_barista`, `arch_old_cook`, `arch_gentle_giant`. *(characters.md §1)*
-3. **Потребности `energy`, `hunger`, `mood` и 4 навыка** с формулой скорости `0.5 + skill × 0.1`. *(traits.md §1)*
-4. **4 черты** — `night_owl`, `chatterbox`, `clumsy`, `perfectionist`, только эффекты `Mul`/`Add`. *(traits.md §2–3)*
-5. **Меню из 5 позиций** — `coffee_black`, `cappuccino`, `tea_lemon`, `topinka`, `cesnecka`; станции `bar`/`kitchen`. *(characters.md §2)*
-6. **Обычный гость**: приходит → садится → заказывает → ждёт (терпение) → платит → уходит довольным или недовольным → репутация ±. Один пул `travelers`.
-7. **Таксист Мирек** — первый постоянный гость (фиксированное время, любимый заказ, без арки). *(characters.md §3.1)*
-8. **Гость в 3:33 + `ev_clock_333`** — часы встают, гость пьёт чай у окна и оставляет монеты. Это главный «крючок» атмосферы, сделать его можно дёшево. *(characters.md §3.3)*
-9. **Ночь-рассказчик v0** — `base_rate × curve(время)`, веса, `cooldown`. 10 событий с пометкой MVP, из них сначала 5: `ev_rain`, `ev_downpour`, `ev_concert_crowd`, `ev_staff_sick`, `ev_big_tip`. *(events.md)*
-10. **Записка Лиды №1** под кассой + экран итогов утром (выручка, отзывы, долг). Даёт ощущение истории с первой ночи. *(story.md §6)*
+1. **Night and day loop** — game clock 22:00→06:00, then a paused planning phase (hiring, schedule, supplies). *(story.md §5, act I)*
+2. **3 staff archetypes** — barista, cook and a gentle-giant helper. *(characters.md §1)*
+3. **Needs `energy`, `hunger`, `mood` and the skills**, with the speed formula `0.5 + skill × 0.1`. *(traits.md §1)*
+4. **4 traits** — `night_owl`, `chatterbox`, `clumsy`, `perfectionist`, using only `Mul`/`Add` effects. *(traits.md §2–3)*
+5. **A five-item menu** — black coffee, cappuccino, lemon tea, topinka, garlic soup; stations bar/kitchen. *(characters.md §2)*
+6. **An ordinary guest**: arrives → sits down → orders → waits (patience) → pays → leaves happy or unhappy → reputation ±. One pool, `travelers`.
+7. **Mirek the taxi driver** — the first regular (fixed time, favourite order, no arc yet). *(characters.md §3.1)*
+8. **The 3:33 guest + the `clock_333` event** — the clock stops, the guest drinks tea by the window and leaves coins. The main atmospheric hook, and cheap to build. *(characters.md §3.3)*
+9. **Night storyteller v0** — `base_rate × curve(time)`, weights, `cooldown`. Ten MVP events, starting with five: rain, downpour, concert crowd, staff sick, big tip. *(events.md)*
+10. **Lida's note no. 1** under the till + a morning summary screen (revenue, reviews, debt). Gives a sense of story from the very first night. *(story.md §6)*
 
-## Порядок «потом» (рекомендация)
+## Suggested order after the MVP *(historical)*
 
-отношения персонала → арки Ганы и Мирека → платежи и 30 ночей → франшиза и концовки → остальные записки → песочница и генерация.
+staff relationships → Hana's and Mirek's arcs → payments and the 30 nights → the franchise offer and the
+endings → the remaining notes → sandbox and generation.
 
-## Оригинальность
+## Originality
 
-Все имена, город, кафе, сеть NONSTOP 24, события и «Ночь-рассказчик» придуманы для этой игры. Это жанровое родство с колони-симами, а не заимствование: чужих рассказчиков, фракций, персонажей и текстов здесь нет.
+All the characters, the café, the NONSTOP 24 chain, the events and the Night storyteller were invented for
+this game. Shiftella is related to colony sims by genre, not by borrowing: there are no other games'
+storytellers, factions, characters or texts here.

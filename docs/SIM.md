@@ -154,4 +154,4 @@ REVIEW_WEIGHT, story_ramp}`, `staff::{STAFF_SPEED, TRAY}`, `narrator::CHOICE_MIN
 `RequestStatus`, `Facing`/`Pose`/`SimEmote` (render mirrors), `LookRef`, `AgentView`, `FurnitureView`,
 `NightSummary`, `Task`, `StaffStatus`, `PartyState`, `PayrollWeek`, `Handover`, `BotMsg`;
 `sim::grid::DEFAULT_LAYOUT` (CAFE_LAYOUT + register/fridge/sink/lamp/decor letters + street) and
-`world::STORY_INSTITUTIONS` (Mlhov: taxi rank, hospital, college).
+`world::STORY_INSTITUTIONS` (the story station: taxi rank, hospital, college).
