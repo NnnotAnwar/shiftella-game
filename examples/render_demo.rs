@@ -639,7 +639,7 @@ async fn main() {
             if a.selected {
                 lighting.add_light(Light::new(pose.feet, 0.8 * TILE, pal::INDIGO_GLOW, 0.5));
             }
-            if a.look.accessory == Accessory::ShiftellaLogo && pose.pose == Pose::Sit {
+            if a.look == PersonLook::preset("anwar") && pose.pose == Pose::Sit {
                 lighting.add_light(Light::phone(vec2(12.2, 8.5) * TILE - vec2(0.0, 34.0)));
             }
         }
