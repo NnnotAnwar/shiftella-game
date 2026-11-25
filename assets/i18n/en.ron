@@ -1252,7 +1252,7 @@
     "ui.ticker.staff_late": "{name} is {min} min late",
     "ui.ticker.staff_sick": "{name} is sick tonight",
     "ui.ticker.staff_walked_out": "{name} walked out of the shift",
-    "ui.ticker.train": "{train} from {station} pulls into Mlhov",
+    "ui.ticker.train": "{train} pulls into Mlhov",
     "ui.ticker.weather": "Weather: {weather}",
     "ui.toast.hide_all": "Hide toasts (Shift+F)",
     "ui.toolbar.app": "Shiftella",

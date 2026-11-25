@@ -235,16 +235,16 @@ sk ide domov
 uk іде додому
 
 ui.crew.status_sick
-cs nemocná/ý dnes
+cs dnes stůně
 en sick tonight
-sk dnes chorý/á
+sk dnes marodí
 uk сьогодні хворіє
 
 ui.crew.status_walked_out
-cs odešel/odešla
+cs odchod ze směny
 en walked out
-sk odišiel/odišla
-uk пішов/пішла
+sk odchod zo zmeny
+uk вихід зі зміни
 
 ui.crew.wage
 cs {money} za noc
@@ -535,10 +535,10 @@ sk Deň · naplánuj noc a potom Začať noc (Enter)
 uk День · сплануй ніч, потім Почати ніч (Enter)
 
 ui.ticker.dish_broken
-cs {name} rozbil/a hrnek
+cs {name} rozbíjí hrnek
 en {name} broke a cup
-sk {name} rozbil/a šálku
-uk {name} розбив/ла чашку
+sk {name} rozbíja šálku
+uk {name} розбиває чашку
 
 ui.ticker.furniture_unlocked
 cs Nové vybavení: {item}
@@ -583,10 +583,10 @@ sk Splátka {money} nezaplatená
 uk Платіж {money} не сплачено
 
 ui.ticker.regular_arrived
-cs Přišel/přišla {name}
+cs {name} přichází
 en {name} came in
-sk Prišiel/prišla {name}
-uk Зайшов/зайшла {name}
+sk {name} prichádza
+uk {name} заходить
 
 ui.ticker.staff_late
 cs {name} má zpoždění {min} min
@@ -595,22 +595,22 @@ sk {name} mešká {min} min
 uk {name} запізнюється на {min} хв
 
 ui.ticker.staff_sick
-cs {name} je dnes nemocná/ý
+cs {name} dnes stůně
 en {name} is sick tonight
-sk {name} je dnes chorý/á
+sk {name} dnes marodí
 uk {name} сьогодні хворіє
 
 ui.ticker.staff_walked_out
-cs {name} odešel/odešla ze směny
+cs {name} opouští směnu
 en {name} walked out of the shift
-sk {name} odišiel/odišla zo zmeny
-uk {name} пішов/пішла зі зміни
+sk {name} opúšťa zmenu
+uk {name} залишає зміну
 
 ui.ticker.train
-cs {train} ze stanice {station} projíždí Mlhovem
-en {train} from {station} pulls into Mlhov
-sk {train} zo stanice {station} prechádza Mlhovom
-uk {train} зі станції {station} прибуває в Mlhov
+cs {train} přijíždí do Mlhova
+en {train} pulls into Mlhov
+sk {train} prichádza do Mlhova
+uk {train} прибуває в Mlhov
 
 ui.ticker.weather
 cs Počasí: {weather}

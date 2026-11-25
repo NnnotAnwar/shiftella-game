@@ -158,7 +158,7 @@ impl App {
         let story_at = |night: u32, minute: Option<u32>, i18n: &I18n, lang: Lang| {
             let loc = Locale::new(i18n, lang);
             let mut g = GameScreen::new_story(&content, "cozy", true);
-            g.fast_forward(&content, &loc, night, minute);
+            g.fast_forward(&content, &loc, night, minute, night > 1);
             g
         };
         let lang = self.settings.lang();
@@ -253,6 +253,7 @@ impl App {
                     &Locale::new(&self.i18n, lang),
                     night.unwrap_or(1),
                     Some(minute.unwrap_or(120)),
+                    false,
                 );
                 self.game(g)
             }
@@ -333,6 +334,10 @@ pub async fn run() {
         let dir = std::env::temp_dir().join("shiftella-shot-saves");
         // SAFETY: single-threaded, before anything reads the environment.
         unsafe { std::env::set_var("SHIFTELLA_SAVES", dir) };
+    }
+    if shot.is_some() {
+        // SAFETY: as above.
+        unsafe { std::env::set_var("SHIFTELLA_NO_AUTOSAVE", "1") };
     }
 
     // ── boot ──

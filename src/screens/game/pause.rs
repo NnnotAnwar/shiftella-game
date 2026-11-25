@@ -58,7 +58,7 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let page = g.pause.as_ref().map(|p| p.page).unwrap_or_default();
     match page {
         Page::Main => {
-            let (w, h) = (300.0, 360.0);
+            let (w, h) = (300.0, 324.0);
             let pr = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0, w, h);
             ui.glass(pr, &Glass::panel().radius(14.0));
             let c = pr.inset(20.0);

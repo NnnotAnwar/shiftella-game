@@ -84,7 +84,7 @@ fn fast_forward_reaches_night_and_minute() {
     let i = i18n();
     let loc = Locale::new(&i, crate::i18n::Lang::En);
     let mut g = GameScreen::new_story(&c, "cozy", true);
-    g.fast_forward(&c, &loc, 3, Some(90));
+    g.fast_forward(&c, &loc, 3, Some(90), true);
     assert_eq!(g.world.night(), 3);
     assert_eq!(g.world.phase(), Phase::Night);
     assert!(g.world.minute() >= 90);

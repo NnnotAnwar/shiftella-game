@@ -50,6 +50,8 @@ pub struct WorldScene {
     /// Cached views of this frame.
     pub people: Vec<AgentView>,
     size: (i32, i32),
+    /// Per agent: (feet at the previous tick, feet at the last tick, that tick).
+    tracks: HashMap<(u8, u32), (Vec2, Vec2, u32)>,
 }
 
 impl Default for WorldScene {
@@ -81,6 +83,7 @@ impl WorldScene {
             emote_started: HashMap::new(),
             people: Vec::new(),
             size: (30, 18),
+            tracks: HashMap::new(),
         }
     }
 
@@ -242,9 +245,29 @@ impl WorldScene {
     }
 
     /// Refreshes cached people views (call once per frame before drawing / picking).
-    pub fn refresh(&mut self, world: &World, now: f32) {
+    /// `alpha` = fraction of the next tick already elapsed: feet are interpolated between
+    /// the last two sim ticks so walking is smooth at 60 fps.
+    pub fn refresh(&mut self, world: &World, now: f32, alpha: f32) {
         self.people = world.staff_views();
         self.people.extend(world.guest_views());
+        let tick = world.tick_count();
+        let a = alpha.clamp(0.0, 1.0);
+        for v in self.people.iter_mut() {
+            let k = akey(v.agent);
+            let cur = vec2(v.feet.0, v.feet.1);
+            let e = self.tracks.entry(k).or_insert((cur, cur, tick));
+            if e.2 != tick {
+                e.0 = e.1;
+                e.1 = cur;
+                e.2 = tick;
+            }
+            if e.0.distance(e.1) < 1.5 * TILE && v.seat_tile.is_none() {
+                let p = e.0.lerp(e.1, a);
+                v.feet = (p.x, p.y);
+            }
+        }
+        let alive: Vec<(u8, u32)> = self.people.iter().map(|v| akey(v.agent)).collect();
+        self.tracks.retain(|k, _| alive.contains(k));
         let mut seen = Vec::with_capacity(self.people.len());
         for v in &self.people {
             seen.push(akey(v.agent));

@@ -763,9 +763,16 @@ impl GameScreen {
         loc: &Locale,
         night: u32,
         minute: Option<u32>,
+        hire: bool,
     ) {
         let mut guard = 0;
         while self.world.night() < night && guard < 400 && !self.world.is_closed() {
+            if self.world.phase() == Phase::Day && hire {
+                let ids: Vec<u32> = self.world.candidates().iter().map(|c| c.id).collect();
+                for id in ids {
+                    let _ = self.world.apply(content, Command::Hire { candidate: id });
+                }
+            }
             if self.world.phase() == Phase::Day {
                 self.world.start_night(content);
             }
@@ -985,7 +992,12 @@ impl GameScreen {
             dt * self.speed.max(1) as f32
         };
         self.scene.update(anim_dt);
-        self.scene.refresh(&self.world, self.time);
+        let alpha = if self.frozen() || self.clock_stop > 0.0 {
+            1.0
+        } else {
+            self.acc / TICK_SECONDS
+        };
+        self.scene.refresh(&self.world, self.time, alpha);
 
         // 2. world
         if self.player.is_playing() {
@@ -1049,11 +1061,13 @@ impl GameScreen {
                 pause::draw(self, ui, cx);
             }
         }
-        self.flush_notices(ui, &loc);
-        let inset = if self.player.is_playing() { 0.0 } else { 56.0 };
-        ui.set_toast_bottom_inset(inset);
-        for ev in ui.draw_toasts(ToastAnchor::BottomRight) {
-            self.toast_clicked(content, ev.toast, ev.tag);
+        // toasts wait while a scene is on screen
+        if !self.player.is_playing() {
+            self.flush_notices(ui, &loc);
+            ui.set_toast_bottom_inset(56.0);
+            for ev in ui.draw_toasts(ToastAnchor::BottomRight) {
+                self.toast_clicked(content, ev.toast, ev.tag);
+            }
         }
     }
 
