@@ -256,23 +256,31 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 || s.owner
         })
         .count();
-    ui.fonts.draw_in(
-        &loc.trf("ui.plan.crew_tonight", &[("n", &on.to_string())]),
-        Rect::new(c.x, y, c.w, 18.0),
-        &t.small(),
-        Align::Left,
-    );
-    // grandma's attic (and the back room): new things on Saturdays
+    // grandma's attic (and the back room): new things on Saturdays — a compact button at the
+    // right end of the crew line, so it never covers the text above the shortcuts
     let attic = g.world.attic(content);
-    if attic.open || g.world.back_room(content).available {
-        let ar = Rect::new(c.x, c.bottom() - 108.0, c.w, 28.0);
+    let attic_label = (attic.open || g.world.back_room(content).available).then(|| {
         let fresh = attic.offers.iter().filter(|o| !o.owned).count();
-        let label = if fresh > 0 {
+        if fresh > 0 {
             format!("{} · {fresh}", loc.tr("ui.attic.title"))
         } else {
             loc.tr_owned("ui.attic.title")
-        };
-        let b = Button::new(&label).ghost().icon(Icon::Home);
+        }
+    });
+    let attic_b = attic_label
+        .as_deref()
+        .map(|l| Button::new(l).ghost().icon(Icon::Home));
+    let attic_w = attic_b
+        .as_ref()
+        .map_or(0.0, |b| (ui.button_width(b) + 4.0).min(c.w * 0.55));
+    ui.fonts.draw_in(
+        &loc.trf("ui.plan.crew_tonight", &[("n", &on.to_string())]),
+        Rect::new(c.x, y, c.w - attic_w - 6.0, 18.0),
+        &t.small(),
+        Align::Left,
+    );
+    if let Some(b) = attic_b {
+        let ar = Rect::new(c.right() - attic_w, y - 5.0, attic_w, 26.0);
         if ui.button("plan_attic", ar, &b).clicked {
             super::attic_ui::toggle(g);
         }

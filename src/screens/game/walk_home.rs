@@ -238,9 +238,17 @@ pub fn backstep_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         .ghost()
         .icon(Icon::Door)
         .tooltip(loc.tr("walk.backstep.chip_tip"));
+    // under the atmosphere meter, beside the camera button — clear of the ticket rail at the
+    // top and of the "open now" chip that sits right of the meter during the prep
     let size = crate::ui::handson::ATMO_SIZE;
+    let top = g
+        .anchors
+        .iter()
+        .find(|a| a.0 == "hud.atmosphere")
+        .map(|a| a.1.bottom() + 6.0)
+        .unwrap_or(12.0 + 64.0 + 6.0 + size.y + 6.0);
     let w = ui.button_width(&b) + 8.0;
-    let r = Rect::new(12.0 + size.x + 8.0, 12.0 + 64.0 + 6.0, w, size.y);
+    let r = Rect::new(12.0 + 30.0 + 6.0, top, w, 30.0);
     g.anchors.push(("hud.backstep", r));
     ui.glass(r, &Glass::hud().radius(8.0));
     let br = r.inset(4.0);
