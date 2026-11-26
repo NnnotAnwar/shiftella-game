@@ -7,131 +7,131 @@ regular.guest_anwar.name
 regular.guest_anwar.bio
 cs Tichý host, kolem třicítky. Sedne si k zásuvce, pracuje na notebooku, objedná ovesné flat white a kolem druhé odchází.
 en A quiet guest, late twenties. Sits by the socket, works on his laptop, orders an oat flat white and leaves around two.
-sk Tichý hosť, okolo tridsiatky. Sadne si k zásuvke, pracuje na notebooku, objedná ovsené flat white a okolo druhej odchádza.
 uk Тихий гість, під тридцять. Сідає біля розетки, працює на ноутбуці, замовляє вівсяний флет вайт і йде близько другої.
+ru Тихий гость, под тридцать. Садится у розетки, работает за ноутбуком, заказывает флэт уайт на овсяном и уходит около двух.
 
 regular.guest_anwar.ambient.rain
 cs Mám rád, když za mě mluví déšť.
 en I like it when the rain does the talking.
-sk Mám rád, keď za mňa hovorí dážď.
 uk Люблю, коли замість мене говорить дощ.
+ru Люблю, когда вместо меня говорит дождь.
 
 regular.guest_anwar.ambient.fog
 cs Koleje nejsou vidět. Jen světlo z vašeho okna.
 en Can't even see the tracks. Just the light from your window.
-sk Koľaje nie je vidieť. Len svetlo z vášho okna.
 uk Колій не видно. Тільки світло з вашого вікна.
+ru Путей не видно. Только свет из вашего окна.
 
 regular.guest_anwar.ambient.train
 cs Každý vlak zní, jako by jel někam, kde je líp.
 en Every train sounds like it's going somewhere better.
-sk Každý vlak znie, akoby šiel niekam, kde je lepšie.
 uk Кожен поїзд звучить так, ніби їде туди, де краще.
+ru Каждый поезд звучит так, будто едет туда, где лучше.
 
 regular.guest_anwar.ambient.midnight
 cs Půlnoc? Kurzoru je to jedno.
 en Midnight already? The cursor doesn't care.
-sk Polnoc? Kurzoru je to jedno.
 uk Уже північ? Курсору байдуже.
+ru Уже полночь? Курсору всё равно.
 
 regular.guest_anwar.ambient.late
 cs Dvě ráno je ta nejupřímnější hodina.
 en Two in the morning is the most honest hour.
-sk Druhá ráno je tá najúprimnejšia hodina.
 uk Друга ночі — найчесніша година.
+ru Два часа ночи — самый честный час.
 
 regular.guest_anwar.ambient.busy
 cs Dneska je tu živo. Budu potichu.
 en Lively tonight. I'll keep quiet, then.
-sk Dnes je tu živo. Budem potichu.
 uk Сьогодні жваво. Тоді я посиджу тихенько.
+ru Сегодня оживлённо. Тогда я посижу тихонько.
 
 regular.guest_anwar.ambient.quiet
 cs Klidná noc. Ta nejlepší.
 en A quiet night. The best kind.
-sk Pokojná noc. Tá najlepšia.
 uk Тиха ніч. Найкраща.
+ru Тихая ночь. Самая лучшая.
 
 regular.guest_anwar.ambient.coffee
 cs Dobré flat white. Neříkejte ovsu, že to není mléko.
 en Good flat white. Don't tell the oats they're not milk.
-sk Dobré flat white. Nehovorte ovsu, že to nie je mlieko.
 uk Добрий флет вайт. Тільки не кажіть вівсу, що він не молоко.
+ru Хороший флэт уайт. Только не говорите овсу, что он не молоко.
 
 scene.anwar_talk_9.01
 cs Muž u zásuvky zvedne oči od notebooku, jako by ho překvapilo, že si ho někdo všiml.
 en The man by the socket looks up from his laptop, as if surprised that anyone noticed him.
-sk Muž pri zásuvke zdvihne oči od notebooku, akoby ho prekvapilo, že si ho niekto všimol.
 uk Чоловік біля розетки підводить очі від ноутбука, ніби дивується, що його хтось помітив.
+ru Мужчина у розетки поднимает глаза от ноутбука, будто удивлён, что его кто-то заметил.
 
 scene.anwar_talk_9.02
 cs Promiňte, trochu jsem se zamotal. Dělám malou hru. O noční kavárně v dešti.
 en Sorry, I got a bit lost in it. I'm making a small game. About a night café in the rain.
-sk Prepáčte, trochu som sa zamotal. Robím malú hru. O nočnej kaviarni v daždi.
 uk Вибачте, трохи захопився. Я роблю маленьку гру. Про нічну кав'ярню під дощем.
+ru Простите, немного увлёкся. Я делаю маленькую игру. Про ночное кафе под дождём.
 
 scene.anwar_talk_9.03
 cs Nic v ní nevybuchuje. Lidi přijdou, vypijí něco teplého a jdou dál.
 en Nothing explodes in it. People just come in, drink something warm and go on their way.
-sk Nič v nej nevybuchuje. Ľudia prídu, vypijú niečo teplé a idú ďalej.
 uk У ній нічого не вибухає. Люди просто заходять, п'ють щось тепле й ідуть далі.
+ru В ней ничего не взрывается. Люди просто заходят, пьют что-нибудь тёплое и идут дальше.
 
 scene.anwar_talk_9.04
 cs Pořád přemýšlím, jestli by vůbec někdo hrál něco tak tichého.
 en I keep wondering if anyone would ever play something that quiet.
-sk Stále rozmýšľam, či by vôbec niekto hral niečo také tiché.
 uk Усе думаю, чи гратиме взагалі хтось у щось таке тихе.
+ru Всё думаю, станет ли вообще кто-нибудь играть во что-то настолько тихое.
 
 scene.anwar_talk_9.05
 cs Někdo přesně tohle potřebuje.
 en Some people need exactly that.
-sk Niekto presne toto potrebuje.
 uk Комусь саме цього й треба.
+ru Кому-то именно это и нужно.
 
 scene.anwar_talk_9.06
 cs Možná. …Tak ještě jedno flat white. Na průzkum.
 en Maybe. …Another flat white, then. For research.
-sk Možno. …Tak ešte jedno flat white. Na prieskum.
 uk Можливо. …Тоді ще один флет вайт. Для дослідження.
+ru Возможно. …Тогда ещё один флэт уайт. Для исследования.
 
 scene.anwar_talk_24.01
 cs Je skoro hotová. Ta hra.
 en It's almost done. The game.
-sk Je skoro hotová. Tá hra.
 uk Вона майже готова. Та гра.
+ru Она почти готова. Та игра.
 
 scene.anwar_talk_24.02
 cs Víte, psal jsem ji tady. Déšť, lampu v okně, vlaky. Díky za tu atmosféru.
 en I've been writing it here, you know. The rain, the lamp in the window, the trains. Thank you for the atmosphere.
-sk Viete, písal som ju tu. Dážď, lampu v okne, vlaky. Vďaka za tú atmosféru.
 uk Знаєте, я писав її тут. Дощ, лампу у вікні, поїзди. Дякую за атмосферу.
+ru Знаете, я писал её здесь. Дождь, лампу в окне, поезда. Спасибо за атмосферу.
 
 scene.anwar_talk_24.03
 cs Nic zvláštního jsme nedělali.
 en We didn't do anything special.
-sk Nič zvláštne sme nerobili.
 uk Ми нічого особливого не робили.
+ru Мы ничего особенного не делали.
 
 scene.anwar_talk_24.04
 cs Právě to jsem potřeboval.
 en That's exactly what I needed.
-sk Práve to som potreboval.
 uk Саме це мені й було потрібно.
+ru Именно это мне и было нужно.
 
 scene.anwar_talk_24.05
 cs Zaklapne notebook, nechá u šálku přesně odpočítané peníze a zapne si kabát.
 en He closes the laptop, leaves the exact amount by his cup and buttons up his coat.
-sk Zaklapne notebook, nechá pri šálke presne odpočítané peniaze a zapne si kabát.
 uk Він закриває ноутбук, лишає біля чашки рівно стільки, скільки треба, і застібає пальто.
+ru Он закрывает ноутбук, оставляет у чашки ровно столько, сколько нужно, и застёгивает пальто.
 
 scene.anwar_talk_24.06
 cs Poslední vlak. Dobrou noc — a ať to světlo svítí.
 en The last train. Good night — and keep the light on.
-sk Posledný vlak. Dobrú noc — a nech to svetlo svieti.
 uk Останній поїзд. Добраніч — і хай це світло горить.
+ru Последний поезд. Спокойной ночи — и пусть этот свет горит.
 
 ui.ending.credits_thanks
 cs Díky, Anwar — za Shiftellu a za každou noční směnu, která je díky ní o kousek lehčí.
 en Thank you, Anwar — for Shiftella, and for every night shift it makes a little lighter.
-sk Vďaka, Anwar — za Shiftellu a za každú nočnú zmenu, ktorá je vďaka nej o kúsok ľahšia.
 uk Дякуємо, Anwar, — за Shiftella і за кожну нічну зміну, яку вона робить трохи легшою.
+ru Спасибо, Anwar, — за Shiftella и за каждую ночную смену, которую она делает чуточку легче.

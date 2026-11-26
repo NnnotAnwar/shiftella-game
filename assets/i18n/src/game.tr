@@ -3,617 +3,617 @@
 ui.boot.loading
 cs Rozsvěcuji lampy…
 en Turning on the lamps…
-sk Rozsvecujem lampy…
 uk Вмикаю лампи…
+ru Включаю лампы…
 
 ui.app.approved
 cs schváleno
 en approved
-sk schválené
 uk схвалено
+ru одобрено
 
 ui.app.declined
 cs zamítnuto
 en declined
-sk zamietnuté
 uk відхилено
+ru отклонено
 
 ui.app.cell_tip
 cs Klik — další směna · PTM — zpět
 en Click — next shift · RMB — back
-sk Klik — ďalšia zmena · PTM — späť
 uk Клік — наступна зміна · ПКМ — назад
+ru Клик — следующая смена · ПКМ — назад
 
 ui.app.checklist_hint
 cs Odškrtávat se dá jen během noci.
 en You can tick items only during the night.
-sk Odškrtávať sa dá len počas noci.
 uk Відмічати можна лише вночі.
+ru Отмечать можно только ночью.
 
 ui.app.draft
 cs Koncept
 en Draft
-sk Koncept
 uk Чернетка
+ru Черновик
 
 ui.app.is_published
 cs Zveřejněno
 en Published
-sk Zverejnené
 uk Опубліковано
+ru Опубликовано
 
 ui.app.handover_saved
 cs Předávka uložena
 en Handover note saved
-sk Odovzdávka uložená
 uk Передачу збережено
+ru Записка сохранена
 
 ui.app.handover_send
 cs Uložit předávku
 en Save handover
-sk Uložiť odovzdávku
 uk Зберегти передачу
+ru Сохранить записку
 
 ui.app.leave_short
 cs volno
 en leave
-sk voľno
 uk вихідний
+ru выходной
 
 ui.app.night_hours
 cs NOČNÍ H
 en NIGHT H
-sk NOČNÉ H
 uk НІЧНІ ГОД
+ru НОЧНЫЕ Ч
 
 ui.app.night_only
 cs Tohle jde jen během noci
 en That only works during the night
-sk Toto ide len počas noci
 uk Це можна лише вночі
+ru Это можно только ночью
 
 ui.app.payroll_empty
 cs Podklady pro mzdy se připraví na konci týdne.
 en The payroll basis is prepared at the end of the week.
-sk Podklady pre mzdy sa pripravia na konci týždňa.
 uk Дані для зарплати готуються наприкінці тижня.
+ru Данные для зарплаты готовятся в конце недели.
 
 ui.app.staff
 cs ZAMĚSTNANEC
 en STAFF
-sk ZAMESTNANEC
 uk ПРАЦІВНИК
+ru СОТРУДНИК
 
 ui.app.swap_line
 cs {from} → {to}
 en {from} → {to}
-sk {from} → {to}
 uk {from} → {to}
+ru {from} → {to}
 
 ui.app.tab.board
 cs Nástěnka
 en Board
-sk Nástenka
 uk Дошка
+ru Доска
 
 ui.app.tab.requests
 cs Žádosti
 en Requests
-sk Žiadosti
 uk Запити
+ru Запросы
 
 ui.app.wage
 cs MZDA
 en WAGE
-sk MZDA
 uk ЗАРПЛАТА
+ru ЗАРПЛАТА
 
 ui.app.week
 cs týden {n}
 en week {n}
-sk týždeň {n}
 uk тиждень {n}
+ru неделя {n}
 
 ui.build.free
 cs zdarma
 en free
-sk zadarmo
 uk безкоштовно
+ru бесплатно
 
 ui.build.undo_hint
 cs Ctrl+Z vrátí zpět
 en Ctrl+Z puts it back
-sk Ctrl+Z vráti späť
 uk Ctrl+Z поверне назад
+ru Ctrl+Z вернёт назад
 
 ui.credits.closed_title
 cs Kavárna zavřela
 en The café closed
-sk Kaviareň zatvorila
 uk Кав'ярня зачинилася
+ru Кафе закрылось
 
 ui.credits.closed_text
 cs Některé noci se nepovedou. Ale lampa v okně si to pamatuje.
 en Some nights don't work out. But the lamp in the window remembers.
-sk Niektoré noci sa nevydaria. Ale lampa v okne si to pamätá.
 uk Деякі ночі не вдаються. Але лампа у вікні пам'ятає.
+ru Некоторые ночи не удаются. Но лампа в окне помнит.
 
 ui.credits.font
 cs Inter — Rasmus Andersson (SIL Open Font License)
 en Inter — Rasmus Andersson (SIL Open Font License)
-sk Inter — Rasmus Andersson (SIL Open Font License)
 uk Inter — Rasmus Andersson (SIL Open Font License)
+ru Inter — Rasmus Andersson (SIL Open Font License)
 
 ui.credits.font_title
 cs PÍSMO
 en FONT
-sk PÍSMO
 uk ШРИФТ
+ru ШРИФТ
 
 ui.credits.made_by
 cs S láskou udělali Anwar & Claude
 en Made with love by Anwar & Claude
-sk S láskou vytvorili Anwar & Claude
 uk Зроблено з любов'ю: Anwar & Claude
+ru Сделано с любовью: Anwar & Claude
 
 ui.credits.made_by_title
 cs HRU UDĚLALI
 en MADE BY
-sk HRU VYTVORILI
 uk АВТОРИ
+ru АВТОРЫ
 
 ui.credits.music
 cs Hudba a zvuky: ElevenLabs
 en Music & sound: ElevenLabs
-sk Hudba a zvuky: ElevenLabs
 uk Музика та звуки: ElevenLabs
+ru Музыка и звуки: ElevenLabs
 
 ui.credits.music_title
 cs HUDBA A ZVUK
 en MUSIC & SOUND
-sk HUDBA A ZVUK
 uk МУЗИКА Й ЗВУК
+ru МУЗЫКА И ЗВУК
 
 ui.credits.places_title
 cs STANICE NA TRATI
 en STATIONS ON THE LINE
-sk STANICE NA TRATI
 uk СТАНЦІЇ НА ЛІНІЇ
+ru СТАНЦИИ НА ЛИНИИ
 
 ui.credits.skip
 cs Do hlavního menu · Esc
 en To the main menu · Esc
-sk Do hlavného menu · Esc
 uk До головного меню · Esc
+ru В главное меню · Esc
 
 ui.credits.thanks_for_playing
 cs Děkujeme, že jste hráli
 en Thank you for playing
-sk Ďakujeme, že ste hrali
 uk Дякуємо за гру
+ru Спасибо за игру
 
 ui.crew.fire_day_only
 cs Propustit jde jen přes den
 en You can let people go only during the day
-sk Prepustiť sa dá len cez deň
 uk Звільнити можна лише вдень
+ru Уволить можно только днём
 
 ui.crew.fired_toast
 cs {name} odchází
 en {name} is leaving
-sk {name} odchádza
 uk {name} іде
+ru {name} уходит
 
 ui.crew.hired_toast
 cs {name} je v týmu
 en {name} joined the crew
-sk {name} je v tíme
 uk {name} у команді
+ru {name} в команде
 
 ui.crew.hired
 cs Nový člen týmu: {staff}
 en New crew member: {staff}
-sk Nový člen tímu: {staff}
 uk Новий у команді: {staff}
+ru Новый сотрудник: {staff}
 
 ui.crew.owner
 cs Vedení kavárny
 en Running the café
-sk Vedenie kaviarne
 uk Керує кав'ярнею
+ru Управляет кафе
 
 ui.crew.status_expected
 cs dorazí v {time}
 en arrives at {time}
-sk príde o {time}
 uk прийде о {time}
+ru придёт в {time}
 
 ui.crew.status_leaving
 cs jde domů
 en heading home
-sk ide domov
 uk іде додому
+ru идёт домой
 
 ui.crew.status_sick
 cs dnes stůně
 en sick tonight
-sk dnes marodí
 uk сьогодні хворіє
+ru сегодня болеет
 
 ui.crew.status_walked_out
 cs odchod ze směny
 en walked out
-sk odchod zo zmeny
 uk вихід зі зміни
+ru уход со смены
 
 ui.crew.wage
 cs {money} za noc
 en {money} a night
-sk {money} za noc
 uk {money} за ніч
+ru {money} за ночь
 
 ui.error.blocks_path
 cs Tudy by nikdo neprošel
 en That would block the way
-sk Tadiaľ by nikto neprešiel
 uk Це перекриє прохід
+ru Это перекроет проход
 
 ui.error.generic
 cs To teď nejde
 en That doesn't work right now
-sk To teraz nejde
 uk Зараз так не можна
+ru Сейчас так нельзя
 
 ui.error.in_use
 cs Právě se to používá
 en It's in use right now
-sk Práve sa to používa
 uk Зараз це використовують
+ru Сейчас этим пользуются
 
 ui.error.locked
 cs Ještě není odemčeno
 en Not unlocked yet
-sk Ešte nie je odomknuté
 uk Ще не відкрито
+ru Ещё не открыто
 
 ui.error.money
 cs Na to teď nejsou peníze
 en Not enough money for that
-sk Na to teraz nie sú peniaze
 uk На це зараз бракує грошей
+ru На это сейчас не хватает денег
 
 ui.error.nothing_to_undo
 cs Není co vrátit
 en Nothing to undo
-sk Nie je čo vrátiť
 uk Нічого скасовувати
+ru Нечего отменять
 
 ui.error.occupied
 cs Tady není místo
 en There's no room here
-sk Tu nie je miesto
 uk Тут немає місця
+ru Здесь нет места
 
 ui.error.phase
 cs To jde jen přes den
 en Only during the day
-sk To ide len cez deň
 uk Лише вдень
+ru Только днём
 
 ui.guest.talk
 cs Promluvit si
 en Talk
-sk Porozprávať sa
 uk Поговорити
+ru Поговорить
 
 ui.guest.wants
 cs čeká na: {item}
 en waiting for: {item}
-sk čaká na: {item}
 uk чекає: {item}
+ru ждёт: {item}
 
 ui.hud.menu_tip
 cs Menu · Esc
 en Menu · Esc
-sk Menu · Esc
 uk Меню · Esc
+ru Меню · Esc
 
 ui.log.story
 cs Příběh
 en Story
-sk Príbeh
 uk Історія
+ru История
 
 ui.log.tonight
 cs Dnes v noci
 en Tonight
-sk Dnes v noci
 uk Цієї ночі
+ru Этой ночью
 
 ui.pause.load
 cs Nahrát hru
 en Load game
-sk Načítať hru
 uk Завантажити гру
+ru Загрузить игру
 
 ui.pause.quit
 cs Ukončit hru
 en Quit game
-sk Ukončiť hru
 uk Вийти з гри
+ru Выйти из игры
 
 ui.pause.settings
 cs Nastavení
 en Settings
-sk Nastavenia
 uk Налаштування
+ru Настройки
 
 ui.plan.crew_tonight
 cs Na směně dnes v noci: {n}
 en On shift tonight: {n}
-sk Na zmene dnes v noci: {n}
 uk На зміні цієї ночі: {n}
+ru На смене этой ночью: {n}
 
 ui.plan.regulars
 cs DNES MOŽNÁ PŘIJDOU
 en MAY DROP BY TONIGHT
-sk DNES MOŽNO PRÍDU
 uk ЦІЄЇ НОЧІ МОЖУТЬ ЗАЙТИ
+ru ЭТОЙ НОЧЬЮ МОГУТ ЗАЙТИ
 
 ui.plan.rent
 cs Nájem za noc
 en Rent per night
-sk Nájom za noc
 uk Оренда за ніч
+ru Аренда за ночь
 
 ui.plan.yesterday
 cs VČERA
 en LAST NIGHT
-sk VČERA
 uk МИНУЛОЇ НОЧІ
+ru ПРОШЛОЙ НОЧЬЮ
 
 ui.plan.yesterday_line
 cs Obslouženo {served} hostů · {money}
 en {served} guests served · {money}
-sk Obslúžených {served} hostí · {money}
 uk Обслуговано гостей: {served} · {money}
+ru Обслужено гостей: {served} · {money}
 
 ui.priorities.legend_short
 cs Klik — vyšší · PTM — nižší · kolečko · 1 = nejdůležitější, — = nedělá
 en Click — higher · RMB — lower · wheel · 1 = most important, — = won't do
-sk Klik — vyššia · PTM — nižšia · koliesko · 1 = najdôležitejšie, — = nerobí
 uk Клік — вище · ПКМ — нижче · коліщатко · 1 = найважливіше, — = не робить
+ru Клик — выше · ПКМ — ниже · колёсико · 1 = важнее всего, — = не делает
 
 ui.save.day
 cs den
 en day
-sk deň
 uk день
+ru день
 
 ui.save.slot_n
 cs Pozice {n}
 en Slot {n}
-sk Pozícia {n}
 uk Слот {n}
+ru Слот {n}
 
 ui.save.mode.story
 cs Příběh
 en Story
-sk Príbeh
 uk Історія
+ru История
 
 ui.save.mode.sandbox
 cs Sandbox
 en Sandbox
-sk Sandbox
 uk Пісочниця
+ru Песочница
 
 ui.summary.expenses
 cs Zásoby a provoz
 en Supplies & running costs
-sk Zásoby a prevádzka
 uk Запаси й витрати
+ru Запасы и расходы
 
 ui.summary.mood_good
 cs Hosté odcházeli s úsměvem. Babička by byla spokojená.
 en Guests left smiling. Grandma would be pleased.
-sk Hostia odchádzali s úsmevom. Babka by bola spokojná.
 uk Гості йшли з усмішкою. Бабуся була б задоволена.
+ru Гости уходили с улыбкой. Бабушка была бы довольна.
 
 ui.summary.mood_ok
 cs Klidná noc. Kávovar si odpočine, ty taky.
 en A quiet night. The coffee machine rests, and so can you.
-sk Pokojná noc. Kávovar si oddýchne, ty tiež.
 uk Тиха ніч. Кавоварка відпочине, і ти теж.
+ru Тихая ночь. Кофемашина отдохнёт, и ты тоже.
 
 ui.summary.mood_hard
 cs Těžká noc. Zítra je nová směna — a nový rozpis.
 en A rough night. Tomorrow is a new shift — and a new schedule.
-sk Ťažká noc. Zajtra je nová zmena — a nový rozpis.
 uk Важка ніч. Завтра нова зміна — і новий розпис.
+ru Тяжёлая ночь. Завтра новая смена — и новое расписание.
 
 ui.summary.new_note
 cs nový lístek!
 en a new note!
-sk nový lístok!
 uk нова записка!
+ru новая записка!
 
 ui.summary.payment
 cs Splátka dluhu
 en Debt payment
-sk Splátka dlhu
 uk Платіж за боргом
+ru Платёж по долгу
 
 ui.summary.payment_missed
 cs Splátka nezaplacena
 en Payment missed
-sk Splátka nezaplatená
 uk Платіж пропущено
+ru Платёж пропущен
 
 ui.task.take_order
 cs bere objednávku
 en taking an order
-sk berie objednávku
 uk приймає замовлення
+ru принимает заказ
 
 ui.task.prepare
 cs připravuje
 en preparing
-sk pripravuje
 uk готує
+ru готовит
 
 ui.task.serve
 cs roznáší
 en serving
-sk roznáša
 uk розносить
+ru разносит
 
 ui.task.clear_table
 cs sklízí stůl
 en clearing a table
-sk upratuje stôl
 uk прибирає стіл
+ru убирает стол
 
 ui.task.wash
 cs myje nádobí
 en washing up
-sk umýva riad
 uk миє посуд
+ru моет посуду
 
 ui.task.mop
 cs vytírá
 en mopping
-sk umýva podlahu
 uk миє підлогу
+ru моет пол
 
 ui.task.checklist
 cs checklist
 en checklist
-sk checklist
 uk чекліст
+ru чек-лист
 
 ui.task.bucket
 cs vylévá kbelík
 en emptying the bucket
-sk vylieva vedro
 uk виливає відро
+ru выливает ведро
 
 ui.task.break
 cs na pauze
 en on a break
-sk na prestávke
 uk на перерві
+ru на перерыве
 
 ui.task.idle
 cs čeká na práci
 en waiting for work
-sk čaká na prácu
 uk чекає на роботу
+ru ждёт работы
 
 ui.task.leave
 cs odchází
 en leaving
-sk odchádza
 uk іде
+ru уходит
 
 ui.ticker.blackout
 cs Výpadek proudu! Svítí jen svíčky a telefony.
 en Power cut! Only candles and phones glow.
-sk Výpadok prúdu! Svietia len sviečky a telefóny.
 uk Світло зникло! Світять лише свічки й телефони.
+ru Свет пропал! Светят только свечи и телефоны.
 
 ui.ticker.power_back
 cs Proud je zpátky
 en The power is back
-sk Prúd je späť
 uk Світло повернулося
+ru Свет вернулся
 
 ui.ticker.day
 cs Den · naplánuj noc a pak Začít noc (Enter)
 en Day · plan the night, then Start the night (Enter)
-sk Deň · naplánuj noc a potom Začať noc (Enter)
 uk День · сплануй ніч, потім Почати ніч (Enter)
+ru День · спланируй ночь, потом Начать ночь (Enter)
 
 ui.ticker.dish_broken
 cs {name} rozbíjí hrnek
 en {name} broke a cup
-sk {name} rozbíja šálku
 uk {name} розбиває чашку
+ru {name} разбивает чашку
 
 ui.ticker.furniture_unlocked
 cs Nové vybavení: {item}
 en New furniture: {item}
-sk Nové vybavenie: {item}
 uk Нові меблі: {item}
+ru Новая мебель: {item}
 
 ui.ticker.menu_unlocked
 cs Nové v menu: {item}
 en New on the menu: {item}
-sk Nové v menu: {item}
 uk Нове в меню: {item}
+ru Новое в меню: {item}
 
 ui.ticker.night_started
 cs Noc {night} začíná · 22:00
 en Night {night} begins · 22:00
-sk Noc {night} sa začína · 22:00
 uk Ніч {night} починається · 22:00
+ru Ночь {night} начинается · 22:00
 
 ui.ticker.note_found
 cs Babiččin lístek nalezen ({n} z 10)
 en Grandma's note found ({n} of 10)
-sk Babkin lístok nájdený ({n} z 10)
 uk Знайдено записку бабусі ({n} з 10)
+ru Найдена записка бабушки ({n} из 10)
 
 ui.ticker.open_log
 cs Otevřít deník · L
 en Open the log · L
-sk Otvoriť denník · L
 uk Відкрити журнал · L
+ru Открыть журнал · L
 
 ui.ticker.payment_made
 cs Splátka zaplacena: {money}
 en Payment made: {money}
-sk Splátka zaplatená: {money}
 uk Платіж сплачено: {money}
+ru Платёж внесён: {money}
 
 ui.ticker.payment_missed
 cs Splátka {money} nezaplacena
 en Payment of {money} missed
-sk Splátka {money} nezaplatená
 uk Платіж {money} не сплачено
+ru Платёж {money} не внесён
 
 ui.ticker.regular_arrived
 cs {name} přichází
 en {name} came in
-sk {name} prichádza
 uk {name} заходить
+ru {name} заходит
 
 ui.ticker.staff_late
 cs {name} má zpoždění {min} min
 en {name} is {min} min late
-sk {name} mešká {min} min
 uk {name} запізнюється на {min} хв
+ru {name} опаздывает на {min} мин
 
 ui.ticker.staff_sick
 cs {name} dnes stůně
 en {name} is sick tonight
-sk {name} dnes marodí
 uk {name} сьогодні хворіє
+ru {name} сегодня болеет
 
 ui.ticker.staff_walked_out
 cs {name} opouští směnu
 en {name} walked out of the shift
-sk {name} opúšťa zmenu
 uk {name} залишає зміну
+ru {name} уходит со смены
 
 ui.ticker.train
 cs {train} přijíždí do Holešovic
 en {train} pulls into Holešovice
-sk {train} prichádza do Holešovíc
 uk {train} прибуває в Голешовиці
+ru {train} прибывает в Голешовице
 
 ui.ticker.weather
 cs Počasí: {weather}
 en Weather: {weather}
-sk Počasie: {weather}
 uk Погода: {weather}
+ru Погода: {weather}

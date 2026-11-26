@@ -1,401 +1,782 @@
 # Hands-on UI (design/handson.md §1, §7.4): tastes, order card, ticket rail, queue, tip jar, lull chips,
-# duties, jukebox, themes, atmosphere, settings. English placeholder texts in every language until T9
-# (see handson_TODO.txt). Karolina is "you" in the UI.
+# duties, jukebox, themes, atmosphere, settings. Karolina is "you" in the UI
+# (ty/ти/ты, feminine forms).
 
 # --- tastes (§3.1) ------------------------------------------------------------------------------
 taste.warm
-* Warm
+cs Teplé
+en Warm
+uk Тепле
+ru Тёплое
 
 taste.cold
-* Cold
+cs Studené
+en Cold
+uk Холодне
+ru Холодное
 
 taste.sweet
-* Sweet
+cs Sladké
+en Sweet
+uk Солодке
+ru Сладкое
 
 taste.bitter
-* Bitter
+cs Hořké
+en Bitter
+uk Гірке
+ru Горькое
 
 taste.strong
-* Strong
+cs Silné
+en Strong
+uk Міцне
+ru Крепкое
 
 taste.mild
-* Mild
+cs Jemné
+en Mild
+uk М'яке
+ru Мягкое
 
 taste.comforting
-* Comforting
+cs Konejšivé
+en Comforting
+uk Затишне
+ru Уютное
 
 taste.fancy
-* Fancy
+cs Fajnové
+en Fancy
+uk Вишукане
+ru Изысканное
 
 taste.quick
-* Quick
+cs Rychlé
+en Quick
+uk Швидке
+ru Быстрое
 
 taste.filling
-* Filling
+cs Sytné
+en Filling
+uk Ситне
+ru Сытное
 
 taste.spiced
-* Spiced
+cs Kořeněné
+en Spiced
+uk Пряне
+ru Пряное
 
 taste.fresh
-* Fresh
+cs Svěží
+en Fresh
+uk Свіже
+ru Свежее
 
 # --- order card -----------------------------------------------------------------------------------
 ui.order.by_hand
-* By hand
+cs Ručně
+en By hand
+uk Власноруч
+ru Вручную
 
 ui.order.quick
-* Quick
+cs Rychle
+en Quick
+uk Швидко
+ru Быстро
 
 ui.order.usual
-* The usual?
+cs To obvyklé?
+en The usual?
+uk Як завжди?
+ru Как обычно?
 
 ui.order.hand_off
-* Hand off
+cs Předat
+en Hand off
+uk Передати
+ru Передать
 
 ui.order.book
-* Book (K)
+cs Kniha (K)
+en Book (K)
+uk Книга (K)
+ru Книга (K)
 
 ui.order.plain
-* Plain order: {item}
+cs Běžná objednávka: {item}
+en Plain order: {item}
+uk Звичайне замовлення: {item}
+ru Обычный заказ: {item}
 
 ui.order.art_finish
-* + art
+cs + obrázek
+en + art
+uk + малюнок
+ru + рисунок
 
 ui.order.remember
-* Remember: from the handover note
+cs Pamatuj: z předávky
+en Remember: from the handover note
+uk Пам'ятай: із нотатки зміни
+ru Помни: из записки смены
 
 ui.order.matches
-* Good matches
+cs Co sedí
+en Good matches
+uk Що пасує
+ru Что подходит
 
 # --- ticket rail ----------------------------------------------------------------------------------
 ui.rail.title
-* Orders
+cs Objednávky
+en Orders
+uk Замовлення
+ru Заказы
 
 ui.rail.unowned
-* Nobody's on this one
+cs Tohle nikdo nedělá
+en Nobody's on this one
+uk Цим ніхто не займається
+ru Этим никто не занят
 
 ui.rail.karolina
-* You
+cs Ty
+en You
+uk Ти
+ru Ты
 
 ui.rail.more
 * +{n}
 
 ui.rail.incoming
-* {name} is on the way
+cs {name} je na cestě
+en {name} is on the way
+uk {name} уже в дорозі
+ru {name} уже в пути
 
 ui.rail.to_go
-* to go
+cs s sebou
+en to go
+uk з собою
+ru с собой
 
 ui.rail.usual
-* the usual
+cs to obvyklé
+en the usual
+uk як завжди
+ru как обычно
 
 # --- Karolina's queue -------------------------------------------------------------------------------
 ui.queue.remove
-* Remove from your queue
+cs Odebrat z tvé fronty
+en Remove from your queue
+uk Прибрати з твоєї черги
+ru Убрать из твоей очереди
 
 ui.queue.do_next
-* Do this next
+cs Udělat jako další
+en Do this next
+uk Зробити наступним
+ru Сделать следующим
 
 ui.queue.full
-* Your hands are full — five things at once is plenty.
+cs Máš plné ruce — pět věcí naráz stačí.
+en Your hands are full — five things at once is plenty.
+uk Руки зайняті — п'ять справ одночасно цілком досить.
+ru Руки заняты — пять дел сразу вполне достаточно.
 
 # --- tip jar ----------------------------------------------------------------------------------------
 ui.tipjar.tonight
-* Tonight: {amount}
+cs Dnes: {amount}
+en Tonight: {amount}
+uk Цієї ночі: {amount}
+ru Этой ночью: {amount}
 
 ui.tipjar.lifetime
-* In the jar so far: {amount}
+cs Ve sklenici zatím: {amount}
+en In the jar so far: {amount}
+uk У банці поки що: {amount}
+ru В банке пока: {amount}
 
 ui.tipjar.rhythm
-* In the rhythm: tips +{percent} %
+cs V rytmu: spropitné +{percent} %
+en In the rhythm: tips +{percent} %
+uk У ритмі: чайові +{percent} %
+ru В ритме: чаевые +{percent} %
 
 ui.tipjar.goal
-* Next jar goal: {amount}
+cs Další cíl sklenice: {amount}
+en Next jar goal: {amount}
+uk Наступна мета банки: {amount}
+ru Следующая цель банки: {amount}
 
 ui.tipjar.count
-* Count the jar
+cs Spočítat sklenici
+en Count the jar
+uk Порахувати банку
+ru Посчитать банку
 
 ui.tipjar.pick
-* The jar is full of kindness. Pick something for the hall.
+cs Sklenice je plná laskavosti. Vyber něco do sálu.
+en The jar is full of kindness. Pick something for the hall.
+uk Банка повна доброти. Вибери щось для зали.
+ru Банка полна доброты. Выбери что-нибудь для зала.
 
 # --- lull chips ---------------------------------------------------------------------------------------
 ui.lull.speed
-* It's quiet — ×2?
+cs Je klid — ×2?
+en It's quiet — ×2?
+uk Тихо — ×2?
+ru Тихо — ×2?
 
 ui.lull.margin_note
-* Grandma's margin note
+cs Babiččina poznámka na okraji
+en Grandma's margin note
+uk Бабусина нотатка на полях
+ru Бабушкина пометка на полях
 
 ui.lull.mug
-* Make yourself a coffee
+cs Uvař si kafe
+en Make yourself a coffee
+uk Звари собі каву
+ru Свари себе кофе
 
 ui.lull.talk
-* {name} looks like talking
+cs {name} má chuť si popovídat
+en {name} looks like talking
+uk {name}, здається, хоче поговорити
+ru {name}, кажется, хочет поговорить
 
 ui.quiet_hour.toast
-* The quiet hour.
+cs Tichá hodinka.
+en The quiet hour.
+uk Тиха година.
+ru Тихий час.
 
 # --- duties & hiring (§1.3) -------------------------------------------------------------------------
 duty.dishes.name
-* Dishes
+cs Nádobí
+en Dishes
+uk Посуд
+ru Посуда
 
 duty.dishes.desc
-* Clears tables, washes up and puts left tips in the jar.
+cs Sklízí stoly, myje nádobí a nechané dýško dává do sklenice.
+en Clears tables, washes up and puts left tips in the jar.
+uk Прибирає столи, миє посуд і кладе залишені чайові в банку.
+ru Убирает со столов, моет посуду и кладёт оставленные чаевые в банку.
 
 duty.floor.name
-* Floor
+cs Podlaha
+en Floor
+uk Підлога
+ru Пол
 
 duty.floor.desc
-* Mops, empties buckets and does the cleaning on the checklists.
+cs Vytírá, vylévá kbelíky a dělá úklid z checklistů.
+en Mops, empties buckets and does the cleaning on the checklists.
+uk Миє підлогу, виливає відра й робить прибирання з чеклистів.
+ru Моет пол, выливает вёдра и делает уборку из чек-листов.
 
 duty.register.name
-* Register
+cs Pokladna
+en Register
+uk Каса
+ru Касса
 
 duty.register.desc
-* Takes plain orders and payments. Wishes and regulars stay with you.
+cs Bere běžné objednávky a platby. Přání a štamgasti zůstávají tobě.
+en Takes plain orders and payments. Wishes and regulars stay with you.
+uk Приймає звичайні замовлення й оплату. Побажання й постійні гості лишаються тобі.
+ru Принимает обычные заказы и оплату. Пожелания и постоянные гости остаются тебе.
 
 duty.bar.name
-* Bar
+cs Bar
+en Bar
+uk Бар
+ru Бар
 
 duty.bar.desc
-* Makes plain drinks the menu way. Your recipes stay yours.
+cs Dělá běžné nápoje podle menu. Tvoje recepty zůstávají tvoje.
+en Makes plain drinks the menu way. Your recipes stay yours.
+uk Готує звичайні напої за меню. Твої рецепти лишаються твоїми.
+ru Готовит обычные напитки по меню. Твои рецепты остаются твоими.
 
 duty.kitchen.name
-* Kitchen
+cs Kuchyň
+en Kitchen
+uk Кухня
+ru Кухня
 
 duty.kitchen.desc
-* Makes plain food the menu way. Your recipes stay yours.
+cs Dělá běžná jídla podle menu. Tvoje recepty zůstávají tvoje.
+en Makes plain food the menu way. Your recipes stay yours.
+uk Готує звичайні страви за меню. Твої рецепти лишаються твоїми.
+ru Готовит обычные блюда по меню. Твои рецепты остаются твоими.
 
 duty.serving.name
-* Serving
+cs Obsluha
+en Serving
+uk Подача
+ru Подача
 
 duty.serving.desc
-* Carries what helpers made. You always carry your own.
+cs Roznáší, co udělali pomocníci. To svoje vždycky neseš sama.
+en Carries what helpers made. You always carry your own.
+uk Розносить те, що приготували помічники. Своє ти завжди несеш сама.
+ru Разносит то, что приготовили помощники. Своё ты всегда несёшь сама.
 
 ui.duties.title
-* Duties
+cs Povinnosti
+en Duties
+uk Обов'язки
+ru Обязанности
 
 ui.duties.suggest
-* Suggest
+cs Navrhnout
+en Suggest
+uk Запропонувати
+ru Предложить
 
 ui.duties.capacity
-* {n} of {max} duties
+cs Povinnosti: {n}/{max}
+en {n} of {max} duties
+uk Обов'язки: {n}/{max}
+ru Обязанности: {n}/{max}
 
 ui.duties.full
-* {name} has their hands full.
+cs {name} už má plné ruce.
+en {name} has their hands full.
+uk {name}: руки вже зайняті.
+ru {name}: руки уже заняты.
 
 ui.duties.grew
-* {name} can take one more duty now.
+cs {name} teď zvládne ještě jednu povinnost.
+en {name} can take one more duty now.
+uk {name} тепер може взяти ще один обов'язок.
+ru {name} теперь может взять ещё одну обязанность.
 
 ui.duties.hire_default
-* Starts on: {duty}
+cs Začne na: {duty}
+en Starts on: {duty}
+uk Почне з: {duty}
+ru Начнёт с: {duty}
 
 ui.duties.accept
-* Sounds good
+cs To zní dobře
+en Sounds good
+uk Звучить добре
+ru Звучит хорошо
 
 ui.duties.tonight
-* Who can help tonight
+cs Kdo dnes může pomoct
+en Who can help tonight
+uk Хто може допомогти цієї ночі
+ru Кто может помочь этой ночью
 
 ui.duties.player_only
-* Only you: wishes, regulars, specials, moments and the window light.
+cs Jen ty: přání, štamgasti, speciality, chvilky a světlo v okně.
+en Only you: wishes, regulars, specials, moments and the window light.
+uk Лише ти: побажання, постійні гості, фірмові страви, миті й світло у вікні.
+ru Только ты: пожелания, постоянные гости, фирменные блюда, моменты и свет в окне.
 
 story.hint.duties
-* Helpers only do the duties you give them (H). The guests with wishes are yours.
+cs Pomocníci dělají jen povinnosti, které jim dáš (H). Hosté s přáním jsou tvoji.
+en Helpers only do the duties you give them (H). The guests with wishes are yours.
+uk Помічники роблять лише ті обов'язки, які ти їм даси (H). Гості з побажаннями — твої.
+ru Помощники делают только те обязанности, которые ты им дашь (H). Гости с пожеланиями — твои.
 
 # --- moment card -------------------------------------------------------------------------------------
 ui.moment.expires
-* Won't wait forever
+cs Nebude čekat věčně
+en Won't wait forever
+uk Не чекатиме вічно
+ru Не будет ждать вечно
 
 ui.moment.free
-* Free
+cs Zdarma
+en Free
+uk Безкоштовно
+ru Бесплатно
 
 # --- jukebox (§10) --------------------------------------------------------------------------------------
 ui.jukebox.title
-* Grandma's jukebox
+cs Babiččin jukebox
+en Grandma's jukebox
+uk Бабусин музичний автомат
+ru Бабушкин музыкальный автомат
 
 ui.jukebox.repeat
-* Repeat
+cs Opakovat
+en Repeat
+uk Повторювати
+ru Повторять
 
 ui.jukebox.once
-* Play once
+cs Jednou
+en Play once
+uk Один раз
+ru Один раз
 
 ui.jukebox.locked
-* Not in the jukebox yet
+cs V jukeboxu zatím není
+en Not in the jukebox yet
+uk В автоматі ще немає
+ru В автомате пока нет
 
 ui.jukebox.now_playing
-* Now playing: {title}
+cs Hraje: {title}
+en Now playing: {title}
+uk Грає: {title}
+ru Играет: {title}
 
 ui.jukebox.unlocked
-* A new record for the jukebox: {title}
+cs Nová deska do jukeboxu: {title}
+en A new record for the jukebox: {title}
+uk Нова платівка для автомата: {title}
+ru Новая пластинка для автомата: {title}
 
 ui.jukebox.no_power
-* No power — the jukebox is silent. The rain isn't.
+cs Není proud — jukebox mlčí. Déšť ne.
+en No power — the jukebox is silent. The rain isn't.
+uk Немає світла — автомат мовчить. А дощ ні.
+ru Нет света — автомат молчит. А дождь нет.
 
 record.house.title
-* House playlist
+cs Domácí playlist
+en House playlist
+uk Домашній плейлист
+ru Домашний плейлист
 
 record.house.artist
-* Whatever suits the night
+cs Co se k noci hodí
+en Whatever suits the night
+uk Що пасує до ночі
+ru Что подходит к ночи
 
 hall_mood.lively
-* Lively
+cs Živo
+en Lively
+uk Жваво
+ru Оживлённо
 
 hall_mood.calm
-* Calm
+cs Klidně
+en Calm
+uk Спокійно
+ru Спокойно
 
 hall_mood.dreamy
-* Dreamy
+cs Snově
+en Dreamy
+uk Мрійливо
+ru Мечтательно
 
 hall_mood.tender
-* Tender
+cs Něžně
+en Tender
+uk Ніжно
+ru Нежно
 
 hall_mood.nostalgic
-* Nostalgic
+cs Nostalgicky
+en Nostalgic
+uk Ностальгійно
+ru Ностальгически
 
 # --- themes in Build (§11.2) -----------------------------------------------------------------------------
 ui.theme.tab
-* Theme
+cs Téma
+en Theme
+uk Тема
+ru Тема
 
 ui.theme.buy
-* Buy for {price}
+cs Koupit za {price}
+en Buy for {price}
+uk Купити за {price}
+ru Купить за {price}
 
 ui.theme.apply
-* Use this theme
+cs Použít toto téma
+en Use this theme
+uk Застосувати тему
+ru Применить тему
 
 ui.theme.day_only
-* Themes change in the day, before opening.
+cs Témata se mění přes den, před otevřením.
+en Themes change in the day, before opening.
+uk Теми змінюються вдень, до відкриття.
+ru Темы меняются днём, до открытия.
 
 ui.theme.owned
-* Yours
+cs Tvoje
+en Yours
+uk Твоя
+ru Твоя
 
 ui.theme.unlocked
-* New theme for the hall: {name}
+cs Nové téma pro sál: {name}
+en New theme for the hall: {name}
+uk Нова тема для зали: {name}
+ru Новая тема для зала: {name}
 
 # --- atmosphere meter (§11.3) --------------------------------------------------------------------------------
 atmo.title
-* Atmosphere
+cs Atmosféra
+en Atmosphere
+uk Атмосфера
+ru Атмосфера
 
 atmo.level_up
-* Atmosphere: {level}
+cs Atmosféra: {level}
+en Atmosphere: {level}
+uk Атмосфера: {level}
+ru Атмосфера: {level}
 
 atmo.level.1
-* Bare
+cs Holé
+en Bare
+uk Голо
+ru Голо
 
 atmo.level.2
-* Plain
+cs Obyčejné
+en Plain
+uk Просто
+ru Просто
 
 atmo.level.3
-* Pleasant
+cs Příjemné
+en Pleasant
+uk Приємно
+ru Приятно
 
 atmo.level.4
-* Cosy
+cs Útulné
+en Cosy
+uk Затишно
+ru Уютно
 
 atmo.level.5
-* Like home
+cs Jako doma
+en Like home
+uk Як удома
+ru Как дома
 
 atmo.component.light
-* Light
+cs Světlo
+en Light
+uk Світло
+ru Свет
 
 atmo.component.beauty
-* Beauty
+cs Krása
+en Beauty
+uk Краса
+ru Красота
 
 atmo.component.comfort
-* Comfort
+cs Pohodlí
+en Comfort
+uk Комфорт
+ru Комфорт
 
 atmo.component.clean
-* Clean
+cs Čistota
+en Clean
+uk Чистота
+ru Чистота
 
 atmo.component.music
-* Music
+cs Hudba
+en Music
+uk Музика
+ru Музыка
 
 atmo.component.theme
-* Theme
+cs Téma
+en Theme
+uk Тема
+ru Тема
 
 atmo.component.touches
-* Little touches
+cs Drobnosti
+en Little touches
+uk Дрібнички
+ru Мелочи
 
 atmo.tip.light
-* The window tables are dark.
+cs Stoly u okna jsou potmě.
+en The window tables are dark.
+uk Столи біля вікна в темряві.
+ru Столы у окна в темноте.
 
 atmo.tip.beauty
-* A rug or a plant would soften the hall.
+cs Koberec nebo kytka by sál zjemnily.
+en A rug or a plant would soften the hall.
+uk Килим чи рослина зробили б залу м'якшою.
+ru Ковёр или растение сделали бы зал мягче.
 
 atmo.tip.comfort
-* The chairs are hard — maybe a sofa?
+cs Židle jsou tvrdé — co třeba pohovka?
+en The chairs are hard — maybe a sofa?
+uk Стільці тверді — може, диван?
+ru Стулья жёсткие — может, диван?
 
 atmo.tip.clean
-* Dishes are piling up.
+cs Hromadí se nádobí.
+en Dishes are piling up.
+uk Накопичується посуд.
+ru Копится посуда.
 
 atmo.tip.music
-* Some music would help.
+cs Trocha hudby by pomohla.
+en Some music would help.
+uk Трохи музики не завадило б.
+ru Немного музыки не помешало бы.
 
 atmo.tip.theme
-* The walls could use a little love.
+cs Stěny by si zasloužily trochu lásky.
+en The walls could use a little love.
+uk Стінам не завадило б трохи любові.
+ru Стенам не помешало бы немного любви.
 
 atmo.tip.touches
-* It needs something of its own — a cat, a garland, a few plants.
+cs Chce to něco svého — kočku, girlandu, pár kytek.
+en It needs something of its own — a cat, a garland, a few plants.
+uk Бракує чогось свого — кота, гірлянди, кількох рослин.
+ru Не хватает чего-то своего — кота, гирлянды, пары растений.
 
 # --- napkins ---------------------------------------------------------------------------------------------
 ui.napkin.title
-* Napkins
+cs Ubrousky
+en Napkins
+uk Серветки
+ru Салфетки
 
 ui.napkin.collected
-* {n} napkins kept
+cs Schovaných ubrousků: {n}
+en {n} napkins kept
+uk Збережених серветок: {n}
+ru Сохранённых салфеток: {n}
 
 ui.napkin.reward_wall
-* So many napkins — they deserve a wall of their own.
+cs Tolik ubrousků — zaslouží si vlastní stěnu.
+en So many napkins — they deserve a wall of their own.
+uk Стільки серветок — вони заслуговують на власну стіну.
+ru Столько салфеток — они заслуживают собственной стены.
 
 ui.napkin.reward_mug
-* A new mug design, painted with napkin doodles.
+cs Nový vzor hrnku, pomalovaný čmáranicemi z ubrousků.
+en A new mug design, painted with napkin doodles.
+uk Новий візерунок для горнятка — з малюнків на серветках.
+ru Новый рисунок для кружки — из каракулей на салфетках.
 
 # --- settings ---------------------------------------------------------------------------------------------
 ui.settings.taste_hints
-* Show taste hints on wishes
+cs Ukazovat u přání nápovědy chutí
+en Show taste hints on wishes
+uk Показувати підказки смаку в побажаннях
+ru Показывать подсказки вкуса в пожеланиях
 
 ui.settings.relaxed_minigames
-* Relaxed mini-games
+cs Klidné minihry
+en Relaxed mini-games
+uk Спокійні мініігри
+ru Спокойные мини-игры
 
 ui.settings.assist_wishes
-* Helpers may take wishes left waiting
+cs Pomocníci smí vzít přání, která čekají
+en Helpers may take wishes left waiting
+uk Помічники можуть брати побажання, що чекають
+ru Помощники могут брать ждущие пожелания
 
 ui.settings.tutorial
-* Coach marks
+cs Nápovědy na obrazovce
+en Coach marks
+uk Підказки на екрані
+ru Подсказки на экране
 
 ui.tutorial.got_it
-* Got it
+cs Rozumím
+en Got it
+uk Зрозуміло
+ru Понятно
 
 # --- Karolina's own mug (§6.10) ------------------------------------------------------------------------------
 karolina.mug.1
-* The rain sounds different from behind the counter.
+cs Zpoza pultu zní déšť jinak.
+en The rain sounds different from behind the counter.
+uk Із-за стійки дощ звучить інакше.
+ru Из-за стойки дождь звучит иначе.
 
 karolina.mug.2
-* Grandma drank hers standing up. I think I get it now.
+cs Babička pila kafe vestoje. Myslím, že už chápu proč.
+en Grandma drank hers standing up. I think I get it now.
+uk Бабуся пила каву стоячи. Здається, тепер я розумію чому.
+ru Бабушка пила кофе стоя. Кажется, теперь я понимаю почему.
 
 karolina.mug.3
-* Five minutes. The café can hold its breath for five minutes.
+cs Pět minut. Pět minut kavárna zadrží dech.
+en Five minutes. The café can hold its breath for five minutes.
+uk П'ять хвилин. П'ять хвилин кав'ярня може затамувати подих.
+ru Пять минут. Пять минут кафе может задержать дыхание.
 
 karolina.mug.4
-* There's a chip in this mug exactly where my thumb goes.
+cs Tenhle hrnek je otlučený přesně tam, kam dávám palec.
+en There's a chip in this mug exactly where my thumb goes.
+uk На цьому горнятку щербинка саме там, де лягає мій великий палець.
+ru У этой кружки щербинка ровно там, где ложится мой большой палец.
 
 karolina.mug.5
-* Someone's train is leaving. Mine isn't.
+cs Něčí vlak odjíždí. Můj ne.
+en Someone's train is leaving. Mine isn't.
+uk Чийсь поїзд від'їжджає. Мій — ні.
+ru Чей-то поезд уходит. Мой — нет.
 
 karolina.mug.6
-* Steam on the window, steam from the cup. Fair trade.
+cs Pára na okně, pára z hrnku. Férová výměna.
+en Steam on the window, steam from the cup. Fair trade.
+uk Пара на вікні, пара з чашки. Чесний обмін.
+ru Пар на окне, пар из чашки. Честный обмен.
 
 karolina.mug.7
-* I used to drink coffee to stay awake. Now it's to stay here.
+cs Dřív jsem pila kafe, abych nespala. Teď ho piju, abych tu zůstala.
+en I used to drink coffee to stay awake. Now it's to stay here.
+uk Колись я пила каву, щоб не заснути. Тепер — щоб лишитися тут.
+ru Раньше я пила кофе, чтобы не уснуть. Теперь — чтобы остаться здесь.
 
 karolina.mug.8
-* The machine hums like it knows me now.
+cs Kávovar vrní, jako by mě už znal.
+en The machine hums like it knows me now.
+uk Кавоварка гуде, наче вже мене знає.
+ru Кофемашина гудит, будто уже меня знает.
 
 karolina.mug.9
-* Lida, you never told me how good the third cup at four a.m. tastes.
+cs Lido, nikdy jsi mi neřekla, jak dobře chutná třetí kafe ve čtyři ráno.
+en Lida, you never told me how good the third cup at four a.m. tastes.
+uk Лідо, ти ніколи не казала, яка смачна третя чашка о четвертій ранку.
+ru Лида, ты никогда не говорила, какая вкусная третья чашка в четыре утра.
 
 karolina.mug.10
-* Quiet hands, warm cup. That's the whole plan.
+cs Klidné ruce, teplý hrnek. To je celý plán.
+en Quiet hands, warm cup. That's the whole plan.
+uk Спокійні руки, тепле горнятко. Ось і весь план.
+ru Спокойные руки, тёплая кружка. Вот и весь план.
 
 karolina.mug.11
-* The holo sign flickers. I flicker back.
+cs Holo nápis zabliká. Zablikám zpátky.
+en The holo sign flickers. I flicker back.
+uk Голографічна вивіска блимає. Я блимаю у відповідь.
+ru Голографическая вывеска мигает. Я мигаю в ответ.
 
 karolina.mug.12
-* One sip for me, one for the night shift everywhere.
+cs Jeden lok pro mě, jeden pro všechny noční směny světa.
+en One sip for me, one for the night shift everywhere.
+uk Ковток для мене, ковток для всіх нічних змін на світі.
+ru Глоток для меня, глоток для всех ночных смен на свете.

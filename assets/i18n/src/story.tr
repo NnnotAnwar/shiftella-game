@@ -3,703 +3,703 @@
 story.act.1.title
 cs Dějství I — Klíče
 en Act I — The Keys
-sk Dejstvo I — Kľúče
 uk Дія I — Ключі
+ru Действие I — Ключи
 
 story.act.2.title
 cs Dějství II — Štamgasti
 en Act II — The Regulars
-sk Dejstvo II — Štamgasti
 uk Дія II — Постійні гості
+ru Действие II — Постоянные гости
 
 story.act.3.title
 cs Dějství III — Nabídka
 en Act III — The Offer
-sk Dejstvo III — Ponuka
 uk Дія III — Пропозиція
+ru Действие III — Предложение
 
 story.act.4.title
 cs Dějství IV — Poslední vlak
 en Act IV — The Last Train
-sk Dejstvo IV — Posledný vlak
 uk Дія IV — Останній поїзд
+ru Действие IV — Последний поезд
 
 story.night.01.title
 cs Příjezd
 en Arrival
-sk Príchod
 uk Приїзд
+ru Приезд
 
 story.night.01.hint
 cs Klíč je pod rohožkou. Rozsviť okno a uvař první kávu.
 en The key is under the mat. Light the window and make the first coffee.
-sk Kľúč je pod rohožkou. Rozsvieť okno a uvar prvú kávu.
 uk Ключ під килимком. Засвіти вікно й звари першу каву.
+ru Ключ под ковриком. Зажги окно и свари первый кофе.
 
 story.night.02.title
 cs První kolega
 en The first colleague
-sk Prvý kolega
 uk Перший колега
+ru Первый коллега
 
 story.night.02.hint
 cs Najmi někoho a sestav první rozpis.
 en Hire someone and build your first schedule.
-sk Najmi niekoho a zostav prvý rozpis.
 uk Найми когось і склади перший розклад.
+ru Найми кого-нибудь и составь первое расписание.
 
 story.night.03.title
 cs Déšť a sestra
 en Rain and a nurse
-sk Dážď a sestra
 uk Дощ і медсестра
+ru Дождь и медсестра
 
 story.night.03.hint
 cs Ve dvě přijde někdo, kdo nemá čas čekat.
 en At two, someone arrives who has no time to wait.
-sk O druhej príde niekto, kto nemá čas čakať.
 uk О другій прийде хтось, у кого немає часу чекати.
+ru В два придёт кое-кто, у кого нет времени ждать.
 
 story.night.04.title
 cs 3:33
 en 3:33
-sk 3:33
 uk 3:33
+ru 3:33
 
 story.night.04.hint
 cs Nech v okně svítit. Celou noc.
 en Keep the window lit. All night.
-sk Nechaj v okne svietiť. Celú noc.
 uk Нехай у вікні світиться. Усю ніч.
+ru Пусть в окне горит свет. Всю ночь.
 
 story.night.05.title
 cs Paní s křížovkou
 en The crossword lady
-sk Pani s krížovkou
 uk Пані з кросвордом
+ru Пани с кроссвордом
 
 story.night.05.hint
 cs Po půlnoci přijde někdo, kdo Lidu znal. Ať jsou stoly čisté.
 en After midnight, someone who knew Lida will come. Keep the tables clean.
-sk Po polnoci príde niekto, kto Lidu poznal. Nech sú stoly čisté.
 uk Після півночі прийде хтось, хто знав Ліду. Хай столи будуть чисті.
+ru После полуночи придёт тот, кто знал Лиду. Пусть столы будут чистыми.
 
 story.night.06.title
 cs Po koncertě
 en After the concert
-sk Po koncerte
 uk Після концерту
+ru После концерта
 
 story.night.06.hint
 cs Sobota. Kolem jedenácté skončí koncert v kulturáku.
 en Saturday. Around eleven, the concert at the culture house ends.
-sk Sobota. Okolo jedenástej skončí koncert v kultúrnom dome.
 uk Субота. Близько одинадцятої закінчиться концерт у будинку культури.
+ru Суббота. Около одиннадцати закончится концерт в доме культуры.
 
 story.night.07.title
 cs První splátka
 en The first payment
-sk Prvá splátka
 uk Перший платіж
+ru Первый платёж
 
 story.night.07.hint
 cs V šest ráno odchází 15 000 Kč. Počítej.
 en At six in the morning, 15,000 CZK is due. Count carefully.
-sk O šiestej ráno odchádza 15 000 Kč. Počítaj.
 uk О шостій ранку треба віддати 15 000 Kč. Рахуй.
+ru В шесть утра нужно отдать 15 000 Kč. Считай.
 
 story.night.08.title
 cs Obrubník
 en The kerb
-sk Obrubník
 uk Бордюр
+ru Бордюр
 
 story.night.08.hint
 cs Hlásí se noví lidé. A Mirek dnes parkuje nějak divně.
 en New people are applying. And Mirek is parking oddly tonight.
-sk Hlásia sa noví ľudia. A Mirek dnes parkuje nejako čudne.
 uk Зголошуються нові люди. А Мірек сьогодні якось дивно паркується.
+ru Приходят новые люди. А Мирек сегодня как-то странно паркуется.
 
 story.night.09.title
 cs Poslední výpravčí
 en The last dispatcher
-sk Posledný výpravca
 uk Останній черговий
+ru Последний дежурный
 
 story.night.09.hint
 cs V jednu se zastaví výpravčí. Má čtyři minuty.
 en At one, the dispatcher stops by. He has four minutes.
-sk O jednej sa zastaví výpravca. Má štyri minúty.
 uk О першій зайде черговий по станції. У нього чотири хвилини.
+ru В час зайдёт дежурный по станции. У него четыре минуты.
 
 story.night.10.title
 cs Tma
 en Darkness
-sk Tma
 uk Темрява
+ru Темнота
 
 story.night.10.hint
 cs Připrav svíčky. Jen tak, pro jistotu.
 en Have candles ready. Just in case.
-sk Priprav sviečky. Len tak, pre istotu.
 uk Підготуй свічки. Про всяк випадок.
+ru Приготовь свечи. На всякий случай.
 
 story.night.11.title
 cs Píseň na nástupišti
 en A song on the platform
-sk Pieseň na nástupišti
 uk Пісня на пероні
+ru Песня на перроне
 
 story.night.11.hint
 cs Prší. Na nástupišti někdo hraje.
 en It's raining. Someone is playing on the platform.
-sk Prší. Na nástupišti niekto hrá.
 uk Іде дощ. На пероні хтось грає.
+ru Идёт дождь. На перроне кто-то играет.
 
 story.night.12.title
 cs Tichý kout
 en The quiet corner
-sk Tichý kút
 uk Тихий куточок
+ru Тихий уголок
 
 story.night.12.hint
 cs Křeslo a lampa by se dnes mohly hodit.
 en An armchair and a lamp might come in handy tonight.
-sk Kreslo a lampa by sa dnes mohli hodiť.
 uk Крісло й лампа сьогодні можуть знадобитися.
+ru Кресло и лампа сегодня могут пригодиться.
 
 story.night.13.title
 cs Inspekce
 en Inspection
-sk Inšpekcia
 uk Інспекція
+ru Инспекция
 
 story.night.13.hint
 cs Hygiena přijde kolem půl dvanácté. Ať se leskne.
 en The health inspector comes around half past eleven. Make it shine.
-sk Hygiena príde okolo pol dvanástej. Nech sa blyští.
 uk Санінспекція прийде близько пів на дванадцяту. Хай усе блищить.
+ru Санинспекция придёт около половины двенадцатого. Пусть всё блестит.
 
 story.night.14.title
 cs Kuchařka
 en The recipe book
-sk Kuchárska kniha
 uk Кулінарна книга
+ru Поваренная книга
 
 story.night.14.hint
 cs Druhá splátka. A Vera dnes něco nese.
 en The second payment. And Vera is bringing something tonight.
-sk Druhá splátka. A Vera dnes niečo nesie.
 uk Другий платіж. А Віра сьогодні щось несе.
+ru Второй платёж. А Вера сегодня что-то несёт.
 
 story.night.15.title
 cs Otázka
 en The question
-sk Otázka
 uk Запитання
+ru Вопрос
 
 story.night.15.hint
 cs Mlha. Ve 3:33 se tě někdo na něco zeptá.
 en Fog. At 3:33, someone will ask you something.
-sk Hmla. O 3:33 sa ťa niekto na niečo opýta.
 uk Туман. О 3:33 хтось тебе дещо спитає.
+ru Туман. В 3:33 тебя кое о чём спросят.
 
 story.night.16.title
 cs Prázdná noc
 en An empty night
-sk Prázdna noc
 uk Порожня ніч
+ru Пустая ночь
 
 story.night.16.hint
 cs Nikdo nepřijde. Čas na úklid a na lidi, kteří tu pracují.
 en Nobody will come. Time for cleaning — and for the people who work here.
-sk Nikto nepríde. Čas na upratovanie a na ľudí, čo tu pracujú.
 uk Ніхто не прийде. Час для прибирання — і для людей, які тут працюють.
+ru Никто не придёт. Время для уборки — и для людей, которые здесь работают.
 
 story.night.17.title
 cs NONSTOP 24
 en NONSTOP 24
-sk NONSTOP 24
 uk NONSTOP 24
+ru NONSTOP 24
 
 story.night.17.hint
 cs Přijede návštěva ze sítě NONSTOP 24. Poslouchej.
 en A visitor from the NONSTOP 24 chain arrives. Listen.
-sk Príde návšteva zo siete NONSTOP 24. Počúvaj.
 uk Приїде гість із мережі NONSTOP 24. Слухай.
+ru Приедет гость из сети NONSTOP 24. Слушай.
 
 story.night.18.title
 cs Opravák
 en The resit
-sk Opravák
 uk Перескладання
+ru Пересдача
 
 story.night.18.hint
 cs Filip dnes neotevřel notebook.
 en Filip hasn't opened his laptop tonight.
-sk Filip dnes neotvoril notebook.
 uk Філіп сьогодні не відкривав ноутбук.
+ru Филип сегодня не открывал ноутбук.
 
 story.night.19.title
 cs Liják
 en Downpour
-sk Lejak
 uk Злива
+ru Ливень
 
 story.night.19.hint
 cs Bude lít. Hostů bude dvakrát tolik — a špíny taky.
 en It's going to pour. Twice the guests — and twice the mess.
-sk Bude liať. Hostí bude dvakrát toľko — a špiny tiež.
 uk Буде злива. Гостей удвічі більше — і бруду теж.
+ru Будет ливень. Гостей вдвое больше — и грязи тоже.
 
 story.night.20.title
 cs Na dlaň
 en A hand's breadth
-sk Na dlaň
 uk За долоню
+ru На ладонь
 
 story.night.20.hint
 cs Mirek dnes přijede pozdě. Buď u dveří.
 en Mirek will be late tonight. Stay near the door.
-sk Mirek dnes príde neskoro. Buď pri dverách.
 uk Мірек сьогодні запізниться. Будь біля дверей.
+ru Мирек сегодня опоздает. Будь у двери.
 
 story.night.21.title
 cs Třetí splátka
 en The third payment
-sk Tretia splátka
 uk Третій платіж
+ru Третий платёж
 
 story.night.21.hint
 cs Další splátka v šest. Někdo chce dovolenou.
 en Another payment at six. Someone wants a holiday.
-sk Ďalšia splátka o šiestej. Niekto chce dovolenku.
 uk Ще один платіж о шостій. Хтось хоче відпустку.
+ru Ещё один платёж в шесть. Кто-то хочет в отпуск.
 
 story.night.22.title
 cs Rozhodnutí
 en The decision
-sk Rozhodnutie
 uk Рішення
+ru Решение
 
 story.night.22.hint
 cs Dnes se rozhodne, čí bude nápis nad dveřmi.
 en Tonight decides whose sign hangs over the door.
-sk Dnes sa rozhodne, čí bude nápis nad dverami.
 uk Сьогодні вирішиться, чия вивіска висітиме над дверима.
+ru Сегодня решится, чья вывеска будет висеть над дверью.
 
 story.night.23.title
 cs Jízdní řád
 en The timetable
-sk Cestovný poriadok
 uk Розклад
+ru Расписание
 
 story.night.23.hint
 cs Radek má poslední službu.
 en Radek is working his last shift.
-sk Radek má poslednú službu.
 uk У Радека остання зміна.
+ru У Радека последняя смена.
 
 story.night.24.title
 cs Večer pro Lori
 en Lori's evening
-sk Večer pre Lori
 uk Вечір для Лорі
+ru Вечер для Лори
 
 story.night.24.hint
 cs Prší. Pokud má Lori pódium, dnes je její večer.
 en It's raining. If Lori has a stage, tonight is hers.
-sk Prší. Ak má Lori pódium, dnes je jej večer.
 uk Іде дощ. Якщо в Лорі є сцена — сьогодні її вечір.
+ru Идёт дождь. Если у Лори есть сцена — сегодня её вечер.
 
 story.night.25.title
 cs Bouřka
 en The storm
-sk Búrka
 uk Гроза
+ru Гроза
 
 story.night.25.hint
 cs Přijde bouřka. Ať okno svítí.
 en A storm is coming. Keep the window lit.
-sk Príde búrka. Nech okno svieti.
 uk Насувається гроза. Хай вікно світиться.
+ru Надвигается гроза. Пусть окно светится.
 
 story.night.26.title
 cs Drážďany
 en Dresden
-sk Drážďany
 uk Дрезден
+ru Дрезден
 
 story.night.26.hint
 cs Hana se rozhodla.
 en Hana has made up her mind.
-sk Hana sa rozhodla.
 uk Гана ухвалила рішення.
+ru Гана приняла решение.
 
 story.night.27.title
 cs První sníh
 en First snow
-sk Prvý sneh
 uk Перший сніг
+ru Первый снег
 
 story.night.27.hint
 cs Sněží. Vera chce vyprávět.
 en It's snowing. Vera wants to tell a story.
-sk Sneží. Vera chce rozprávať.
 uk Іде сніг. Віра хоче розповісти історію.
+ru Идёт снег. Вера хочет рассказать историю.
 
 story.night.28.title
 cs Dopis
 en The letter
-sk List
 uk Лист
+ru Письмо
 
 story.night.28.hint
 cs Čtvrtá splátka. A Mirek má otázku.
 en The fourth payment. And Mirek has a question.
-sk Štvrtá splátka. A Mirek má otázku.
 uk Четвертий платіж. А в Мірека є запитання.
+ru Четвёртый платёж. А у Мирека есть вопрос.
 
 story.night.29.title
 cs Loučení
 en Farewells
-sk Rozlúčky
 uk Прощання
+ru Прощания
 
 story.night.29.hint
 cs Každý štamgast dnes přijde uzavřít svůj příběh.
 en Every regular comes tonight to close their story.
-sk Každý štamgast dnes príde uzavrieť svoj príbeh.
 uk Сьогодні кожен постійний гість прийде завершити свою історію.
+ru Сегодня каждый постоянный гость придёт завершить свою историю.
 
 story.night.30.title
 cs Poslední vlak
 en The last train
-sk Posledný vlak
 uk Останній поїзд
+ru Последний поезд
 
 story.night.30.hint
 cs Poslední noc. 30 000 Kč v šest. Ve 3:33 ať okno svítí.
 en The last night. 30,000 CZK at six. At 3:33, keep the window lit.
-sk Posledná noc. 30 000 Kč o šiestej. O 3:33 nech okno svieti.
 uk Остання ніч. 30 000 Kč о шостій. О 3:33 хай вікно світиться.
+ru Последняя ночь. 30 000 Kč в шесть. В 3:33 пусть окно светится.
 
 # --- tutorial & story hints (toasts) ---
 
 story.hint.first_order
 cs Host s vykřičníkem čeká — pozdrav, vezmi objednávku a připrav ji sama. Personál jsi zatím ty.
 en A guest with a ! is waiting — say hello, take the order and make it yourself. For now, the staff is you.
-sk Hosť s výkričníkom čaká — pozdrav, vezmi objednávku a priprav ju sama. Personál si zatiaľ ty.
 uk Гість зі знаком оклику чекає — привітайся, прийми замовлення й приготуй сама. Поки що персонал — це ти.
+ru Гость с восклицательным знаком ждёт — поздоровайся, прими заказ и приготовь сама. Пока что персонал — это ты.
 
 story.hint.payment
 cs Dluh 90 000 Kč splácíš v nocích 7, 14, 21, 28 a 30. Přehled najdeš v aplikaci Shiftella.
 en The 90,000 CZK debt is paid on nights 7, 14, 21, 28 and 30. The overview is in the Shiftella app.
-sk Dlh 90 000 Kč splácaš v nociach 7, 14, 21, 28 a 30. Prehľad nájdeš v aplikácii Shiftella.
 uk Борг 90 000 Kč сплачується в ночі 7, 14, 21, 28 і 30. Огляд — у застосунку Shiftella.
+ru Долг 90 000 Kč выплачивается в ночи 7, 14, 21, 28 и 30. Обзор — в приложении Shiftella.
 
 story.hint.morning
 cs V šest se kavárna zavírá. Ráno uvidíš souhrn noci.
 en At six the café closes. In the morning you'll see the night's summary.
-sk O šiestej sa kaviareň zatvára. Ráno uvidíš súhrn noci.
 uk О шостій кав'ярня зачиняється. Вранці побачиш підсумок ночі.
+ru В шесть кафе закрывается. Утром увидишь итоги ночи.
 
 story.hint.hire
 cs Ve dne můžeš najímat. Otevři Personál (C) a vyber kandidáta.
 en You can hire during the day. Open Crew (C) and pick a candidate.
-sk Cez deň môžeš zamestnávať. Otvor Personál (C) a vyber kandidáta.
 uk Удень можна наймати. Відкрий «Персонал» (C) і вибери кандидата.
+ru Днём можно нанимать. Открой «Персонал» (C) и выбери кандидата.
 
 story.hint.schedule
 cs Rozpis směn najdeš v aplikaci Shiftella (T). Kliknutím na buňku změníš koncept, pak ho zveřejni.
 en The shift schedule lives in the Shiftella app (T). Click a cell to change the draft, then Publish.
-sk Rozpis zmien nájdeš v aplikácii Shiftella (T). Kliknutím na bunku zmeníš koncept, potom ho zverejni.
 uk Розклад змін — у застосунку Shiftella (T). Клацни клітинку, щоб змінити чернетку, потім опублікуй.
+ru Расписание смен — в приложении Shiftella (T). Нажми на клетку, чтобы изменить черновик, потом опубликуй.
 
 story.hint.priorities
 cs V Prioritách (P) určíš, kdo co dělá přednostně. 1 je nejdůležitější.
 en In Priorities (P) you decide who does what first. 1 is most important.
-sk V Prioritách (P) určíš, kto čo robí prednostne. 1 je najdôležitejšia.
 uk У «Пріоритетах» (P) визначаєш, хто що робить насамперед. 1 — найважливіше.
+ru В «Приоритетах» (P) решаешь, кто что делает в первую очередь. 1 — важнее всего.
 
 story.hint.regulars
 cs Štamgasti mají své časy a oblíbená jídla. Když je obsloužíš rychle, otevřou se ti.
 en Regulars have their own hours and favourites. Serve them quickly and they'll open up.
-sk Štamgasti majú svoje časy a obľúbené jedlá. Keď ich obslúžiš rýchlo, otvoria sa ti.
 uk Постійні гості мають свої години й улюблені страви. Обслуговуй їх швидко — і вони відкриються.
+ru У постоянных гостей свои часы и любимые блюда. Обслуживай их быстро — и они раскроются.
 
 story.hint.build
 cs Ve Stavbě (B) přidáš stoly, lampy a rostliny. Peníze se strhnou hned, Ctrl+Z vrací.
 en In Build (B) you can add tables, lamps and plants. Money is taken right away; Ctrl+Z undoes.
-sk V Stavbe (B) pridáš stoly, lampy a rastliny. Peniaze sa strhnú hneď, Ctrl+Z vracia.
 uk У «Будівництві» (B) додавай столи, лампи й рослини. Гроші списуються одразу, Ctrl+Z скасовує.
+ru В «Стройке» (B) добавляй столы, лампы и растения. Деньги списываются сразу, Ctrl+Z отменяет.
 
 story.hint.window_light
 cs Lampa v okně musí svítit i ve 3:33.
 en The lamp in the window must be on at 3:33 too.
-sk Lampa v okne musí svietiť aj o 3:33.
 uk Лампа у вікні має світити й о 3:33.
+ru Лампа в окне должна гореть и в 3:33.
 
 story.hint.rush
 cs Nával! Dej Baru a Obsluze nejvyšší prioritu.
 en Rush! Give Bar and Serving top priority.
-sk Nával! Daj Baru a Obsluhe najvyššiu prioritu.
 uk Наплив! Дай Бару й Обслуговуванню найвищий пріоритет.
+ru Наплыв! Дай Бару и Обслуживанию высший приоритет.
 
 story.hint.new_staff
 cs Na noční směny se hlásí další lidé. Mrkni na kandidáty.
 en More people are applying for night shifts. Take a look at the candidates.
-sk Na nočné zmeny sa hlásia ďalší ľudia. Pozri sa na kandidátov.
 uk На нічні зміни зголошуються нові люди. Поглянь на кандидатів.
+ru На ночные смены просятся новые люди. Взгляни на кандидатов.
 
 story.hint.app
 cs V Shiftelle najdeš výměny směn, volno, oznámení a ranní přehled.
 en Shiftella has shift swaps, time off, announcements and the morning digest.
-sk V Shiftelle nájdeš výmeny zmien, voľno, oznámenia a ranný prehľad.
 uk У Shiftella є обмін змінами, вихідні, оголошення й ранковий підсумок.
+ru В Shiftella есть обмен сменами, выходные, объявления и утренние итоги.
 
 story.hint.special
 cs Nová specialita: Noční vlak. Pro ty, kdo jedou dál.
 en New special: the Night Train. For those travelling on.
-sk Nová špecialita: Nočný vlak. Pre tých, čo idú ďalej.
 uk Нова фірмова страва: «Нічний поїзд». Для тих, хто їде далі.
+ru Новое фирменное блюдо: «Ночной поезд». Для тех, кто едет дальше.
 
 story.hint.candles
 cs Bez proudu jdou prodávat jen studená jídla. Svíčky hostům zvednou náladu.
 en Without power, only cold food can be sold. Candles cheer the guests up.
-sk Bez prúdu sa dajú predávať len studené jedlá. Sviečky hosťom zdvihnú náladu.
 uk Без світла можна продавати лише холодне. Свічки піднімуть гостям настрій.
+ru Без света можно продавать только холодное. Свечи поднимут гостям настроение.
 
 story.hint.armchair
 cs Křeslo a stojací lampa vedle sebe tvoří tichý kout.
 en An armchair with a floor lamp beside it makes a quiet corner.
-sk Kreslo a stojacia lampa vedľa seba tvoria tichý kút.
 uk Крісло й торшер поруч утворюють тихий куточок.
+ru Кресло и торшер рядом образуют тихий уголок.
 
 story.hint.inspection
 cs Hygiena kontroluje špínu. Pod 30 % je pochvala, nad 60 % pokuta.
 en The inspection checks dirt. Under 30 % earns praise, over 60 % a fine.
-sk Hygiena kontroluje špinu. Pod 30 % je pochvala, nad 60 % pokuta.
 uk Інспекція перевіряє бруд. До 30 % — похвала, понад 60 % — штраф.
+ru Инспекция проверяет грязь. До 30 % — похвала, больше 60 % — штраф.
 
 story.hint.downpour
 cs Liják! Hostů přibývá — postav někoho na úklid.
 en Downpour! More guests are coming in — put someone on cleaning.
-sk Lejak! Hostí pribúda — postav niekoho na upratovanie.
 uk Злива! Гостей більшає — постав когось на прибирання.
+ru Ливень! Гостей всё больше — поставь кого-нибудь на уборку.
 
 story.hint.lori_night
 cs Lori je tady. Dnes hraje pro všechny.
 en Lori is here. Tonight she plays for everyone.
-sk Lori je tu. Dnes hrá pre všetkých.
 uk Лорі тут. Сьогодні вона грає для всіх.
+ru Лори здесь. Сегодня она играет для всех.
 
 story.hint.farewell
 cs Poslední noci. Každý štamgast přijde uzavřít svůj příběh.
 en The last nights. Every regular comes to close their story.
-sk Posledné noci. Každý štamgast príde uzavrieť svoj príbeh.
 uk Останні ночі. Кожен постійний гість прийде завершити свою історію.
+ru Последние ночи. Каждый постоянный гость придёт завершить свою историю.
 
 # --- beat speech bubbles ---
 
 story.line.04_mirek
 cs Ve tři je tu vždycky divné ticho. Lida říkala, že to nic.
 en There's always a strange silence here around three. Lida said it was nothing.
-sk O tretej je tu vždy čudné ticho. Lida hovorila, že to nič.
 uk Близько третьої тут завжди дивна тиша. Ліда казала, що то нічого.
+ru Около трёх здесь всегда странная тишина. Лида говорила, что это ничего.
 
 story.line.06_filip
 cs Dobrý večer… je tu Wi-Fi? Nebo aspoň zásuvka?
 en Good evening… is there Wi-Fi? Or at least a socket?
-sk Dobrý večer… je tu Wi-Fi? Alebo aspoň zásuvka?
 uk Добрий вечір… тут є Wi-Fi? Або хоча б розетка?
+ru Добрый вечер… здесь есть Wi-Fi? Или хотя бы розетка?
 
 story.line.07_cook
 cs Za Lidy se splátky taky platily v neděli. Ráno. S nadávkami.
 en In Lida's day the payments were made on Sundays too. In the morning. With swearing.
-sk Za Lidy sa splátky tiež platili v nedeľu. Ráno. S nadávkami.
 uk За Ліди платежі теж вносили в неділю. Зранку. З лайкою.
+ru При Лиде платежи тоже вносили в воскресенье. С утра. С руганью.
 
 story.line.11_ema
 cs Slyšíte to? Vlak. Na tabuli žádný není.
 en Do you hear that? A train. There's none on the board.
-sk Počujete to? Vlak. Na tabuli žiadny nie je.
 uk Чуєте? Поїзд. А на табло — жодного.
+ru Слышите? Поезд. А на табло — ни одного.
 
 story.line.16_kuba
 cs Kocour by se tu líbil. Kdyby nějaký byl. Jen říkám.
 en A cat would like it here. If there were one. Just saying.
-sk Kocúr by sa tu páčil. Keby nejaký bol. Len hovorím.
 uk Котові тут сподобалося б. Якби він був. Просто кажу.
+ru Коту бы здесь понравилось. Если бы он был. Просто говорю.
 
 story.line.18_filip
 cs Neptejte se. Prosím.
 en Don't ask. Please.
-sk Nepýtajte sa. Prosím.
 uk Не питайте. Будь ласка.
+ru Не спрашивайте. Пожалуйста.
 
 story.line.22_vera
 cs Lida by byla pyšná. Neříkej jí… no, neříkej to nikomu.
 en Lida would have been proud. Don't tell her… well, don't tell anyone.
-sk Lida by bola hrdá. Nehovor jej… no, nehovor to nikomu.
 uk Ліда б пишалася. Не кажи їй… ну, нікому не кажи.
+ru Лида бы гордилась. Не говори ей… ну, никому не говори.
 
 story.line.22_vera_sold
 cs Tak tady už jen svítí. Nečeká.
 en So now it just shines here. It doesn't wait.
-sk Tak tu už len svieti. Nečaká.
 uk Тепер тут просто світить. Не чекає.
+ru Теперь здесь просто светит. Не ждёт.
 
 story.line.29_radek
 cs Na důchodu se spí hrozně. Tak jsem tady.
 en You sleep terribly in retirement. So here I am.
-sk Na dôchodku sa spí hrozne. Tak som tu.
 uk На пенсії спиться жахливо. Тож я тут.
+ru На пенсии спится ужасно. Вот я и здесь.
 
 # --- endings ---
 
 ending.light.title
 cs Světlo v okně
 en Light in the Window
-sk Svetlo v okne
 uk Світло у вікні
+ru Свет в окне
 
 ending.light.summary
 cs Kavárna je zachráněná a zůstala sama sebou. Světlo v okně se zítra v deset rozsvítí zas.
 en The café is saved and stayed itself. Tomorrow at ten, the light in the window goes on again.
-sk Kaviareň je zachránená a zostala sama sebou. Svetlo v okne sa zajtra o desiatej rozsvieti zas.
 uk Кав'ярню врятовано, і вона лишилася собою. Завтра о десятій світло у вікні засвітиться знову.
+ru Кафе спасено и осталось собой. Завтра в десять свет в окне загорится снова.
 
 ending.light.variant.full
 cs Plná kavárna v šest ráno. Štamgasti jsou tvoje nová rodina.
 en A full café at six in the morning. The regulars are your new family.
-sk Plná kaviareň o šiestej ráno. Štamgasti sú tvoja nová rodina.
 uk Повна кав'ярня о шостій ранку. Постійні гості — твоя нова родина.
+ru Полное кафе в шесть утра. Постоянные гости — твоя новая семья.
 
 ending.light.variant.quiet
 cs Světlo svítí. Zatím není na koho čekat.
 en The light is on. For now, there's nobody to wait for.
-sk Svetlo svieti. Zatiaľ nie je na koho čakať.
 uk Світло горить. Поки що нема на кого чекати.
+ru Свет горит. Пока что ждать некого.
 
 ending.last_train.title
 cs Poslední vlak
 en Last Train
-sk Posledný vlak
 uk Останній поїзд
+ru Последний поезд
 
 ending.last_train.summary
 cs Café Nocturne končí. Poslední noc se štamgasty a ranní vlak do Berouna.
 en Café Nocturne closes. A last night with the regulars and the morning train to Beroun.
-sk Café Nocturne končí. Posledná noc so štamgastmi a ranný vlak do Berouna.
 uk Café Nocturne зачиняється. Остання ніч із постійними гостями й ранковий поїзд до Beroun.
+ru Café Nocturne закрывается. Последняя ночь с постоянными гостями и утренний поезд до Beroun.
 
 ending.last_train.variant.sold
 cs Prodáno síti NONSTOP 24. Okno svítí pořád — a nikdo v něm nečeká.
 en Sold to NONSTOP 24. The window is always lit — and nobody waits in it.
-sk Predané sieti NONSTOP 24. Okno svieti stále — a nikto v ňom nečaká.
 uk Продано мережі NONSTOP 24. Вікно світиться завжди — і ніхто в ньому не чекає.
+ru Продано сети NONSTOP 24. Окно светится всегда — и никто в нём не ждёт.
 
 ending.last_train.variant.farewell
 cs Štamgasti ti pomohli sbalit a přemlouvali tě, ať otevřeš něco svého.
 en The regulars helped you pack and talked you into opening something of your own.
-sk Štamgasti ti pomohli zbaliť a prehovárali ťa otvoriť niečo svoje.
 uk Постійні гості допомогли спакуватися й умовляли відкрити щось своє.
+ru Постоянные гости помогли собраться и уговаривали открыть что-то своё.
 
 ending.last_train.variant.closed
 cs Kavárna zavřela. Holešovice v noci nejsou na velká loučení.
 en The café closed. Holešovice at night isn't a place for big goodbyes.
-sk Kaviareň zatvorila. Holešovice v noci nie sú na veľké rozlúčky.
 uk Кав'ярня зачинилася. Нічні Голешовиці — не місце для великих прощань.
+ru Кафе закрылось. Ночные Голешовице — не место для больших прощаний.
 
 ending.extra.answer.title
 cs Odpověď
 en The Answer
-sk Odpoveď
 uk Відповідь
+ru Ответ
 
 # --- items ---
 
 item.cafe_keys.name
 cs Klíče od kavárny
 en Café keys
-sk Kľúče od kaviarne
 uk Ключі від кав'ярні
+ru Ключи от кафе
 
 item.cafe_keys.desc
 cs Byly pod rohožkou. Samozřejmě.
 en They were under the mat. Of course.
-sk Boli pod rohožkou. Samozrejme.
 uk Були під килимком. Аякже.
+ru Были под ковриком. Ну конечно.
 
 item.old_coin.name
 cs Staré mince
 en Old coins
-sk Staré mince
 uk Старі монети
+ru Старые монеты
 
 item.old_coin.desc
 cs Československé koruny z roku 1978. Už nejsou penězi.
 en Czechoslovak crowns from 1978. No longer money.
-sk Československé koruny z roku 1978. Už nie sú peniazmi.
 uk Чехословацькі крони 1978 року. Вже не гроші.
+ru Чехословацкие кроны 1978 года. Уже не деньги.
 
 item.rn333_ticket.name
 cs Jízdenka Rn 333
 en Rn 333 ticket
-sk Lístok Rn 333
 uk Квиток Rn 333
+ru Билет Rn 333
 
 item.rn333_ticket.desc
 cs Zpáteční, 14. listopadu 1979. Zpáteční polovina nepoužitá.
 en A return, 14 November 1979. The return half unused.
-sk Spiatočný, 14. novembra 1979. Spiatočná polovica nepoužitá.
 uk Туди й назад, 14 листопада 1979. Зворотна половина не використана.
+ru Туда и обратно, 14 ноября 1979. Обратная половина не использована.
 
 item.letter.name
 cs Lidin dopis
 en Lida's letter
-sk Lidin list
 uk Лідин лист
+ru Лидино письмо
 
 item.letter.desc
 cs Zalepená obálka „Jindrovi". Váží asi dvacet gramů.
 en A sealed envelope, "For Jindra". It weighs about twenty grams.
-sk Zalepená obálka „Jindrovi". Váži asi dvadsať gramov.
 uk Заклеєний конверт «Їндрі». Важить грамів двадцять.
+ru Запечатанный конверт «Йиндре». Весит граммов двадцать.
 
 item.recipe_book.name
 cs Lidina kuchařka
 en Lida's recipe book
-sk Lidina kuchárska kniha
 uk Лідина кулінарна книга
+ru Лидина поваренная книга
 
 item.recipe_book.desc
 cs Mastné stránky a poznámky na okrajích.
 en Greasy pages and notes in the margins.
-sk Mastné stránky a poznámky na okrajoch.
 uk Масні сторінки й нотатки на полях.
+ru Засаленные страницы и пометки на полях.
 
 item.timetable_1979.name
 cs Jízdní řád 1979
 en 1979 timetable
-sk Cestovný poriadok 1979
 uk Розклад 1979 року
+ru Расписание 1979 года
 
 item.timetable_1979.desc
 cs U posledního řádku tužkou: „dvě minuty".
 en Next to the last line, in pencil: "two minutes".
-sk Pri poslednom riadku ceruzkou: „dve minúty".
 uk Біля останнього рядка олівцем: «дві хвилини».
+ru У последней строки карандашом: «две минуты».
 
 item.lost_umbrella.name
 cs Deštník s monogramem
 en Monogrammed umbrella
-sk Dáždnik s monogramom
 uk Парасолька з монограмою
+ru Зонт с монограммой
 
 item.lost_umbrella.desc
 cs Někdo pro něj možná přijde.
 en Someone may come back for it.
-sk Niekto poň možno príde.
 uk Можливо, хтось по неї повернеться.
+ru Может быть, кто-то за ним вернётся.

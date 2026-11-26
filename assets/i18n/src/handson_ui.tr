@@ -1,34 +1,61 @@
 # Hands-on integration (T7): HUD, order card, rail, served floats, the book's labels, the duties
-# board, the jukebox, the How-to-play page. English in every column until T9 translates them.
+# board, the jukebox, the How-to-play page.
 
 ui.toolbar.book
-* Book
+cs Kniha
+en Book
+uk Книга
+ru Книга
 
 ui.order.plain_caption
-* Plain order
+cs Běžná objednávka
+en Plain order
+uk Звичайне замовлення
+ru Обычный заказ
 
 # --- the ticket rail ---------------------------------------------------------------------------
 ui.rail.stage.order
-* waiting to order
+cs čeká na objednávku
+en waiting to order
+uk чекає, щоб замовити
+ru ждёт, чтобы заказать
 
 ui.rail.stage.make
-* to make: {item}
+cs připravit: {item}
+en to make: {item}
+uk приготувати: {item}
+ru приготовить: {item}
 
 ui.rail.stage.serve
-* ready: {item}
+cs hotovo: {item}
+en ready: {item}
+uk готово: {item}
+ru готово: {item}
 
 # --- served (a float over the guest; {quality} = Beautiful / Lovely / Good / Homely) ------------
 ui.served.perfect
-* Just right · {quality}
+cs Přesně ono · {quality}
+en Just right · {quality}
+uk Саме те · {quality}
+ru То, что надо · {quality}
 
 ui.served.good
-* Good match · {quality}
+cs Dobrá volba · {quality}
+en Good match · {quality}
+uk Влучно · {quality}
+ru Удачно · {quality}
 
 ui.served.okay
-* Nice · {quality}
+cs Fajn · {quality}
+en Nice · {quality}
+uk Непогано · {quality}
+ru Неплохо · {quality}
 
 ui.served.not_quite
-* Not quite · {quality}
+cs Ne tak úplně · {quality}
+en Not quite · {quality}
+uk Не зовсім · {quality}
+ru Не совсем · {quality}
 
 ui.served.plain
 * {quality}
@@ -37,92 +64,179 @@ ui.hands.tip_float
 * +{amount}
 
 ui.hands.brew_later
-* That one can't be made just now — the order is still on the rail.
+cs Tohle teď udělat nejde — objednávka zůstává na liště.
+en That one can't be made just now — the order is still on the rail.
+uk Зараз це не приготувати — замовлення лишається на рейці.
+ru Сейчас это не приготовить — заказ остаётся на рейке.
 
 ui.hands.practised
-* {recipe} — practised. Quick brews of it come out better now.
+cs {recipe} — vypilováno. Rychlá příprava teď dopadá líp.
+en {recipe} — practised. Quick brews of it come out better now.
+uk {recipe} — відпрацьовано. Швидке приготування тепер виходить краще.
+ru {recipe} — отработано. Быстрое приготовление теперь выходит лучше.
 
 ui.journal.soon
-* The journal opens with the first morning's photo.
+cs Deník se otevře s fotkou z prvního rána.
+en The journal opens with the first morning's photo.
+uk Щоденник відкриється з фото першого ранку.
+ru Дневник откроется с фото первого утра.
 
 # --- grandma's jukebox -------------------------------------------------------------------------
 ui.jukebox.now_playing_short
-* Now playing
+cs Hraje
+en Now playing
+uk Грає
+ru Играет
 
 ui.jukebox.liked_by
-* Likes it:
+cs Líbí se:
+en Likes it:
+uk Подобається:
+ru Нравится:
 
 # --- the recipe book (K) -----------------------------------------------------------------------
 ui.book.tastes
-* Tastes
+cs Chutě
+en Tastes
+uk Смаки
+ru Вкусы
 
 ui.book.minigame
-* Made by hand
+cs Ručně
+en Made by hand
+uk Власноруч
+ru Вручную
 
 ui.book.where
-* Where to learn it
+cs Kde se to naučit
+en Where to learn it
+uk Де цього навчитися
+ru Где этому научиться
 
 ui.book.clear
-* Clear
+cs Vyprázdnit
+en Clear
+uk Очистити
+ru Очистить
 
 ui.book.slots
-* Pick 2–3 jars
+cs Vyber 2–3 sklenice
+en Pick 2–3 jars
+uk Вибери 2–3 баночки
+ru Выбери 2–3 баночки
 
 ui.book.bar_shelf
-* Bar shelf
+cs Polička u baru
+en Bar shelf
+uk Полиця бару
+ru Полка бара
 
 ui.book.kitchen_shelf
-* Kitchen shelf
+cs Polička v kuchyni
+en Kitchen shelf
+uk Кухонна полиця
+ru Кухонная полка
 
 ui.book.empty
-* Nothing here yet.
+cs Zatím tu nic není.
+en Nothing here yet.
+uk Поки що тут порожньо.
+ru Пока здесь пусто.
 
 ui.book.not_for_this
-* Not this one — that's not what they ordered.
+cs Tohle ne — to si neobjednali.
+en Not this one — that's not what they ordered.
+uk Не це — вони замовляли інше.
+ru Не это — они заказывали другое.
 
 ui.book.experiments_soon
-* Grandma's pantry is still being sorted — experiments come soon.
+cs Babiččina spíž se ještě třídí — pokusy přijdou brzy.
+en Grandma's pantry is still being sorted — experiments come soon.
+uk Бабусину комору ще розбирають — експерименти будуть згодом.
+ru Бабушкину кладовую ещё разбирают — эксперименты будут позже.
 
 # --- the duties board (H) ----------------------------------------------------------------------
 ui.duties.left_for_you
-* Left for you:
+cs Zbývá na tebe:
+en Left for you:
+uk Лишається тобі:
+ru Остаётся тебе:
 
 ui.duties.all_covered
-* Every duty has a helper — the guests are still yours.
+cs Každá povinnost má pomocníka — hosté jsou pořád tvoji.
+en Every duty has a helper — the guests are still yours.
+uk Кожен обов'язок має помічника — а гості й далі твої.
+ru У каждой обязанности есть помощник — а гости по-прежнему твои.
 
 ui.duties.off_shift
-* off tonight
+cs dnes volno
+en off tonight
+uk сьогодні вихідний
+ru сегодня выходной
 
 ui.duties.full_short
-* Hands full — take a duty away first.
+cs Plné ruce — nejdřív jednu povinnost uber.
+en Hands full — take a duty away first.
+uk Руки зайняті — спершу зніми один обов'язок.
+ru Руки заняты — сначала сними одну обязанность.
 
 ui.duties.skill
-* skill {n}
+cs dovednost {n}
+en skill {n}
+uk навичка {n}
+ru навык {n}
 
 ui.duties.likes
-* Likes this one
+cs Oblíbené
+en Likes this one
+uk Це любить
+ru Это любит
 
 ui.duties.none
-* No helpers yet — tonight it's just you. The first one can start on night 3 (C).
+cs Zatím žádní pomocníci — dnes jsi tu sama. První může nastoupit třetí noc (C).
+en No helpers yet — tonight it's just you. The first one can start on night 3 (C).
+uk Помічників ще немає — цієї ночі ти сама. Перший зможе почати третьої ночі (C).
+ru Помощников пока нет — этой ночью ты одна. Первый сможет начать на третью ночь (C).
 
 ui.duties.grows
-* Can take one more duty after a few nights.
+cs Po pár nocích zvládne ještě jednu povinnost.
+en Can take one more duty after a few nights.
+uk За кілька ночей зможе взяти ще один обов'язок.
+ru Через несколько ночей сможет взять ещё одну обязанность.
 
 # --- How to play (F1) --------------------------------------------------------------------------
 ui.help.hands.title
-* Behind the counter
+cs Za pultem
+en Behind the counter
+uk За стійкою
+ru За стойкой
 
 ui.help.hands.body
-* Karolina does the work herself. Click a guest to greet them and take the order; click a table to clear it, a coin to pick up the tip, the sink and hold to wash, swipe a dirt blot to mop it, the jukebox to change the record. Shift+click puts it first in her queue; right-click cancels what she's doing. Keyboard: Enter takes the ticket on the rail ([ ] move), E does the nearest chore (hold E at the sink), G waves, Backspace cancels.
+cs Karolina dělá práci sama. Klikni na hosta — pozdraví ho a vezme objednávku; na stůl — sklidí ho; na minci — vezme dýško; na dřez a podrž — umyje nádobí; přejeď skvrnu — vytře ji; na jukebox — změní desku. Shift+klik dá věc v její frontě na první místo, pravé tlačítko zruší, co právě dělá. Klávesnice: Enter vezme lístek z lišty ([ ] posun), E udělá nejbližší práci (u dřezu E podrž), G zamává, Backspace ruší.
+en Karolina does the work herself. Click a guest to greet them and take the order; click a table to clear it, a coin to pick up the tip, the sink and hold to wash, swipe a dirt blot to mop it, the jukebox to change the record. Shift+click puts it first in her queue; right-click cancels what she's doing. Keyboard: Enter takes the ticket on the rail ([ ] move), E does the nearest chore (hold E at the sink), G waves, Backspace cancels.
+uk Кароліна робить усе сама. Клацни гостя — вона привітається й прийме замовлення; стіл — прибере його; монету — забере чайові; мийку й утримуй — помиє посуд; проведи по плямі — витре її; музичний автомат — змінить платівку. Shift+клік ставить справу першою в її черзі, правий клік скасовує поточну. Клавіатура: Enter бере чек із рейки ([ ] — вибір), E — найближча справа (біля мийки утримуй E), G — помахати, Backspace — скасувати.
+ru Каролина делает всё сама. Нажми на гостя — она поздоровается и примет заказ; на стол — уберёт его; на монету — заберёт чаевые; на мойку и удерживай — помоет посуду; проведи по пятну — вытрет его; на музыкальный автомат — сменит пластинку. Shift+клик ставит дело первым в её очереди, правый клик отменяет текущее. Клавиатура: Enter берёт чек с рейки ([ ] — выбор), E — ближайшее дело (у мойки удерживай E), G — помахать, Backspace — отменить.
 
 ui.help.brewing.title
-* Brewing
+cs Příprava
+en Brewing
+uk Приготування
+ru Приготовление
 
 ui.help.brewing.body
-* The order card shows the wish and up to four recipes (1–4). Quick (Q) lets the machine do it; By hand plays a short mini-game for a better cup. U is the usual for a trusted regular, H hands a wish to a helper, K opens the recipe book. In a mini-game Space holds, arrows steer, Enter is done, Tab skips — a skipped cup is still a good cup. The night slows down while a card is open.
+cs Karta objednávky ukáže přání a až čtyři recepty (1–4). Rychle (Q) to udělá kávovar; Ručně je krátká minihra pro lepší šálek. U dá důvěrnému štamgastovi to obvyklé, H předá přání pomocníkovi, K otevře knihu receptů. V minihře mezerník drží, šipky řídí, Enter je hotovo, Tab přeskočí — přeskočený šálek je pořád dobrý šálek. Když je karta otevřená, noc zpomalí.
+en The order card shows the wish and up to four recipes (1–4). Quick (Q) lets the machine do it; By hand plays a short mini-game for a better cup. U is the usual for a trusted regular, H hands a wish to a helper, K opens the recipe book. In a mini-game Space holds, arrows steer, Enter is done, Tab skips — a skipped cup is still a good cup. The night slows down while a card is open.
+uk Картка замовлення показує побажання й до чотирьох рецептів (1–4). Швидко (Q) — усе зробить машина; Власноруч — коротка мінігра для кращої чашки. U — «як завжди» для постійного гостя, що довіряє, H — передати побажання помічнику, K — книга рецептів. У мінігрі пробіл утримує, стрілки керують, Enter — готово, Tab — пропустити: пропущена чашка все одно добра. Поки картка відкрита, ніч сповільнюється.
+ru Карточка заказа показывает пожелание и до четырёх рецептов (1–4). Быстро (Q) — всё сделает машина; Своими руками — короткая мини-игра для чашки получше. U — «как обычно» для доверяющего постоянного гостя, H — передать пожелание помощнику, K — книга рецептов. В мини-игре пробел удерживает, стрелки управляют, Enter — готово, Tab — пропустить: пропущенная чашка всё равно хорошая. Пока карточка открыта, ночь замедляется.
 
 ui.help.duties.title
-* Duties (H)
+cs Povinnosti (H)
+en Duties (H)
+uk Обов'язки (H)
+ru Обязанности (H)
 
 ui.help.duties.body
-* Helpers only do what you give them: dishes, floor, register, bar, kitchen, serving. Each can carry one to three duties. Wishes, regulars and the little moments always stay yours.
+cs Pomocníci dělají jen to, co jim svěříš: nádobí, podlahu, pokladnu, bar, kuchyň, obsluhu. Každý zvládne jednu až tři povinnosti. Přání, štamgasti a malé chvilky zůstávají vždycky tobě.
+en Helpers only do what you give them: dishes, floor, register, bar, kitchen, serving. Each can carry one to three duties. Wishes, regulars and the little moments always stay yours.
+uk Помічники роблять лише те, що ти їм доручиш: посуд, підлогу, касу, бар, кухню, подачу. Кожен може мати від одного до трьох обов'язків. Побажання, постійні гості й маленькі миті завжди лишаються тобі.
+ru Помощники делают только то, что ты им поручишь: посуду, пол, кассу, бар, кухню, подачу. У каждого может быть от одной до трёх обязанностей. Пожелания, постоянные гости и маленькие моменты всегда остаются тебе.

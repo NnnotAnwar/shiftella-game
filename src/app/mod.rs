@@ -18,7 +18,7 @@
 //!   `SHIFTELLA_SPEED=1|2|3` — the starting speed;
 //!   `SHIFTELLA_SHOT_EVERY=n` — also save `<shot>_<frame>.png` every n frames;
 //!   `SHIFTELLA_SKIP_SCENES=1` — story scenes finish at once
-//! * `SHIFTELLA_LANG=cs|en|sk|uk`, `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`,
+//! * `SHIFTELLA_LANG=cs|en|uk|ru`, `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`,
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
 
 use std::rc::Rc;

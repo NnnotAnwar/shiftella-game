@@ -4,149 +4,149 @@
 mainmenu.subtitle
 cs Café Nocturne — noční kavárna u nádraží
 en Café Nocturne — a night café by the station
-sk Café Nocturne — nočná kaviareň pri stanici
 uk Café Nocturne — нічна кав'ярня біля вокзалу
+ru Café Nocturne — ночное кафе у вокзала
 
 mainmenu.newgame.title
 cs Nový příběh
 en A new story
-sk Nový príbeh
 uk Нова історія
+ru Новая история
 
 mainmenu.newgame.hint
 cs Jak mají noci plynout? Obtížnost platí pro celý příběh.
 en How should the nights feel? Difficulty applies to the whole story.
-sk Ako majú noci plynúť? Obtiažnosť platí pre celý príbeh.
 uk Якими мають бути ночі? Складність діє на всю історію.
+ru Какими будут ночи? Сложность действует на всю историю.
 
 mainmenu.newgame.recommended
 cs Doporučeno
 en Recommended
-sk Odporúčané
 uk Рекомендовано
+ru Рекомендуем
 
 mainmenu.newgame.start
 cs Vystoupit v Holešovicích
 en Step off at Holešovice
-sk Vystúpiť v Holešoviciach
 uk Зійти в Голешовицях
+ru Сойти в Голешовице
 
 mainmenu.sandbox.dice
 cs Hodit kostkou
 en Roll the dice
-sk Hodiť kockou
 uk Кинути кубик
+ru Бросить кубик
 
 mainmenu.continue_none
 cs Zatím žádná uložená hra
 en No saved game yet
-sk Zatiaľ žiadna uložená hra
 uk Збережених ігор ще немає
+ru Сохранённых игр пока нет
 
 mainmenu.settings.section.language
 cs Jazyk
 en Language
-sk Jazyk
 uk Мова
+ru Язык
 
 mainmenu.settings.section.sound
 cs Zvuk
 en Sound
-sk Zvuk
 uk Звук
+ru Звук
 
 mainmenu.settings.section.display
 cs Obraz
 en Display
-sk Obraz
 uk Екран
+ru Экран
 
 mainmenu.settings.section.story
 cs Příběh
 en Story
-sk Príbeh
 uk Історія
+ru История
 
 mainmenu.settings.text_speed
 cs Rychlost textu
 en Text speed
-sk Rýchlosť textu
 uk Швидкість тексту
+ru Скорость текста
 
 mainmenu.settings.text_speed.slow
 cs Pomalu
 en Slow
-sk Pomaly
 uk Повільно
+ru Медленно
 
 mainmenu.settings.text_speed.normal
 cs Běžně
 en Normal
-sk Bežne
 uk Звичайно
+ru Обычно
 
 mainmenu.settings.text_speed.fast
 cs Rychle
 en Fast
-sk Rýchlo
 uk Швидко
+ru Быстро
 
 mainmenu.settings.text_speed.instant
 cs Hned
 en Instant
-sk Hneď
 uk Одразу
+ru Сразу
 
 mainmenu.settings.auto_advance
 cs Automaticky pokračovat
 en Auto-advance dialogue
-sk Automaticky pokračovať
 uk Автопрогортання діалогів
+ru Автопрокрутка диалогов
 
 mainmenu.settings.pause_hint
 cs Vypnuto: noc plyne dál, události počkají v liště.
 en Off: the night flows on, events wait in the feed.
-sk Vypnuté: noc plynie ďalej, udalosti počkajú v lište.
 uk Вимкнено: ніч триває, події чекають у стрічці.
+ru Выключено: ночь идёт дальше, события ждут в ленте.
 
 mainmenu.settings.saved_auto
 cs Ukládá se samo
 en Saved automatically
-sk Ukladá sa samo
 uk Зберігається автоматично
+ru Сохраняется автоматически
 
 cutsceneui.letter.envelope
 cs Tomu, kdo bude držet světlo
 en To whoever keeps the light
-sk Tomu, kto bude držať svetlo
 uk Тому, хто триматиме світло
+ru Тому, кто будет хранить свет
 
 cutsceneui.phone.today
 cs Dnes
 en Today
-sk Dnes
 uk Сьогодні
+ru Сегодня
 
 cutsceneui.phone.caption
 cs Noc první
 en Night one
-sk Noc prvá
 uk Ніч перша
+ru Ночь первая
 
 cutsceneui.phone.caption_sub
 cs Otevíráme ve 22:00. Světlo v okně už svítí.
 en We open at 22:00. The light in the window is on.
-sk Otvárame o 22:00. Svetlo v okne už svieti.
 uk Відчиняємося о 22:00. Світло у вікні вже горить.
+ru Открываемся в 22:00. Свет в окне уже горит.
 
 cutsceneui.auto
 cs Auto
 en Auto
-sk Auto
 uk Авто
+ru Авто
 
 mainmenu.lang.greeting
 cs Dobrý večer, vítejte u nás.
 en Good evening, come on in.
-sk Dobrý večer, vitajte u nás.
 uk Добрий вечір, заходьте.
+ru Добрый вечер, заходите.

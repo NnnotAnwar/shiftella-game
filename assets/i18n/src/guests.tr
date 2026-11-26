@@ -3,143 +3,143 @@
 guest.travelers.name
 cs Cestující
 en Travellers
-sk Cestujúci
 uk Пасажири
+ru Пассажиры
 
 guest.travelers.desc
 cs Přijeli, odjíždějí, nebo čekají na přípoj. Kufry zabírají místo.
 en Arriving, leaving or waiting for a connection. Their suitcases take up room.
-sk Prišli, odchádzajú alebo čakajú na prípoj. Kufre zaberajú miesto.
 uk Прибули, від'їжджають або чекають на пересадку. Валізи займають місце.
+ru Приехали, уезжают или ждут пересадки. Чемоданы занимают место.
 
 guest.taxi_drivers.name
 cs Taxikáři
 en Taxi drivers
-sk Taxikári
 uk Таксисти
+ru Таксисты
 
 guest.taxi_drivers.desc
 cs Poslední taxikáři s volantem v ruce. Rychle kafe a zase jedou.
 en The last taxi drivers with their hands on a wheel. Quick coffee and off again.
-sk Poslední taxikári s volantom v ruke. Rýchlo kávu a zase idú.
 uk Останні таксисти, що ще тримають кермо. Швидко кави — і знову в дорогу.
+ru Последние таксисты, которые ещё сами держат руль. Быстро кофе — и снова в путь.
 
 guest.nurses.name
 cs Zdravotníci
 en Nurses
-sk Zdravotníci
 uk Медики
+ru Медики
 
 guest.nurses.desc
 cs Pauza je krátká, vděčnost dlouhá. Jejich recenze váží víc.
 en Short breaks, long gratitude. Their reviews count for more.
-sk Prestávka je krátka, vďačnosť dlhá. Ich recenzie vážia viac.
 uk Перерва коротка, вдячність довга. Їхні відгуки важать більше.
+ru Перерыв короткий, благодарность долгая. Их отзывы весят больше.
 
 guest.students.name
 cs Studenti
 en Students
-sk Študenti
 uk Студенти
+ru Студенты
 
 guest.students.desc
 cs Sedí dlouho, platí málo, chtějí zásuvku.
 en Stay long, pay little, want a socket.
-sk Sedia dlho, platia málo, chcú zásuvku.
 uk Сидять довго, платять мало, шукають розетку.
+ru Сидят долго, платят мало, ищут розетку.
 
 guest.insomniacs.name
 cs Nespavci
 en Insomniacs
-sk Nespavci
 uk Безсонні
+ru Неспящие
 
 guest.insomniacs.desc
 cs Čaj, koláč a křížovka. Nejrychleji se z nich stávají štamgasti.
 en Tea, a kolach and a crossword. They become regulars fastest of all.
-sk Čaj, koláčik a krížovka. Najrýchlejšie sa z nich stávajú štamgasti.
 uk Чай, колач і кросворд. Найшвидше стають постійними гостями.
+ru Чай, колач и кроссворд. Быстрее всех становятся постоянными гостями.
 
 guest.train_crew.name
 cs Železničáři
 en Train crew
-sk Železničiari
 uk Залізничники
+ru Железнодорожники
 
 guest.train_crew.desc
 cs Mají rozpis v Shiftelle a hlad po polévce.
 en Their schedule lives in Shiftella; their hunger lives for soup.
-sk Majú rozpis v Shiftelle a hlad po polievke.
 uk Їхній розклад — у Shiftella, а апетит — на суп.
+ru Их расписание живёт в Shiftella, а аппетит — ради супа.
 
 guest.drone_operators.name
 cs Dronaři
 en Drone operators
-sk Dronári
 uk Оператори дронів
+ru Операторы дронов
 
 guest.drone_operators.desc
 cs Hlídají rozvážkové drony nad mokrými střechami. Ovladač nepustí ani u kávy.
 en They watch the delivery drones over wet roofs. They don't put the controller down even for coffee.
-sk Strážia rozvozové drony nad mokrými strechami. Ovládač nepustia ani pri káve.
 uk Пильнують дронів-кур'єрів над мокрими дахами. Пульт не випускають навіть за кавою.
+ru Следят за дронами-курьерами над мокрыми крышами. Пульт не выпускают даже за кофе.
 
 guest.shift_workers.name
 cs Lidé ze směny
 en Shift workers
-sk Ľudia zo zmeny
 uk Робітники зміни
+ru Рабочие смены
 
 guest.shift_workers.desc
 cs Střídání v logistickém depu. Chodí ve skupinách, jedí hodně a směny mají v Shiftelle.
 en Shift change at the logistics depot. They come in groups, eat a lot and check their shifts in Shiftella.
-sk Striedanie v logistickom depe. Chodia v skupinách, jedia veľa a zmeny majú v Shiftelle.
 uk Перезмінка в логістичному депо. Ходять гуртом, їдять багато, а зміни дивляться в Shiftella.
+ru Пересменка в логистическом депо. Ходят гурьбой, едят много, а смены смотрят в Shiftella.
 
 guest.clubbers.name
 cs Lidé z koncertu
 en Concert crowd
-sk Ľudia z koncertu
 uk Публіка з концерту
+ru Публика с концерта
 
 guest.clubbers.desc
 cs Mokré bundy, hlasitý smích, chtějí všechno hned. Hlavně v pátek a v sobotu.
 en Wet jackets, loud laughter, want everything now. Mostly Fridays and Saturdays.
-sk Mokré bundy, hlasný smiech, chcú všetko hneď. Hlavne v piatok a sobotu.
 uk Мокрі куртки, гучний сміх, хочуть усе й одразу. Здебільшого в п'ятницю й суботу.
+ru Мокрые куртки, громкий смех, хотят всё и сразу. В основном по пятницам и субботам.
 
 guest.patrol.name
 cs Noční hlídka
 en Night patrol
-sk Nočná hliadka
 uk Нічний патруль
+ru Ночной патруль
 
 guest.patrol.desc
 cs Dva policisté, dvě kávy, jedno „všechno v pořádku?".
 en Two officers, two coffees, one "everything all right?".
-sk Dvaja policajti, dve kávy, jedno „všetko v poriadku?".
 uk Двоє поліцейських, дві кави, одне «усе гаразд?».
+ru Двое полицейских, два кофе, одно «всё в порядке?».
 
 guest.truckers.name
 cs Řidiči kamionů
 en Truckers
-sk Vodiči kamiónov
 uk Далекобійники
+ru Дальнобойщики
 
 guest.truckers.desc
 cs Jejich náklaďáky už řídí samy. Oni stejně potřebují polévku.
 en Their trucks drive themselves now. They still need soup.
-sk Ich kamióny už jazdia samy. Oni aj tak potrebujú polievku.
 uk Їхні вантажівки вже їздять самі. А супу їм однаково хочеться.
+ru Их фуры теперь ездят сами. А супа им всё равно хочется.
 
 guest.night_wanderer.name
 cs Noční poutník
 en Night wanderer
-sk Nočný pútnik
 uk Нічний мандрівник
+ru Ночной странник
 
 guest.night_wanderer.desc
 cs Nikdo neví, odkud přišel. Sedá si pod lampu a nechává štědré dýško.
 en Nobody knows where they came from. They sit under the lamp and tip generously.
-sk Nikto nevie, odkiaľ prišiel. Sadá si pod lampu a necháva štedré prepitné.
 uk Ніхто не знає, звідки він узявся. Сідає під лампою й щедро лишає чайові.
+ru Никто не знает, откуда он взялся. Садится под лампой и щедро оставляет чаевые.

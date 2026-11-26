@@ -518,7 +518,7 @@ fn gallery(ui: &mut Ui, d: &mut Demo) {
     ui.dropdown(
         "lang",
         l,
-        &["Čeština", "English", "Slovenčina", "Українська"],
+        &["Čeština", "English", "Українська", "Русский"],
         &mut d.lang,
     );
 

@@ -65,7 +65,7 @@ impl<'a> Locale<'a> {
     }
 }
 
-/// Loads `assets/i18n/{cs,en,sk,uk}.ron`; if those are not generated yet, compiles the
+/// Loads `assets/i18n/{cs,en,uk,ru}.ron`; if those are not generated yet, compiles the
 /// side-by-side sources in `<dir>/src/*.tr` in memory.
 pub fn load_i18n(dir: &str) -> Result<I18n, String> {
     match I18n::load(dir) {
@@ -306,7 +306,7 @@ mod tests {
         let dir = std::env::temp_dir().join(format!("shiftella-settings-{}", std::process::id()));
         let path = dir.join("nested/settings.ron");
         let s = Settings {
-            language: Some(Lang::Sk),
+            language: Some(Lang::Ru),
             ..Default::default()
         };
         s.save_to(&path).unwrap();
@@ -322,6 +322,17 @@ mod tests {
         assert_eq!(s.music_volume, Settings::default().music_volume);
         assert!(!s.pause_on_events, "pause on events is off by default");
         assert!(Settings::from_ron("not ron").is_err());
+    }
+
+    #[test]
+    fn a_saved_slovak_choice_becomes_czech() {
+        // Slovak was dropped (2026-11-26); older settings files still say `Some(Sk)`.
+        let s = Settings::from_ron("(language: Some(Sk), music_volume: 0.3)").unwrap();
+        assert_eq!(s.language, Some(Lang::Cs));
+        assert_eq!(s.music_volume, 0.3);
+        assert!(!s.needs_language(), "no second trip through the picker");
+        let ru = Settings::from_ron("(language: Some(Ru))").unwrap();
+        assert_eq!(ru.language, Some(Lang::Ru));
     }
 
     #[test]

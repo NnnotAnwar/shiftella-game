@@ -2,7 +2,7 @@
 //!
 //! * `SHIFTELLA_PAGE=menu|language|newgame|sandbox|settings` (default: language on first
 //!   launch of the demo's own settings file, else menu)
-//! * `SHIFTELLA_LANG=cs|en|sk|uk`, `SHIFTELLA_T=<seconds>` (background time; a train passes
+//! * `SHIFTELLA_LANG=cs|en|uk|ru`, `SHIFTELLA_T=<seconds>` (background time; a train passes
 //!   at 5–14 s, then every 40 s), `SHIFTELLA_SAVE=1` (pretend a save exists)
 //! * `SHIFTELLA_SHOT=path.png` — render ~40 frames, save the PNG and exit
 //!

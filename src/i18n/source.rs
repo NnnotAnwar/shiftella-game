@@ -7,15 +7,15 @@
 //! trait.night_owl.name
 //! cs Sova
 //! en Night Owl
-//! sk Sova
 //! uk Сова
+//! ru Сова
 //!
 //! station.cheb.name
 //! * Cheb
 //! ```
 //!
 //! * A key line has no spaces and is not a language line.
-//! * `cs ` / `en ` / `sk ` / `uk ` lines give the text for one language, `* ` for all four
+//! * `cs ` / `en ` / `uk ` / `ru ` lines give the text for one language, `* ` for all four
 //!   (proper nouns). Every key needs all four languages.
 //! * Inside a text, `\n` is a line break. Leading / trailing spaces are trimmed.
 //! * Keys must be unique across all files of the directory.
@@ -108,7 +108,7 @@ pub fn parse_into(tables: &mut Tables, text: &str, origin: &str) -> Result<(), S
         } else {
             if line.contains(char::is_whitespace) {
                 return Err(format!(
-                    "{origin}:{line_no}: `{line}` is neither a key nor a `cs/en/sk/uk/*` text line"
+                    "{origin}:{line_no}: `{line}` is neither a key nor a `cs/en/uk/ru/*` text line"
                 ));
             }
             finish(tables, current.take(), origin)?;
@@ -181,17 +181,18 @@ mod tests {
     #[test]
     fn parses_entries_and_all_shortcut() {
         let mut t: Tables = Default::default();
-        let src = "# c\nkey.a\ncs A\nen B\nsk C\nuk Д\n\nkey.b\n* Cheb\n";
+        let src = "# c\nkey.a\ncs A\nen B\nuk Д\nru Б\n\nkey.b\n* Cheb\n";
         parse_into(&mut t, src, "t.tr").unwrap();
         assert_eq!(t[Lang::Uk.index()]["key.a"], "Д");
-        assert_eq!(t[Lang::Sk.index()]["key.b"], "Cheb");
+        assert_eq!(t[Lang::Ru.index()]["key.a"], "Б");
+        assert_eq!(t[Lang::Ru.index()]["key.b"], "Cheb");
     }
 
     #[test]
     fn missing_language_is_an_error() {
         let mut t: Tables = Default::default();
-        let err = parse_into(&mut t, "key.a\ncs A\nen B\nsk C\n", "t.tr").unwrap_err();
-        assert!(err.contains("uk"), "{err}");
+        let err = parse_into(&mut t, "key.a\ncs A\nen B\nuk C\n", "t.tr").unwrap_err();
+        assert!(err.contains("ru"), "{err}");
     }
 
     #[test]

@@ -4,365 +4,365 @@
 minigame.milk_froth.title
 cs Napěnění mléka
 en Milk froth
-sk Napenenie mlieka
 uk Спінювання молока
+ru Взбивание молока
 
 minigame.latte_art.title
 cs Latte art
 en Latte art
-sk Latte art
 uk Лате-арт
+ru Латте-арт
 
 minigame.pour_over.title
 cs Pour-over
 en Pour-over
-sk Pour-over
 uk Пуровер
+ru Пуровер
 
 minigame.tea_steep.title
 cs Louhování čaje
 en Steeping tea
-sk Lúhovanie čaju
 uk Заварювання чаю
+ru Заваривание чая
 
 minigame.plate.title
 cs Servírování
 en Plating
-sk Servírovanie
 uk Подача
+ru Подача
 
 minigame.milk_froth.prompt.hold
 cs Držte a napěňujte · pulzujte pro pěnu · pusťte v jantaru
 en Hold to steam · pulse for foam · let go in the amber
-sk Držte a napeňujte · pulzujte pre penu · pustite v jantári
 uk Тримайте, щоб нагріти · пульсуйте для піни · відпустіть у бурштині
+ru Держите, чтобы нагреть · пульсируйте для пены · отпустите в янтаре
 
 minigame.milk_froth.prompt.release
 cs Pusťte!
 en Release!
-sk Pustite!
 uk Відпускайте!
+ru Отпускайте!
 
 minigame.milk_froth.prompt.again
 cs Ještě trochu — podržte znovu
 en A little more — hold again
-sk Ešte trochu — podržte znova
 uk Ще трохи — утримуйте знову
+ru Ещё чуть-чуть — держите снова
 
 minigame.latte_art.prompt.trace
 cs Podržte a veďte konvičku od tečky po vzoru
 en Hold and draw from the dot along the guide
-sk Podržte a veďte kanvičku od bodky po vzore
 uk Утримуйте й ведіть від крапки вздовж візерунка
+ru Удерживайте и ведите от точки вдоль узора
 
 minigame.latte_art.prompt.keys
 cs Držte mezerník · ťukněte ←/→ u značek
 en Hold Space · tap ←/→ at the marks
-sk Držte medzerník · ťuknite ←/→ pri značkách
 uk Тримайте пробіл · натискайте ←/→ біля позначок
+ru Держите пробел · нажимайте ←/→ у отметок
 
 minigame.latte_art.prompt.done
 cs Líbí se vám? Hotovo — nebo dokreslete
 en Happy with it? Done — or keep drawing
-sk Páči sa vám? Hotovo — alebo dokreslite
 uk Подобається? Готово — або домалюйте
+ru Нравится? Готово — или дорисуйте
 
 minigame.pour_over.prompt.bloom_pour
 cs Nejdřív trochu nalijte, ať káva vykvete
 en First pour a little so the coffee can bloom
-sk Najprv trochu nalejte, nech káva rozkvitne
-uk Спершу налийте трохи, щоб кава розкрилася
+uk Трохи налийте — хай кава розкриється
+ru Чуть налейте — пусть кофе раскроется
 
 minigame.pour_over.prompt.bloom
 cs Nechte ji vykvést…
 en Let it bloom…
-sk Nechajte ju rozkvitnúť…
 uk Дайте їй розкритися…
+ru Дайте ему раскрыться…
 
 minigame.pour_over.prompt.circles
 cs Lijte v pomalých kruzích za světýlkem
 en Pour in slow circles with the little light
-sk Lejte v pomalých kruhoch za svetielkom
 uk Лийте повільними колами за вогником
+ru Лейте медленными кругами за огоньком
 
 minigame.pour_over.prompt.keys
 cs Držte mezerník · ←/→ do rytmu
 en Hold Space · ←/→ on the beat
-sk Držte medzerník · ←/→ do rytmu
 uk Тримайте пробіл · ←/→ у ритм
+ru Держите пробел · ←/→ в ритм
 
 minigame.tea_steep.prompt.lift
 cs Vytáhněte sáček, až barva sedí se vzorkem · sáčkem můžete máčet
 en Lift the bag when the colour matches · drag it to dunk
-sk Vytiahnite vrecúško, keď farba sedí so vzorkou · vrecúškom môžete máčať
 uk Підніміть пакетик, коли колір збігається · потягайте, щоб занурити
+ru Поднимите пакетик, когда цвет совпадёт · подвигайте, чтобы окунуть
 
 minigame.tea_steep.prompt.ready
 cs Vypadá to akorát — vytáhněte sáček
 en Looks just right — lift the bag
-sk Vyzerá to akurát — vytiahnite vrecúško
 uk Саме те — піднімайте пакетик
+ru Самое то — поднимайте пакетик
 
 minigame.tea_steep.prompt.lemon
 cs Pusťte plátek citronu doprostřed
 en Drop the lemon slice into the middle
-sk Pustite plátok citróna do stredu
 uk Відпустіть скибочку лимона посередині
+ru Опустите дольку лимона в середину
 
 minigame.tea_steep.prompt.sugar
 cs Přidejte cukr — kostka za kliknutí
 en Add sugar — one cube per click
-sk Pridajte cukor — kocka za kliknutie
 uk Додайте цукор — кубик за клік
+ru Добавьте сахар — кубик за клик
 
 minigame.plate.prompt.ghost
 cs Babiččin způsob — zapamatujte si rozložení
 en Lida's way — remember the layout
-sk Babkin spôsob — zapamätajte si rozloženie
 uk Як у Ліди — запам'ятайте розкладку
+ru Как у Лиды — запомните раскладку
 
 minigame.plate.prompt.drag
 cs Přetáhněte ozdoby na talíř
 en Drag the garnish onto the plate
-sk Pretiahnite ozdoby na tanier
 uk Перетягніть прикраси на тарілку
+ru Перетащите украшения на тарелку
 
 minigame.plate.prompt.garnish
 cs Ťukněte na zářící tečky
 en Tap the glowing dots
-sk Ťuknite na žiariace bodky
 uk Торкніться сяйливих крапок
+ru Коснитесь светящихся точек
 
 minigame.plate.prompt.done
 cs Krásné. Můžete podávat
 en Lovely. Ready to serve
-sk Krásne. Môžete podávať
 uk Гарно. Можна подавати
+ru Красиво. Можно подавать
 
 minigame.quality.beautiful
 cs Nádhera!
 en Beautiful!
-sk Nádhera!
 uk Прекрасно!
+ru Прекрасно!
 
 minigame.quality.lovely
 cs Moc hezké
 en Lovely
-sk Veľmi pekné
 uk Чудово
+ru Чудесно
 
 minigame.quality.good
 cs Dobré
 en Good
-sk Dobré
 uk Добре
+ru Хорошо
 
 minigame.quality.homely
 cs Jako doma
 en Homely
-sk Ako doma
 uk По-домашньому
+ru По-домашнему
 
 minigame.skip
 cs Přeskočit
 en Skip
-sk Preskočiť
 uk Пропустити
+ru Пропустить
 
 minigame.done
 cs Hotovo
 en Done
-sk Hotovo
 uk Готово
+ru Готово
 
 minigame.key.space
 cs Mezerník
 en Space
-sk Medzerník
 uk Пробіл
+ru Пробел
 
 minigame.target
 cs Cíl
 en Target
-sk Cieľ
 uk Мета
+ru Цель
 
 minigame.strength
 cs Síla
 en Strength
-sk Sila
 uk Міцність
+ru Крепость
 
 minigame.water
 cs Voda
 en Water
-sk Voda
 uk Вода
+ru Вода
 
 minigame.sugar
 cs Cukr
 en Sugar
-sk Cukor
 uk Цукор
+ru Сахар
 
 minigame.practised
 cs Zažité
 en Practised
-sk Zažité
 uk Відпрацьовано
+ru Отработано
 
 minigame.touch.extra_foam
 cs Víc pěny
 en Extra foam
-sk Viac peny
 uk Більше піни
+ru Больше пены
 
 minigame.touch.light_foam
 cs Méně pěny
 en Light foam
-sk Menej peny
 uk Менше піни
+ru Меньше пены
 
 minigame.touch.strong
 cs Silnější
 en Stronger
-sk Silnejší
 uk Міцніше
+ru Крепче
 
 minigame.touch.mild
 cs Jemnější
 en Milder
-sk Jemnejší
 uk М'якше
+ru Мягче
 
 minigame.touch.cinnamon
 cs Se skořicí
 en With cinnamon
-sk So škoricou
 uk З корицею
+ru С корицей
 
 minigame.touch.honey
 cs S medem
 en With honey
-sk S medom
 uk З медом
+ru С мёдом
 
 latte.heart
 cs Srdce
 en Heart
-sk Srdce
 uk Серце
+ru Сердце
 
 latte.tulip
 cs Tulipán
 en Tulip
-sk Tulipán
 uk Тюльпан
+ru Тюльпан
 
 latte.rosetta
 cs Rozeta
 en Rosetta
-sk Rozeta
 uk Розета
+ru Розетта
 
 latte.leaf
 cs Lísteček
 en Leaf
-sk Lístok
 uk Листочок
+ru Листочек
 
 latte.swan
 cs Labuť
 en Swan
-sk Labuť
 uk Лебідь
+ru Лебедь
 
 latte.snowflake
 cs Vločka
 en Snowflake
-sk Vločka
 uk Сніжинка
+ru Снежинка
 
 latte.moon
 cs Půlměsíc
 en Crescent moon
-sk Polmesiac
 uk Півмісяць
+ru Полумесяц
 
 latte.train
 cs Vláček
 en Little train
-sk Vláčik
 uk Потяг
+ru Паровозик
 
 latte.cat
 cs Kočičí tvářička
 en Cat face
-sk Mačacia tvárička
 uk Котяча мордочка
+ru Кошачья мордочка
 
 latte.note
 cs Nota
 en Music note
-sk Nota
 uk Нота
+ru Нота
 
 latte.heart_l
 cs Srdce s L
 en Heart with an L
-sk Srdce s L
 uk Серце з літерою L
+ru Сердце с буквой L
 
 minigame.tea_steep.kind.black
 cs Černý čaj
 en Black tea
-sk Čierny čaj
 uk Чорний чай
+ru Чёрный чай
 
 minigame.tea_steep.kind.green
 cs Zelený čaj
 en Green tea
-sk Zelený čaj
 uk Зелений чай
+ru Зелёный чай
 
 minigame.tea_steep.kind.herbal
 cs Bylinkový čaj
 en Herbal tea
-sk Bylinkový čaj
 uk Трав'яний чай
+ru Травяной чай
 
 minigame.tea_steep.kind.fruit
 cs Ovocný čaj
 en Fruit tea
-sk Ovocný čaj
 uk Фруктовий чай
+ru Фруктовый чай
 
 minigame.plate.dish.medovnik
 cs Medovník
 en Honey cake
-sk Medovník
 uk Медовик
+ru Медовик
 
 minigame.plate.dish.soup
 cs Kulajda
 en Dill soup
-sk Kulajda
 uk Суп кулайда
+ru Суп кулайда
 
 minigame.plate.dish.topinka
 cs Topinka
 en Topinka
-sk Hrianka
 uk Топінка
+ru Топинка
 
 minigame.plate.dish.garlic_soup
 cs Česnečka
 en Garlic soup
-sk Cesnaková polievka
 uk Часникова юшка
+ru Чесночная похлёбка
 
 minigame.plate.dish.borscht
 cs Boršč
 en Borscht
-sk Boršč
 uk Борщ
+ru Борщ

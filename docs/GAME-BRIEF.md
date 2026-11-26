@@ -44,8 +44,7 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
     **Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant** … then Praha-Holešovice. Train announcements use them.
 - **Languages (changed 2026-11-26):** **CZ / EN / UA / RU** → codes `cs`, `en`, `uk`, `ru` (Slovak was dropped,
   Russian added). Every player-visible string goes through i18n keys. First launch shows a language picker;
-  choice saved in settings (a saved `sk` falls back to `cs`). Fallback: `en`, then the key. The swap happens in
-  the translation task (T9); until then the code may still contain `sk`.
+  choice saved in settings (a saved `sk` falls back to `cs`). Fallback: `en`, then the key. Swapped in T9.
 
 ## 2. Visual style — our own, not a RimWorld copy
 - **Palette = Shiftella's universe (purple/indigo):** accent indigo `#6366F1` (600 `#4F46E5`,
@@ -83,10 +82,10 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   text rasterised at physical size (see `hud.rs::text`).
 - Simulation is pure logic in `tick()` (10 ticks = 1 game minute); it emits events; audio/UI react.
   Nothing in rendering mutates the sim.
-- Content is data: `assets/data/*.ron`; text in `assets/i18n/{cs,en,sk,uk}.ron`.
+- Content is data: `assets/data/*.ron`; text in `assets/i18n/{cs,en,uk,ru}.ron`.
 - Run before every commit: `cargo fmt && cargo clippy --all-targets && cargo test` — zero warnings.
 - **Repository language: English.** Code comments, doc comments, docs, README and commit messages are in
-  English (the repo will be public). Player-visible text lives only in `assets/i18n` (cs/en/sk/uk).
+  English (the repo will be public). Player-visible text lives only in `assets/i18n` (cs/en/uk/ru).
 - **Audio is not committed** (ElevenLabs licence: no redistribution outside the game). `assets/audio/` and
   `design/audio/raw/` are git-ignored; they ship only inside release builds. The game must run without them.
 

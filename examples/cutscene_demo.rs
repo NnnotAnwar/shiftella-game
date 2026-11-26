@@ -2,7 +2,7 @@
 //!
 //! * `SHIFTELLA_SCENE=<id>` — cutscene id (default `opening`)
 //! * `SHIFTELLA_T=<seconds>` — jump ahead (auto-played at the default reading pace)
-//! * `SHIFTELLA_LANG=cs|en|sk|uk`
+//! * `SHIFTELLA_LANG=cs|en|uk|ru`
 //! * `SHIFTELLA_SHOT=path.png` — render ~40 frames, save the PNG and exit
 //!
 //! Keys: click / Space — next, 1–4 — choices, hold Esc — skip, A — auto-advance, Ctrl — fast.

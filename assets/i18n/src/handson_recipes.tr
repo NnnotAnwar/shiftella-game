@@ -1,536 +1,1061 @@
 # Recipes, the pantry, the recipe book and experiments (recipes.ron, design/handson.md §4).
 # .lore = Lida's handwritten line in the book (amber italics). .teach = the bubble when someone shows you.
-# English placeholder texts in every language until T9 (see handson_TODO.txt).
+# Czech dish names stay Czech in cs and are transliterated in uk/ru (Хлебичек, Топинка).
 
 # --- recipes: starters ---------------------------------------------------------------------------
 recipe.r_black.name
-* Black, like Lida made it
+cs Černá, jak ji dělala Lída
+en Black, like Lida made it
+uk Чорна, як у Ліди
+ru Чёрный, как у Лиды
 
 recipe.r_black.desc
-* A slow pour-over, nothing added. Honest coffee for honest hours.
+cs Pomalý pour-over, nic navíc. Poctivé kafe pro poctivé hodiny.
+en A slow pour-over, nothing added. Honest coffee for honest hours.
+uk Повільний пуровер, нічого зайвого. Чесна кава для чесних годин.
+ru Медленный пуровер, ничего лишнего. Честный кофе для честных часов.
 
 recipe.r_black.lore
-* Pour slowly. Nobody who comes at night is in a hurry, even when they say they are.
+cs Lij pomalu. Kdo chodí v noci, nikam nespěchá, i když tvrdí opak.
+en Pour slowly. Nobody who comes at night is in a hurry, even when they say they are.
+uk Лий повільно. Хто приходить уночі, той не поспішає, навіть коли каже інакше.
+ru Лей медленно. Кто приходит ночью, тот не спешит, даже если говорит иначе.
 
 recipe.r_cappuccino.name
-* Cappuccino
+cs Cappuccino
+en Cappuccino
+uk Капучино
+ru Капучино
 
 recipe.r_cappuccino.desc
-* Espresso under a soft cap of milk foam.
+cs Espresso pod měkkou čepicí mléčné pěny.
+en Espresso under a soft cap of milk foam.
+uk Еспресо під м'якою шапкою молочної піни.
+ru Эспрессо под мягкой шапкой молочной пены.
 
 recipe.r_cappuccino.lore
-* Milk sings when it's ready. Listen, don't look.
+cs Mléko zazpívá, když je hotové. Poslouchej, nekoukej.
+en Milk sings when it's ready. Listen, don't look.
+uk Молоко співає, коли готове. Слухай, а не дивись.
+ru Молоко поёт, когда готово. Слушай, а не смотри.
 
 recipe.r_lemon_tea.name
-* Tea with lemon
+cs Čaj s citronem
+en Tea with lemon
+uk Чай із лимоном
+ru Чай с лимоном
 
 recipe.r_lemon_tea.desc
-* Black tea, a slice of lemon, steeped just long enough.
+cs Černý čaj, plátek citronu, louhovaný tak akorát.
+en Black tea, a slice of lemon, steeped just long enough.
+uk Чорний чай, скибочка лимона, заварений саме стільки, скільки треба.
+ru Чёрный чай, долька лимона, заваренный ровно столько, сколько нужно.
 
 recipe.r_lemon_tea.lore
-* Lift the bag before it turns bitter. People are the same.
+cs Sáček vytáhni dřív, než zhořkne. S lidmi je to stejné.
+en Lift the bag before it turns bitter. People are the same.
+uk Витягни пакетик, поки не загірчило. З людьми так само.
+ru Вынь пакетик, пока не загорчило. С людьми так же.
 
 recipe.r_topinka.name
-* Topinka
+cs Topinka
+en Topinka
+uk Топінка
+ru Топинка
 
 recipe.r_topinka.desc
-* Fried bread rubbed with garlic, the taxi-rank breakfast.
+cs Smažený chleba potřený česnekem, snídaně od stanoviště taxíků.
+en Fried bread rubbed with garlic, the taxi-rank breakfast.
+uk Підсмажений хліб, натертий часником, — сніданок зі стоянки таксі.
+ru Поджаренный хлеб, натёртый чесноком, — завтрак со стоянки такси.
 
 recipe.r_topinka.lore
-* Two rubs of garlic for drivers, three for anyone who looks sad.
+cs Řidičům dvakrát přetřít česnekem, třikrát každému, kdo vypadá smutně.
+en Two rubs of garlic for drivers, three for anyone who looks sad.
+uk Водіям — двічі натерти часником, тричі — кожному, хто має сумний вигляд.
+ru Водителям — дважды натереть чесноком, трижды — каждому, кто выглядит грустным.
 
 recipe.r_garlic_soup.name
-* Česnečka
+cs Česnečka
+en Česnečka
+uk Часникова юшка
+ru Чесночная похлёбка
 
 recipe.r_garlic_soup.desc
-* Garlic soup with potato and croutons. It fixes most things.
+cs Česneková polévka s bramborem a krutony. Spraví skoro všechno.
+en Garlic soup with potato and croutons. It fixes most things.
+uk Часниковий суп із картоплею і грінками. Виправляє майже все.
+ru Чесночный суп с картошкой и гренками. Исправляет почти всё.
 
 recipe.r_garlic_soup.lore
-* Česnečka cures colds, hangovers and small heartbreaks. Big ones need kulajda.
+cs Česnečka léčí rýmu, kocovinu i malá zlomená srdce. Na velká je kulajda.
+en Česnečka cures colds, hangovers and small heartbreaks. Big ones need kulajda.
+uk Часникова юшка лікує нежить, похмілля й маленькі розбиті серця. Для великих є кулайда.
+ru Чесночная похлёбка лечит насморк, похмелье и маленькие разбитые сердца. Для больших есть кулайда.
 
 recipe.r_chlebicek.name
-* Chlebíček
+cs Chlebíček
+en Chlebíček
+uk Хлібічек
+ru Хлебичек
 
 recipe.r_chlebicek.desc
-* An open sandwich with potato salad, ham and a slice of egg.
+cs Obložený chlebíček s bramborovým salátem, šunkou a plátkem vajíčka.
+en An open sandwich with potato salad, ham and a slice of egg.
+uk Відкритий бутерброд із картопляним салатом, шинкою та скибочкою яйця.
+ru Открытый бутерброд с картофельным салатом, ветчиной и ломтиком яйца.
 
 recipe.r_chlebicek.lore
-* Make it pretty. A chlebíček is a small party on a plate.
+cs Udělej ho hezký. Chlebíček je malá oslava na talíři.
+en Make it pretty. A chlebíček is a small party on a plate.
+uk Зроби його гарним. Хлібічек — це маленьке свято на тарілці.
+ru Сделай его красивым. Хлебичек — это маленький праздник на тарелке.
 
 # --- recipes: grandma's cards ------------------------------------------------------------------------
 recipe.r_kolac.name
-* Koláč
+cs Koláč
+en Koláč
+uk Колач
+ru Колач
 
 recipe.r_kolac.desc
-* A round little cake with tvaroh and plum jam.
+cs Kulatý koláček s tvarohem a švestkovými povidly.
+en A round little cake with tvaroh and plum jam.
+uk Круглий пиріжок із сиром і сливовим джемом.
+ru Круглый пирожок с творогом и сливовым джемом.
 
 recipe.r_kolac.lore
-* Jam in the middle, crumble on top, and always one more than you think you'll need.
+cs Povidla doprostřed, drobenku navrch a vždycky o jeden víc, než si myslíš, že budeš potřebovat.
+en Jam in the middle, crumble on top, and always one more than you think you'll need.
+uk Джем — у середину, кришанку — зверху, і завжди на один більше, ніж здається потрібним.
+ru Джем — в середину, крошку — сверху, и всегда на один больше, чем кажется нужным.
 
 recipe.r_oat_flat_white.name
-* Oat flat white
+cs Ovesný flat white
+en Oat flat white
+uk Вівсяний флет вайт
+ru Флэт уайт на овсяном
 
 recipe.r_oat_flat_white.desc
-* Velvety oat milk over a double espresso, with a little art on top.
+cs Sametové ovesné mléko na dvojitém espressu, nahoře malý obrázek.
+en Velvety oat milk over a double espresso, with a little art on top.
+uk Оксамитове вівсяне молоко на подвійному еспресо, зверху маленький малюнок.
+ru Бархатное овсяное молоко на двойном эспрессо, сверху маленький рисунок.
 
 recipe.r_oat_flat_white.lore
-* The young ones like it with oats. Fine. Draw them a heart and they'll come back.
+cs Mladí ho chtějí s ovsem. Budiž. Nakresli jim srdíčko a vrátí se.
+en The young ones like it with oats. Fine. Draw them a heart and they'll come back.
+uk Молодь любить із вівсяним. Нехай. Намалюй їм сердечко — і вони повернуться.
+ru Молодёжь любит на овсяном. Пусть. Нарисуй им сердечко — и они вернутся.
 
 recipe.r_medovnik.name
-* Medovník
+cs Medovník
+en Medovník
+uk Медовик
+ru Медовик
 
 recipe.r_medovnik.desc
-* Layered honey cake with cream, served cold.
+cs Vrstvený medový dort se smetanovým krémem, podávaný studený.
+en Layered honey cake with cream, served cold.
+uk Шаровий медовий торт із кремом, подається холодним.
+ru Слоёный медовый торт с кремом, подаётся холодным.
 
 recipe.r_medovnik.lore
-* Honey cake needs a night to rest. So do we.
+cs Medovník si musí přes noc odpočinout. My taky.
+en Honey cake needs a night to rest. So do we.
+uk Медовику треба відпочити ніч. Нам теж.
+ru Медовику нужно отдохнуть ночь. Нам тоже.
 
 recipe.r_chai.name
-* Chai
+cs Chai
+en Chai
+uk Чай масала
+ru Чай масала
 
 recipe.r_chai.desc
-* Black tea with warm milk and spice.
+cs Černý čaj s teplým mlékem a kořením.
+en Black tea with warm milk and spice.
+uk Чорний чай із теплим молоком і прянощами.
+ru Чёрный чай с тёплым молоком и пряностями.
 
 recipe.r_chai.lore
-* Cinnamon and clove, a pinch of each, and milk only when the tea is dark.
+cs Skořice a hřebíček, od každého špetka, a mléko až když čaj ztmavne.
+en Cinnamon and clove, a pinch of each, and milk only when the tea is dark.
+uk Кориця й гвоздика, по дрібці кожного, а молоко — тільки коли чай потемніє.
+ru Корица и гвоздика, по щепотке каждой, а молоко — только когда чай потемнеет.
 
 recipe.r_hot_chocolate.name
-* Hot chocolate
+cs Horká čokoláda
+en Hot chocolate
+uk Гарячий шоколад
+ru Горячий шоколад
 
 recipe.r_hot_chocolate.desc
-* Thick cocoa with steamed milk.
+cs Hustá čokoláda s napěněným mlékem.
+en Thick cocoa with steamed milk.
+uk Густе какао зі спіненим молоком.
+ru Густое какао со взбитым молоком.
 
 recipe.r_hot_chocolate.lore
-* For anyone who's cold, or eight, or both.
+cs Pro každého, komu je zima, nebo je mu osm, nebo obojí.
+en For anyone who's cold, or eight, or both.
+uk Для кожного, кому холодно, або кому вісім, або все разом.
+ru Для каждого, кому холодно, или кому восемь, или всё сразу.
 
 recipe.r_varenyky.name
-* Varenyky with potato & mushroom
+cs Vareniky s bramborem a houbami
+en Varenyky with potato & mushroom
+uk Вареники з картоплею й грибами
+ru Вареники с картошкой и грибами
 
 recipe.r_varenyky.desc
-* Dumplings with potato and mushroom, smetana and crispy onion.
+cs Taštičky s bramborem a houbami, smetanou a křupavou cibulkou.
+en Dumplings with potato and mushroom, smetana and crispy onion.
+uk Вареники з картоплею й грибами, сметаною та хрусткою цибулькою.
+ru Вареники с картошкой и грибами, сметаной и хрустящим лучком.
 
 recipe.r_varenyky.lore
-* A traveller from Lviv taught me these, one snowy night. Pinch the edges like you mean it.
+cs Naučila mě je jedna cestující ze Lvova, jedné zasněžené noci. Okraje mačkej, jako že to myslíš vážně.
+en A traveller from Lviv taught me these, one snowy night. Pinch the edges like you mean it.
+uk Навчила мене їх одна мандрівниця зі Львова, однієї сніжної ночі. Защипуй краї так, ніби ти це серйозно.
+ru Научила меня им одна путешественница из Львова, одной снежной ночью. Защипывай края так, будто всерьёз.
 
 recipe.r_pirohy.name
-* Bryndzové pirohy
+cs Bryndzové pirohy
+en Bryndzové pirohy
+uk Пироги з бринзою
+ru Пироги с брынзой
 
 recipe.r_pirohy.desc
-* Potato pockets with sheep's cheese and a little bacon.
+cs Bramborové taštičky s ovčím sýrem a trochou slaniny.
+en Potato pockets with sheep's cheese and a little bacon.
+uk Картопляні пиріжки з овечим сиром і трохи сала.
+ru Картофельные пирожки с овечьим сыром и капелькой сала.
 
 recipe.r_pirohy.lore
-* For the Slovak drivers. They stop missing home for exactly one plate.
+cs Pro slovenské řidiče. Na jeden talíř se jim přestane stýskat po domově.
+en For the Slovak drivers. They stop missing home for exactly one plate.
+uk Для словацьких водіїв. Рівно на одну тарілку вони перестають сумувати за домом.
+ru Для словацких водителей. Ровно на одну тарелку они перестают скучать по дому.
 
 recipe.r_night_train.name
-* Night Train
+cs Noční vlak
+en Night Train
+uk Нічний поїзд
+ru Ночной поезд
 
 recipe.r_night_train.desc
-* A strong pour-over with cocoa and spice — the café's own.
+cs Silný pour-over s kakaem a kořením — specialita podniku.
+en A strong pour-over with cocoa and spice — the café's own.
+uk Міцний пуровер із какао й прянощами — фірмовий напій закладу.
+ru Крепкий пуровер с какао и пряностями — фирменный напиток заведения.
 
 recipe.r_night_train.lore
-* Strong enough for the last train, soft enough for the first one.
+cs Dost silný na poslední vlak, dost jemný na ten první.
+en Strong enough for the last train, soft enough for the first one.
+uk Досить міцний для останнього поїзда, досить м'який для першого.
+ru Достаточно крепкий для последнего поезда, достаточно мягкий для первого.
 
 recipe.r_svarak.name
-* Svařák
+cs Svařák
+en Svařák
+uk Глінтвейн
+ru Глинтвейн
 
 recipe.r_svarak.desc
-* Mulled red wine with spice and a little sugar. Never boiled.
+cs Svařené červené víno s kořením a trochou cukru. Nikdy nevařené.
+en Mulled red wine with spice and a little sugar. Never boiled.
+uk Підігріте червоне вино з прянощами й дрібкою цукру. Ніколи не кип'ятити.
+ru Подогретое красное вино с пряностями и щепоткой сахара. Никогда не кипятить.
 
 recipe.r_svarak.lore
-* Warm it, never boil it. Wine that boils has given up.
+cs Ohřej, nikdy nevař. Víno, které se vaří, to vzdalo.
+en Warm it, never boil it. Wine that boils has given up.
+uk Гріти, але не кип'ятити. Вино, що закипіло, здалося.
+ru Греть, но не кипятить. Вино, которое закипело, сдалось.
 
 # --- recipes: story and the people who teach ---------------------------------------------------------
 recipe.r_kulajda.name
-* Grandma's kulajda
+cs Babiččina kulajda
+en Grandma's kulajda
+uk Бабусина кулайда
+ru Бабушкина кулайда
 
 recipe.r_kulajda.desc
-* Creamy mushroom and dill soup with potato — Lida's own.
+cs Krémová polévka z hub a kopru s bramborem — Lídin recept.
+en Creamy mushroom and dill soup with potato — Lida's own.
+uk Вершковий суп із грибами, кропом і картоплею — Лідин рецепт.
+ru Сливочный суп с грибами, укропом и картошкой — Лидин рецепт.
 
 recipe.r_kulajda.lore
-* Dill at the very end. And don't tell Vera how much cream.
+cs Kopr až úplně na konec. A Věře neříkej, kolik smetany.
+en Dill at the very end. And don't tell Vera how much cream.
+uk Кріп — у самому кінці. І не кажи Вірі, скільки вершків.
+ru Укроп — в самом конце. И не говори Вере, сколько сливок.
 
 recipe.r_turek.name
-* Turek, taxi-rank style
+cs Turek po taxikářsku
+en Turek, taxi-rank style
+uk Турек по-таксистськи
+ru Турек по-таксистски
 
 recipe.r_turek.desc
-* Coffee boiled in the cup with sugar, grounds left to settle.
+cs Káva zalitá v hrnku s cukrem, sedlina se nechá usadit.
+en Coffee boiled in the cup with sugar, grounds left to settle.
+uk Кава, заварена просто в чашці з цукром; гущу лишають осісти.
+ru Кофе, заваренный прямо в чашке с сахаром; гущу оставляют осесть.
 
 recipe.r_turek.lore
-* Mirek's. Let it settle. He always did.
+cs Mirkův. Nech ho usadit. On to tak vždycky dělal.
+en Mirek's. Let it settle. He always did.
+uk Мірків. Дай йому відстоятися. Він завжди так робив.
+ru Рецепт Мирека. Дай ему отстояться. Он всегда так делал.
 
 recipe.r_turek.teach
-* Stir three times, then hands off. Let the grounds sit down, like a tired driver.
+cs Zamíchat třikrát a pak dát ruce pryč. Ať si sedlina sedne jako unavený řidič.
+en Stir three times, then hands off. Let the grounds sit down, like a tired driver.
+uk Помішай тричі — і руки геть. Хай гуща сяде, як утомлений водій.
+ru Помешай трижды — и руки прочь. Пусть гуща сядет, как уставший водитель.
 
 recipe.r_vera_kolac.name
-* Vera's poppy-seed koláč, warmed
+cs Věřin ohřátý makový koláč
+en Vera's poppy-seed koláč, warmed
+uk Вірин маковий колач, підігрітий
+ru Верин маковый колач, подогретый
 
 recipe.r_vera_kolac.desc
-* Poppy seed and tvaroh, warmed through, the way Vera insists.
+cs Mák a tvaroh, prohřátý skrz naskrz, jak Věra trvá.
+en Poppy seed and tvaroh, warmed through, the way Vera insists.
+uk Мак і сир, прогрітий наскрізь, як наполягає Віра.
+ru Мак и творог, прогретый насквозь, как настаивает Вера.
 
 recipe.r_vera_kolac.lore
-* Vera's is better. Never tell her I wrote that.
+cs Věřin je lepší. Nikdy jí neříkej, že jsem to napsala.
+en Vera's is better. Never tell her I wrote that.
+uk Вірин кращий. Ніколи їй не кажи, що я це написала.
+ru У Веры лучше. Никогда ей не говори, что я это написала.
 
 recipe.r_vera_kolac.teach
-* Warm it, child. A cold koláč is a sad koláč. Poppy seed first, then the tvaroh.
+cs Ohřej ho, děvče. Studený koláč je smutný koláč. Nejdřív mák, pak tvaroh.
+en Warm it, child. A cold koláč is a sad koláč. Poppy seed first, then the tvaroh.
+uk Підігрій його, дитино. Холодний колач — сумний колач. Спершу мак, потім сир.
+ru Подогрей его, деточка. Холодный колач — грустный колач. Сначала мак, потом творог.
 
 recipe.r_rn333_tea.name
-* Tea, two sugars
+cs Čaj, dva cukry
+en Tea, two sugars
+uk Чай, два цукри
+ru Чай, два сахара
 
 recipe.r_rn333_tea.desc
-* Black tea with lemon and exactly two sugars.
+cs Černý čaj s citronem a přesně dvěma cukry.
+en Black tea with lemon and exactly two sugars.
+uk Чорний чай із лимоном і рівно двома цукрами.
+ru Чёрный чай с лимоном и ровно двумя кусочками сахара.
 
 recipe.r_rn333_tea.lore
-* Two sugars. He always took two.
+cs Dva cukry. Vždycky si dával dva.
+en Two sugars. He always took two.
+uk Два цукри. Він завжди брав два.
+ru Два сахара. Он всегда клал два.
 
 recipe.r_lori_encore.name
-* Lori's encore
+cs Přídavek pro Lori
+en Lori's encore
+uk Лорін біс
+ru Бис для Лори
 
 recipe.r_lori_encore.desc
-* Hot chocolate with a pinch of chili.
+cs Horká čokoláda se špetkou chilli.
+en Hot chocolate with a pinch of chili.
+uk Гарячий шоколад із дрібкою чилі.
+ru Горячий шоколад со щепоткой чили.
 
 recipe.r_lori_encore.lore
-* A pinch of fire for the singer. Not a spoon. A pinch.
+cs Špetka ohně pro zpěvačku. Ne lžíce. Špetka.
+en A pinch of fire for the singer. Not a spoon. A pinch.
+uk Дрібка вогню для співачки. Не ложка. Дрібка.
+ru Щепотка огня для певицы. Не ложка. Щепотка.
 
 recipe.r_lori_encore.teach
-* Just a pinch of chili, love. It warms the voice from the inside.
+cs Jen špetku chilli, zlato. Zahřeje hlas zevnitř.
+en Just a pinch of chili, love. It warms the voice from the inside.
+uk Лише дрібку чилі, сонечко. Воно гріє голос зсередини.
+ru Только щепотку чили, солнышко. Она греет голос изнутри.
 
 recipe.r_linden_tea.name
-* Linden tea with honey
+cs Lipový čaj s medem
+en Linden tea with honey
+uk Липовий чай із медом
+ru Липовый чай с мёдом
 
 recipe.r_linden_tea.desc
-* Lime-blossom tea, golden and gentle, with honey.
+cs Čaj z lipového květu, zlatý a jemný, s medem.
+en Lime-blossom tea, golden and gentle, with honey.
+uk Чай із липового цвіту, золотий і ніжний, з медом.
+ru Чай из липового цвета, золотой и нежный, с мёдом.
 
 recipe.r_linden_tea.lore
-* Linden for sleep and for singers. Honey, always honey.
+cs Lípa na spaní a pro zpěváky. Med, vždycky med.
+en Linden for sleep and for singers. Honey, always honey.
+uk Липа — для сну й для співаків. Мед, завжди мед.
+ru Липа — для сна и для певцов. Мёд, всегда мёд.
 
 recipe.r_moon_latte.name
-* Moonlight latte
+cs Měsíční latte
+en Moonlight latte
+uk Місячне лате
+ru Лунный латте
 
 recipe.r_moon_latte.desc
-* Oat milk turned dusk-blue with butterfly pea, a crescent on top.
+cs Ovesné mléko zbarvené do modra soumraku motýlím hrachem, nahoře srpek.
+en Oat milk turned dusk-blue with butterfly pea, a crescent on top.
+uk Вівсяне молоко, підфарбоване анчаном у колір сутінок, зверху півмісяць.
+ru Овсяное молоко, подкрашенное анчаном в цвет сумерек, сверху полумесяц.
 
 recipe.r_moon_latte.lore
-* Not mine, this one. Yours. Write it down so someone finds it one day.
+cs Tenhle není můj. Je tvůj. Zapiš si ho, ať ho jednou někdo najde.
+en Not mine, this one. Yours. Write it down so someone finds it one day.
+uk Цей не мій. Твій. Запиши його, щоб колись хтось знайшов.
+ru Этот не мой. Твой. Запиши его, чтобы однажды кто-нибудь нашёл.
 
 # --- SHOULD: the crew's recipes --------------------------------------------------------------------------
 recipe.r_raf.name
-* Raf coffee (Kyiv-style)
+cs Raf (po kyjevsku)
+en Raf coffee (Kyiv-style)
+uk Раф (по-київськи)
+ru Раф (по-киевски)
 
 recipe.r_raf.desc
-* Espresso whisked with cream and vanilla into something like a cloud.
+cs Espresso našlehané se smetanou a vanilkou do něčeho jako obláček.
+en Espresso whisked with cream and vanilla into something like a cloud.
+uk Еспресо, збите з вершками й ваніллю в щось схоже на хмаринку.
+ru Эспрессо, взбитый со сливками и ванилью во что-то похожее на облачко.
 
 recipe.r_raf.lore
-* Oleh's. Sweet, soft, and a little homesick.
+cs Olehův. Sladký, jemný a trochu mu stýská po domově.
+en Oleh's. Sweet, soft, and a little homesick.
+uk Олегів. Солодкий, м'який і трохи сумує за домом.
+ru От Олега. Сладкий, мягкий и чуть-чуть скучает по дому.
 
 recipe.r_raf.teach
-* In Kyiv we steam the coffee with the cream. Watch for the vanilla drop — there!
+cs V Kyjevě napěňujeme kafe rovnou se smetanou. Pozor na kapku vanilky — teď!
+en In Kyiv we steam the coffee with the cream. Watch for the vanilla drop — there!
+uk У Києві ми збиваємо каву разом із вершками. Стеж за краплею ванілі — ось!
+ru В Киеве мы взбиваем кофе прямо со сливками. Следи за каплей ванили — вот!
 
 recipe.r_borscht.name
-* Borscht with smetana
+cs Boršč se smetanou
+en Borscht with smetana
+uk Борщ зі сметаною
+ru Борщ со сметаной
 
 recipe.r_borscht.desc
-* Beetroot soup, deep ruby, with a spoon of smetana.
+cs Řepná polévka, temně rubínová, s lžící smetany.
+en Beetroot soup, deep ruby, with a spoon of smetana.
+uk Буряковий суп, глибоко-рубіновий, з ложкою сметани.
+ru Свекольный суп, густо-рубиновый, с ложкой сметаны.
 
 recipe.r_borscht.lore
-* The colour is the whole secret. Beetroot in on time, or it goes brown and sulks.
+cs Celé tajemství je v barvě. Řepu přidat včas, jinak zhnědne a urazí se.
+en The colour is the whole secret. Beetroot in on time, or it goes brown and sulks.
+uk Увесь секрет — у кольорі. Буряк треба кинути вчасно, бо збуріє й насупиться.
+ru Весь секрет — в цвете. Свёклу нужно положить вовремя, а то побуреет и надуется.
 
 recipe.r_borscht.teach
-* My mother's borscht. Beetroot goes in at the right moment — I'll tell you when.
+cs Boršč mojí mámy. Řepa jde dovnitř ve správnou chvíli — řeknu ti kdy.
+en My mother's borscht. Beetroot goes in at the right moment — I'll tell you when.
+uk Мамин борщ. Буряк кидаємо в потрібну мить — я скажу коли.
+ru Мамин борщ. Свёклу кладём в нужный момент — я скажу когда.
 
 recipe.r_buchty.name
-* Kuba's buchty with povidla
+cs Kubovy buchty s povidly
+en Kuba's buchty with povidla
+uk Кубові бухти з повидлом
+ru Кубины бухты с повидлом
 
 recipe.r_buchty.desc
-* Soft baked buns filled with plum povidla, sugar on top.
+cs Měkké pečené buchty plněné švestkovými povidly, cukr navrch.
+en Soft baked buns filled with plum povidla, sugar on top.
+uk М'які печені булочки зі сливовим повидлом, зверху цукор.
+ru Мягкие печёные булочки со сливовым повидлом, сверху сахар.
 
 recipe.r_buchty.lore
-* The boy has been baking secretly. Let him think nobody noticed.
+cs Kluk tajně peče. Ať si myslí, že si toho nikdo nevšiml.
+en The boy has been baking secretly. Let him think nobody noticed.
+uk Хлопець потай пече. Хай думає, що ніхто не помітив.
+ru Парень тайком печёт. Пусть думает, что никто не заметил.
 
 recipe.r_buchty.teach
-* Mr Holub showed me. Don't tell him I'm showing you — he'll get all proud.
+cs Ukázal mi to pan Holub. Neříkej mu, že to ukazuju tobě — začal by se nadýmat pýchou.
+en Mr Holub showed me. Don't tell him I'm showing you — he'll get all proud.
+uk Мені показав пан Голуб. Не кажи йому, що я показую тобі, — він аж запишається.
+ru Мне показал пан Голуб. Не говори ему, что я показываю тебе, — он весь возгордится.
 
 recipe.r_tatra_tea.name
-* Tatra herb tea
+cs Tatranský bylinkový čaj
+en Tatra herb tea
+uk Татранський трав'яний чай
+ru Татранский травяной чай
 
 recipe.r_tatra_tea.desc
-* Mountain herbs, honey and lemon, like a hut in the Tatras.
+cs Horské bylinky, med a citron, jako na chatě v Tatrách.
+en Mountain herbs, honey and lemon, like a hut in the Tatras.
+uk Гірські трави, мед і лимон, як у хатині в Татрах.
+ru Горные травы, мёд и лимон, как в домике в Татрах.
 
 recipe.r_tatra_tea.lore
-* Natália's. It smells like a mountain after rain.
+cs Natáliin. Voní jako hory po dešti.
+en Natália's. It smells like a mountain after rain.
+uk Наталіїн. Пахне горами після дощу.
+ru От Наталии. Пахнет горами после дождя.
 
 recipe.r_tatra_tea.teach
-* My granny picked these above Ždiar. Honey first, lemon at the end.
+cs Babička je sbírala nad Ždiarem. Nejdřív med, citron až nakonec.
+en My granny picked these above Ždiar. Honey first, lemon at the end.
+uk Моя бабуся збирала їх над Ждяром. Спершу мед, лимон — наприкінці.
+ru Моя бабушка собирала их над Ждяром. Сначала мёд, лимон — в конце.
 
 recipe.r_espresso_tonic.name
-* Platform espresso tonic
+cs Nádražní espresso tonic
+en Platform espresso tonic
+uk Перонний еспресо-тонік
+ru Перронный эспрессо-тоник
 
 recipe.r_espresso_tonic.desc
-* Espresso poured slowly over tonic and ice. Bitter, bright, cold.
+cs Espresso pomalu nalité na tonik s ledem. Hořké, jasné, studené.
+en Espresso poured slowly over tonic and ice. Bitter, bright, cold.
+uk Еспресо, повільно налите на тонік із льодом. Гірке, яскраве, холодне.
+ru Эспрессо, медленно налитый на тоник со льдом. Горький, яркий, холодный.
 
 recipe.r_espresso_tonic.lore
-* Filip calls it exam fuel. I call it a cold drink with opinions.
+cs Filip mu říká palivo na zkoušky. Já tomu říkám studený nápoj s názorem.
+en Filip calls it exam fuel. I call it a cold drink with opinions.
+uk Філіп називає це пальним для іспитів. Я — холодним напоєм із характером.
+ru Филип называет это топливом для экзаменов. Я — холодным напитком с характером.
 
 recipe.r_espresso_tonic.teach
-* Pour it slowly over the ice, or it fizzes everywhere. Trust me. I've been there.
+cs Lij to pomalu na led, jinak to všude šumí. Věř mi. Zažil jsem to.
+en Pour it slowly over the ice, or it fizzes everywhere. Trust me. I've been there.
+uk Лий повільно на лід, бо все запінить. Повір. Я це проходив.
+ru Лей медленно на лёд, а то всё вспенится. Поверь. Я через это прошёл.
 
 recipe.r_uzvar.name
-* Uzvar
+cs Uzvar
+en Uzvar
+uk Узвар
+ru Узвар
 
 recipe.r_uzvar.desc
-* A warm drink of dried fruit and honey, like Christmas in Lviv.
+cs Teplý nápoj ze sušeného ovoce a medu, jako Vánoce ve Lvově.
+en A warm drink of dried fruit and honey, like Christmas in Lviv.
+uk Теплий напій із сухофруктів і меду, як Різдво у Львові.
+ru Тёплый напиток из сухофруктов и мёда, как Рождество во Львове.
 
 recipe.r_uzvar.lore
-* From the parcel. Dried pears and plums and someone's love, all in one pot.
+cs Z balíku. Sušené hrušky a švestky a něčí láska, všechno v jednom hrnci.
+en From the parcel. Dried pears and plums and someone's love, all in one pot.
+uk Із посилки. Сушені груші, сливи й чиясь любов — усе в одній каструлі.
+ru Из посылки. Сушёные груши, сливы и чья-то любовь — всё в одной кастрюле.
 
 # --- ingredients ------------------------------------------------------------------------------------------
 ingredient.espresso.name
-* Espresso
+cs Espresso
+en Espresso
+uk Еспресо
+ru Эспрессо
 
 ingredient.milk.name
-* Milk
+cs Mléko
+en Milk
+uk Молоко
+ru Молоко
 
 ingredient.oat_milk.name
-* Oat milk
+cs Ovesné mléko
+en Oat milk
+uk Вівсяне молоко
+ru Овсяное молоко
 
 ingredient.cream.name
-* Cream
+cs Smetana
+en Cream
+uk Вершки
+ru Сливки
 
 ingredient.black_tea.name
-* Black tea
+cs Černý čaj
+en Black tea
+uk Чорний чай
+ru Чёрный чай
 
 ingredient.linden.name
-* Linden blossom
+cs Lipový květ
+en Linden blossom
+uk Липовий цвіт
+ru Липовый цвет
 
 ingredient.mountain_herbs.name
-* Mountain herbs
+cs Horské bylinky
+en Mountain herbs
+uk Гірські трави
+ru Горные травы
 
 ingredient.lemon.name
-* Lemon
+cs Citron
+en Lemon
+uk Лимон
+ru Лимон
 
 ingredient.honey.name
-* Honey
+cs Med
+en Honey
+uk Мед
+ru Мёд
 
 ingredient.sugar.name
-* Sugar
+cs Cukr
+en Sugar
+uk Цукор
+ru Сахар
 
 ingredient.spice.name
-* Cinnamon & clove
+cs Skořice a hřebíček
+en Cinnamon & clove
+uk Кориця й гвоздика
+ru Корица и гвоздика
 
 ingredient.chili.name
-* Chili
+cs Chilli
+en Chili
+uk Чилі
+ru Чили
 
 ingredient.cocoa.name
-* Cocoa
+cs Kakao
+en Cocoa
+uk Какао
+ru Какао
 
 ingredient.vanilla.name
-* Vanilla
+cs Vanilka
+en Vanilla
+uk Ваніль
+ru Ваниль
 
 ingredient.dried_fruit.name
-* Dried fruit
+cs Sušené ovoce
+en Dried fruit
+uk Сухофрукти
+ru Сухофрукты
 
 ingredient.ice.name
-* Ice
+cs Led
+en Ice
+uk Лід
+ru Лёд
 
 ingredient.tonic.name
-* Tonic
+cs Tonik
+en Tonic
+uk Тонік
+ru Тоник
 
 ingredient.butterfly_pea.name
-* Butterfly pea
+cs Motýlí hrách
+en Butterfly pea
+uk Анчан
+ru Анчан
 
 ingredient.red_wine.name
-* Red wine
+cs Červené víno
+en Red wine
+uk Червоне вино
+ru Красное вино
 
 ingredient.bread.name
-* Bread
+cs Chléb
+en Bread
+uk Хліб
+ru Хлеб
 
 ingredient.garlic.name
-* Garlic
+cs Česnek
+en Garlic
+uk Часник
+ru Чеснок
 
 ingredient.potato.name
-* Potato
+cs Brambory
+en Potato
+uk Картопля
+ru Картошка
 
 ingredient.mushroom.name
-* Mushrooms
+cs Houby
+en Mushrooms
+uk Гриби
+ru Грибы
 
 ingredient.beetroot.name
-* Beetroot
+cs Řepa
+en Beetroot
+uk Буряк
+ru Свёкла
 
 ingredient.tvaroh.name
-* Tvaroh
+cs Tvaroh
+en Tvaroh
+uk Сир
+ru Творог
 
 ingredient.bryndza.name
-* Bryndza
+cs Brynza
+en Bryndza
+uk Бринза
+ru Брынза
 
 ingredient.poppy_seed.name
-* Poppy seed
+cs Mák
+en Poppy seed
+uk Мак
+ru Мак
 
 ingredient.plum_jam.name
-* Plum jam
+cs Švestková povidla
+en Plum jam
+uk Сливове повидло
+ru Сливовое повидло
 
 # families, used inside hints ("it wants something {family}")
 ingredient.family.coffee
-* roasted
+cs praženého
+en roasted
+uk смажене
+ru обжаренное
 
 ingredient.family.milk
-* milky
+cs mléčného
+en milky
+uk молочне
+ru молочное
 
 ingredient.family.tea
-* leafy
+cs lístkového
+en leafy
+uk листове
+ru листовое
 
 ingredient.family.sweet
-* sweet
+cs sladkého
+en sweet
+uk солодке
+ru сладкое
 
 ingredient.family.spice
-* spicy
+cs kořeněného
+en spicy
+uk пряне
+ru пряное
 
 ingredient.family.fruit
-* fruity
+cs ovocného
+en fruity
+uk фруктове
+ru фруктовое
 
 ingredient.family.cold
-* cold
+cs studeného
+en cold
+uk холодне
+ru холодное
 
 ingredient.family.savoury
-* savoury
+cs slaného
+en savoury
+uk солоне
+ru солёное
 
 ingredient.family.dough
-* doughy
+cs těstového
+en doughy
+uk борошняне
+ru мучное
 
 # --- the recipe book (K) ----------------------------------------------------------------------------------
 book.title
-* Recipe book
+cs Kniha receptů
+en Recipe book
+uk Книга рецептів
+ru Книга рецептов
 
 book.tab.drinks
-* Drinks
+cs Nápoje
+en Drinks
+uk Напої
+ru Напитки
 
 book.tab.food
-* Food
+cs Jídlo
+en Food
+uk Їжа
+ru Еда
 
 book.tab.specials
-* Specials
+cs Speciality
+en Specials
+uk Фірмові
+ru Фирменные
 
 book.tab.pantry
-* Pantry
+cs Spíž
+en Pantry
+uk Комора
+ru Кладовая
 
 book.tab.napkins
-* Napkins
+cs Ubrousky
+en Napkins
+uk Серветки
+ru Салфетки
 
 book.tab.trains
-* Trains
+cs Vlaky
+en Trains
+uk Поїзди
+ru Поезда
 
 book.served
-* Served {n}×
+cs Podáno {n}×
+en Served {n}×
+uk Подано {n}×
+ru Подано {n}×
 
 book.best
-* Best: {quality}
+cs Nejlíp: {quality}
+en Best: {quality}
+uk Найкраще: {quality}
+ru Лучшее: {quality}
 
 book.practised
-* Practised
+cs Vypilováno
+en Practised
+uk Відпрацьовано
+ru Отработано
 
 book.unknown
-* Not found yet
+cs Zatím nenalezeno
+en Not found yet
+uk Ще не знайдено
+ru Пока не найдено
 
 book.ingredients
-* Ingredients
+cs Suroviny
+en Ingredients
+uk Інгредієнти
+ru Ингредиенты
 
 book.patterns
-* Latte art
+cs Latte art
+en Latte art
+uk Лате-арт
+ru Латте-арт
 
 book.try
-* Try
+cs Zkusit
+en Try
+uk Спробувати
+ru Попробовать
 
 book.cost
-* Costs {amount} of supplies
+cs Stojí {amount} ze zásob
+en Costs {amount} of supplies
+uk Коштує {amount} із запасів
+ru Стоит {amount} из запасов
 
 book.free
-* Free tonight
+cs Dnes zdarma
+en Free tonight
+uk Сьогодні безкоштовно
+ru Сегодня бесплатно
 
 book.pick
-* Make this one
+cs Udělat tohle
+en Make this one
+uk Зробити це
+ru Сделать это
 
 book.card_found
-* Found in the drawer: grandma's card for {recipe}.
+cs Nalezeno v šuplíku: babiččina kartička na {recipe}.
+en Found in the drawer: grandma's card for {recipe}.
+uk Знайдено в шухляді: бабусина картка — {recipe}.
+ru Найдено в ящике: бабушкина карточка — {recipe}.
 
 book.learned
-* New in the book: {recipe}
+cs Nové v knize: {recipe}
+en New in the book: {recipe}
+uk Нове в книзі: {recipe}
+ru Новое в книге: {recipe}
 
 book.margin_note
-* Lida's margin note: …{ingredient}.
+cs Lídina poznámka na okraji: …{ingredient}.
+en Lida's margin note: …{ingredient}.
+uk Лідина нотатка на полях: …{ingredient}.
+ru Лидина пометка на полях: …{ingredient}.
 
 book.locked_jar
-* Not on the shelf yet
+cs Zatím není na polici
+en Not on the shelf yet
+uk Ще немає на полиці
+ru Пока нет на полке
 
 book.ingredient_unlocked
-* New on the shelf: {ingredient}
+cs Nové na polici: {ingredient}
+en New on the shelf: {ingredient}
+uk Нове на полиці: {ingredient}
+ru Новое на полке: {ingredient}
 
 book.hint.taxi_rank
-* Someone at the taxi rank might know.
+cs Někdo od taxíků by mohl vědět.
+en Someone at the taxi rank might know.
+uk Хтось зі стоянки таксі може знати.
+ru Кто-то со стоянки такси может знать.
 
 book.hint.vera
-* Ask Vera. She'll pretend not to want to tell you.
+cs Zeptej se Věry. Bude dělat, že ti to říct nechce.
+en Ask Vera. She'll pretend not to want to tell you.
+uk Спитай Віру. Вона вдаватиме, що не хоче розповідати.
+ru Спроси Веру. Она будет делать вид, что не хочет рассказывать.
 
 book.hint.lori
-* Something a singer would drink.
+cs Něco, co by pila zpěvačka.
+en Something a singer would drink.
+uk Щось, що пила б співачка.
+ru Что-то, что пила бы певица.
 
 book.hint.oleh
-* Oleh keeps humming about home cooking.
+cs Oleh si pořád brouká o domácí kuchyni.
+en Oleh keeps humming about home cooking.
+uk Олег усе наспівує про домашню кухню.
+ru Олег всё напевает о домашней кухне.
 
 book.hint.kuba
-* Kuba smells of fresh dough lately.
+cs Kuba poslední dobou voní čerstvým těstem.
+en Kuba smells of fresh dough lately.
+uk Куба останнім часом пахне свіжим тістом.
+ru Куба в последнее время пахнет свежим тестом.
 
 book.hint.natalia
-* Natália talks about her granny's mountain hut.
+cs Natália vypráví o babiččině chatě v horách.
+en Natália talks about her granny's mountain hut.
+uk Наталія розповідає про бабусину хатину в горах.
+ru Наталия рассказывает о бабушкином домике в горах.
 
 book.hint.filip
-* A student with an exam might have a trick.
+cs Student před zkouškou by mohl znát fintu.
+en A student with an exam might have a trick.
+uk Студент перед іспитом може знати хитрість.
+ru Студент перед экзаменом может знать хитрость.
 
 book.hint.guest_333
-* The quiet guest at 3:33 always orders the same.
+cs Tichý host ve 3:33 si objednává pořád totéž.
+en The quiet guest at 3:33 always orders the same.
+uk Тихий гість о 3:33 завжди замовляє те саме.
+ru Тихий гость в 3:33 всегда заказывает одно и то же.
 
 book.hint.grandma_card
-* Grandma left a card for this one.
+cs Babička na tohle nechala kartičku.
+en Grandma left a card for this one.
+uk Бабуся лишила для цього картку.
+ru Бабушка оставила для этого карточку.
 
 book.hint.pantry
-* Try the pantry. Something blue, perhaps.
+cs Zkus spíž. Třeba něco modrého.
+en Try the pantry. Something blue, perhaps.
+uk Спробуй комору. Може, щось синє.
+ru Попробуй кладовую. Может, что-то синее.
 
 book.hint.lviv_parcel
-* Something that might arrive in a parcel from Lviv.
+cs Něco, co by mohlo přijít v balíku ze Lvova.
+en Something that might arrive in a parcel from Lviv.
+uk Щось, що могло б прийти в посилці зі Львова.
+ru Что-то, что могло бы прийти в посылке из Львова.
 
 book.gated.r_kulajda
-* Vera would know the rest of this one.
+cs Zbytek by věděla Věra.
+en Vera would know the rest of this one.
+uk Решту знає Віра.
+ru Остальное знает Вера.
 
 # --- experiments ---------------------------------------------------------------------------------------------
 experiment.known
-* You know this one: {recipe}.
+cs Tohle znáš: {recipe}.
+en You know this one: {recipe}.
+uk Це ти вже знаєш: {recipe}.
+ru Это ты уже знаешь: {recipe}.
 
 experiment.discovered
-* Discovered! {recipe}
+cs Objeveno! {recipe}
+en Discovered! {recipe}
+uk Відкрито! {recipe}
+ru Открыто! {recipe}
 
 experiment.close.swap
-* So close — swap the {family} one.
+cs Tak blízko — vyměň něco {family} za něco jiného.
+en So close — swap the {family} one.
+uk Так близько — заміни щось {family}.
+ru Так близко — замени что-то {family}.
 
 experiment.close.extra
-* Almost — one thing too many.
+cs Skoro — jedna věc navíc.
+en Almost — one thing too many.
+uk Майже — одне зайве.
+ru Почти — одно лишнее.
 
 experiment.close.missing
-* Almost — it wants something {family}.
+cs Skoro — chce to něco {family}.
+en Almost — it wants something {family}.
+uk Майже — треба щось {family}.
+ru Почти — нужно что-то {family}.
 
 experiment.cat_sniffs
-* The cat sniffs it, thinks about it, and walks away.
+cs Kocour k tomu čichne, chvíli přemýšlí a odejde.
+en The cat sniffs it, thinks about it, and walks away.
+uk Кіт нюхає, думає й іде геть.
+ru Кот нюхает, думает и уходит.
 
 experiment.nothing.1
-* It's… drinkable. Kuba drank it anyway.
+cs Je to… pitelné. Kuba to stejně vypil.
+en It's… drinkable. Kuba drank it anyway.
+uk Це… можна пити. Куба однаково випив.
+ru Это… можно пить. Куба всё равно выпил.
 
 experiment.nothing.2
-* Interesting. In the way a puddle is interesting.
+cs Zajímavé. Asi jako je zajímavá louže.
+en Interesting. In the way a puddle is interesting.
+uk Цікаво. Так, як цікава калюжа.
+ru Интересно. Так, как интересна лужа.
 
 experiment.nothing.3
-* That's a flavour. Not a good one, but a flavour.
+cs To je chuť. Ne dobrá, ale chuť.
+en That's a flavour. Not a good one, but a flavour.
+uk Це смак. Не добрий, але смак.
+ru Это вкус. Не хороший, но вкус.
 
 experiment.nothing.4
-* Grandma would have said "brave". Grandma was being kind.
+cs Babička by řekla „odvážné“. Babička byla laskavá.
+en Grandma would have said "brave". Grandma was being kind.
+uk Бабуся сказала б «сміливо». Бабуся була доброю.
+ru Бабушка сказала бы «смело». Бабушка была доброй.
 
 experiment.nothing.5
-* Into the sink it goes. Nobody saw.
+cs A šup do dřezu. Nikdo to neviděl.
+en Into the sink it goes. Nobody saw.
+uk Ну, у мийку. Ніхто не бачив.
+ru Ну, в раковину. Никто не видел.
 
 experiment.nothing.6
-* Not a recipe yet. Maybe a story for later.
+cs Ještě to není recept. Možná historka na později.
+en Not a recipe yet. Maybe a story for later.
+uk Ще не рецепт. Може, історія на потім.
+ru Ещё не рецепт. Может, история на потом.
