@@ -45,6 +45,19 @@ out why she never switched off the light in the window.
 - **The café changes with you.** Late autumn rain turns into the first snow; in December you hang
   grandma's garlands yourself. Unlock decor themes, discover recipes in the book, and keep a polaroid
   journal of each night's best moment.
+- **Your hands on the machines.** Warm up the coffee machine before the doors open, put a pot of
+  kulajda on the stove, bake grandma's medovník, pull a tray of coffees ahead of a train, purge the
+  machine when it starts to sputter, count the till and take the trash out at six.
+- **Strangers with a story.** Every guest is first "a woman in a long coat" — greet them and they
+  tell you their name. Some carry a little story: waiting for a call, the last train gone, a first
+  pay cheque. Notice it and answer by hand. One December night a snowstorm closes the line and
+  everyone stays till morning.
+- **Build it your way.** Drag tables with their chairs, see the coziness change before you place a
+  piece, form reading nooks and window spots, answer the regulars' wishes, buy from grandma's attic
+  and reopen the back room. Compose the café's own drink and chalk its name on the board.
+- **A life outside the café.** Walk home at dawn through Holešovice (the river, the park, the
+  bakery or the tram), step out on the back step for a breath with the station cat, and take
+  photos of the night.
 
 | | |
 |---|---|
@@ -62,9 +75,11 @@ out why she never switched off the light in the window.
 - **Story mode** — 30 nights (7 Nov – 6 Dec 2039), seven regulars with their own arcs, grandma's ten
   notes, cutscenes, and **two endings**: «Light in the Window» and «Last Train».
 - **Sandbox** — endless nights in Prague, Brno, Vienna, Kraków… from a shareable seed.
-- **Cozy by default** — nothing to fail, guests wait and forgive. **Classic** makes the payments matter.
+- **Cozy by default** — nothing to fail, guests wait and forgive. **Carefree** plays like Cozy with no
+  debt to pay at all. **Classic** makes the payments matter.
 - **Four languages** — Čeština, English, Українська, Русский.
-- Mouse *and* keyboard-only play, a gentle tutorial, a "How to play" page (F1), save slots and autosave.
+- Mouse *and* keyboard-only play, rebindable keys, a text size setting, colour-blind friendly
+  markers, a gentle tutorial, a "How to play" page (F1), save slots and autosave.
 - An original "violet dollhouse" art style drawn entirely in code — no sprite sheets.
 
 ## Download & play
