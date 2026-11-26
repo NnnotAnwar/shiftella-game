@@ -24,3 +24,40 @@ app.checklist.check_stock.out
 
 app.payroll.star_card
 * A thank-you card for the star of the week.
+
+# Singular guest names for order cards / tickets (`guest.<archetype>.one`; `.name` stays the group).
+guest.travelers.one
+* Traveller
+
+guest.taxi_drivers.one
+* Taxi driver
+
+guest.nurses.one
+* Nurse
+
+guest.students.one
+* Student
+
+guest.insomniacs.one
+* Night owl
+
+guest.train_crew.one
+* Train conductor
+
+guest.drone_operators.one
+* Drone operator
+
+guest.shift_workers.one
+* Shift worker
+
+guest.clubbers.one
+* Concertgoer
+
+guest.patrol.one
+* Patrol officer
+
+guest.truckers.one
+* Trucker
+
+guest.night_wanderer.one
+* Night wanderer

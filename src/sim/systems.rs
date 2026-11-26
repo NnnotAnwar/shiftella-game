@@ -150,6 +150,35 @@ pub struct MomentState {
     pub resolved_ever: BTreeSet<String>,
     /// Event moments waiting for room (nights 1–3: never two at once): (id, target, until).
     pub waiting: Vec<(String, XTarget, u32)>,
+    /// What Karolina does when a queued `GoTo` arrives (moments, night experiments), FIFO by
+    /// tile; the one she is doing now.
+    pub walks: Vec<WalkJob>,
+    pub walk_now: Option<WalkJob>,
+}
+
+/// Work at the end of one of Karolina's `GoTo` acts.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub struct WalkJob {
+    pub tile: (i32, i32),
+    pub kind: WalkKind,
+}
+
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum WalkKind {
+    /// A moment's option (`Command::ResolveMoment`).
+    Moment { id: String, option: String },
+    /// A pantry experiment at the counter (`Command::Experiment` at night).
+    Experiment { ingredients: Vec<String> },
+}
+
+impl WalkKind {
+    /// Queue icon hint for the UI (`moment` / `experiment`).
+    pub fn id(&self) -> &'static str {
+        match self {
+            WalkKind::Moment { .. } => "moment",
+            WalkKind::Experiment { .. } => "experiment",
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -532,4 +561,9 @@ pub struct SystemsState {
     pub journal: JournalState,
     pub rozpis: RozpisState,
     pub tool: ToolState,
+    /// Brews started with `PlayerBrewStart` still waiting for their quality: (item, tick).
+    pub brew_waiting: Vec<(u32, u32)>,
+    /// Tutorial steps whose `on_show` ran; the tutorial setting (off = none).
+    pub tutorial_shown: BTreeSet<String>,
+    pub tutorial_off: bool,
 }

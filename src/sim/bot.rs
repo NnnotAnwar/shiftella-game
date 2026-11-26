@@ -38,6 +38,9 @@ pub struct BotConfig {
     pub always_by_hand: bool,
     pub by_hand_gap: u32,
     pub seed: u64,
+    /// Balance runs: no decor purchases, the tip split stays with the café, no star bonus
+    /// (to compare money with runs before the T5 systems).
+    pub thrifty: bool,
 }
 
 impl Default for BotConfig {
@@ -53,6 +56,7 @@ impl Default for BotConfig {
             always_by_hand: false,
             by_hand_gap: 20,
             seed: 1,
+            thrifty: false,
         }
     }
 }
@@ -638,14 +642,19 @@ impl PlayerBot {
             .collect();
         for week in weeks {
             use crate::content::handson::TipSplit;
-            let split = [TipSplit::Half, TipSplit::Crew, TipSplit::Cafe][week as usize % 3];
+            let split = if self.cfg.thrifty {
+                TipSplit::Cafe
+            } else {
+                [TipSplit::Half, TipSplit::Crew, TipSplit::Cafe][week as usize % 3]
+            };
             let _ = w.apply(content, Command::SetTipSplit { split });
-            if let Some(star) = w
-                .staff()
-                .iter()
-                .filter(|s| !s.owner)
-                .max_by_key(|s| (s.nights_worked, s.id))
-                .map(|s| s.id)
+            if !self.cfg.thrifty
+                && let Some(star) = w
+                    .staff()
+                    .iter()
+                    .filter(|s| !s.owner)
+                    .max_by_key(|s| (s.nights_worked, s.id))
+                    .map(|s| s.id)
             {
                 let _ = w.apply(content, Command::PayBonus { staff: star });
             }
@@ -675,7 +684,7 @@ impl PlayerBot {
                 .theme(id)
                 .map(|t| t.price as i64)
                 .unwrap_or(0);
-            if !w.theme_owned(content, id) && w.money() > price + 9000 {
+            if !self.cfg.thrifty && !w.theme_owned(content, id) && w.money() > price + 9000 {
                 let _ = w.apply(content, Command::BuyTheme { id: id.clone() });
             }
         }
@@ -882,6 +891,32 @@ impl PlayerBot {
             .unwrap_or_default();
         base.retain(|i| jars.contains(i));
         base.truncate(3);
+        let tried = |set: &[String]| {
+            let mut key = set.to_vec();
+            key.sort();
+            w.knowledge().tried.contains(&key.join("+"))
+        };
+        // grandma's notes say all but one jar: go through the shelf for the last one
+        let need = target
+            .as_ref()
+            .and_then(|r| content.handson.recipe(r))
+            .map(|r| r.ingredients.len())
+            .unwrap_or(0);
+        if need >= 2 && base.len() == need && !tried(&base) {
+            return Some(base);
+        }
+        if need >= 2 && base.len() + 1 == need {
+            for j in &jars {
+                if base.contains(j) {
+                    continue;
+                }
+                let mut set = base.clone();
+                set.push(j.clone());
+                if !tried(&set) {
+                    return Some(set);
+                }
+            }
+        }
         for _ in 0..12 {
             let mut set = base.clone();
             let n = 2 + self.rng.index(2);

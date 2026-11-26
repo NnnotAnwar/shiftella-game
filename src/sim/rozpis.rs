@@ -403,6 +403,17 @@ fn away_days(w: &World, content: &Content, id: u32) -> [bool; 7] {
     a
 }
 
+/// A helper's main work: their best skill.
+fn main_job(w: &World, id: u32) -> usize {
+    w.staff_by_id(id)
+        .map(|s| {
+            (0..5)
+                .max_by(|a, b| s.skills[*a].total_cmp(&s.skills[*b]))
+                .unwrap_or(0)
+        })
+        .unwrap_or(0)
+}
+
 /// Shift kinds by `ShiftPref` (a Need always; a Wish only while the other half of the night
 /// stays covered by a colleague).
 fn shift_pass(w: &World, ids: &[u32], mut rows: Rows) -> Rows {
@@ -427,9 +438,13 @@ fn shift_pass(w: &World, ids: &[u32], mut rows: Rows) -> Rows {
                 if want == Shift::Full && full_on(&rows, d) >= app::ROZPIS_MAX_FULL_HIRES {
                     continue;
                 }
+                // the other half needs someone doing the same work (the bar stays open)
+                let job = main_job(w, id);
                 let covered = |half: Shift| {
                     ids.iter().any(|o| {
-                        *o != id && rows.get(o).is_some_and(|r| overlap(r[d], half) >= 4.0)
+                        *o != id
+                            && main_job(w, *o) == job
+                            && rows.get(o).is_some_and(|r| overlap(r[d], half) >= 4.0)
                     })
                 };
                 let ok = match want {

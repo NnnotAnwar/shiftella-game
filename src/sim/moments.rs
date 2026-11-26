@@ -4,7 +4,7 @@
 //! applies on arrival), the station cat's friendship, thank-you napkins and tip-jar goals.
 
 use super::grid::{self, TileKind};
-use super::hands::PlayerAct;
+
 use super::staff;
 use super::systems::{ActiveMoment, MomentPos, XTarget};
 use super::types::*;
@@ -663,14 +663,19 @@ pub(crate) fn resolve(
     if !options_now(w, content, id).iter().any(|o| o == option) {
         return Err(CommandError::Invalid("not now".into()));
     }
-    super::player::queue(
+    let from = super::player::karolina_idx(w)
+        .map(|k| w.staff[k].tile())
+        .unwrap_or_else(|| w.grid.entrance());
+    let tile =
+        stand_tile(w, id, from).ok_or_else(|| CommandError::Invalid("can't get there".into()))?;
+    super::player::queue_walk(
         w,
         content,
-        PlayerAct::Moment {
+        tile,
+        super::systems::WalkKind::Moment {
             id: id.to_string(),
             option: option.to_string(),
         },
-        false,
     )?;
     if let Some(a) = w.sys.moments.active.iter_mut().find(|a| a.id == id) {
         a.resolving = Some(option.to_string());

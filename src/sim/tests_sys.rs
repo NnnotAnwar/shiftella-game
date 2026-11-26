@@ -18,6 +18,7 @@ fn content() -> Content {
 /// A story night `n` running, cutscenes done, no random walk-ins.
 fn night(c: &Content, n: u32) -> World {
     let mut w = World::new_story(c, Difficulty::Cozy);
+    w.sys.tutorial_off = true;
     if n > 1 {
         w.night = n;
         w.begin_day(c);
@@ -286,8 +287,12 @@ fn a_night_experiment_is_karolinas_act_at_the_counter() {
         w.player()
             .queue
             .iter()
-            .any(|a| matches!(a, PlayerAct::Experiment { .. }))
+            .any(|a| matches!(a, PlayerAct::GoTo { .. }))
     );
+    assert!(matches!(
+        w.walk_jobs().first().map(|j| &j.kind),
+        Some(WalkKind::Experiment { .. })
+    ));
     let ev = ticks(&mut w, &c, 900);
     assert!(
         ev.iter()
@@ -1269,4 +1274,161 @@ fn thirty_cozy_nights_touch_every_system() {
     let kept = w.journal().len() + usize::from(w.pending_polaroids().is_some());
     assert_eq!(kept, 30, "one polaroid every night");
     assert!(w.ending().is_some(), "the story ends");
+}
+
+// ---------------------------------------------------------------------------------------------
+// Integration requests (T7)
+// ---------------------------------------------------------------------------------------------
+
+#[test]
+fn the_night_one_tutorial_brings_mirek_early() {
+    let c = content();
+    let mut w = World::new_story(&c, Difficulty::Cozy);
+    bot::finish_cutscenes(&mut w, &c);
+    w.start_night(&c);
+    bot::finish_cutscenes(&mut w, &c);
+    let ev = ticks(&mut w, &c, 6 * TICKS_PER_MINUTE);
+    assert!(
+        ev.iter()
+            .any(|e| matches!(e, SimEvent::TutorialEffects { id } if id == "greet"))
+    );
+    assert!(
+        ev.iter()
+            .any(|e| matches!(e, SimEvent::RegularArrived { regular, .. } if regular == "mirek"))
+    );
+    // the UI may show a step itself; it runs once
+    w.apply(&c, Command::TutorialShown { id: "greet".into() })
+        .unwrap();
+    assert!(
+        !w.drain_events()
+            .iter()
+            .any(|e| matches!(e, SimEvent::TutorialEffects { .. }))
+    );
+    // off in the settings: nothing scripted
+    let mut w = World::new_story(&c, Difficulty::Cozy);
+    w.apply(&c, Command::SetTutorial { on: false }).unwrap();
+    bot::finish_cutscenes(&mut w, &c);
+    w.start_night(&c);
+    let ev = ticks(&mut w, &c, 6 * TICKS_PER_MINUTE);
+    assert!(
+        !ev.iter()
+            .any(|e| matches!(e, SimEvent::TutorialEffects { .. }))
+    );
+}
+
+#[test]
+fn a_brew_starts_with_the_minigame_and_takes_its_quality_after() {
+    let c = content();
+    let mut w = night(&c, 2);
+    no_director(&mut w);
+    let pid =
+        guests::spawn_party(&mut w, &c, "travelers", 1, None, 1.0, 1.0, &[], None, true).unwrap();
+    let guest = w
+        .parties
+        .iter()
+        .find(|p| p.id == pid)
+        .unwrap()
+        .leader()
+        .unwrap();
+    w.apply(&c, Command::PlayerTakeOrder { guest }).unwrap();
+    let mut ok = false;
+    for _ in 0..3000 {
+        w.tick(&c);
+        bot::finish_cutscenes(&mut w, &c);
+        if w.party_of_guest(guest)
+            .is_some_and(|p| p.wish_open && p.ordered_at.is_some())
+        {
+            ok = true;
+            break;
+        }
+    }
+    assert!(ok, "the order was taken");
+    // Karolina never waited by an empty chair: she was at the counter or the table
+    let recipe = w.best_matches(&c, guest).first().unwrap().0.clone();
+    w.apply(
+        &c,
+        Command::PlayerBrewStart {
+            guest,
+            recipe: recipe.clone(),
+            mode: BrewMode::ByHand,
+        },
+    )
+    .unwrap();
+    let mut waiting = false;
+    for _ in 0..1500 {
+        w.tick(&c);
+        bot::finish_cutscenes(&mut w, &c);
+        let ev = w.drain_events();
+        assert!(
+            !ev.iter()
+                .any(|e| matches!(e, SimEvent::PlayerServed { .. }))
+        );
+        if ev
+            .iter()
+            .any(|e| matches!(e, SimEvent::BrewAwaitsQuality { .. }))
+        {
+            waiting = true;
+            break;
+        }
+    }
+    assert!(waiting, "she holds the cup until the mini-game reports");
+    let ev = ticks(&mut w, &c, 50);
+    assert!(
+        !ev.iter()
+            .any(|e| matches!(e, SimEvent::PlayerServed { .. }))
+    );
+    w.apply(
+        &c,
+        Command::PlayerBrewQuality {
+            guest,
+            quality: 0.93,
+        },
+    )
+    .unwrap();
+    let ev = ticks(&mut w, &c, 600);
+    assert!(ev.iter().any(|e| matches!(e,
+        SimEvent::PlayerServed { quality, .. } if (*quality - 0.93).abs() < 0.001)));
+}
+
+#[test]
+fn micro_acts_report_when_done() {
+    let c = content();
+    let mut w = night(&c, 2);
+    no_director(&mut w);
+    let table = w
+        .furniture()
+        .iter()
+        .find(|p| c.furniture_def(&p.def).is_some_and(|d| d.has_tag("table")))
+        .unwrap()
+        .uid;
+    w.furniture
+        .iter_mut()
+        .find(|p| p.uid == table)
+        .unwrap()
+        .dishes = 2;
+    w.apply(
+        &c,
+        Command::PlayerQueue {
+            act: PlayerAct::ClearTable { table },
+            front: false,
+        },
+    )
+    .unwrap();
+    w.dirt = 0.5;
+    let tile = w.dirt_spots()[0];
+    w.apply(
+        &c,
+        Command::PlayerQueue {
+            act: PlayerAct::Mop { tile },
+            front: false,
+        },
+    )
+    .unwrap();
+    let ev = ticks(&mut w, &c, 1500);
+    assert!(
+        ev.iter().any(
+            |e| matches!(e, SimEvent::TableCleared { table: t, dishes: 2, .. } if *t == table)
+        )
+    );
+    assert!(ev.iter().any(|e| matches!(e, SimEvent::Mopped { .. })));
 }

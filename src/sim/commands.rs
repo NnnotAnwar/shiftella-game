@@ -693,17 +693,37 @@ impl World {
             Command::ResolveMoment { id, option } => {
                 super::moments::resolve(self, content, &id, &option)
             }
+            Command::TryExperiment { ingredients } => {
+                self.apply(content, Command::Experiment { ingredients })
+            }
+            Command::PlayerBrewStart {
+                guest,
+                recipe,
+                mode,
+            } => super::player::brew_start(self, content, guest, &recipe, mode),
+            Command::PlayerBrewQuality { guest, quality } => {
+                super::player::brew_quality_in(self, guest, quality)
+            }
+            Command::TutorialShown { id } => {
+                super::tool::tutorial_show(self, content, &id, true);
+                Ok(())
+            }
+            Command::SetTutorial { on } => {
+                self.sys.tutorial_off = !on;
+                Ok(())
+            }
             Command::Experiment { ingredients } => {
                 super::knowledge::validate(self, content, &ingredients)?;
                 if self.phase == Phase::Day {
                     super::knowledge::run(self, content, &ingredients);
                     Ok(())
                 } else {
-                    super::player::queue(
+                    let tile = super::staff::checklist_tile(self, content, Job::Register);
+                    super::player::queue_walk(
                         self,
                         content,
-                        super::hands::PlayerAct::Experiment { ingredients },
-                        false,
+                        tile,
+                        super::systems::WalkKind::Experiment { ingredients },
                     )
                 }
             }

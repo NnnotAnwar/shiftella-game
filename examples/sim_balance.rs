@@ -59,6 +59,7 @@ fn main() {
     };
     let seeds: u64 = pos.get(3).and_then(|s| s.parse().ok()).unwrap_or(6);
     let no_bot = args.iter().any(|a| a == "--no-bot");
+    let thrifty = args.iter().any(|a| a == "--thrifty");
     let (quality, react) = match args.iter().position(|a| a == "--player-bot") {
         Some(i) => (
             args.get(i + 1).and_then(|s| s.parse().ok()).unwrap_or(0.75),
@@ -114,6 +115,7 @@ fn main() {
             react_seconds: react,
             hire_nights: plan.clone(),
             seed,
+            thrifty,
             ..Default::default()
         });
         for _ in 0..nights {

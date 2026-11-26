@@ -120,6 +120,53 @@ pub(crate) fn helper_may(content: &Content, id: &str, duty: crate::content::hand
 }
 
 // ---------------------------------------------------------------------------------------------
+// Tutorial `on_show` (tutorial.ron)
+// ---------------------------------------------------------------------------------------------
+
+/// Runs a tutorial step's `on_show` effects once (`asked` = the UI showed it).
+pub(crate) fn tutorial_show(w: &mut World, content: &Content, id: &str, asked: bool) {
+    if w.sys.tutorial_off || w.sys.tutorial_shown.contains(id) {
+        return;
+    }
+    let Some(step) = content.handson.tutorial_step(id) else {
+        return;
+    };
+    if !asked && (w.mode != Mode::Story || step.night != w.night) {
+        return;
+    }
+    w.sys.tutorial_shown.insert(id.to_string());
+    let fx = step.on_show.clone();
+    if !fx.is_empty() {
+        xlogic::run(w, content, &fx, &XTarget::default());
+        w.emit(SimEvent::TutorialEffects { id: id.to_string() });
+    }
+}
+
+/// Story nights: steps triggered at a clock time run their `on_show` then.
+fn tutorial_minute(w: &mut World, content: &Content) {
+    if w.mode != Mode::Story || w.sys.tutorial_off {
+        return;
+    }
+    let m = w.minute();
+    let due: Vec<String> = content
+        .handson
+        .tutorial
+        .iter()
+        .filter(|s| s.night == w.night && !s.on_show.is_empty())
+        .filter(|s| match &s.trigger {
+            crate::content::handson::TutTrigger::At(t) => {
+                t.minutes_since_open() >= 0 && t.minutes_since_open() as u32 == m
+            }
+            _ => false,
+        })
+        .map(|s| s.id.clone())
+        .collect();
+    for id in due {
+        tutorial_show(w, content, &id, false);
+    }
+}
+
+// ---------------------------------------------------------------------------------------------
 // Night flow
 // ---------------------------------------------------------------------------------------------
 
@@ -176,6 +223,7 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
 }
 
 pub(crate) fn on_minute(w: &mut World, content: &Content) {
+    tutorial_minute(w, content);
     let m = w.minute();
     // opening ritual deadline
     for r in &content.app.rituals {

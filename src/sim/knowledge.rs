@@ -61,7 +61,8 @@ fn usable(w: &World, r: &RecipeDef) -> bool {
 }
 
 /// The recipe the next margin note is about: undiscovered, experimentable, every jar on the
-/// shelf (so the hint is fair), something left to reveal; fewest revealed, then data order.
+/// shelf (so the hint is fair), something left to reveal; the most revealed (one silhouette
+/// fills in at a time), then data order.
 pub(crate) fn margin_note_target<'a>(w: &World, content: &'a Content) -> Option<&'a RecipeDef> {
     content
         .handson
@@ -71,7 +72,8 @@ pub(crate) fn margin_note_target<'a>(w: &World, content: &'a Content) -> Option<
         .filter(|r| r.experimentable && !w.hands.knowledge.recipes.contains_key(&r.id))
         .filter(|r| usable(w, r))
         .filter(|r| revealed_of(w, r).len() < r.ingredients.len())
-        .min_by_key(|r| revealed_of(w, r).len())
+        // one silhouette at a time: the one grandma already wrote most about
+        .min_by_key(|r| std::cmp::Reverse(revealed_of(w, r).len()))
 }
 
 /// Checks a `Command::Experiment` request.

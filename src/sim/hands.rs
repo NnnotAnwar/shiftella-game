@@ -122,12 +122,9 @@ pub enum PlayerAct {
         record: Option<String>,
         repeat: bool,
     },
-    /// Just walk somewhere.
+    /// Just walk somewhere. (A moment's option and a night experiment are a `GoTo` too: the
+    /// sim keeps what to do on arrival in `World::walk_jobs`.)
     GoTo { tile: (i32, i32) },
-    /// A moment's option (`Command::ResolveMoment`): walk to the anchor, apply on arrival.
-    Moment { id: String, option: String },
-    /// An experiment at the counter (`Command::Experiment` at night).
-    Experiment { ingredients: Vec<String> },
 }
 
 impl PlayerAct {
@@ -144,8 +141,6 @@ impl PlayerAct {
             PlayerAct::Checklist { .. } => "checklist",
             PlayerAct::PlayRecord { .. } => "record",
             PlayerAct::GoTo { .. } => "go_to",
-            PlayerAct::Moment { .. } => "moment",
-            PlayerAct::Experiment { .. } => "experiment",
         }
     }
 }

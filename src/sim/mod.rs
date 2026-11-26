@@ -378,6 +378,11 @@ impl World {
     pub fn systems(&self) -> &SystemsState {
         &self.sys
     }
+    /// What Karolina will do at the end of her queued `GoTo` acts (moment options, night
+    /// experiments) — for queue icons (`WalkKind::id`).
+    pub fn walk_jobs(&self) -> &[WalkJob] {
+        &self.sys.moments.walks
+    }
     /// Moments on the map now (markers; `resolving` = Karolina is on her way).
     pub fn active_moments(&self) -> &[ActiveMoment] {
         &self.sys.moments.active

@@ -17,6 +17,8 @@ fn content() -> Content {
 /// A story night `n` running, cutscenes done, no random walk-ins.
 fn story_night(c: &Content, n: u32, d: Difficulty) -> World {
     let mut w = World::new_story(c, d);
+    // the tutorial's scripted guests would break the quiet
+    w.sys.tutorial_off = true;
     if n > 1 {
         w.night = n;
         w.begin_day(c);

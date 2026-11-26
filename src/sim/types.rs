@@ -700,6 +700,28 @@ pub enum SimEvent {
         key: String,
         args: Vec<(String, String)>,
     },
+    /// Karolina's micro-acts finished (for coach marks and little sounds).
+    TableCleared {
+        table: u32,
+        dishes: u32,
+        by: u32,
+    },
+    Washed {
+        dishes: u32,
+    },
+    Mopped {
+        tile: (i32, i32),
+    },
+    /// A brew started with `PlayerBrewStart` is ready to be handed over but still waits for its
+    /// mini-game quality (`PlayerBrewQuality`).
+    BrewAwaitsQuality {
+        guest: u32,
+        item: u32,
+    },
+    /// A tutorial step's `on_show` effects ran (`tutorial.ron`).
+    TutorialEffects {
+        id: String,
+    },
 }
 
 /// Every player action.
@@ -952,6 +974,32 @@ pub enum Command {
     /// Book the week (confirms the tip split and bonus). Auto at the next day start.
     SendPayroll {
         week: u32,
+    },
+    /// Same as `Experiment` (the book's pantry "Try").
+    TryExperiment {
+        ingredients: Vec<String>,
+    },
+    /// Start a brew while the mini-game plays: Karolina walks to the station and works; the
+    /// quality follows with `PlayerBrewQuality` (she waits at the station with the cup until
+    /// it arrives; after a while the skip quality applies). `PlayerBrew` stays the shortcut.
+    PlayerBrewStart {
+        guest: u32,
+        recipe: String,
+        mode: BrewMode,
+    },
+    /// The mini-game's quality (0–1) for the guest's brew started with `PlayerBrewStart`.
+    PlayerBrewQuality {
+        guest: u32,
+        quality: f32,
+    },
+    /// The UI showed a tutorial step: its `on_show` effects run once (steps with an
+    /// `At(time)` trigger run by themselves in story mode while the tutorial is on).
+    TutorialShown {
+        id: String,
+    },
+    /// The tutorial setting (default on): off = no scripted `on_show` effects.
+    SetTutorial {
+        on: bool,
     },
 }
 
