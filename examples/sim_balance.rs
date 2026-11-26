@@ -14,7 +14,7 @@ use std::collections::BTreeMap;
 
 use shiftella_game::content::Content;
 use shiftella_game::sim::bot::{BotConfig, PlayerBot, finish_cutscenes};
-use shiftella_game::sim::{Difficulty, SandboxSetup, SimEvent, World};
+use shiftella_game::sim::{Difficulty, Mode, SandboxSetup, SimEvent, World};
 
 #[derive(Default, Clone)]
 struct Row {
@@ -89,6 +89,11 @@ fn main() {
     let mut helper_nights = 0u32;
     let mut stuck = 0u32;
     let mut unhappy_cozy = 0u32;
+    // T5 systems: counts over every played night
+    let mut t5: BTreeMap<&'static str, f32> = BTreeMap::new();
+    let mut moments_by_night: Vec<u32> = Vec::new();
+    let mut two_open_early = 0u32;
+    let mut journal_ok = 0u32;
 
     for seed in 1..=seeds {
         let seed = seed * 7919 + 13;
@@ -124,7 +129,48 @@ fn main() {
             };
             let mut fired: std::collections::BTreeSet<String> = Default::default();
             let (mut parties, mut forgiven) = (0u32, 0u32);
+            let (mut open, mut budgeted) = (0i32, 0u32);
             for e in events {
+                match &e {
+                    SimEvent::MomentAvailable { id, .. } => {
+                        open += 1;
+                        if id != "m_leak_empty" {
+                            budgeted += 1;
+                        }
+                        if open >= 2 && night <= 3 && world.mode() == Mode::Story {
+                            two_open_early += 1;
+                        }
+                    }
+                    SimEvent::MomentExpired { .. } => open -= 1,
+                    SimEvent::MomentResolved { .. } => {
+                        open -= 1;
+                        *t5.entry("moments resolved").or_default() += 1.0;
+                    }
+                    SimEvent::ExperimentDone { .. } => *t5.entry("experiments").or_default() += 1.0,
+                    SimEvent::RecipeLearned { source, .. } if source == "experiment" => {
+                        *t5.entry("recipes discovered").or_default() += 1.0
+                    }
+                    SimEvent::MarginNote { .. } => *t5.entry("margin notes").or_default() += 1.0,
+                    SimEvent::ThankYouNote { .. } => *t5.entry("napkins").or_default() += 1.0,
+                    SimEvent::CatLevel { .. } => *t5.entry("cat levels").or_default() += 1.0,
+                    SimEvent::TipGoalReached { .. } => *t5.entry("tip goals").or_default() += 1.0,
+                    SimEvent::ThemeChanged { .. } => {
+                        *t5.entry("theme switches").or_default() += 1.0
+                    }
+                    SimEvent::SeasonPhaseChanged { .. } => {
+                        *t5.entry("season changes").or_default() += 1.0
+                    }
+                    SimEvent::HighlightCaptured { .. } => {
+                        *t5.entry("highlights").or_default() += 1.0
+                    }
+                    SimEvent::RozpisHappy => *t5.entry("happy weeks").or_default() += 1.0,
+                    SimEvent::RequestCreated { .. } => *t5.entry("requests").or_default() += 1.0,
+                    SimEvent::RitualComplete { .. } => *t5.entry("rituals").or_default() += 1.0,
+                    SimEvent::HandoverApplied { .. } => *t5.entry("handovers").or_default() += 1.0,
+                    SimEvent::PayrollSent { .. } => *t5.entry("payrolls").or_default() += 1.0,
+                    SimEvent::PrefViolated { .. } => *t5.entry("prefs broken").or_default() += 1.0,
+                    _ => {}
+                }
                 match e {
                     SimEvent::StaffBreak { .. } => breaks += 1,
                     SimEvent::EventStarted { id } => {
@@ -141,6 +187,14 @@ fn main() {
             for id in fired {
                 *event_nights.entry(id).or_default() += 1;
             }
+            moments_by_night.push(budgeted);
+            *t5.entry("bot buttons").or_default() +=
+                bot.nights.last().map(|n| n.buttons).unwrap_or(0) as f32;
+            if let Some(s) = world.last_summary() {
+                *t5.entry("coziness avg").or_default() += s.coziness_avg;
+                *t5.entry("insights").or_default() += s.insights.len() as f32;
+            }
+            *t5.entry("fairness").or_default() += world.week_fairness();
             helper_nights += world
                 .staff()
                 .iter()
@@ -192,6 +246,20 @@ fn main() {
                 problems.push(format!("seed {seed} night {night}: money {}", s.money_end));
             }
         }
+        // every played night left one kept polaroid (the last one may still wait for a pick)
+        let kept = world.journal().len() as u32 + u32::from(world.pending_polaroids().is_some());
+        if kept >= nights.min(world.night()) {
+            journal_ok += 1;
+        }
+        *t5.entry("themes owned").or_default() += content
+            .handson
+            .decor
+            .themes
+            .iter()
+            .filter(|t| world.theme_owned(&content, &t.id))
+            .count() as f32;
+        *t5.entry("recipes known").or_default() += world.known_recipes().count() as f32;
+        *t5.entry("cat level").or_default() += world.cat_level() as f32;
         *endings
             .entry(
                 world
@@ -280,6 +348,38 @@ fn main() {
         sums.minigames / k,
         sums.real_min / k,
     );
+    let n = nights_played.max(1) as f32;
+    let s = seeds as f32;
+    let per_night = [
+        "moments resolved",
+        "experiments",
+        "highlights",
+        "insights",
+        "bot buttons",
+        "coziness avg",
+        "fairness",
+        "rituals",
+        "prefs broken",
+    ];
+    let mut line = Vec::new();
+    for (k, v) in &t5 {
+        if per_night.contains(k) {
+            line.push(format!("{k} {:.1}/night", v / n));
+        } else if ["themes owned", "recipes known", "cat level"].contains(k) {
+            line.push(format!("{k} {:.1}", v / s));
+        } else {
+            line.push(format!("{k} {:.1}/run", v / s));
+        }
+    }
+    let mut mb = moments_by_night.clone();
+    mb.sort();
+    let mean = mb.iter().sum::<u32>() as f32 / mb.len().max(1) as f32;
+    println!(
+        "moments/night: mean {mean:.1}, min {}, max {} · two open at once on nights 1–3: {two_open_early} · journal complete {journal_ok}/{seeds}",
+        mb.first().copied().unwrap_or(0),
+        mb.last().copied().unwrap_or(0)
+    );
+    println!("T5: {}", line.join(" · "));
     println!("endings: {endings:?}");
     println!(
         "breaks per helper-night {:.2} · stuck resets {stuck}",

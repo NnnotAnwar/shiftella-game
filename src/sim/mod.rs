@@ -7,6 +7,7 @@
 //! API & integration guide: `docs/SIM.md`.
 
 mod app;
+mod atmos;
 pub mod bot;
 mod commands;
 mod duties;
@@ -14,15 +15,21 @@ mod economy;
 pub mod grid;
 mod guests;
 mod hands;
+mod journal;
+mod knowledge;
 mod logic;
+mod moments;
 mod music;
 mod narrator;
 mod orders;
 mod pacing;
 mod player;
 pub mod rng;
+mod rozpis;
 mod staff;
 mod story;
+mod systems;
+mod tool;
 mod types;
 mod world;
 mod xlogic;
@@ -33,15 +40,19 @@ mod tests;
 mod tests_hands;
 #[cfg(test)]
 mod tests_qa;
+#[cfg(test)]
+mod tests_sys;
 
 pub use app::digest_lines;
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;
+pub use moments::CatView;
 pub use orders::PLAIN_CREDIT;
 pub use player::{MOP_AMOUNT, WASH_PER_SECOND};
 pub use staff::FIRST_HIRE_NIGHT;
 pub use story::{ambient_line_for, talk_available};
+pub use systems::*;
 pub use types::*;
 pub use world::*;
 
@@ -355,5 +366,218 @@ impl World {
     /// The job that makes an order item.
     pub(crate) fn item_job(&self, content: &Content, item: &OrderItem) -> Option<Job> {
         content.menu_item(&item.menu).map(|m| m.job)
+    }
+}
+
+// -------------------------------------------------------------------------------------------------
+// T5 queries: moments, recipes, extras, atmosphere, journal, rozpis, the app as a tool
+// -------------------------------------------------------------------------------------------------
+
+impl World {
+    /// Every T5 system's state (read-only).
+    pub fn systems(&self) -> &SystemsState {
+        &self.sys
+    }
+    /// Moments on the map now (markers; `resolving` = Karolina is on her way).
+    pub fn active_moments(&self) -> &[ActiveMoment] {
+        &self.sys.moments.active
+    }
+    /// The options a moment's card shows right now (`show_if`, `within_minutes`).
+    pub fn moment_options(&self, content: &Content, id: &str) -> Vec<String> {
+        moments::options_now(self, content, id)
+    }
+    /// Unlocked pantry jars.
+    pub fn pantry(&self) -> &BTreeSet<String> {
+        &self.hands.knowledge.ingredients
+    }
+    /// Ingredients shown on an unknown recipe's silhouette (data + margin notes).
+    pub fn revealed_ingredients(&self, content: &Content, recipe: &str) -> Vec<String> {
+        content
+            .handson
+            .recipe(recipe)
+            .map(|r| knowledge::revealed_of(self, r))
+            .unwrap_or_default()
+    }
+    /// Supplies one experiment costs now (0 on Cozy nights 1–7).
+    pub fn experiment_cost(&self, content: &Content) -> i64 {
+        knowledge::cost(self, content)
+    }
+    /// The recipe grandma's next margin note is about (the lull chip).
+    pub fn margin_note_target(&self, content: &Content) -> Option<String> {
+        knowledge::margin_note_target(self, content).map(|r| r.id.clone())
+    }
+    /// The hall's coziness meter (value 0–100, level 1–5, parts, weakest part).
+    pub fn coziness(&self) -> &Coziness {
+        &self.sys.atmos.coziness
+    }
+    /// Tonight's season phase (`seasons.ron`): visuals for render, wish multipliers.
+    pub fn season_phase<'a>(
+        &self,
+        content: &'a Content,
+    ) -> Option<&'a crate::content::handson::PhaseDef> {
+        atmos::phase(self, content)
+    }
+    /// Garlands render now (allowed by the phase and hung).
+    pub fn garlands_up(&self, content: &Content) -> bool {
+        atmos::garlands_up(self, content)
+    }
+    /// The hall's decor theme id.
+    pub fn theme<'a>(&'a self, content: &'a Content) -> &'a str {
+        atmos::theme_id(self, content)
+    }
+    pub fn theme_owned(&self, content: &Content, id: &str) -> bool {
+        atmos::theme_owned(self, content, id)
+    }
+    /// Themes that may be bought (or are owned).
+    pub fn themes_unlocked(&self) -> &BTreeSet<String> {
+        &self.sys.atmos.unlocked
+    }
+    /// Latte patterns unlocked by seasons, the cat and moments.
+    pub fn lattes(&self) -> &BTreeSet<String> {
+        &self.sys.atmos.lattes
+    }
+    /// A regular's ambient line when grandma's theme has been swapped away (`MissedBy`).
+    pub fn theme_missed_line(&self, content: &Content, regular: &str) -> Option<String> {
+        atmos::missed_line(self, content, regular)
+    }
+    /// The station cat (render pose by perch), if it is around.
+    pub fn station_cat(&self, content: &Content) -> Option<CatView> {
+        moments::cat_view(self, content)
+    }
+    pub fn cat_level(&self) -> u32 {
+        self.sys.extras.cat_level
+    }
+    /// Thank-you napkins collected (`thanks.<id>`), in order.
+    pub fn napkins(&self) -> &[String] {
+        &self.sys.extras.napkins
+    }
+    /// "Count the jar": the pending goal and its two decor choices.
+    pub fn tip_goal_pending(&self, content: &Content) -> Option<(u32, Vec<String>)> {
+        let i = self.sys.extras.tip_goal_pending?;
+        let g = content.handson.extras.tip_goals.get(i as usize)?;
+        Some((i, g.choices.clone()))
+    }
+    /// Tonight's specials board.
+    pub fn specials(&self) -> &[String] {
+        &self.sys.extras.specials
+    }
+    /// Kept polaroids, oldest first.
+    pub fn journal(&self) -> &[JournalEntry] {
+        &self.sys.journal.entries
+    }
+    /// Tonight's best candidates so far.
+    pub fn tonight_highlights(&self) -> &[Highlight] {
+        &self.sys.journal.tonight
+    }
+    /// The morning's choice (night, candidates best first) until `Command::PickPolaroid`.
+    pub fn pending_polaroids(&self) -> Option<(u32, &[Highlight])> {
+        self.sys
+            .journal
+            .pending
+            .as_ref()
+            .map(|(n, v)| (*n, v.as_slice()))
+    }
+    /// A person's preferences this week (chips).
+    pub fn prefs(&self, staff: u32) -> Vec<crate::content::handson::Pref> {
+        rozpis::prefs_of(self, staff)
+    }
+    /// How each preference fares on the draft.
+    pub fn pref_status(
+        &self,
+        content: &Content,
+        staff: u32,
+    ) -> Vec<(crate::content::handson::Pref, PrefStatus)> {
+        let rows = rozpis::effective(self, content, &self.app.draft);
+        let Some(row) = rows.get(&staff) else {
+            return Vec::new();
+        };
+        rozpis::prefs_of(self, staff)
+            .into_iter()
+            .map(|p| {
+                let st = rozpis::pref_status(self, &rows, staff, row, &p);
+                (p, st)
+            })
+            .collect()
+    }
+    /// Wellbeing on the draft (0–100; rings from `handson.ron` → rozpis.rings).
+    pub fn wellbeing(&self, staff: u32) -> Option<f32> {
+        self.sys.rozpis.wellbeing.get(&staff).copied()
+    }
+    /// `mean(wb) − 0.5 × stdev(wb)` of the draft.
+    pub fn week_fairness(&self) -> f32 {
+        self.sys.rozpis.fairness
+    }
+    /// The coverage footer (suggested vs on, cups per night).
+    pub fn coverage(&self, content: &Content) -> [CoverageNight; 7] {
+        rozpis::coverage(self, content)
+    }
+    /// The last auto-fill's result line.
+    pub fn autofill_report(&self) -> &AutofillReport {
+        &self.sys.rozpis.last_report
+    }
+    /// "Can I go at 2?" requests.
+    pub fn early_leave_requests(&self) -> &[EarlyLeaveRequest] {
+        &self.sys.rozpis.early_leave
+    }
+    /// Why a request exists (life event reason, a Need).
+    pub fn request_meta(&self, id: u32) -> Option<&RequestMeta> {
+        self.sys.rozpis.requests.get(&id)
+    }
+    /// Shifts two staff archetypes have shared (≥ 4 h together).
+    pub fn shared_shifts(&self, a: &str, b: &str) -> u32 {
+        rozpis::shared_shifts(self, a, b)
+    }
+    /// Handover suggestions for tomorrow (pick ≤ 2 with `Command::PickHandover`).
+    pub fn handover_suggestions(&self, content: &Content) -> Vec<HandoverSuggestion> {
+        if self.sys.tool.suggestions.is_empty() {
+            tool::suggestions(self, content)
+        } else {
+            self.sys.tool.suggestions.clone()
+        }
+    }
+    pub fn handover_picks(&self) -> &[String] {
+        &self.sys.tool.picks
+    }
+    /// The payroll screen's tip split (remembered; the content default at first).
+    pub fn tip_split(&self, content: &Content) -> crate::content::handson::TipSplit {
+        tool::tip_split(self, content)
+    }
+    pub fn payroll_sent(&self, week: u32) -> bool {
+        self.sys.tool.payroll_sent.contains(&week)
+    }
+    /// The radio's track now: (track, volume) while a moment plays it.
+    pub fn radio(&self) -> Option<(&str, f32)> {
+        let m = self.minute();
+        self.sys
+            .fx
+            .radio
+            .as_ref()
+            .filter(|r| self.phase == Phase::Night && r.2 > m)
+            .map(|r| (r.0.as_str(), r.1))
+    }
+    /// The open window, the busker outside (render flavour).
+    pub fn window_open(&self) -> bool {
+        self.sys
+            .fx
+            .window_open_until
+            .is_some_and(|u| self.phase == Phase::Night && u > self.minute())
+    }
+    pub fn street_music(&self) -> bool {
+        self.sys
+            .fx
+            .street_music_until
+            .is_some_and(|u| self.phase == Phase::Night && u > self.minute())
+    }
+    /// Candles on the tables (a blackout moment).
+    pub fn candles_lit(&self) -> bool {
+        self.sys.fx.candles && self.blackout_until.is_some()
+    }
+    /// The order card's "remember" mark for a regular tonight.
+    pub fn remembered(&self, regular: &str) -> bool {
+        self.sys.fx.remember.contains_key(regular)
+    }
+    /// Seats reserved for regulars (regular → seat uid).
+    pub fn reserved_seats(&self) -> &std::collections::BTreeMap<String, u32> {
+        &self.sys.tool.reserved
     }
 }

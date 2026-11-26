@@ -971,6 +971,13 @@ fn extras(v: &mut Ctx, c: &Content) {
 }
 
 fn staff_and_guests(v: &mut Ctx, c: &Content) {
+    // regulars' arc stages may use hands-on conditions (`when`)
+    for r in &c.regulars {
+        for st in &r.stages {
+            let ctx = format!("regular `{}` stage {}", r.id, st.stage);
+            v.conds(&st.when, &ctx);
+        }
+    }
     for s in &c.staff {
         let ctx = format!("staff `{}`", s.id);
         if s.default_duty.is_none() {

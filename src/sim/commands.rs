@@ -449,13 +449,18 @@ impl World {
                         was_dirty,
                     },
                 );
+                super::rozpis::score(self, content);
                 Ok(())
             }
-            Command::AutoSchedule => {
+            Command::AutoSchedule | Command::AutoFillRozpis => {
                 let old = self.app.draft.clone();
                 let was_dirty = self.app.draft_dirty;
                 let was_manual = self.app.manual_rozpis;
-                self.app.draft = super::app::default_rozpis(self, content);
+                let base = super::app::base_rozpis(self, content);
+                let (rows, report) = super::rozpis::autofill(self, content, base);
+                self.app.draft = rows;
+                self.sys.rozpis.last_report = report;
+                super::rozpis::score(self, content);
                 self.app.manual_rozpis = false;
                 self.app.draft_dirty = self.app.draft != self.app.published;
                 push_undo(
@@ -480,12 +485,18 @@ impl World {
                 self.emit(SimEvent::SchedulePublished);
                 let ctx = EffectCtx::default();
                 super::app::bot(self, content, "schedule_published", &ctx);
+                super::rozpis::on_published(self, content);
                 Ok(())
             }
-            Command::AnswerSwap { id, approve } => super::app::answer_swap(self, id, approve),
+            Command::AnswerSwap { id, approve } => {
+                super::app::answer_swap(self, id, approve)?;
+                super::app::answered(self, content, id, approve);
+                Ok(())
+            }
             Command::AnswerTimeOff { id, approve } => {
                 super::app::answer_time_off(self, id, approve)?;
                 super::app::crew_changed(self, content);
+                super::app::answered(self, content, id, approve);
                 Ok(())
             }
             Command::RequestTimeOff {
@@ -576,6 +587,7 @@ impl World {
                     .iter()
                     .find(|a| a.id == id)
                     .ok_or_else(|| CommandError::UnknownId(id.clone()))?;
+                let args_copy = args.clone();
                 self.app.announcements.push(PostedAnnouncement {
                     id: id.clone(),
                     author: a.author.clone(),
@@ -584,6 +596,25 @@ impl World {
                 });
                 for s in self.staff.iter_mut() {
                     s.mood = (s.mood + 1.0).min(100.0);
+                }
+                // its real effect: the person / item named in it
+                let fx = a.effects.clone();
+                if !fx.is_empty() {
+                    let mut t = super::systems::XTarget::default();
+                    for (k, v) in &args_copy {
+                        match k.as_str() {
+                            "name" => {
+                                t.staff = self
+                                    .staff
+                                    .iter()
+                                    .find(|s| &s.name == v || s.id.to_string() == *v)
+                                    .map(|s| s.id)
+                            }
+                            "item" => t.item = Some(v.clone()),
+                            _ => {}
+                        }
+                    }
+                    super::xlogic::run(self, content, &fx, &t);
                 }
                 let ctx = EffectCtx::default();
                 super::app::bot_with(
@@ -659,6 +690,70 @@ impl World {
                 self.hands.assist_wishes = on;
                 Ok(())
             }
+            Command::ResolveMoment { id, option } => {
+                super::moments::resolve(self, content, &id, &option)
+            }
+            Command::Experiment { ingredients } => {
+                super::knowledge::validate(self, content, &ingredients)?;
+                if self.phase == Phase::Day {
+                    super::knowledge::run(self, content, &ingredients);
+                    Ok(())
+                } else {
+                    super::player::queue(
+                        self,
+                        content,
+                        super::hands::PlayerAct::Experiment { ingredients },
+                        false,
+                    )
+                }
+            }
+            Command::PickTipGoal { choice } => {
+                super::moments::pick_tip_goal(self, content, &choice)
+            }
+            Command::SetSpecials { recipes } => {
+                if recipes.len() > 2 {
+                    return Err(CommandError::Invalid("two specials at most".into()));
+                }
+                for r in &recipes {
+                    if !self.hands.knowledge.recipes.contains_key(r) {
+                        return Err(CommandError::NotUnlocked);
+                    }
+                }
+                self.sys.extras.specials = recipes;
+                if self.phase == Phase::Night
+                    && self
+                        .app
+                        .checklist
+                        .iter()
+                        .any(|c| c.id == "menu_board" && !c.done)
+                {
+                    super::app::tick_checklist(self, content, "menu_board", None);
+                }
+                Ok(())
+            }
+            Command::BuyTheme { id } => super::atmos::buy_theme(self, content, &id),
+            Command::SetTheme { id } => {
+                let old = super::atmos::set_theme(self, content, &id)?;
+                if old != id {
+                    push_undo(self, UndoOp::Theme { old });
+                }
+                super::atmos::recompute(self, content);
+                Ok(())
+            }
+            Command::PickPolaroid { index } => super::journal::keep(self, content, index),
+            Command::AnswerEarlyLeave { id, approve } => {
+                super::rozpis::answer_early_leave(self, content, id, approve)
+            }
+            Command::PickHandover { picks } => super::tool::pick_handover(self, content, picks),
+            Command::SetTipSplit { split } => {
+                self.sys.tool.tip_split = Some(split);
+                Ok(())
+            }
+            Command::PayBonus { staff } => super::tool::pay_bonus(self, staff),
+            Command::GrantToil { staff, weekday } => {
+                super::tool::grant_toil(self, content, staff, weekday)
+            }
+            Command::SendPayroll { week } => super::tool::send_payroll(self, content, week),
         }
     }
 
@@ -786,7 +881,11 @@ impl World {
                 }
                 Ok(())
             }
+            UndoOp::Theme { old } => super::atmos::set_theme(self, content, &old).map(|_| ()),
         };
+        if r.is_ok() && matches!(op, UndoOp::Shift { .. } | UndoOp::Draft { .. }) {
+            super::rozpis::score(self, content);
+        }
         if r.is_err() {
             // couldn't revert (e.g. a guest sits on the chair now): keep it for later
             self.undo.push(op);

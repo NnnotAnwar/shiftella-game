@@ -12,7 +12,7 @@ use super::staff::{self, STAFF_SPEED, WORK_SPEED};
 use super::types::*;
 use super::world::*;
 use crate::content::Content;
-use crate::content::handson::{MatchContext, match_score};
+use crate::content::handson::match_score;
 
 /// Work ticks (at speed 1) of her quick acts.
 const TAKE_ORDER_WORK: f32 = 8.0;
@@ -187,8 +187,15 @@ fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerA
                 return Err(CommandError::OutOfBounds);
             }
         }
+        PlayerAct::Moment { id, .. } => {
+            if !w.sys.moments.active.iter().any(|a| &a.id == id) {
+                return Err(CommandError::Invalid("that moment has passed".into()));
+            }
+        }
+        PlayerAct::Experiment { ingredients } => {
+            super::knowledge::validate(w, content, ingredients)?;
+        }
     }
-    let _ = content;
     Ok(act)
 }
 
@@ -271,6 +278,7 @@ fn release_act(w: &mut World, content: &Content, act: &PlayerAct, stage: u8, cou
                 c.claim = None;
             }
         }
+        PlayerAct::Moment { id, .. } => super::moments::release(w, id),
         _ => {}
     }
 }
@@ -351,7 +359,8 @@ fn brew_quality(w: &World, content: &Content, recipe: &str, mode: BrewMode, q: f
             }
         }
         BrewMode::Quick => {
-            if w.hands
+            let base = if w
+                .hands
                 .knowledge
                 .recipes
                 .get(recipe)
@@ -360,7 +369,18 @@ fn brew_quality(w: &World, content: &Content, recipe: &str, mode: BrewMode, q: f
                 t.practised_quick_quality
             } else {
                 t.quick_quality
-            }
+            };
+            // the warmed-up machine (opening checklist)
+            let m = w.minute();
+            let add: f32 = w
+                .sys
+                .fx
+                .quick_quality
+                .iter()
+                .filter(|(_, u)| u.is_none_or(|u| u > m))
+                .map(|(a, _)| a)
+                .sum();
+            (base + add).clamp(0.0, 1.0)
         }
     }
 }
@@ -416,7 +436,7 @@ pub(crate) fn brew(
         let m = content
             .handson
             .wish(&wish)
-            .map(|wd| match_score(wd, r, MatchContext::default()))
+            .map(|wd| match_score(wd, r, orders::match_ctx(w, &r.id)))
             .unwrap_or(0.6);
         let iid = w.alloc_id();
         w.econ.supplies -= (mi.cost + r.cost_add) as i64;
@@ -868,6 +888,12 @@ fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal
         PlayerAct::PlayRecord { .. } => {
             at(super::music::jukebox(w).and_then(|j| staff::station_access(w, content, j)))
         }
+        PlayerAct::Moment { id, .. } => at(super::moments::stand_tile(w, id, here)),
+        PlayerAct::Experiment { .. } => Goal::At(staff::checklist_tile(
+            w,
+            content,
+            crate::content::Job::Register,
+        )),
     }
 }
 
@@ -1225,7 +1251,7 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                         f.dirt = 0.0;
                         f.claim = None;
                     }
-                    collect_tips_on(w, table, Some(me));
+                    collect_tips_on(w, content, table, Some(me));
                     let sink = w
                         .furniture
                         .iter()
@@ -1297,13 +1323,17 @@ fn step(w: &mut World, content: &Content, idx: usize) {
             0 => set_work(w, 1, TIP_WORK),
             _ => {
                 if work_tick(w, 1.0) {
-                    collect_tips_on(w, table, Some(me));
+                    collect_tips_on(w, content, table, Some(me));
                     finish(w);
                 }
             }
         },
         PlayerAct::Checklist { id } => match cur.stage {
-            0 => set_work(w, 1, CHECKLIST_WORK),
+            0 => set_work(
+                w,
+                1,
+                CHECKLIST_WORK * super::tool::checklist_speed(w, content, &id),
+            ),
             _ => {
                 w.staff[idx].pose = Pose::Work;
                 if work_tick(w, 1.0) {
@@ -1325,6 +1355,38 @@ fn step(w: &mut World, content: &Content, idx: usize) {
             }
         },
         PlayerAct::GoTo { .. } => finish(w),
+        PlayerAct::Moment { id, option } => match cur.stage {
+            0 => {
+                if !w.sys.moments.active.iter().any(|a| a.id == id) {
+                    return finish(w);
+                }
+                let work = super::moments::option_work(content, &id, &option, w);
+                set_work(w, 1, work);
+            }
+            _ => {
+                w.staff[idx].pose = Pose::Work;
+                if work_tick(w, 1.0) {
+                    super::moments::arrive(w, content, &id, &option);
+                    finish(w);
+                }
+            }
+        },
+        PlayerAct::Experiment { ingredients } => match cur.stage {
+            0 => {
+                let work = content.handson.tuning.experiment_minutes.max(1) as f32
+                    * TICKS_PER_MINUTE as f32;
+                set_work(w, 1, work);
+            }
+            _ => {
+                w.staff[idx].pose = Pose::Work;
+                if work_tick(w, 1.0) {
+                    if super::knowledge::validate(w, content, &ingredients).is_ok() {
+                        super::knowledge::run(w, content, &ingredients);
+                    }
+                    finish(w);
+                }
+            }
+        },
     }
 }
 
@@ -1355,12 +1417,21 @@ fn wait_a_tick(w: &mut World, content: &Content, limit: u32) {
 // ---------------------------------------------------------------------------------------------
 
 /// Books coins into the jar (`by` = who picked them up; `None` = the night end).
-pub(crate) fn collect_coins(w: &mut World, coins: Vec<TipCoin>, by: Option<u32>) {
+pub(crate) fn collect_coins(
+    w: &mut World,
+    content: &Content,
+    coins: Vec<TipCoin>,
+    by: Option<u32>,
+) {
     if coins.is_empty() {
         return;
     }
     let mut total = 0;
+    let mut napkins = Vec::new();
     for c in coins {
+        if let Some(n) = c.napkin.clone() {
+            napkins.push(n);
+        }
         total += c.amount;
         w.econ.money += c.amount;
         w.tonight.tips += c.amount;
@@ -1373,9 +1444,13 @@ pub(crate) fn collect_coins(w: &mut World, coins: Vec<TipCoin>, by: Option<u32>)
     w.hands.tips_lifetime += total;
     w.hands.tally.tips_collected += total;
     w.emit(SimEvent::TipCollected { amount: total, by });
+    for n in napkins {
+        super::moments::collect_napkin(w, content, &n);
+    }
+    super::moments::check_tip_goals(w, content);
 }
 
-pub(crate) fn collect_tips_on(w: &mut World, table: u32, by: Option<u32>) {
+pub(crate) fn collect_tips_on(w: &mut World, content: &Content, table: u32, by: Option<u32>) {
     let mut coins = Vec::new();
     w.hands.tips.retain(|t| {
         if t.table == table {
@@ -1385,11 +1460,11 @@ pub(crate) fn collect_tips_on(w: &mut World, table: u32, by: Option<u32>) {
             true
         }
     });
-    collect_coins(w, coins, by);
+    collect_coins(w, content, coins, by);
 }
 
 /// 06:00: nothing is ever lost.
-pub(crate) fn collect_all_tips(w: &mut World) {
+pub(crate) fn collect_all_tips(w: &mut World, content: &Content) {
     let coins = std::mem::take(&mut w.hands.tips);
-    collect_coins(w, coins, None);
+    collect_coins(w, content, coins, None);
 }

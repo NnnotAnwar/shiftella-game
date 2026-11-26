@@ -320,6 +320,7 @@ pub(crate) fn work_speed(w: &World, content: &Content, idx: usize, job: Job) -> 
     if !s.owner {
         // helpers are a little slower than Karolina (handson.md §1.1)
         v *= content.handson.tuning.helper_speed;
+        v *= super::rozpis::pair_speed(w, content, s.id);
         if let Some(m) = super::music::mood_effect(w, content) {
             v *= m.helper_speed_mul;
         }
@@ -480,8 +481,9 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
         if w.staff[i].owner || w.staff[i].status == StaffStatus::OffDuty {
             continue;
         }
-        let sick = if cozy { 0.008 } else { 0.015 };
-        let late = if cozy { 0.04 } else { 0.06 };
+        let (late_mul, sick_mul) = super::rozpis::late_sick_mul(w, content, w.staff[i].id);
+        let sick = if cozy { 0.008 } else { 0.015 } * sick_mul;
+        let late = if cozy { 0.04 } else { 0.06 } * late_mul;
         if w.rng.chance(sick) {
             w.staff[i].status = StaffStatus::Sick;
             let id = w.staff[i].id;
@@ -864,10 +866,8 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
             out.extend(mop_work(w, me));
         }
     }
-    // checklist items of the duty's job (cleaning items belong to the floor duty)
-    if duty != Duty::Dishes {
-        out.extend(checklist_works(w, content, job));
-    }
+    // checklist items this duty may do (`owner: Either(duty)`)
+    out.extend(checklist_works(w, content, job, duty));
     out
 }
 
@@ -893,11 +893,11 @@ fn mop_work(w: &World, me: u32) -> Option<Work> {
     })
 }
 
-fn checklist_works(w: &World, content: &Content, job: Job) -> Vec<Work> {
+fn checklist_works(w: &World, content: &Content, job: Job, duty: Duty) -> Vec<Work> {
     let m = w.minute();
     let mut out = Vec::new();
     for c in &content.app.checklists {
-        if c.job != Some(job) {
+        if !super::tool::helper_may(content, &c.id, duty) {
             continue;
         }
         let window = match c.list {
@@ -920,7 +920,9 @@ fn checklist_works(w: &World, content: &Content, job: Job) -> Vec<Work> {
                 tile,
             },
             goal: tile,
-            work: c.minutes.max(1) as f32 * TICKS_PER_MINUTE as f32,
+            work: c.minutes.max(1) as f32
+                * TICKS_PER_MINUTE as f32
+                * super::tool::checklist_speed(w, content, &c.id),
             rank: 5,
         });
     }
@@ -1640,7 +1642,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     f.claim = None;
                 }
                 // a dishes helper puts the tip coins in the jar
-                super::player::collect_tips_on(w, table, Some(me));
+                super::player::collect_tips_on(w, content, table, Some(me));
                 w.staff[idx].carrying = Some("dishes".into());
                 let sink = w
                     .furniture

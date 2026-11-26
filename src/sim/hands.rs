@@ -124,6 +124,10 @@ pub enum PlayerAct {
     },
     /// Just walk somewhere.
     GoTo { tile: (i32, i32) },
+    /// A moment's option (`Command::ResolveMoment`): walk to the anchor, apply on arrival.
+    Moment { id: String, option: String },
+    /// An experiment at the counter (`Command::Experiment` at night).
+    Experiment { ingredients: Vec<String> },
 }
 
 impl PlayerAct {
@@ -140,6 +144,8 @@ impl PlayerAct {
             PlayerAct::Checklist { .. } => "checklist",
             PlayerAct::PlayRecord { .. } => "record",
             PlayerAct::GoTo { .. } => "go_to",
+            PlayerAct::Moment { .. } => "moment",
+            PlayerAct::Experiment { .. } => "experiment",
         }
     }
 }
@@ -208,6 +214,9 @@ pub struct TipCoin {
     /// Who served the party (for `TipReceived`).
     pub staff: Option<u32>,
     pub minute: u32,
+    /// A folded thank-you napkin next to the coin (`thanks.<id>`), collected with it.
+    #[serde(default)]
+    pub napkin: Option<String>,
 }
 
 /// What Karolina knows about one recipe.
@@ -224,12 +233,20 @@ pub struct RecipeStats {
     pub practised: bool,
 }
 
-/// Recipe book & pantry knowledge (T4: recipes and ingredient unlocks; experiments are T5).
+/// Recipe book & pantry knowledge: recipes, unlocked ingredients, experiments.
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Knowledge {
     pub recipes: BTreeMap<String, RecipeStats>,
     pub ingredients: BTreeSet<String>,
+    /// Failed experiments since the last margin note (every `margin_note_every` → a note).
+    pub failed_tries: u32,
+    /// Experiments tried in total.
+    pub tries: u32,
+    /// Ingredients revealed on undiscovered recipes' silhouettes (margin notes, parcels).
+    pub revealed: BTreeMap<String, Vec<String>>,
+    /// Ingredient sets already tried (sorted, joined by `+`), for the pantry's "tried" marks.
+    pub tried: BTreeSet<String>,
 }
 
 /// What the jukebox plays.

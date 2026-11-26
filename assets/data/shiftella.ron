@@ -97,6 +97,9 @@
         (id: "cat_waiting", kind: Story, actions: [(id: "look", handler: Camera(Door))]),
         (id: "rozpis_happy", kind: SchedulePublished, actions: [(id: "thanks", effects: [StaffMood(1.0)])]),
         (id: "looks_tired", kind: Story, placeholders: ["name"], actions: [(id: "noted")]),
+        // "Can I go at 2?" (a life event; the sim links the request)
+        (id: "early_leave", kind: Story, placeholders: ["name", "time"],
+         actions: [(id: "approve"), (id: "decline")]),
         (id: "manage_alone", kind: Story, placeholders: ["name"]),
     ],
     digest: [

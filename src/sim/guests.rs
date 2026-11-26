@@ -601,6 +601,8 @@ pub(crate) fn spawn_party(
         .map(|r| r.patience_minutes)
         .unwrap_or(arch.patience_minutes)
         * pmul;
+    // a cosy hall makes waiting easier (handson.md §11.3)
+    patience *= super::atmos::patience_mul(w, content);
     if reg.is_some() && w.difficulty == Difficulty::Cozy {
         patience = patience.max(content.handson.tuning.cozy_regular_patience_floor);
     }
@@ -638,6 +640,7 @@ pub(crate) fn spawn_party(
         record_minutes: 0,
         music_reacted: false,
         archetype_music_done: false,
+        napkin: None,
     };
     let prefer = reg.and_then(|r| r.seat.clone());
     let seats_pick = if party.wishes.is_empty() && !wish_party {
@@ -775,7 +778,24 @@ pub(crate) fn spawn_party(
             });
             w.hands.tally.parties += 1;
             super::pacing::note_arrival(w, content);
+            super::tool::note_arrival_hour(w);
             if let Some(r) = reg_id {
+                super::tool::on_regular_arrived(w, &r);
+                super::atmos::on_regular_arrived(w, content, &r);
+                let kind = match r.as_str() {
+                    "guest_333" => Some(crate::content::handson::HighlightKind::Guest333),
+                    _ if content
+                        .regular(&r)
+                        .is_some_and(|d| d.look_preset.as_deref() == Some("anwar")) =>
+                    {
+                        Some(crate::content::handson::HighlightKind::AnwarCameo)
+                    }
+                    _ => None,
+                };
+                if let Some(kind) = kind {
+                    let tile = w.grid.entrance();
+                    super::journal::capture(w, content, kind, None, Vec::new(), Some(tile));
+                }
                 w.emit(SimEvent::RegularIncoming {
                     regular: r.clone(),
                     party: id,
@@ -1155,13 +1175,14 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         }
         let iid = w.alloc_id();
         w.econ.supplies -= mi.cost as i64;
+        let prep = mi.prep_minutes * TICKS_PER_MINUTE as f32 * prep_mul(w, mi.job, wish);
         w.items.push(OrderItem {
             id: iid,
             party: pid,
             guest: eaters[k.min(eaters.len() - 1)],
             menu: wish.clone(),
             state: ItemState::Pending,
-            prep_left: mi.prep_minutes * TICKS_PER_MINUTE as f32,
+            prep_left: prep,
             by: None,
             ready_tile: None,
             quality: 0.0,
@@ -1231,6 +1252,28 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         };
         w.emit(ev);
     }
+}
+
+/// Tonight's prep × for a new plain item: "the machine is cold" for the first few, the
+/// announced spotlight item a little faster.
+fn prep_mul(w: &mut World, job: crate::content::Job, item: &str) -> f32 {
+    let mut mul = 1.0;
+    if let Some(s) = w
+        .sys
+        .fx
+        .slow_first
+        .iter_mut()
+        .find(|s| s.0 == job && s.1 > 0)
+    {
+        s.1 -= 1;
+        mul *= s.2;
+    }
+    if let Some((it, m)) = &w.sys.fx.spotlight
+        && it == item
+    {
+        mul *= m;
+    }
+    mul
 }
 
 /// Patience multiplier while waiting for food.
@@ -1346,23 +1389,28 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
         let (lo, hi) = arch.map(|a| a.stay_minutes).unwrap_or((15, 30));
         let stay_mul = super::music::mood_effect(w, content)
             .map(|m| m.stay_mul)
-            .unwrap_or(1.0);
+            .unwrap_or(1.0)
+            * super::atmos::stay_mul(w, content);
         let stay = (w.rng.range_u32(lo, hi) as f32 * stay_mul).round() as i32 + w.guest_stay_add;
         let p = &mut w.parties[pi];
         p.state = PartyState::Eating;
         p.served_at = Some(m);
         p.stay_left = stay.max(3) as f32;
-        // ambience once seated & served
-        let amb = ambience(w, content, pid);
+        // the hall's atmosphere once seated & served (coziness replaces the old
+        // comfort / beauty / dirt / music terms, handson.md §11.3)
+        let amb = ambience(w, content, pid)
+            + super::atmos::archetype_bonus(w, content, &w.parties[pi].archetype)
+            + super::moments::window_seat_bonus(w, content, pi);
         w.parties[pi].satisfaction = (w.parties[pi].satisfaction + amb).clamp(0.0, 100.0);
     }
 }
 
-/// Comfort, beauty, dirt, light and music around a party's seats.
+/// The hall's coziness term, plus the seat itself (a sofa is nicer than a stool).
 fn ambience(w: &World, content: &Content, pid: u32) -> f32 {
     let Some(p) = w.parties.iter().find(|p| p.id == pid) else {
         return 0.0;
     };
+    let coz = super::atmos::satisfaction_term(w, content);
     let mut comfort = 0.0;
     let mut beauty = 0.0f32;
     let mut n = 0.0;
@@ -1391,16 +1439,12 @@ fn ambience(w: &World, content: &Content, pid: u32) -> f32 {
         }
     }
     if n == 0.0 {
-        return 0.0;
+        return coz;
     }
-    let mut v = (comfort / n) * 1.2 + (beauty / n).min(10.0) * 0.6 - w.dirt * 30.0;
-    if w.music_on {
-        v += 3.0;
-    }
-    if w.blackout_until.is_some() {
-        v -= 3.0;
-    }
-    v
+    // the chair itself still counts a little (the hall's mean comfort is in coziness)
+    let _ = beauty;
+    let local = ((comfort / n) * 0.6).min(4.0);
+    coz + local
 }
 
 /// Party pays (if served) and leaves.
@@ -1511,7 +1555,8 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
             };
             let mood_mul = super::music::mood_effect(w, content)
                 .map(|m| m.tips_mul)
-                .unwrap_or(1.0);
+                .unwrap_or(1.0)
+                * super::atmos::tips_mul(w, content);
             tip = ((bill as f32 * (0.05 + 0.15 * ((sat - 55.0) / 45.0)))
                 * tips_mul
                 * party_mul
@@ -1528,6 +1573,7 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
                 amount: tip,
                 staff: by,
                 minute: w.minute(),
+                napkin: w.parties[pi].napkin.take(),
             };
             match table {
                 Some(t) if w.phase == Phase::Night && w.tick < NIGHT_TICKS => {
@@ -1537,8 +1583,31 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
                         amount: tip,
                     });
                 }
-                _ => super::player::collect_coins(w, vec![coin], by),
+                _ => super::player::collect_coins(w, content, vec![coin], by),
             }
+        }
+    }
+    // a napkin without a coin still lies on the table
+    if let Some(n) = w.parties[pi].napkin.take() {
+        let table = party_table(w, content, pi);
+        let id = w.alloc_id();
+        let coin = super::hands::TipCoin {
+            id,
+            table: table.unwrap_or(0),
+            amount: 0,
+            staff: w.parties[pi].served_by,
+            minute: w.minute(),
+            napkin: Some(n),
+        };
+        match table {
+            Some(t) if w.phase == Phase::Night && w.tick < NIGHT_TICKS => {
+                w.hands.tips.push(coin);
+                w.emit(SimEvent::TipLeft {
+                    table: t,
+                    amount: 0,
+                });
+            }
+            _ => super::player::collect_coins(w, content, vec![coin], None),
         }
     }
     w.parties[pi].bill = bill + tip;

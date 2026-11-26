@@ -460,6 +460,26 @@ fn helpers_never_take_wishes_and_karolina_can_hand_one_off() {
     w.staff[hi].status = StaffStatus::OnDuty;
     let wish = spawn(&mut w, &c, "travelers", 1, true);
     let wish_leader = party(&w, wish).leader().unwrap();
+    // a drink wish (the helper holds the bar, not the kitchen)
+    let drink = c
+        .handson
+        .wishes
+        .wishes
+        .iter()
+        .find(|d| {
+            d.regular().is_none()
+                && super::orders::hand_off_recipe(&w, &c, &d.id)
+                    .and_then(|(r, _)| c.handson.recipe(&r))
+                    .and_then(|r| c.menu_item(&r.base_item))
+                    .is_some_and(|m| m.job == crate::content::Job::Bar)
+        })
+        .map(|d| d.id.clone())
+        .unwrap();
+    w.parties
+        .iter_mut()
+        .find(|p| p.id == wish)
+        .unwrap()
+        .order_kind = OrderKind::Wish { wish: drink };
     let plain = spawn(&mut w, &c, "travelers", 1, false);
     w.parties.iter_mut().find(|p| p.id == plain).unwrap().wishes = vec!["black_coffee".into()];
     let (_, ev) = tick_until(
@@ -629,6 +649,7 @@ fn tips_lie_on_tables_until_collected_and_nothing_is_lost() {
         w.parties.iter_mut().find(|p| p.id == pid).unwrap().items = vec![iid];
         for _ in 0..200 {
             w.tick(&c);
+            bot::finish_cutscenes(&mut w, &c);
         }
         let money = w.money();
         guests::finish_party(&mut w, &c, pid, Exit::Normal);
@@ -676,6 +697,7 @@ fn tips_lie_on_tables_until_collected_and_nothing_is_lost() {
         amount: 40,
         staff: None,
         minute: w.minute(),
+        napkin: None,
     });
     while w.phase() == Phase::Night {
         w.tick(&c);
