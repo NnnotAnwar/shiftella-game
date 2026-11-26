@@ -16,6 +16,7 @@ mod build_content;
 mod build_wishes;
 mod commands;
 mod corners;
+mod crew;
 mod duties;
 mod economy;
 mod equipment;
@@ -72,6 +73,7 @@ pub use corners::CornerView;
 pub use equipment::{
     Cake, CakeView, EquipAction, EquipCue, EquipKind, EquipState, EquipView, Pot, PotView,
 };
+pub use crew::{Activity, Feeling, Feelings, IdleWhy, ShiftTonight, TaskFor, TodoParts};
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;

@@ -71,6 +71,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | `MoveGroup { moves: Vec<PieceMove { uid, x, y, rot }> }` | build mode's drag: all pieces are lifted, then put down (a table and its chairs may swap tiles); atomic — any `InUse` / `Occupied` / `BlocksPath` changes nothing; free; **one** undo step (`UndoOp::MoveGroupBack`) |
 | `SetFloor { x, y, floor }`, `SetFurnitureOn { uid, on }`, `SetMusic { on }` | lamps / jukebox / radio |
 | `Hire { candidate }`, `Fire { staff }` | candidates: `world.candidates()` (story persons from `hire_from_night`; sandbox: 3 generated, refreshed every 3 nights). The owner (`Staff::owner`, cast `player`) can't be fired. |
+| `SendHome { staff }` | night, a helper on the floor: their shift ends now (`leave_at` = now, they walk out; wages follow the minutes worked); energy < 35 → mood +4. `WrongPhase` by day, `Invalid` for Karolina / not on the floor / the last 5 minutes |
 | `SetDuty { staff, duty, on }` | delegate one of the six duties (§9.3); capacity-checked → `Capacity`; undoable. Karolina has none (`Invalid`). |
 | `SetPriority { staff, job, priority }` | legacy shim onto duties: > 0 = the job's duty on (cleaning → dishes), 0 = off. The "everyone helps" fallback is gone. |
 | `SetShift { staff, weekday, shift }` → edits the **draft**; `PublishSchedule` | `Shift::{Off, Full 22–06, Early 22–02, Late 02–06}`; the night uses `published`. Unpublished edits at night start: crew mood −2. |
@@ -120,6 +121,19 @@ floors, lamps, duties, draft shifts, prices, menu). The stack clears at phase ch
   `render::sit_anchor`.
 * Crew details: `staff()` (`Staff { name, archetype, owner, traits, skills[5], wage, priorities[5],
   energy, mood, hunger, status, task, shift, hours_week, toil_hours, … }`), `relationship(a, b)`.
+* The character card (`sim::crew`, design/v0.2.md §D): `activity(id)` / `next_activity(&c, id)`
+  → `Activity` (`id()` → `crew.do.<id>`: the task with its item / `TaskFor` guest, the status,
+  `Idle { why: NoDuties | NothingToDo | BeforeDoors | NothingQueued }`, predictions `BreakAt`,
+  `BreakSoon`, `HomeAt`; Karolina by day `Planning`), `karolina_plan()` (her current act + queue
+  in words), `shift_tonight(id)` → `ShiftTonight { shift, from, to, leave }` (late arrival and
+  early leave included; by day the published rozpis of the coming night),
+  `feelings(&c, id)` → `Feelings { energy, mood }` (`Feeling::id()` → `crew.why.<id>`, most
+  relevant first: a break, exhaustion, last night's shift, a heavy week, hours on shift, trait
+  situations; broken prefs on the published week, a happy week, declined requests, a friend /
+  sweetheart / friction on shift, trait moods), `karolina_todo_parts(&c)` → `TodoParts` (the
+  same count as `karolina_todo`, thing by thing; a test keeps them equal),
+  `duties_left_for_karolina()` (duties no helper holds tonight; by day: no helper on the
+  coming night's rozpis).
 * Guests: `parties()` (`Party { archetype, regular, state, patience, patience_max, wishes, satisfaction, … }`),
   `guests()`, `order_items()`, `queue_len()`, `guests_inside()`.
   Regulars: `ambient_line_for(&content, guest)` (hover bubble key), `talk_available(&content, guest)`.

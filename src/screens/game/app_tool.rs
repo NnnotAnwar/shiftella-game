@@ -63,7 +63,7 @@ fn colleague(g: &GameScreen, loc: &Locale, arch: &str) -> Option<String> {
         .map(|s| wv::staff_name(loc, s))
 }
 
-fn chip_of(
+pub(super) fn chip_of(
     g: &GameScreen,
     loc: &Locale,
     p: &crate::content::handson::Pref,

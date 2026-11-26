@@ -1,0 +1,795 @@
+# The character card (design/v0.2.md §D): the crew panel (C) — a strip of faces over the
+# selected person's card. Helpers are described in the third person present (no gender);
+# Karolina (the player) is addressed in the second person, feminine forms in cs/uk/ru.
+
+# --- the panel ------------------------------------------------------------------------
+
+crew.hire_cell
+cs Nábor
+en Hire
+uk Найм
+ru Найм
+
+crew.now
+cs Teď
+en Now
+uk Зараз
+ru Сейчас
+
+crew.next
+cs Pak
+en Next
+uk Далі
+ru Потом
+
+crew.more
+cs +{n} další
+en +{n} more
+uk ще +{n}
+ru ещё +{n}
+
+crew.queue_empty
+cs Nic dalšího ve frontě
+en Nothing else queued
+uk Більше нічого в черзі
+ru Больше ничего в очереди
+
+crew.drop_tip
+cs Zrušit (totéž udělá pravý klik na čip nad hlavou)
+en Drop it (a right-click on the chip over her head does the same)
+uk Скасувати (те саме робить правий клік по значку над головою)
+ru Отменить (то же делает правый клик по значку над головой)
+
+crew.waiting
+cs Čeká
+en Waiting
+uk Чекає
+ru Ждёт
+
+crew.tonight
+cs Dnes v noci
+en Tonight
+uk Цієї ночі
+ru Этой ночью
+
+crew.last_night
+cs Minulá noc
+en Last night
+uk Минула ніч
+ru Прошлая ночь
+
+crew.yours
+cs Tvoje
+en Yours
+uk Твоє
+ru Твоё
+
+crew.yours_none
+cs Pomocníci pokryjí všechny povinnosti
+en Helpers cover every duty
+uk Помічники закривають усі обов'язки
+ru Помощники закрывают все обязанности
+
+crew.yours_tip
+cs {duty}: dnes ji nemá žádný pomocník, takže je tvoje. Předat ji můžeš na tabuli povinností (H).
+en {duty}: no helper holds it tonight, so it's yours. Hand it over on the Duties board (H).
+uk {duty}: сьогодні цим не займається жоден помічник, тож це твоє. Передати можна на дошці обов'язків (H).
+ru {duty}: сегодня этим не занят ни один помощник, так что это твоё. Передать можно на доске обязанностей (H).
+
+crew.duties
+cs Povinnosti
+en Duties
+uk Обов'язки
+ru Обязанности
+
+crew.mood
+cs Nálada
+en Mood
+uk Настрій
+ru Настрой
+
+crew.energy
+cs Energie
+en Energy
+uk Сили
+ru Силы
+
+crew.rozpis
+cs Přání
+en Wishes
+uk Бажання
+ru Желания
+
+crew.no_prefs
+cs K rozpisu nic zvláštního nechce
+en No wishes for the schedule
+uk Побажань до розкладу немає
+ru Пожеланий к расписанию нет
+
+crew.skill_line
+cs Dovednost: {word} ({n}/10)
+en Skill: {word} ({n}/10)
+uk Вміння: {word} ({n}/10)
+ru Умение: {word} ({n}/10)
+
+crew.skill.0
+cs učí se
+en learning
+uk вчиться
+ru учится
+
+crew.skill.1
+cs ujde to
+en okay
+uk непогано
+ru неплохо
+
+crew.skill.2
+cs dobře
+en good
+uk добре
+ru хорошо
+
+crew.skill.3
+cs skvěle
+en great
+uk чудово
+ru отлично
+
+crew.skill.4
+cs hvězda
+en a star
+uk зірка
+ru звезда
+
+crew.home_toast
+cs {name} jde domů. Díky za dnešek!
+en {name} is heading home. Thanks for tonight!
+uk {name} іде додому. Дякуємо за сьогодні!
+ru {name} идёт домой. Спасибо за сегодня!
+
+# --- roles & status pill ----------------------------------------------------------------
+
+crew.role.karolina
+cs Majitelka · dělá, co jí řekneš
+en Owner · does what you ask
+uk Власниця · робить те, що скажеш
+ru Хозяйка · делает то, что скажешь
+
+crew.role.helper
+cs {role} · {age}
+en {role} · {age}
+uk {role} · {age}
+ru {role} · {age}
+
+crew.status.counter
+cs Za pultem
+en Behind the counter
+uk За стійкою
+ru За стойкой
+
+crew.status.planning
+cs Plánuje den
+en Planning the day
+uk Планує день
+ru Планирует день
+
+crew.status.leave
+cs Dovolená
+en On leave
+uk Відпустка
+ru Отпуск
+
+crew.status.off
+cs Dnes volno
+en Off tonight
+uk Сьогодні вихідний
+ru Сегодня выходной
+
+crew.status.tonight
+cs Dnes {time}
+en Tonight {time}
+uk Сьогодні {time}
+ru Сегодня {time}
+
+crew.status.from
+cs Od {time}
+en From {time}
+uk З {time}
+ru С {time}
+
+crew.status.leaving
+cs Jde domů
+en Going home
+uk Іде додому
+ru Идёт домой
+
+crew.status.sick
+cs Nemoc
+en Sick
+uk Хворіє
+ru Болеет
+
+crew.status.walked_out
+cs Pryč
+en Gone
+uk Немає
+ru Нет на месте
+
+# --- what they do (crew.do.<Activity::id>) -----------------------------------------------
+
+crew.do.off
+cs Dnes má volno
+en Day off tonight
+uk Сьогодні вихідний
+ru Сегодня выходной
+
+crew.do.leave
+cs Dnes na dovolené
+en On leave tonight
+uk Сьогодні у відпустці
+ru Сегодня в отпуске
+
+crew.do.arrives
+cs Přijde v {time}
+en Comes in at {time}
+uk Прийде о {time}
+ru Придёт в {time}
+
+crew.do.sick
+cs Na nemocenské
+en Off sick
+uk На лікарняному
+ru На больничном
+
+crew.do.walked_out
+cs Dnes už nepřijde
+en Won't be back tonight
+uk Сьогодні вже не повернеться
+ru Сегодня уже не вернётся
+
+crew.do.going_home
+cs Na cestě domů
+en On the way home
+uk Іде додому
+ru Идёт домой
+
+crew.do.idle_no_duties
+cs Čeká — přiděl povinnost níže
+en Waiting — give a duty below
+uk Чекає — дай обов'язок нижче
+ru Ждёт — дай обязанность ниже
+
+crew.do.idle
+cs Má chvilku — povinnosti hotové
+en A free moment — duties all done
+uk Має хвилинку — обов'язки виконано
+ru Есть минутка — по обязанностям всё сделано
+
+crew.do.idle_prep
+cs Chystá se na otevření
+en Getting ready for opening
+uk Готується до відкриття
+ru Готовится к открытию
+
+crew.do.idle_queue
+cs Volné ruce — klikni na hosta nebo stůl
+en Hands free — click a guest or a table
+uk Руки вільні — клацни гостя чи стіл
+ru Руки свободны — нажми на гостя или столик
+
+crew.do.break
+cs Pauza do {time}
+en On a break until {time}
+uk Перерва до {time}
+ru Перерыв до {time}
+
+crew.do.break_eat
+cs Svačí, pauza do {time}
+en A bite to eat until {time}
+uk Перекус до {time}
+ru Перекус до {time}
+
+crew.do.take_order_register
+cs U pokladny
+en At the register
+uk На касі
+ru На кассе
+
+crew.do.take_order
+cs Bere objednávku
+en Taking an order
+uk Приймає замовлення
+ru Принимает заказ
+
+crew.do.make
+cs Připravuje: {item}
+en Making: {item}
+uk Готує: {item}
+ru Готовит: {item}
+
+crew.do.serve
+cs Nese: {item}
+en Serving: {item}
+uk Несе: {item}
+ru Несёт: {item}
+
+crew.do.clear_table
+cs Sklízí stůl
+en Clearing a table
+uk Прибирає стіл
+ru Убирает со стола
+
+crew.do.wash
+cs Myje nádobí
+en Washing up
+uk Миє посуд
+ru Моет посуду
+
+crew.do.mop
+cs Vytírá podlahu
+en Mopping the floor
+uk Миє підлогу
+ru Моет пол
+
+crew.do.bucket
+cs Vylévá kbelík pod kapkou
+en Emptying the leak bucket
+uk Виливає відро під протікання
+ru Выливает ведро под протечкой
+
+crew.do.equipment
+cs U spotřebiče
+en At an appliance
+uk Біля техніки
+ru У техники
+
+crew.do.checklist
+cs Úkol: {item}
+en Checklist: {item}
+uk Чекліст: {item}
+ru Чек-лист: {item}
+
+crew.do.collect_tip
+cs Bere dýško
+en Picking up a tip
+uk Забирає чайові
+ru Забирает чаевые
+
+crew.do.record
+cs Mění desku
+en Changing the record
+uk Міняє платівку
+ru Меняет пластинку
+
+crew.do.record_named
+cs Pouští: {item}
+en Putting on: {item}
+uk Ставить: {item}
+ru Ставит: {item}
+
+crew.do.moment
+cs Chvilka: {item}
+en Moment: {item}
+uk Мить: {item}
+ru Момент: {item}
+
+crew.do.experiment
+cs Zkouší nový recept
+en Trying a new recipe
+uk Пробує новий рецепт
+ru Пробует новый рецепт
+
+crew.do.walk
+cs Jde na místo
+en Walking over
+uk Іде на місце
+ru Идёт на место
+
+crew.do.break_at
+cs Pauza kolem {time}
+en Break around {time}
+uk Перерва близько {time}
+ru Перерыв около {time}
+
+crew.do.break_soon
+cs Brzy bude potřebovat pauzu
+en Needs a break soon
+uk Скоро знадобиться перерва
+ru Скоро понадобится перерыв
+
+crew.do.home_at
+cs Domů v {time}
+en Home at {time}
+uk Додому о {time}
+ru Домой в {time}
+
+crew.do.planning
+cs Plánuješ noc — otevíráme ve 22:00
+en Planning the night — doors open at 22:00
+uk Плануєш ніч — відчиняємо о 22:00
+ru Планируешь ночь — открываемся в 22:00
+
+# --- why the bars are where they are (crew.why.<Feeling::id>) ----------------------------
+
+crew.why.on_break
+cs Odpočívá
+en Resting
+uk Відпочиває
+ru Отдыхает
+
+crew.why.exhausted
+cs Bez sil — potřebuje pauzu
+en Worn out — needs a break
+uk Без сил — потрібна перерва
+ru Без сил — нужен перерыв
+
+crew.why.tired
+cs Hlásí se únava
+en Getting tired
+uk Накочує втома
+ru Накатывает усталость
+
+crew.why.hungry
+cs Má hlad
+en Hungry
+uk Хочеться їсти
+ru Хочется есть
+
+crew.why.after_yesterday
+cs Únava po včerejší směně
+en Tired after last night's shift
+uk Втома після вчорашньої зміни
+ru Усталость после вчерашней смены
+
+crew.why.heavy_week
+cs Náročný týden v rozpisu
+en A heavy week on the schedule
+uk Важкий тиждень у розкладі
+ru Тяжёлая неделя в расписании
+
+crew.why.long_shift
+cs {n} h na směně
+en {n} h into the shift
+uk {n} год на зміні
+ru {n} ч на смене
+
+crew.why.trait_keeps_going
+cs {trait} — pořád ve formě
+en {trait} — still going strong
+uk {trait} — тримається бадьоро
+ru {trait} — держится бодро
+
+crew.why.trait_drains
+cs {trait} — teď už to bere síly
+en {trait} — fading now
+uk {trait} — сили тануть
+ru {trait} — силы на исходе
+
+crew.why.rested
+cs Po pauze se ulevilo
+en Rested after a break
+uk Після перерви полегшало
+ru После перерыва полегчало
+
+crew.why.fresh
+cs Plno sil
+en Fresh
+uk Повно сил
+ru Полно сил
+
+crew.why.pref_broken
+cs Nesplněné přání: {pref}
+en Wish not kept: {pref}
+uk Не враховано: {pref}
+ru Не учтено: {pref}
+
+crew.why.happy_week
+cs Rozpis na tenhle týden těší
+en Happy with this week's schedule
+uk Розклад цього тижня тішить
+ru Расписание этой недели радует
+
+crew.why.declined
+cs Žádost byla zamítnuta
+en A request was turned down
+uk Прохання відхилили
+ru Просьбу отклонили
+
+crew.why.with_partner
+cs {name} je tu — samý úsměv
+en {name} is here — all smiles
+uk {name} поруч — суцільні усмішки
+ru {name} рядом — сплошные улыбки
+
+crew.why.friend
+cs {name} je taky na směně
+en {name} is on shift too
+uk {name} теж на зміні
+ru {name} тоже на смене
+
+crew.why.rival
+cs Třenice: {name}
+en Friction with {name}
+uk Тертя: {name}
+ru Трения: {name}
+
+crew.why.trait_mood_good
+cs {trait} — baví to
+en {trait} — enjoying it
+uk {trait} — подобається
+ru {trait} — нравится
+
+crew.why.trait_mood_bad
+cs {trait} — nebaví to
+en {trait} — not loving it
+uk {trait} — не до душі
+ru {trait} — не по душе
+
+crew.why.good
+cs Dobrá nálada
+en In a good mood
+uk Гарний настрій
+ru Хорошее настроение
+
+crew.why.fine
+cs V pohodě
+en Doing fine
+uk Усе гаразд
+ru Всё в порядке
+
+crew.why.down
+cs Trochu smutno
+en A bit down
+uk Трохи сумно
+ru Немного грустно
+
+# --- who they get along with ------------------------------------------------------------
+
+crew.rel.partner
+cs Láska: {name}
+en Sweetheart: {name}
+uk Кохання: {name}
+ru Любовь: {name}
+
+crew.rel.friends
+cs Kamarádi: {names}
+en Friends: {names}
+uk Друзі: {names}
+ru Друзья: {names}
+
+crew.rel.rival
+cs Třenice: {name}
+en Friction: {name}
+uk Тертя: {name}
+ru Трения: {name}
+
+crew.rel.new
+cs Ještě se s partou seznamuje
+en Still getting to know the crew
+uk Ще знайомиться з командою
+ru Ещё знакомится с командой
+
+crew.rel.everyone
+cs Vychází se všemi
+en Gets along with everyone
+uk Ладнає з усіма
+ru Ладит со всеми
+
+# --- what waits only for Karolina (chip tooltips) ---------------------------------------
+
+crew.wait.orders
+cs Objednávky, které přijmeš jen ty
+en Orders only you will take
+uk Замовлення, які приймеш лише ти
+ru Заказы, которые примешь только ты
+
+crew.wait.wishes
+cs Přání čekají na tvůj recept
+en Wishes waiting for your recipe
+uk Побажання чекають на твій рецепт
+ru Пожелания ждут твой рецепт
+
+crew.wait.brews
+cs Nápoje a jídla k přípravě
+en Drinks and food to make
+uk Напої та страви, які треба приготувати
+ru Напитки и блюда, которые надо приготовить
+
+crew.wait.trays
+cs Tácy připravené k roznesení
+en Trays ready to carry
+uk Таці готові до подачі
+ru Подносы готовы к подаче
+
+crew.wait.tables
+cs Stoly s nádobím
+en Tables with dishes
+uk Столи з посудом
+ru Столы с посудой
+
+crew.wait.sink
+cs Nádobí ve dřezu
+en Dishes at the sink
+uk Посуд у мийці
+ru Посуда в мойке
+
+crew.wait.floor
+cs Podlaha potřebuje vytřít
+en The floor needs a mop
+uk Підлогу треба помити
+ru Пол надо помыть
+
+crew.wait.tips
+cs Dýška na stolech
+en Tips on the tables
+uk Чайові на столах
+ru Чаевые на столах
+
+crew.wait.moments
+cs Drobné chvilky v kavárně
+en Little moments in the café
+uk Маленькі миті в кав'ярні
+ru Маленькие моменты в кафе
+
+crew.wait.none
+cs Teď na tebe nic nečeká
+en Nothing waits on you right now
+uk Зараз на тебе нічого не чекає
+ru Сейчас тебя ничего не ждёт
+
+# --- Karolina's numbers ------------------------------------------------------------------
+
+crew.stat.cups
+cs Uděláno
+en Made
+uk Зроблено
+ru Сделано
+
+crew.stat.perfect
+cs Perfektní
+en Perfect
+uk Ідеальні
+ru Идеальные
+
+crew.stat.tips
+cs Dýška
+en Tips
+uk Чайові
+ru Чаевые
+
+crew.stat.rhythm
+cs Rytmus
+en Rhythm
+uk Ритм
+ru Ритм
+
+crew.stat.cups_tip
+cs Co dnes uvařila a připravila tvoje ruka
+en What you made with your own hands tonight
+uk Що ти сьогодні зробила власноруч
+ru Что ты сегодня сделала своими руками
+
+crew.stat.perfect_tip
+cs Přání trefená do puntíku
+en Wishes you hit spot on
+uk Побажання, влучені в яблучко
+ru Пожелания, попавшие точно в цель
+
+crew.stat.tips_tip
+cs Dýška, která jsi sebrala ze stolů
+en Tips you picked up from the tables
+uk Чайові, які ти зібрала зі столів
+ru Чаевые, которые ты собрала со столов
+
+crew.stat.rhythm_tip
+cs Rytmus teď / nejlepší dnes — každý krok +4 % k dýškům
+en Rhythm now / best tonight — every step +4 % tips
+uk Ритм зараз / найкращий сьогодні — кожен крок +4 % до чайових
+ru Ритм сейчас / лучший сегодня — каждый шаг +4 % к чаевым
+
+crew.stat.rhythm_best
+cs Nejlepší rytmus
+en Best rhythm
+uk Кращий ритм
+ru Лучший ритм
+
+# --- quick actions -----------------------------------------------------------------------
+
+crew.act.follow
+cs Sledovat
+en Follow
+uk Стежити
+ru Следить
+
+crew.act.follow_tip
+cs Kamera najede na tuhle postavu
+en The camera glides over to this person
+uk Камера плавно наведеться на цю людину
+ru Камера плавно покажет этого человека
+
+crew.act.break
+cs Pauza
+en Break
+uk Перерва
+ru Перерыв
+
+crew.act.break_tip
+cs Pošle na krátkou pauzu hned teď (kdo má hlad, i se nají).
+en Sends them on a short break right now (they eat if hungry).
+uk Відправляє на коротку перерву просто зараз (голодні ще й поїдять).
+ru Отправляет на короткий перерыв прямо сейчас (голодные заодно поедят).
+
+crew.act.home
+cs Domů
+en Send home
+uk Додому
+ru Домой
+
+crew.act.home_tip
+cs Ukončí směnu hned teď a pustí domů (mzda podle odpracovaných hodin). Unavení to ocení.
+en Ends the shift now and lets them go home (wages follow the hours worked). Tired people are glad of it.
+uk Завершує зміну просто зараз і відпускає додому (оплата за відпрацьовані години). Втомлені будуть вдячні.
+ru Заканчивает смену прямо сейчас и отпускает домой (оплата по отработанным часам). Уставшие будут рады.
+
+crew.act.rozpis
+cs Rozpis
+en Schedule
+uk Розклад
+ru Расписание
+
+crew.act.rozpis_tip
+cs Otevře jejich řádek v rozpisu Shiftelly (T)
+en Opens their row in the Shiftella schedule (T)
+uk Відкриває їхній рядок у розкладі Shiftella (T)
+ru Открывает их строку в расписании Shiftella (T)
+
+crew.act.let_go
+cs Propustit
+en Let go
+uk Звільнити
+ru Уволить
+
+crew.act.let_go_tip
+cs Ukončí práci v kavárně (jen přes den).
+en Ends their job at the café (by day only).
+uk Звільняє з кав'ярні (лише вдень).
+ru Увольняет из кафе (только днём).
+
+crew.act.duties
+cs Povinnosti
+en Duties
+uk Обов'язки
+ru Обязанности
+
+crew.act.duties_tip
+cs Kdo dnes pomáhá s čím (H)
+en Who helps with what tonight (H)
+uk Хто сьогодні з чим допомагає (H)
+ru Кто сегодня с чем помогает (H)
+
+crew.act.book
+cs Recepty
+en Recipes
+uk Рецепти
+ru Рецепты
+
+crew.act.book_tip
+cs Babiččina kniha receptů (K)
+en Grandma's recipe book (K)
+uk Бабусина книга рецептів (K)
+ru Бабушкина книга рецептов (K)
+
+# --- hiring ------------------------------------------------------------------------------
+
+crew.cand.good_at
+cs Umí: {jobs}
+en Good at: {jobs}
+uk Вміє: {jobs}
+ru Умеет: {jobs}
+
+crew.cand.all_round
+cs Od všeho trochu
+en A bit of everything
+uk Потроху всього
+ru Всего понемногу

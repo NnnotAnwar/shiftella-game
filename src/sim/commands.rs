@@ -668,6 +668,7 @@ impl World {
                 super::staff::start_break(self, i, task);
                 Ok(())
             }
+            Command::SendHome { staff } => super::crew::send_home(self, content, staff),
             Command::OpenDoors => {
                 if !self.in_prep() {
                     return Err(CommandError::WrongPhase);

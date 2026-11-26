@@ -150,12 +150,6 @@ en {on} on shift · {total} total
 uk {on} на зміні · {total} усього
 ru {on} на смене · {total} всего
 
-ui.crew.column_name
-cs ZAMĚSTNANEC
-en STAFF
-uk ПРАЦІВНИК
-ru СОТРУДНИК
-
 ui.crew.hire
 cs Najmout
 en Hire
@@ -174,131 +168,11 @@ en Let go
 uk Звільнити
 ru Уволить
 
-ui.crew.fired_undo
-cs {name} odchází · Zpět
-en {name} is leaving · Undo
-uk {name} іде · Скасувати
-ru {name} уходит · Отменить
-
-ui.crew.needs
-cs POTŘEBY
-en NEEDS
-uk ПОТРЕБИ
-ru ПОТРЕБНОСТИ
-
-ui.crew.traits
-cs POVAHA
-en TRAITS
-uk РИСИ
-ru ЧЕРТЫ
-
-ui.crew.skills
-cs DOVEDNOSTI
-en SKILLS
-uk НАВИЧКИ
-ru НАВЫКИ
-
-ui.crew.relationships
-cs VZTAHY
-en RELATIONSHIPS
-uk СТОСУНКИ
-ru ОТНОШЕНИЯ
-
-ui.crew.sort
-cs Řazení
-en Sort
-uk Сортування
-ru Сортировка
-
-ui.crew.sort_name
-cs Jméno
-en Name
-uk Ім'я
-ru Имя
-
-ui.crew.sort_energy
-cs Energie
-en Energy
-uk Енергія
-ru Энергия
-
-ui.crew.sort_mood
-cs Nálada
-en Mood
-uk Настрій
-ru Настроение
-
-ui.crew.status_working
-cs pracuje
-en working
-uk працює
-ru работает
-
-ui.crew.status_break
-cs pauza
-en on break
-uk перерва
-ru перерыв
-
 ui.crew.status_off
 cs mimo směnu
 en off shift
 uk не на зміні
 ru не на смене
-
-ui.crew.subtitle
-cs {role} · {age} let · {wage} za noc
-en {role} · age {age} · {wage} a night
-uk {role} · {age} р. · {wage} за ніч
-ru {role} · {age} л. · {wage} за ночь
-
-ui.crew.favourite_job
-cs oblíbená práce
-en favourite work
-uk улюблена справа
-ru любимое дело
-
-ui.crew.likes
-cs Baví: {list}
-en Likes: {list}
-uk Любить: {list}
-ru Любит: {list}
-
-ui.crew.dislikes
-cs Nebaví: {list}
-en Dislikes: {list}
-uk Не любить: {list}
-ru Не любит: {list}
-
-ui.crew.rel_friend
-cs přátelé
-en friends
-uk друзі
-ru друзья
-
-ui.crew.rel_crush
-cs zamilovanost
-en crush
-uk закоханість
-ru влюблённость
-
-ui.crew.rel_rival
-cs napětí
-en friction
-uk напруга
-ru напряжение
-
-ui.crew.rel_neutral
-cs kolegové
-en colleagues
-uk колеги
-ru коллеги
-
-ui.crew.follow
-cs Sledovat
-en Follow
-uk Стежити
-ru Следить
 
 ui.priorities.title
 cs Priority práce

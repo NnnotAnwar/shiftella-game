@@ -14,6 +14,7 @@ mod build_overlay;
 mod build_themes;
 mod build_content_ui;
 pub mod coach;
+mod crew_ui;
 mod day;
 mod duties;
 mod extras_ui;
@@ -1319,6 +1320,7 @@ impl GameScreen {
                 && !self.automation
                 && self.hands.minigame.is_none()
                 && !ui.wants_keyboard()
+                && !(self.panel == Some(Panel::Crew) && crew_ui::arrows_held())
             {
                 self.cam.update();
             }
@@ -1424,7 +1426,7 @@ impl GameScreen {
                 hud::bubble(self, ui, cx);
             }
             match self.panel {
-                Some(Panel::Crew) => panels::crew(self, ui, cx),
+                Some(Panel::Crew) => crew_ui::panel(self, ui, cx),
                 Some(Panel::Duties) => duties::board(self, ui, cx),
                 Some(Panel::Log) => panels::log(self, ui, cx),
                 Some(Panel::App) => phone_app::draw(self, ui, cx),
@@ -1833,6 +1835,10 @@ impl GameScreen {
                 self.hands.order = None;
             } else if self.panel == Some(Panel::Build) && self.ui_state.build.active() {
                 self.ui_state.build.cancel();
+            } else if self.panel == Some(Panel::Crew) {
+                // the character card closes at once (and the café's selection ring with it)
+                self.panel = None;
+                self.selected = None;
             } else if self.bubble.as_ref().is_some_and(|b| b.pinned) || self.selected.is_some() {
                 self.bubble = None;
                 self.selected = None;
