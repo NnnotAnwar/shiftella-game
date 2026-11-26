@@ -303,35 +303,24 @@ impl Lighting {
         }
     }
 
-    /// Light of a passing train: a bright band runs across the windows and the room.
-    /// `progress` 0..1 — from appearing to leaving (outside the range — nothing).
-    pub fn train_sweep(&mut self, progress: f32) {
+    /// Light of a passing train: its lit carriage windows shine through the café windows
+    /// and onto the floor, exactly where the train is (`street` — the same rect as
+    /// `outside::draw_train`). `progress` 0..1 — from appearing to leaving (outside — nothing).
+    pub fn train_sweep(&mut self, progress: f32, street: Rect) {
         if !(0.0..=1.0).contains(&progress) || self.windows.is_empty() {
             return;
         }
-        let (mut x0, mut x1) = (f32::MAX, f32::MIN);
-        for w in &self.windows {
-            x0 = x0.min(w.x);
-            x1 = x1.max(w.x + w.w);
-        }
-        let span = x1 - x0 + 6.0 * TILE;
-        // carriage windows: several bands in a row
         let fade = (progress * (1.0 - progress) * 4.0).clamp(0.0, 1.0).sqrt();
-        let col = Color::from_hex(0xd8e0ff);
-        // The train runs right → left (see `outside::draw_train`, nose on the left),
-        // so the band enters from the right and the carriages' lights trail behind it.
-        let head = x1 + 3.0 * TILE - span * progress;
-        for car in 0..5 {
-            let bx = head + car as f32 * 1.1 * TILE;
-            let bw = 0.55 * TILE;
+        let col = Color::from_hex(0xfff0d8);
+        let k = 0.5 * fade;
+        for (bx0, bx1) in super::outside::train_window_runs(street, progress) {
             for wi in 0..self.windows.len() {
                 let g = self.windows[wi];
-                let l = bx.max(g.x);
-                let r = (bx + bw).min(g.x + g.w);
+                let l = bx0.max(g.x);
+                let r = bx1.min(g.x + g.w);
                 if r <= l {
                     continue;
                 }
-                let k = 0.55 * fade;
                 let floor = g.y + g.h + 0.9 * TILE;
                 // a band on the glass and a stretched pool on the floor (shifted — the light falls at an angle)
                 self.add_quad(

@@ -1880,7 +1880,7 @@ pub fn draw_emote_ex(anchor: Vec2, emote: Emote, age: f32, t: f32) {
     // easeOutBack — it "pops"
     let c1 = 1.70158;
     let pop = 1.0 + (c1 + 1.0) * (a - 1.0).powi(3) + c1 * (a - 1.0).powi(2);
-    let k = pop.max(0.0);
+    let k = pop.max(0.0) * super::handson::world_icon_scale();
     if k <= 0.01 {
         return;
     }

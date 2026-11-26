@@ -832,7 +832,7 @@ async fn main() {
         lighting.begin(&world_cam, ambient);
         lighting.set_time(t);
         lighting.add_window_light(if blackout { 0.6 } else { 1.0 });
-        lighting.train_sweep(train_p);
+        lighting.train_sweep(train_p, street);
         for (p, st) in furniture.iter().zip(&states) {
             for l in furniture_lights(p.sprite, p.origin, p.size, st) {
                 lighting.add_light(l);

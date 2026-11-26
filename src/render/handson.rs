@@ -897,7 +897,7 @@ pub fn draw_served_cup(p: Vec2, glyph: CupGlyph, art: Option<LatteArt>, t: f32) 
 fn pop_scale(age: f32) -> f32 {
     let a = (age / 0.28).clamp(0.0, 1.0);
     let c1 = 1.70158;
-    (1.0 + (c1 + 1.0) * (a - 1.0).powi(3) + c1 * (a - 1.0).powi(2)).max(0.0)
+    (1.0 + (c1 + 1.0) * (a - 1.0).powi(3) + c1 * (a - 1.0).powi(2)).max(0.0) * world_icon_scale()
 }
 
 fn bubble_bg(x: f32, y: f32, w: f32, h: f32, r: f32) {
@@ -1077,7 +1077,28 @@ pub enum QueueIcon {
     Walk,
 }
 
-/// Chip size and gap in world pixels.
+thread_local! {
+    static ICON_SCALE: std::cell::Cell<f32> = const { std::cell::Cell::new(1.0) };
+}
+
+/// Scale for the little icons drawn in the world (queue chips over Karolina's head, the
+/// order / wish marks, emotes, ritual checkboxes), so they stay readable when the camera is
+/// zoomed out. Set once a frame from the camera zoom (1.0 = as designed).
+pub fn set_world_icon_scale(s: f32) {
+    ICON_SCALE.with(|c| c.set(s.clamp(1.0, 3.0)));
+}
+
+pub fn world_icon_scale() -> f32 {
+    ICON_SCALE.with(|c| c.get())
+}
+
+/// The icon scale for a camera with `zoom` screen px per world px: a 16 px chip is never
+/// drawn smaller than ~19 px on screen.
+pub fn icon_scale_for_zoom(zoom: f32) -> f32 {
+    (19.0 / (QUEUE_CHIP * zoom.max(0.05))).clamp(1.0, 2.4)
+}
+
+/// Chip size and gap in world pixels (× `world_icon_scale`).
 pub const QUEUE_CHIP: f32 = 16.0;
 const QUEUE_GAP: f32 = 3.0;
 
@@ -1085,18 +1106,13 @@ const QUEUE_GAP: f32 = 3.0;
 /// Use for hit-testing ("click a queued icon to remove it").
 pub fn queue_chip_rects(anchor: Vec2, n: usize) -> Vec<Rect> {
     let n = n.min(5);
-    let total = n as f32 * QUEUE_CHIP + (n.max(1) - 1) as f32 * QUEUE_GAP;
+    let s = world_icon_scale();
+    let (chip, gap) = (QUEUE_CHIP * s, QUEUE_GAP * s);
+    let total = n as f32 * chip + (n.max(1) - 1) as f32 * gap;
     let x0 = anchor.x - total / 2.0;
-    let y = anchor.y - 14.0 - QUEUE_CHIP;
+    let y = anchor.y - 14.0 * s - chip;
     (0..n)
-        .map(|i| {
-            Rect::new(
-                x0 + i as f32 * (QUEUE_CHIP + QUEUE_GAP),
-                y,
-                QUEUE_CHIP,
-                QUEUE_CHIP,
-            )
-        })
+        .map(|i| Rect::new(x0 + i as f32 * (chip + gap), y, chip, chip))
         .collect()
 }
 
@@ -1110,19 +1126,20 @@ pub fn draw_queue_chips(
     t: f32,
 ) {
     let rects = queue_chip_rects(anchor, icons.len());
+    let s = world_icon_scale();
     for (i, (r, icon)) in rects.iter().zip(icons).enumerate() {
-        let lift = if hovered == Some(i) { 2.0 } else { 0.0 };
+        let lift = if hovered == Some(i) { 2.0 * s } else { 0.0 };
         let r = Rect::new(r.x, r.y - lift, r.w, r.h);
         let c0 = r.center();
         let first = i == 0;
-        soft_shadow(c0.x, c0.y + 4.0, 11.0, 8.0, 0.3);
+        soft_shadow(c0.x, c0.y + 4.0 * s, 11.0 * s, 8.0 * s, 0.3);
         // glass chip with a lit 1 px edge
         rrect_v(
-            r.x - 1.0,
-            r.y - 1.0,
-            r.w + 2.0,
-            r.h + 2.0,
-            5.5,
+            r.x - s,
+            r.y - s,
+            r.w + 2.0 * s,
+            r.h + 2.0 * s,
+            5.5 * s,
             alpha(c::INDIGO_SOFT, if first { 0.95 } else { 0.6 }),
             alpha(c::INDIGO, if first { 0.8 } else { 0.4 }),
         );
@@ -1131,42 +1148,42 @@ pub fn draw_queue_chips(
             r.y,
             r.w,
             r.h,
-            5.0,
+            5.0 * s,
             Color::from_hex(0x2c2856),
             Color::from_hex(0x1d1a3c),
         );
         rrect_v(
-            r.x + 1.0,
-            r.y + 1.0,
-            r.w - 2.0,
-            5.0,
-            3.0,
+            r.x + s,
+            r.y + s,
+            r.w - 2.0 * s,
+            5.0 * s,
+            3.0 * s,
             alpha(WHITE, 0.14),
             alpha(WHITE, 0.0),
         );
-        draw_queue_icon(c0, 11.0, *icon, t);
+        draw_queue_icon(c0, 11.0 * s, *icon, t);
         if first && progress > 0.0 {
             let a0 = -PI / 2.0;
             arc(
                 c0,
-                r.w * 0.5 + 2.5,
-                r.h * 0.5 + 2.5,
+                r.w * 0.5 + 2.5 * s,
+                r.h * 0.5 + 2.5 * s,
                 a0,
                 a0 + TAU * progress.clamp(0.0, 1.0),
-                1.8,
+                1.8 * s,
                 c::INDIGO_GLOW,
             );
             let a = a0 + TAU * progress.clamp(0.0, 1.0);
             glow(
-                c0.x + a.cos() * (r.w * 0.5 + 2.5),
-                c0.y + a.sin() * (r.h * 0.5 + 2.5),
-                4.0,
+                c0.x + a.cos() * (r.w * 0.5 + 2.5 * s),
+                c0.y + a.sin() * (r.h * 0.5 + 2.5 * s),
+                4.0 * s,
                 alpha(c::INDIGO_SOFT, 0.9),
             );
         }
         if hovered == Some(i) {
             let x = vec2(r.x + r.w - 1.0, r.y + 1.0);
-            ellipse(x.x, x.y, 3.6, 3.6, c::ROSE);
+            ellipse(x.x, x.y, 3.6 * s, 3.6 * s, c::ROSE);
             draw_line(x.x - 1.5, x.y - 1.5, x.x + 1.5, x.y + 1.5, 1.0, WHITE);
             draw_line(x.x - 1.5, x.y + 1.5, x.x + 1.5, x.y - 1.5, 1.0, WHITE);
         }

@@ -54,7 +54,11 @@ pub struct WorldScene {
     pub people: Vec<AgentView>,
     size: (i32, i32),
     /// Per agent: (feet at the previous tick, feet at the last tick, that tick).
-    tracks: HashMap<(u8, u32), (Vec2, Vec2, u32)>,
+    tracks: HashMap<(u8, u32), (Vec2, Vec2, u64)>,
+    /// Sim steps run so far (counted by the screen). People's feet are interpolated between
+    /// the last two *steps*, not night ticks: the night tick stands still during the
+    /// preparation half hour while everyone walks.
+    pub sim_steps: u64,
     /// Guests served by Karolina: their cup glyph (+ latte art) on the table.
     pub served: HashMap<u32, (CupGlyph, Option<LatteArt>)>,
     /// Dirt blots being mopped: tile → `t` when the mop went over it (a little shine).
@@ -109,6 +113,7 @@ impl WorldScene {
             people: Vec::new(),
             size: (30, 18),
             tracks: HashMap::new(),
+            sim_steps: 0,
             served: HashMap::new(),
             shine: Vec::new(),
             vis: Visuals::default(),
@@ -195,6 +200,14 @@ impl WorldScene {
 
     /// Animation step (real seconds, already scaled by the game speed if wanted).
     pub fn update(&mut self, dt: f32) {
+        // automation: `SHIFTELLA_TRAIN_P=0.4` freezes a passing train at that point
+        static TRAIN_P: std::sync::OnceLock<Option<f32>> = std::sync::OnceLock::new();
+        if let Some(p) = *TRAIN_P.get_or_init(|| {
+            std::env::var("SHIFTELLA_TRAIN_P").ok().and_then(|v| v.parse().ok())
+        }) {
+            self.train = Some(p);
+            return;
+        }
         if let Some(p) = &mut self.train {
             *p += dt / TRAIN_SECONDS;
             if *p > 1.05 {
@@ -306,7 +319,7 @@ impl WorldScene {
     pub fn refresh(&mut self, world: &World, now: f32, alpha: f32) {
         self.people = world.staff_views();
         self.people.extend(world.guest_views());
-        let tick = world.tick_count();
+        let tick = self.sim_steps;
         let a = alpha.clamp(0.0, 1.0);
         for v in self.people.iter_mut() {
             let k = akey(v.agent);
@@ -790,7 +803,7 @@ impl WorldScene {
                 }
             }
         }
-        lighting.train_sweep(train_p);
+        lighting.train_sweep(train_p, self.street);
         for (i, (sprite, origin, size, st)) in pieces.iter().enumerate() {
             let k = lamp_k(sprite, *origin);
             for mut l in furniture_lights(sprite, *origin, *size, st) {

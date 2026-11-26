@@ -6,7 +6,7 @@ use super::grid::{self, TILE, TileKind};
 use super::rng::hash_str;
 use super::types::*;
 use super::world::*;
-use crate::content::{Content, MenuItem, Pays, TraitEffect};
+use crate::content::{Content, MenuCategory, MenuItem, Pays, TraitEffect};
 
 /// Guest walking speed, tiles per tick.
 pub const GUEST_SPEED: f32 = 0.35;
@@ -21,9 +21,10 @@ pub const SANDBOX_INCOME_MUL: f32 = 0.85;
 /// Cozy: the same food wait (× Cozy's `guest_patience_mul`); then forgiveness (handson.md §1.4).
 pub const COZY_FOOD_PATIENCE: f32 = 3.0;
 /// Chance (× spend_mult) that a guest orders a second thing.
-pub const SECOND_ITEM_CHANCE: f32 = 0.75;
+pub const SECOND_ITEM_CHANCE: f32 = 0.85;
 /// Chance (× spend_mult) of a third thing (usually dessert).
-pub const THIRD_ITEM_CHANCE: f32 = 0.2;
+/// A dish ordered first comes with a drink this often (× the archetype's spend).
+pub const DRINK_WITH_FOOD_CHANCE: f32 = 0.85;
 /// Reputation per satisfaction point above/below 55 per guest review.
 pub const REVIEW_WEIGHT: f32 = 0.003;
 /// Regulars' trust per item served (within 8 min of the order / later) and lost when they
@@ -494,34 +495,36 @@ fn pick_wishes(
     let weights: Vec<f32> = (0..pool.len()).map(|i| 1.0 / (i as f32 + 1.0)).collect();
     let mut out = Vec::new();
     for _ in 0..size {
+        // one person orders like a person: one drink, and maybe one thing to eat (or one dish
+        // and maybe a drink with it) — never three drinks or two soups
         let i = w.rng.weighted(&weights).unwrap_or(0);
-        out.push(pool[i].id.clone());
-        if w.rng.chance((SECOND_ITEM_CHANCE * spend_mult).min(0.85)) {
-            // a second thing from a different category
-            let first_cat = pool[i].category;
-            let other: Vec<&MenuItem> = orderable
-                .iter()
-                .filter(|m| m.category != first_cat)
-                .copied()
-                .collect();
-            let fav_other: Vec<&MenuItem> = other
-                .iter()
-                .filter(|m| favourites.contains(&m.id))
-                .copied()
-                .collect();
-            let src = if fav_other.is_empty() {
-                &other
-            } else {
-                &fav_other
-            };
-            if let Some(m) = w.rng.pick(src) {
-                out.push(m.id.clone());
-            }
-            if w.rng.chance((THIRD_ITEM_CHANCE * spend_mult).min(0.4))
-                && let Some(m) = w.rng.pick(&orderable)
-            {
-                out.push(m.id.clone());
-            }
+        let main = pool[i];
+        out.push(main.id.clone());
+        let main_is_drink = matches!(main.category, MenuCategory::Drink | MenuCategory::Special);
+        let chance = if main_is_drink {
+            SECOND_ITEM_CHANCE * spend_mult
+        } else {
+            DRINK_WITH_FOOD_CHANCE * spend_mult
+        };
+        if !w.rng.chance(chance.min(0.95)) {
+            continue;
+        }
+        let side: Vec<&MenuItem> = orderable
+            .iter()
+            .filter(|m| {
+                let drink = matches!(m.category, MenuCategory::Drink | MenuCategory::Special);
+                drink != main_is_drink
+            })
+            .copied()
+            .collect();
+        let fav_side: Vec<&MenuItem> = side
+            .iter()
+            .filter(|m| favourites.contains(&m.id))
+            .copied()
+            .collect();
+        let src = if fav_side.is_empty() { &side } else { &fav_side };
+        if let Some(m) = w.rng.pick(src) {
+            out.push(m.id.clone());
         }
     }
     out
@@ -857,6 +860,22 @@ pub(crate) fn spawn_regular(w: &mut World, content: &Content, id: &str, visit: O
     {
         return;
     }
+    // a scripted visit (a beat / an effect) stands in for the night's next scheduled one, so
+    // the regular doesn't walk in a second time ("so the light's on again?" twice a night)
+    let visit = visit.or_else(|| {
+        let m = w.minutes_since_open();
+        let spawned = w.story.regulars.get(id).map(|s| s.spawned.clone())?;
+        let vi = r
+            .visits
+            .iter()
+            .enumerate()
+            .find(|(i, v)| !spawned.contains(i) && v.to.minutes_since_open() >= m)
+            .map(|(i, _)| i)?;
+        if let Some(s) = w.story.regulars.get_mut(id) {
+            s.spawned.push(vi);
+        }
+        Some(vi)
+    });
     let leave_by = visit
         .and_then(|v| r.visits.get(v))
         .map(|v| v.to.minutes_since_open().clamp(0, 480) as u32);

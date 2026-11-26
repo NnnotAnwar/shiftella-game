@@ -329,8 +329,16 @@ fn helpers_only_do_their_duties() {
         },
     )
     .unwrap();
-    // nobody behind the counter: the helper takes plain orders and nothing else
-    let events = run_night(&mut w, &c);
+    // the whole night on shift (the random rozpis may give a late shift)
+    // nobody behind the counter: the helper takes plain orders and nothing else (a quiet
+    // first night may bring only wishes, so up to three nights)
+    let mut events = Vec::new();
+    for _ in 0..3 {
+        events.extend(run_night(&mut w, &c));
+        if events.iter().any(|e| matches!(e, SimEvent::OrderTaken { .. })) {
+            break;
+        }
+    }
     let takers: Vec<u32> = events
         .iter()
         .filter_map(|e| match e {
@@ -338,7 +346,7 @@ fn helpers_only_do_their_duties() {
             _ => None,
         })
         .collect();
-    assert!(!takers.is_empty());
+    assert!(!takers.is_empty(), "a plain order in three nights");
     assert!(
         takers.iter().all(|s| *s == hire),
         "only the register helper"

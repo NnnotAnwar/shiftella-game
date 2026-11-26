@@ -197,7 +197,7 @@ for a mid-night save). Fixtures: `src/sim/testdata/save_v1_*.ron` (made by the p
 averages seeds and prints the handson.md §9 targets (`SIM_PLAN=3,5,9` = hire nights).
 `sim_trace` prints staff/party states for debugging.
 Knobs: `guests::{BASE_PARTIES_PER_HOUR, FOOD_PATIENCE, COZY_FOOD_PATIENCE, SECOND_ITEM_CHANCE,
-THIRD_ITEM_CHANCE, REVIEW_WEIGHT, story_ramp}`, `staff::{STAFF_SPEED, TRAY, FIRST_HIRE_NIGHT}`,
+DRINK_WITH_FOOD_CHANCE, REVIEW_WEIGHT, story_ramp}`, `staff::{STAFF_SPEED, TRAY, FIRST_HIRE_NIGHT}`,
 `COZY_TRAIN_SPREAD`, `narrator::CHOICE_MINUTES`, `economy::CLASSIC_OVERDRAFT`, and all of
 `handson.ron` (content).
 

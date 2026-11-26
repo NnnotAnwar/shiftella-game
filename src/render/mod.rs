@@ -32,7 +32,7 @@
 //!   [`draw_holo_sign`], [`Weather`] (`draw_rain`, `draw_window_rain`).
 //! - Depth: [`RenderQueue`] — `push_*` with a key, then `flush()`.
 //! - Light: [`Lighting`] — `begin(&cam, ambient)`, `add_light(Light)`, `add_window_light`,
-//!   `train_sweep(progress)`, `apply()`; [`ambient_for`]`(night_progress)`, [`ambient_blackout`].
+//!   `train_sweep(progress, street)`, `apply()`; [`ambient_for`]`(night_progress)`, [`ambient_blackout`].
 //!   `lighting.coziness` (0..1, 0.5 neutral) grades warmth / shadow softness / bloom
 //!   ([`CozyGrade`]); `lighting.draw_dust_motes(t)` after `apply`.
 //! - Seasons (`handson.md` §11.1): [`Season`] + a blendable [`SeasonLook`]
@@ -76,7 +76,7 @@
 //! q.flush();                       // served cups, counter garlands, candles being lit
 //! lighting.coziness = coziness;
 //! lighting.begin(&cam, ambient_for(night_progress));
-//! lighting.add_window_light(1.0); lighting.train_sweep(p);
+//! lighting.add_window_light(1.0); lighting.train_sweep(p, street);
 //! for l in furniture_lights(..) / outside_lights(..) / garlands.lights(..) { lighting.add_light(l) }
 //! lighting.add_light(moment_marker_light(&m, now));
 //! lighting.apply();              // `cam` is active again afterwards
@@ -120,7 +120,8 @@ pub use handson::{
     CupGlyph, LatteArt, OrderMark, QUEUE_CHIP, QueueIcon, TIP_COLLECT_SECS, TIP_SPAWN_SECS,
     TasteIcon, TipCoin, draw_cup_glyph, draw_latte_art, draw_order_mark, draw_queue_chips,
     draw_queue_icon, draw_rhythm_glow, draw_served_cup, draw_taste_icon, draw_tip_coin,
-    draw_tip_float, draw_wish_bubble, heart, queue_chip_rects, sparkle, tip_coin_light,
+    draw_tip_float, draw_wish_bubble, heart, icon_scale_for_zoom, queue_chip_rects,
+    set_world_icon_scale, sparkle, tip_coin_light, world_icon_scale,
 };
 pub use light::{CozyGrade, Light, Lighting, ambient_blackout, ambient_for};
 pub use look::{

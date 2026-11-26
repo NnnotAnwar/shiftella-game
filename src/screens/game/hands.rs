@@ -1500,8 +1500,9 @@ impl GameScreen {
         {
             return Some("wash");
         }
-        // closing time: the handover note and the light at six go first in her hands
-        if self.world.minute() >= 466 {
+        // closing time: the handover note and the light at six go first in her hands (from
+        // 05:30, so a busy last half hour can't push them past six)
+        if self.world.minute() >= 450 {
             for id in ["handover_note", "light_off_at_six"] {
                 let open = self
                     .world
@@ -1509,7 +1510,15 @@ impl GameScreen {
                     .checklist
                     .iter()
                     .any(|c| c.id == id && !c.done && c.claim.is_none());
-                if open && self.queue(content, PlayerAct::Checklist { id: id.to_string() }, true) {
+                if !open {
+                    continue;
+                }
+                // a full queue at closing time: the last thing waits, the light goes first
+                if self.world.player().queue.len() >= 5 {
+                    let last = self.world.player().queue.len() - 1;
+                    self.hand(content, Command::PlayerUnqueue { index: last });
+                }
+                if self.queue(content, PlayerAct::Checklist { id: id.to_string() }, true) {
                     return Some("closing");
                 }
             }

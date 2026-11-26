@@ -14,9 +14,10 @@
     // the opening checklist as a whole (the rest of the items, the 22:30 ritual)
     (id: "checklist_open", night: 1, trigger: After("machine"), anchor: Widget("app.checklist"),
      done_when: GotIt(seconds: 10.0)),
-    // Mirek's scripted early visit
+    // Mirek's scripted early visit: his "so the light's on again" scene plays as he walks in
+    // (without the tutorial he comes at 23:00 and the scene plays then; never twice)
     (id: "greet", night: 1, trigger: At("22:04"), anchor: Guest(Regular("mirek")), optional: true,
-     on_show: [SpawnRegular("mirek")], done_when: Event(Greeted)),
+     on_show: [StartCutscene("mirek_first"), SpawnRegular("mirek")], done_when: Event(Greeted)),
     (id: "take_order", night: 1, trigger: After("greet"), anchor: Guest(Regular("mirek")),
      done_when: Event(PlayerOrderTaken)),
     (id: "pick_recipe", night: 1, trigger: After("take_order"), anchor: Widget("order.chip.0"),

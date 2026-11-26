@@ -404,7 +404,7 @@ impl SnapRenderer {
                 l.add_window_light(if snap.blackout { 0.6 } else { 1.0 });
             }
             if let Some(p) = snap.train {
-                l.train_sweep(p);
+                l.train_sweep(p, street);
             }
             for (p, st) in snap.props.iter().zip(&states) {
                 let o = vec2(p.tile.0 as f32, p.tile.1 as f32) * TILE;

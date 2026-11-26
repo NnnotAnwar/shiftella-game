@@ -228,6 +228,10 @@ fn keyboard_intents_reach_the_sim() {
         g.advance(&c, 0.05, Some(&loc));
         guard += 1;
     }
+    // Mirek's first scene plays as he walks in; the rail works once it's over
+    if g.cutscene_playing() {
+        g.finish_cutscene_now(&c, &loc);
+    }
     let t = g.world.ticket_rail(&c)[0].clone();
     g.act_on_rail(&c);
     let claimed = g
@@ -236,7 +240,7 @@ fn keyboard_intents_reach_the_sim() {
         .iter()
         .find(|p| p.id == t.party)
         .is_some_and(|p| p.order_claim.is_some());
-    assert!(claimed, "Enter on the rail sent Karolina to take the order");
+    assert!(claimed, "Enter on the rail sent Karolina to take the order: {t:?}");
 }
 
 // ───────────────────────── T8: the world's systems on screen ─────────────────────────
@@ -391,8 +395,9 @@ fn three_autoplayed_nights_touch_the_systems() {
         assert_eq!(
             g.world.systems().tool.rituals,
             [true, true],
-            "night {}: opening and closing",
-            g.world.night()
+            "night {}: opening and closing; open items {:?}",
+            g.world.night(),
+            g.world.app().checklist.iter().filter(|c| !c.done).map(|c| c.id.clone()).collect::<Vec<_>>()
         );
     }
     g.autoplay_day(&c, 1.0, 0.0);
@@ -594,4 +599,39 @@ fn open_the_doors_from_the_hud_and_the_door_toast() {
     let p = g.world.evening_progress();
     let want = sim::PREP_MINUTES as f32 / (sim::PREP_MINUTES + sim::NIGHT_MINUTES) as f32;
     assert!((p - want).abs() < 1e-4, "{p}");
+}
+
+/// 0.1.1 bug: during the preparation half hour the night tick stands still, so the drawn
+/// people froze on the spot while they walked and worked, then jumped at 22:00.
+#[test]
+fn people_are_drawn_walking_during_the_preparation_half_hour() {
+    let c = content();
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.start_night(&c);
+    assert!(g.world.in_prep());
+    // Karolina goes to light the window
+    assert!(g.intent(&c, hands::Intent::Window));
+    let karolina = |g: &GameScreen| {
+        g.scene
+            .people
+            .iter()
+            .find(|v| matches!(v.agent, sim::AgentRef::Staff(_)))
+            .map(|v| v.feet)
+            .expect("Karolina is drawn")
+    };
+    g.scene.refresh(&g.world, 0.0, 0.0);
+    let start = karolina(&g);
+    let mut moved = 0.0f32;
+    let mut last = start;
+    for i in 0..90 {
+        g.advance(&c, 1.0 / 30.0, None);
+        g.scene.refresh(&g.world, i as f32 / 30.0, 0.5);
+        let now = karolina(&g);
+        let step = ((now.0 - last.0).powi(2) + (now.1 - last.1).powi(2)).sqrt();
+        assert!(step < 1.5 * crate::map::TILE, "a jump of {step} px in one frame");
+        moved += step;
+        last = now;
+    }
+    assert!(g.world.in_prep(), "still the preparation");
+    assert!(moved > 0.5 * crate::map::TILE, "drawn Karolina walked {moved} px");
 }
