@@ -10,6 +10,7 @@ use macroquad::prelude::*;
 
 use super::colors as c;
 use super::draw::*;
+use super::theme::{FloorVariant, decor, draw_curtains, draw_wall_pattern};
 use crate::map::TILE;
 
 /// Height of a normal wall (world pixels).
@@ -182,8 +183,10 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
                 );
             }
         }
+        _ if decor().floor == FloorVariant::Parquet => draw_parquet(p, tx, ty),
         _ => {
-            // wood: 4 planks per tile, staggered seams
+            // wood: 4 planks per tile, staggered seams (tinted by the decor theme)
+            let st = decor();
             let ph = TILE / 4.0;
             let tones = [0x83594a, 0x7a5243, 0x8c6150, 0x734c3e, 0x7f5647];
             for row in 0..4 {
@@ -205,7 +208,7 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
                     }
                     let board_id = ((p.x + offset) / board_len).floor() as i32 + k;
                     let tone = tones[(hash((gy * 31 + board_id * 17) as u32) % 5) as usize];
-                    let base = Color::from_hex(tone);
+                    let base = mix(Color::from_hex(tone), st.floor_tint, st.floor_mix);
                     rect_v(x0, y, x1 - x0, ph, tint_light(base, 0.04), shade(base, 0.9));
                     // grain
                     for g in 0..2 {
@@ -242,6 +245,43 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
             }
         }
     }
+}
+
+/// Basket-weave parquet: 16 px blocks of two slats, alternating direction.
+fn draw_parquet(p: Vec2, tx: i32, ty: i32) {
+    let st = decor();
+    let s = TILE / 4.0;
+    let tones = [0x8a5e48, 0x7a5242, 0x936a50, 0x80583f];
+    for j in 0..4 {
+        for i in 0..4 {
+            let (gx, gy) = (tx * 4 + i, ty * 4 + j);
+            let (x, y) = (p.x + i as f32 * s, p.y + j as f32 * s);
+            let horiz = (gx + gy) % 2 == 0;
+            for k in 0..2 {
+                let tone = tones[(hash((gx * 7 + gy * 13 + k) as u32) % 4) as usize];
+                let base = mix(Color::from_hex(tone), st.floor_tint, st.floor_mix);
+                let (rx, ry, rw, rh) = if horiz {
+                    (x, y + k as f32 * s / 2.0, s, s / 2.0)
+                } else {
+                    (x + k as f32 * s / 2.0, y, s / 2.0, s)
+                };
+                if horiz {
+                    rect_v(rx, ry, rw, rh, tint_light(base, 0.05), shade(base, 0.88));
+                } else {
+                    rect_h(rx, ry, rw, rh, tint_light(base, 0.05), shade(base, 0.88));
+                }
+                draw_rectangle_lines(rx, ry, rw, rh, 0.8, alpha(Color::from_hex(0x2c1c1a), 0.45));
+            }
+        }
+    }
+    draw_line(
+        p.x,
+        p.y + 0.6,
+        p.x + TILE,
+        p.y + 0.6,
+        0.8,
+        alpha(tint_light(Color::from_hex(tones[2]), 0.3), 0.2),
+    );
 }
 
 /// Wet street cobbles (as in `draw_outside`): stones in staggered rows,
@@ -327,15 +367,17 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
 
     // ── front face
     if m.has(WallMask::FLOOR_S) {
-        // inner wall of the hall: plaster + panels
+        // inner wall of the hall: plaster + panels (colours and pattern from the decor theme)
+        let st = decor();
         rect_v(
             x,
             face_top,
             TILE,
             h - WAINSCOT_H,
-            c::WALL_PLASTER_TOP,
-            c::WALL_PLASTER_BOTTOM,
+            st.wall_top,
+            st.wall_bottom,
         );
+        draw_wall_pattern(&st, tile, x, face_top + 6.0, face_bot - WAINSCOT_H - 2.0);
         // a light plaster texture
         for k in 0..3 {
             let hx = hash2(tile.x as i32 * 3 + k, tile.y as i32);
@@ -348,7 +390,7 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
             );
         }
         let wy = face_bot - WAINSCOT_H;
-        rect_v(x, wy, TILE, WAINSCOT_H, c::WAINSCOT_TOP, c::WAINSCOT_BOTTOM);
+        rect_v(x, wy, TILE, WAINSCOT_H, st.wainscot_top, st.wainscot_bottom);
         for i in 0..2 {
             let px = x + 4.0 + i as f32 * TILE / 2.0;
             rrect_v(
@@ -357,26 +399,19 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
                 TILE / 2.0 - 8.0,
                 WAINSCOT_H - 12.0,
                 2.0,
-                shade(c::WAINSCOT_TOP, 1.12),
-                shade(c::WAINSCOT_BOTTOM, 1.05),
+                shade(st.wainscot_top, 1.12),
+                shade(st.wainscot_bottom, 1.05),
             );
         }
         // moulding and skirting
-        rect_v(
-            x,
-            wy - 2.0,
-            TILE,
-            4.0,
-            c::WALL_TRIM,
-            shade(c::WALL_TRIM, 0.7),
-        );
+        rect_v(x, wy - 2.0, TILE, 4.0, st.trim, shade(st.trim, 0.7));
         rect_v(
             x,
             face_bot - 5.0,
             TILE,
             5.0,
-            shade(c::WAINSCOT_BOTTOM, 0.8),
-            shade(c::WAINSCOT_BOTTOM, 0.6),
+            shade(st.wainscot_bottom, 0.8),
+            shade(st.wainscot_bottom, 0.6),
         );
         // AO under the ceiling (below the top of the wall)
         rect_v(
@@ -573,6 +608,7 @@ fn draw_window(tile: Vec2) {
         2.0,
         frame,
     );
+    draw_curtains(&decor(), g, tile);
     // sill
     rrect_v(
         g.x - 7.0,
@@ -615,6 +651,7 @@ pub struct StaticLayer {
     rt: Option<RenderTarget>,
     rect: Rect,
     mat: Material,
+    key: Option<u64>,
 }
 
 impl Default for StaticLayer {
@@ -653,6 +690,7 @@ impl StaticLayer {
             rt: None,
             rect: Rect::new(0.0, 0.0, 0.0, 0.0),
             mat,
+            key: None,
         }
     }
 
@@ -675,10 +713,33 @@ impl StaticLayer {
         set_default_camera();
         self.rt = Some(rt);
         self.rect = world_rect;
+        self.key = None;
     }
 
     pub fn is_built(&self) -> bool {
         self.rt.is_some()
+    }
+
+    /// Rebuild only when `key` changed (mix the map hash with `ThemeStyle::key()` and
+    /// `SeasonLook::static_key()`, see [`static_key`]). Returns whether it rebuilt.
+    pub fn build_keyed(
+        &mut self,
+        key: u64,
+        world_rect: Rect,
+        scale: f32,
+        draw: impl FnOnce(),
+    ) -> bool {
+        if self.key == Some(key) && self.rt.is_some() && self.rect == world_rect {
+            return false;
+        }
+        self.build(world_rect, scale, draw);
+        self.key = Some(key);
+        true
+    }
+
+    /// The key of the last `build_keyed` (`None` after a plain `build`).
+    pub fn key(&self) -> Option<u64> {
+        self.key
     }
 
     /// Draw the cache (the current camera is the world camera).
@@ -698,6 +759,20 @@ impl StaticLayer {
             );
         }
     }
+}
+
+/// A static-layer cache key: the map's own hash mixed with the theme and the season.
+pub fn static_key(
+    map_hash: u64,
+    theme: &super::theme::ThemeStyle,
+    season: &super::season::SeasonLook,
+) -> u64 {
+    let mut h = map_hash ^ 0x9e37_79b9_7f4a_7c15;
+    for v in [theme.key(), season.static_key()] {
+        h = (h ^ v).wrapping_mul(0x0100_0000_01b3);
+        h ^= h >> 29;
+    }
+    h
 }
 
 #[cfg(test)]

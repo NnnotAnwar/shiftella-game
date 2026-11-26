@@ -2049,6 +2049,159 @@ pub fn draw_emote_ex(anchor: Vec2, emote: Emote, age: f32, t: f32) {
             );
             ellipse(c0.x, c0.y + 5.5 * u, 2.0 * u, 2.0 * u, col);
         }
+        Emote::Sparkle => {
+            let gold = Color::from_hex(0xf2b84b);
+            let tw = 0.85 + 0.15 * (t * 6.0).sin();
+            glow(c0.x, c0.y, 9.0 * u, alpha(c::AMBER, 0.45));
+            super::handson::sparkle(c0 + vec2(-1.0, 0.5) * u, 6.4 * u * tw, gold);
+            super::handson::sparkle(
+                c0 + vec2(-1.0, 0.5) * u,
+                2.6 * u * tw,
+                Color::from_hex(0xfff6d8),
+            );
+            super::handson::sparkle(
+                c0 + vec2(5.6, -4.6) * u,
+                2.4 * u * (1.9 - tw),
+                c::VIOLET_SOFT,
+            );
+            super::handson::sparkle(c0 + vec2(5.0, 4.4) * u, 1.6 * u * tw, gold);
+        }
+        Emote::Smile => {
+            let face = Color::from_hex(0xf2c860);
+            ellipse_v(
+                c0.x,
+                c0.y,
+                6.4 * u,
+                6.4 * u,
+                tint_light(face, 0.2),
+                shade(face, 0.88),
+            );
+            let ink = Color::from_hex(0x5a3a1a);
+            arc(
+                c0 + vec2(-2.3, -1.2) * u,
+                1.3 * u,
+                1.0 * u,
+                PI * 1.1,
+                PI * 1.9,
+                0.9 * u,
+                ink,
+            );
+            arc(
+                c0 + vec2(2.3, -1.2) * u,
+                1.3 * u,
+                1.0 * u,
+                PI * 1.1,
+                PI * 1.9,
+                0.9 * u,
+                ink,
+            );
+            arc(
+                c0 + vec2(0.0, 0.6) * u,
+                3.2 * u,
+                2.4 * u,
+                0.25,
+                PI - 0.25,
+                1.0 * u,
+                ink,
+            );
+            ellipse(
+                c0.x - 4.0 * u,
+                c0.y + 1.4 * u,
+                1.2 * u,
+                0.7 * u,
+                alpha(c::ROSE, 0.5),
+            );
+            ellipse(
+                c0.x + 4.0 * u,
+                c0.y + 1.4 * u,
+                1.2 * u,
+                0.7 * u,
+                alpha(c::ROSE, 0.5),
+            );
+        }
+        Emote::WarmHeart => {
+            let beat = 1.0 + ((t * 3.0).sin().max(0.0)).powi(3) * 0.1;
+            glow(c0.x, c0.y, 10.0 * u, alpha(c::AMBER, 0.55));
+            super::handson::heart(
+                c0 + vec2(0.0, 0.3 * u),
+                6.2 * u * beat,
+                Color::from_hex(0xf08a5a),
+            );
+            super::handson::heart(
+                c0 + vec2(-0.6, -0.4) * u,
+                3.0 * u * beat,
+                alpha(Color::from_hex(0xffd8a0), 0.7),
+            );
+        }
+        Emote::Sleepy => {
+            let moon = Color::from_hex(0xf2d78a);
+            ellipse(c0.x - 0.5 * u, c0.y + 0.5 * u, 5.6 * u, 5.6 * u, moon);
+            ellipse(
+                c0.x + 2.2 * u,
+                c0.y - 1.2 * u,
+                4.8 * u,
+                4.8 * u,
+                Color::from_hex(0xeeeafc),
+            );
+            let tw = ((t * 2.0).sin() * 0.5 + 0.5) * 0.5 + 0.5;
+            super::season::star(
+                c0 + vec2(5.0, 4.2) * u,
+                2.2 * u * tw,
+                0.9 * u * tw,
+                0.0,
+                c::INDIGO_GLOW,
+            );
+            ellipse(
+                c0.x - 3.2 * u,
+                c0.y + 1.4 * u,
+                0.7 * u,
+                0.5 * u,
+                alpha(shade(moon, 0.7), 0.9),
+            );
+        }
+        Emote::LikedRecord => {
+            let spin = t * 2.5;
+            ellipse(
+                c0.x - 1.5 * u,
+                c0.y + 1.0 * u,
+                6.0 * u,
+                6.0 * u,
+                Color::from_hex(0x1f1d2e),
+            );
+            draw_circle_lines(
+                c0.x - 1.5 * u,
+                c0.y + 1.0 * u,
+                4.2 * u,
+                0.5 * u,
+                alpha(c::LAVENDER_RIM, 0.5),
+            );
+            ellipse(c0.x - 1.5 * u, c0.y + 1.0 * u, 2.0 * u, 2.0 * u, c::ROSE);
+            ellipse(
+                c0.x - 1.5 * u + spin.cos() * 3.2 * u,
+                c0.y + 1.0 * u + spin.sin() * 3.2 * u,
+                0.9 * u,
+                0.5 * u,
+                alpha(WHITE, 0.6),
+            );
+            let n = c0 + vec2(5.0, -3.0 + (t * 3.0).sin() * 0.8) * u;
+            ellipse(n.x, n.y, 1.8 * u, 1.3 * u, c::VIOLET);
+            draw_line(
+                n.x + 1.6 * u,
+                n.y,
+                n.x + 1.6 * u,
+                n.y - 5.0 * u,
+                1.0 * u,
+                c::VIOLET,
+            );
+            draw_line(
+                n.x + 1.6 * u,
+                n.y - 5.0 * u,
+                n.x + 3.6 * u,
+                n.y - 3.6 * u,
+                1.0 * u,
+                c::VIOLET,
+            );
+        }
         Emote::Money => {
             let gold = Color::from_hex(0xf2b84b);
             let p = c0 + vec2(1.5 * u, 0.5 * u);
