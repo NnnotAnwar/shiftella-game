@@ -15,10 +15,12 @@ pub struct SettingsResponse {
     pub language_changed: bool,
     /// Back / close / Esc.
     pub close: bool,
+    /// "Replay tutorial" was clicked (the game restarts its coach marks).
+    pub replay_tutorial: bool,
 }
 
 /// Preferred size of the panel.
-pub const PANEL_SIZE: Vec2 = Vec2::new(500.0, 540.0);
+pub const PANEL_SIZE: Vec2 = Vec2::new(500.0, 580.0);
 
 /// Draws the settings panel into `r` (use [`PANEL_SIZE`]) and edits `s` in place.
 /// The caller saves (`Settings::save`) and applies the values when `changed`.
@@ -128,6 +130,27 @@ pub fn settings_panel(ui: &mut Ui, loc: &Locale, s: &mut Settings, r: Rect) -> S
     let c = row(ui, &mut y, loc.tr("mainmenu.settings.auto_advance"));
     if ui.toggle("set_auto", c, &mut s.auto_advance).changed {
         out.changed = true;
+    }
+    let c = row(ui, &mut y, loc.tr("ui.tutorial.setting"));
+    let (tog, rest) = c.split_right(52.0, 8.0);
+    if ui.toggle("set_tutorial", tog, &mut s.show_tutorial).changed {
+        out.changed = true;
+    }
+    let replay = Button::new(loc.tr("ui.tutorial.replay"))
+        .ghost()
+        .icon(Icon::Undo);
+    let rw = ui.button_width(&replay).min(rest.w);
+    if ui
+        .button(
+            "set_tutorial_replay",
+            Rect::new(rest.x, rest.y + 3.0, rw, rest.h - 6.0),
+            &replay,
+        )
+        .clicked
+    {
+        s.show_tutorial = true;
+        out.changed = true;
+        out.replay_tutorial = true;
     }
     let c = row(ui, &mut y, loc.tr("ui.settings.pause_on_events"));
     if ui.toggle("set_pause", c, &mut s.pause_on_events).changed {

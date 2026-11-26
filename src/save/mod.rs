@@ -64,6 +64,20 @@ pub struct SessionExtra {
     pub ending_played: bool,
     /// Camera centre / zoom (tiles, multiplier).
     pub camera: Option<(f32, f32, f32)>,
+    /// First-time coach marks (`None` = not decided yet for this game).
+    #[serde(default)]
+    pub tutorial: Option<TutorialProgress>,
+}
+
+/// Where the first-time tutorial is (see `screens::game::tutorial`).
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+pub struct TutorialProgress {
+    pub active: bool,
+    /// Index into `tutorial::STEPS`.
+    pub step: u32,
+    /// The panel of the current step has been opened (it finishes when closed again).
+    #[serde(default)]
+    pub panel_seen: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

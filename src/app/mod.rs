@@ -208,6 +208,25 @@ impl App {
 
     fn game(&mut self, mut g: GameScreen) -> Screen {
         g.player.apply_settings(&self.settings);
+        // first day of a new game: offer the coach marks (screenshot runs only on request)
+        if g.extra.tutorial.is_none() {
+            let shot = env("SHIFTELLA_SHOT").is_some();
+            let fresh = g.world.night() == 1 && g.world.phase() == sim::Phase::Day;
+            if fresh
+                && self.settings.show_tutorial
+                && (!shot || env("SHIFTELLA_TUTORIAL").is_some())
+            {
+                g.start_tutorial();
+            } else {
+                g.extra.tutorial = Some(Default::default());
+            }
+        }
+        if let Some(step) = env("SHIFTELLA_TUTORIAL").and_then(|s| s.parse::<u32>().ok())
+            && let Some(p) = &mut g.extra.tutorial
+        {
+            p.active = true;
+            p.step = step;
+        }
         Screen::Game(Box::new(g))
     }
 
@@ -262,7 +281,16 @@ impl App {
                 self.game_instant_text(g, shot)
             }
             "story_day1" => {
-                let g = GameScreen::new_story(&content, "cozy", true);
+                let mut g = GameScreen::new_story(&content, "cozy", true);
+                // SHIFTELLA_PANEL opens a panel over the first day (tutorial shots)
+                g.panel = match env("SHIFTELLA_PANEL").as_deref() {
+                    Some("crew") => Some(game::Panel::Crew),
+                    Some("app") => Some(game::Panel::App),
+                    Some("priorities") => Some(game::Panel::Priorities),
+                    Some("build") => Some(game::Panel::Build),
+                    Some("help") => Some(game::Panel::Help),
+                    _ => None,
+                };
                 self.game(g)
             }
             "night" | "pause" | "crew" | "app" | "priorities" | "log" | "build" => {

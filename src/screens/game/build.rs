@@ -238,6 +238,7 @@ pub fn panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let h = 214.0;
     let w = (s.w - 24.0).min(980.0);
     let pr = Rect::new((s.w - w) / 2.0, s.h - 60.0 - h, w, h);
+    g.anchors.push(("panel", pr));
     ui.glass(pr, &Glass::panel());
     let hint = loc.tr("ui.build.hint");
     let (body, close) = ui.panel_header(pr, loc.tr("ui.build.title"), Some("B"), Some(hint));

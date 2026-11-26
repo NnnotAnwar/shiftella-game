@@ -43,6 +43,7 @@ pub fn crew(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let loc = cx.loc;
     let content = cx.content;
     let pr = left_panel(ui, 320.0);
+    g.anchors.push(("panel", pr));
     ui.glass(pr, &Glass::panel());
     let on = g.world.staff().iter().filter(|s| s.on_duty()).count();
     let sub = loc.trf(
@@ -406,6 +407,7 @@ pub fn priorities(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let w = name_w + col_w * 5.0 + 32.0;
     let h = (96.0 + staff.len() as f32 * 38.0 + 54.0).min(s.h - 160.0);
     let pr = Rect::new(((s.w - w) / 2.0).max(12.0), 92.0, w, h);
+    g.anchors.push(("panel", pr));
     ui.glass(pr, &Glass::panel());
     let (body, close) = ui.panel_header(pr, loc.tr("ui.priorities.title"), Some("P"), None);
     if close {

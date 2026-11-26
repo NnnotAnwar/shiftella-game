@@ -143,6 +143,8 @@ pub struct Settings {
     pub fullscreen: bool,
     /// Pause the clock when an important event pops up (off by default — cozy flow).
     pub pause_on_events: bool,
+    /// Coach marks on the first day and night of a new game (turned off once finished).
+    pub show_tutorial: bool,
 }
 
 impl Default for Settings {
@@ -156,6 +158,7 @@ impl Default for Settings {
             auto_advance: false,
             fullscreen: false,
             pause_on_events: false,
+            show_tutorial: true,
         }
     }
 }
@@ -288,6 +291,7 @@ mod tests {
             auto_advance: true,
             fullscreen: true,
             pause_on_events: true,
+            show_tutorial: false,
         };
         let back = Settings::from_ron(&s.to_ron()).unwrap();
         assert_eq!(back, s);

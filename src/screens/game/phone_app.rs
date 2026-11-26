@@ -38,6 +38,7 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         size.x,
         size.y,
     );
+    g.anchors.push(("panel", r));
     ui.region(r);
     let labels: Vec<(Icon, &str)> = TABS.iter().map(|(i, k)| (*i, loc.tr(k))).collect();
     let time = if g.world.phase() == Phase::Night {

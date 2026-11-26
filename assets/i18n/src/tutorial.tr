@@ -1,0 +1,307 @@
+# First-time tutorial (coach marks on Day 1 / Night 1) and the "How to play" page.
+
+ui.tutorial.label
+cs Průvodce
+en Tutorial
+sk Sprievodca
+uk Підказки
+
+ui.tutorial.next
+cs Další
+en Next
+sk Ďalej
+uk Далі
+
+ui.tutorial.done
+cs Rozumím
+en Got it
+sk Rozumiem
+uk Зрозуміло
+
+ui.tutorial.skip
+cs Přeskočit průvodce
+en Skip tutorial
+sk Preskočiť sprievodcu
+uk Пропустити підказки
+
+ui.tutorial.setting
+cs Průvodce pro začátečníky
+en Show tutorial
+sk Sprievodca pre začiatočníkov
+uk Підказки для новачків
+
+ui.tutorial.replay
+cs Spustit znovu
+en Replay tutorial
+sk Spustiť znova
+uk Показати знову
+
+# --- Day 1
+
+tutorial.welcome.title
+cs Vítej v Café Nocturne
+en Welcome to Café Nocturne
+sk Vitaj v Café Nocturne
+uk Ласкаво просимо до Café Nocturne
+
+tutorial.welcome.body
+cs Den je na plánování: lidé, rozpis, nábytek. Noc od 22:00 do 06:00 kavárna běží sama — ty jen dohlížíš. Pár tipů a pak už je to tvoje.
+en Days are for planning: people, the schedule, furniture. At night, 22:00–06:00, the café runs — you keep an eye on it. A few tips, then it's all yours.
+sk Deň je na plánovanie: ľudia, rozpis, nábytok. V noci od 22:00 do 06:00 kaviareň beží — ty len dohliadaš. Pár tipov a potom je to tvoje.
+uk Удень — плани: люди, розклад, меблі. Уночі, з 22:00 до 06:00, кав'ярня працює, а ти наглядаєш. Кілька порад — і далі все в твоїх руках.
+
+tutorial.welcome_sandbox.title
+cs Krátká prohlídka?
+en A quick tour?
+sk Krátka prehliadka?
+uk Коротка екскурсія?
+
+tutorial.welcome_sandbox.body
+cs Pár karet ukáže, jak to tu chodí: den na plánování, noc od 22:00 do 06:00 na provoz. Kdykoli můžeš průvodce přeskočit.
+en A few cards show how things work: days for planning, nights 22:00–06:00 for running the café. You can skip the tour at any time.
+sk Pár kariet ukáže, ako to tu chodí: deň na plánovanie, noc od 22:00 do 06:00 na prevádzku. Sprievodcu môžeš kedykoľvek preskočiť.
+uk Кілька карток покажуть, як усе влаштовано: день — для планів, ніч з 22:00 до 06:00 — для роботи кав'ярні. Підказки можна пропустити будь-коли.
+
+tutorial.crew.title
+cs Najmi první posilu
+en Hire your first helper
+sk Najmi prvú posilu
+uk Найми першого помічника
+
+tutorial.crew.body
+cs Otevři Personál (C). Dole jsou uchazeči — baristka nebo barista se hodí hned první noc. Jedno kliknutí na Najmout.
+en Open Crew (C). Candidates are at the bottom — a barista helps from the very first night. One click on Hire.
+sk Otvor Personál (C). Dole sú uchádzači — baristka alebo barista sa hodí hneď prvú noc. Jedno kliknutie na Zamestnať.
+uk Відкрий «Персонал» (C). Унизу — кандидати: бариста стане в пригоді вже першої ночі. Один клік на «Найняти».
+
+tutorial.app.title
+cs Rozpis v aplikaci Shiftella
+en The schedule in Shiftella
+sk Rozpis v aplikácii Shiftella
+uk Розклад у Shiftella
+
+tutorial.app.body
+cs Otevři Shiftellu (T). V rozpisu klikni na buňku a změň směnu, pak Zveřejnit — noc se řídí zveřejněným rozpisem. Najdeš tam i žádosti, zprávy a nástěnka.
+en Open Shiftella (T). In the schedule, click a cell to change a shift, then Publish — the night follows the published schedule. Requests, messages and the board live there too.
+sk Otvor Shiftellu (T). V rozpise klikni na bunku a zmeň zmenu, potom Zverejniť — noc sa riadi zverejneným rozpisom. Sú tam aj žiadosti, správy a nástenka.
+uk Відкрий Shiftella (T). У розкладі клацни клітинку, щоб змінити зміну, потім «Опублікувати» — ніч іде за опублікованим розкладом. Там же запити, повідомлення й дошка.
+
+tutorial.priorities.title
+cs Kdo co dělá
+en Who does what
+sk Kto čo robí
+uk Хто що робить
+
+tutorial.priorities.body
+cs Priority (P): řádky jsou lidé, sloupce práce. 1 = dělá to nejdřív, prázdné = vůbec. Klik zvýší, pravé tlačítko sníží. Každému jednu jasnou jedničku.
+en Priorities (P): rows are people, columns are jobs. 1 = does it first, empty = never. Click to raise, right-click to lower. Give everyone one clear 1.
+sk Priority (P): riadky sú ľudia, stĺpce práce. 1 = robí to najskôr, prázdne = vôbec. Klik zvýši, pravé tlačidlo zníži. Každému jednu jasnú jednotku.
+uk Пріоритети (P): рядки — люди, стовпці — роботи. 1 — робить першим, порожньо — ніколи. Клік підвищує, правий клік знижує. Дай кожному одну чітку «1».
+
+tutorial.build.title
+cs Zútulni sál (nepovinné)
+en Make the hall cosy (optional)
+sk Zútulni sálu (nepovinné)
+uk Зроби зал затишнішим (за бажанням)
+
+tutorial.build.body
+cs Stavba (B): vyber kus, klikni do kavárny. R otočí, X bourá, Ctrl+Z vrátí. Lampy, rostliny a koberec hosty potěší.
+en Build (B): pick a piece, click in the café. R rotates, X demolishes, Ctrl+Z undoes. Lamps, plants and a rug make guests happier.
+sk Stavba (B): vyber kus, klikni do kaviarne. R otočí, X búra, Ctrl+Z vráti. Lampy, rastliny a koberec hostí potešia.
+uk Будівництво (B): вибери предмет і клацни в кав'ярні. R — поворот, X — знести, Ctrl+Z — скасувати. Лампи, рослини й килим тішать гостей.
+
+tutorial.start.title
+cs Otevři dveře
+en Open the doors
+sk Otvor dvere
+uk Відчиняй двері
+
+tutorial.start.body
+cs Až budeš chtít, klikni na Začít noc (nebo Enter). Rozsviť okno a uvař první kávu.
+en Whenever you're ready, press Start the night (or Enter). Light the window and make the first coffee.
+sk Keď budeš chcieť, klikni na Začať noc (alebo Enter). Rozsvieť okno a uvar prvú kávu.
+uk Коли будеш готовий чи готова — натисни «Почати ніч» (або Enter). Засвіти вікно й звари першу каву.
+
+# --- Night 1
+
+tutorial.time.title
+cs Čas plyne po svém
+en Time at your pace
+sk Čas plynie po svojom
+uk Час — у твоєму темпі
+
+tutorial.time.body
+cs Mezerník pozastaví, 1/2/3 mění rychlost. Pruh pod hodinami ukazuje noc do 06:00, trojúhelníčky jsou vlaky — přivezou malý nával.
+en Space pauses, 1/2/3 change the speed. The bar under the clock is the night until 06:00; the little marks are trains — each brings a small rush.
+sk Medzerník pozastaví, 1/2/3 menia rýchlosť. Pás pod hodinami ukazuje noc do 06:00, trojuholníčky sú vlaky — privezú malý nával.
+uk Пробіл — пауза, 1/2/3 — швидкість. Смуга під годинником — ніч до 06:00, трикутнички — поїзди: кожен привозить невеликий наплив.
+
+tutorial.guests.title
+cs Hosté
+en Guests
+sk Hostia
+uk Гості
+
+tutorial.guests.body
+cs Najeď myší na hosta: uvidíš, co si přeje a jak dlouho vydrží čekat. Štamgasti mají svůj příběh — klikni na ně, a když mají co říct, objeví se Promluvit si.
+en Hover a guest to see what they want and how long they'll wait. Regulars have their own stories — click one, and when they have something to say, Talk appears.
+sk Prejdi myšou na hosťa: uvidíš, čo si želá a ako dlho vydrží čakať. Štamgasti majú svoj príbeh — klikni na nich, a keď majú čo povedať, objaví sa Porozprávať sa.
+uk Наведи на гостя — побачиш, чого хочуть і скільки чекатимуть. У постійних гостей свої історії: клацни, і коли їм є що сказати, з'явиться «Поговорити».
+
+tutorial.staff.title
+cs Tým pracuje sám
+en Your crew works on its own
+sk Tím pracuje sám
+uk Команда працює сама
+
+tutorial.staff.body
+cs Lidé berou práci podle priorit. V Personálu (C) vidíš jejich potřeby — energii, hlad, náladu. Unavení si sami dají pauzu.
+en People pick up work by their priorities. In Crew (C) you'll see their needs — energy, hunger, mood. Tired people take a break on their own.
+sk Ľudia berú prácu podľa priorít. V Personáli (C) vidíš ich potreby — energiu, hlad, náladu. Unavení si sami dajú prestávku.
+uk Люди беруться до роботи за пріоритетами. У «Персоналі» (C) видно їхні потреби — енергію, голод, настрій. Втомлені самі роблять перерву.
+
+tutorial.events.title
+cs Události
+en Events
+sk Udalosti
+uk Події
+
+tutorial.events.body
+cs Vpravo dole se objeví zprávy a malé příhody. Některé mají tlačítka — vyber, nebo počkej a noc rozhodne za tebe. Na pauze počkají.
+en News and little happenings pop up bottom right. Some have buttons — choose one, or wait and the night picks for you. They wait while paused.
+sk Vpravo dole sa objavia správy a malé príhody. Niektoré majú tlačidlá — vyber, alebo počkaj a noc rozhodne za teba. Na pauze počkajú.
+uk Праворуч унизу з'являються новини й дрібні пригоди. Деякі мають кнопки — обери або зачекай, і ніч вирішить сама. На паузі вони чекають.
+
+tutorial.money.title
+cs Peníze a pověst
+en Money and reputation
+sk Peniaze a povesť
+uk Гроші й репутація
+
+tutorial.money.body
+cs Vpravo nahoře: pokladna, hvězdičky pověsti a dluh. Ráno přijde shrnutí noci a ve dne vidíš, kdy je další splátka.
+en Top right: the till, reputation stars and the debt. In the morning you get a summary of the night; during the day you'll see when the next payment is due.
+sk Vpravo hore: pokladňa, hviezdičky povesti a dlh. Ráno príde zhrnutie noci a cez deň vidíš, kedy je ďalšia splátka.
+uk Праворуч угорі — каса, зірки репутації та борг. Уранці — підсумок ночі, а вдень видно, коли наступний платіж.
+
+tutorial.enjoy.title
+cs Hezkou noc
+en Enjoy the night
+sk Peknú noc
+uk Гарної ночі
+
+tutorial.enjoy.body
+cs To je všechno. F1 nebo „?“ v liště otevře přehled Jak hrát. Ať okno svítí až do rána.
+en That's all. F1 or the "?" in the dock opens How to play. May the window stay lit until morning.
+sk To je všetko. F1 alebo „?“ v lište otvorí prehľad Ako hrať. Nech okno svieti až do rána.
+uk Ось і все. F1 або «?» на панелі відкриє «Як грати». Хай вікно світить до ранку.
+
+# --- How to play
+
+ui.help.title
+cs Jak hrát
+en How to play
+sk Ako hrať
+uk Як грати
+
+ui.help.tip
+cs Jak hrát (F1)
+en How to play (F1)
+sk Ako hrať (F1)
+uk Як грати (F1)
+
+ui.help.rhythm.title
+cs Den a noc
+en Day and night
+sk Deň a noc
+uk День і ніч
+
+ui.help.rhythm.body
+cs Ve dne plánuješ (hodiny stojí). V noci od 22:00 do 06:00 kavárna běží. Ráno shrnutí a automatické uložení. Enter začne noc.
+en By day you plan (the clock stands still). At night, 22:00–06:00, the café runs. In the morning: a summary and an autosave. Enter starts the night.
+sk Cez deň plánuješ (hodiny stoja). V noci od 22:00 do 06:00 kaviareň beží. Ráno zhrnutie a automatické uloženie. Enter začne noc.
+uk Удень плануєш (годинник стоїть). Уночі, з 22:00 до 06:00, кав'ярня працює. Уранці — підсумок і автозбереження. Enter починає ніч.
+
+ui.help.crew.title
+cs Personál (C)
+en Crew (C)
+sk Personál (C)
+uk Персонал (C)
+
+ui.help.crew.body
+cs Najímej uchazeče, sleduj potřeby, dovednosti a vztahy. Propustit jde jedním kliknutím — a vrátit tlačítkem Zpět.
+en Hire candidates, watch needs, skills and relationships. Letting someone go is one click — and Undo brings them back.
+sk Najímaj uchádzačov, sleduj potreby, zručnosti a vzťahy. Prepustiť ide jedným kliknutím — a vrátiť tlačidlom Späť.
+uk Наймай кандидатів, стеж за потребами, навичками й стосунками. Звільнити — один клік, а «Скасувати» все поверне.
+
+ui.help.app.title
+cs Shiftella (T)
+en Shiftella (T)
+sk Shiftella (T)
+uk Shiftella (T)
+
+ui.help.app.body
+cs Rozpis směn (klik změní koncept, Zveřejnit ho pošle všem), žádosti o výměnu a volno, zprávy od @shiftella_bot, nástěnka, checklisty, noční přehled a podklady pro mzdy.
+en The shift schedule (click to change the draft, Publish sends it out), swap and time-off requests, messages from @shiftella_bot, the board, checklists, the night digest and payroll.
+sk Rozpis zmien (klik zmení koncept, Zverejniť ho pošle všetkým), žiadosti o výmenu a voľno, správy od @shiftella_bot, nástenka, checklisty, nočný prehľad a podklady pre mzdy.
+uk Розклад змін (клік змінює чернетку, «Опублікувати» надсилає всім), запити на обмін і відгули, повідомлення від @shiftella_bot, дошка, чеклисти, нічний підсумок і дані для зарплат.
+
+ui.help.priorities.title
+cs Priority (P)
+en Priorities (P)
+sk Priority (P)
+uk Пріоритети (P)
+
+ui.help.priorities.body
+cs Řádky jsou lidé, sloupce práce. 1 je nejdůležitější, prázdné znamená nikdy. Klik zvýší, pravé tlačítko nebo kolečko sníží.
+en Rows are people, columns are jobs. 1 matters most, empty means never. Click raises, right-click or the wheel lowers.
+sk Riadky sú ľudia, stĺpce práce. 1 je najdôležitejšia, prázdne znamená nikdy. Klik zvýši, pravé tlačidlo alebo koliesko zníži.
+uk Рядки — люди, стовпці — роботи. 1 — найважливіше, порожньо — ніколи. Клік підвищує, правий клік або коліщатко знижує.
+
+ui.help.build.title
+cs Stavba (B)
+en Build (B)
+sk Stavba (B)
+uk Будівництво (B)
+
+ui.help.build.body
+cs Vyber kus a klikni do kavárny. R otočí, X bourá, Ctrl+Z vrátí, pravé tlačítko nebo Esc zruší. Lampy, rostliny a koberce zlepší náladu.
+en Pick a piece and click in the café. R rotates, X demolishes, Ctrl+Z undoes, right-click or Esc cancels. Lamps, plants and rugs lift the mood.
+sk Vyber kus a klikni do kaviarne. R otočí, X búra, Ctrl+Z vráti, pravé tlačidlo alebo Esc zruší. Lampy, rastliny a koberce zlepšia náladu.
+uk Вибери предмет і клацни в кав'ярні. R — поворот, X — знести, Ctrl+Z — скасувати, правий клік або Esc — відміна. Лампи, рослини й килими піднімають настрій.
+
+ui.help.night.title
+cs Noc a hosté
+en The night and the guests
+sk Noc a hostia
+uk Ніч і гості
+
+ui.help.night.body
+cs Mezerník je pauza, 1/2/3 rychlost, WASD a kolečko kamera, Home celá kavárna. Najetím na hosta uvidíš jeho přání; štamgasti občas chtějí promluvit.
+en Space pauses, 1/2/3 set the speed, WASD and the wheel move the camera, Home shows the whole café. Hover a guest to see their wish; regulars sometimes want to talk.
+sk Medzerník je pauza, 1/2/3 rýchlosť, WASD a koliesko kamera, Home celá kaviareň. Prejdením na hosťa uvidíš jeho želanie; štamgasti občas chcú prehovoriť.
+uk Пробіл — пауза, 1/2/3 — швидкість, WASD і коліщатко — камера, Home — уся кав'ярня. Наведи на гостя, щоб побачити бажання; постійні гості часом хочуть поговорити.
+
+ui.help.events.title
+cs Události a deník
+en Events and the log
+sk Udalosti a denník
+uk Події та журнал
+
+ui.help.events.body
+cs Zprávy vyskakují vpravo dole; volby počkají na pauze a po chvíli se rozhodnou samy. Deník (L) nebo klik na řádek nahoře ukáže, co se stalo.
+en News pops up bottom right; choices wait while paused and settle themselves after a while. The log (L), or a click on the line at the top, shows what happened.
+sk Správy vyskakujú vpravo dole; voľby počkajú na pauze a po chvíli sa rozhodnú samy. Denník (L) alebo klik na riadok hore ukáže, čo sa stalo.
+uk Новини з'являються праворуч унизу; вибір чекає на паузі й за якийсь час вирішується сам. Журнал (L) або клік по рядку вгорі покаже, що сталося.
+
+ui.help.money.title
+cs Peníze, dluh, pověst
+en Money, debt, reputation
+sk Peniaze, dlh, povesť
+uk Гроші, борг, репутація
+
+ui.help.money.body
+cs Tržby a spropitné přicházejí v noci, mzdy a nákupy odcházejí. Splátky dluhu vidíš v denním plánu. Čistá, rychlá a útulná kavárna má lepší pověst.
+en Sales and tips come in at night; wages and supplies go out. Debt payments show in the day plan. A clean, quick, cosy café earns a better reputation.
+sk Tržby a prepitné prichádzajú v noci, mzdy a nákupy odchádzajú. Splátky dlhu vidíš v dennom pláne. Čistá, rýchla a útulná kaviareň má lepšiu povesť.
+uk Виторг і чайові надходять уночі, зарплати й закупівлі — витрати. Платежі за боргом видно в денному плані. Чиста, швидка й затишна кав'ярня має кращу репутацію.

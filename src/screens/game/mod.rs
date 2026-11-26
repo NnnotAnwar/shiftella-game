@@ -13,6 +13,7 @@ mod panels;
 mod pause;
 mod phone_app;
 pub mod scene;
+pub mod tutorial;
 pub mod world_view;
 
 use std::cell::RefCell;
@@ -64,6 +65,8 @@ pub enum Panel {
     App,
     Build,
     Log,
+    /// "How to play" reference (F1).
+    Help,
 }
 
 /// A line in the top ticker / log.
@@ -145,6 +148,8 @@ pub struct GameScreen {
     last_ambience_minute: u32,
     /// Timings of the last frame (debug overlay).
     pub times: FrameTimes,
+    /// Screen rects of HUD pieces this frame, by name (tutorial arrows point at them).
+    pub anchors: Vec<(&'static str, Rect)>,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -212,6 +217,7 @@ impl GameScreen {
             deferred: Vec::new(),
             clock_stop: 0.0,
             times: FrameTimes::default(),
+            anchors: Vec::new(),
             automation: std::env::var("SHIFTELLA_SHOT").is_ok(),
         }
     }
@@ -277,6 +283,7 @@ impl GameScreen {
         self.speed == 0
             || self.pause.is_some()
             || self.cutscene_playing()
+            || self.tutorial_holds_clock()
             || self.summary.is_some()
             || self.world.phase() == Phase::Day
     }
@@ -1087,6 +1094,7 @@ impl GameScreen {
         let t_world = std::time::Instant::now();
         // 3. UI
         ui.set_camera();
+        self.anchors.clear();
         if self.player.is_playing() {
             self.player.draw_ui(ui, &loc);
         } else {
@@ -1100,11 +1108,14 @@ impl GameScreen {
                 Some(Panel::Log) => panels::log(self, ui, cx),
                 Some(Panel::App) => phone_app::draw(self, ui, cx),
                 Some(Panel::Build) => build::panel(self, ui, cx),
+                Some(Panel::Help) => tutorial::help(self, ui, cx),
                 None => {}
             }
             if self.world.phase() == Phase::Day && self.summary.is_none() {
                 day::planning(self, ui, cx);
             }
+            self.tutorial_update(cx);
+            tutorial::draw(self, ui, cx);
             if self.summary.is_some() {
                 day::summary(self, ui, cx);
             }
@@ -1302,6 +1313,9 @@ impl GameScreen {
         }
         if ui.key(KeyCode::L) {
             toggle(&mut self.panel, Panel::Log);
+        }
+        if ui.key(KeyCode::F1) {
+            toggle(&mut self.panel, Panel::Help);
         }
         if ui.key(KeyCode::Space) {
             self.toggle_pause();
