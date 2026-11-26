@@ -398,7 +398,18 @@ fn trait_tone(d: &crate::content::TraitDef) -> Tone {
 
 /// Shows a failed command as a short warning toast.
 pub fn command_error(g: &mut GameScreen, loc: &Locale, e: &str) {
-    let key = if e.starts_with("NotEnoughMoney") {
+    // a bot button that can't act now says why (`sim::tool::handle`)
+    let key = if e.contains("night only") {
+        "ui.error.night_only"
+    } else if e.contains("nobody can come in") {
+        "ui.error.nobody_free"
+    } else if e.contains("nobody free to cover") || e.contains("nobody is late") {
+        "ui.error.nobody_cover"
+    } else if e.contains("no free seat") {
+        "ui.error.no_seat"
+    } else if e.contains("no drone dock") {
+        "ui.error.no_dock"
+    } else if e.starts_with("NotEnoughMoney") {
         "ui.error.money"
     } else if e.starts_with("WrongPhase") {
         "ui.error.phase"

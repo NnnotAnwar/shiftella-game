@@ -220,7 +220,7 @@ pub(crate) fn seats(w: &World, content: &Content) -> Vec<SeatInfo> {
     out
 }
 
-fn seat_has_tag(w: &World, content: &Content, s: &SeatInfo, tag: &str) -> bool {
+pub(crate) fn seat_has_tag(w: &World, content: &Content, s: &SeatInfo, tag: &str) -> bool {
     if tag == "window_spot" {
         for dy in -2..=2 {
             for dx in -2..=2 {
@@ -252,9 +252,25 @@ fn choose_seats(
     content: &Content,
     n: usize,
     prefer: Option<&str>,
+    regular: Option<&str>,
 ) -> Option<Vec<SeatPick>> {
     let all = seats(w, content);
-    let free: Vec<&SeatInfo> = all.iter().filter(|s| s.free).collect();
+    // a seat reserved through the app (bot "Reserve the seat") waits for its regular
+    let mine = regular.and_then(|r| w.sys.tool.reserved.get(r).copied());
+    let held = |s: &SeatInfo| {
+        w.sys
+            .tool
+            .reserved
+            .iter()
+            .any(|(r, uid)| *uid == s.uid && Some(r.as_str()) != regular)
+    };
+    if n == 1
+        && let Some(uid) = mine
+        && let Some(s) = all.iter().find(|s| s.uid == uid && s.free)
+    {
+        return Some(vec![(s.uid, s.idx, s.tile)]);
+    }
+    let free: Vec<&SeatInfo> = all.iter().filter(|s| s.free && !held(s)).collect();
     if free.len() < n {
         return None;
     }
@@ -650,7 +666,7 @@ pub(crate) fn spawn_party(
     let seats_pick = if party.wishes.is_empty() && !wish_party {
         None
     } else {
-        choose_seats(w, content, size as usize, prefer.as_deref())
+        choose_seats(w, content, size as usize, prefer.as_deref(), regular)
     };
     // record regular visit
     if let Some(r) = reg {

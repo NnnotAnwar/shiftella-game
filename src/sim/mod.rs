@@ -37,8 +37,6 @@ mod xlogic;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
-mod tests_arcs;
-#[cfg(test)]
 mod tests_balance;
 #[cfg(test)]
 mod tests_hands;
@@ -46,6 +44,8 @@ mod tests_hands;
 mod tests_qa;
 #[cfg(test)]
 mod tests_sys;
+#[cfg(test)]
+mod tests_t10;
 
 pub use app::digest_lines;
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};

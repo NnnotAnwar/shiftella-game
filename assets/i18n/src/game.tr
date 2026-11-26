@@ -300,6 +300,36 @@ en Only during the day
 uk Лише вдень
 ru Только днём
 
+ui.error.night_only
+cs To jde jen v noci
+en Only at night
+uk Лише вночі
+ru Только ночью
+
+ui.error.nobody_free
+cs Dnes nikdo nemůže přijít
+en Nobody can come in tonight
+uk Сьогодні ніхто не може прийти
+ru Сегодня никто не может прийти
+
+ui.error.nobody_cover
+cs Nikdo na směně nemá volné ruce
+en Nobody on shift has a free hand
+uk Ні в кого на зміні немає вільних рук
+ru Ни у кого на смене нет свободных рук
+
+ui.error.no_seat
+cs Žádné volné místo k podržení
+en No free seat to keep
+uk Немає вільного місця
+ru Нет свободного места
+
+ui.error.no_dock
+cs Chce to dok pro drony (Stavba)
+en Needs a drone dock (Build)
+uk Потрібен док для дронів (Будівництво)
+ru Нужен док для дронов (Стройка)
+
 ui.guest.talk
 cs Promluvit si
 en Talk
