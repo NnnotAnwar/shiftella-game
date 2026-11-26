@@ -367,7 +367,7 @@ impl Ui {
         if let Some(b) = &toast.body {
             let used = self.fonts.draw_wrapped(
                 b,
-                Rect::new(tx, y, tw, 48.0),
+                Rect::new(tx, y, tw, 64.0),
                 &t.small().line_height(1.33),
                 Align::Left,
                 Some(4),
