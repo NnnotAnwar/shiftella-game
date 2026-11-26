@@ -3,455 +3,455 @@
 app.announcement.grandma_rules.title
 cs Připnuto: Pravidla podniku
 en Pinned: House rules
-sk Pripnuté: Pravidlá podniku
 uk Закріплено: Правила закладу
+ru Закреплено: Правила заведения
 
 app.announcement.grandma_rules.body
 cs Otvíráme ve 22:00, zavíráme v 6:00. Světlo v okně svítí do šesti. Kávovar kouše. — L.
 en We open at 22:00 and close at 6:00. The light in the window stays on until six. The coffee machine bites. — L.
-sk Otvárame o 22:00, zatvárame o 6:00. Svetlo v okne svieti do šiestej. Kávovar hryzie. — L.
 uk Відчиняємось о 22:00, зачиняємось о 6:00. Світло у вікні горить до шостої. Кавоварка кусається. — Л.
+ru Открываемся в 22:00, закрываемся в 6:00. Свет в окне горит до шести. Кофемашина кусается. — Л.
 
 app.announcement.welcome_crew.title
 cs Vítejte v týmu
 en Welcome to the team
-sk Vitajte v tíme
 uk Ласкаво просимо до команди
+ru Добро пожаловать в команду
 
 app.announcement.welcome_crew.body
 cs Rozpis je v aplikaci, výměny taky. Kdo neví, ptá se. Kdo ví, uvaří kafe.
 en The schedule is in the app, and so are swaps. If you don't know, ask. If you do, make coffee.
-sk Rozpis je v aplikácii, výmeny tiež. Kto nevie, pýta sa. Kto vie, uvarí kávu.
 uk Розклад у застосунку, обмін змінами теж. Хто не знає — питає. Хто знає — варить каву.
+ru Расписание в приложении, обмен сменами тоже. Кто не знает — спрашивает. Кто знает — варит кофе.
 
 app.announcement.new_dishes.title
 cs Nová jídla
 en New dishes
-sk Nové jedlá
 uk Нові страви
+ru Новые блюда
 
 app.announcement.new_dishes.body
 cs Vareniky a bryndzové pirohy jsou na menu. Kdo je spálí, myje nádobí do rána.
 en Varenyky and bryndza pierogi are on the menu. Whoever burns them washes up till morning.
-sk Vareniky a bryndzové pirohy sú na menu. Kto ich pripáli, umýva riad do rána.
 uk Вареники й пироги з бринзою вже в меню. Хто їх пригорить — миє посуд до ранку.
+ru Вареники и пироги с брынзой уже в меню. Кто их сожжёт — моет посуду до утра.
 
 app.announcement.inspection_soon.title
 cs Zítra hygiena
 en Inspection tomorrow
-sk Zajtra hygiena
 uk Завтра санінспекція
+ru Завтра санинспекция
 
 app.announcement.inspection_soon.body
 cs Ať se všechno leskne. I to, co se nikdy neleskne.
 en Make everything shine. Even the things that never shine.
-sk Nech sa všetko blyští. Aj to, čo sa nikdy neblyští.
 uk Хай усе блищить. Навіть те, що ніколи не блищить.
+ru Пусть всё блестит. Даже то, что никогда не блестит.
 
 app.announcement.visitor_nonstop.title
 cs Návštěva z NONSTOP 24
 en Visitor from NONSTOP 24
-sk Návšteva z NONSTOP 24
 uk Гість із NONSTOP 24
+ru Гость из NONSTOP 24
 
 app.announcement.visitor_nonstop.body
 cs Dnes přijde pán z řetězce. Buďte milí. Nic nepodepisujte.
 en A man from the chain is coming today. Be nice. Don't sign anything.
-sk Dnes príde pán z reťazca. Buďte milí. Nič nepodpisujte.
 uk Сьогодні прийде чоловік із мережі. Будьте ввічливі. Нічого не підписуйте.
+ru Сегодня придёт человек из сети. Будьте вежливы. Ничего не подписывайте.
 
 app.announcement.storm_tonight.title
 cs V noci bouřka
 en Storm tonight
-sk V noci búrka
 uk Уночі гроза
+ru Ночью гроза
 
 app.announcement.storm_tonight.body
 cs Svíčky jsou v šuplíku pod pokladnou. Okno musí svítit.
 en Candles are in the drawer under the register. The window must stay lit.
-sk Sviečky sú v šuplíku pod pokladňou. Okno musí svietiť.
 uk Свічки в шухляді під касою. Вікно має світитися.
+ru Свечи в ящике под кассой. Окно должно светиться.
 
 app.announcement.last_night.title
 cs Poslední noc
 en The last night
-sk Posledná noc
 uk Остання ніч
+ru Последняя ночь
 
 app.announcement.last_night.body
 cs Dnes jsme tu všichni. Ať se stane cokoli: děkuju.
 en We're all here tonight. Whatever happens: thank you.
-sk Dnes sme tu všetci. Nech sa stane čokoľvek: ďakujem.
 uk Сьогодні ми всі тут. Хай що станеться: дякую.
+ru Сегодня мы все здесь. Что бы ни случилось: спасибо.
 
 app.announcement.swap_board.title
 cs Hledá se záskok
 en Cover needed
-sk Hľadá sa záskok
 uk Шукаємо заміну
+ru Ищем замену
 
 app.announcement.swap_board.body
 cs {name} hledá záskok na noc {night}. Kdo vezme směnu, má u baru kafe zdarma.
 en {name} needs cover for night {night}. Whoever takes the shift gets free coffee at the bar.
-sk {name} hľadá záskok na noc {night}. Kto vezme zmenu, má pri bare kávu zadarmo.
 uk {name} шукає заміну на ніч {night}. Хто візьме зміну, отримає безкоштовну каву.
+ru {name} ищет замену на ночь {night}. Кто возьмёт смену, получит бесплатный кофе.
 
 app.announcement.thank_you.title
 cs Díky
 en Thank you
-sk Vďaka
 uk Дякую
+ru Спасибо
 
 app.announcement.thank_you.body
 cs Díky, {name}, za včerejší noc. Bez tebe by to nešlo.
 en Thanks for last night, {name}. Couldn't have done it without you.
-sk Vďaka, {name}, za včerajšiu noc. Bez teba by to nešlo.
 uk Дякую, {name}, за вчорашню ніч. Без тебе нічого б не вийшло.
+ru Спасибо, {name}, за вчерашнюю ночь. Без тебя ничего бы не вышло.
 
 app.announcement.new_item.title
 cs Novinka na menu
 en New on the menu
-sk Novinka na menu
 uk Новинка в меню
+ru Новинка в меню
 
 app.announcement.new_item.body
 cs Od dneška máme {item}. Ochutnejte dřív, než to začnete nabízet.
 en From today we serve {item}. Taste it before you recommend it.
-sk Od dnes máme {item}. Ochutnajte skôr, než to začnete ponúkať.
 uk Відсьогодні в нас є {item}. Скуштуйте, перш ніж радити гостям.
+ru С сегодняшнего дня у нас есть {item}. Попробуйте, прежде чем советовать гостям.
 
 app.checklist.light_window
 cs Rozsvítit lampu v okně
 en Switch on the window lamp
-sk Rozsvietiť lampu v okne
 uk Увімкнути лампу у вікні
+ru Включить лампу в окне
 
 app.checklist.coffee_warmup
 cs Nahřát kávovar
 en Warm up the coffee machine
-sk Nahriať kávovar
 uk Прогріти кавоварку
+ru Прогреть кофемашину
 
 app.checklist.check_stock
 cs Zkontrolovat zásoby
 en Check the stock
-sk Skontrolovať zásoby
 uk Перевірити запаси
+ru Проверить запасы
 
 app.checklist.wipe_tables
 cs Otřít stoly
 en Wipe the tables
-sk Utrieť stoly
 uk Протерти столи
+ru Протереть столы
 
 app.checklist.count_float
 cs Spočítat drobné v pokladně
 en Count the float
-sk Spočítať drobné v pokladni
 uk Перерахувати розмінну касу
+ru Пересчитать размен в кассе
 
 app.checklist.menu_board
 cs Zapnout holo tabuli s menu
 en Turn on the holo menu board
-sk Zapnúť holo tabuľu s menu
 uk Увімкнути голодошку з меню
+ru Включить голодоску с меню
 
 app.checklist.wash_dishes
 cs Umýt nádobí
 en Wash the dishes
-sk Umyť riad
 uk Помити посуд
+ru Помыть посуду
 
 app.checklist.clean_machine
 cs Vyčistit kávovar
 en Clean the coffee machine
-sk Vyčistiť kávovar
 uk Почистити кавоварку
+ru Почистить кофемашину
 
 app.checklist.cash_up
 cs Uzavřít pokladnu
 en Cash up
-sk Uzavrieť pokladňu
 uk Закрити касу
+ru Закрыть кассу
 
 app.checklist.fridge_check
 cs Zkontrolovat lednici
 en Check the fridge
-sk Skontrolovať chladničku
 uk Перевірити холодильник
+ru Проверить холодильник
 
 app.checklist.handover_note
 cs Napsat předávku další směně
 en Write the handover note for the next shift
-sk Napísať odovzdávku ďalšej zmene
 uk Написати нотатку для наступної зміни
+ru Написать записку для следующей смены
 
 app.checklist.light_off_at_six
 cs V 6:00 zhasnout okno
 en Switch off the window at 6:00
-sk O 6:00 zhasnúť okno
 uk О 6:00 вимкнути вікно
+ru В 6:00 выключить окно
 
 app.bot.hello
 cs Ahoj, jsem @shiftella_bot. Hlídám rozpis, výměny a volno. Píchačky nedělám — lidi nejsou děrné štítky.
 en Hi, I'm @shiftella_bot. I keep the schedule, swaps and time off in order. I don't do clock-ins — people aren't punch cards.
-sk Ahoj, som @shiftella_bot. Strážim rozpis, výmeny a voľno. Píchačky nerobím — ľudia nie sú dierne štítky.
 uk Привіт, я @shiftella_bot. Стежу за розкладом, обмінами й вихідними. Відмітки приходу не роблю — люди не перфокарти.
+ru Привет, я @shiftella_bot. Слежу за расписанием, обменами и выходными. Отметки прихода не делаю — люди не перфокарты.
 
 app.bot.schedule_published
 cs Rozpis na týden {week} je zveřejněný. Všichni dostali upozornění.
 en The schedule for week {week} is published. Everyone has been notified.
-sk Rozpis na týždeň {week} je zverejnený. Všetci dostali upozornenie.
 uk Розклад на тиждень {week} опубліковано. Усі отримали сповіщення.
+ru Расписание на неделю {week} опубликовано. Все получили уведомления.
 
 app.bot.late_alert
 cs Od začátku směny uběhlo {minutes} min a {name} tu ještě není.
 en {name} hasn't arrived yet — {minutes} min after the shift start.
-sk Od začiatku zmeny ubehlo {minutes} min a {name} tu ešte nie je.
 uk {name} ще не на місці — уже {minutes} хв від початку зміни.
+ru {name} ещё не на месте — уже {minutes} мин от начала смены.
 
 app.bot.late_alert.action.noted
 cs Beru na vědomí
 en Noted
-sk Beriem na vedomie
 uk Зрозуміло
+ru Понятно
 
 app.bot.late_alert.action.cover
 cs Zaskočím
 en I'll cover it
-sk Zaskočím
 uk Підміню
+ru Подменю
 
 app.bot.swap_request
 cs {name} chce vyměnit směnu {shift} s kolegou {other}.
 en {name} wants to swap the {shift} shift with {other}.
-sk {name} chce vymeniť zmenu {shift} s kolegom {other}.
 uk {name} хоче помінятися зміною {shift} з колегою {other}.
+ru {name} хочет поменяться сменой {shift} с коллегой {other}.
 
 app.bot.swap_request.action.approve
 cs Schválit
 en Approve
-sk Schváliť
 uk Погодити
+ru Одобрить
 
 app.bot.swap_request.action.decline
 cs Zamítnout
 en Decline
-sk Zamietnuť
 uk Відхилити
+ru Отклонить
 
 app.bot.time_off_vacation
 cs {name} žádá o dovolenou: {dates}.
 en {name} is requesting holiday: {dates}.
-sk {name} žiada o dovolenku: {dates}.
 uk {name} просить відпустку: {dates}.
+ru {name} просит отпуск: {dates}.
 
 app.bot.time_off_vacation.action.approve
 cs Schválit
 en Approve
-sk Schváliť
 uk Погодити
+ru Одобрить
 
 app.bot.time_off_vacation.action.decline
 cs Zamítnout
 en Decline
-sk Zamietnuť
 uk Відхилити
+ru Отклонить
 
 app.bot.time_off_toil
 cs {name} si chce vybrat náhradní volno: {hours} h.
 en {name} wants to take time off in lieu: {hours} h.
-sk {name} si chce vybrať náhradné voľno: {hours} h.
 uk {name} хоче взяти відгул за переробку: {hours} год.
+ru {name} хочет взять отгул за переработку: {hours} ч.
 
 app.bot.time_off_toil.action.approve
 cs Schválit
 en Approve
-sk Schváliť
 uk Погодити
+ru Одобрить
 
 app.bot.time_off_toil.action.decline
 cs Zamítnout
 en Decline
-sk Zamietnuť
 uk Відхилити
+ru Отклонить
 
 app.bot.sick_call
 cs {name} se dnes omlouvá kvůli nemoci. Směna je o člověka kratší.
 en {name} called in sick tonight. The shift is one person short.
-sk {name} sa dnes ospravedlňuje pre chorobu. Zmena je o človeka kratšia.
 uk {name} сьогодні на лікарняному. На зміні на одну людину менше.
+ru {name} сегодня на больничном. На смене на одного человека меньше.
 
 app.bot.sick_call.action.get_well
 cs Poslat „brzy se uzdrav"
 en Send "get well soon"
-sk Poslať „skoro sa uzdrav"
 uk Надіслати «одужуй швидше»
+ru Отправить «выздоравливай»
 
 app.bot.handover_ready
 cs Předávka pro další směnu je hotová — od: {name}.
 en {name} left a handover note for the next shift.
-sk Odovzdávka pre ďalšiu zmenu je hotová — od: {name}.
 uk Нотатка для наступної зміни готова — від: {name}.
+ru Записка для следующей смены готова — от: {name}.
 
 app.bot.night_digest
 cs Noc {night} skončila: {guests} hostů, tržba {revenue}. Přehled je připravený.
 en Night {night} is over: {guests} guests, revenue {revenue}. The digest is ready.
-sk Noc {night} skončila: {guests} hostí, tržba {revenue}. Prehľad je pripravený.
 uk Ніч {night} завершено: гостей — {guests}, виторг — {revenue}. Підсумок готовий.
+ru Ночь {night} позади: гостей — {guests}, выручка — {revenue}. Итоги готовы.
 
 app.bot.payroll_ready
 cs Podklady pro mzdy za týden {week} jsou hotové: {hours} h, celkem {total}.
 en Payroll basis for week {week} is ready: {hours} h, {total} in total.
-sk Podklady pre mzdy za týždeň {week} sú hotové: {hours} h, spolu {total}.
 uk Дані для зарплати за тиждень {week} готові: {hours} год, разом {total}.
+ru Данные для зарплаты за неделю {week} готовы: {hours} ч, всего {total}.
 
 app.bot.payment_reminder
 cs Připomínka: v noci {night} v 6:00 je splatných {amount}.
 en Reminder: {amount} is due at 6:00 on night {night}.
-sk Pripomienka: v noci {night} o 6:00 je splatných {amount}.
 uk Нагадування: у ніч {night} о 6:00 треба сплатити {amount}.
+ru Напоминание: в ночь {night} в 6:00 нужно заплатить {amount}.
 
 app.bot.payment_done
 cs Splátka {amount} odešla. Zbývá dluh {debt}.
 en Payment of {amount} sent. Remaining debt: {debt}.
-sk Splátka {amount} odišla. Zostáva dlh {debt}.
 uk Платіж {amount} відправлено. Залишок боргу: {debt}.
+ru Платёж {amount} отправлен. Остаток долга: {debt}.
 
 app.bot.payment_missed_soft
 cs Splátka se nestihla. Majitel budovy bručí, ale počká. Příště to dáme.
 en The payment didn't make it. The landlord grumbles, but he'll wait. We'll make the next one.
-sk Splátka sa nestihla. Majiteľ budovy hundre, ale počká. Nabudúce to dáme.
 uk Платіж не встигли. Власник будівлі бурчить, але почекає. Наступного разу встигнемо.
+ru Платёж не успели. Владелец здания ворчит, но подождёт. В следующий раз успеем.
 
 app.bot.payment_missed_hard
 cs Splátka se nestihla. Ještě jedna a nájem končí.
 en The payment was missed. One more and the lease ends.
-sk Splátka sa nestihla. Ešte jedna a nájom končí.
 uk Платіж пропущено. Ще один — і оренда закінчиться.
+ru Платёж пропущен. Ещё один — и аренда закончится.
 
 app.bot.announcement_posted
 cs Nové oznámení: „{title}"
 en New announcement: "{title}"
-sk Nové oznámenie: „{title}"
 uk Нове оголошення: «{title}»
+ru Новое объявление: «{title}»
 
 app.bot.train_delay
 cs Radek hlásí: {train} má zpoždění {minutes} min. Připravte se na hladové cestující.
 en Radek reports: {train} is {minutes} min late. Get ready for hungry passengers.
-sk Radek hlási: {train} mešká {minutes} min. Pripravte sa na hladných cestujúcich.
 uk Радек повідомляє: {train} запізнюється на {minutes} хв. Готуйтеся до голодних пасажирів.
+ru Радек сообщает: {train} опаздывает на {minutes} мин. Готовьтесь к голодным пассажирам.
 
 app.digest.title
 cs Přehled noci {night}
 en Night {night} digest
-sk Prehľad noci {night}
 uk Підсумок ночі {night}
+ru Итоги ночи {night}
 
 app.digest.guests
 cs Obslouženo {served} · odešlo nespokojených {left}
 en Served {served} · left unhappy {left}
-sk Obslúžených {served} · odišlo nespokojných {left}
 uk Обслуговано {served} · пішли незадоволені {left}
+ru Обслужено {served} · ушли недовольными {left}
 
 app.digest.revenue
 cs Tržba {revenue}
 en Revenue {revenue}
-sk Tržba {revenue}
 uk Виторг {revenue}
+ru Выручка {revenue}
 
 app.digest.tips
 cs Dýška {tips}
 en Tips {tips}
-sk Prepitné {tips}
 uk Чайові {tips}
+ru Чаевые {tips}
 
 app.digest.best_seller
 cs Nejprodávanější: {item}
 en Best seller: {item}
-sk Najpredávanejšie: {item}
 uk Найпопулярніше: {item}
+ru Самое популярное: {item}
 
 app.digest.rating
 cs Hodnocení hostů {stars} ★
 en Guest rating {stars} ★
-sk Hodnotenie hostí {stars} ★
 uk Оцінка гостей {stars} ★
+ru Оценка гостей {stars} ★
 
 app.digest.star_of_night
 cs Hvězda noci: {name}
 en Star of the night: {name}
-sk Hviezda noci: {name}
 uk Зірка ночі: {name}
+ru Звезда ночи: {name}
 
 app.digest.quiet
 cs Klidná noc. Světlo svítilo do šesti.
 en A quiet night. The light stayed on until six.
-sk Pokojná noc. Svetlo svietilo do šiestej.
 uk Спокійна ніч. Світло горіло до шостої.
+ru Спокойная ночь. Свет горел до шести.
 
 app.payroll.title
 cs Podklady pro mzdy · týden {week}
 en Payroll basis · week {week}
-sk Podklady pre mzdy · týždeň {week}
 uk Дані для зарплати · тиждень {week}
+ru Данные для зарплаты · неделя {week}
 
 app.payroll.row
 cs {number} · {name} · {hours} h · {wage}
 en {number} · {name} · {hours} h · {wage}
-sk {number} · {name} · {hours} h · {wage}
 uk {number} · {name} · {hours} год · {wage}
+ru {number} · {name} · {hours} ч · {wage}
 
 app.payroll.night_bonus
 cs Z toho noční hodiny: {hours} h
 en Of which night hours: {hours} h
-sk Z toho nočné hodiny: {hours} h
 uk З них нічних годин: {hours} год
+ru Из них ночных часов: {hours} ч
 
 app.payroll.tips
 cs Dýška k rozdělení: {tips}
 en Tips to share: {tips}
-sk Prepitné na rozdelenie: {tips}
 uk Чайові до розподілу: {tips}
+ru Чаевые к распределению: {tips}
 
 app.payroll.total
 cs Celkem {hours} h · {total}
 en Total {hours} h · {total}
-sk Spolu {hours} h · {total}
 uk Разом {hours} год · {total}
+ru Итого {hours} ч · {total}
 
 app.payroll.footer
 cs Export pro účetní. Úhledně, jak má být.
 en Export for the accountant. Neat, the way it should be.
-sk Export pre účtovníčku. Úhľadne, ako sa patrí.
 uk Експорт для бухгалтерки. Охайно, як годиться.
+ru Экспорт для бухгалтерии. Аккуратно, как положено.
 
 app.handover.quiet
 cs Klidná noc, nic se nedělo. Kávovar je hodný.
 en Quiet night, nothing happened. The coffee machine is behaving.
-sk Pokojná noc, nič sa nedialo. Kávovar je dobrý.
 uk Спокійна ніч, нічого не сталося. Кавоварка поводиться добре.
+ru Спокойная ночь, ничего не случилось. Кофемашина ведёт себя хорошо.
 
 app.handover.busy
 cs Fofr. Došlo: {item}. Prosím objednat.
 en Busy. We ran out of {item}. Please reorder.
-sk Fofr. Došlo: {item}. Prosím objednať.
 uk Шалена ніч. Закінчилося: {item}. Будь ласка, дозамовте.
+ru Безумная ночь. Закончилось: {item}. Пожалуйста, дозакажите.
 
 app.handover.broken
 cs Pozor: {thing} zlobí. Nesahat bez rukavic.
 en Careful: {thing} is acting up. Don't touch it without gloves.
-sk Pozor: {thing} zlobí. Nesiahať bez rukavíc.
 uk Обережно: {thing} вередує. Без рукавиць не чіпати.
+ru Осторожно: {thing} капризничает. Без перчаток не трогать.
 
 app.handover.regular
 cs Hledá vás {name}. Asi přijde zase.
 en {name} was asking about you. Probably coming back.
-sk Hľadá vás {name}. Asi príde zase.
 uk Вас шукає {name}. Мабуть, прийде знову.
+ru Вас спрашивал(а) {name}. Наверное, придёт снова.
 
 app.handover.signature
 cs — {name}
 en — {name}
-sk — {name}
 uk — {name}
+ru — {name}

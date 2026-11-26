@@ -3,41 +3,41 @@
 train.announce.arrival
 cs Vážení cestující, vlak {train} ze stanice {from} do stanice {to}, pravidelný příjezd {time}, přijíždí k nástupišti {platform}.
 en Train {train} from {from} to {to} is arriving at {time} at platform {platform}.
-sk Vážení cestujúci, vlak {train} zo stanice {from} do stanice {to} prichádza o {time} k nástupišťu {platform}.
 uk Шановні пасажири, поїзд {train} зі станції {from} до станції {to} прибуває о {time} на платформу {platform}.
+ru Уважаемые пассажиры, поезд {train} со станции {from} до станции {to} прибывает в {time} на платформу {platform}.
 
 train.announce.delay
 cs Vážení cestující, vlak {train} ze stanice {from} do stanice {to}, pravidelný příjezd {time}, nástupiště {platform}, má zpoždění. Děkujeme za trpělivost.
 en Train {train} from {from} to {to}, due at {time} at platform {platform}, is delayed. Thank you for your patience.
-sk Vážení cestujúci, vlak {train} zo stanice {from} do stanice {to}, s pravidelným príchodom o {time} k nástupišťu {platform}, mešká. Ďakujeme za trpezlivosť.
 uk Шановні пасажири, поїзд {train} зі станції {from} до станції {to}, що мав прибути о {time} на платформу {platform}, затримується. Дякуємо за терпіння.
+ru Уважаемые пассажиры, поезд {train} со станции {from} до станции {to}, который должен был прибыть в {time} на платформу {platform}, задерживается. Спасибо за терпение.
 
 train.os_2141.name
 cs Os 2141 — osobní z Adamova
 en Os 2141 — regional from Adamov
-sk Os 2141 — osobný z Adamova
 uk Os 2141 — регіональний з Adamov
+ru Os 2141 — региональный из Adamov
 
 train.en_471.name
 cs EN 471 — noční expres Cheb → Frýdlant
 en EN 471 — night express Cheb → Frýdlant
-sk EN 471 — nočný expres Cheb → Frýdlant
 uk EN 471 — нічний експрес Cheb → Frýdlant
+ru EN 471 — ночной экспресс Cheb → Frýdlant
 
 train.nex_9002.name
 cs Nex 9002 — samořízený nákladní
 en Nex 9002 — self-driving freight
-sk Nex 9002 — samoriadený nákladný
 uk Nex 9002 — безпілотний вантажний
+ru Nex 9002 — беспилотный грузовой
 
 train.rn_333.name
 cs Rn 333 — v jízdním řádu od roku 1979 není
 en Rn 333 — not in any timetable since 1979
-sk Rn 333 — v cestovnom poriadku od roku 1979 nie je
 uk Rn 333 — у розкладі немає з 1979 року
+ru Rn 333 — нет ни в одном расписании с 1979 года
 
 train.r_815.name
 cs R 815 — rychlík Frýdlant → Beroun
 en R 815 — fast train Frýdlant → Beroun
-sk R 815 — rýchlik Frýdlant → Beroun
 uk R 815 — швидкий Frýdlant → Beroun
+ru R 815 — скорый Frýdlant → Beroun

@@ -1,4 +1,4 @@
-//! Regenerates `assets/i18n/{cs,en,sk,uk}.ron` from the side-by-side sources
+//! Regenerates `assets/i18n/{cs,en,uk,ru}.ron` from the side-by-side sources
 //! `assets/i18n/src/*.tr`. Run after editing any `.tr` file:
 //!
 //! ```sh

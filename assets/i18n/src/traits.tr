@@ -3,191 +3,191 @@
 trait.night_owl.name
 cs Sova
 en Night Owl
-sk Sova
 uk Сова
+ru Сова
 
 trait.night_owl.desc
 cs V noci ožívá, ve dne spí jako dřevo. Po půlnoci se unaví mnohem pomaleji.
 en Comes alive at night, sleeps like a log by day. Tires much more slowly after midnight.
-sk V noci ožíva, cez deň spí ako zabitý. Po polnoci sa unaví oveľa pomalšie.
 uk Оживає вночі, а вдень спить як убитий. Після півночі втомлюється значно повільніше.
+ru Оживает ночью, а днём спит как убитый. После полуночи устаёт гораздо медленнее.
 
 trait.early_bird.name
 cs Skřivan
 en Early Bird
-sk Škovránok
 uk Жайворонок
+ru Жаворонок
 
 trait.early_bird.desc
 cs Do půlnoci je k nezastavení, po druhé hodině jako v mlze.
 en Unstoppable until midnight, foggy after two.
-sk Do polnoci je k nezastaveniu, po druhej ako v hmle.
 uk До півночі невтомний, після другої — як у тумані.
+ru До полуночи неутомим, после двух — как в тумане.
 
 trait.chatterbox.name
 cs Upovídaný
 en Chatterbox
-sk Vravný
 uk Балакун
+ru Болтун
 
 trait.chatterbox.desc
 cs Ví všechno o všech hostech. Hosté ho milují, jen práce jde pomaleji, když je klid.
 en Knows everything about every guest. Guests love it; work slows down when it's quiet.
-sk Vie všetko o všetkých hosťoch. Hostia ho milujú, len práca ide pomalšie, keď je pokoj.
 uk Знає все про всіх гостей. Гості в захваті, а от робота сповільнюється, коли тихо.
+ru Знает всё обо всех гостях. Гости в восторге, а вот работа замедляется, когда тихо.
 
 trait.loner.name
 cs Samotář
 en Loner
-sk Samotár
 uk Відлюдник
+ru Одиночка
 
 trait.loner.desc
 cs Nejlíp pracuje, když ho nikdo neruší. V davu kolegů mu klesá nálada.
 en Works best when nobody's around. A crowd of colleagues wears down the mood.
-sk Najlepšie pracuje, keď ho nikto neruší. V dave kolegov mu klesá nálada.
 uk Найкраще працює, коли ніхто не заважає. Від натовпу колег псується настрій.
+ru Лучше всего работает, когда никто не мешает. От толпы коллег портится настроение.
 
 trait.clumsy.name
 cs Nešika
 en Clumsy
-sk Nemotorný
 uk Незграба
+ru Растяпа
 
 trait.clumsy.desc
 cs Ruce dělají něco jiného, než měly v plánu. Občas cinkne nádobí.
 en The hands have other plans. Every now and then, a plate goes clink.
-sk Ruky robia niečo iné, než mali v pláne. Občas cinkne riad.
 uk Руки мають власні плани. Час від часу дзенькає посуд.
+ru У рук свои планы. То и дело звякает посуда.
 
 trait.perfectionist.name
 cs Perfekcionista
 en Perfectionist
-sk Perfekcionista
 uk Перфекціоніст
+ru Перфекционист
 
 trait.perfectionist.desc
 cs Pomalu, ale dokonale. Lepší dýška — a špatná nálada ze špíny.
 en Slow, but perfect. Better tips — and a bad mood when things get dirty.
-sk Pomaly, ale dokonale. Lepšie prepitné — a zlá nálada zo špiny.
 uk Повільно, зате бездоганно. Більші чайові — і зіпсований настрій від бруду.
+ru Медленно, зато безупречно. Чаевые больше — а от грязи портится настроение.
 
 trait.lazy.name
 cs Lenoch
 en Lazy
-sk Lenivec
 uk Ледар
+ru Лентяй
 
 trait.lazy.desc
 cs Pauza je posvátná. Pracuje pomaleji, ale taky se tolik neunaví.
 en Breaks are sacred. Works slower, but doesn't tire as fast either.
-sk Prestávka je posvätná. Pracuje pomalšie, ale ani sa toľko neunaví.
 uk Перерва — це святе. Працює повільніше, зате й менше втомлюється.
+ru Перерыв — это святое. Работает медленнее, зато и устаёт меньше.
 
 trait.hard_worker.name
 cs Dříč
 en Hard Worker
-sk Drina
 uk Трудяга
+ru Трудяга
 
 trait.hard_worker.desc
 cs Neodejde, dokud to nedodělá. Při frontě vynechá pauzu — a pak je k smrti unavený.
 en Won't leave until it's done. Skips breaks when there's a queue — and pays for it later.
-sk Neodíde, kým to nedokončí. Pri rade vynechá prestávku — a potom je na smrť unavený.
 uk Не піде, доки не доробить. Коли черга, пропускає перерву — а потім валиться з ніг.
+ru Не уйдёт, пока не доделает. Когда очередь, пропускает перерыв — а потом валится с ног.
 
 trait.grumpy.name
 cs Bručoun
 en Grumpy
-sk Bručko
 uk Буркотун
+ru Ворчун
 
 trait.grumpy.desc
 cs Bručí, ale řemeslo umí. Trpěliví hosté mají jeho „pravý charakter" rádi.
 en Grumbles, but knows the trade. Patient guests like the "real character".
-sk Bručí, ale remeslo ovláda. Trpezliví hostia majú jeho „pravý charakter" radi.
 uk Бурчить, але справу знає. Терплячим гостям подобається його «справжній характер».
+ru Ворчит, но дело знает. Терпеливым гостям нравится его «настоящий характер».
 
 trait.kind.name
 cs Dobrák
 en Kind
-sk Dobrák
 uk Добряк
+ru Добряк
 
 trait.kind.desc
 cs Utěší hosta i kolegu. Vedle něj mají všichni o trochu lepší náladu.
 en Comforts guests and colleagues alike. Everyone nearby feels a little better.
-sk Uteší hosťa aj kolegu. Vedľa neho majú všetci o trochu lepšiu náladu.
 uk Утішить і гостя, і колегу. Поруч із ним усім трохи легше.
+ru Утешит и гостя, и коллегу. Рядом с ним всем немного легче.
 
 trait.anxious.name
 cs Úzkostný
 en Anxious
-sk Úzkostlivý
 uk Тривожний
+ru Тревожный
 
 trait.anxious.desc
 cs Bojí se chyby, a když je fronta, dělá je. U pokladny je ale pečlivý.
 en Afraid of mistakes — and makes them when the queue grows. Careful at the register, though.
-sk Bojí sa chyby, a keď je rad, robí ich. Pri pokladni je však dôkladný.
 uk Боїться помилитися — і помиляється, коли росте черга. Зате на касі дуже уважний.
+ru Боится ошибиться — и ошибается, когда растёт очередь. Зато на кассе очень внимателен.
 
 trait.calm.name
 cs Klidas
 en Calm
-sk Pokojný
 uk Незворушний
+ru Невозмутимый
 
 trait.calm.desc
 cs Výpadek proudu? Tak zapálíme svíčky. Špatné zprávy na něj platí jen napůl.
 en Power cut? Then we light candles. Bad news only half reaches them.
-sk Výpadok prúdu? Tak zapálime sviečky. Zlé správy na neho platia len napoly.
 uk Світло згасло? То запалимо свічки. Погані новини діють на нього лише наполовину.
+ru Свет погас? Значит, зажжём свечи. Плохие новости действуют на него лишь наполовину.
 
 trait.music_lover.name
 cs Muzikant
 en Music Lover
-sk Meloman
 uk Меломан
+ru Меломан
 
 trait.music_lover.desc
 cs Pracuje do rytmu. S hudbou kvete, v tichu vadne — a rádio si pustí sám.
 en Works to the beat. Blooms with music, wilts in silence — and turns the radio on unasked.
-sk Pracuje do rytmu. S hudbou kvitne, v tichu vädne — a rádio si pustí sám.
 uk Працює в ритмі. З музикою розквітає, у тиші в'яне — і сам вмикає радіо.
+ru Работает в ритме. С музыкой расцветает, в тишине вянет — и сам включает радио.
 
 trait.light_sleeper.name
 cs Lehký spánek
 en Light Sleeper
-sk Ľahký spánok
 uk Чуйний сон
+ru Чуткий сон
 
 trait.light_sleeper.desc
 cs Slyší, co ostatní ne. Všimne si hosta ve 3:33 a občas tuší, co přijde.
 en Hears what others don't. Notices the 3:33 guest and sometimes senses what's coming.
-sk Počuje, čo ostatní nie. Všimne si hosťa o 3:33 a občas tuší, čo príde.
 uk Чує те, чого не чують інші. Помічає гостя о 3:33 і часом передчуває, що буде.
+ru Слышит то, чего не слышат другие. Замечает гостя в 3:33 и порой предчувствует, что будет.
 
 trait.neat.name
 cs Pořádkumilovný
 en Neat
-sk Poriadkumilovný
 uk Охайний
+ru Аккуратист
 
 trait.neat.desc
 cs Nepřejde kolem skvrny. Uklízí rychleji a sám od sebe.
 en Can't walk past a stain. Cleans faster, and without being asked.
-sk Neprejde okolo škvrny. Upratuje rýchlejšie a sám od seba.
 uk Не пройде повз пляму. Прибирає швидше і без нагадувань.
+ru Не пройдёт мимо пятна. Убирает быстрее и без напоминаний.
 
 trait.romantic.name
 cs Romantik
 en Romantic
-sk Romantik
 uk Романтик
+ru Романтик
 
 trait.romantic.desc
 cs Zamilovává se do kolegů i do deště. Za deštivé noci je mu líp.
 en Falls in love with colleagues and with the rain. Rainy nights lift the mood.
-sk Zaľúbi sa do kolegov aj do dažďa. Za daždivej noci je mu lepšie.
 uk Закохується в колег і в дощ. Дощові ночі піднімають йому настрій.
+ru Влюбляется в коллег и в дождь. Дождливые ночи поднимают ему настроение.

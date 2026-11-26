@@ -3,191 +3,191 @@
 menu.black_coffee.name
 cs Černá jako u Lidy
 en Black, Lida-style
-sk Čierna ako u Lidy
 uk Чорна, як у Ліди
+ru Чёрный, как у Лиды
 
 menu.black_coffee.desc
 cs Silná, až v ní stojí lžička.
 en Strong enough to stand a spoon in.
-sk Silná, až v nej stojí lyžička.
 uk Така міцна, що ложечка стоїть.
+ru Такой крепкий, что ложечка стоит.
 
 menu.cappuccino.name
 cs Cappuccino
 en Cappuccino
-sk Cappuccino
 uk Капучино
+ru Капучино
 
 menu.cappuccino.desc
 cs Mléčná pěna a pět minut klidu.
 en Milk foam and five minutes of peace.
-sk Mliečna pena a päť minút pokoja.
 uk Молочна пінка й п'ять хвилин спокою.
+ru Молочная пенка и пять минут покоя.
 
 menu.oat_flat_white.name
 cs Ovesné flat white
 en Oat flat white
-sk Ovsené flat white
 uk Вівсяний флет вайт
+ru Флэт уайт на овсяном
 
 menu.oat_flat_white.desc
 cs Pro dronaře a všechny, kdo si myslí, že kráva spí.
 en For drone pilots and anyone who thinks the cow is asleep.
-sk Pre dronárov a všetkých, čo si myslia, že krava spí.
 uk Для операторів дронів і всіх, хто вважає, що корова спить.
+ru Для операторов дронов и всех, кто думает, что корова спит.
 
 menu.lemon_tea.name
 cs Čaj s citronem
 en Tea with lemon
-sk Čaj s citrónom
 uk Чай із лимоном
+ru Чай с лимоном
 
 menu.lemon_tea.desc
 cs Dva cukry, pokud jste ten pán u okna.
 en Two sugars, if you're the gentleman by the window.
-sk Dva cukry, ak ste ten pán pri okne.
 uk Два цукри, якщо ви той пан біля вікна.
+ru Два сахара, если вы тот господин у окна.
 
 menu.chai.name
 cs Kořeněný chai
 en Spiced chai
-sk Korenistý chai
 uk Пряний чай масала
+ru Пряный чай масала
 
 menu.chai.desc
 cs Skořice, kardamom a vůně, která drží až do rána.
 en Cinnamon, cardamom and a scent that lasts till morning.
-sk Škorica, kardamón a vôňa, ktorá vydrží do rána.
 uk Кориця, кардамон і аромат, що тримається до ранку.
+ru Корица, кардамон и аромат, который держится до утра.
 
 menu.hot_chocolate.name
 cs Horká čokoláda
 en Hot chocolate
-sk Horúca čokoláda
 uk Гарячий шоколад
+ru Горячий шоколад
 
 menu.hot_chocolate.desc
 cs Hustá jako noc. Někdy se platí písničkou.
 en Thick as the night. Sometimes paid for with a song.
-sk Hustá ako noc. Niekedy sa platí pesničkou.
 uk Густий, як ніч. Іноді за нього платять піснею.
+ru Густой, как ночь. Иногда за него платят песней.
 
 menu.svarak.name
 cs Svařák
 en Mulled wine
-sk Varené víno
 uk Глінтвейн
+ru Глинтвейн
 
 menu.svarak.desc
 cs Hřebíček, pomeranč a zahřáté ruce.
 en Cloves, orange and warm hands.
-sk Klinček, pomaranč a zahriate ruky.
 uk Гвоздика, апельсин і зігріті руки.
+ru Гвоздика, апельсин и согретые руки.
 
 menu.topinka.name
 cs Topinka s česnekem
 en Garlic toast
-sk Hrianka s cesnakom
 uk Грінка з часником
+ru Тост с чесноком
 
 menu.topinka.desc
 cs Na sádle, jak má být. Mirkova klasika.
 en Fried in lard, the proper way. A Mirek classic.
-sk Na masti, ako sa patrí. Mirkova klasika.
 uk Підсмажена на смальці, як годиться. Міркова класика.
+ru Поджаренный на смальце, как положено. Классика Мирека.
 
 menu.garlic_soup.name
 cs Česnečka
 en Garlic soup
-sk Cesnaková polievka
 uk Часниковий суп
+ru Чесночный суп
 
 menu.garlic_soup.desc
 cs Se sýrem a krutony. Zažene zimu i noční směnu.
 en With cheese and croutons. Chases off the cold and the night shift.
-sk So syrom a krutónmi. Zaženie zimu aj nočnú zmenu.
 uk Із сиром і грінками. Проганяє холод і нічну зміну.
+ru С сыром и гренками. Прогоняет холод и ночную смену.
 
 menu.grandma_kulajda.name
 cs Babiččina kulajda
 en Grandma's kulajda
-sk Babkina kulajda
 uk Бабусина кулайда
+ru Бабушкина кулайда
 
 menu.grandma_kulajda.desc
 cs Kopr, houby, ztracené vejce — a tajná přísada z Lidiny kuchařky.
 en Dill, mushrooms, a poached egg — and the secret ingredient from Lida's book.
-sk Kôpor, huby, stratené vajce — a tajná prísada z Lidinej kuchárskej knihy.
 uk Кріп, гриби, яйце-пашот — і таємний інгредієнт із Лідиної книги.
+ru Укроп, грибы, яйцо-пашот — и тайный ингредиент из Лидиной книги.
 
 menu.varenyky.name
 cs Vareniky
 en Varenyky
-sk Vareniky
 uk Вареники
+ru Вареники
 
 menu.varenyky.desc
 cs S bramborem a smaženou cibulkou, podle Olehovy mámy.
 en With potato and fried onion, the way Oleh's mum makes them.
-sk So zemiakmi a opraženou cibuľkou, podľa Olehovej mamy.
 uk З картоплею і смаженою цибулькою, як у мами Олега.
+ru С картошкой и жареным лучком, как у мамы Олега.
 
 menu.bryndzove_pirohy.name
 cs Bryndzové pirohy
 en Bryndza pierogi
-sk Bryndzové pirohy
 uk Пироги з бринзою
+ru Пироги с брынзой
 
 menu.bryndzove_pirohy.desc
 cs Se slaninkou a smetanou. Natália na ně nedá dopustit.
 en With bacon and sour cream. Natália won't hear a word against them.
-sk So slaninkou a smotanou. Natália na ne nedá dopustiť.
 uk Із сальцем і сметаною. Наталія не дасть про них сказати лихого слова.
+ru С салом и сметаной. Наталия не даст сказать о них дурного слова.
 
 menu.chlebicek.name
 cs Chlebíček
 en Open sandwich
-sk Obložený chlebík
 uk Канапка
+ru Бутерброд
 
 menu.chlebicek.desc
 cs Šunka, vajíčko, okurka. Funguje i bez proudu.
 en Ham, egg, gherkin. Works even without electricity.
-sk Šunka, vajíčko, uhorka. Funguje aj bez prúdu.
 uk Шинка, яйце, огірок. Працює навіть без світла.
+ru Ветчина, яйцо, огурчик. Работает даже без света.
 
 menu.kolac.name
 cs Koláč
 en Kolach
-sk Koláčik
 uk Колач
+ru Колач
 
 menu.kolac.desc
 cs Tvaroh a mák, ještě teplý z trouby.
 en Quark and poppy seed, still warm from the oven.
-sk Tvaroh a mak, ešte teplý z rúry.
 uk Сир і мак, ще теплий з духовки.
+ru Творог и мак, ещё тёплый из духовки.
 
 menu.medovnik.name
 cs Medovník
 en Honey cake
-sk Medovník
 uk Медовик
+ru Медовик
 
 menu.medovnik.desc
 cs Dvanáct plátů a trpělivost.
 en Twelve layers and patience.
-sk Dvanásť plátov a trpezlivosť.
 uk Дванадцять коржів і терпіння.
+ru Двенадцать коржей и терпение.
 
 menu.night_train.name
 cs Noční vlak
 en The Night Train
-sk Nočný vlak
 uk Нічний поїзд
+ru Ночной поезд
 
 menu.night_train.desc
 cs Dvojité espresso, topinka a koláč na cestu. Pro ty, kdo jedou dál.
 en A double espresso, garlic toast and a kolach for the road. For those travelling on.
-sk Dvojité espresso, hrianka a koláčik na cestu. Pre tých, čo idú ďalej.
 uk Подвійне еспресо, грінка й колач у дорогу. Для тих, хто їде далі.
+ru Двойной эспрессо, тост и колач в дорогу. Для тех, кто едет дальше.

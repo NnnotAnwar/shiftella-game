@@ -3,1097 +3,1097 @@
 ui.hud.night
 cs Noc {night}
 en Night {night}
-sk Noc {night}
 uk Ніч {night}
+ru Ночь {night}
 
 ui.hud.night_of
 cs Noc {night} z {total}
 en Night {night} of {total}
-sk Noc {night} z {total}
 uk Ніч {night} з {total}
+ru Ночь {night} из {total}
 
 ui.hud.day_night
 cs {weekday} · noc {night}
 en {weekday} · night {night}
-sk {weekday} · noc {night}
 uk {weekday} · ніч {night}
+ru {weekday} · ночь {night}
 
 ui.hud.time
 cs Čas
 en Time
-sk Čas
 uk Час
+ru Время
 
 ui.hud.money
 cs Peníze
 en Money
-sk Peniaze
 uk Гроші
+ru Деньги
 
 ui.hud.reputation
 cs Reputace
 en Reputation
-sk Reputácia
 uk Репутація
+ru Репутация
 
 ui.hud.guests
 cs Hosté
 en Guests
-sk Hostia
 uk Гості
+ru Гости
 
 ui.hud.guests_value
 cs {count} / {cap}
 en {count} / {cap}
-sk {count} / {cap}
 uk {count} / {cap}
+ru {count} / {cap}
 
 ui.hud.queue
 cs fronta {n}
 en queue {n}
-sk rad {n}
 uk черга {n}
+ru очередь {n}
 
 ui.hud.tonight
 cs {money} za noc
 en {money} tonight
-sk {money} za noc
 uk {money} за ніч
+ru {money} за ночь
 
 ui.hud.debt
 cs Dluh {money}
 en Debt {money}
-sk Dlh {money}
 uk Борг {money}
+ru Долг {money}
 
 ui.hud.next_payment
 cs Splátka {money} · noc {night}
 en Payment {money} · night {night}
-sk Splátka {money} · noc {night}
 uk Платіж {money} · ніч {night}
+ru Платёж {money} · ночь {night}
 
 ui.hud.train_tip
 cs Vlak {time} · čeká se ~{guests} hostů
 en Train {time} · ~{guests} guests expected
-sk Vlak {time} · čaká sa ~{guests} hostí
 uk Поїзд {time} · очікується ~{guests} гостей
+ru Поезд {time} · ожидается ~{guests} гостей
 
 ui.hud.log
 cs Deník
 en Log
-sk Denník
 uk Журнал
+ru Журнал
 
 ui.speed.pause
 cs Pauza (mezerník)
 en Pause (Space)
-sk Pauza (medzerník)
 uk Пауза (пробіл)
+ru Пауза (пробел)
 
 ui.speed.normal
 cs Rychlost ×1 (1)
 en Speed ×1 (1)
-sk Rýchlosť ×1 (1)
 uk Швидкість ×1 (1)
+ru Скорость ×1 (1)
 
 ui.speed.fast
 cs Rychlost ×2 (2)
 en Speed ×2 (2)
-sk Rýchlosť ×2 (2)
 uk Швидкість ×2 (2)
+ru Скорость ×2 (2)
 
 ui.speed.faster
 cs Rychlost ×3 (3)
 en Speed ×3 (3)
-sk Rýchlosť ×3 (3)
 uk Швидкість ×3 (3)
+ru Скорость ×3 (3)
 
 ui.toolbar.crew
 cs Personál
 en Crew
-sk Personál
 uk Персонал
+ru Персонал
 
 ui.toolbar.priorities
 cs Priority
 en Priorities
-sk Priority
 uk Пріоритети
+ru Приоритеты
 
 ui.toolbar.app
 cs Shiftella
 en Shiftella
-sk Shiftella
 uk Shiftella
+ru Shiftella
 
 ui.toolbar.build
 cs Stavba
 en Build
-sk Stavba
 uk Будівництво
+ru Стройка
 
 ui.toolbar.log
 cs Deník
 en Log
-sk Denník
 uk Журнал
+ru Журнал
 
 ui.crew.title
 cs Personál
 en Crew
-sk Personál
 uk Персонал
+ru Персонал
 
 ui.crew.on_shift
 cs {on} na směně · {total} celkem
 en {on} on shift · {total} total
-sk {on} na zmene · {total} spolu
 uk {on} на зміні · {total} усього
+ru {on} на смене · {total} всего
 
 ui.crew.column_name
 cs ZAMĚSTNANEC
 en STAFF
-sk ZAMESTNANEC
 uk ПРАЦІВНИК
+ru СОТРУДНИК
 
 ui.crew.hire
 cs Najmout
 en Hire
-sk Zamestnať
 uk Найняти
+ru Нанять
 
 ui.crew.candidates
 cs kandidáti: {n}
 en candidates: {n}
-sk kandidáti: {n}
 uk кандидати: {n}
+ru кандидаты: {n}
 
 ui.crew.fire
 cs Propustit
 en Let go
-sk Prepustiť
 uk Звільнити
+ru Уволить
 
 ui.crew.fired_undo
 cs {name} odchází · Zpět
 en {name} is leaving · Undo
-sk {name} odchádza · Späť
 uk {name} іде · Скасувати
+ru {name} уходит · Отменить
 
 ui.crew.needs
 cs POTŘEBY
 en NEEDS
-sk POTREBY
 uk ПОТРЕБИ
+ru ПОТРЕБНОСТИ
 
 ui.crew.traits
 cs POVAHA
 en TRAITS
-sk POVAHA
 uk РИСИ
+ru ЧЕРТЫ
 
 ui.crew.skills
 cs DOVEDNOSTI
 en SKILLS
-sk ZRUČNOSTI
 uk НАВИЧКИ
+ru НАВЫКИ
 
 ui.crew.relationships
 cs VZTAHY
 en RELATIONSHIPS
-sk VZŤAHY
 uk СТОСУНКИ
+ru ОТНОШЕНИЯ
 
 ui.crew.sort
 cs Řazení
 en Sort
-sk Radenie
 uk Сортування
+ru Сортировка
 
 ui.crew.sort_name
 cs Jméno
 en Name
-sk Meno
 uk Ім'я
+ru Имя
 
 ui.crew.sort_energy
 cs Energie
 en Energy
-sk Energia
 uk Енергія
+ru Энергия
 
 ui.crew.sort_mood
 cs Nálada
 en Mood
-sk Nálada
 uk Настрій
+ru Настроение
 
 ui.crew.status_working
 cs pracuje
 en working
-sk pracuje
 uk працює
+ru работает
 
 ui.crew.status_break
 cs pauza
 en on break
-sk prestávka
 uk перерва
+ru перерыв
 
 ui.crew.status_off
 cs mimo směnu
 en off shift
-sk mimo zmeny
 uk не на зміні
+ru не на смене
 
 ui.crew.subtitle
 cs {role} · {age} let · {wage} za noc
 en {role} · age {age} · {wage} a night
-sk {role} · {age} rokov · {wage} za noc
 uk {role} · {age} р. · {wage} за ніч
+ru {role} · {age} л. · {wage} за ночь
 
 ui.crew.favourite_job
 cs oblíbená práce
 en favourite work
-sk obľúbená práca
 uk улюблена справа
+ru любимое дело
 
 ui.crew.likes
 cs Baví: {list}
 en Likes: {list}
-sk Baví: {list}
 uk Любить: {list}
+ru Любит: {list}
 
 ui.crew.dislikes
 cs Nebaví: {list}
 en Dislikes: {list}
-sk Nebaví: {list}
 uk Не любить: {list}
+ru Не любит: {list}
 
 ui.crew.rel_friend
 cs přátelé
 en friends
-sk priatelia
 uk друзі
+ru друзья
 
 ui.crew.rel_crush
 cs zamilovanost
 en crush
-sk zaľúbenosť
 uk закоханість
+ru влюблённость
 
 ui.crew.rel_rival
 cs napětí
 en friction
-sk napätie
 uk напруга
+ru напряжение
 
 ui.crew.rel_neutral
 cs kolegové
 en colleagues
-sk kolegovia
 uk колеги
+ru коллеги
 
 ui.crew.follow
 cs Sledovat kamerou
 en Follow with camera
-sk Sledovať kamerou
 uk Стежити камерою
+ru Следить камерой
 
 ui.priorities.title
 cs Priority práce
 en Work priorities
-sk Priority práce
 uk Пріоритети роботи
+ru Приоритеты работы
 
 ui.priorities.legend
 cs LMB — výš · PMB — níž · kolečko · tah — štětcem
 en LMB — higher · RMB — lower · wheel · drag — paint
-sk ĽTM — vyššie · PTM — nižšie · koliesko · ťah — štetcom
 uk ЛКМ — вище · ПКМ — нижче · коліщатко · тягни — пензлем
+ru ЛКМ — выше · ПКМ — ниже · колёсико · тяни — кистью
 
 ui.priorities.legend2
 cs Shift + klik na sloupec — všem · 1 = nejdůležitější, — = nedělá
 en Shift + click a column — everyone · 1 = most important, — = won't do
-sk Shift + klik na stĺpec — všetkým · 1 = najdôležitejšie, — = nerobí
 uk Shift + клік по стовпцю — усім · 1 = найважливіше, — = не робить
+ru Shift + клик по столбцу — всем · 1 = важнее всего, — = не делает
 
 ui.priorities.cell_tip
 cs dovednost {n} · kolečkem změníš
 en skill {n} · scroll to change
-sk zručnosť {n} · kolieskom zmeníš
 uk навичка {n} · коліщатком змінити
+ru навык {n} · колёсиком изменить
 
 ui.priorities.cannot
 cs Nemůže: {reason}
 en Can't: {reason}
-sk Nemôže: {reason}
 uk Не може: {reason}
+ru Не может: {reason}
 
 ui.app.title
 cs Shiftella
 en Shiftella
-sk Shiftella
 uk Shiftella
+ru Shiftella
 
 ui.app.tab.schedule
 cs Rozpis
 en Schedule
-sk Rozpis
 uk Розклад
+ru Расписание
 
 ui.app.tab.swaps
 cs Výměny
 en Swaps
-sk Výmeny
 uk Обміни
+ru Обмены
 
 ui.app.tab.time_off
 cs Volno
 en Time off
-sk Voľno
 uk Вихідні
+ru Выходные
 
 ui.app.tab.announcements
 cs Oznámení
 en Announcements
-sk Oznámenia
 uk Оголошення
+ru Объявления
 
 ui.app.tab.checklists
 cs Checklisty
 en Checklists
-sk Checklisty
 uk Чеклисти
+ru Чек-листы
 
 ui.app.tab.handover
 cs Předávka
 en Handover
-sk Odovzdávka
 uk Передача зміни
+ru Передача смены
 
 ui.app.tab.digest
 cs Přehled noci
 en Night digest
-sk Prehľad noci
 uk Підсумок ночі
+ru Итоги ночи
 
 ui.app.tab.payroll
 cs Podklady pro mzdy
 en Payroll basis
-sk Podklady pre mzdy
 uk Дані для зарплати
+ru Данные для зарплаты
 
 ui.app.tab.bot
 cs Zprávy
 en Messages
-sk Správy
 uk Повідомлення
+ru Сообщения
 
 ui.app.schedule_title
 cs Rozpis směn
 en Shift schedule
-sk Rozpis zmien
 uk Розклад змін
+ru Расписание смен
 
 ui.app.publish
 cs Zveřejnit rozpis
 en Publish schedule
-sk Zverejniť rozpis
 uk Опублікувати розклад
+ru Опубликовать расписание
 
 ui.app.published
 cs Zveřejněno · všichni dostali upozornění
 en Published · everyone notified
-sk Zverejnené · všetci dostali upozornenie
 uk Опубліковано · усіх сповіщено
+ru Опубликовано · все уведомлены
 
 ui.app.copy_yesterday
 cs Jako včera
 en Same as yesterday
-sk Ako včera
 uk Як учора
+ru Как вчера
 
 ui.app.clear
 cs Vyčistit
 en Clear
-sk Vyčistiť
 uk Очистити
+ru Очистить
 
 ui.app.coverage
 cs Pokrytí
 en Coverage
-sk Pokrytie
 uk Покриття
+ru Покрытие
 
 ui.app.coverage_hint
 cs je / potřeba
 en have / need
-sk je / treba
 uk є / треба
+ru есть / нужно
 
 ui.app.forecast
 cs Předpověď hostů
 en Guest forecast
-sk Predpoveď hostí
 uk Прогноз гостей
+ru Прогноз гостей
 
 ui.app.total
 cs Celkem {hours} h · {money}
 en Total {hours} h · {money}
-sk Spolu {hours} h · {money}
 uk Разом {hours} год · {money}
+ru Итого {hours} ч · {money}
 
 ui.app.hours
 cs HODINY
 en HOURS
-sk HODINY
 uk ГОДИНИ
+ru ЧАСЫ
 
 ui.app.day_off
 cs volno
 en day off
-sk voľno
 uk вихідний
+ru выходной
 
 ui.app.break
 cs pauza
 en break
-sk prestávka
 uk перерва
+ru перерыв
 
 ui.app.night_view_only
 cs Změny jen ve dne
 en Changes only during the day
-sk Zmeny len cez deň
 uk Зміни — лише вдень
+ru Менять — только днём
 
 ui.app.draw_hint
 cs Tah — směna · Shift + tah — pauza · PMB — smazat
 en Drag — shift · Shift + drag — break · RMB — erase
-sk Ťah — zmena · Shift + ťah — prestávka · PTM — zmazať
 uk Тягни — зміна · Shift + тягни — перерва · ПКМ — стерти
+ru Тяни — смена · Shift + тяни — перерыв · ПКМ — стереть
 
 ui.app.warn_overtime
 cs {name} má víc než 8 h v kuse.
 en {name} has more than 8 h in a row.
-sk {name} má viac ako 8 h v kuse.
 uk У {name} понад 8 год поспіль.
+ru {name}: больше 8 ч подряд.
 
 ui.app.warn_energy
 cs {name} má energii pod 25 %.
 en {name}'s energy is below 25%.
-sk {name} má energiu pod 25 %.
 uk Енергія {name} нижче 25%.
+ru {name}: энергия ниже 25%.
 
 ui.app.warn_understaffed
 cs Mezi {from} a {to} chybí lidi.
 en Not enough people between {from} and {to}.
-sk Medzi {from} a {to} chýbajú ľudia.
 uk Між {from} і {to} бракує людей.
+ru Между {from} и {to} не хватает людей.
 
 ui.app.fix_shorten
 cs Zkrátit na 4 h
 en Shorten to 4 h
-sk Skrátiť na 4 h
 uk Скоротити до 4 год
+ru Сократить до 4 ч
 
 ui.app.keep
 cs Nechat
 en Keep
-sk Nechať
 uk Залишити
+ru Оставить
 
 ui.app.approve
 cs Schválit
 en Approve
-sk Schváliť
 uk Погодити
+ru Одобрить
 
 ui.app.decline
 cs Zamítnout
 en Decline
-sk Zamietnuť
 uk Відхилити
+ru Отклонить
 
 ui.app.pending
 cs čeká na schválení
 en awaiting approval
-sk čaká na schválenie
 uk очікує погодження
+ru ждёт одобрения
 
 ui.app.time_off.vacation
 cs Dovolená
 en Holiday
-sk Dovolenka
 uk Відпустка
+ru Отпуск
 
 ui.app.time_off.toil
 cs Náhradní volno
 en Time off in lieu
-sk Náhradné voľno
 uk Відгул
+ru Отгул
 
 ui.app.time_off.sick
 cs Nemoc
 en Sick leave
-sk Choroba
 uk Лікарняний
+ru Больничный
 
 ui.app.checklist.opening
 cs Otevírání
 en Opening
-sk Otváranie
 uk Відкриття
+ru Открытие
 
 ui.app.checklist.closing
 cs Zavírání
 en Closing
-sk Zatváranie
 uk Закриття
+ru Закрытие
 
 ui.app.checklist.progress
 cs {done} z {total} hotovo
 en {done} of {total} done
-sk {done} z {total} hotovo
 uk {done} з {total} виконано
+ru {done} из {total} выполнено
 
 ui.app.handover_write
 cs Napsat předávku
 en Write a handover note
-sk Napísať odovzdávku
 uk Написати нотатку зміні
+ru Написать записку смене
 
 ui.app.payroll_export
 cs Exportovat
 en Export
-sk Exportovať
 uk Експортувати
+ru Экспорт
 
 ui.app.payroll_number
 cs Os. č.
 en Staff no.
-sk Os. č.
 uk Таб. №
+ru Таб. №
 
 ui.app.empty
 cs Zatím nic. Klidná noc.
 en Nothing yet. A quiet night.
-sk Zatiaľ nič. Pokojná noc.
 uk Поки нічого. Спокійна ніч.
+ru Пока ничего. Спокойная ночь.
 
 ui.build.title
 cs Stavba
 en Build
-sk Stavba
 uk Будівництво
+ru Стройка
 
 ui.build.tab.all
 cs Vše
 en All
-sk Všetko
 uk Усе
+ru Всё
 
 ui.build.tab.furniture
 cs Nábytek
 en Furniture
-sk Nábytok
 uk Меблі
+ru Мебель
 
 ui.build.tab.appliances
 cs Technika
 en Appliances
-sk Technika
 uk Техніка
+ru Техника
 
 ui.build.tab.counters
 cs Pulty
 en Counters
-sk Pulty
 uk Стійки
+ru Стойки
 
 ui.build.tab.decor
 cs Dekorace
 en Decor
-sk Dekorácie
 uk Декор
+ru Декор
 
 ui.build.tab.floors
 cs Podlahy
 en Floors
-sk Podlahy
 uk Підлога
+ru Пол
 
 ui.build.tab.structure
 cs Zdi a okna
 en Walls & windows
-sk Steny a okná
 uk Стіни й вікна
+ru Стены и окна
 
 ui.build.demolish
 cs Bourání
 en Demolish
-sk Búranie
 uk Знести
+ru Снести
 
 ui.build.hint
 cs R — otočit · PMB / Esc — zrušit · Tab — karty
 en R — rotate · RMB / Esc — cancel · Tab — tabs
-sk R — otočiť · PTM / Esc — zrušiť · Tab — karty
 uk R — повернути · ПКМ / Esc — скасувати · Tab — вкладки
+ru R — повернуть · ПКМ / Esc — отмена · Tab — вкладки
 
 ui.build.price
 cs −{money}
 en −{money}
-sk −{money}
 uk −{money}
+ru −{money}
 
 ui.build.refund
 cs Vráceno {money}
 en Refunded {money}
-sk Vrátené {money}
 uk Повернуто {money}
+ru Возвращено {money}
 
 ui.build.size
 cs {w}×{h} pole
 en {w}×{h} tiles
-sk {w}×{h} polia
 uk {w}×{h} клітинки
+ru {w}×{h} клеток
 
 ui.build.comfort
 cs Pohodlí +{n}
 en Comfort +{n}
-sk Pohodlie +{n}
 uk Комфорт +{n}
+ru Комфорт +{n}
 
 ui.build.beauty
 cs Krása +{n}
 en Beauty +{n}
-sk Krása +{n}
 uk Краса +{n}
+ru Красота +{n}
 
 ui.build.unique
 cs Jen jeden kus
 en One of a kind
-sk Len jeden kus
 uk Лише один
+ru Только один
 
 ui.build.locked
 cs Odemkne se v noci {night}
 en Unlocks on night {night}
-sk Odomkne sa v noci {night}
 uk Відкриється в ніч {night}
+ru Откроется в ночь {night}
 
 ui.plan.title
 cs Plánování · den {day}
 en Planning · day {day}
-sk Plánovanie · deň {day}
 uk Планування · день {day}
+ru Планирование · день {day}
 
 ui.plan.next_night
 cs další noc: {weekday}, 22:00–06:00
 en next night: {weekday}, 22:00–06:00
-sk ďalšia noc: {weekday}, 22:00–06:00
 uk наступна ніч: {weekday}, 22:00–06:00
+ru следующая ночь: {weekday}, 22:00–06:00
 
 ui.plan.forecast_rain
 cs déšť {n} %
 en rain {n}%
-sk dážď {n} %
 uk дощ {n}%
+ru дождь {n}%
 
 ui.plan.forecast_trains
 cs vlaky {times}
 en trains {times}
-sk vlaky {times}
 uk поїзди {times}
+ru поезда {times}
 
 ui.plan.forecast_guests
 cs předpověď ~{n} hostů
 en forecast ~{n} guests
-sk predpoveď ~{n} hostí
 uk прогноз ~{n} гостей
+ru прогноз ~{n} гостей
 
 ui.plan.restock
 cs Nakoupit zásoby
 en Restock
-sk Nakúpiť zásoby
 uk Закупити запаси
+ru Закупить запасы
 
 ui.plan.restock_cost
 cs Zásoby na noc: {money}
 en Stock for the night: {money}
-sk Zásoby na noc: {money}
 uk Запаси на ніч: {money}
+ru Запасы на ночь: {money}
 
 ui.plan.start_night
 cs Začít noc
 en Start the night
-sk Začať noc
 uk Почати ніч
+ru Начать ночь
 
 ui.summary.title
 cs Ráno po noci {night}
 en Morning after night {night}
-sk Ráno po noci {night}
 uk Ранок після ночі {night}
+ru Утро после ночи {night}
 
 ui.summary.revenue
 cs Tržba
 en Revenue
-sk Tržba
 uk Виторг
+ru Выручка
 
 ui.summary.tips
 cs Dýška
 en Tips
-sk Prepitné
 uk Чайові
+ru Чаевые
 
 ui.summary.wages
 cs Mzdy
 en Wages
-sk Mzdy
 uk Зарплати
+ru Зарплаты
 
 ui.summary.supplies
 cs Zásoby
 en Supplies
-sk Zásoby
 uk Запаси
+ru Запасы
 
 ui.summary.profit
 cs Zisk za noc
 en Night's profit
-sk Zisk za noc
 uk Прибуток за ніч
+ru Прибыль за ночь
 
 ui.summary.served
 cs Obsloužení hosté
 en Guests served
-sk Obslúžení hostia
 uk Обслуговано гостей
+ru Обслужено гостей
 
 ui.summary.left_unhappy
 cs Odešli nespokojení
 en Left unhappy
-sk Odišli nespokojní
 uk Пішли незадоволені
+ru Ушли недовольными
 
 ui.summary.reviews
 cs Recenze
 en Reviews
-sk Recenzie
 uk Відгуки
+ru Отзывы
 
 ui.summary.reputation
 cs Reputace {value} ({delta})
 en Reputation {value} ({delta})
-sk Reputácia {value} ({delta})
 uk Репутація {value} ({delta})
+ru Репутация {value} ({delta})
 
 ui.summary.debt_left
 cs Zbývá dluh
 en Debt remaining
-sk Zostáva dlh
 uk Залишок боргу
+ru Остаток долга
 
 ui.summary.notes_found
 cs Lidiny vzkazy: {n} z 10
 en Lida's notes: {n} of 10
-sk Lidine odkazy: {n} z 10
 uk Записки Ліди: {n} з 10
+ru Записки Лиды: {n} из 10
 
 ui.summary.continue
 cs Na den
 en To the day
-sk Na deň
 uk До дня
+ru К дню
 
 ui.log.title
 cs Deník
 en Log
-sk Denník
 uk Журнал
+ru Журнал
 
 ui.log.empty
 cs Zatím je klid.
 en All quiet so far.
-sk Zatiaľ je pokoj.
 uk Поки що тихо.
+ru Пока всё тихо.
 
 ui.toast.hide_all
 cs Skrýt upozornění (Shift+F)
 en Hide toasts (Shift+F)
-sk Skryť upozornenia (Shift+F)
 uk Сховати сповіщення (Shift+F)
+ru Скрыть уведомления (Shift+F)
 
 ui.save.title
 cs Uložené hry
 en Saved games
-sk Uložené hry
 uk Збереження
+ru Сохранения
 
 ui.save.save
 cs Uložit
 en Save
-sk Uložiť
 uk Зберегти
+ru Сохранить
 
 ui.save.load
 cs Načíst
 en Load
-sk Načítať
 uk Завантажити
+ru Загрузить
 
 ui.save.delete
 cs Smazat
 en Delete
-sk Zmazať
 uk Видалити
+ru Удалить
 
 ui.save.autosave
 cs Automatické uložení
 en Autosave
-sk Automatické uloženie
 uk Автозбереження
+ru Автосохранение
 
 ui.save.slot
 cs {mode} · noc {night} · {time}
 en {mode} · night {night} · {time}
-sk {mode} · noc {night} · {time}
 uk {mode} · ніч {night} · {time}
+ru {mode} · ночь {night} · {time}
 
 ui.save.empty_slot
 cs Prázdná pozice
 en Empty slot
-sk Prázdna pozícia
 uk Порожній слот
+ru Пустой слот
 
 ui.save.saved
 cs Uloženo
 en Saved
-sk Uložené
 uk Збережено
+ru Сохранено
 
 ui.save.overwrite
 cs Přepsat?
 en Overwrite?
-sk Prepísať?
 uk Перезаписати?
+ru Перезаписать?
 
 ui.save.failed
 cs Uložení se nepovedlo: {reason}
 en Saving failed: {reason}
-sk Uloženie sa nepodarilo: {reason}
 uk Не вдалося зберегти: {reason}
+ru Не удалось сохранить: {reason}
 
 ui.cutscene.next
 cs Klikni pro pokračování
 en Click to continue
-sk Klikni pre pokračovanie
 uk Клацни, щоб продовжити
+ru Нажми, чтобы продолжить
 
 ui.cutscene.skip
 cs Přeskočit
 en Skip
-sk Preskočiť
 uk Пропустити
+ru Пропустить
 
 ui.cutscene.hold_to_skip
 cs Podrž Esc pro přeskočení
 en Hold Esc to skip
-sk Podrž Esc na preskočenie
 uk Утримуй Esc, щоб пропустити
+ru Удерживай Esc, чтобы пропустить
 
 ui.ending.title
 cs Konec příběhu
 en The end of the story
-sk Koniec príbehu
 uk Кінець історії
+ru Конец истории
 
 ui.ending.extra_unlocked
 cs Odemčen epilog: {title}
 en Epilogue unlocked: {title}
-sk Odomknutý epilóg: {title}
 uk Відкрито епілог: {title}
+ru Открыт эпилог: {title}
 
 ui.ending.arcs
 cs Příběhy štamgastů s dobrým koncem: {n} ze 7
 en Regulars' stories with a good end: {n} of 7
-sk Príbehy štamgastov s dobrým koncom: {n} zo 7
 uk Історії постійних гостей із добрим фіналом: {n} із 7
+ru Истории постоянных гостей с добрым финалом: {n} из 7
 
 ui.ending.credits
 cs Titulky
 en Credits
-sk Titulky
 uk Титри
+ru Титры
 
 ui.ending.continue_sandbox
 cs Pokračovat v sandboxu
 en Keep playing in sandbox
-sk Pokračovať v sandboxe
 uk Продовжити в пісочниці
+ru Продолжить в песочнице
 
 ui.ending.back_to_menu
 cs Do hlavního menu
 en Back to main menu
-sk Do hlavného menu
 uk До головного меню
+ru В главное меню
 
 ui.guest.patience
 cs Trpělivost
 en Patience
-sk Trpezlivosť
 uk Терпіння
+ru Терпение
 
 ui.guest.mood
 cs Nálada
 en Mood
-sk Nálada
 uk Настрій
+ru Настроение
 
 ui.guest.preparing
 cs připravuje se · ~{min} min
 en being prepared · ~{min} min
-sk pripravuje sa · ~{min} min
 uk готується · ~{min} хв
+ru готовится · ~{min} мин
 
 ui.guest.waiting
 cs čeká na obsluhu
 en waiting to be served
-sk čaká na obsluhu
 uk чекає на обслуговування
+ru ждёт обслуживания
 
 ui.guest.happy
 cs Spokojenost
 en Happy
-sk Spokojnosť
 uk Задоволення
+ru Доволен
 
 ui.guest.content
 cs V pohodě
 en Content
-sk V pohode
 uk Нормально
+ru Нормально
 
 ui.guest.unhappy
 cs Nespokojenost
 en Unhappy
-sk Nespokojnosť
 uk Незадоволення
+ru Недоволен
 
 ui.guest.regular
 cs štamgast
 en regular
-sk štamgast
 uk постійний гість
+ru постоянный гость
 
 ui.guest.in_a_hurry
 cs spěchá
 en in a hurry
-sk ponáhľa sa
 uk поспішає
+ru спешит
 
 ui.guest.train
 cs vlak {time}
 en train {time}
-sk vlak {time}
 uk поїзд {time}
+ru поезд {time}
 
 ui.sandbox.title
 cs Sandbox — nová hra
 en Sandbox — new game
-sk Sandbox — nová hra
 uk Пісочниця — нова гра
+ru Песочница — новая игра
 
 ui.sandbox.cafe_name
 cs Název kavárny
 en Café name
-sk Názov kaviarne
 uk Назва кав'ярні
+ru Название кафе
 
 ui.sandbox.town
 cs Město
 en Town
-sk Mesto
 uk Місто
+ru Город
 
 ui.sandbox.difficulty
 cs Obtížnost
 en Difficulty
-sk Obťažnosť
 uk Складність
+ru Сложность
 
 ui.sandbox.night_character
 cs Povaha nocí
 en Night character
-sk Povaha nocí
 uk Характер ночей
+ru Характер ночей
 
 ui.sandbox.start_money
 cs Počáteční kapitál
 en Starting money
-sk Počiatočný kapitál
 uk Стартовий капітал
+ru Стартовый капитал
 
 ui.sandbox.seed
 cs Seed
 en Seed
-sk Seed
 uk Сід
+ru Сид
 
 ui.sandbox.seed_hint
 cs Stejný seed = stejné město. Pošli ho kamarádovi.
 en Same seed = same town. Share it with a friend.
-sk Rovnaký seed = rovnaké mesto. Pošli ho kamarátovi.
 uk Той самий сід — те саме місто. Поділися з другом.
+ru Тот же сид — тот же город. Поделись с другом.
 
 ui.sandbox.random
 cs Náhodný (R)
 en Random (R)
-sk Náhodný (R)
 uk Випадковий (R)
+ru Случайный (R)
 
 ui.sandbox.copy
 cs Kopírovat
 en Copy
-sk Kopírovať
 uk Копіювати
+ru Копировать
 
 ui.sandbox.rain_every_night
 cs Déšť každou noc
 en Rain every night
-sk Dážď každú noc
 uk Дощ щоночі
+ru Дождь каждую ночь
 
 ui.sandbox.pause_on_events
 cs Pauza při důležitých událostech
 en Pause on important events
-sk Pauza pri dôležitých udalostiach
 uk Пауза під час важливих подій
+ru Пауза при важных событиях
 
 ui.sandbox.allow_debt
 cs Povolit minus (úvěr)
 en Allow going into debt
-sk Povoliť mínus (úver)
 uk Дозволити борг (кредит)
+ru Разрешить долг (кредит)
 
 ui.sandbox.summary
 cs Čeká se: {events} událostí za noc · {guests} hostů · start {money}
 en Expect: {events} events a night · {guests} guests · start {money}
-sk Čaká sa: {events} udalostí za noc · {guests} hostí · štart {money}
 uk Очікується: {events} подій за ніч · {guests} гостей · старт {money}
+ru Ожидается: {events} событий за ночь · {guests} гостей · старт {money}
 
 ui.sandbox.record_none
 cs Rekord na tomto seedu: zatím žádný
 en Record on this seed: none yet
-sk Rekord na tomto seede: zatiaľ žiadny
 uk Рекорд на цьому сіді: ще немає
+ru Рекорд на этом сиде: пока нет
 
 ui.sandbox.start
 cs Začít
 en Start
-sk Začať
 uk Почати
+ru Начать

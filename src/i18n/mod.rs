@@ -1,6 +1,6 @@
-//! Translations CZ / EN / SK / UA (codes `cs` / `en` / `sk` / `uk`).
+//! Translations CZ / EN / UA / RU (codes `cs` / `en` / `uk` / `ru`).
 //!
-//! * Runtime files: `assets/i18n/{cs,en,sk,uk}.ron` — one flat map `{ "key": "text" }` per language.
+//! * Runtime files: `assets/i18n/{cs,en,uk,ru}.ron` — one flat map `{ "key": "text" }` per language.
 //! * Those files are generated from the side-by-side sources `assets/i18n/src/*.tr`
 //!   (`cargo run --example content_i18n_build`), so every key always exists in all four languages.
 //! * Lookup falls back `lang → en → the key itself`, so a missing string is visible but never crashes.
@@ -19,33 +19,35 @@ use serde::{Deserialize, Serialize};
     Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Default, Serialize, Deserialize,
 )]
 pub enum Lang {
+    /// Also reads the retired `Sk` (Slovak was dropped 2026-11-26): a saved Slovak choice becomes Czech.
+    #[serde(alias = "Sk")]
     Cs,
     #[default]
     En,
-    Sk,
     Uk,
+    Ru,
 }
 
 impl Lang {
-    pub const ALL: [Lang; 4] = [Lang::Cs, Lang::En, Lang::Sk, Lang::Uk];
+    pub const ALL: [Lang; 4] = [Lang::Cs, Lang::En, Lang::Uk, Lang::Ru];
 
-    /// File / ISO code: `cs`, `en`, `sk`, `uk`.
+    /// File / ISO code: `cs`, `en`, `uk`, `ru`.
     pub fn code(self) -> &'static str {
         match self {
             Lang::Cs => "cs",
             Lang::En => "en",
-            Lang::Sk => "sk",
             Lang::Uk => "uk",
+            Lang::Ru => "ru",
         }
     }
 
-    /// Label used with the owner and on the picker chips: CZ / EN / SK / UA.
+    /// Label used with the owner and on the picker chips: CZ / EN / UA / RU.
     pub fn short_label(self) -> &'static str {
         match self {
             Lang::Cs => "CZ",
             Lang::En => "EN",
-            Lang::Sk => "SK",
             Lang::Uk => "UA",
+            Lang::Ru => "RU",
         }
     }
 
@@ -54,18 +56,18 @@ impl Lang {
         match self {
             Lang::Cs => "Čeština",
             Lang::En => "English",
-            Lang::Sk => "Slovenčina",
             Lang::Uk => "Українська",
+            Lang::Ru => "Русский",
         }
     }
 
-    /// Accepts `cs`/`cz`, `en`, `sk`, `uk`/`ua` (any case).
+    /// Accepts `cs`/`cz`, `en`, `uk`/`ua`, `ru` (any case). The retired `sk` maps to Czech.
     pub fn from_code(code: &str) -> Option<Lang> {
         match code.trim().to_ascii_lowercase().as_str() {
-            "cs" | "cz" => Some(Lang::Cs),
+            "cs" | "cz" | "sk" => Some(Lang::Cs),
             "en" => Some(Lang::En),
-            "sk" => Some(Lang::Sk),
             "uk" | "ua" => Some(Lang::Uk),
+            "ru" => Some(Lang::Ru),
             _ => None,
         }
     }
@@ -74,12 +76,12 @@ impl Lang {
         match self {
             Lang::Cs => 0,
             Lang::En => 1,
-            Lang::Sk => 2,
-            Lang::Uk => 3,
+            Lang::Uk => 2,
+            Lang::Ru => 3,
         }
     }
 
-    /// Grouping separator for thousands (a no-break space for cs/sk/uk, comma for en).
+    /// Grouping separator for thousands (a no-break space for cs/uk/ru, comma for en).
     fn group_separator(self) -> &'static str {
         match self {
             Lang::En => ",",
@@ -115,8 +117,8 @@ impl PluralForm {
 
 /// Plural rules for integers.
 /// * en: 1 → one, otherwise many (the `.few` text in en files equals `.many`).
-/// * cs / sk: 1 → one, 2–4 → few, otherwise (0, 5+) many.
-/// * uk: ends in 1 but not 11 → one; ends in 2–4 but not 12–14 → few; otherwise many.
+/// * cs: 1 → one, 2–4 → few, otherwise (0, 5+) many.
+/// * uk / ru: ends in 1 but not 11 → one; ends in 2–4 but not 12–14 → few; otherwise many.
 pub fn plural_form(lang: Lang, n: i64) -> PluralForm {
     let n = n.unsigned_abs();
     match lang {
@@ -127,12 +129,12 @@ pub fn plural_form(lang: Lang, n: i64) -> PluralForm {
                 PluralForm::Many
             }
         }
-        Lang::Cs | Lang::Sk => match n {
+        Lang::Cs => match n {
             1 => PluralForm::One,
             2..=4 => PluralForm::Few,
             _ => PluralForm::Many,
         },
-        Lang::Uk => {
+        Lang::Uk | Lang::Ru => {
             let (d10, d100) = (n % 10, n % 100);
             if d10 == 1 && d100 != 11 {
                 PluralForm::One
@@ -145,7 +147,7 @@ pub fn plural_form(lang: Lang, n: i64) -> PluralForm {
     }
 }
 
-/// Integer with language-specific grouping: `12 480` (cs/sk/uk, no-break space) or `12,480` (en).
+/// Integer with language-specific grouping: `12 480` (cs/uk/ru, no-break space) or `12,480` (en).
 /// Negative numbers use the real minus sign `−`.
 pub fn format_int(lang: Lang, n: i64) -> String {
     let digits = n.unsigned_abs().to_string();
@@ -163,7 +165,7 @@ pub fn format_int(lang: Lang, n: i64) -> String {
     out
 }
 
-/// Money in Czech crowns: `1 250 Kč` (cs/sk/uk) and `1,250 CZK` (en).
+/// Money in Czech crowns: `1 250 Kč` (cs/uk/ru) and `1,250 CZK` (en).
 pub fn format_money(lang: Lang, czk: i64) -> String {
     match lang {
         Lang::En => format!("{}\u{a0}CZK", format_int(lang, czk)),
@@ -253,7 +255,7 @@ pub struct I18n {
 }
 
 impl I18n {
-    /// Loads `dir/{cs,en,sk,uk}.ron`.
+    /// Loads `dir/{cs,en,uk,ru}.ron`.
     pub fn load(dir: &str) -> Result<I18n, String> {
         let mut i18n = I18n::default();
         for lang in Lang::ALL {
@@ -364,7 +366,7 @@ impl I18n {
             }
             if let Some(en) = self.get(Lang::En, key) {
                 let want = placeholders(en);
-                for lang in [Lang::Cs, Lang::Sk, Lang::Uk] {
+                for lang in [Lang::Cs, Lang::Uk, Lang::Ru] {
                     if let Some(text) = self.get(lang, key)
                         && placeholders(text) != want
                     {
@@ -419,7 +421,12 @@ mod tests {
             ("g.few", "{n} гості"),
             ("g.many", "{n} гостей"),
         ]);
-        I18n::from_tables([cs, en, HashMap::new(), uk])
+        let ru = table(&[
+            ("g.one", "{n} гость"),
+            ("g.few", "{n} гостя"),
+            ("g.many", "{n} гостей"),
+        ]);
+        I18n::from_tables([cs, en, uk, ru])
     }
 
     #[test]
@@ -429,14 +436,22 @@ mod tests {
         }
         assert_eq!(Lang::from_code("UA"), Some(Lang::Uk));
         assert_eq!(Lang::from_code("cz"), Some(Lang::Cs));
-        assert_eq!(Lang::from_code("ru"), None);
+        assert_eq!(Lang::from_code("RU"), Some(Lang::Ru));
+        assert_eq!(
+            Lang::from_code("sk"),
+            Some(Lang::Cs),
+            "retired Slovak reads as Czech"
+        );
+        assert_eq!(Lang::from_code("de"), None);
+        assert_eq!(Lang::Ru.native_name(), "Русский");
+        assert_eq!(Lang::Ru.short_label(), "RU");
     }
 
     #[test]
     fn fallback_goes_en_then_key() {
         let i = sample();
         assert_eq!(i.tr(Lang::Cs, "hello"), "Ahoj, {name}!");
-        assert_eq!(i.tr(Lang::Sk, "hello"), "Hello, {name}!");
+        assert_eq!(i.tr(Lang::Ru, "hello"), "Hello, {name}!");
         assert_eq!(i.tr(Lang::Cs, "only.en"), "English only");
         assert_eq!(i.tr(Lang::Uk, "nope.key"), "nope.key");
     }
@@ -472,6 +487,20 @@ mod tests {
                 Many, One, Few, Few, Many, Many, Many, One, Few, Many, One, Many, Many
             ]
         );
+        let ru: Vec<_> = [
+            0, 1, 2, 3, 4, 5, 11, 12, 14, 21, 22, 25, 101, 111, 112, 1001,
+        ]
+        .iter()
+        .map(|n| plural_form(Lang::Ru, *n))
+        .collect();
+        assert_eq!(
+            ru,
+            vec![
+                Many, One, Few, Few, Few, Many, Many, Many, Many, One, Few, Many, One, Many, Many,
+                One
+            ]
+        );
+        assert_eq!(plural_form(Lang::Ru, -21), One);
         assert_eq!(plural_form(Lang::En, 1), One);
         assert_eq!(plural_form(Lang::En, 2), Many);
         let i = sample();
@@ -479,7 +508,10 @@ mod tests {
         assert_eq!(i.trn(Lang::Cs, "g", 5, &[]), "5 hostů");
         assert_eq!(i.trn(Lang::Uk, "g", 21, &[]), "21 гість");
         assert_eq!(i.trn(Lang::En, "g", 1, &[]), "1 guest");
-        assert_eq!(i.trn(Lang::Sk, "g", 2, &[]), "2 guests");
+        assert_eq!(i.trn(Lang::Ru, "g", 2, &[]), "2 гостя");
+        assert_eq!(i.trn(Lang::Ru, "g", 11, &[]), "11 гостей");
+        assert_eq!(i.trn(Lang::Ru, "g", 21, &[]), "21 гость");
+        assert_eq!(i.trn(Lang::Ru, "g", 1250, &[]), "1\u{a0}250 гостей");
     }
 
     #[test]
@@ -487,7 +519,9 @@ mod tests {
         assert_eq!(format_money(Lang::Cs, 1250), "1\u{a0}250\u{a0}Kč");
         assert_eq!(format_money(Lang::En, 1250), "1,250\u{a0}CZK");
         assert_eq!(format_money(Lang::Uk, 90000), "90\u{a0}000\u{a0}Kč");
-        assert_eq!(format_money(Lang::Sk, -150), "\u{2212}150\u{a0}Kč");
+        assert_eq!(format_money(Lang::Ru, -150), "\u{2212}150\u{a0}Kč");
+        assert_eq!(format_money(Lang::Ru, 1250), "1\u{a0}250\u{a0}Kč");
+        assert_eq!(format_decimal(Lang::Ru, 4.25, 1), "4,2");
         assert_eq!(format_money_delta(Lang::Cs, 1860), "+1\u{a0}860\u{a0}Kč");
         assert_eq!(format_int(Lang::En, 1_234_567), "1,234,567");
         assert_eq!(format_int(Lang::Cs, 999), "999");

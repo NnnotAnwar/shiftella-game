@@ -5,7 +5,7 @@
 //!   `SHIFTELLA_TEA=black|green|herbal|fruit`,
 //!   `SHIFTELLA_TOUCH=extra_foam|light_foam|strong|mild|cinnamon|honey`, `SHIFTELLA_SEED=n`,
 //!   `SHIFTELLA_VARIANT=chocolate|two_sugars|…` (minigames.ron variant ids), `SHIFTELLA_PRACTISED=1`,
-//!   `SHIFTELLA_LANG=cs|en|sk|uk`, `SHIFTELLA_RELAXED=1`, `SHIFTELLA_TITLE="Flat white"`,
+//!   `SHIFTELLA_LANG=cs|en|uk|ru`, `SHIFTELLA_RELAXED=1`, `SHIFTELLA_TITLE="Flat white"`,
 //!   `SHIFTELLA_GUEST=Vera` (shows the guest chip and a wish line), `SHIFTELLA_KB=1` (scripted
 //!   keyboard play instead of mouse).
 //! * Keys: F2–F6 pick a game, F7 next shape / set, F1 toggles autoplay, F8 restarts.

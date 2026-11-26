@@ -402,7 +402,7 @@ pub fn wrap_with(text: &str, max_w: f32, measure: impl Fn(&str) -> f32) -> Vec<S
 }
 
 /// Split into words, binding one-letter words to the next one with a no-break space
-/// (Czech/Slovak/Ukrainian typography: "u okna", "v mlze", "і ми" never end a line).
+/// (Czech/Ukrainian/Russian typography: "u okna", "v mlze", "і ми" never end a line).
 fn glue_single_letters(para: &str) -> Vec<String> {
     let mut out: Vec<String> = Vec::new();
     let mut pending = String::new();

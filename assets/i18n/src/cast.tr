@@ -3,14 +3,14 @@
 cast.player.name
 cs Karolina
 en Karolina
-sk Karolína
 uk Кароліна
+ru Каролина
 
 cast.grandma.name
 cs Babička Lida
 en Grandma Lida
-sk Babka Lida
 uk Бабуся Ліда
+ru Бабушка Лида
 
 cast.bot.name
 * @shiftella_bot
@@ -18,23 +18,23 @@ cast.bot.name
 cast.announcer.name
 cs Nádražní hlášení
 en Station announcement
-sk Staničné hlásenie
 uk Вокзальне оголошення
+ru Вокзальное объявление
 
 cast.sindelar.name
 cs Ing. Šindelář
 en Mr Šindelář
-sk Ing. Šindelář
 uk Пан Шинделарж
+ru Пан Шинделарж
 
 cast.landlord.name
 cs Pan Kubíček, majitel budovy
 en Mr Kubíček, the landlord
-sk Pán Kubíček, majiteľ budovy
 uk Пан Кубічек, власник будівлі
+ru Пан Кубичек, владелец здания
 
 cast.jana.name
 cs Jana, Mirkova dcera
 en Jana, Mirek's daughter
-sk Jana, Mirkova dcéra
 uk Яна, Міркова донька
+ru Яна, дочь Мирека
