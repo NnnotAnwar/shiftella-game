@@ -320,13 +320,8 @@ pub fn napkins_page(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         .icon(Icon::Heart)
         .selected(open);
     let bw = ui.button_width(&b);
-    let s = ui.screen();
-    let br = Rect::new(
-        book.right() - bw - 16.0,
-        (book.bottom() + 6.0).min(s.h - 34.0),
-        bw,
-        28.0,
-    );
+    // a ribbon in the right page's header, left of grandma's bookmark and the ×
+    let br = Rect::new(book.right() - bw - 74.0, book.y + 14.0, bw, 26.0);
     g.anchors.push(("book.napkins", br));
     if ui.button("book_napkins", br, &b).clicked
         && let Some(bk) = g.hands.book.as_mut()
@@ -344,6 +339,8 @@ pub fn napkins_page(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         book.h - 58.0,
     );
     ui.region(r);
+    // opaque: the recipe page underneath must not show through
+    fill_rrect(r, 10.0, Color::from_hex(0x1B1A2E));
     ui.glass(r, &crate::ui::Glass::panel().solid().radius(10.0));
     let head = Rect::new(r.x + 14.0, r.y + 8.0, r.w - 28.0, 22.0);
     ui.fonts.draw_in(

@@ -950,9 +950,16 @@ impl GameScreen {
             return;
         }
         let night = self.world.phase() == Phase::Night;
-        match self.world.music_track(content) {
-            Some((id, vol)) => audio.set_music_vol(Track::from_id(&id), vol),
-            None => audio.set_music(None),
+        // the old radio (a moment) plays over the house music for a while
+        let radio = self
+            .world
+            .radio()
+            .filter(|_| !self.world.blackout())
+            .and_then(|(id, vol)| Track::from_id(id).map(|t| (t, vol)));
+        match (radio, self.world.music_track(content)) {
+            (Some((t, vol)), _) => audio.set_music_vol(Some(t), vol),
+            (None, Some((id, vol))) => audio.set_music_vol(Track::from_id(&id), vol),
+            (None, None) => audio.set_music(None),
         }
         audio.set_rain(self.world.weather().is_wet());
         // café life: an occasional footstep / coffee machine while it is busy
@@ -1350,6 +1357,10 @@ impl GameScreen {
             hands_ui::hud(self, ui, cx);
             if self.summary.is_none() {
                 extras_ui::atmosphere(self, ui, cx);
+                // screenshot runs: SHIFTELLA_COZY_HINT=1 shows the meter's world hint
+                if self.automation && std::env::var("SHIFTELLA_COZY_HINT").is_ok() {
+                    self.scene.cozy_hint = Some(self.world.coziness().weakest);
+                }
             }
             if self.world.phase() == Phase::Night && self.summary.is_none() {
                 extras_ui::tip_goal(self, ui, cx);

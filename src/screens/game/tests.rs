@@ -252,7 +252,10 @@ fn moments_open_a_card_and_resolve_through_the_screen() {
     g.start_night(&c);
     g.set_speed(3);
     g.play_headless(&c, &loc, 1500.0, &|g| {
-        g.world.active_moments().iter().any(|m| m.resolving.is_none())
+        g.world
+            .active_moments()
+            .iter()
+            .any(|m| m.resolving.is_none())
     });
     let m = g
         .world
@@ -294,7 +297,10 @@ fn the_morning_polaroid_goes_into_the_journal() {
     g.start_night(&c);
     g.set_speed(3);
     g.play_headless(&c, &loc, 3600.0, &|_| false);
-    let (night, cands) = g.world.pending_polaroids().expect("candidates in the morning");
+    let (night, cands) = g
+        .world
+        .pending_polaroids()
+        .expect("candidates in the morning");
     assert_eq!(night, 1);
     let snap = journal_ui::snap_of(&c, &cands[0].snap);
     assert_eq!(
@@ -390,5 +396,8 @@ fn three_autoplayed_nights_touch_the_systems() {
     }
     g.autoplay_day(&c, 1.0, 0.0);
     assert_eq!(g.world.journal().len(), 3, "a polaroid a morning");
-    assert!(!g.world.knowledge().tried.is_empty(), "experiments in the lulls");
+    assert!(
+        !g.world.knowledge().tried.is_empty(),
+        "experiments in the lulls"
+    );
 }

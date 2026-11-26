@@ -366,10 +366,28 @@ fn tip_jar(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             &[("percent", &(rhythm * 4).to_string())],
         )
     } else {
-        loc.trf(
+        let life = g.world.tips_lifetime();
+        let mut t = loc.trf(
             "ui.tipjar.lifetime",
-            &[("amount", &format_money(loc.lang, g.world.tips_lifetime()))],
-        )
+            &[("amount", &format_money(loc.lang, life))],
+        );
+        // the next lifetime goal (it brings a piece of decor for the hall)
+        if let Some(goal) = cx
+            .content
+            .handson
+            .extras
+            .tip_goals
+            .iter()
+            .map(|g| g.lifetime as i64)
+            .find(|g| *g > life)
+        {
+            t.push('\n');
+            t.push_str(&loc.trf(
+                "ui.tipjar.goal",
+                &[("amount", &format_money(loc.lang, goal))],
+            ));
+        }
+        t
     };
     ui.tooltip(&resp, &tip);
     // "It's quiet — ×2?" (the lull director's last suggestion; never speeds up by itself)
