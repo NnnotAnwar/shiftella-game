@@ -547,6 +547,40 @@ mod tests {
         let problems = i.check();
         assert!(problems.is_empty(), "{}", problems.join("\n"));
         assert_eq!(i.format_duration(Lang::En, 135), "2 h 15 min");
+        assert_eq!(
+            Lang::ALL.map(Lang::code),
+            ["cs", "en", "uk", "ru"],
+            "the game ships CZ / EN / UA / RU"
+        );
+        assert_eq!(i.format_duration(Lang::Ru, 135), "2 ч 15 мин");
+    }
+
+    #[test]
+    fn no_english_placeholders_left() {
+        // A text shared by all four languages is fine for names, symbols and titles
+        // ("Café Nocturne", "+{n}", "Last Tram Trio") but never for an English sentence.
+        let i = I18n::load(DIR).expect("i18n files load");
+        let mut left = Vec::new();
+        for key in i.keys(Lang::En) {
+            let en = i.tr(Lang::En, key);
+            if [Lang::Cs, Lang::Uk, Lang::Ru]
+                .iter()
+                .any(|l| i.tr(*l, key) != en)
+            {
+                continue;
+            }
+            // handles (`@shiftella_bot`) and `{placeholders}` are not words
+            let prose = en
+                .split_whitespace()
+                .filter(|t| !t.starts_with('@') && !t.contains('{'))
+                .flat_map(|t| t.split(|c: char| !c.is_alphabetic()))
+                .any(|w| w.len() >= 4 && w.chars().all(|c| c.is_ascii_lowercase()));
+            if prose {
+                left.push(format!("{key}: {en}"));
+            }
+        }
+        left.sort();
+        assert!(left.is_empty(), "untranslated:\n{}", left.join("\n"));
     }
 
     #[test]

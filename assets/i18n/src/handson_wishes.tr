@@ -1,225 +1,441 @@
 # Wishes (wishes.ron) and reactions to a served item (design/handson.md §3.4–3.5).
-# English placeholder texts in every language until T9 (see handson_TODO.txt).
+# Generic guests use the polite form (vy/ви/вы); regulars who know Karolina say ty/ти/ты.
 
 # --- generic wishes ------------------------------------------------------------------------------
 wish.long_day
-* Something warm, not too sweet — long day.
+cs Něco teplého, ne moc sladkého — byl to dlouhý den.
+en Something warm, not too sweet — long day.
+uk Щось тепле, не надто солодке — день був довгий.
+ru Что-нибудь тёплое, не слишком сладкое — день был длинный.
 
 wish.wake_me
-* Something strong. I've still got four hours of driving.
+cs Něco silného. Mám před sebou ještě čtyři hodiny za volantem.
+en Something strong. I've still got four hours of driving.
+uk Щось міцне. У мене ще чотири години за кермом.
+ru Что-нибудь крепкое. Мне ещё четыре часа за рулём.
 
 wish.hands_cold
-* Anything warm to hold. My hands are frozen.
+cs Cokoli teplého do dlaní. Mám zmrzlé ruce.
+en Anything warm to hold. My hands are frozen.
+uk Щось тепле в долоні. Руки зовсім замерзли.
+ru Что-нибудь тёплое в ладони. Руки совсем замёрзли.
 
 wish.train_soon
-* Whatever's fastest — my train's in ten minutes.
+cs Cokoli nejrychlejšího — vlak mi jede za deset minut.
+en Whatever's fastest — my train's in ten minutes.
+uk Що найшвидше — мій поїзд за десять хвилин.
+ru Что побыстрее — мой поезд через десять минут.
 
 wish.earned_it
-* Something sweet. I've earned it.
+cs Něco sladkého. Zasloužím si to.
+en Something sweet. I've earned it.
+uk Щось солодке. Я це заслуговую.
+ru Что-нибудь сладкое. Я это заслуживаю.
 
 wish.surprise_me
-* Surprise me. Something I'd never order.
+cs Překvapte mě. Něco, co si nikdy neobjednávám.
+en Surprise me. Something I'd never order.
+uk Здивуйте мене. Щось, чого я ніколи не замовляю.
+ru Удивите меня. Что-нибудь, чего я никогда не заказываю.
 
 wish.skipped_dinner
-* Something filling. I skipped dinner. And lunch.
+cs Něco sytého. Dneska bez večeře. A bez oběda.
+en Something filling. I skipped dinner. And lunch.
+uk Щось ситне. Сьогодні без вечері. І без обіду.
+ru Что-нибудь сытное. Сегодня без ужина. И без обеда.
 
 wish.sleepy_not_awake
-* Something gentle. I'm trying to get sleepy, not awake.
+cs Něco jemného. Snažím se usnout, ne probrat.
+en Something gentle. I'm trying to get sleepy, not awake.
+uk Щось м'яке. Я намагаюся заснути, а не прокинутися.
+ru Что-нибудь мягкое. Я пытаюсь уснуть, а не взбодриться.
 
 wish.club_oven
-* Something cold — the club was an oven.
+cs Něco studeného — v klubu bylo jako v peci.
+en Something cold — the club was an oven.
+uk Щось холодне — у клубі було як у печі.
+ru Что-нибудь холодное — в клубе было как в печке.
 
 wish.taste_of_home
-* Something that tastes like home. Anyone's home.
+cs Něco, co chutná jako domov. Klidně cizí.
+en Something that tastes like home. Anyone's home.
+uk Щось, що смакує як дім. Хай навіть чужий.
+ru Что-нибудь со вкусом дома. Пусть даже чужого.
 
 wish.exam_at_eight
-* Fuel. I've got an exam at eight.
+cs Palivo. V osm mám zkoušku.
+en Fuel. I've got an exam at eight.
+uk Пальне. О восьмій у мене іспит.
+ru Топливо. В восемь у меня экзамен.
 
 wish.soaked
-* Something with spice — I'm soaked to the bone.
+cs Něco kořeněného — ten déšť mi zalezl až do kostí.
+en Something with spice — I'm soaked to the bone.
+uk Щось пряне — дощ пробрав до кісток.
+ru Что-нибудь пряное — дождь пробрал до костей.
 
 wish.not_coffee
-* Anything but coffee. I've had six.
+cs Cokoli, jen ne kafe. Už jich mám v sobě šest.
+en Anything but coffee. I've had six.
+uk Що завгодно, тільки не каву. У мені вже шість чашок.
+ru Что угодно, только не кофе. Во мне уже шесть чашек.
 
 wish.for_my_friend
-* Something pretty — it's my friend's birthday.
+cs Něco hezkého — kamarádka má narozeniny.
+en Something pretty — it's my friend's birthday.
+uk Щось гарне — у подруги день народження.
+ru Что-нибудь красивое — у подруги день рождения.
 
 wish.goes_with_snow
-* Something that goes with snow.
+cs Něco, co se hodí ke sněhu.
+en Something that goes with snow.
+uk Щось, що пасує до снігу.
+ru Что-нибудь, что подходит к снегу.
 
 wish.on_the_side
-* Just a little something on the side.
+cs Jen něco malého k tomu.
+en Just a little something on the side.
+uk Просто щось маленьке на додачу.
+ru Просто что-нибудь маленькое в придачу.
 
 wish.bitter_mood
-* Bitter. Like my mood. No sugar.
+cs Hořké. Jako moje nálada. Bez cukru.
+en Bitter. Like my mood. No sugar.
+uk Гірке. Як мій настрій. Без цукру.
+ru Горькое. Как моё настроение. Без сахара.
 
 wish.headache
-* Something fresh, please. I've got a headache.
+cs Něco svěžího, prosím. Bolí mě hlava.
+en Something fresh, please. I've got a headache.
+uk Щось свіже, будь ласка. Голова болить.
+ru Что-нибудь свежее, пожалуйста. Голова болит.
 
 wish.slow_sip
-* Something to sip slowly while the rain does its thing.
+cs Něco na pomalé upíjení, zatímco venku prší.
+en Something to sip slowly while the rain does its thing.
+uk Щось, щоб пити повільно, поки дощ робить своє.
+ru Что-нибудь, чтобы пить медленно, пока дождь делает своё дело.
 
 wish.engaged
-* We just got engaged! Something special!
+cs Právě jsme se zasnoubili! Něco extra!
+en We just got engaged! Something special!
+uk Ми щойно заручилися! Щось особливе!
+ru Мы только что обручились! Что-нибудь особенное!
 
 wish.one_hand
-* Something I can drink with one hand — I'm flying a drone with the other.
+cs Něco, co se dá pít jednou rukou — druhou řídím dron.
+en Something I can drink with one hand — I'm flying a drone with the other.
+uk Щось, що можна пити однією рукою, — другою я керую дроном.
+ru Что-нибудь, что можно пить одной рукой, — другой я веду дрон.
 
 wish.patrol
-* Strong, to go. Quiet night so far — let's keep it that way.
+cs Silné, s sebou. Zatím klidná noc — ať to tak zůstane.
+en Strong, to go. Quiet night so far — let's keep it that way.
+uk Міцне, з собою. Поки що ніч спокійна — хай так і буде.
+ru Крепкое, с собой. Пока ночь спокойная — пусть так и будет.
 
 wish.like_grandma_made
-* Something like my grandmother made? She was from Lviv.
+cs Něco, co dělávala moje babička? Byla ze Lvova.
+en Something like my grandmother made? She was from Lviv.
+uk Щось таке, як робила моя бабуся? Вона була зі Львова.
+ru Что-нибудь, как делала моя бабушка? Она была из Львова.
 
 wish.childhood
-* Something from when I was a kid.
+cs Něco z dětství.
+en Something from when I was a kid.
+uk Щось із дитинства.
+ru Что-нибудь из детства.
 
 wish.three_am
-* It's three in the morning. I don't know what I want.
+cs Jsou tři ráno. Nevím, co chci.
+en It's three in the morning. I don't know what I want.
+uk Третя ночі. Я не знаю, чого хочу.
+ru Три часа ночи. Я не знаю, чего хочу.
 
 wish.kind_coffee
-* Wake me up gently — coffee, but kind.
+cs Probuďte mě jemně — kafe, ale laskavé.
+en Wake me up gently — coffee, but kind.
+uk Розбудіть мене лагідно — каву, але добру.
+ru Разбудите меня мягко — кофе, но добрый.
 
 wish.fog_outside
-* Something warm. You can't see the station through this fog.
+cs Něco teplého. V té mlze není vidět ani nádraží.
+en Something warm. You can't see the station through this fog.
+uk Щось тепле. Крізь цей туман навіть вокзалу не видно.
+ru Что-нибудь тёплое. Сквозь этот туман даже вокзала не видно.
 
 # --- personal wishes --------------------------------------------------------------------------------
 wish.mirek.like_lida
-* Black, Karolina. The way Lida poured it.
+cs Černou, Karolino. Jak ji lila Lída.
+en Black, Karolina. The way Lida poured it.
+uk Чорну, Кароліно. Як наливала Ліда.
+ru Чёрный, Каролина. Как наливала Лида.
 
 wish.mirek.tired_eyes
-* Something for tired eyes, eh? Not that mine are tired.
+cs Něco na unavené oči, co? Ne že by ty moje byly unavené.
+en Something for tired eyes, eh? Not that mine are tired.
+uk Щось для втомлених очей, га? Не те щоб мої були втомлені.
+ru Что-нибудь для усталых глаз, а? Не то чтобы мои устали.
 
 wish.mirek.walked
-* I walked here tonight. Something to warm an old man.
+cs Dneska jsem šel pěšky. Něco na zahřátí pro starého chlapa.
+en I walked here tonight. Something to warm an old man.
+uk Сьогодні я прийшов пішки. Щось, щоб зігріти старого.
+ru Сегодня я пришёл пешком. Что-нибудь, чтобы согреть старика.
 
 wish.hana.twelve_minutes
-* I've got twelve minutes. Something hot and fast.
+cs Mám dvanáct minut. Něco horkého a rychle.
+en I've got twelve minutes. Something hot and fast.
+uk У мене дванадцять хвилин. Щось гаряче й швидко.
+ru У меня двенадцать минут. Что-нибудь горячее и быстро.
 
 wish.hana.blanket
-* Shift's over, Karolina. Something that feels like a blanket.
+cs Po směně, Karolino. Něco, co je jako deka.
+en Shift's over, Karolina. Something that feels like a blanket.
+uk Зміна скінчилася, Кароліно. Щось таке, як ковдра.
+ru Смена закончилась, Каролина. Что-нибудь, похожее на плед.
 
 wish.vera.properly
-* Tea. Properly made, mind you — no bag-dunking.
+cs Čaj. Pořádně udělaný, prosím — žádné máchání sáčku.
+en Tea. Properly made, mind you — no bag-dunking.
+uk Чай. Як слід заварений, зауваж — без бовтання пакетика.
+ru Чай. Как следует заваренный, заметь — без болтания пакетика.
 
 wish.vera.lidas_kolac
-* Your grandmother's koláč was better, Karolina. Show me yours.
+cs Babiččin koláč byl lepší, Karolino. Ukaž mi ten svůj.
+en Your grandmother's koláč was better, Karolina. Show me yours.
+uk Бабусин колач був кращий, Кароліно. Покажи свій.
+ru Бабушкин колач был лучше, Каролина. Покажи свой.
 
 wish.vera.she_would_make
-* Make me something Lida would have made.
+cs Udělej mi něco, co by udělala Lída.
+en Make me something Lida would have made.
+uk Зроби мені щось таке, що зробила б Ліда.
+ru Сделай мне что-нибудь такое, что сделала бы Лида.
 
 wish.filip.cheapest
-* The cheapest coffee that still counts as coffee?
+cs Nejlevnější kafe, které se ještě počítá jako kafe?
+en The cheapest coffee that still counts as coffee?
+uk Найдешевшу каву, яка ще вважається кавою?
+ru Самый дешёвый кофе, который ещё считается кофе?
 
 wish.filip.passed
-* I passed! Something fancy — my treat.
+cs Udělal jsem to! Něco fajnového — zvu se.
+en I passed! Something fancy — my treat.
+uk Я склав! Щось вишукане — я пригощаю.
+ru Я сдал! Что-нибудь изысканное — я угощаю.
 
 wish.radek.to_go
-* To go. The 01:12 won't dispatch itself.
+cs S sebou. Ten v 01:12 se sám neodbaví.
+en To go. The 01:12 won't dispatch itself.
+uk З собою. Поїзд о 01:12 сам себе не відправить.
+ru С собой. Поезд в 01:12 сам себя не отправит.
 
 wish.radek.last_shift
-* Last shift, Karolina. Make it a good one.
+cs Poslední směna, Karolino. Ať stojí za to.
+en Last shift, Karolina. Make it a good one.
+uk Остання зміна, Кароліно. Зроби її доброю.
+ru Последняя смена, Каролина. Сделай её хорошей.
 
 wish.radek.no_rush
-* No rush tonight. Something slow.
+cs Dneska nikam nespěchám. Něco pomalého.
+en No rush tonight. Something slow.
+uk Сьогодні я не поспішаю. Щось неквапливе.
+ru Сегодня я не спешу. Что-нибудь неторопливое.
 
 wish.lori.one_song
-* One hot chocolate, paid in one song?
+cs Jedna horká čokoláda, zaplacená jednou písničkou?
+en One hot chocolate, paid in one song?
+uk Один гарячий шоколад за одну пісню?
+ru Один горячий шоколад за одну песню?
 
 wish.lori.my_voice
-* Something for my voice. Honey, maybe?
+cs Něco pro můj hlas. Med, třeba?
+en Something for my voice. Honey, maybe?
+uk Щось для мого голосу. Може, мед?
+ru Что-нибудь для голоса. Может, мёд?
 
 wish.guest_333.two_sugars
-* Tea. With lemon. Two sugars.
+cs Čaj. S citronem. Dva cukry.
+en Tea. With lemon. Two sugars.
+uk Чай. З лимоном. Два цукри.
+ru Чай. С лимоном. Два сахара.
 
 wish.guest_anwar.oat
-* An oat flat white, please. And maybe the Wi-Fi password.
+cs Ovesný flat white, prosím. A možná heslo na wi-fi.
+en An oat flat white, please. And maybe the Wi-Fi password.
+uk Вівсяний флет вайт, будь ласка. І, може, пароль від Wi-Fi.
+ru Флэт уайт на овсяном, пожалуйста. И, может, пароль от Wi-Fi.
 
 # --- generic reactions ---------------------------------------------------------------------------------
 react.perfect.1
-* Oh. That's exactly it.
+cs Ach. Přesně tohle.
+en Oh. That's exactly it.
+uk О. Саме те.
+ru О. Именно то.
 
 react.perfect.2
-* How did you know?
+cs Jak jste to věděla?
+en How did you know?
+uk Як ви здогадалися?
+ru Как вы догадались?
 
 react.perfect.3
-* I'm coming back tomorrow just for this.
+cs Zítra přijdu jen kvůli tomuhle.
+en I'm coming back tomorrow just for this.
+uk Завтра прийду лише заради цього.
+ru Завтра приду только ради этого.
 
 react.perfect.4
-* That's the one. Thank you.
+cs To je ono. Děkuju.
+en That's the one. Thank you.
+uk Ось воно. Дякую.
+ru Вот оно. Спасибо.
 
 react.perfect.5
-* You read my mind. Or my face.
+cs Čtete mi myšlenky. Nebo obličej.
+en You read my mind. Or my face.
+uk Ви читаєте мої думки. Або обличчя.
+ru Вы читаете мои мысли. Или лицо.
 
 react.good.1
-* Mm. Lovely.
+cs Mm. Výborné.
+en Mm. Lovely.
+uk Мм. Чудово.
+ru М-м. Чудесно.
 
 react.good.2
-* That hits the spot.
+cs Přesně to pravé.
+en That hits the spot.
+uk Саме те, що треба.
+ru Как раз то, что нужно.
 
 react.good.3
-* Thank you, really.
+cs Děkuju, vážně.
+en Thank you, really.
+uk Дякую, справді.
+ru Спасибо, правда.
 
 react.good.4
-* Oh, that's nice. Warm all the way down.
+cs To je dobré. Zahřeje až do žaludku.
+en Oh, that's nice. Warm all the way down.
+uk О, як добре. Гріє аж до самого серця.
+ru О, как хорошо. Греет до самого сердца.
 
 react.good.5
-* Just what the night needed.
+cs Přesně to, co noc potřebovala.
+en Just what the night needed.
+uk Саме те, чого бракувало ночі.
+ru Именно то, чего не хватало ночи.
 
 react.okay.1
-* Nice, thanks.
+cs Fajn, díky.
+en Nice, thanks.
+uk Непогано, дякую.
+ru Неплохо, спасибо.
 
 react.okay.2
-* Not what I pictured, but nice.
+cs Jiné než v mé hlavě, ale dobré.
+en Not what I pictured, but nice.
+uk Не так, як я собі уявляю, але смачно.
+ru Не так, как в моём воображении, но вкусно.
 
 react.okay.3
-* Warm. Good.
+cs Teplé. Dobré.
+en Warm. Good.
+uk Тепле. Добре.
+ru Тёплое. Хорошо.
 
 react.okay.4
-* That'll do me fine.
+cs To mi bohatě stačí.
+en That'll do me fine.
+uk Мені цілком підходить.
+ru Меня вполне устроит.
 
 react.okay.5
-* Thanks — it's good.
+cs Díky — je to dobré.
+en Thanks — it's good.
+uk Дякую — смачно.
+ru Спасибо — вкусно.
 
 react.not_quite.1
-* Not quite it — but thank you for trying.
+cs Úplně ono to není — ale díky za snahu.
+en Not quite it — but thank you for trying.
+uk Не зовсім те — але дякую, що спробували.
+ru Не совсем то — но спасибо, что попробовали.
 
 react.not_quite.2
-* Hm. Different. I like that you tried.
+cs Hm. Jiné. Líbí se mi, že jste to zkusila.
+en Hm. Different. I like that you tried.
+uk Гм. Інакше. Мені подобається, що ви спробували.
+ru Хм. Иначе. Мне нравится, что вы попробовали.
 
 react.not_quite.3
-* Not what I meant, but it's warm. That counts.
+cs Mělo to být něco jiného, ale je to teplé. To se počítá.
+en Not what I meant, but it's warm. That counts.
+uk Малося на увазі інше, але воно тепле. Це зараховується.
+ru Имелось в виду другое, но оно тёплое. Это засчитывается.
 
 react.not_quite.4
-* Funny — I'd never have picked this. Thanks.
+cs Legrační — tohle by mě nikdy nenapadlo. Díky.
+en Funny — I'd never have picked this. Thanks.
+uk Смішно — мені б таке й на думку не спало. Дякую.
+ru Забавно — мне бы такое и в голову не пришло. Спасибо.
 
 react.not_quite.5
-* It's fine, honestly. You've got your hands full.
+cs Je to v pořádku, vážně. Máte plné ruce.
+en It's fine, honestly. You've got your hands full.
+uk Усе гаразд, чесно. У вас і так повні руки.
+ru Всё в порядке, честно. У вас и так полно дел.
 
 # --- regulars' reactions ---------------------------------------------------------------------------------
 react.mirek.perfect
-* …Almost like hers, Karolina. Almost.
+cs …Skoro jako ta její, Karolino. Skoro.
+en …Almost like hers, Karolina. Almost.
+uk …Майже як у неї, Кароліно. Майже.
+ru …Почти как у неё, Каролина. Почти.
 
 react.mirek.good
-* Good. Strong enough to keep a taxi awake.
+cs Dobrá. Dost silná, aby udržela taxikáře vzhůru.
+en Good. Strong enough to keep a taxi awake.
+uk Добра. Досить міцна, щоб таксист не заснув.
+ru Хороший. Достаточно крепкий, чтобы таксист не уснул.
 
 react.mirek.okay
-* It's coffee. I've had worse. From robots.
+cs Je to kafe. Pil jsem horší. Od robotů.
+en It's coffee. I've had worse. From robots.
+uk Це кава. Я пив і гіршу. Від роботів.
+ru Это кофе. Я пил и похуже. От роботов.
 
 react.mirek.not_quite
-* Hm. Lida would've laughed. Drinkable, though.
+cs Hm. Lída by se smála. Ale pít se to dá.
+en Hm. Lida would've laughed. Drinkable, though.
+uk Гм. Ліда б посміялася. Але пити можна.
+ru Хм. Лида бы посмеялась. Но пить можно.
 
 react.hana.perfect
-* Oh, that's exactly it. You saved my night.
+cs Ach, přesně tohle. Zachránila jsi mi noc.
+en Oh, that's exactly it. You saved my night.
+uk О, саме те. Ти врятувала мені ніч.
+ru О, именно то. Ты спасла мне ночь.
 
 react.hana.good
-* Hot and quick. You're a hero.
+cs Horké a rychle. Jsi hrdinka.
+en Hot and quick. You're a hero.
+uk Гаряче й швидко. Ти героїня.
+ru Горячо и быстро. Ты героиня.
 
 react.hana.okay
-* Thanks — that'll get me to the next round.
+cs Díky — to mě dostane do dalšího kola.
+en Thanks — that'll get me to the next round.
+uk Дякую — цього вистачить до наступного обходу.
+ru Спасибо — этого хватит до следующего обхода.
 
 react.hana.not_quite
-* Not quite, but it's warm. That's what counts at three.
+cs Úplně ono to není, ale je to teplé. Ve tři ráno je to hlavní.
+en Not quite, but it's warm. That's what counts at three.
+uk Не зовсім те, але тепле. О третій ночі це головне.
+ru Не совсем то, но тёплое. В три ночи это главное.
 
 react.guest_333.perfect
 * …
@@ -234,49 +450,97 @@ react.guest_333.not_quite
 * …
 
 react.vera.perfect
-* Well. Lida would have grumbled, but she'd have drunk it.
+cs No. Lída by bručela, ale vypila by to.
+en Well. Lida would have grumbled, but she'd have drunk it.
+uk Ну. Ліда б побурчала, але випила б.
+ru Ну. Лида бы поворчала, но выпила бы.
 
 react.vera.good
-* Properly done. I'll allow it.
+cs Pořádně udělané. Budiž.
+en Properly done. I'll allow it.
+uk Зроблено як слід. Так і бути.
+ru Сделано как следует. Так и быть.
 
 react.vera.okay
-* Acceptable. Your grandmother had steadier hands.
+cs Ujde to. Tvoje babička měla jistější ruku.
+en Acceptable. Your grandmother had steadier hands.
+uk Прийнятно. У твоєї бабусі рука була твердіша.
+ru Приемлемо. У твоей бабушки рука была твёрже.
 
 react.vera.not_quite
-* Hm. We'll keep practising, you and I.
+cs Hm. Budeme to spolu ještě cvičit, ty a já.
+en Hm. We'll keep practising, you and I.
+uk Гм. Ми ще потренуємося, ти і я.
+ru Хм. Мы ещё потренируемся, ты и я.
 
 react.filip.perfect
-* Okay, this is unreal. I'm writing my thesis about it.
+cs Dobře, tohle je neskutečný. Napíšu o tom diplomku.
+en Okay, this is unreal. I'm writing my thesis about it.
+uk Так, це нереально. Напишу про це диплом.
+ru Так, это нереально. Напишу об этом диплом.
 
 react.filip.good
-* That's good. Like, actually good.
+cs To je dobrý. Jako fakt dobrý.
+en That's good. Like, actually good.
+uk Це добре. Тобто реально добре.
+ru Это хорошо. В смысле, реально хорошо.
 
 react.filip.okay
-* Thanks! Caffeine is caffeine.
+cs Díky! Kofein je kofein.
+en Thanks! Caffeine is caffeine.
+uk Дякую! Кофеїн є кофеїн.
+ru Спасибо! Кофеин есть кофеин.
 
 react.filip.not_quite
-* Interesting… I'll drink it anyway, I'm a student.
+cs Zajímavé… Stejně to vypiju, jsem student.
+en Interesting… I'll drink it anyway, I'm a student.
+uk Цікаво… Однаково вип'ю, я ж студент.
+ru Интересно… Всё равно выпью, я же студент.
 
 react.radek.perfect
-* Ha. Right on time, and just right.
+cs Ha. Přesně na čas a přesně akorát.
+en Ha. Right on time, and just right.
+uk Ха. Точно вчасно й точно як треба.
+ru Ха. Точно вовремя и точно как надо.
 
 react.radek.good
-* Good one. The trains will run better for it.
+cs Povedené. Vlaky pojedou líp.
+en Good one. The trains will run better for it.
+uk Вдало. Поїзди від цього ходитимуть краще.
+ru Удачно. Поезда от этого будут ходить лучше.
 
 react.radek.okay
-* Does the job. Like a timetable.
+cs Splní účel. Jako jízdní řád.
+en Does the job. Like a timetable.
+uk Своє діло робить. Як розклад.
+ru Своё дело делает. Как расписание.
 
 react.radek.not_quite
-* Not my usual, but I won't report you.
+cs Není to moje obvyklé, ale hlásit vás nebudu.
+en Not my usual, but I won't report you.
+uk Не моє звичне, але скаржитися не буду.
+ru Не моё обычное, но жаловаться не буду.
 
 react.lori.perfect
-* Oh, I could sing about this one.
+cs Ach, o tomhle bych mohla zpívat.
+en Oh, I could sing about this one.
+uk О, про це я могла б заспівати.
+ru О, об этом я могла бы спеть.
 
 react.lori.good
-* Mm. My voice thanks you.
+cs Mm. Můj hlas děkuje.
+en Mm. My voice thanks you.
+uk Мм. Мій голос дякує.
+ru М-м. Мой голос благодарит.
 
 react.lori.okay
-* That's sweet of you. Thank you.
+cs To je od tebe milé. Děkuju.
+en That's sweet of you. Thank you.
+uk Це так мило з твого боку. Дякую.
+ru Это так мило с твоей стороны. Спасибо.
 
 react.lori.not_quite
-* Not quite my key — but lovely of you to try.
+cs Není to úplně moje tónina — ale je hezké, žes to zkusila.
+en Not quite my key — but lovely of you to try.
+uk Не зовсім моя тональність — але гарно, що ти спробувала.
+ru Не совсем моя тональность — но мило, что ты попробовала.

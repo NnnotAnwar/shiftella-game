@@ -1,7 +1,7 @@
 # Shiftella — content & i18n reference
 
 For the sim (wave 2) and integration (wave 3) agents. Code: `src/content/**`, `src/i18n/**`.
-Data: `assets/data/*.ron`. Text: `assets/i18n/src/*.tr` → generated `assets/i18n/{cs,en,sk,uk}.ron`.
+Data: `assets/data/*.ron`. Text: `assets/i18n/src/*.tr` → generated `assets/i18n/{cs,en,uk,ru}.ron`.
 
 ```rust
 use shiftella_game::{content::Content, i18n::{I18n, Lang}};
@@ -18,12 +18,12 @@ content.validate(&i18n).map_err(|v| v.join("\n"))?;
 
 | API | meaning |
 |---|---|
-| `Lang { Cs, En, Sk, Uk }`, `Lang::ALL` | picker order CZ, EN, SK, UA. `code()` → `cs/en/sk/uk`, `short_label()` → `CZ/EN/SK/UA`, `native_name()`, `from_code("ua")`. Serde-serializable (for settings). |
+| `Lang { Cs, En, Uk, Ru }`, `Lang::ALL` | picker order CZ, EN, UA, RU. `code()` → `cs/en/uk/ru`, `short_label()` → `CZ/EN/UA/RU`, `native_name()`, `from_code("ua")`. Serde-serializable (for settings); a saved `Sk` and the code `sk` read as `Cs`. |
 | `I18n::tr(lang, key) -> &str` | fallback `lang → en → key` |
 | `I18n::trf(lang, key, &[("name", "Mirek")])` | fills `{name}` |
 | `I18n::trn(lang, "ui.count.guests", n, &[])` | plural: picks `.one/.few/.many`, sets `{n}` |
-| `plural_form(lang, n)` | en: 1/other · cs, sk: 1 / 2–4 / other · uk: proper rules (21 → one, 22 → few, 11–14 → many) |
-| `format_money(lang, czk)` | `1 250 Kč` (cs/sk/uk, no-break spaces) · `1,250 CZK` (en); negatives use `−` |
+| `plural_form(lang, n)` | en: 1/other · cs: 1 / 2–4 / other · uk, ru: East Slavic rules (21 → one, 22 → few, 11–14 → many) |
+| `format_money(lang, czk)` | `1 250 Kč` (cs/uk/ru, no-break spaces; decimal comma) · `1,250 CZK` (en); negatives use `−` |
 | `format_money_delta`, `format_int`, `format_decimal(lang, v, places)` | `+1 860 Kč`, `12 480`, `4,2` / `4.2` |
 | `format_clock(h, m)` | `03:33` (24 h in every language) |
 | `I18n::format_duration(lang, minutes)` | `45 min`, `2 h 15 min` (`ui.unit.*`) |
@@ -36,24 +36,25 @@ content.validate(&i18n).map_err(|v| v.join("\n"))?;
 trait.night_owl.name        ← key line
 cs Sova                     ← one line per language
 en Night Owl
-sk Sova
 uk Сова
+ru Сова
 
 cast.bot.name
 * @shiftella_bot            ← "*" = same text in all four
 ```
 
-`\n` inside a text = line break. Place names stay Czech (Latin script) in every language; person
-names are transliterated in Cyrillic prose (Мірек, Ліда). The player is **Karolina**, Lida's
+`\n` inside a text = line break. The train-line stations (Adamov, Beroun, Cheb, Děčín, Ejpovice,
+Frýdlant) stay Czech in Latin script in every language, like the `{from}`/`{to}` the data fills in;
+Prague and Holešovice are written the local way in Cyrillic (Прага-Голешовиці / Прага-Голешовице).
+Person names are transliterated in Cyrillic prose (Мірек, Ліда / Мирек, Лида); record, band and cat
+names stay as written. Lines around a `{name}` avoid case endings and gendered past tenses. The player is **Karolina**, Lida's
 granddaughter: feminine forms are fine where a language needs them (brief §1).
 
-**Languages are changing** (owner, 2026-11-26): CZ / EN / UA / **RU** (`cs`, `en`, `uk`, `ru`);
-Slovak is dropped. The swap (Lang enum, files, translations) happens in task T9; until then the four
-current tables stay in sync. Russian plurals follow the Ukrainian rule (1 / 2–4 / 5+, 11–14 → many).
+**Languages** (owner, 2026-11-26): CZ / EN / UA / **RU** (`cs`, `en`, `uk`, `ru`); Slovak was dropped
+in T9. Every key has real text in all four; `*` lines are only for names and symbols.
 
 **Hands-on text** lives in `assets/i18n/src/handson_*.tr` (`core`, `wishes`, `recipes`, `moments`,
-`world`, `app`). It is English in every language (`* text` lines) until T9;
-`assets/i18n/src/handson_TODO.txt` lists every such key. `minigame.*` and `latte.*` keys belong to the
+`world`, `app`, `ui`, `sim`). `minigame.*` and `latte.*` keys belong to the
 mini-game agent (`minigame.tr`) — never define them elsewhere (duplicate keys break the build).
 
 ### Key naming

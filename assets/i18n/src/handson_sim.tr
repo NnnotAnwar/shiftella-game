@@ -1,63 +1,123 @@
 # Sim systems (design/handson.md §4–§6, §11–§13, T5): keys the sim emits that no data file names.
-# English in every language until T9 (add these to handson_TODO.txt's list when translating).
+# Helper and guest names arrive as {name}: lines avoid case endings and gendered verbs around it.
 
 ui.guest.forgiven
-* I'll come back tomorrow.
+cs Zítra přijdu zas.
+en I'll come back tomorrow.
+uk Прийду завтра.
+ru Приду завтра.
 
 app.bot.early_leave
-* {name}: can I go at {time} tonight? My daughter is ill.
+cs {name}: můžu dnes odejít v {time}? Dcera je nemocná.
+en {name}: can I go at {time} tonight? My daughter is ill.
+uk {name}: можна мені сьогодні піти о {time}? Донька захворіла.
+ru {name}: можно мне сегодня уйти в {time}? Дочка заболела.
 
 app.bot.early_leave.action.approve
-* Of course
+cs Samozřejmě
+en Of course
+uk Звісно
+ru Конечно
 
 app.bot.early_leave.action.decline
-* Please stay
+cs Prosím, zůstaň
+en Please stay
+uk Будь ласка, залишся
+ru Пожалуйста, останься
 
 app.bot.low_stock.drone_arrived
-* The drone dropped off the order.
+cs Dron přivezl objednávku.
+en The drone dropped off the order.
+uk Дрон доставив замовлення.
+ru Дрон доставил заказ.
 
 app.bot.regular_to_go.reminder
-* {name} passes at {time} — to go, fast.
+cs {name} jde kolem v {time} — s sebou a rychle.
+en {name} passes at {time} — to go, fast.
+uk {name} пройде повз о {time} — з собою, швидко.
+ru {name} пройдёт мимо в {time} — с собой, быстро.
 
 app.checklist.check_stock.out
-* We're out of something — it's off the menu for a while.
+cs Něco nám došlo — chvíli to nebude v menu.
+en We're out of something — it's off the menu for a while.
+uk Дещо закінчилося — на якийсь час зникне з меню.
+ru Кое-что закончилось — на время пропадёт из меню.
 
 app.payroll.star_card
-* A thank-you card for the star of the week.
+cs Děkovné přání pro hvězdu týdne.
+en A thank-you card for the star of the week.
+uk Листівка-подяка для зірки тижня.
+ru Открытка-благодарность для звезды недели.
 
 # Singular guest names for order cards / tickets (`guest.<archetype>.one`; `.name` stays the group).
 guest.travelers.one
-* Traveller
+cs Cestující
+en Traveller
+uk Пасажир
+ru Пассажир
 
 guest.taxi_drivers.one
-* Taxi driver
+cs Taxikář
+en Taxi driver
+uk Таксист
+ru Таксист
 
 guest.nurses.one
-* Nurse
+cs Zdravotník
+en Nurse
+uk Медик
+ru Медик
 
 guest.students.one
-* Student
+cs Student
+en Student
+uk Студент
+ru Студент
 
 guest.insomniacs.one
-* Night owl
+cs Nespavec
+en Night owl
+uk Безсонний
+ru Неспящий
 
 guest.train_crew.one
-* Train conductor
+cs Průvodčí
+en Train conductor
+uk Провідник
+ru Проводник
 
 guest.drone_operators.one
-* Drone operator
+cs Dronař
+en Drone operator
+uk Оператор дронів
+ru Оператор дронов
 
 guest.shift_workers.one
-* Shift worker
+cs Člověk ze směny
+en Shift worker
+uk Робітник зміни
+ru Рабочий смены
 
 guest.clubbers.one
-* Concertgoer
+cs Z koncertu
+en Concertgoer
+uk З концерту
+ru С концерта
 
 guest.patrol.one
-* Patrol officer
+cs Policista
+en Patrol officer
+uk Поліцейський
+ru Полицейский
 
 guest.truckers.one
-* Trucker
+cs Řidič kamionu
+en Trucker
+uk Далекобійник
+ru Дальнобойщик
 
 guest.night_wanderer.one
-* Night wanderer
+cs Noční poutník
+en Night wanderer
+uk Нічний мандрівник
+ru Ночной странник

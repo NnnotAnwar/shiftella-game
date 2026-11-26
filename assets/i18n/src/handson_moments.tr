@@ -1,502 +1,973 @@
 # Night moments (moments.ron, design/handson.md §5, §11.1): .title (marker hover), .text (the card),
 # .opt.<option> (button), .result.<option> (the line after), .expired (when nobody came in time).
-# English placeholder texts in every language until T9 (see handson_TODO.txt).
+# Karolina is addressed as ty/ти/ты (feminine forms); record, band and cat names stay as written.
 
 # --- m_record_request ------------------------------------------------------------------------------
 moment.m_record_request.title
-* A record request
+cs Přání na desku
+en A record request
+uk Прохання поставити платівку
+ru Просьба поставить пластинку
 
 moment.m_record_request.text
-* "Karolina, have you got something a bit… you know. Like the old days?"
+cs „Karolino, nemáš něco takového… víš co. Jako za starých časů?“
+en "Karolina, have you got something a bit… you know. Like the old days?"
+uk «Кароліно, у тебе є щось таке… ну, розумієш. Як у старі часи?»
+ru «Каролина, у тебя есть что-нибудь такое… ну, понимаешь. Как в старые времена?»
 
 moment.m_record_request.opt.put_on
-* Put it on
+cs Pustit
+en Put it on
+uk Поставити
+ru Поставить
 
 moment.m_record_request.opt.later
-* Maybe later
+cs Možná později
+en Maybe later
+uk Може, пізніше
+ru Может, позже
 
 moment.m_record_request.result.put_on
-* The needle drops. Someone at the window table starts tapping along.
+cs Jehla dosedne. Někdo u stolu u okna začne vyťukávat rytmus.
+en The needle drops. Someone at the window table starts tapping along.
+uk Голка опускається. Хтось за столиком біля вікна починає вистукувати ритм.
+ru Игла опускается. Кто-то за столиком у окна начинает отстукивать ритм.
 
 moment.m_record_request.result.later
-* "Later, then. I'm not going anywhere."
+cs „Tak později. Já nikam nespěchám.“
+en "Later, then. I'm not going anywhere."
+uk «Тоді пізніше. Я нікуди не поспішаю».
+ru «Тогда позже. Я никуда не тороплюсь».
 
 # --- m_blackout_candles -------------------------------------------------------------------------------
 moment.m_blackout_candles.title
-* The lights went out
+cs Zhaslo světlo
+en The lights went out
+uk Згасло світло
+ru Погас свет
 
 moment.m_blackout_candles.text
-* The hall goes dark. Grandma's candles are in the drawer under the till, where they always were.
+cs Sál potemní. Babiččiny svíčky jsou v šuplíku pod pokladnou, kde byly vždycky.
+en The hall goes dark. Grandma's candles are in the drawer under the till, where they always were.
+uk Зала поринає в темряву. Бабусині свічки — у шухляді під касою, де були завжди.
+ru Зал погружается в темноту. Бабушкины свечи — в ящике под кассой, где были всегда.
 
 moment.m_blackout_candles.opt.candles
-* Light the candles
+cs Zapálit svíčky
+en Light the candles
+uk Запалити свічки
+ru Зажечь свечи
 
 moment.m_blackout_candles.opt.torch
-* The old torch will do
+cs Stačí stará baterka
+en The old torch will do
+uk Вистачить старого ліхтарика
+ru Хватит старого фонарика
 
 moment.m_blackout_candles.result.candles
-* Table by table, the café comes back — smaller, warmer, gold.
+cs Stůl po stolu se kavárna vrací — menší, teplejší, zlatá.
+en Table by table, the café comes back — smaller, warmer, gold.
+uk Столик за столиком кав'ярня повертається — менша, тепліша, золота.
+ru Столик за столиком кафе возвращается — меньше, теплее, золотое.
 
 moment.m_blackout_candles.result.torch
-* One beam of light and a lot of patient faces.
+cs Jeden paprsek světla a spousta trpělivých tváří.
+en One beam of light and a lot of patient faces.
+uk Один промінь світла й багато терплячих облич.
+ru Один луч света и много терпеливых лиц.
 
 moment.m_blackout_candles.expired
-* Someone found the candles and lit them for you.
+cs Někdo svíčky našel a zapálil je za tebe.
+en Someone found the candles and lit them for you.
+uk Хтось знайшов свічки й запалив їх замість тебе.
+ru Кто-то нашёл свечи и зажёг их за тебя.
 
 # --- m_leak_bucket ---------------------------------------------------------------------------------------
 moment.m_leak_bucket.title
-* The roof is leaking
+cs Teče střechou
+en The roof is leaking
+uk Протікає дах
+ru Протекает крыша
 
 moment.m_leak_bucket.text
-* Plink. Plink. A drop lands right where people walk.
+cs Ťuk. Ťuk. Kapka dopadá přesně tam, kudy chodí lidé.
+en Plink. Plink. A drop lands right where people walk.
+uk Кап. Кап. Крапля падає саме там, де ходять люди.
+ru Кап. Кап. Капля падает ровно там, где ходят люди.
 
 moment.m_leak_bucket.opt.bucket
-* Put a bucket under it
+cs Dát pod to kbelík
+en Put a bucket under it
+uk Підставити відро
+ru Подставить ведро
 
 moment.m_leak_bucket.opt.roofer
-* Call a roofer
+cs Zavolat pokrývače
+en Call a roofer
+uk Викликати покрівельника
+ru Вызвать кровельщика
 
 moment.m_leak_bucket.result.bucket
-* The plinks turn into a little tune.
+cs Z ťukání se stane malá melodie.
+en The plinks turn into a little tune.
+uk Капання перетворюється на маленьку мелодію.
+ru Капель превращается в маленькую мелодию.
 
 moment.m_leak_bucket.result.roofer
-* A roofer climbs up in the rain. The plinking stops for good.
+cs Pokrývač vyleze v dešti nahoru. Kapání přestane nadobro.
+en A roofer climbs up in the rain. The plinking stops for good.
+uk Покрівельник лізе нагору під дощем. Капання вщухає назавжди.
+ru Кровельщик лезет наверх под дождём. Капель стихает насовсем.
 
 moment.m_leak_bucket.expired
-* Someone put a bucket under it.
+cs Někdo pod to dal kbelík.
+en Someone put a bucket under it.
+uk Хтось підставив відро.
+ru Кто-то подставил ведро.
 
 # --- m_station_cat -----------------------------------------------------------------------------------------
 moment.m_station_cat.title
-* Someone with whiskers
+cs Někdo s vousky
+en Someone with whiskers
+uk Хтось із вусами
+ru Кто-то с усами
 
 moment.m_station_cat.text
-* The station cat sits by the door, wet and dignified, pretending not to look at you.
+cs Nádražní kocour sedí u dveří, mokrý a důstojný, a dělá, že se na tebe nedívá.
+en The station cat sits by the door, wet and dignified, pretending not to look at you.
+uk Вокзальний кіт сидить біля дверей, мокрий і гідний, і вдає, що не дивиться на тебе.
+ru Вокзальный кот сидит у двери, мокрый и полный достоинства, и делает вид, что не смотрит на тебя.
 
 moment.m_station_cat.opt.milk
-* A saucer of milk
+cs Podšálek mléka
+en A saucer of milk
+uk Блюдечко молока
+ru Блюдечко молока
 
 moment.m_station_cat.opt.ham
-* A bit of ham
+cs Kousek šunky
+en A bit of ham
+uk Шматочок шинки
+ru Кусочек ветчины
 
 moment.m_station_cat.opt.scratch
-* Scratch its ears
+cs Podrbat za ušima
+en Scratch its ears
+uk Почухати за вушком
+ru Почесать за ушком
 
 moment.m_station_cat.result.milk
-* Lap, lap, lap. A slow blink — that's a thank-you in cat.
+cs Lap, lap, lap. Pomalé mrknutí — to je kočičí děkuju.
+en Lap, lap, lap. A slow blink — that's a thank-you in cat.
+uk Хлеп, хлеп, хлеп. Повільне кліпання — це котяче «дякую».
+ru Лак, лак, лак. Медленное моргание — это кошачье «спасибо».
 
 moment.m_station_cat.result.ham
-* The ham is gone before it lands. The cat stays a little longer.
+cs Šunka zmizí dřív, než dopadne. Kocour zůstane o chvilku déle.
+en The ham is gone before it lands. The cat stays a little longer.
+uk Шинка зникає, ще не долетівши. Кіт лишається трохи довше.
+ru Ветчина исчезает, не долетев. Кот остаётся чуть дольше.
 
 moment.m_station_cat.result.scratch
-* If it knows you, it leans in. If it doesn't, it leaves with great dignity.
+cs Jestli tě zná, opře se. Jestli ne, odejde s velkou důstojností.
+en If it knows you, it leans in. If it doesn't, it leaves with great dignity.
+uk Якщо він тебе знає — притиснеться. Якщо ні — піде з великою гідністю.
+ru Если он тебя знает — прижмётся. Если нет — уйдёт с большим достоинством.
 
 moment.m_station_cat.expired
-* Someone left a saucer by the door.
+cs Někdo nechal u dveří podšálek.
+en Someone left a saucer by the door.
+uk Хтось лишив біля дверей блюдечко.
+ru Кто-то оставил у двери блюдечко.
 
 # --- m_lost_traveller ----------------------------------------------------------------------------------------
 moment.m_lost_traveller.title
-* A lost traveller
+cs Ztracený cestující
+en A lost traveller
+uk Заблукалий пасажир
+ru Заблудившийся пассажир
 
 moment.m_lost_traveller.text
-* A traveller stands in the doorway with a suitcase and a crumpled ticket, looking for the right platform.
+cs Ve dveřích stojí cestující s kufrem a zmačkanou jízdenkou a hledá správné nástupiště.
+en A traveller stands in the doorway with a suitcase and a crumpled ticket, looking for the right platform.
+uk У дверях стоїть пасажир із валізою та зім'ятим квитком і шукає потрібну платформу.
+ru В дверях стоит пассажир с чемоданом и смятым билетом и ищет нужную платформу.
 
 moment.m_lost_traveller.opt.app
-* Check the Shiftella app
+cs Podívat se do Shiftelly
+en Check the Shiftella app
+uk Глянути в Shiftella
+ru Посмотреть в Shiftella
 
 moment.m_lost_traveller.opt.napkin_map
-* Draw a map on a napkin
+cs Nakreslit mapku na ubrousek
+en Draw a map on a napkin
+uk Намалювати мапу на серветці
+ru Нарисовать карту на салфетке
 
 moment.m_lost_traveller.result.app
-* The right train, the right platform, three minutes to spare. They leave a tip and a grin.
+cs Správný vlak, správné nástupiště, tři minuty k dobru. Nechá dýško a úsměv.
+en The right train, the right platform, three minutes to spare. They leave a tip and a grin.
+uk Потрібний поїзд, потрібна платформа, ще й три хвилини в запасі. Лишає чайові й усмішку.
+ru Нужный поезд, нужная платформа, и ещё три минуты в запасе. Оставляет чаевые и улыбку.
 
 moment.m_lost_traveller.result.napkin_map
-* A napkin map with a little star on the platform. They keep it.
+cs Mapka na ubrousku s hvězdičkou u nástupiště. Schová si ji.
+en A napkin map with a little star on the platform. They keep it.
+uk Мапа на серветці із зірочкою біля платформи. Цю серветку забирають на згадку.
+ru Карта на салфетке со звёздочкой у платформы. Салфетку забирают на память.
 
 # --- m_stuffy_window -----------------------------------------------------------------------------------------
 moment.m_stuffy_window.title
-* It's stuffy in here
+cs Je tu dusno
+en It's stuffy in here
+uk Тут задушливо
+ru Здесь душно
 
 moment.m_stuffy_window.text
-* So many people, so much steam. The windows are crying.
+cs Tolik lidí, tolik páry. Okna pláčou.
+en So many people, so much steam. The windows are crying.
+uk Стільки людей, стільки пари. Вікна плачуть.
+ru Столько людей, столько пара. Окна плачут.
 
 moment.m_stuffy_window.opt.open
-* Open the window
+cs Otevřít okno
+en Open the window
+uk Відчинити вікно
+ru Открыть окно
 
 moment.m_stuffy_window.opt.leave
-* Leave it
+cs Nechat to být
+en Leave it
+uk Не чіпати
+ru Оставить как есть
 
 moment.m_stuffy_window.result.open
-* Cool air and the smell of rain. Someone orders something cold.
+cs Chladný vzduch a vůně deště. Někdo si objedná něco studeného.
+en Cool air and the smell of rain. Someone orders something cold.
+uk Прохолодне повітря й запах дощу. Хтось замовляє щось холодне.
+ru Прохладный воздух и запах дождя. Кто-то заказывает что-то холодное.
 
 moment.m_stuffy_window.result.leave
-* Cosy, if a little sticky.
+cs Útulné, i když trochu lepkavé.
+en Cosy, if a little sticky.
+uk Затишно, хоч і трохи липко.
+ru Уютно, хоть и немного липко.
 
 # --- m_fogged_window -----------------------------------------------------------------------------------------
 moment.m_fogged_window.title
-* The glass has fogged up
+cs Zamlžilo se sklo
+en The glass has fogged up
+uk Скло запітніло
+ru Стекло запотело
 
 moment.m_fogged_window.text
-* A train is coming. You can hear it, but you can't see it through the fogged glass.
+cs Jede vlak. Slyšíš ho, ale přes zamlžené sklo ho nevidíš.
+en A train is coming. You can hear it, but you can't see it through the fogged glass.
+uk Іде поїзд. Його чути, але крізь запітніле скло не видно.
+ru Идёт поезд. Его слышно, но сквозь запотевшее стекло не видно.
 
 moment.m_fogged_window.opt.wipe
-* Wipe the glass
+cs Otřít sklo
+en Wipe the glass
+uk Протерти скло
+ru Протереть стекло
 
 moment.m_fogged_window.result.wipe
-* Just in time — the train's light sweeps through the whole room.
+cs Právě včas — světlo vlaku přejede celou místnost.
+en Just in time — the train's light sweeps through the whole room.
+uk Саме вчасно — світло поїзда пробігає всією залою.
+ru Как раз вовремя — свет поезда пробегает по всему залу.
 
 # --- m_sleeping_guest -----------------------------------------------------------------------------------------
 moment.m_sleeping_guest.title
-* Someone fell asleep
+cs Někdo usnul
+en Someone fell asleep
+uk Хтось заснув
+ru Кто-то уснул
 
 moment.m_sleeping_guest.text
-* A guest has dozed off over an empty cup, head on their arm.
+cs Host podřimuje nad prázdným hrnkem, hlavu na ruce.
+en A guest has dozed off over an empty cup, head on their arm.
+uk Гість задрімав над порожньою чашкою, поклавши голову на руку.
+ru Гость задремал над пустой чашкой, положив голову на руку.
 
 moment.m_sleeping_guest.opt.blanket
-* Cover them with a blanket
+cs Přikrýt dekou
+en Cover them with a blanket
+uk Укрити пледом
+ru Укрыть пледом
 
 moment.m_sleeping_guest.opt.let_sleep
-* Let them sleep
+cs Nechat spát
+en Let them sleep
+uk Хай спить
+ru Пусть спит
 
 moment.m_sleeping_guest.opt.water
-* A glass of water, gently
+cs Sklenici vody, jemně
+en A glass of water, gently
+uk Склянку води, лагідно
+ru Стакан воды, тихонько
 
 moment.m_sleeping_guest.result.blanket
-* Grandma's checked blanket. They don't wake, but they smile.
+cs Babiččina kostkovaná deka. Neprobudí se, ale usměje.
+en Grandma's checked blanket. They don't wake, but they smile.
+uk Бабусин картатий плед. Гість не прокидається, але всміхається.
+ru Бабушкин клетчатый плед. Гость не просыпается, но улыбается.
 
 moment.m_sleeping_guest.result.let_sleep
-* The rain does the rest.
+cs Zbytek udělá déšť.
+en The rain does the rest.
+uk Решту зробить дощ.
+ru Остальное сделает дождь.
 
 moment.m_sleeping_guest.result.water
-* They wake slowly, drink, and leave lighter than they came.
+cs Pomalu se probudí, napije se a odchází lehčí, než přišel.
+en They wake slowly, drink, and leave lighter than they came.
+uk Гість поволі прокидається, п'є і йде легшим, ніж прийшов.
+ru Гость медленно просыпается, пьёт и уходит легче, чем пришёл.
 
 # --- m_drone_wrong_address ------------------------------------------------------------------------------------
 moment.m_drone_wrong_address.title
-* A lost delivery drone
+cs Zatoulaný doručovací dron
+en A lost delivery drone
+uk Заблукалий дрон-кур'єр
+ru Заблудившийся дрон-курьер
 
 moment.m_drone_wrong_address.text
-* A delivery drone taps the window, blinking "address not found". It has a small parcel.
+cs Doručovací dron ťuká na okno a bliká „adresa nenalezena“. Nese malý balíček.
+en A delivery drone taps the window, blinking "address not found". It has a small parcel.
+uk Дрон-кур'єр стукає у вікно й блимає «адресу не знайдено». У нього маленька посилка.
+ru Дрон-курьер стучит в окно и мигает «адрес не найден». У него маленькая посылка.
 
 moment.m_drone_wrong_address.opt.reroute
-* Re-route it in the Shiftella app
+cs Přesměrovat ho v Shiftelle
+en Re-route it in the Shiftella app
+uk Перенаправити його в Shiftella
+ru Перенаправить его в Shiftella
 
 moment.m_drone_wrong_address.opt.keep
-* Keep the parcel for pickup
+cs Nechat balíček k vyzvednutí
+en Keep the parcel for pickup
+uk Залишити посилку, доки заберуть
+ru Оставить посылку, пока не заберут
 
 moment.m_drone_wrong_address.result.reroute
-* It beeps twice — a thank-you, probably — and hums off over the roofs.
+cs Dvakrát pípne — asi děkuju — a odbzučí přes střechy.
+en It beeps twice — a thank-you, probably — and hums off over the roofs.
+uk Двічі пищить — мабуть, «дякую» — і гуде геть понад дахами.
+ru Дважды пищит — наверное, «спасибо» — и улетает, гудя, над крышами.
 
 moment.m_drone_wrong_address.result.keep
-* The parcel waits behind the counter. Someone will come for it.
+cs Balíček čeká za pultem. Někdo si pro něj přijde.
+en The parcel waits behind the counter. Someone will come for it.
+uk Посилка чекає за стійкою. Хтось по неї прийде.
+ru Посылка ждёт за стойкой. Кто-нибудь за ней придёт.
 
 moment.m_drone_wrong_address.expired
-* The drone found its own way. Somebody waved it off.
+cs Dron si cestu našel sám. Někdo mu zamával.
+en The drone found its own way. Somebody waved it off.
+uk Дрон сам знайшов дорогу. Хтось йому помахав.
+ru Дрон сам нашёл дорогу. Кто-то ему помахал.
 
 moment.m_drone_wrong_address.thanks
-* A message from the drone's owner: "Thanks for the re-route!" and 50 Kč.
+cs Zpráva od majitele dronu: „Díky za přesměrování!“ a 50 Kč.
+en A message from the drone's owner: "Thanks for the re-route!" and 50 Kč.
+uk Повідомлення від власника дрона: «Дякую за перенаправлення!» і 50 Kč.
+ru Сообщение от владельца дрона: «Спасибо, что перенаправили!» и 50 Kč.
 
 moment.m_drone_wrong_address.parcel
-* The parcel's owner came by and left a jar of butterfly pea flowers. "For the trouble."
+cs Majitelka balíčku se zastavila a nechala sklenici květů motýlího hrachu. „Za tu práci.“
+en The parcel's owner came by and left a jar of butterfly pea flowers. "For the trouble."
+uk Власниця посилки зайшла й залишила баночку квітів анчану. «За клопіт».
+ru Хозяйка посылки зашла и оставила баночку цветов анчана. «За хлопоты».
 
 moment.m_drone_wrong_address.collected
-* The parcel's owner came by, thanked you and left a tip.
+cs Majitel balíčku se zastavil, poděkoval a nechal dýško.
+en The parcel's owner came by, thanked you and left a tip.
+uk Власник посилки зайшов, подякував і залишив чайові.
+ru Владелец посылки зашёл, поблагодарил и оставил чаевые.
 
 # --- m_coffee_for_helper ------------------------------------------------------------------------------------------
 moment.m_coffee_for_helper.title
-* A tired helper
+cs Unavený pomocník
+en A tired helper
+uk Утомлений помічник
+ru Уставший помощник
 
 moment.m_coffee_for_helper.text
-* Your helper is moving slower, rubbing their eyes when they think nobody sees.
+cs Pomocník zpomaluje a mne si oči, když si myslí, že se nikdo nedívá.
+en Your helper is moving slower, rubbing their eyes when they think nobody sees.
+uk Помічник рухається повільніше й тре очі, коли думає, що ніхто не бачить.
+ru Помощник двигается медленнее и трёт глаза, когда думает, что никто не видит.
 
 moment.m_coffee_for_helper.opt.coffee
-* Make them a coffee
+cs Uvařit mu kafe
+en Make them a coffee
+uk Зварити йому каву
+ru Сварить ему кофе
 
 moment.m_coffee_for_helper.opt.break
-* Send them on a break
+cs Poslat ho na pauzu
+en Send them on a break
+uk Відправити на перерву
+ru Отправить на перерыв
 
 moment.m_coffee_for_helper.result.coffee
-* "For me? You didn't have to." They hold the cup with both hands.
+cs „Pro mě? To jsi nemusela.“ Drží hrnek oběma rukama.
+en "For me? You didn't have to." They hold the cup with both hands.
+uk «Мені? Не треба було». Тримає чашку обома руками.
+ru «Мне? Не стоило». Держит чашку обеими руками.
 
 moment.m_coffee_for_helper.result.break
-* Ten minutes on the back step. They come back humming.
+cs Deset minut na zadních schodech. Vrací se s broukáním.
+en Ten minutes on the back step. They come back humming.
+uk Десять хвилин на задньому ґанку. Повертається, наспівуючи.
+ru Десять минут на заднем крыльце. Возвращается, напевая.
 
 # --- m_hang_garlands -------------------------------------------------------------------------------------------------
 moment.m_hang_garlands.title
-* A box marked "Vánoce — L."
+cs Krabice s nápisem „Vánoce — L.“
+en A box marked "Vánoce — L."
+uk Коробка з написом «Vánoce — L.»
+ru Коробка с надписью «Vánoce — L.»
 
 moment.m_hang_garlands.text
-* Grandma's Christmas box is on the counter: garlands, tiny lights and a note — "windows first".
+cs Na pultu stojí babiččina vánoční krabice: girlandy, drobná světýlka a lísteček — „nejdřív okna“.
+en Grandma's Christmas box is on the counter: garlands, tiny lights and a note — "windows first".
+uk На стійці — бабусина різдвяна коробка: гірлянди, крихітні вогники й записка — «спершу вікна».
+ru На стойке — бабушкина рождественская коробка: гирлянды, крошечные огоньки и записка — «сначала окна».
 
 moment.m_hang_garlands.opt.hang
-* Hang them up
+cs Pověsit je
+en Hang them up
+uk Розвісити
+ru Развесить
 
 moment.m_hang_garlands.result.hang
-* Windows, counter, door. The café looks like it remembered something.
+cs Okna, pult, dveře. Kavárna vypadá, jako by si na něco vzpomněla.
+en Windows, counter, door. The café looks like it remembered something.
+uk Вікна, стійка, двері. Кав'ярня виглядає так, ніби щось пригадала.
+ru Окна, стойка, дверь. Кафе выглядит так, будто что-то вспомнило.
 
 moment.m_hang_garlands.expired
-* The crew will hang them in the morning.
+cs Tým je pověsí ráno.
+en The crew will hang them in the morning.
+uk Команда розвісить їх уранці.
+ru Команда развесит их утром.
 
 # --- m_leak_empty ----------------------------------------------------------------------------------------------------
 moment.m_leak_empty.title
-* The bucket is full
+cs Kbelík je plný
+en The bucket is full
+uk Відро повне
+ru Ведро полное
 
 moment.m_leak_empty.text
-* The bucket under the leak is nearly overflowing.
+cs Kbelík pod kapajícím stropem skoro přetéká.
+en The bucket under the leak is nearly overflowing.
+uk Відро під протікаючою стелею от-от переповниться.
+ru Ведро под протекающим потолком вот-вот переполнится.
 
 moment.m_leak_empty.opt.empty
-* Empty it
+cs Vylít ho
+en Empty it
+uk Вилити
+ru Вылить
 
 moment.m_leak_empty.result.empty
-* Emptied, back in place. The tune starts over.
+cs Vylito, zpátky na místě. Melodie začíná znovu.
+en Emptied, back in place. The tune starts over.
+uk Вилито, назад на місце. Мелодія починається знову.
+ru Вылито, обратно на место. Мелодия начинается заново.
 
 # --- m_busker -----------------------------------------------------------------------------------------------------------
 moment.m_busker.title
-* A busker in the rain
+cs Muzikant v dešti
+en A busker in the rain
+uk Вуличний музикант під дощем
+ru Уличный музыкант под дождём
 
 moment.m_busker.text
-* Someone is playing under the station awning, a guitar case open, rain on the strings.
+cs Pod stříškou nádraží někdo hraje, pouzdro od kytary otevřené, déšť na strunách.
+en Someone is playing under the station awning, a guitar case open, rain on the strings.
+uk Під навісом вокзалу хтось грає: футляр від гітари відкритий, дощ на струнах.
+ru Под навесом вокзала кто-то играет: футляр от гитары открыт, дождь на струнах.
 
 moment.m_busker.opt.tea
-* Bring them a tea
+cs Donést čaj
+en Bring them a tea
+uk Принести чаю
+ru Принести чаю
 
 moment.m_busker.opt.coin
-* A coin in the case
+cs Minci do pouzdra
+en A coin in the case
+uk Монету у футляр
+ru Монетку в футляр
 
 moment.m_busker.opt.ask_in
-* Ask them in to play
+cs Pozvat dovnitř hrát
+en Ask them in to play
+uk Запросити зіграти всередині
+ru Пригласить сыграть внутри
 
 moment.m_busker.result.tea
-* They nod a thank-you and play one more song, just for the window.
+cs Kývne na poděkování a zahraje ještě jednu, jen pro okno.
+en They nod a thank-you and play one more song, just for the window.
+uk Киває на знак подяки й грає ще одну пісню — лише для вікна.
+ru Кивает в знак благодарности и играет ещё одну песню — только для окна.
 
 moment.m_busker.result.coin
-* The coin clinks. The song goes on.
+cs Mince cinkne. Písnička pokračuje.
+en The coin clinks. The song goes on.
+uk Монета дзенькає. Пісня триває.
+ru Монетка звякает. Песня продолжается.
 
 moment.m_busker.result.ask_in
-* They shake off the rain and play by the stage. The hall comes alive.
+cs Otřepe déšť a hraje u pódia. Sál ožije.
+en They shake off the rain and play by the stage. The hall comes alive.
+uk Обтрушує дощ і грає біля сцени. Зала оживає.
+ru Стряхивает дождь и играет у сцены. Зал оживает.
 
 # --- m_first_snow ---------------------------------------------------------------------------------------------------------
 moment.m_first_snow.title
-* It's snowing
+cs Sněží
+en It's snowing
+uk Падає сніг
+ru Идёт снег
 
 moment.m_first_snow.text
-* The first snow of the year is falling past grandma's window, slow and silent.
+cs Za babiččiným oknem padá první letošní sníh, pomalu a tiše.
+en The first snow of the year is falling past grandma's window, slow and silent.
+uk За бабусиним вікном падає перший цьогорічний сніг, повільно й тихо.
+ru За бабушкиным окном падает первый в этом году снег, медленно и тихо.
 
 moment.m_first_snow.opt.call_all
-* Call everyone to look
+cs Zavolat všechny, ať se podívají
+en Call everyone to look
+uk Покликати всіх подивитися
+ru Позвать всех посмотреть
 
 moment.m_first_snow.opt.candle
-* A candle in the window
+cs Svíčku do okna
+en A candle in the window
+uk Свічку у вікно
+ru Свечу в окно
 
 moment.m_first_snow.result.call_all
-* Guests, crew, even the cat — everyone at the window, saying nothing at all.
+cs Hosté, tým, i kocour — všichni u okna a nikdo nic neříká.
+en Guests, crew, even the cat — everyone at the window, saying nothing at all.
+uk Гості, команда, навіть кіт — усі біля вікна, і ніхто нічого не каже.
+ru Гости, команда, даже кот — все у окна, и никто ничего не говорит.
 
 moment.m_first_snow.result.candle
-* A small flame against the snow. People outside slow down to look.
+cs Malý plamínek proti sněhu. Lidé venku zpomalují, aby se podívali.
+en A small flame against the snow. People outside slow down to look.
+uk Маленький вогник на тлі снігу. Перехожі сповільнюють крок, щоб подивитися.
+ru Маленький огонёк на фоне снега. Прохожие замедляют шаг, чтобы посмотреть.
 
 moment.m_first_snow.expired
-* The snow kept falling. Nobody minded.
+cs Sníh padal dál. Nikomu to nevadilo.
+en The snow kept falling. Nobody minded.
+uk Сніг падав далі. Нікого це не турбувало.
+ru Снег шёл дальше. Никто не возражал.
 
 # --- m_umbrellas ------------------------------------------------------------------------------------------------------------
 moment.m_umbrellas.title
-* Wet umbrellas everywhere
+cs Všude mokré deštníky
+en Wet umbrellas everywhere
+uk Скрізь мокрі парасольки
+ru Повсюду мокрые зонты
 
 moment.m_umbrellas.text
-* A downpour, and every guest brings half of it in with them.
+cs Liják, a každý host si půlku přinese s sebou dovnitř.
+en A downpour, and every guest brings half of it in with them.
+uk Злива, і кожен гість заносить половину її всередину.
+ru Ливень, и каждый гость приносит половину его с собой.
 
 moment.m_umbrellas.opt.stand
-* Put out the umbrella stand
+cs Postavit stojan na deštníky
+en Put out the umbrella stand
+uk Поставити стійку для парасольок
+ru Поставить подставку для зонтов
 
 moment.m_umbrellas.opt.newspapers
-* Newspapers on the floor
+cs Noviny na podlahu
+en Newspapers on the floor
+uk Газети на підлогу
+ru Газеты на пол
 
 moment.m_umbrellas.result.stand
-* Umbrellas in a row, dripping politely.
+cs Deštníky v řadě, zdvořile odkapávají.
+en Umbrellas in a row, dripping politely.
+uk Парасольки в ряд, чемно скрапують.
+ru Зонты в ряд, вежливо капают.
 
 moment.m_umbrellas.result.newspapers
-* Yesterday's news, today's doormat. Vera approves.
+cs Včerejší zprávy, dnešní rohožka. Věra schvaluje.
+en Yesterday's news, today's doormat. Vera approves.
+uk Учорашні новини — сьогоднішній килимок. Віра схвалює.
+ru Вчерашние новости — сегодняшний коврик. Вера одобряет.
 
 # --- m_forgotten_item ----------------------------------------------------------------------------------------------------------
 moment.m_forgotten_item.title
-* Something left behind
+cs Něco tu zůstalo
+en Something left behind
+uk Хтось щось забув
+ru Кто-то что-то забыл
 
 moment.m_forgotten_item.text
-* An umbrella hangs from an empty chair. Its owner is just crossing the street.
+cs Na prázdné židli visí deštník. Jeho majitel právě přechází ulici.
+en An umbrella hangs from an empty chair. Its owner is just crossing the street.
+uk На порожньому стільці висить парасолька. Її власник саме переходить вулицю.
+ru На пустом стуле висит зонт. Его владелец как раз переходит улицу.
 
 moment.m_forgotten_item.opt.run
-* Run after them
+cs Doběhnout ho
+en Run after them
+uk Наздогнати
+ru Догнать
 
 moment.m_forgotten_item.opt.lost_found
-* The lost & found box
+cs Do krabice ztrát a nálezů
+en The lost & found box
+uk У коробку знахідок
+ru В коробку находок
 
 moment.m_forgotten_item.result.run
-* You catch them at the crossing. They laugh, and press a coin into your hand.
+cs Dostihneš ho na přechodu. Zasměje se a vtiskne ti do dlaně minci.
+en You catch them at the crossing. They laugh, and press a coin into your hand.
+uk Ти наздоганяєш його на переході. Він сміється й тисне тобі в долоню монету.
+ru Ты догоняешь его на переходе. Он смеётся и вкладывает тебе в ладонь монетку.
 
 moment.m_forgotten_item.result.lost_found
-* Into the box. They came back for it before dawn.
+cs Do krabice. Před svítáním se pro něj vrátil.
+en Into the box. They came back for it before dawn.
+uk У коробку. Ще до світанку по неї повернулися.
+ru В коробку. Ещё до рассвета за ним вернулись.
 
 moment.m_forgotten_item.expired
-* It went into the lost & found box. Its owner came back for it.
+cs Skončil v krabici ztrát a nálezů. Majitel se pro něj vrátil.
+en It went into the lost & found box. Its owner came back for it.
+uk Парасолька потрапила в коробку знахідок. Власник по неї повернувся.
+ru Зонт попал в коробку находок. Владелец за ним вернулся.
 
 # --- m_dead_phone -----------------------------------------------------------------------------------------------------------------
 moment.m_dead_phone.title
-* A dead phone
+cs Vybitý telefon
+en A dead phone
+uk Розряджений телефон
+ru Разряженный телефон
 
 moment.m_dead_phone.text
-* A guest stares at a black screen. Their ticket, their map, their whole night is on it.
+cs Host zírá na černou obrazovku. Jízdenka, mapa, celá jeho noc je v ní.
+en A guest stares at a black screen. Their ticket, their map, their whole night is on it.
+uk Гість дивиться на чорний екран. Квиток, мапа, уся ніч — там.
+ru Гость смотрит на чёрный экран. Билет, карта, вся ночь — там.
 
 moment.m_dead_phone.opt.charger
-* Lend the counter charger
+cs Půjčit nabíječku od pultu
+en Lend the counter charger
+uk Позичити зарядку зі стійки
+ru Одолжить зарядку со стойки
 
 moment.m_dead_phone.opt.socket
-* Point to the socket table
+cs Ukázat na stůl se zásuvkou
+en Point to the socket table
+uk Показати на столик із розеткою
+ru Показать на столик с розеткой
 
 moment.m_dead_phone.result.charger
-* Two per cent, five per cent, saved.
+cs Dvě procenta, pět procent, zachráněno.
+en Two per cent, five per cent, saved.
+uk Два відсотки, п'ять відсотків — урятовано.
+ru Два процента, пять процентов — спасено.
 
 moment.m_dead_phone.result.socket
-* They move tables, relieved.
+cs S úlevou se přesune k jinému stolu.
+en They move tables, relieved.
+uk Гість із полегшенням пересідає.
+ru Гость с облегчением пересаживается.
 
 # --- m_tired_parent ------------------------------------------------------------------------------------------------------------------
 moment.m_tired_parent.title
-* A tired parent
+cs Unavený rodič
+en A tired parent
+uk Утомлений батько
+ru Уставший родитель
 
 moment.m_tired_parent.text
-* A parent off the train, a sleepy child on their lap, both too tired to order.
+cs Rodič z vlaku, na klíně ospalé dítě, oba moc unavení, než aby si objednali.
+en A parent off the train, a sleepy child on their lap, both too tired to order.
+uk З поїзда — батько чи мати із сонною дитиною на руках, обоє надто втомлені, щоб замовити.
+ru С поезда — родитель с сонным ребёнком на коленях, оба слишком устали, чтобы заказать.
 
 moment.m_tired_parent.opt.warm_milk
-* Warm milk, on the house
+cs Teplé mléko na účet podniku
+en Warm milk, on the house
+uk Тепле молоко за рахунок закладу
+ru Тёплое молоко за счёт заведения
 
 moment.m_tired_parent.opt.blanket
-* A blanket for the little one
+cs Deku pro malé
+en A blanket for the little one
+uk Плед для малечі
+ru Плед для малыша
 
 moment.m_tired_parent.result.warm_milk
-* The little one drinks half and falls asleep. The parent mouths "thank you".
+cs Malé vypije půlku a usne. Rodič bez hlasu řekne „děkuju“.
+en The little one drinks half and falls asleep. The parent mouths "thank you".
+uk Мале випиває половину й засинає. Дорослий беззвучно шепоче «дякую».
+ru Малыш выпивает половину и засыпает. Взрослый беззвучно шепчет «спасибо».
 
 moment.m_tired_parent.result.blanket
-* Tucked in like a small parcel. The parent finally sits back.
+cs Zabalené jako malý balíček. Rodič se konečně opře.
+en Tucked in like a small parcel. The parent finally sits back.
+uk Загорнуте, як маленька посилка. Дорослий нарешті відкидається на спинку.
+ru Укутан, как маленькая посылка. Взрослый наконец откидывается на спинку.
 
 # --- m_delay_board ---------------------------------------------------------------------------------------------------------------------
 moment.m_delay_board.title
-* The trains are late
+cs Vlaky mají zpoždění
+en The trains are late
+uk Поїзди запізнюються
+ru Поезда опаздывают
 
 moment.m_delay_board.text
-* The station board blinks DELAYED. A café full of people who meant to be somewhere else.
+cs Nádražní tabule bliká ZPOŽDĚNÍ. Kavárna plná lidí, kteří měli být jinde.
+en The station board blinks DELAYED. A café full of people who meant to be somewhere else.
+uk Вокзальне табло блимає ЗАТРИМКА. Кав'ярня, повна людей, які мали бути деінде.
+ru Вокзальное табло мигает ЗАДЕРЖКА. Кафе, полное людей, которые должны были быть где-то ещё.
 
 moment.m_delay_board.opt.refills
-* Free refills for the waiting
+cs Doléváme zdarma těm, co čekají
+en Free refills for the waiting
+uk Безкоштовна доливка для тих, хто чекає
+ru Бесплатная доливка тем, кто ждёт
 
 moment.m_delay_board.opt.board
-* Put the station board on the café screen
+cs Pustit nádražní tabuli na obrazovku kavárny
+en Put the station board on the café screen
+uk Вивести вокзальне табло на екран кав'ярні
+ru Вывести вокзальное табло на экран кафе
 
 moment.m_delay_board.result.refills
-* Nobody minds waiting quite so much.
+cs Čekání najednou nikomu tolik nevadí.
+en Nobody minds waiting quite so much.
+uk Чекати вже нікому не так прикро.
+ru Ждать уже никому не так досадно.
 
 moment.m_delay_board.result.board
-* Now everyone can see the minutes tick down. Fewer anxious glances at the door.
+cs Teď všichni vidí, jak minuty ubývají. Méně nervózních pohledů ke dveřím.
+en Now everyone can see the minutes tick down. Fewer anxious glances at the door.
+uk Тепер усі бачать, як спливають хвилини. Менше тривожних поглядів на двері.
+ru Теперь все видят, как утекают минуты. Меньше тревожных взглядов на дверь.
 
 # --- m_radio_tuning ------------------------------------------------------------------------------------------------------------------------
 moment.m_radio_tuning.title
-* Grandma's radio
+cs Babiččino rádio
+en Grandma's radio
+uk Бабусине радіо
+ru Бабушкино радио
 
 moment.m_radio_tuning.text
-* The old radio crackles between stations. The dial is warm under your fingers.
+cs Staré rádio chrčí mezi stanicemi. Ladicí knoflík je pod prsty teplý.
+en The old radio crackles between stations. The dial is warm under your fingers.
+uk Старе радіо тріщить між станціями. Ручка налаштування тепла під пальцями.
+ru Старое радио трещит между станциями. Ручка настройки тёплая под пальцами.
 
 moment.m_radio_tuning.opt.jazz
-* Night jazz
+cs Noční jazz
+en Night jazz
+uk Нічний джаз
+ru Ночной джаз
 
 moment.m_radio_tuning.opt.waltz
-* An old waltz
+cs Starý valčík
+en An old waltz
+uk Старий вальс
+ru Старый вальс
 
 moment.m_radio_tuning.opt.static
-* Static…
+cs Šum…
+en Static…
+uk Шум…
+ru Шум…
 
 moment.m_radio_tuning.result.jazz
-* A piano, somewhere far away, playing just for the night shift.
+cs Klavír, někde daleko, hraje jen pro noční směnu.
+en A piano, somewhere far away, playing just for the night shift.
+uk Піаніно, десь далеко, грає лише для нічної зміни.
+ru Пианино, где-то далеко, играет только для ночной смены.
 
 moment.m_radio_tuning.result.waltz
-* Grandma's waltz, thin and silver through the old speaker.
+cs Babiččin valčík, tenký a stříbrný ze starého reproduktoru.
+en Grandma's waltz, thin and silver through the old speaker.
+uk Бабусин вальс, тонкий і срібний, зі старого динаміка.
+ru Бабушкин вальс, тонкий и серебряный, из старого динамика.
 
 moment.m_radio_tuning.result.static
-* Rain through the speaker, and for a second a voice: "…osobní vlak Rn 333, nástupiště dvě…" Then nothing.
+cs Déšť v reproduktoru a na vteřinu hlas: „…osobní vlak Rn 333, nástupiště dvě…“ Pak nic.
+en Rain through the speaker, and for a second a voice: "…osobní vlak Rn 333, nástupiště dvě…" Then nothing.
+uk Дощ у динаміку, і на секунду — голос: «…osobní vlak Rn 333, nástupiště dvě…» Потім нічого.
+ru Дождь в динамике, и на секунду — голос: «…osobní vlak Rn 333, nástupiště dvě…» Потом ничего.
 
 # --- m_bulb_flicker -----------------------------------------------------------------------------------------------------------------------------
 moment.m_bulb_flicker.title
-* The window lamp flickers
+cs Lampa v okně bliká
+en The window lamp flickers
+uk Лампа у вікні блимає
+ru Лампа в окне мигает
 
 moment.m_bulb_flicker.text
-* The light in the window stutters once, twice.
+cs Světlo v okně škytne jednou, dvakrát.
+en The light in the window stutters once, twice.
+uk Світло у вікні затинається раз, другий.
+ru Свет в окне запинается раз, другой.
 
 moment.m_bulb_flicker.opt.spare_bulb
-* Grandma's spare bulb
+cs Babiččina náhradní žárovka
+en Grandma's spare bulb
+uk Бабусина запасна лампочка
+ru Бабушкина запасная лампочка
 
 moment.m_bulb_flicker.result.spare_bulb
-* There's a box of spares in the drawer, labelled in her hand. She kept spares for sixty years.
+cs V šuplíku je krabička náhradních, popsaná jejím písmem. Náhradní žárovky schovávala šedesát let.
+en There's a box of spares in the drawer, labelled in her hand. She kept spares for sixty years.
+uk У шухляді — коробка запасних, підписана її рукою. Вона тримала запасні шістдесят років.
+ru В ящике — коробка запасных, подписанная её рукой. Она держала запасные шестьдесят лет.
 
 # --- m_parcel_lviv ---------------------------------------------------------------------------------------------------------------------------------
 moment.m_parcel_lviv.title
-* A parcel from Lviv
+cs Balík ze Lvova
+en A parcel from Lviv
+uk Посилка зі Львова
+ru Посылка из Львова
 
 moment.m_parcel_lviv.text
-* A parcel for Oleh, tied with string, smelling of dried pears. His mother's handwriting on top.
+cs Balík pro Oleha, převázaný provázkem, voní sušenými hruškami. Nahoře písmo jeho mámy.
+en A parcel for Oleh, tied with string, smelling of dried pears. His mother's handwriting on top.
+uk Посилка для Олега, перев'язана мотузком, пахне сушеними грушами. Зверху — мамин почерк.
+ru Посылка для Олега, перевязанная бечёвкой, пахнет сушёными грушами. Сверху — мамин почерк.
 
 moment.m_parcel_lviv.opt.open
-* Open it with Oleh
+cs Otevřít ho s Olehem
+en Open it with Oleh
+uk Відкрити разом з Олегом
+ru Открыть вместе с Олегом
 
 moment.m_parcel_lviv.opt.morning
-* Save it for the morning
+cs Nechat to na ráno
+en Save it for the morning
+uk Залишити до ранку
+ru Оставить до утра
 
 moment.m_parcel_lviv.result.open
-* Dried fruit, beetroot, a jar of honey and a note he reads twice. "She says to feed you too."
+cs Sušené ovoce, řepa, sklenice medu a lístek, který si přečte dvakrát. „Píše, ať krmím i tebe.“
+en Dried fruit, beetroot, a jar of honey and a note he reads twice. "She says to feed you too."
+uk Сухофрукти, буряк, банка меду й записка, яку він перечитує двічі. «Каже, щоб я й тебе годував».
+ru Сухофрукты, свёкла, банка мёда и записка, которую он перечитывает дважды. «Говорит, чтобы я и тебя кормил».
 
 moment.m_parcel_lviv.result.morning
-* It waits on the shelf until the morning. Oleh keeps glancing at it.
+cs Do rána čeká na polici. Oleh po něm pořád pokukuje.
+en It waits on the shelf until the morning. Oleh keeps glancing at it.
+uk Посилка чекає на полиці до ранку. Олег раз у раз на неї поглядає.
+ru Посылка ждёт на полке до утра. Олег то и дело на неё поглядывает.
 
 moment.m_parcel_lviv.expired
-* Oleh opened it in the morning and shared everything.
+cs Oleh ho ráno otevřel a se všemi se rozdělil.
+en Oleh opened it in the morning and shared everything.
+uk Олег відкрив її вранці й поділився з усіма.
+ru Олег открыл её утром и поделился со всеми.
 
 # --- m_advent_candle --------------------------------------------------------------------------------------------------------------------------------------
 moment.m_advent_candle.title
-* The Advent wreath
+cs Adventní věnec
+en The Advent wreath
+uk Адвентовий вінок
+ru Адвентский венок
 
 moment.m_advent_candle.text
-* Grandma's wreath on the counter, the next candle waiting.
+cs Babiččin věnec na pultu, další svíčka čeká.
+en Grandma's wreath on the counter, the next candle waiting.
+uk Бабусин вінок на стійці, наступна свічка чекає.
+ru Бабушкин венок на стойке, следующая свеча ждёт.
 
 moment.m_advent_candle.opt.light
-* Light the candle
+cs Zapálit svíčku
+en Light the candle
+uk Запалити свічку
+ru Зажечь свечу
 
 moment.m_advent_candle.result.light
-* One more small flame. The counter glows a little warmer.
+cs Ještě jeden malý plamínek. Pult září o kousek tepleji.
+en One more small flame. The counter glows a little warmer.
+uk Ще один маленький вогник. Стійка світиться трохи тепліше.
+ru Ещё один маленький огонёк. Стойка светится чуть теплее.
 
 # --- m_mikulas -----------------------------------------------------------------------------------------------------------------------------------------------
 moment.m_mikulas.title
-* Mikuláš, an angel and a devil
+cs Mikuláš, anděl a čert
+en Mikuláš, an angel and a devil
+uk Мікулаш, ангел і чорт
+ru Микулаш, ангел и чёрт
 
 moment.m_mikulas.text
-* Three students in costume burst in from the snow: "A poem for something warm?"
+cs Tři studenti v kostýmech vtrhnou dovnitř ze sněhu: „Básnička za něco teplého?“
+en Three students in costume burst in from the snow: "A poem for something warm?"
+uk Троє студентів у костюмах вриваються зі снігу: «Віршик за щось тепле?»
+ru Трое студентов в костюмах врываются со снега: «Стишок за что-нибудь тёплое?»
 
 moment.m_mikulas.opt.cocoa
-* Hot chocolate on the house
+cs Horká čokoláda na účet podniku
+en Hot chocolate on the house
+uk Гарячий шоколад за рахунок закладу
+ru Горячий шоколад за счёт заведения
 
 moment.m_mikulas.opt.kolac
-* A koláč for each
+cs Každému koláč
+en A koláč for each
+uk Кожному по колачу
+ru Каждому по колачу
 
 moment.m_mikulas.opt.applause
-* Just applause
+cs Jen potlesk
+en Just applause
+uk Лише оплески
+ru Только аплодисменты
 
 moment.m_mikulas.result.cocoa
-* The devil recites the poem, the angel forgets the words, Mikuláš drinks the most.
+cs Čert odříká básničku, anděl zapomene slova, Mikuláš vypije nejvíc.
+en The devil recites the poem, the angel forgets the words, Mikuláš drinks the most.
+uk Чорт декламує віршик, ангел забуває слова, а Мікулаш п'є найбільше.
+ru Чёрт декламирует стишок, ангел забывает слова, а Микулаш пьёт больше всех.
 
 moment.m_mikulas.result.kolac
-* Three koláče, three bows, one very sticky devil.
+cs Tři koláče, tři úklony, jeden hodně ulepený čert.
+en Three koláče, three bows, one very sticky devil.
+uk Три колачі, три поклони, один дуже липкий чорт.
+ru Три колача, три поклона, один очень липкий чёрт.
 
 moment.m_mikulas.result.applause
-* The whole café claps. The devil takes a bow.
+cs Celá kavárna tleská. Čert se ukloní.
+en The whole café claps. The devil takes a bow.
+uk Уся кав'ярня аплодує. Чорт кланяється.
+ru Всё кафе аплодирует. Чёрт кланяется.
 
 # --- m_cat_name -------------------------------------------------------------------------------------------------------------------------------------------------
 moment.m_cat_name.title
-* The cat needs a name
+cs Kocour potřebuje jméno
+en The cat needs a name
+uk Котові потрібне ім'я
+ru Коту нужно имя
 
 moment.m_cat_name.text
-* The cat lives here now. Everyone agrees. It's time it had a name.
+cs Kocour tu teď bydlí. Všichni souhlasí. Je čas, aby měl jméno.
+en The cat lives here now. Everyone agrees. It's time it had a name.
+uk Кіт тепер живе тут. Усі згодні. Час йому мати ім'я.
+ru Кот теперь живёт здесь. Все согласны. Пора ему обзавестись именем.
 
 moment.m_cat_name.opt.vlak
 * Vlak
@@ -508,10 +979,19 @@ moment.m_cat_name.opt.lidka
 * Lidka
 
 moment.m_cat_name.result.vlak
-* Vlak, like the trains it watches. It doesn't look up. That means yes.
+cs Vlak, jako ty vlaky, na které se dívá. Ani nezvedne hlavu. To znamená ano.
+en Vlak, like the trains it watches. It doesn't look up. That means yes.
+uk Vlak — чеською «поїзд», як ті, за якими він стежить. Навіть голови не підводить. Отже, так.
+ru Vlak — по-чешски «поезд», как те, за которыми он следит. Даже головы не поднимает. Значит, да.
 
 moment.m_cat_name.result.kofi
-* Kofi. It sniffs your cup as if to confirm.
+cs Kofi. Očichá ti hrnek, jako by to potvrzoval.
+en Kofi. It sniffs your cup as if to confirm.
+uk Kofi. Він обнюхує твою чашку, ніби підтверджує.
+ru Kofi. Он обнюхивает твою чашку, будто подтверждает.
 
 moment.m_cat_name.result.lidka
-* Lidka. It curls up in grandma's chair, as if it always knew.
+cs Lidka. Stočí se v babiččině křesle, jako by to věděl odjakživa.
+en Lidka. It curls up in grandma's chair, as if it always knew.
+uk Lidka. Він згортається клубочком у бабусиному кріслі, ніби завжди знав.
+ru Lidka. Он сворачивается клубком в бабушкином кресле, будто всегда знал.

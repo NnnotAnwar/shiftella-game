@@ -1,13 +1,16 @@
 # The café over time (design/handson.md §6, §10, §11): jukebox records, seasons and the story
 # calendar, decor themes, reward furniture, the station cat, polaroid journal captions, napkins,
-# regulars' rituals. English placeholder texts in every language until T9 (see handson_TODO.txt).
+# regulars' rituals. Record, band and cat names stay as written.
 
 # --- records (§10.2) -------------------------------------------------------------------------------
 record.rec_prague_swing.title
 * Holešovice Swing, 1938
 
 record.rec_prague_swing.artist
-* The Tram Twelve Band — clarinet & brushes
+cs The Tram Twelve Band — klarinet a metličky
+en The Tram Twelve Band — clarinet & brushes
+uk The Tram Twelve Band — кларнет і щітки
+ru The Tram Twelve Band — кларнет и щётки
 
 record.rec_piano_trio.title
 * Last Tram Trio
@@ -19,19 +22,34 @@ record.rec_bossa_rain.title
 * Bossa for a Rainy Platform
 
 record.rec_bossa_rain.artist
-* Lina Morais & friends
+cs Lina Morais a přátelé
+en Lina Morais & friends
+uk Lina Morais і друзі
+ru Lina Morais и друзья
 
 record.rec_folk_lullaby.title
-* Kolyskova — Carpathian Lullabies
+cs Kolyskova — karpatské ukolébavky
+en Kolyskova — Carpathian Lullabies
+uk Колискова — карпатські колисанки
+ru Колискова — карпатские колыбельные
 
 record.rec_folk_lullaby.artist
-* bandura, cimbalom & accordion
+cs bandura, cimbál a akordeon
+en bandura, cimbalom & accordion
+uk бандура, цимбали й акордеон
+ru бандура, цимбалы и аккордеон
 
 record.rec_folk_lullaby.hint
-* Someone from far away might bring one.
+cs Možná ji přiveze někdo zdaleka.
+en Someone from far away might bring one.
+uk Може, хтось привезе її здалеку.
+ru Может, кто-то привезёт её издалека.
 
 record.rec_folk_lullaby.source
-* Oleh brought it from Lviv: "My grandmother's. It should play somewhere."
+cs Oleh ji přivezl ze Lvova: „Po babičce. Měla by někde hrát.“
+en Oleh brought it from Lviv: "My grandmother's. It should play somewhere."
+uk Олег привіз її зі Львова: «Бабусина. Вона має десь грати».
+ru Олег привёз её из Львова: «Бабушкина. Она должна где-то играть».
 
 record.rec_synth_2039.title
 * Holešovice 2039
@@ -40,237 +58,462 @@ record.rec_synth_2039.artist
 * SLEEPER CAR
 
 record.rec_synth_2039.hint
-* A record that hasn't been made yet.
+cs Deska, která ještě nevznikla.
+en A record that hasn't been made yet.
+uk Платівка, якої ще не існує.
+ru Пластинка, которой ещё не существует.
 
 record.rec_synth_2039.source
-* Filip cut it himself, in his room, at four in the morning.
+cs Filip ji nahrál sám, u sebe v pokoji, ve čtyři ráno.
+en Filip cut it himself, in his room, at four in the morning.
+uk Філіп записав її сам, у своїй кімнаті, о четвертій ранку.
+ru Филип записал её сам, у себя в комнате, в четыре утра.
 
 record.rec_cafe_waltz.title
-* Lida's Waltz
+cs Lídin valčík
+en Lida's Waltz
+uk Лідин вальс
+ru Лидин вальс
 
 record.rec_cafe_waltz.artist
-* a handwritten label: "Pro J."
+cs ručně psaný štítek: „Pro J.“
+en a handwritten label: "Pro J."
+uk рукописна наліпка: «Pro J.»
+ru надпись от руки: «Pro J.»
 
 record.rec_cafe_waltz.hint
-* Grandma kept one record apart.
+cs Jednu desku měla babička schovanou zvlášť.
+en Grandma kept one record apart.
+uk Одну платівку бабуся тримала окремо.
+ru Одну пластинку бабушка хранила отдельно.
 
 record.rec_cafe_waltz.source
-* Found in an empty sleeve in the storeroom. The label says "Pro J." in grandma's hand.
+cs Nalezena v prázdném obalu ve skladu. Na štítku babiččiným písmem „Pro J.“
+en Found in an empty sleeve in the storeroom. The label says "Pro J." in grandma's hand.
+uk Знайдена в порожньому конверті в коморі. На наліпці бабусиною рукою: «Pro J.»
+ru Найдена в пустом конверте в кладовке. На наклейке бабушкиной рукой: «Pro J.»
 
 record.rec_prague_swing.liked.mirek
-* Ha! We danced to this at the depot party. 1987, I think.
+cs Ha! Na tohle jsme tancovali na večírku v depu. Myslím, že v sedmaosmdesátém.
+en Ha! We danced to this at the depot party. 1987, I think.
+uk Ха! Під це ми танцювали на вечірці в депо. Здається, у вісімдесят сьомому.
+ru Ха! Под это мы танцевали на вечеринке в депо. Кажется, в восемьдесят седьмом.
 
 record.rec_prague_swing.liked.radek
-* Swing! The trams used to run on this rhythm.
+cs Swing! V tomhle rytmu jezdily tramvaje.
+en Swing! The trams used to run on this rhythm.
+uk Свінг! У цьому ритмі колись ходили трамваї.
+ru Свинг! В этом ритме когда-то ходили трамваи.
 
 record.rec_piano_trio.liked.radek
-* Now that's music for a dispatcher. Everything on time.
+cs Tak tohle je muzika pro výpravčího. Všechno na čas.
+en Now that's music for a dispatcher. Everything on time.
+uk Оце музика для чергового. Усе вчасно.
+ru Вот это музыка для дежурного. Всё вовремя.
 
 record.rec_piano_trio.liked.guest_anwar
-* …this one's nice to work to.
+cs …u tohohle se dobře pracuje.
+en …this one's nice to work to.
+uk …під це добре працюється.
+ru …под это хорошо работается.
 
 record.rec_bossa_rain.liked.lori
-* Oh, that chord. Turn it up a little, would you?
+cs Ach, ten akord. Zesílíš to trochu?
+en Oh, that chord. Turn it up a little, would you?
+uk О, цей акорд. Зробиш трохи голосніше?
+ru О, этот аккорд. Сделаешь чуть погромче?
 
 record.rec_bossa_rain.disliked.mirek
-* Too much samba for a Czech night, eh?
+cs Na českou noc až moc samby, ne?
+en Too much samba for a Czech night, eh?
+uk Забагато самби як для чеської ночі, га?
+ru Многовато самбы для чешской ночи, а?
 
 record.rec_folk_lullaby.liked.hana
-* My mum sang that. I'd forgotten.
+cs Tohle zpívala moje máma. Zapomněla jsem.
+en My mum sang that. I'd forgotten.
+uk Це співала моя мама. А я й забула.
+ru Это пела моя мама. А я и забыла.
 
 record.rec_folk_lullaby.liked.vera
-* Hm. Lida used to hum this one. Badly.
+cs Hm. Tohle si Lída broukala. Falešně.
+en Hm. Lida used to hum this one. Badly.
+uk Гм. Ліда це наспівувала. Фальшиво.
+ru Хм. Лида это напевала. Фальшиво.
 
 record.rec_synth_2039.liked.filip
-* Wait — is that my track? In here? I'm going to cry.
+cs Počkej — to je můj track? Tady? Já se rozbrečím.
+en Wait — is that my track? In here? I'm going to cry.
+uk Стоп — це мій трек? Тут? Я зараз розплачуся.
+ru Стоп — это мой трек? Здесь? Я сейчас расплачусь.
 
 record.rec_synth_2039.liked.guest_anwar
-* That's a good loop.
+cs Dobrá smyčka.
+en That's a good loop.
+uk Гарний луп.
+ru Хороший луп.
 
 record.rec_synth_2039.disliked.vera
-* That's not music, that's a fridge.
+cs To není hudba, to je lednička.
+en That's not music, that's a fridge.
+uk Це не музика, це холодильник.
+ru Это не музыка, это холодильник.
 
 record.rec_cafe_waltz.liked.vera
-* She played this every New Year's Eve. Every single one.
+cs Hrála to každého Silvestra. Úplně každého.
+en She played this every New Year's Eve. Every single one.
+uk Вона ставила це кожного Нового року. Кожнісінького.
+ru Она ставила это каждый Новый год. Каждый без исключения.
 
 record.rec_cafe_waltz.liked.mirek
-* …I haven't heard that in a long time, Karolina.
+cs …tohle jsem dlouho neslyšel, Karolino.
+en …I haven't heard that in a long time, Karolina.
+uk …я давно цього не чув, Кароліно.
+ru …давно я этого не слышал, Каролина.
 
 record.rec_cafe_waltz.liked.guest_333
-* He hums along, very quietly.
+cs Velmi tiše si to pobrukuje.
+en He hums along, very quietly.
+uk Він дуже тихо підспівує.
+ru Он очень тихо подпевает.
 
 # --- seasons (§11.1) ------------------------------------------------------------------------------------
 season.late_autumn.name
-* Late autumn
+cs Pozdní podzim
+en Late autumn
+uk Пізня осінь
+ru Поздняя осень
 
 season.late_autumn.toast
-* Wet leaves on the doorstep. Autumn has settled in.
+cs Mokré listí na prahu. Podzim se zabydlel.
+en Wet leaves on the doorstep. Autumn has settled in.
+uk Мокре листя на порозі. Осінь оселилася.
+ru Мокрые листья на пороге. Осень обосновалась.
 
 season.frost.name
-* Frost
+cs Mráz
+en Frost
+uk Мороз
+ru Мороз
 
 season.frost.toast
-* Frost in the window corners this morning.
+cs Ráno mráz v rozích oken.
+en Frost in the window corners this morning.
+uk Зранку іній у кутиках вікон.
+ru Утром иней в уголках окон.
 
 season.advent.name
-* Advent
+cs Advent
+en Advent
+uk Адвент
+ru Адвент
 
 season.advent.toast
-* Advent. Grandma would be getting out the box by now.
+cs Advent. Babička by už vytahovala tu krabici.
+en Advent. Grandma would be getting out the box by now.
+uk Адвент. Бабуся вже діставала б ту коробку.
+ru Адвент. Бабушка уже доставала бы ту коробку.
 
 season.first_snow.name
-* First snow
+cs První sníh
+en First snow
+uk Перший сніг
+ru Первый снег
 
 season.first_snow.toast
-* Snow on the roofs of Holešovice.
+cs Sníh na střechách Holešovic.
+en Snow on the roofs of Holešovice.
+uk Сніг на дахах Голешовиць.
+ru Снег на крышах Голешовице.
 
 season.spring.name
-* Spring
+cs Jaro
+en Spring
+uk Весна
+ru Весна
 
 season.spring.toast
-* Spring rain, and petals stuck to the window.
+cs Jarní déšť a okvětní lístky přilepené na okně.
+en Spring rain, and petals stuck to the window.
+uk Весняний дощ і пелюстки, що прилипли до вікна.
+ru Весенний дождь и лепестки, прилипшие к окну.
 
 season.summer.name
-* Summer
+cs Léto
+en Summer
+uk Літо
+ru Лето
 
 season.summer.toast
-* Warm nights. The windows stay open.
+cs Teplé noci. Okna zůstávají otevřená.
+en Warm nights. The windows stay open.
+uk Теплі ночі. Вікна лишаються відчиненими.
+ru Тёплые ночи. Окна остаются открытыми.
 
 # --- the story calendar (story.ron → calendar) ---------------------------------------------------------
 calendar.advent_1
-* First Sunday of Advent
+cs První adventní neděle
+en First Sunday of Advent
+uk Перша неділя Адвенту
+ru Первое воскресенье Адвента
 
 calendar.first_snow
-* The first snow
+cs První sníh
+en The first snow
+uk Перший сніг
+ru Первый снег
 
 calendar.advent_2
-* Second Sunday of Advent
+cs Druhá adventní neděle
+en Second Sunday of Advent
+uk Друга неділя Адвенту
+ru Второе воскресенье Адвента
 
 calendar.mikulas
-* St Nicholas' Eve
+cs Mikulášská
+en St Nicholas' Eve
+uk Вечір святого Миколая
+ru Канун Николина дня
 
 calendar.last_night
-* The thirtieth night
+cs Třicátá noc
+en The thirtieth night
+uk Тридцята ніч
+ru Тридцатая ночь
 
 # --- decor themes (§11.2) ------------------------------------------------------------------------------
 theme.grandma_original.name
-* Grandma's original
+cs Babiččin originál
+en Grandma's original
+uk Бабусин оригінал
+ru Бабушкин оригинал
 
 theme.grandma_original.desc
-* Faded rose-stripe wallpaper, honey-coloured wood, lace and amber lamps. Exactly as Lida left it.
+cs Vybledlá tapeta s růžovými proužky, medově zbarvené dřevo, krajky a jantarové lampy. Přesně jak to Lída nechala.
+en Faded rose-stripe wallpaper, honey-coloured wood, lace and amber lamps. Exactly as Lida left it.
+uk Вицвілі шпалери в рожеву смужку, дерево медового кольору, мереживо й бурштинові лампи. Точнісінько як лишила Ліда.
+ru Выцветшие обои в розовую полоску, дерево медового цвета, кружево и янтарные лампы. Точь-в-точь как оставила Лида.
 
 theme.grandma_original.missed
-* Lida's wallpaper… you changed it. Well. It's your café now.
+cs Lídina tapeta… tys ji změnila. No. Teď je to tvoje kavárna.
+en Lida's wallpaper… you changed it. Well. It's your café now.
+uk Лідині шпалери… ти їх змінила. Що ж. Тепер це твоя кав'ярня.
+ru Лидины обои… ты их сменила. Что ж. Теперь это твоё кафе.
 
 theme.art_nouveau.name
-* Prague Art Nouveau
+cs Pražská secese
+en Prague Art Nouveau
+uk Празький модерн
+ru Пражский модерн
 
 theme.art_nouveau.desc
-* A sage-and-gold mosaic band, brass lamps and curved trims, like an old Secession café.
+cs Mozaikový pás v šalvějové a zlaté, mosazné lampy a oblé lišty jako ve staré secesní kavárně.
+en A sage-and-gold mosaic band, brass lamps and curved trims, like an old Secession café.
+uk Мозаїчна смуга шавлієвого й золотого кольору, латунні лампи й вигнуті лиштви, як у старій сецесійній кав'ярні.
+ru Мозаичная полоса шалфейного и золотого цвета, латунные лампы и изогнутые наличники, как в старом кафе эпохи модерна.
 
 theme.station_retro.name
-* Station Retro
+cs Nádražní retro
+en Station Retro
+uk Вокзальне ретро
+ru Вокзальное ретро
 
 theme.station_retro.desc
-* Cream and bottle-green paint, enamel signs and a timetable board — the 1979 railway buffet.
+cs Krémová a lahvově zelená barva, smaltované cedule a tabule s jízdním řádem — nádražní bufet z roku 1979.
+en Cream and bottle-green paint, enamel signs and a timetable board — the 1979 railway buffet.
+uk Кремова й пляшково-зелена фарба, емальовані таблички й дошка з розкладом — вокзальний буфет 1979 року.
+ru Кремовая и бутылочно-зелёная краска, эмалированные таблички и доска с расписанием — вокзальный буфет 1979 года.
 
 theme.nocturne_2039.name
 * Nocturne 2039
 
 theme.nocturne_2039.desc
-* Indigo holo accents, warm LED strips and a touch of Shiftella violet.
+cs Indigové holografické akcenty, teplé LED pásky a špetka fialové ze Shiftelly.
+en Indigo holo accents, warm LED strips and a touch of Shiftella violet.
+uk Індигові голографічні акценти, теплі LED-стрічки й дрібка фіолетового Shiftella.
+ru Индиговые голографические акценты, тёплые LED-ленты и капля фиолетового Shiftella.
 
 theme.winter_lights.name
-* Winter Lights
+cs Zimní světla
+en Winter Lights
+uk Зимові вогні
+ru Зимние огни
 
 theme.winter_lights.desc
-* White-gold fairy lights, red ribbons and spruce. Cosiest in Advent.
+cs Bílozlatá světýlka, červené stuhy a smrček. Nejútulnější v adventu.
+en White-gold fairy lights, red ribbons and spruce. Cosiest in Advent.
+uk Біло-золоті вогники, червоні стрічки й ялинові гілки. Найзатишніше в Адвент.
+ru Бело-золотые огоньки, красные ленты и еловые ветки. Уютнее всего в Адвент.
 
 # --- reward decor and theme accents ---------------------------------------------------------------------
 furniture.fairy_lights.name
-* Fairy lights
+cs Světýlka
+en Fairy lights
+uk Гірлянда-вогники
+ru Гирлянда-огоньки
 
 furniture.fairy_lights.desc
-* A string of tiny warm lights. Paid for by a jar of tips.
+cs Šňůra drobných teplých světýlek. Zaplacená sklenicí dýšek.
+en A string of tiny warm lights. Paid for by a jar of tips.
+uk Нитка крихітних теплих вогників. Оплачена банкою чайових.
+ru Нитка крошечных тёплых огоньков. Оплачена банкой чаевых.
 
 furniture.lace_tablecloth.name
-* Table with grandma's lace
+cs Stolek s babiččinou krajkou
+en Table with grandma's lace
+uk Столик із бабусиним мереживом
+ru Столик с бабушкиным кружевом
 
 furniture.lace_tablecloth.desc
-* A small table under one of Lida's lace tablecloths.
+cs Malý stolek pod jedním z Lídiných krajkových ubrusů.
+en A small table under one of Lida's lace tablecloths.
+uk Маленький столик під однією з Лідиних мереживних скатертин.
+ru Маленький столик под одной из Лидиных кружевных скатертей.
 
 furniture.record_shelf.name
-* Record shelf
+cs Police na desky
+en Record shelf
+uk Полиця для платівок
+ru Полка для пластинок
 
 furniture.record_shelf.desc
-* A shelf for sleeves and stories. Music lovers linger by it.
+cs Police na obaly a příběhy. Milovníci hudby se u ní zdrží.
+en A shelf for sleeves and stories. Music lovers linger by it.
+uk Полиця для конвертів та історій. Меломани біля неї затримуються.
+ru Полка для конвертов и историй. Меломаны у неё задерживаются.
 
 furniture.cat_bed.name
-* Cat bed
+cs Pelíšek pro kočku
+en Cat bed
+uk Лежанка для кота
+ru Лежанка для кота
 
 furniture.cat_bed.desc
-* A round cushion by the radiator. Someone will claim it.
+cs Kulatý polštář u topení. Někdo si ho zabere.
+en A round cushion by the radiator. Someone will claim it.
+uk Кругла подушка біля батареї. Хтось її займе.
+ru Круглая подушка у батареи. Кто-то её займёт.
 
 furniture.brass_bell.name
-* Brass espresso bell
+cs Mosazný zvonek na espresso
+en Brass espresso bell
+uk Латунний дзвіночок для еспресо
+ru Латунный колокольчик для эспрессо
 
 furniture.brass_bell.desc
-* Ding. The sound of a coffee being ready, since 1979.
+cs Cink. Zvuk hotového kafe od roku 1979.
+en Ding. The sound of a coffee being ready, since 1979.
+uk Дзінь. Звук готової кави з 1979 року.
+ru Дзынь. Звук готового кофе с 1979 года.
 
 furniture.napkin_wall.name
-* Napkin wall
+cs Stěna ubrousků
+en Napkin wall
+uk Стіна серветок
+ru Стена салфеток
 
 furniture.napkin_wall.desc
-* Thank-you napkins pinned in a frame. Every one a small night.
+cs Děkovné ubrousky připíchnuté v rámu. Každý jedna malá noc.
+en Thank-you napkins pinned in a frame. Every one a small night.
+uk Серветки-подяки, пришпилені в рамці. Кожна — маленька ніч.
+ru Салфетки-благодарности, приколотые в рамке. Каждая — маленькая ночь.
 
 furniture.lamp_brass.name
-* Brass pendant lamp
+cs Mosazná závěsná lampa
+en Brass pendant lamp
+uk Латунна підвісна лампа
+ru Латунная подвесная лампа
 
 furniture.lamp_brass.desc
-* Curved brass and warm glass, in the Art Nouveau style.
+cs Zahnutá mosaz a teplé sklo, v secesním stylu.
+en Curved brass and warm glass, in the Art Nouveau style.
+uk Вигнута латунь і тепле скло, у стилі модерн.
+ru Изогнутая латунь и тёплое стекло, в стиле модерн.
 
 furniture.mosaic_rug.name
-* Mosaic rug
+cs Mozaikový koberec
+en Mosaic rug
+uk Мозаїчний килим
+ru Мозаичный ковёр
 
 furniture.mosaic_rug.desc
-* A rug with a sage-and-gold Secession pattern.
+cs Koberec se secesním vzorem v šalvějové a zlaté.
+en A rug with a sage-and-gold Secession pattern.
+uk Килим із сецесійним візерунком шавлієвого й золотого кольору.
+ru Ковёр с узором в стиле модерн, шалфейного и золотого цвета.
 
 furniture.enamel_sign.name
-* Enamel station sign
+cs Smaltovaná nádražní cedule
+en Enamel station sign
+uk Емальована вокзальна табличка
+ru Эмалированная вокзальная табличка
 
 furniture.enamel_sign.desc
-* "Bufet" in white on bottle green. Rescued from an old platform.
+cs „Bufet“ bíle na lahvově zelené. Zachráněná ze starého nástupiště.
+en "Bufet" in white on bottle green. Rescued from an old platform.
+uk «Bufet» білим на пляшково-зеленому. Врятована зі старої платформи.
+ru «Bufet» белым по бутылочно-зелёному. Спасена со старой платформы.
 
 furniture.led_strip.name
-* LED strip lamp
+cs LED sloupová lampa
+en LED strip lamp
+uk LED-лампа-колона
+ru LED-лампа-колонна
 
 furniture.led_strip.desc
-* A slim column of warm indigo light.
+cs Štíhlý sloupec teplého indigového světla.
+en A slim column of warm indigo light.
+uk Тонка колона теплого індигового світла.
+ru Тонкая колонна тёплого индигового света.
 
 # --- the station cat (§6.2) -------------------------------------------------------------------------------
 cat.level.0
-* A stranger at the door
+cs Cizinec u dveří
+en A stranger at the door
+uk Незнайомець біля дверей
+ru Незнакомец у двери
 
 cat.level.2
-* The cat sits on the doormat now.
+cs Kocour už sedí na rohožce.
+en The cat sits on the doormat now.
+uk Кіт уже сидить на килимку біля дверей.
+ru Кот уже сидит на коврике у двери.
 
 cat.level.3
-* The cat watches the milk jug. Maybe a cat face in the foam?
+cs Kocour sleduje konvičku s mlékem. Co takhle kočičí hlava v pěně?
+en The cat watches the milk jug. Maybe a cat face in the foam?
+uk Кіт стежить за молочником. Може, котяча мордочка на піні?
+ru Кот следит за молочником. Может, кошачья мордочка на пенке?
 
 cat.level.4
-* The cat came inside and fell asleep under the radiator.
+cs Kocour přišel dovnitř a usnul pod topením.
+en The cat came inside and fell asleep under the radiator.
+uk Кіт зайшов усередину й заснув під батареєю.
+ru Кот зашёл внутрь и уснул под батареей.
 
 cat.level.6
-* The cat has its own spot on the window seat.
+cs Kocour má vlastní místo na lavici u okna.
+en The cat has its own spot on the window seat.
+uk Кіт має власне місце на лавці біля вікна.
+ru У кота своё место на скамье у окна.
 
 cat.level.8
-* The cat follows you around. It works here now.
+cs Kocour za tebou chodí všude. Teď tu pracuje.
+en The cat follows you around. It works here now.
+uk Кіт ходить за тобою всюди. Тепер він тут працює.
+ru Кот ходит за тобой повсюду. Теперь он здесь работает.
 
 cat.level.10
-* The cat is family.
+cs Kocour je rodina.
+en The cat is family.
+uk Кіт — член родини.
+ru Кот — член семьи.
 
 cat.level_up
-* The station cat: {level}
+cs Nádražní kocour: {level}
+en The station cat: {level}
+uk Вокзальний кіт: {level}
+ru Вокзальный кот: {level}
 
 cat.name.vlak
 * Vlak
@@ -283,475 +526,943 @@ cat.name.lidka
 
 # --- polaroid journal (§11.4) --------------------------------------------------------------------------------
 journal.title
-* Journal
+cs Deník
+en Journal
+uk Щоденник
+ru Дневник
 
 journal.empty
-* night {night}
+cs noc {night}
+en night {night}
+uk ніч {night}
+ru ночь {night}
 
 journal.keep
-* Keep this one
+cs Nechat si tuhle
+en Keep this one
+uk Залишити цю
+ru Оставить эту
 
 journal.shake
-* Shake it a little
+cs Trochu zatřást
+en Shake it a little
+uk Трохи потрусити
+ru Немного потрясти
 
 journal.night
-* Night {night}
+cs Noc {night}
+en Night {night}
+uk Ніч {night}
+ru Ночь {night}
 
 journal.date
-* {day} {month} {year}
+cs {day}. {month} {year}
+en {day} {month} {year}
+uk {day} {month} {year}
+ru {day} {month} {year}
 
 journal.month.1
-* Jan
+cs led
+en Jan
+uk січ
+ru янв
 
 journal.month.2
-* Feb
+cs úno
+en Feb
+uk лют
+ru фев
 
 journal.month.3
-* Mar
+cs bře
+en Mar
+uk бер
+ru мар
 
 journal.month.4
-* Apr
+cs dub
+en Apr
+uk кві
+ru апр
 
 journal.month.5
-* May
+cs kvě
+en May
+uk тра
+ru мая
 
 journal.month.6
-* Jun
+cs čvn
+en Jun
+uk чер
+ru июн
 
 journal.month.7
-* Jul
+cs čvc
+en Jul
+uk лип
+ru июл
 
 journal.month.8
-* Aug
+cs srp
+en Aug
+uk сер
+ru авг
 
 journal.month.9
-* Sep
+cs zář
+en Sep
+uk вер
+ru сен
 
 journal.month.10
-* Oct
+cs říj
+en Oct
+uk жов
+ru окт
 
 journal.month.11
-* Nov
+cs lis
+en Nov
+uk лис
+ru ноя
 
 journal.month.12
-* Dec
+cs pro
+en Dec
+uk гру
+ru дек
 
 journal.caption.guest_333
-* 3:33. The clock stopped, and he was there again.
+cs 3:33. Hodiny se zastavily a on tu byl zase.
+en 3:33. The clock stopped, and he was there again.
+uk 3:33. Годинник зупинився, і він знову був тут.
+ru 3:33. Часы остановились, и он снова был здесь.
 
 journal.caption.first_snow
-* The first snow, through grandma's window.
+cs První sníh za babiččiným oknem.
+en The first snow, through grandma's window.
+uk Перший сніг за бабусиним вікном.
+ru Первый снег за бабушкиным окном.
 
 journal.caption.mikulas
-* An angel, a devil and three hot chocolates.
+cs Anděl, čert a tři horké čokolády.
+en An angel, a devil and three hot chocolates.
+uk Ангел, чорт і три гарячі шоколади.
+ru Ангел, чёрт и три горячих шоколада.
 
 journal.caption.garlands_up
-* Grandma's garlands, up again.
+cs Babiččiny girlandy zase visí.
+en Grandma's garlands, up again.
+uk Бабусині гірлянди знову висять.
+ru Бабушкины гирлянды снова висят.
 
 journal.caption.like_home
-* It felt like home tonight.
+cs Dnes to tu bylo jako doma.
+en It felt like home tonight.
+uk Сьогодні тут було як удома.
+ru Сегодня здесь было как дома.
 
 journal.caption.perfect_serve
-* {name} said it was exactly right.
+cs {name}: „Přesně ono.“
+en {name} said it was exactly right.
+uk {name}: «Саме те».
+ru {name}: «То, что надо».
 
 journal.caption.cat_level
-* The cat stayed. I think it lives here now.
+cs Kocour zůstal. Myslím, že tu teď bydlí.
+en The cat stayed. I think it lives here now.
+uk Кіт залишився. Здається, тепер він тут живе.
+ru Кот остался. Кажется, теперь он здесь живёт.
 
 journal.caption.full_house
-* Every chair taken. Grandma would have loved it.
+cs Všechny židle obsazené. Babička by to milovala.
+en Every chair taken. Grandma would have loved it.
+uk Усі стільці зайняті. Бабусі б це сподобалося.
+ru Все стулья заняты. Бабушке бы это понравилось.
 
 journal.caption.beautiful_latte
-* A {pattern} for {name}.
+cs {name} a {pattern} v pěně.
+en A {pattern} for {name}.
+uk {name} і {pattern} на піні.
+ru {name} и {pattern} на пенке.
 
 journal.caption.record_loved
-* {name} hummed along to {record}.
+cs {name} si pobrukuje {record}.
+en {name} hummed along to {record}.
+uk {name} підспівує: {record}.
+ru {name} подпевает: {record}.
 
 journal.caption.recipe_discovered
-* My own recipe: {recipe}.
+cs Můj vlastní recept: {recipe}.
+en My own recipe: {recipe}.
+uk Мій власний рецепт: {recipe}.
+ru Мой собственный рецепт: {recipe}.
 
 journal.caption.rozpis_happy
-* Everyone got the nights they wanted.
+cs Všichni dostali noci, které chtěli.
+en Everyone got the nights they wanted.
+uk Усі отримали ті ночі, які хотіли.
+ru Все получили те ночи, которые хотели.
 
 journal.caption.anwar
-* A quiet guy with a laptop. Nice smile.
+cs Tichý kluk s notebookem. Hezký úsměv.
+en A quiet guy with a laptop. Nice smile.
+uk Тихий хлопець із ноутбуком. Гарна усмішка.
+ru Тихий парень с ноутбуком. Красивая улыбка.
 
 journal.caption.quiet_night
-* A quiet night. Rain on the window.
+cs Tichá noc. Déšť na okně.
+en A quiet night. Rain on the window.
+uk Тиха ніч. Дощ на вікні.
+ru Тихая ночь. Дождь на окне.
 
 journal.caption.arc.mirek.1
-* Mirek let me pour his coffee. Like he used to let her.
+cs Mirek mě nechal nalít mu kafe. Jako dřív nechával ji.
+en Mirek let me pour his coffee. Like he used to let her.
+uk Мірек дозволив мені налити йому каву. Як колись дозволяв їй.
+ru Мирек позволил мне налить ему кофе. Как когда-то позволял ей.
 
 journal.caption.arc.mirek.2
-* Mirek squinting at the menu board. "It's the letters, not my eyes."
+cs Mirek mžourá na tabuli s menu. „To jsou ta písmenka, ne moje oči.“
+en Mirek squinting at the menu board. "It's the letters, not my eyes."
+uk Мірек мружиться на дошку з меню. «Це літери, а не мої очі».
+ru Мирек щурится на доску с меню. «Это буквы, а не мои глаза».
 
 journal.caption.arc.mirek.3
-* Mirek came on foot tonight. He looked younger for it.
+cs Mirek dnes přišel pěšky. Vypadal o to mladší.
+en Mirek came on foot tonight. He looked younger for it.
+uk Мірек сьогодні прийшов пішки. Здавався від цього молодшим.
+ru Мирек сегодня пришёл пешком. Казался от этого моложе.
 
 journal.caption.arc.mirek.4
-* Twenty grams, and a whole life. Mirek finally told me.
+cs Dvacet gramů a celý život. Mirek mi to konečně řekl.
+en Twenty grams, and a whole life. Mirek finally told me.
+uk Двадцять грамів і ціле життя. Мірек нарешті розповів.
+ru Двадцать граммов и целая жизнь. Мирек наконец рассказал.
 
 journal.caption.arc.mirek.5
-* Mirek, deciding. I didn't rush him.
+cs Mirek se rozhoduje. Nepospíchala jsem na něj.
+en Mirek, deciding. I didn't rush him.
+uk Мірек вирішує. Я його не квапила.
+ru Мирек решает. Я его не торопила.
 
 journal.caption.arc.hana.1
-* Hana laughed tonight: a baby girl called Lida.
+cs Hana se dnes smála: holčička jménem Lída.
+en Hana laughed tonight: a baby girl called Lida.
+uk Гана сьогодні сміялася: дівчинка на ім'я Ліда.
+ru Гана сегодня смеялась: девочка по имени Лида.
 
 journal.caption.arc.hana.2
-* Hana asleep by the window. I let her be.
+cs Hana usnula u okna. Nechala jsem ji být.
+en Hana asleep by the window. I let her be.
+uk Гана заснула біля вікна. Я її не будила.
+ru Гана уснула у окна. Я её не будила.
 
 journal.caption.arc.hana.3
-* Hana and her letter from Dresden.
+cs Hana a její dopis z Drážďan.
+en Hana and her letter from Dresden.
+uk Гана і її лист із Дрездена.
+ru Гана и её письмо из Дрездена.
 
 journal.caption.arc.hana.4
-* Hana decided. She looked lighter.
+cs Hana se rozhodla. Vypadala lehčí.
+en Hana decided. She looked lighter.
+uk Гана вирішила. Здавалася легшою.
+ru Гана решила. Казалась легче.
 
 journal.caption.arc.guest_333.1
-* Coins from 1979 on the saucer.
+cs Mince z roku 1979 na podšálku.
+en Coins from 1979 on the saucer.
+uk Монети 1979 року на блюдці.
+ru Монеты 1979 года на блюдце.
 
 journal.caption.arc.guest_333.2
-* "Still lit." He looked at the window, not at me.
+cs „Pořád svítí.“ Díval se na okno, ne na mě.
+en "Still lit." He looked at the window, not at me.
+uk «Досі світиться». Він дивився на вікно, а не на мене.
+ru «Всё ещё горит». Он смотрел на окно, а не на меня.
 
 journal.caption.arc.guest_333.3
-* "I left once." The tea went cold in his hands.
+cs „Jednou jsem odjel.“ Čaj mu v rukou vystydl.
+en "I left once." The tea went cold in his hands.
+uk «Одного разу я поїхав». Чай вистиг у його руках.
+ru «Однажды я уехал». Чай остыл у него в руках.
 
 journal.caption.arc.guest_333.4
-* The last 3:33. The clocks started again.
+cs Poslední 3:33. Hodiny se zase rozešly.
+en The last 3:33. The clocks started again.
+uk Останні 3:33. Годинники знову пішли.
+ru Последние 3:33. Часы снова пошли.
 
 journal.caption.arc.vera.1
-* Vera and her crossword, recruiting the whole café.
+cs Věra a její křížovka, verbuje celou kavárnu.
+en Vera and her crossword, recruiting the whole café.
+uk Віра і її кросворд — вербує всю кав'ярню.
+ru Вера и её кроссворд — вербует всё кафе.
 
 journal.caption.arc.vera.2
-* Vera inspected the table. It passed.
+cs Věra zkontrolovala stůl. Prošel.
+en Vera inspected the table. It passed.
+uk Віра перевірила стіл. Пройшов.
+ru Вера проверила стол. Прошёл.
 
 journal.caption.arc.vera.3
-* Vera and grandma's kulajda. She closed her eyes on the first spoon.
+cs Věra a babiččina kulajda. U první lžíce zavřela oči.
+en Vera and grandma's kulajda. She closed her eyes on the first spoon.
+uk Віра й бабусина кулайда. На першій ложці вона заплющила очі.
+ru Вера и бабушкина кулайда. На первой ложке она закрыла глаза.
 
 journal.caption.arc.vera.4
-* Vera's friends took over the corner. Loudly.
+cs Věřiny kamarádky obsadily roh. Nahlas.
+en Vera's friends took over the corner. Loudly.
+uk Вірині подруги захопили куток. Гучно.
+ru Верины подруги захватили угол. Громко.
 
 journal.caption.arc.filip.1
-* Filip brought half his year to the socket table.
+cs Filip přivedl k zásuvce půlku ročníku.
+en Filip brought half his year to the socket table.
+uk Філіп привів до столика з розеткою пів курсу.
+ru Филип привёл к столику с розеткой полкурса.
 
 journal.caption.arc.filip.2
-* Filip, very quiet, over a cold coffee.
+cs Filip, hodně potichu, nad studeným kafem.
+en Filip, very quiet, over a cold coffee.
+uk Філіп, зовсім тихий, над холодною кавою.
+ru Филип, совсем тихий, над остывшим кофе.
 
 journal.caption.arc.filip.3
-* Filip before the resit. Fingers crossed, all of us.
+cs Filip před opravkou. Držíme palce, všichni.
+en Filip before the resit. Fingers crossed, all of us.
+uk Філіп перед перескладанням. Тримаємо кулаки, усі.
+ru Филип перед пересдачей. Держим кулаки, все.
 
 journal.caption.arc.filip.4
-* Filip got a B. The café cheered.
+cs Filip má za dvě. Kavárna jásala.
+en Filip got a B. The café cheered.
+uk Філіп склав на «добре». Кав'ярня раділа.
+ru Филип сдал на четвёрку. Кафе ликовало.
 
 journal.caption.arc.radek.1
-* Radek's warning came by text: the express is late. We were ready.
+cs Radkovo varování přišlo zprávou: expres má zpoždění. Byli jsme připravení.
+en Radek's warning came by text: the express is late. We were ready.
+uk Попередження від Радека прийшло повідомленням: експрес запізнюється. Ми були готові.
+ru Предупреждение от Радека пришло сообщением: экспресс опаздывает. Мы были готовы.
 
 journal.caption.arc.radek.2
-* Radek's last shift. He sat down for once.
+cs Radkova poslední směna. Pro jednou si sedl.
+en Radek's last shift. He sat down for once.
+uk Остання зміна Радека. Уперше він сів.
+ru Последняя смена Радека. Впервые он присел.
 
 journal.caption.arc.radek.3
-* Radek and the snowdrifts of '85.
+cs Radek a závěje z pětaosmdesátého.
+en Radek and the snowdrifts of '85.
+uk Радек і замети вісімдесят п'ятого.
+ru Радек и сугробы восемьдесят пятого.
 
 journal.caption.arc.lori.1
-* Lori came in from the platform, guitar and all.
+cs Lori přišla z nástupiště, i s kytarou.
+en Lori came in from the platform, guitar and all.
+uk Лорі прийшла з перону — разом із гітарою.
+ru Лори пришла с перрона — вместе с гитарой.
 
 journal.caption.arc.lori.2
-* Lori on the little stage. Almost a real one.
+cs Lori na malém pódiu. Skoro skutečném.
+en Lori on the little stage. Almost a real one.
+uk Лорі на маленькій сцені. Майже справжній.
+ru Лори на маленькой сцене. Почти настоящей.
 
 journal.caption.arc.lori.3
-* Lori's Friday. The whole street listened.
+cs Lořin pátek. Poslouchala celá ulice.
+en Lori's Friday. The whole street listened.
+uk П'ятниця Лорі. Слухала вся вулиця.
+ru Пятница Лори. Слушала вся улица.
 
 journal.caption.scene.opening
-* The first night. The keys were still cold.
+cs První noc. Klíče byly ještě studené.
+en The first night. The keys were still cold.
+uk Перша ніч. Ключі були ще холодні.
+ru Первая ночь. Ключи были ещё холодными.
 
 journal.caption.scene.mirek_first
-* Mirek, the very first regular.
+cs Mirek, úplně první štamgast.
+en Mirek, the very first regular.
+uk Мірек, найперший постійний гість.
+ru Мирек, самый первый постоянный гость.
 
 journal.caption.scene.guest333_first
-* 3:33. A man in an old coat ordered tea.
+cs 3:33. Muž ve starém kabátě si objednal čaj.
+en 3:33. A man in an old coat ordered tea.
+uk 3:33. Чоловік у старому пальті замовив чай.
+ru 3:33. Мужчина в старом пальто заказал чай.
 
 journal.caption.scene.vera_recipe
-* Vera dictated, I wrote it down: kulajda.
+cs Věra diktovala, já zapisovala: kulajda.
+en Vera dictated, I wrote it down: kulajda.
+uk Віра диктувала, я записувала: кулайда.
+ru Вера диктовала, я записывала: кулайда.
 
 journal.caption.scene.lori_platform
-* Lori playing in the rain on platform two.
+cs Lori hraje v dešti na druhém nástupišti.
+en Lori playing in the rain on platform two.
+uk Лорі грає під дощем на другій платформі.
+ru Лори играет под дождём на второй платформе.
 
 journal.caption.scene.hana_asleep
-* Hana, finally asleep. The soup could wait.
+cs Hana konečně spí. Polévka počká.
+en Hana, finally asleep. The soup could wait.
+uk Гана нарешті спить. Суп почекає.
+ru Гана наконец спит. Суп подождёт.
 
 journal.caption.scene.radek_last_shift
-* The last whistle of Radek's career.
+cs Poslední písknutí Radkovy kariéry.
+en The last whistle of Radek's career.
+uk Останній свисток у кар'єрі Радека.
+ru Последний свисток в карьере Радека.
 
 journal.caption.scene.lori_evening
-* Lori's evening. Every chair, every window.
+cs Lořin večer. Každá židle, každé okno.
+en Lori's evening. Every chair, every window.
+uk Вечір Лорі. Кожен стілець, кожне вікно.
+ru Вечер Лори. Каждый стул, каждое окно.
 
 journal.caption.scene.filip_cake
-* A cake for Filip, with one wonky candle.
+cs Dort pro Filipa s jednou křivou svíčkou.
+en A cake for Filip, with one wonky candle.
+uk Торт для Філіпа з однією кривою свічкою.
+ru Торт для Филипа с одной кривой свечкой.
 
 journal.caption.scene.mirek_letter
-* Mirek and the letter, at last.
+cs Mirek a dopis, konečně.
+en Mirek and the letter, at last.
+uk Мірек і лист — нарешті.
+ru Мирек и письмо — наконец.
 
 journal.caption.scene.final_night
-* The thirtieth night.
+cs Třicátá noc.
+en The thirtieth night.
+uk Тридцята ніч.
+ru Тридцатая ночь.
 
 journal.caption.moment.m_blackout_candles
-* The power went out. The candles didn't.
+cs Vypadl proud. Svíčky ne.
+en The power went out. The candles didn't.
+uk Світло згасло. Свічки — ні.
+ru Свет погас. Свечи — нет.
 
 journal.caption.moment.m_lost_traveller
-* A lost traveller, found. With three minutes to spare.
+cs Ztracený cestující nalezen. Tři minuty k dobru.
+en A lost traveller, found. With three minutes to spare.
+uk Заблукалого пасажира знайдено. Ще й три хвилини в запасі.
+ru Заблудившийся пассажир нашёлся. Ещё и три минуты в запасе.
 
 journal.caption.moment.m_sleeping_guest
-* Someone asleep under grandma's blanket.
+cs Někdo spí pod babiččinou dekou.
+en Someone asleep under grandma's blanket.
+uk Хтось спить під бабусиним пледом.
+ru Кто-то спит под бабушкиным пледом.
 
 journal.caption.moment.m_coffee_for_helper
-* A coffee for the crew, for once.
+cs Kafe pro tým, pro jednou.
+en A coffee for the crew, for once.
+uk Кава для команди — для різноманіття.
+ru Кофе для команды — для разнообразия.
 
 journal.caption.moment.m_busker
-* A song under the awning, a tea in the rain.
+cs Písnička pod stříškou, čaj v dešti.
+en A song under the awning, a tea in the rain.
+uk Пісня під навісом, чай під дощем.
+ru Песня под навесом, чай под дождём.
 
 journal.caption.moment.m_tired_parent
-* Warm milk, and a little one asleep.
+cs Teplé mléko a spící drobek.
+en Warm milk, and a little one asleep.
+uk Тепле молоко й маленьке, що заснуло.
+ru Тёплое молоко и уснувший малыш.
 
 journal.caption.moment.m_advent_candle
-* One more candle on the wreath.
+cs Další svíčka na věnci.
+en One more candle on the wreath.
+uk Ще одна свічка на вінку.
+ru Ещё одна свеча на венке.
 
 # --- regulars' rituals (§6.3, SHOULD) ----------------------------------------------------------------------
 ritual.mirek
-* Mirek taps the counter twice.
+cs Mirek dvakrát ťukne do pultu.
+en Mirek taps the counter twice.
+uk Мірек двічі стукає по стійці.
+ru Мирек дважды стучит по стойке.
 
 ritual.vera
-* Vera straightens the sugar bowl.
+cs Věra srovná cukřenku.
+en Vera straightens the sugar bowl.
+uk Віра поправляє цукорницю.
+ru Вера поправляет сахарницу.
 
 ritual.radek
-* Radek checks his watch at the door.
+cs Radek se ve dveřích podívá na hodinky.
+en Radek checks his watch at the door.
+uk Радек біля дверей дивиться на годинник.
+ru Радек у двери смотрит на часы.
 
 ritual.hana
-* Hana rubs her eyes.
+cs Hana si mne oči.
+en Hana rubs her eyes.
+uk Гана тре очі.
+ru Гана трёт глаза.
 
 ritual.filip
-* Filip looks for a socket.
+cs Filip hledá zásuvku.
+en Filip looks for a socket.
+uk Філіп шукає розетку.
+ru Филип ищет розетку.
 
 ritual.lori
-* Lori shakes the rain off her raincoat.
+cs Lori otřepává déšť z pláštěnky.
+en Lori shakes the rain off her raincoat.
+uk Лорі струшує дощ із дощовика.
+ru Лори стряхивает дождь с дождевика.
 
 ritual.guest_333
-* The 3:33 guest looks at the window.
+cs Host ze 3:33 se podívá na okno.
+en The 3:33 guest looks at the window.
+uk Гість о 3:33 дивиться на вікно.
+ru Гость в 3:33 смотрит на окно.
 
 # --- thank-you napkins (§6.1, SHOULD) ------------------------------------------------------------------------
 thanks.g01
-* Thank you for the warm hands.
+cs Díky za teplé ruce.
+en Thank you for the warm hands.
+uk Дякую за теплі руки.
+ru Спасибо за тёплые руки.
 
 thanks.g02
-* Best coffee between here and Adamov.
+cs Nejlepší kafe odsud až do Adamova.
+en Best coffee between here and Adamov.
+uk Найкраща кава звідси й до самого Adamov.
+ru Лучший кофе отсюда и до самого Adamov.
 
 thanks.g03
-* Caught my train! Thanks to you.
+cs Vlak stihnutý! Díky vám.
+en Caught my train! Thanks to you.
+uk Встигли на поїзд! Завдяки вам.
+ru Успели на поезд! Благодаря вам.
 
 thanks.g04
-* I came in sad. I'm leaving less sad.
+cs Přišla jsem smutná. Odcházím míň smutná.
+en I came in sad. I'm leaving less sad.
+uk Прийшла сумною. Іду менш сумною.
+ru Пришла грустной. Ухожу менее грустной.
 
 thanks.g05
-* The rain was nicer from your window.
+cs Z vašeho okna byl déšť hezčí.
+en The rain was nicer from your window.
+uk Із вашого вікна дощ був гарнішим.
+ru Из вашего окна дождь был красивее.
 
 thanks.g06
-* You remembered I take it without sugar. Nobody remembers.
+cs Pamatovala jste si, že piju bez cukru. To si nikdo nepamatuje.
+en You remembered I take it without sugar. Nobody remembers.
+uk Ви запам'ятали, що я п'ю без цукру. Ніхто цього не пам'ятає.
+ru Вы запомнили, что я пью без сахара. Никто этого не помнит.
 
 thanks.g07
-* Same time tomorrow?
+cs Zítra ve stejnou dobu?
+en Same time tomorrow?
+uk Завтра в той самий час?
+ru Завтра в то же время?
 
 thanks.g08
-* For the soup. And the quiet.
+cs Za polévku. A za ticho.
+en For the soup. And the quiet.
+uk За суп. І за тишу.
+ru За суп. И за тишину.
 
 thanks.g09
-* A good night after a bad day.
+cs Dobrá noc po špatném dni.
+en A good night after a bad day.
+uk Добра ніч після поганого дня.
+ru Хорошая ночь после плохого дня.
 
 thanks.g10
-* My shift was twelve hours. This made it eleven.
+cs Moje směna měla dvanáct hodin. Díky tomuhle jen jedenáct.
+en My shift was twelve hours. This made it eleven.
+uk Моя зміна тривала дванадцять годин. Завдяки цьому — лише одинадцять.
+ru Моя смена длилась двенадцать часов. Благодаря этому — всего одиннадцать.
 
 thanks.g11
-* Say hi to the cat!
+cs Pozdravujte kocoura!
+en Say hi to the cat!
+uk Привіт котові!
+ru Привет коту!
 
 thanks.g12
-* Thank you for not asking. And for the koláč.
+cs Díky, že jste se neptala. A za koláč.
+en Thank you for not asking. And for the koláč.
+uk Дякую, що не питали. І за колач.
+ru Спасибо, что не спрашивали. И за колач.
 
 thanks.g13
-* Five stars. Six if the Wi-Fi worked.
+cs Pět hvězdiček. Šest, kdyby fungovala wi-fi.
+en Five stars. Six if the Wi-Fi worked.
+uk П'ять зірок. Шість, якби працював Wi-Fi.
+ru Пять звёзд. Шесть, если бы работал Wi-Fi.
 
 thanks.g14
-* I proposed here tonight. She said yes!
+cs Dnes jsem tu požádal o ruku. Řekla ano!
+en I proposed here tonight. She said yes!
+uk Сьогодні я тут освідчився. Вона сказала «так»!
+ru Сегодня я здесь сделал предложение. Она сказала «да»!
 
 thanks.g15
-* Next stop: home. Thank you for this one.
+cs Příští zastávka: domov. Díky za tuhle.
+en Next stop: home. Thank you for this one.
+uk Наступна зупинка — дім. Дякую за цю.
+ru Следующая остановка — дом. Спасибо за эту.
 
 thanks.g16
-* The best thing I tasted this year was at 3 a.m.
+cs To nejlepší, co jsem letos ochutnal, bylo ve tři ráno.
+en The best thing I tasted this year was at 3 a.m.
+uk Найсмачніше, що я куштував цього року, було о третій ночі.
+ru Самое вкусное, что я пробовал в этом году, было в три часа ночи.
 
 thanks.g17
-* Drew this while waiting. Keep it.
+cs Nakreslil jsem to, když jsem čekal. Nechte si to.
+en Drew this while waiting. Keep it.
+uk Намалював, поки чекав. Залиште собі.
+ru Нарисовал, пока ждал. Оставьте себе.
 
 thanks.g18
-* You make strangers feel like regulars.
+cs U vás se cizí lidé cítí jako štamgasti.
+en You make strangers feel like regulars.
+uk У вас незнайомці почуваються постійними гостями.
+ru У вас незнакомцы чувствуют себя постоянными гостями.
 
 thanks.g19
-* I'll tell my grandmother about your tea.
+cs Řeknu babičce o vašem čaji.
+en I'll tell my grandmother about your tea.
+uk Розповім бабусі про ваш чай.
+ru Расскажу бабушке о вашем чае.
 
 thanks.g20
-* Stayed dry, stayed warm, stayed longer than I meant to.
+cs V suchu, v teple a déle, než jsem chtěl.
+en Stayed dry, stayed warm, stayed longer than I meant to.
+uk Сухо, тепло — і довше, ніж збирався.
+ru Сухо, тепло — и дольше, чем собирался.
 
 thanks.g21
-* The music was perfect. Who picks it?
+cs Hudba byla dokonalá. Kdo ji vybírá?
+en The music was perfect. Who picks it?
+uk Музика була ідеальна. Хто її обирає?
+ru Музыка была идеальной. Кто её выбирает?
 
 thanks.g22
-* That cup was exactly the right size of hug.
+cs Ten hrnek byl přesně tak velké objetí, jak bylo potřeba.
+en That cup was exactly the right size of hug.
+uk Ця чашка була саме такими обіймами, як треба.
+ru Эта чашка была ровно такими объятиями, как нужно.
 
 thanks.g23
-* Night drivers' union says thanks.
+cs Odbory nočních řidičů děkují.
+en Night drivers' union says thanks.
+uk Профспілка нічних водіїв дякує.
+ru Профсоюз ночных водителей благодарит.
 
 thanks.g24
-* The moon was out. So was your lamp.
+cs Svítil měsíc. A vaše lampa taky.
+en The moon was out. So was your lamp.
+uk Світив місяць. І ваша лампа теж.
+ru Светила луна. И ваша лампа тоже.
 
 thanks.g25
-* A tip, and a secret: this is my favourite place.
+cs Dýško a tajemství: tohle je moje nejoblíbenější místo.
+en A tip, and a secret: this is my favourite place.
+uk Чайові й секрет: це моє улюблене місце.
+ru Чаевые и секрет: это моё любимое место.
 
 thanks.g26
-* The cat stole my napkin. This is the second one.
+cs Kocour mi ukradl ubrousek. Tohle je už druhý.
+en The cat stole my napkin. This is the second one.
+uk Кіт поцупив мою серветку. Це вже друга.
+ru Кот стащил мою салфетку. Это уже вторая.
 
 thanks.g27
-* From the night ward, with tired love.
+cs Z nočního oddělení, s unavenou láskou.
+en From the night ward, with tired love.
+uk З нічного відділення, з утомленою любов'ю.
+ru Из ночного отделения, с усталой любовью.
 
 thanks.g28
-* I'll be back when the snow comes.
+cs Vrátím se, až napadne sníh.
+en I'll be back when the snow comes.
+uk Повернуся, коли випаде сніг.
+ru Вернусь, когда выпадет снег.
 
 thanks.g29
-* Thank you for the window light. It helps, you know.
+cs Díky za světlo v okně. Pomáhá, víte.
+en Thank you for the window light. It helps, you know.
+uk Дякую за світло у вікні. Воно допомагає, знаєте.
+ru Спасибо за свет в окне. Он помогает, знаете.
 
 thanks.g30
-* Stay open. Please.
+cs Zůstaňte otevření. Prosím.
+en Stay open. Please.
+uk Не зачиняйтеся. Будь ласка.
+ru Не закрывайтесь. Пожалуйста.
 
 thanks.mirek.1
-* For the coffee. And for not asking. — M.
+cs Za kafe. A za to, že ses neptala. — M.
+en For the coffee. And for not asking. — M.
+uk За каву. І за те, що не питала. — М.
+ru За кофе. И за то, что не спрашивала. — М.
 
 thanks.mirek.2
-* She'd be proud. Don't make a fuss. — M.
+cs Byla by pyšná. Nedělej z toho vědu. — M.
+en She'd be proud. Don't make a fuss. — M.
+uk Вона б пишалася. Не роби з цього шуму. — М.
+ru Она бы гордилась. Не поднимай шума. — М.
 
 thanks.hana.1
-* You saved my night shift. Again. — H.
+cs Zachránila jsi mi noční směnu. Zase. — H.
+en You saved my night shift. Again. — H.
+uk Ти врятувала мою нічну зміну. Знову. — Г.
+ru Ты спасла мою ночную смену. Опять. — Г.
 
 thanks.hana.2
-* Twelve minutes of peace. Thank you. — H.
+cs Dvanáct minut klidu. Děkuju. — H.
+en Twelve minutes of peace. Thank you. — H.
+uk Дванадцять хвилин спокою. Дякую. — Г.
+ru Двенадцать минут покоя. Спасибо. — Г.
 
 thanks.vera.1
-* Acceptable. Very acceptable. — V. S.
+cs Přijatelné. Velmi přijatelné. — V. S.
+en Acceptable. Very acceptable. — V. S.
+uk Прийнятно. Дуже прийнятно. — В. С.
+ru Приемлемо. Очень приемлемо. — В. С.
 
 thanks.vera.2
-* The tea was proper. Tell nobody I said so. — V.
+cs Čaj byl pořádný. Nikomu neříkej, že jsem to řekla. — V.
+en The tea was proper. Tell nobody I said so. — V.
+uk Чай був як слід. Нікому не кажи, що я це сказала. — В.
+ru Чай был как следует. Никому не говори, что я это сказала. — В.
 
 thanks.filip.1
-* Passed! Partly your coffee's fault. — F.
+cs Prošel jsem! Zčásti je to vina tvého kafe. — F.
+en Passed! Partly your coffee's fault. — F.
+uk Склав! Частково винна твоя кава. — Ф.
+ru Сдал! Отчасти виноват твой кофе. — Ф.
 
 thanks.radek.1
-* The trains ran on time tonight. So did you. — R.
+cs Vlaky dnes jezdily na čas. Ty taky. — R.
+en The trains ran on time tonight. So did you. — R.
+uk Поїзди сьогодні ходили вчасно. І ти теж. — Р.
+ru Поезда сегодня ходили вовремя. И ты тоже. — Р.
 
 thanks.lori.1
-* For the warm song you didn't know you sang. — L.
+cs Za tu teplou písničku, o které nevíš, žes ji zpívala. — L.
+en For the warm song you didn't know you sang. — L.
+uk За теплу пісню, яку ти співала, сама того не знаючи. — Л.
+ru За тёплую песню, которую ты пела, сама того не зная. — Л.
 
 thanks.guest_333.1
 * Děkuji.
 
 # --- T8 integration: the journal, the rozpis, the payroll screen, app links ------------------------
 ui.journal.page
-* Page {n} of {m}
+cs Strana {n} z {m}
+en Page {n} of {m}
+uk Сторінка {n} з {m}
+ru Страница {n} из {m}
 
 ui.journal.prev
-* Previous page
+cs Předchozí strana
+en Previous page
+uk Попередня сторінка
+ru Предыдущая страница
 
 ui.journal.next
-* Next page
+cs Další strana
+en Next page
+uk Наступна сторінка
+ru Следующая страница
 
 ui.rozpis.wellbeing
-* Mood
+cs Nálada
+en Mood
+uk Настрій
+ru Настроение
 
 ui.rozpis.locked
-* You're here every night — it's your café.
+cs Jsi tu každou noc — je to tvoje kavárna.
+en You're here every night — it's your café.
+uk Ти тут щоночі — це твоя кав'ярня.
+ru Ты здесь каждую ночь — это твоё кафе.
 
 ui.rozpis.coverage_tip
-* {on} of {suggested} helpers
+cs {on} z {suggested} pomocníků
+en {on} of {suggested} helpers
+uk {on} з {suggested} помічників
+ru {on} из {suggested} помощников
 
 ui.app.handover_pick
-* Notes for tomorrow — pick up to two
+cs Vzkazy na zítra — vyber až dva
+en Notes for tomorrow — pick up to two
+uk Нотатки на завтра — обери до двох
+ru Записки на завтра — выбери до двух
 
 ui.book.trying
-* Karolina tries it at the counter…
+cs Karolina to zkouší u pultu…
+en Karolina tries it at the counter…
+uk Кароліна пробує біля стійки…
+ru Каролина пробует у стойки…
 
 ui.napkin.empty
-* No napkins yet. A perfect cup for someone who needed it — and sometimes they write back.
+cs Zatím žádné ubrousky. Dokonalý šálek pro někoho, kdo ho potřeboval — a občas ti napíšou zpátky.
+en No napkins yet. A perfect cup for someone who needed it — and sometimes they write back.
+uk Серветок поки немає. Ідеальна чашка для того, кому вона була потрібна, — і часом тобі пишуть у відповідь.
+ru Салфеток пока нет. Идеальная чашка для того, кому она была нужна, — и иногда тебе пишут в ответ.
 
 ui.link.rozpis
-* Rozpis
+cs Rozpis
+en Rozpis
+uk Розклад
+ru Расписание
 
 ui.link.book
-* Recipe book
+cs Kniha receptů
+en Recipe book
+uk Книга рецептів
+ru Книга рецептов
 
 ui.link.pantry
-* Pantry
+cs Spíž
+en Pantry
+uk Комора
+ru Кладовая
 
 ui.link.build
-* Build
+cs Stavba
+en Build
+uk Будівництво
+ru Стройка
 
 ui.link.duties
-* Duties
+cs Povinnosti
+en Duties
+uk Обов'язки
+ru Обязанности
 
 ui.link.money
-* Payroll
+cs Mzdy
+en Payroll
+uk Зарплати
+ru Зарплаты
 
 ui.link.journal
-* Journal
+cs Deník
+en Journal
+uk Щоденник
+ru Дневник
 
 ui.link.board
-* Board
+cs Nástěnka
+en Board
+uk Дошка
+ru Доска
 
 ui.payroll.toil_owed
-* {hours} h owed
+cs dluží se {hours} h
+en {hours} h owed
+uk заборговано {hours} год
+ru долг {hours} ч
 
 ui.payroll.detail.cafe
-* {cafe} stays with the café
+cs {cafe} zůstává kavárně
+en {cafe} stays with the café
+uk {cafe} лишається кав'ярні
+ru {cafe} остаётся кафе
 
 ui.payroll.detail.half
-* {cafe} to the café · {crew} to the crew
+cs {cafe} kavárně · {crew} týmu
+en {cafe} to the café · {crew} to the crew
+uk {cafe} кав'ярні · {crew} команді
+ru {cafe} кафе · {crew} команде
 
 ui.payroll.detail.crew
-* {crew} to the crew
+cs {crew} týmu
+en {crew} to the crew
+uk {crew} команді
+ru {crew} команде
 
 ui.payroll.effect.cafe
-* Helps with the debt
+cs Pomůže s dluhem
+en Helps with the debt
+uk Допоможе з боргом
+ru Поможет с долгом
 
 ui.payroll.effect.half
-* Crew mood +4 next week
+cs Nálada týmu +4 příští týden
+en Crew mood +4 next week
+uk Настрій команди +4 наступного тижня
+ru Настроение команды +4 на следующей неделе
 
 ui.payroll.effect.crew
-* Crew mood +8, wellbeing +5
+cs Nálada týmu +8, pohoda +5
+en Crew mood +8, wellbeing +5
+uk Настрій команди +8, самопочуття +5
+ru Настроение команды +8, самочувствие +5
 
 ui.payroll.total
-* Total
+cs Celkem
+en Total
+uk Разом
+ru Итого
 
 ui.payroll.star_head
-* Star of the week
+cs Hvězda týdne
+en Star of the week
+uk Зірка тижня
+ru Звезда недели
 
 ui.payroll.star_tip
-* {amount} bonus · mood +10
+cs prémie {amount} · nálada +10
+en {amount} bonus · mood +10
+uk премія {amount} · настрій +10
+ru премия {amount} · настроение +10
 
 ui.payroll.granted
-* Night off granted
+cs Volná noc schválena
+en Night off granted
+uk Вільну ніч надано
+ru Свободная ночь одобрена
 
 ui.payroll.insights
-* Last night
+cs Minulá noc
+en Last night
+uk Минула ніч
+ru Прошлая ночь
 
 ui.payroll.sent
-* Sent to the accountant
+cs Odesláno účetní
+en Sent to the accountant
+uk Надіслано бухгалтерці
+ru Отправлено бухгалтеру
 
 ui.payroll.open
-* Open the payroll basis
+cs Otevřít podklady pro mzdy
+en Open the payroll basis
+uk Відкрити дані для зарплати
+ru Открыть данные для зарплаты
 
 ui.payroll.open_sent
-* See this week's payroll
+cs Zobrazit mzdy za tento týden
+en See this week's payroll
+uk Переглянути зарплати за цей тиждень
+ru Посмотреть зарплаты за эту неделю
 
 ui.theme.locked
-* Not unlocked yet
+cs Zatím neodemčeno
+en Not unlocked yet
+uk Ще не відкрито
+ru Пока не открыто

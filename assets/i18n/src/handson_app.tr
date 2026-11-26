@@ -1,436 +1,859 @@
 # The Shiftella app as a real tool, the rozpis puzzle and the coach marks (design/handson.md §8, §12, §13).
-# English placeholder texts in every language until T9 (see handson_TODO.txt).
+# Karolina is addressed as ty/ти/ты (feminine forms); record, band and cat names stay as written.
 
 # --- bot messages and buttons (§13.4) --------------------------------------------------------------
 app.bot.late_alert.action.ask_other
-* Ask someone to cover
+cs Požádat někoho o záskok
+en Ask someone to cover
+uk Попросити когось підмінити
+ru Попросить кого-то подменить
 
 app.bot.sick_call.action.call_in
-* Ask someone to come in
+cs Zavolat někoho navíc
+en Ask someone to come in
+uk Покликати когось на зміну
+ru Позвать кого-то на смену
 
 app.bot.sick_call.action.manage
-* We'll manage
+cs Zvládneme to
+en We'll manage
+uk Упораємося
+ru Справимся
 
 app.bot.payment_reminder.action.open_money
-* Open money & payroll
+cs Otevřít peníze a mzdy
+en Open money & payroll
+uk Відкрити гроші й зарплати
+ru Открыть деньги и зарплаты
 
 app.bot.train_delay.action.get_ready
-* Get ready
+cs Připravit se
+en Get ready
+uk Готуватися
+ru Готовиться
 
 app.bot.train_delay.action.noted
-* Noted
+cs Beru na vědomí
+en Noted
+uk Зрозуміло
+ru Понятно
 
 app.bot.regular_tonight
-* {name} usually comes around {time}. Their seat is free.
+cs {name} obvykle chodí kolem {time}. Místo je volné.
+en {name} usually comes around {time}. Their seat is free.
+uk {name} зазвичай приходить близько {time}. Місце вільне.
+ru {name} обычно приходит около {time}. Место свободно.
 
 app.bot.regular_tonight.action.reserve
-* Reserve the seat
+cs Podržet místo
+en Reserve the seat
+uk Притримати місце
+ru Придержать место
 
 app.bot.regular_tonight.action.noted
-* Noted
+cs Beru na vědomí
+en Noted
+uk Зрозуміло
+ru Понятно
 
 app.bot.regular_to_go
-* {name} passes at {time} — to go, fast.
+cs {name} jde kolem v {time} — s sebou a rychle.
+en {name} passes at {time} — to go, fast.
+uk {name} пройде повз о {time} — з собою, швидко.
+ru {name} пройдёт мимо в {time} — с собой, быстро.
 
 app.bot.regular_to_go.action.remind
-* Remind me 5 minutes before
+cs Připomenout 5 minut předem
+en Remind me 5 minutes before
+uk Нагадати за 5 хвилин
+ru Напомнить за 5 минут
 
 app.bot.regular_to_go.action.noted
-* Noted
+cs Beru na vědomí
+en Noted
+uk Зрозуміло
+ru Понятно
 
 app.bot.low_stock
-* {item} is running low — {n} left.
+cs {item} dochází — zbývá {n}.
+en {item} is running low — {n} left.
+uk {item} закінчується — лишилося {n}.
+ru {item} заканчивается — осталось {n}.
 
 app.bot.low_stock.action.drone
-* Order by drone
+cs Objednat dronem
+en Order by drone
+uk Замовити дроном
+ru Заказать дроном
 
 app.bot.low_stock.action.menu_off
-* Take it off tonight's menu
+cs Dnes stáhnout z menu
+en Take it off tonight's menu
+uk Прибрати з меню на ніч
+ru Убрать из меню на ночь
 
 app.bot.weather_alert
-* Downpour from {time} — more guests, wet floors.
+cs Od {time} liják — víc hostů, mokrá podlaha.
+en Downpour from {time} — more guests, wet floors.
+uk Злива з {time} — більше гостей, мокра підлога.
+ru Ливень с {time} — больше гостей, мокрый пол.
 
 app.bot.weather_alert.action.umbrellas
-* Put out the umbrella stand
+cs Postavit stojan na deštníky
+en Put out the umbrella stand
+uk Поставити стійку для парасольок
+ru Поставить подставку для зонтов
 
 app.bot.weather_alert.action.noted
-* Noted
+cs Beru na vědomí
+en Noted
+uk Зрозуміло
+ru Понятно
 
 app.bot.cat_waiting
-* Someone with whiskers is at the door.
+cs U dveří čeká někdo s vousky.
+en Someone with whiskers is at the door.
+uk Біля дверей хтось із вусами.
+ru У двери кто-то с усами.
 
 app.bot.cat_waiting.action.look
-* Look
+cs Podívat se
+en Look
+uk Глянути
+ru Посмотреть
 
 app.bot.rozpis_happy
-* Everyone's happy with this week's rozpis.
+cs S rozpisem na tento týden jsou všichni spokojení.
+en Everyone's happy with this week's rozpis.
+uk Розкладом на цей тиждень задоволені всі.
+ru Расписанием на эту неделю довольны все.
 
 app.bot.rozpis_happy.action.thanks
-* Thanks!
+cs Díky!
+en Thanks!
+uk Дякую!
+ru Спасибо!
 
 app.bot.looks_tired
-* {name} looks tired lately. Maybe go easy on the requests?
+cs {name} je poslední dobou nějak bez sil. Co trochu ubrat s prosbami?
+en {name} looks tired lately. Maybe go easy on the requests?
+uk {name} останнім часом має втомлений вигляд. Може, менше прохань?
+ru {name}, кажется, в последнее время устаёт. Может, поменьше просьб?
 
 app.bot.looks_tired.action.noted
-* Noted
+cs Beru na vědomí
+en Noted
+uk Зрозуміло
+ru Понятно
 
 app.bot.manage_alone
-* {name}: "I'll manage."
+cs {name}: „Zvládnu to.“
+en {name}: "I'll manage."
+uk {name}: «Я впораюся».
+ru {name}: «Я справлюсь».
 
 # --- checklists & rituals (§13.1) --------------------------------------------------------------------
 app.checklist.record_on
-* Put a record on
+cs Pustit desku
+en Put a record on
+uk Поставити платівку
+ru Поставить пластинку
 
 app.ritual.opening
-* The café is ready.
+cs Kavárna je připravená.
+en The café is ready.
+uk Кав'ярня готова.
+ru Кафе готово.
 
 app.ritual.closing
-* Closed properly.
+cs Zavřeno, jak se patří.
+en Closed properly.
+uk Зачинено як слід.
+ru Закрыто как положено.
 
 # --- digest: helpers' credit and insights (§13.6) ------------------------------------------------------
 app.digest.helper_dishes
-* {name} washed {n} cups
+cs {name}: umytých šálků {n}
+en {name} washed {n} cups
+uk {name}: помито чашок — {n}
+ru {name}: вымыто чашек — {n}
 
 app.digest.helper_floor
-* {name} mopped {n} times
+cs {name}: vytřeno {n}×
+en {name} mopped {n} times
+uk {name}: підлогу помито {n}×
+ru {name}: пол вымыт {n}×
 
 app.digest.helper_register
-* {name} took {n} orders
+cs {name}: přijatých objednávek {n}
+en {name} took {n} orders
+uk {name}: прийнято замовлень — {n}
+ru {name}: принято заказов — {n}
 
 app.digest.helper_bar
-* {name} made {n} drinks
+cs {name}: připravených nápojů {n}
+en {name} made {n} drinks
+uk {name}: приготовано напоїв — {n}
+ru {name}: приготовлено напитков — {n}
 
 app.digest.helper_kitchen
-* {name} cooked {n} plates
+cs {name}: uvařených porcí {n}
+en {name} cooked {n} plates
+uk {name}: приготовано страв — {n}
+ru {name}: приготовлено блюд — {n}
 
 app.digest.helper_serving
-* {name} carried {n} trays
+cs {name}: odnesených táců {n}
+en {name} carried {n} trays
+uk {name}: рознесено тацей — {n}
+ru {name}: разнесено подносов — {n}
 
 app.insight.busiest_hour
-* The busiest hour was {time}. Next {weekday} will probably be similar.
+cs Nejvíc lidí bylo v {time}. Za týden ({weekday}) to bude asi podobné.
+en The busiest hour was {time}. Next {weekday} will probably be similar.
+uk Найбільше людей було о {time}. Через тиждень ({weekday}), мабуть, буде так само.
+ru Больше всего людей было в {time}. Через неделю ({weekday}), наверное, будет так же.
 
 app.insight.wishes
-* {n} wishes tonight, {perfect} of them perfect.
+cs Přání dnes v noci: {n}, z toho přesně trefených {perfect}.
+en {n} wishes tonight, {perfect} of them perfect.
+uk Побажань цієї ночі: {n}, з них ідеальних — {perfect}.
+ru Пожеланий этой ночью: {n}, из них идеальных — {perfect}.
 
 app.insight.wish_loved
-* {name} loved the {recipe}.
+cs {name}: {recipe} — láska na první doušek.
+en {name} loved the {recipe}.
+uk {name} у захваті: {recipe}.
+ru {name} в восторге: {recipe}.
 
 app.insight.unmet_taste
-* {n} guests wanted something {taste} — maybe something new in the pantry?
+cs Hostů, co chtěli něco „{taste}“: {n} — nepřidat něco nového do spíže?
+en {n} guests wanted something {taste} — maybe something new in the pantry?
+uk Гостей, що хотіли «{taste}»: {n} — може, чогось нового в комору?
+ru Гостей, хотевших «{taste}»: {n} — может, чего-то нового в кладовую?
 
 app.insight.coziness
-* The hall was {level}; the weakest part: {weakest}.
+cs Sál byl: {level}. Nejslabší místo: {weakest}
+en The hall was {level}; the weakest part: {weakest}.
+uk Зала була: {level}. Найслабше місце: {weakest}
+ru Зал был: {level}. Слабое место: {weakest}
 
 app.insight.helpers
 * {summary}
 
 app.insight.tips
-* Tips tonight: {tips}. Best rhythm: {streak} in a row.
+cs Dýška dnes: {tips}. Nejlepší rytmus: {streak} v řadě.
+en Tips tonight: {tips}. Best rhythm: {streak} in a row.
+uk Чайові цієї ночі: {tips}. Найкращий ритм: {streak} поспіль.
+ru Чаевые этой ночью: {tips}. Лучший ритм: {streak} подряд.
 
 app.insight.trust
-* {name} trusts the café a little more.
+cs {name} věří kavárně zase o kousek víc.
+en {name} trusts the café a little more.
+uk {name} трохи більше довіряє кав'ярні.
+ru {name} чуть больше доверяет кафе.
 
 # --- handover suggestions (§13.5) -----------------------------------------------------------------------
 app.handover.option.low_stock
-* {item} is low.
+cs Dochází {item}.
+en {item} is low.
+uk Закінчується: {item}.
+ru Заканчивается: {item}.
 
 app.handover.option.machine_odd
-* The coffee machine sounded odd.
+cs Kávovar zněl divně.
+en The coffee machine sounded odd.
+uk Кавоварка дивно звучала.
+ru Кофемашина странно звучала.
 
 app.handover.option.regular_tired
-* {name} seemed tired.
+cs {name} vypadá unaveně.
+en {name} seemed tired.
+uk {name}, здається, без сил.
+ru {name}, похоже, без сил.
 
 app.handover.option.busy_after_train
-* Busy after the {time} train.
+cs Po vlaku v {time} byl nával.
+en Busy after the {time} train.
+uk Після поїзда о {time} був наплив.
+ru После поезда в {time} был наплыв.
 
 app.handover.option.thank_crew
-* Great night — thank the crew.
+cs Skvělá noc — poděkuj týmu.
+en Great night — thank the crew.
+uk Чудова ніч — подякуй команді.
+ru Чудесная ночь — поблагодари команду.
 
 app.handover.option.table_wobbles
-* The window table wobbles.
+cs Stůl u okna se viklá.
+en The window table wobbles.
+uk Стіл біля вікна хитається.
+ru Стол у окна шатается.
 
 # --- payroll decision (§13.7) -----------------------------------------------------------------------------
 app.payroll.split.title
-* This week's tips
+cs Dýška za tento týden
+en This week's tips
+uk Чайові за цей тиждень
+ru Чаевые за эту неделю
 
 app.payroll.split.cafe
-* All to the café
+cs Všechno kavárně
+en All to the café
+uk Усе кав'ярні
+ru Всё кафе
 
 app.payroll.split.half
-* Half to the crew
+cs Polovina týmu
+en Half to the crew
+uk Половина команді
+ru Половина команде
 
 app.payroll.split.crew
-* All to the crew
+cs Všechno týmu
+en All to the crew
+uk Усе команді
+ru Всё команде
 
 app.payroll.star
-* Star of the week: {name} (+{amount})
+cs Hvězda týdne: {name} (+{amount})
+en Star of the week: {name} (+{amount})
+uk Зірка тижня: {name} (+{amount})
+ru Звезда недели: {name} (+{amount})
 
 app.payroll.toil_row
-* {name}: {hours} h owed
+cs {name}: dluží se {hours} h
+en {name}: {hours} h owed
+uk {name}: заборговано {hours} год
+ru {name}: задолженность {hours} ч
 
 app.payroll.grant
-* Grant a night off next week
+cs Dát příští týden volnou noc
+en Grant a night off next week
+uk Дати вільну ніч наступного тижня
+ru Дать свободную ночь на следующей неделе
 
 app.payroll.send
-* Send to the accountant
+cs Poslat účetní
+en Send to the accountant
+uk Надіслати бухгалтерці
+ru Отправить бухгалтеру
 
 app.payroll.sent
-* Sent: {total}, of which tips to the crew {tips}.
+cs Odesláno: {total}, z toho dýška týmu {tips}.
+en Sent: {total}, of which tips to the crew {tips}.
+uk Надіслано: {total}, з них чайові команді — {tips}.
+ru Отправлено: {total}, из них чаевые команде — {tips}.
 
 app.payroll.auto_sent
-* Last week's payroll went to the accountant on its own. All in order.
+cs Podklady za minulý týden odešly účetní samy. Všechno v pořádku.
+en Last week's payroll went to the accountant on its own. All in order.
+uk Дані за минулий тиждень пішли бухгалтерці самі. Усе гаразд.
+ru Данные за прошлую неделю ушли бухгалтеру сами. Всё в порядке.
 
 # --- requests (§13.3) --------------------------------------------------------------------------------------
 app.request.barista_exam
-* {name}: "I've got an exam on {day}. Could I have that night off?"
+cs {name}: „Mám zkoušku ({day}). Mohla bych mít tu noc volno?“
+en {name}: "I've got an exam on {day}. Could I have that night off?"
+uk {name}: «У мене іспит ({day}). Можна мені тієї ночі вихідний?»
+ru {name}: «У меня экзамен ({day}). Можно мне в ту ночь выходной?»
 
 app.request.cashier_daughter
-* {name}: "My daughter's ill. Could I go at {time}?"
+cs {name}: „Dcera je nemocná. Můžu odejít v {time}?“
+en {name}: "My daughter's ill. Could I go at {time}?"
+uk {name}: «Донька захворіла. Можна мені піти о {time}?»
+ru {name}: «Дочка заболела. Можно мне уйти в {time}?»
 
 app.request.early_leave
-* {name}: "Could I go at {time}?"
+cs {name}: „Můžu odejít v {time}?“
+en {name}: "Could I go at {time}?"
+uk {name}: «Можна мені піти о {time}?»
+ru {name}: «Можно мне уйти в {time}?»
 
 app.request.manage
-* {name}: "I'll manage."
+cs {name}: „Zvládnu to.“
+en {name}: "I'll manage."
+uk {name}: «Я впораюся».
+ru {name}: «Я справлюсь».
 
 app.request.tired
-* {name} looks tired.
+cs {name} vypadá unaveně.
+en {name} looks tired.
+uk {name} має втомлений вигляд.
+ru {name}, похоже, без сил.
 
 # --- the rozpis puzzle (§12) ----------------------------------------------------------------------------------
 rozpis.autofill
-* Auto-fill
+cs Vyplnit samo
+en Auto-fill
+uk Автозаповнення
+ru Автозаполнение
 
 rozpis.autofill_result
-* Auto-fill kept {kept} of {total} wishes.
+cs Automatické vyplnění splnilo {kept} z {total} přání.
+en Auto-fill kept {kept} of {total} wishes.
+uk Автозаповнення врахувало {kept} з {total} побажань.
+ru Автозаполнение учло {kept} из {total} пожеланий.
 
 rozpis.autofill_missed
-* {name}'s "{pref}" didn't fit {day}.
+cs {name}: „{pref}“ se nevešlo {day}
+en {name}'s "{pref}" didn't fit {day}.
+uk {name}: «{pref}» не вдалося врахувати {day}
+ru {name}: «{pref}» не получилось учесть {day}
 
 rozpis.clear
-* Clear
+cs Vymazat
+en Clear
+uk Очистити
+ru Очистить
 
 rozpis.coverage
-* {suggested} suggested, {on} on
+cs navrženo {suggested}, ve směně {on}
+en {suggested} suggested, {on} on
+uk запропоновано {suggested}, на зміні {on}
+ru предложено {suggested}, на смене {on}
 
 rozpis.busier
-* You'll be busier — more hands-on work.
+cs Budeš mít víc práce — víc věcí vlastníma rukama.
+en You'll be busier — more hands-on work.
+uk Роботи буде більше — більше справ власноруч.
+ru Работы будет больше — больше дел своими руками.
 
 rozpis.tonight
-* Tonight
+cs Dnes
+en Tonight
+uk Сьогодні
+ru Сегодня
 
 rozpis.honoured
-* Honoured
+cs Splněno
+en Honoured
+uk Враховано
+ru Учтено
 
 rozpis.violated
-* Not this week
+cs Tento týden ne
+en Not this week
+uk Цього тижня ні
+ru На этой неделе нет
 
 rozpis.need
-* Needs it
+cs Potřebuje
+en Needs it
+uk Потрібно
+ru Нужно
 
 rozpis.wish
-* Would like it
+cs Přání
+en Would like it
+uk Хотілося б
+ru Хотелось бы
 
 rozpis.wellbeing
-* Wellbeing {n}
+cs Pohoda {n}
+en Wellbeing {n}
+uk Самопочуття {n}
+ru Самочувствие {n}
 
 rozpis.shift.early
-* Early
+cs Brzká
+en Early
+uk Рання
+ru Ранняя
 
 rozpis.shift.late
-* Late
+cs Pozdní
+en Late
+uk Пізня
+ru Поздняя
 
 rozpis.shift.full
-* Full
+cs Celá
+en Full
+uk Повна
+ru Полная
 
 rozpis.ring.happy
-* Happy
+cs Radost
+en Happy
+uk Радість
+ru Радость
 
 rozpis.ring.fine
-* Fine
+cs V pohodě
+en Fine
+uk Нормально
+ru Нормально
 
 rozpis.ring.tired
-* Tired
+cs Únava
+en Tired
+uk Втома
+ru Усталость
 
 rozpis.ring.stretched
-* Stretched
+cs Na hraně
+en Stretched
+uk На межі
+ru На пределе
 
 rozpis.week.1
-* Rain, but cosy
+cs Prší, ale útulně
+en Rain, but cosy
+uk Дощ, але затишно
+ru Дождь, но уютно
 
 rozpis.week.2
-* Cloudy
+cs Zataženo
+en Cloudy
+uk Хмарно
+ru Облачно
 
 rozpis.week.3
-* Mostly sunny
+cs Skoro jasno
+en Mostly sunny
+uk Переважно сонячно
+ru В основном солнечно
 
 rozpis.week.4
-* Sunny
+cs Slunečno
+en Sunny
+uk Сонячно
+ru Солнечно
 
 pref.kind.day_off
-* {day} off
+cs {day} volno
+en {day} off
+uk {day} вихідний
+ru {day} выходной
 
 pref.kind.shift_pref
-* {shift} shifts
+cs Směny: {shift}
+en {shift} shifts
+uk Зміни: {shift}
+ru Смены: {shift}
 
 pref.kind.weekend_off
-* Weekend off
+cs Víkend volno
+en Weekend off
+uk Вихідні вільні
+ru Выходные свободны
 
 pref.kind.no_back_to_back
-* Not two in a row
+cs Ne dvě za sebou
+en Not two in a row
+uk Не дві поспіль
+ru Не две подряд
 
 pref.kind.max_nights
-* At most {n} nights
+cs Nejvýš nocí: {n}
+en At most {n} nights
+uk Максимум ночей: {n}
+ru Максимум ночей: {n}
 
 pref.kind.min_nights
-* At least {n} nights
+cs Aspoň nocí: {n}
+en At least {n} nights
+uk Мінімум ночей: {n}
+ru Минимум ночей: {n}
 
 pref.kind.works_with
-* Likes working with {name}
+cs Do dvojice: {name}
+en Likes working with {name}
+uk У парі з: {name}
+ru В паре с: {name}
 
 pref.kind.avoid_with
-* Not with {name} this week
+cs Tento týden ne s: {name}
+en Not with {name} this week
+uk Цього тижня не з: {name}
+ru На этой неделе не с: {name}
 
 pref.quote.day_off
-* Could I have that day off? Every week, if possible.
+cs Můžu mít ten den volno? Každý týden, jestli to jde.
+en Could I have that day off? Every week, if possible.
+uk Можна мені цей день вихідним? Щотижня, якщо можна.
+ru Можно мне этот день выходным? Каждую неделю, если можно.
 
 pref.quote.early
-* Early shift, please — I'm useless after three.
+cs Brzkou směnu, prosím — po třetí jsem k ničemu.
+en Early shift, please — I'm useless after three.
+uk Ранню зміну, будь ласка, — після третьої з мене ніякої користі.
+ru Раннюю смену, пожалуйста, — после трёх от меня никакого толку.
 
 pref.quote.late
-* Night owl — late shift, please.
+cs Jsem sova — pozdní směnu, prosím.
+en Night owl — late shift, please.
+uk Я сова — пізню зміну, будь ласка.
+ru Я сова — позднюю смену, пожалуйста.
 
 pref.quote.max_nights
-* A few nights a week is plenty for me.
+cs Pár nocí týdně mi úplně stačí.
+en A few nights a week is plenty for me.
+uk Кількох ночей на тиждень мені цілком досить.
+ru Пары ночей в неделю мне вполне хватает.
 
 pref.quote.min_nights
-* I need the hours.
+cs Potřebuju ty hodiny.
+en I need the hours.
+uk Мені потрібні години.
+ru Мне нужны часы.
 
 pref.quote.weekend_off
-* Weekends are for my family.
+cs Víkendy patří rodině.
+en Weekends are for my family.
+uk Вихідні — для родини.
+ru Выходные — для семьи.
 
 pref.quote.no_back_to_back
-* Not two nights in a row, please.
+cs Ne dvě noci za sebou, prosím.
+en Not two nights in a row, please.
+uk Не дві ночі поспіль, будь ласка.
+ru Не две ночи подряд, пожалуйста.
 
 pref.quote.partner
-* If we could work the same nights…
+cs Kdybychom mohli dělat stejné noci…
+en If we could work the same nights…
+uk Якби ми могли працювати в ті самі ночі…
+ru Если бы мы могли работать в одни и те же ночи…
 
 staff.barista.pref.late
-* Late shifts, please. I'm a different person after midnight.
+cs Pozdní směny, prosím. Po půlnoci jsem jiný člověk.
+en Late shifts, please. I'm a different person after midnight.
+uk Пізні зміни, будь ласка. Після півночі я зовсім інша людина.
+ru Поздние смены, пожалуйста. После полуночи я совсем другой человек.
 
 staff.barista.pref.sunday
-* Sunday lunch with my parents. They think I'm still at uni.
+cs Nedělní oběd u našich. Myslí si, že pořád studuju.
+en Sunday lunch with my parents. They think I'm still at uni.
+uk Недільний обід у батьків. Вони думають, що я досі вчуся.
+ru Воскресный обед у родителей. Они думают, что я всё ещё учусь.
 
 staff.barista.pref.exam
-* Exam on Friday. I can't miss it.
+cs V pátek zkouška. Nemůžu ji vynechat.
+en Exam on Friday. I can't miss it.
+uk У п'ятницю іспит. Пропустити не можу.
+ru В пятницу экзамен. Пропустить не могу.
 
 staff.cook.pref.back
-* Not two nights in a row. My back.
+cs Ne dvě noci za sebou. Moje záda.
+en Not two nights in a row. My back.
+uk Не дві ночі поспіль. Моя спина.
+ru Не две ночи подряд. Моя спина.
 
 staff.cook.pref.full
-* Full nights. Half a night is half a soup.
+cs Celé noci. Půl noci je půl polívky.
+en Full nights. Half a night is half a soup.
+uk Повні ночі. Пів ночі — це пів супу.
+ru Полные ночи. Полночи — это полсупа.
 
 staff.porter.pref.cook
-* Mr Holub lets me watch him bake.
+cs Pan Holub mě nechává koukat, jak peče.
+en Mr Holub lets me watch him bake.
+uk Пан Голуб дозволяє мені дивитися, як він пече.
+ru Пан Голуб разрешает мне смотреть, как он печёт.
 
 staff.cashier.pref.early
-* Home by half past two — my daughter wakes at night.
+cs Doma do půl třetí — dcera se v noci budí.
+en Home by half past two — my daughter wakes at night.
+uk Додому до пів на третю — донька вночі прокидається.
+ru Домой к половине третьего — дочка ночью просыпается.
 
 staff.cashier.pref.hours
-* Four nights at least. I need the hours.
+cs Aspoň čtyři noci. Potřebuju ty hodiny.
+en Four nights at least. I need the hours.
+uk Щонайменше чотири ночі. Мені потрібні години.
+ru Минимум четыре ночи. Мне нужны часы.
 
 staff.sound_tech.pref.thursday
-* Thursday's band rehearsal — and the video call home.
+cs Ve čtvrtek zkouška kapely — a videohovor domů.
+en Thursday's band rehearsal — and the video call home.
+uk У четвер репетиція гурту — і відеодзвінок додому.
+ru В четверг репетиция группы — и видеозвонок домой.
 
 staff.sound_tech.pref.late
-* Late, please. I sound better after midnight. So does the coffee.
+cs Pozdě, prosím. Po půlnoci zním líp. Kafe taky.
+en Late, please. I sound better after midnight. So does the coffee.
+uk Пізно, будь ласка. Після півночі я звучу краще. І кава теж.
+ru Поздно, пожалуйста. После полуночи я звучу лучше. И кофе тоже.
 
 staff.quiet_one.pref.tuesday
-* Lectures on Tuesdays.
+cs V úterý mám přednášky.
+en Lectures on Tuesdays.
+uk У вівторок лекції.
+ru По вторникам лекции.
 
 staff.quiet_one.pref.weekend
-* Not weekends, if possible. Crowds.
+cs Jestli to jde, víkendy ne. Davy.
+en Not weekends, if possible. Crowds.
+uk Якщо можна, не на вихідних. Натовп.
+ru Если можно, не по выходным. Толпа.
 
 staff.server.pref.bara
-* With Bára, if I can. She makes the nights go fast.
+cs S Bárou, jestli to jde. S ní noci utečou.
+en With Bára, if I can. She makes the nights go fast.
+uk З Барою, якщо можна. З нею ночі минають швидко.
+ru С Барой, если можно. С ней ночи пролетают быстро.
 
 staff.server.pref.max
-* Five nights, no more. I've got a life to visit.
+cs Pět nocí, víc ne. Mám ještě život, který občas navštěvuju.
+en Five nights, no more. I've got a life to visit.
+uk П'ять ночей, не більше. У мене є життя, яке треба іноді відвідувати.
+ru Пять ночей, не больше. У меня есть жизнь, которую надо иногда навещать.
 
 # --- coach marks (§8): Karolina's thoughts, or Lida's notes in amber italics ---------------------------------
 tutorial.light_window
-* The light in the window first, Karolinko. Always first.
+cs Nejdřív světlo v okně, Karolinko. Vždycky nejdřív.
+en The light in the window first, Karolinko. Always first.
+uk Спершу світло у вікні, Каролінко. Завжди спершу.
+ru Сначала свет в окне, Каролиночка. Всегда сначала.
 
 tutorial.machine
-* The old machine needs a minute to wake up. Hold it until it hums.
+cs Starý kávovar se musí chvilku probouzet. Drž, dokud nezavrní.
+en The old machine needs a minute to wake up. Hold it until it hums.
+uk Старій кавоварці треба хвилинку, щоб прокинутися. Тримай, доки не загуде.
+ru Старой кофемашине нужна минутка, чтобы проснуться. Держи, пока не загудит.
 
 tutorial.greet
-* That's Mirek. Grandma's oldest regular. A wave wouldn't hurt.
+cs To je Mirek. Babiččin nejstarší štamgast. Zamávat neuškodí.
+en That's Mirek. Grandma's oldest regular. A wave wouldn't hurt.
+uk Це Мірек. Найдавніший бабусин постійний гість. Помахати не завадить.
+ru Это Мирек. Самый давний бабушкин постоянный гость. Помахать не помешает.
 
 tutorial.take_order
-* He's waiting for me. Let's see what he'd like.
+cs Čeká na mě. Podívám se, co by si dal.
+en He's waiting for me. Let's see what he'd like.
+uk Він чекає на мене. Подивлюся, чого б він хотів.
+ru Он ждёт меня. Посмотрю, чего бы он хотел.
 
 tutorial.pick_recipe
-* "Black, the way Lida poured it." I think I know which one.
+cs „Černou, jak ji lila Lída.“ Myslím, že vím kterou.
+en "Black, the way Lida poured it." I think I know which one.
+uk «Чорну, як наливала Ліда». Здається, я знаю, яку.
+ru «Чёрный, как наливала Лида». Кажется, я знаю какой.
 
 tutorial.pour_over
-* Slow circles, in time with the rain. And if it goes wrong — skip, it'll still be good.
+cs Pomalé kruhy, do rytmu deště. A když se to nepovede — přeskoč, i tak bude dobrá.
+en Slow circles, in time with the rain. And if it goes wrong — skip, it'll still be good.
+uk Повільні кола, у ритмі дощу. А якщо не вийде — пропусти, однаково буде добре.
+ru Медленные круги, в ритме дождя. А если не выйдет — пропусти, всё равно будет хорошо.
 
 tutorial.quick_brew
-* A plain order. I can let the machine work and do something else.
+cs Běžná objednávka. Můžu nechat pracovat kávovar a dělat něco jiného.
+en A plain order. I can let the machine work and do something else.
+uk Звичайне замовлення. Можна дати попрацювати машині, а самій зайнятися чимось іншим.
+ru Обычный заказ. Можно дать поработать машине, а самой заняться чем-то другим.
 
 tutorial.tip_coin
-* Something glints on Mirek's table. He left a coin after all.
+cs Na Mirkově stole se něco blyští. Nakonec tu nechal minci.
+en Something glints on Mirek's table. He left a coin after all.
+uk На Мірковому столі щось блищить. Усе-таки залишив монету.
+ru На столе Мирека что-то блестит. Всё-таки оставил монетку.
 
 tutorial.clear_table
-* Cups won't carry themselves to the sink.
+cs Šálky samy ke dřezu nedojdou.
+en Cups won't carry themselves to the sink.
+uk Чашки самі до мийки не дійдуть.
+ru Чашки сами до мойки не дойдут.
 
 tutorial.moment
-* Something's glowing by the window…
+cs U okna něco září…
+en Something's glowing by the window…
+uk Біля вікна щось сяє…
+ru У окна что-то светится…
 
 tutorial.speed
-* It's quiet. I could let the clock run a little faster.
+cs Je klid. Můžu nechat hodiny běžet trochu rychleji.
+en It's quiet. I could let the clock run a little faster.
+uk Тихо. Можна пустити годинник трохи швидше.
+ru Тихо. Можно пустить часы чуть быстрее.
 
 tutorial.closing
-* A note for tomorrow's me, then lights off at six.
+cs Vzkaz pro zítřejší já, a v šest zhasnout.
+en A note for tomorrow's me, then lights off at six.
+uk Записка для завтрашньої себе, а о шостій — вимкнути світло.
+ru Записка для завтрашней себя, а в шесть — погасить свет.
 
 tutorial.journal
-* Grandma kept a box of photos behind the till. I'll keep one too. (J)
+cs Babička měla za pokladnou krabici fotek. Budu si jednu vést taky. (J)
+en Grandma kept a box of photos behind the till. I'll keep one too. (J)
+uk Бабуся тримала за касою коробку з фото. Я теж збиратиму. (J)
+ru Бабушка держала за кассой коробку с фото. Я тоже буду собирать. (J)
 
 tutorial.book
-* Grandma's recipes are all in here — and a card for linden tea, in her handwriting. (K)
+cs Babiččiny recepty jsou všechny tady — a kartička na lipový čaj, jejím písmem. (K)
+en Grandma's recipes are all in here — and a card for linden tea, in her handwriting. (K)
+uk Усі бабусині рецепти тут — і картка з липовим чаєм, її почерком. (K)
+ru Все бабушкины рецепты здесь — и карточка с липовым чаем, её почерком. (K)
 
 tutorial.experiment
-* Linden and honey, her card says. Into the pantry slots, then Try.
+cs Lípa a med, píše se na kartičce. Do přihrádek spíže, pak Zkusit.
+en Linden and honey, her card says. Into the pantry slots, then Try.
+uk Липа й мед, написано на картці. У комірки комори, потім «Спробувати».
+ru Липа и мёд, написано на карточке. В ячейки кладовой, потом «Попробовать».
 
 tutorial.jukebox
-* Grandma's records. Three still play.
+cs Babiččiny desky. Tři ještě hrají.
+en Grandma's records. Three still play.
+uk Бабусині платівки. Три ще грають.
+ru Бабушкины пластинки. Три ещё играют.
 
 tutorial.wash
-* The cups are stacking up. Hold, and they'll wash.
+cs Šálky se kupí. Podrž, a umyjí se.
+en The cups are stacking up. Hold, and they'll wash.
+uk Чашки накопичуються. Утримуй — і вони помиються.
+ru Чашки копятся. Удерживай — и они помоются.
 
 tutorial.mop
-* Muddy footprints by the door. One good swipe.
+cs Zablácené stopy u dveří. Jedno pořádné přejetí.
+en Muddy footprints by the door. One good swipe.
+uk Брудні сліди біля дверей. Один добрий змах.
+ru Грязные следы у двери. Один хороший взмах.
 
 tutorial.duties
-* Kuba takes the dishes. I take the guests.
+cs Kuba vezme nádobí. Já hosty.
+en Kuba takes the dishes. I take the guests.
+uk Куба бере посуд. Я — гостей.
+ru Куба берёт посуду. Я — гостей.
 
 tutorial.rozpis
-* He wants to work with the cook. Noted.
+cs Chce dělat s kuchařem. Beru na vědomí.
+en He wants to work with the cook. Noted.
+uk Він хоче працювати з кухарем. Зрозуміло.
+ru Он хочет работать с поваром. Понятно.
 
 tutorial.rail
-* A ticket with an empty ring — nobody has it. That one's mine.
+cs Lístek s prázdným kroužkem — nikdo ho nemá. Ten je můj.
+en A ticket with an empty ring — nobody has it. That one's mine.
+uk Чек із порожнім кружечком — ним ніхто не займається. Він мій.
+ru Чек с пустым кружком — им никто не занят. Он мой.
 
 tutorial.cat
-* The station cat. It's been watching this door longer than I have.
+cs Nádražní kocour. Hlídá tyhle dveře déle než já.
+en The station cat. It's been watching this door longer than I have.
+uk Вокзальний кіт. Стереже ці двері довше, ніж я.
+ru Вокзальный кот. Сторожит эту дверь дольше, чем я.
 
 tutorial.usual
-* Mirek trusts me now. "The usual?" — one tap.
+cs Mirek mi teď věří. „To obvyklé?“ — jedno ťuknutí.
+en Mirek trusts me now. "The usual?" — one tap.
+uk Мірек тепер мені довіряє. «Як завжди?» — один дотик.
+ru Мирек теперь мне доверяет. «Как обычно?» — одно касание.
 
 tutorial.atmosphere
-* It feels warmer in here when the lamps are on.
+cs Když svítí lampy, je tu nějak tepleji.
+en It feels warmer in here when the lamps are on.
+uk Коли горять лампи, тут якось тепліше.
+ru Когда горят лампы, здесь как-то теплее.
 
 tutorial.fairness
-* The rings show how everyone feels about the week. Nobody needs to be stretched.
+cs Kroužky ukazují, jak se kdo cítí s týdnem. Nikdo nemusí být na hraně.
+en The rings show how everyone feels about the week. Nobody needs to be stretched.
+uk Кружечки показують, як кожен почувається щодо тижня. Ніхто не мусить бути на межі.
+ru Кружки показывают, как каждый себя чувствует на этой неделе. Никому не нужно быть на пределе.
 
 tutorial.garlands
-* Windows first, then the counter, then the door. Like every year, Karolinko.
+cs Nejdřív okna, pak pult, pak dveře. Jako každý rok, Karolinko.
+en Windows first, then the counter, then the door. Like every year, Karolinko.
+uk Спершу вікна, потім стійка, потім двері. Як щороку, Каролінко.
+ru Сначала окна, потом стойка, потом дверь. Как каждый год, Каролиночка.
