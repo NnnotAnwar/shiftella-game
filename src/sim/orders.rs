@@ -172,11 +172,9 @@ fn kind_ok(content: &Content, kind: WishKind, r: &RecipeDef) -> bool {
 
 /// Recipes for a wish among Karolina's available ones, best first (ties: data order).
 pub(crate) fn matches_for(w: &World, content: &Content, wish: &WishDef) -> Vec<(String, f32)> {
-    let mut v: Vec<(String, f32)> = content
-        .handson
-        .recipes
-        .recipes
-        .iter()
+    // the café's own drink answers wishes like any recipe (`sim::signature`)
+    let mut v: Vec<(String, f32)> = w
+        .all_recipes(content)
         .filter(|r| kind_ok(content, wish.kind, r) && recipe_available(w, content, r))
         .map(|r| (r.id.clone(), match_score(wish, r, match_ctx(w, &r.id))))
         .collect();
@@ -331,7 +329,7 @@ pub(crate) fn pick_order_kind(
 pub(crate) fn usual_recipe(w: &World, content: &Content, wish: &str) -> Option<String> {
     let def = content.handson.wish(wish)?;
     for f in &def.favourite {
-        if let Some(r) = content.handson.recipe(f)
+        if let Some(r) = w.recipe_def(content, f)
             && recipe_available(w, content, r)
         {
             return Some(f.clone());
@@ -440,6 +438,7 @@ pub(crate) fn on_served(w: &mut World, content: &Content, ii: usize, pi: usize, 
             if item.wish {
                 let wish = w.parties[pi].order_kind.wish().map(str::to_string);
                 super::tool::note_wish(w, content, wish.as_deref(), &recipe, regular.as_deref(), m);
+                super::signature::on_served(w, content, wish.as_deref(), &recipe);
             }
             super::tool::serve_highlights(
                 w,

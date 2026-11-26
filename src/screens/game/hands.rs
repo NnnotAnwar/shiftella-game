@@ -523,7 +523,7 @@ impl GameScreen {
 
     /// An overlay that slows the night is open (order card, mini-game, book, the phone).
     pub fn overlay_open(&self) -> bool {
-        self.hands.overlay() || self.panel == Some(Panel::App)
+        self.hands.overlay() || self.panel == Some(Panel::App) || self.sig.open
     }
 
     fn toast_key(&mut self, kind: ToastKind, icon: Icon, key: &str, args: &[(&str, String)]) {
@@ -1094,9 +1094,11 @@ impl GameScreen {
 
     /// Starts the mini-game of `recipe` (the text comes in when the frame has a locale).
     pub fn start_minigame(&mut self, content: &Content, guest: u32, recipe: &str, usual: bool) {
-        let Some(def) = content.handson.recipe(recipe) else {
+        // (a clone: the café's own drink lives in the world)
+        let Some(def) = self.world.recipe_def(content, recipe).cloned() else {
             return;
         };
+        let def = &def;
         let seed = self.world.seed() ^ (self.world.tick_count() as u64) << 8 ^ guest as u64;
         let (kind, variant) = playable(def, seed);
         let regular = self
@@ -1454,7 +1456,7 @@ impl GameScreen {
                 }
             }
             SimEvent::PractisedRecipe { recipe } => {
-                if let Some(def) = content.handson.recipe(recipe) {
+                if let Some(def) = self.world.recipe_def(content, recipe) {
                     self.toast_key(
                         ToastKind::Success,
                         Icon::Star,

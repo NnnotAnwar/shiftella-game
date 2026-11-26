@@ -644,6 +644,14 @@ impl App {
                 game::build_content_scene(&mut g, &content, &loc, name, n);
                 self.game(g)
             }
+            // package I: the house drink and photo mode
+            "signature_compose" | "signature_board" | "signature_order" | "photo_mode"
+            | "photo_print" | "journal_photos" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let mut g = game::signature_photo_scene(&content, &loc, name, night, minute);
+                g.summary = None;
+                self.game(g)
+            }
             "season_snow" | "night27_snow" | "night22" | "night14" => {
                 let n = night.unwrap_or(match name {
                     "night22" => 22,
@@ -994,6 +1002,8 @@ pub async fn run() {
                 }
             }
             Screen::Game(g) => {
+                // the café's own drink: its name wherever a recipe name shows
+                game::signature_ui::sync_i18n(&mut app.i18n, &g.world, &app.content);
                 let lang = app.settings.lang();
                 let loc = Locale::new(&app.i18n, lang);
                 let mut cx = Ctx {

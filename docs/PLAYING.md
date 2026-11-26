@@ -189,6 +189,41 @@ and a hint where to learn them. **Pantry**: put 2–3 jars in the slots and **Tr
 result is instant; at night Karolina tries it at the counter. "So close" lines tell you what
 to swap; every few tries Lida's margin note reveals an ingredient on a silhouette.
 
+## The café's own drink
+
+From night 6 grandma's note in the drawer suggests it (a toast, once): every café worth its
+name has a drink of its own. Open the recipe book (**K**) and press **Our drink** under it:
+
+* **Base** — coffee, black tea, cocoa or linden tea (one click; a base whose jar isn't on the
+  shelf yet is greyed out).
+* **Add 2–3** — jars from the pantry that make sense in a cup (milk, honey, spice, lemon, ice,
+  vanilla…; at most one milk). Only what you already have.
+* **Made by** — the mini-game it is brewed with: pour-over, frothed, latte art or steeped
+  (what suits the base).
+* The **tastes** follow from what's in it (a little ice makes it a cold drink) and so does the
+  price — the base's price plus a modest 20–25 Kč.
+* **Name** — type up to 24 letters (Czech and Cyrillic letters work), or click one of the
+  three **ideas** (↻ shows more: *Holešovická noc*, *Lídin čaj*, *Déšť na kolejích*…).
+* **Chalk it on the board.** A little A-frame chalkboard appears by the left end of the
+  counter with the name and the price (hover it for the tastes, click it to open the card).
+
+From then on it is a recipe like any other: wishes score it by its tastes, and now and then
+strangers and the regulars ask for it **by name** ("«Holešovická noc», please — the one on
+the board"): it's their favourite, so it's always a perfect match. The night you made it you
+can still tweak it; after that it can be reworked or renamed **once a week**. It's never
+needed for the story.
+
+## Photo mode (P)
+
+At night press **P** or the small camera under the atmosphere meter (the amber number is the
+film left tonight: 3 a night). The café holds still and a viewfinder frames part of it: move a
+little with **WASD** / right-drag, zoom with the wheel, then **click** (or **Enter** / **Space**)
+to take the photo. A soft flash, the print slides into the corner and develops — drag over it
+to shake it faster; click it to open the journal. **Esc** (or **P**) puts the camera away
+without a photo. The photos go into the journal as extra photos of that night: small prints
+tucked beside the night's polaroid; open the night and step through them with **← →**. They
+never replace the polaroid you keep in the morning.
+
 ## Controls
 
 | Key | |
@@ -197,7 +232,8 @@ to swap; every few tries Lida's margin note reveals an ingredient on a silhouett
 | **Space** | pause / resume |
 | **1 / 2 / 3** | speed ×1 / ×2 / ×3 (also the buttons on the clock card) |
 | **C** | crew — the character card (Karolina, each helper, hiring); **arrows** step through the crew |
-| **H** (or **P**) | duties — who helps with what tonight |
+| **H** (or **P** by day) | duties — who helps with what tonight |
+| **P** (night) | photo mode — the camera; click to take a photo, **Esc** to put it away |
 | **T** | the Shiftella app — rozpis, requests, messages, board, checklists, digest, payroll |
 | **K** | grandma's recipe book |
 | **J** | the polaroid journal |
@@ -391,6 +427,13 @@ Character card scenes: `SHIFTELLA_SCENE=crew_karolina|crew_helper|crew_classic|c
 `SHIFTELLA_TEST_PANIC=1` makes the game panic on purpose right after boot, to check the crash
 log (`src/crashlog.rs`) by hand; nothing is saved. `cargo test --test crashlog` checks it
 end to end (rolling runs, no per-frame lines, a caught panic).
+
+Package I scenes: `SHIFTELLA_SCENE=signature_compose` (day 7, the house drink's card half
+filled), `signature_board` (night 8, 00:30, the chalkboard by the counter), `photo_mode`
+(night 8, the viewfinder up), `photo_print` (a print developing in the corner;
+`SHIFTELLA_DEVELOP=0..1`), `journal_photos` (day 9, extra photos on nights 3, 5 and 7;
+`SHIFTELLA_OPEN=<slot>` enlarges a night, `SHIFTELLA_SHOWN=<n>` picks its photo).
+`SHIFTELLA_SIG_NAME` names the drink; `SHIFTELLA_NIGHT` / `SHIFTELLA_TIME` as usual.
 
 `SHIFTELLA_TIME=HH:MM` also takes the preparation half hour: `21:30`–`21:59` start the night
 before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`).

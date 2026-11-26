@@ -39,13 +39,16 @@ fn the_promised_amounts() {
         6
     );
     assert_eq!(h.starter_recipes().count(), 6);
-    // handson.md §3.4 lists 27 generic + 17 personal rows (its "43" footnote miscounts)
-    assert_eq!(h.wishes.wishes.len(), 44);
+    // handson.md §3.4 lists 27 generic + 17 personal rows (its "43" footnote miscounts);
+    // v0.2 package I adds the by-name house-drink wishes (1 generic + 6 personal)
+    let by_name = |w: &&super::WishDef| w.favourite.iter().any(|f| f == super::SIGNATURE_RECIPE);
+    assert_eq!(h.wishes.wishes.iter().filter(by_name).count(), 7);
+    assert_eq!(h.wishes.wishes.len(), 44 + 7);
     assert_eq!(
         h.wishes
             .wishes
             .iter()
-            .filter(|w| w.regular().is_some())
+            .filter(|w| w.regular().is_some() && !by_name(w))
             .count(),
         17
     );

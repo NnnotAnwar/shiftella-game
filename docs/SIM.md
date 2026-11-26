@@ -682,3 +682,60 @@ night still reaches «Light in the Window» — `tests_walk.rs`).
 * UI: `src/screens/game/walk_home.rs` (flow, chips, captions, the message card), art
   `src/render/dawn.rs` (the dawn strip) and `src/render/backstep.rs`.
 
+## 12. The café's own drink and photo mode (design/v0.2.md I, `sim::signature`)
+
+Data: `assets/data/signature.ron` (compiled in, `signature::data()`): `from_night` 6 (sandbox
+`sandbox_from_night` 4), `rework_every` 7, `jars` (2, 3), `max_tags` 4, `price_add` 10 +
+`price_per_jar` 5 (`cost_per_jar` 2), `name_max` 24 (characters), `bases` (`coffee` →
+cappuccino, `tea` / `linden` → lemon_tea, `cocoa` → hot_chocolate; each with its jar, tags
+and styles), `styles` (`MiniGameKind` + variant + a tag), `ingredient_tags` (the jars that may
+go in a cup and their tastes), `one_of_family` (one milk), `photo` (`per_night` 3, viewfinder
+`zoom` and `pan_tiles`). State: `World.sig: SigState { drink, invited, photos, asked_served }`
+(`#[serde(default)]`; old saves load with none).
+
+* **Composing** — `Command::ComposeSignature { base, jars, style, name }` (any phase). Errors
+  `NotUnlocked` (before `from_night`), `Locked` (the base's jar / menu item or a jar not on the
+  shelf), `Invalid` (2–3 different allowed jars, not the base's own, one milk, a style of the
+  base, `signature::clean_name` — trimmed, single spaces, ≥ 1 letter or digit, ≤ 24
+  characters — or "once a week"), `UnknownId`. The drink is the recipe `SIGNATURE_RECIPE`
+  (`r_signature`, also `content::handson::SIGNATURE_RECIPE`): a world-side `RecipeDef` built
+  by `signature::build_def` (base item, `price_add`, `cost_add`, tags from
+  `signature::tags_for` — base ×2, each jar, the style, the top 4; a Cold jar drops Warm —,
+  the style's mini-game and variant, `unlock: Experiment`, `experimentable: false`). The first
+  compose `learn`s it (`RecipeLearned { source: "signature" }`); every compose emits
+  `SignatureComposed { name, first }`. The night it was made (or last changed) it may be
+  tweaked freely; after that `signature_next_change()` says the night it opens again
+  (`changed_night + rework_every`). Day start from `from_night`: `SignatureInvite` once
+  (grandma's soft prompt).
+* **Everywhere a recipe is looked up** the world's drink joins the content's:
+  `World::recipe_def(&c, id)` and `World::all_recipes(&c)` — `orders::matches_for` (wishes,
+  `best_matches`), `usual_recipe` (favourites), `player::brew` (clones the def), the public
+  `recipe_available`, the digest's unmet-taste count.
+* **Asked for by name** — `wishes.ron`: `house_special` (generic, `any: true`, `kind: Drink`,
+  favourite `r_signature`, `when: [RecipeKnown("r_signature")]`, weight 0.8) and personal
+  `<regular>.house_special` for Mirek, Hana, Vera (from arc 1), Filip, Radek and Lori (weight
+  0.4–0.45). The favourite makes it a 1.0 match; `asked_served` counts the served ones
+  (`signature_asked_served()`). The game fills the name into the line: the i18n layer
+  overrides `recipe.r_signature.name/.desc/.lore` and every by-name wish key with the
+  player's words (`screens::game::signature_ui::sync_i18n` → `I18n::set_override`; the
+  `.tr` lines are fallbacks; the by-name line is `signature::wish_line_key(wish)`).
+* **Photos** — `Command::TakePhoto { focus, width }` (Night only, incl. the preparation;
+  `WrongPhase` by day, `Invalid` when tonight's `photo.per_night` are used): a
+  `journal::snap_sized` snapshot around the frame (region ⌈width⌉ + 2 × ⌈0.75 width⌉ + 3
+  tiles), with `focus` = the frame's middle and `zoom` = region / (width × `SNAP_CLOSER` 1.55)
+  so the journal's render frames exactly what the viewfinder showed. Stored as `NightPhoto {
+  night, minute, date, caption, snap }` (`caption` = `photo.caption.<n>`, deterministic, no
+  world RNG); `PhotoTaken { night, left }`. Queries `photos()`, `photos_left()`. The journal's
+  kept polaroids and highlights are untouched.
+* **Queries** — `signature()`, `signature_unlocked()`, `signature_next_change()`,
+  `signature_bases(&c)` (with "ready"), `signature_jars()` (allowed, on the shelf),
+  `signature_preview(&c, base, jars, style)` (the def or why not).
+* **Player-bot** — on an attentive day, two seeds in three make one (decided by a hash of the
+  seed, never the bot's RNG) one to three nights after it opens, from the first base / jar
+  pair that passes; it then brews it when asked by name (the best chip). Balance (seed 4242,
+  30 story nights, `--player-bot`): Cozy revenue 201 938 → 199 633 Kč, tips 16 655 → 15 288,
+  satisfaction 95.8 → 95.3; Classic revenue 190 872 → 186 840, tips 14 550 → 15 078,
+  satisfaction 84.9 → 85.7 — within the noise of a diverged run (the drink rides on a cheap
+  base, + 20–25 Kč); both still reach «Light in the Window» (full). `sim_headless` prints a
+  `house drink:` line (made night, tags, price add, by-name serves). Tests: `tests_signature`.
+

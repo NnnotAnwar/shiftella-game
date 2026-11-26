@@ -28,8 +28,10 @@ mod moments_ui;
 mod panels;
 mod pause;
 mod phone_app;
+mod photo_mode;
 pub mod scene;
 mod scene_fx;
+pub mod signature_ui;
 pub mod tutorial;
 pub mod walk_home;
 pub mod world_view;
@@ -37,6 +39,7 @@ pub mod world_view;
 /// Build mode's drag state (screenshot scenes set it up).
 pub use build::{Drag as BuildDrag, THEME_TAB as BUILD_THEME_TAB};
 pub use build_content_ui::scene_setup as build_content_scene;
+pub use signature_ui::scene as signature_photo_scene;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -292,6 +295,10 @@ pub struct GameScreen {
     recent_toasts: std::collections::VecDeque<(ToastId, String, f32)>,
     /// The walk home / the back step on screen (design/v0.2.md F).
     pub walk: walk_home::WalkUi,
+    /// The café's own drink: the compose card (design/v0.2.md I.5).
+    pub sig: signature_ui::SigUi,
+    /// Photo mode: the viewfinder and the developing print (design/v0.2.md I.6).
+    pub photo: photo_mode::PhotoMode,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -375,6 +382,8 @@ impl GameScreen {
             photos: journal_ui::Photos::default(),
             recent_toasts: Default::default(),
             walk: Default::default(),
+            sig: Default::default(),
+            photo: Default::default(),
         }
     }
 
@@ -442,6 +451,7 @@ impl GameScreen {
             || self.summary.is_some()
             || self.world.phase() == Phase::Day
             || self.walk.is_open()
+            || self.photo.is_open()
     }
 
     pub fn set_speed(&mut self, s: u8) {
@@ -688,6 +698,7 @@ impl GameScreen {
         self.extras_event(content, &e);
         self.build_content_event(content, &e, loc);
         self.names_event(&e, loc);
+        self.signature_event(&e, loc);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;
@@ -1366,6 +1377,7 @@ impl GameScreen {
             }
             // build mode keeps the hall above its panel (else the scene's own clamp)
             build::camera(self, dt);
+            photo_mode::clamp_camera(self);
             let cam = self.cam.to_camera2d();
             let mouse_world = self.cam.screen_to_world(Vec2::from(mouse_position()));
             self.hovered = None;
@@ -1401,20 +1413,24 @@ impl GameScreen {
                 _ => None,
             };
             self.scene.sec_per_minute = self.world.real_seconds_per_tick(content) * 10.0;
-            hands_view::draw_world(self, content, &loc, target, mouse_world);
+            if !self.photo.is_open() {
+                hands_view::draw_world(self, content, &loc, target, mouse_world);
+            }
             if self.panel == Some(Panel::Build) {
                 build::draw_world_overlay(self, content, ghost.as_ref());
             }
-            self.world_click(
-                ui,
-                content,
-                pick,
-                target,
-                mouse_world,
-                ghost.as_ref(),
-                &loc,
-                dt,
-            );
+            if !self.photo.is_open() {
+                self.world_click(
+                    ui,
+                    content,
+                    pick,
+                    target,
+                    mouse_world,
+                    ghost.as_ref(),
+                    &loc,
+                    dt,
+                );
+            }
         }
 
         let t_world = std::time::Instant::now();
@@ -1424,7 +1440,11 @@ impl GameScreen {
         self.anchors.clear();
         if self.player.is_playing() {
             self.player.draw_ui(ui, &loc);
+        } else if self.photo.is_open() {
+            // the viewfinder: only the café and the camera, no HUD
+            photo_mode::frame_ui(self, ui, cx, dt);
         } else {
+            signature_ui::board(self, ui, cx);
             hud::draw(self, ui, cx);
             hands_ui::hud(self, ui, cx);
             if self.summary.is_none() {
@@ -1438,6 +1458,7 @@ impl GameScreen {
                 extras_ui::tip_goal(self, ui, cx);
                 extras_ui::napkin(self, ui, cx);
                 walk_home::backstep_chip(self, ui, cx);
+                photo_mode::button(self, ui, cx);
             }
             // after the HUD and the rail: the bubble keeps clear of them
             if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {
@@ -1459,6 +1480,8 @@ impl GameScreen {
                 day::planning(self, ui, cx);
             }
             hands_ui::overlays(self, ui, cx, dt);
+            signature_ui::overlays(self, ui, cx);
+            photo_mode::frame_ui(self, ui, cx, dt);
             self.tutorial_update(cx);
             tutorial::draw(self, ui, cx);
             if self.summary.is_some() {
@@ -1850,6 +1873,10 @@ impl GameScreen {
         }
         // an open mini-game / card / book keeps the keyboard (it consumed its own keys)
         if self.hands.minigame.is_some() {
+            return;
+        }
+        // the house drink's card and the camera keep their keys (Esc, P)
+        if signature_ui::hotkeys(self, ui) || photo_mode::hotkeys(self, ui, &cx.loc) {
             return;
         }
         if ui.esc() {
