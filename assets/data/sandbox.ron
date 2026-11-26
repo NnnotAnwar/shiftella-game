@@ -17,13 +17,18 @@
     start_money_options: [10000, 25000, 50000],
     default_start_money: 25000,
     town_names: (
+        // Sandbox towns are real places with a Czech note (picked from `places`); the
+        // prefix/root/suffix generator below is only a fallback when `places` is empty.
+        // `roots` also seed the menu's random seed words.
+        places: ["Praha-Holešovice", "Praha-Smíchov", "Praha-Karlín", "Praha-Vršovice", "Brno", "Ostrava",
+                 "Plzeň", "Olomouc", "Bratislava", "Košice", "Vienna", "Linz", "Kraków", "Wrocław", "Dresden", "Lviv"],
         prefixes: ["Horní", "Dolní", "Nová", "Stará", "Malá", "Velká"],
         prefix_chance: 0.35,
-        roots: ["Ml", "Vran", "Lip", "Kos", "Bor", "Hruš", "Jasen", "Sov", "Mech", "Luč"],
+        roots: ["Praha", "Brno", "Vienna", "Krakow", "Linz", "Dresden", "Lviv", "Olomouc", "Smichov", "Karlin"],
         suffixes: ["ov", "ice", "any", "ín", "ná Lhota", "ovec", "ín u Lesa"],
-        rivers: ["Šeřavou", "Mlžnicí", "Lučinou", "Tichou"],
+        rivers: ["Vltavou", "Labem", "Dunajem", "Odrou"],
         river_chance: 0.25,
-        stoplist: ["Kosice", "Košice", "Borovany", "Lipany", "Mlhov", "Borovec", "Vranov", "Lipov", "Kosov", "Hrušov", "Sovín"],
+        stoplist: ["Kosice", "Košice", "Borovany", "Lipany", "Borovec", "Vranov", "Lipov", "Kosov", "Hrušov", "Sovín"],
     ),
     institutions: [
         (id: "taxi_rank", weight: 1.0),
@@ -36,7 +41,7 @@
         (id: "highway", weight: 0.6),
     ],
     institutions_per_town: (2, 4),
-    cafe_names: ["U Výhybky", "U Nádraží", "Noční kavárna", "U Lucerny", "Kavárna Perón", "U Semaforu", "Bufet Na Koleji"],
+    cafe_names: ["Café Nocturne", "Kavárna u nádraží", "Night Platform", "Café Perón", "The Lantern", "Signal Box", "Last Tram", "Café Semafor"],
     rent: (800, 2500),
     options: {
         "rain_every_night": true,

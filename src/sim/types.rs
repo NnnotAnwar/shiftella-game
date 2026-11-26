@@ -285,7 +285,12 @@ pub enum SimEvent {
     StaffWalkedOut {
         staff: u32,
     },
+    /// Someone goes on a break (auto, or `Command::SendOnBreak`).
     StaffBreak {
+        staff: u32,
+    },
+    /// …and is back on the floor.
+    StaffBreakEnded {
         staff: u32,
     },
     StaffHired {
@@ -442,6 +447,10 @@ pub enum Command {
         weekday: u8,
         shift: Shift,
     },
+    /// Fill the **draft** with the default rozpis (2–3 people a night, rotating days off,
+    /// split shifts when overstaffed, time off respected) and let the app keep it current
+    /// again on hires / time off. Undoable; publish as usual.
+    AutoSchedule,
     PublishSchedule,
     AnswerSwap {
         id: u32,
@@ -506,6 +515,13 @@ pub enum Command {
     },
     SetMusic {
         on: bool,
+    },
+    /// Night only: send an on-duty person on a break right now (regular length, they eat if
+    /// hungry). Works even when the auto rule would wait; emits `StaffBreak`, then
+    /// `StaffBreakEnded`. Errors: `WrongPhase` by day, `Invalid` if they aren't on the floor
+    /// or are already resting.
+    SendOnBreak {
+        staff: u32,
     },
     /// Day → Night (same as `World::start_night`).
     StartNight,

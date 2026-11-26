@@ -305,6 +305,7 @@ impl World {
                 s.pos = grid::tile_center(self.grid.entrance());
                 let id = s.id;
                 self.push_staff(s);
+                super::app::crew_changed(self, content);
                 if self.phase == Phase::Night {
                     // starts tomorrow
                     if let Some(st) = self.staff.iter_mut().find(|s| s.id == id) {
@@ -312,7 +313,16 @@ impl World {
                     }
                 }
                 self.emit(SimEvent::StaffHired { staff: id });
-                self.log_key("ui.crew.hired", vec![("staff".into(), id.to_string())]);
+                // the display name (proper noun): the log must still read well after they leave
+                let name = self
+                    .staff
+                    .last()
+                    .map(|s| s.name.clone())
+                    .unwrap_or_default();
+                self.log_key(
+                    "ui.crew.hired",
+                    vec![("staff".into(), name), ("id".into(), id.to_string())],
+                );
                 Ok(())
             }
             Command::Fire { staff } => {
@@ -324,6 +334,7 @@ impl World {
                 self.staff.remove(i);
                 self.app.draft.remove(&staff);
                 self.app.published.remove(&staff);
+                super::app::crew_changed(self, content);
                 self.emit(SimEvent::StaffFired { staff });
                 Ok(())
             }
@@ -360,6 +371,7 @@ impl World {
                 let old = row[wd];
                 row[wd] = shift;
                 self.app.draft_dirty = true;
+                self.app.manual_rozpis = true;
                 push_undo(
                     self,
                     UndoOp::Shift {
@@ -367,6 +379,23 @@ impl World {
                         weekday: wd as u8,
                         old,
                         was_dirty,
+                    },
+                );
+                Ok(())
+            }
+            Command::AutoSchedule => {
+                let old = self.app.draft.clone();
+                let was_dirty = self.app.draft_dirty;
+                let was_manual = self.app.manual_rozpis;
+                self.app.draft = super::app::default_rozpis(self, content);
+                self.app.manual_rozpis = false;
+                self.app.draft_dirty = self.app.draft != self.app.published;
+                push_undo(
+                    self,
+                    UndoOp::Draft {
+                        old,
+                        was_dirty,
+                        was_manual,
                     },
                 );
                 Ok(())
@@ -387,7 +416,9 @@ impl World {
             }
             Command::AnswerSwap { id, approve } => super::app::answer_swap(self, id, approve),
             Command::AnswerTimeOff { id, approve } => {
-                super::app::answer_time_off(self, id, approve)
+                super::app::answer_time_off(self, id, approve)?;
+                super::app::crew_changed(self, content);
+                Ok(())
             }
             Command::RequestTimeOff {
                 staff,
@@ -495,6 +526,25 @@ impl World {
                 self.app.handover_text = Some(text);
                 Ok(())
             }
+            Command::SendOnBreak { staff } => {
+                if self.phase != Phase::Night {
+                    return Err(CommandError::WrongPhase);
+                }
+                let i = staff_idx(self, staff)?;
+                let s = &self.staff[i];
+                if !s.on_duty() {
+                    return Err(CommandError::Invalid("not on the floor".into()));
+                }
+                if matches!(s.task, Some(Task::Break { .. })) {
+                    return Err(CommandError::Invalid("already on a break".into()));
+                }
+                if self.minute() >= NIGHT_MINUTES - 5 {
+                    return Err(CommandError::Invalid("the night is almost over".into()));
+                }
+                let task = super::staff::break_task(self, content, i, super::staff::BREAK_MINUTES);
+                super::staff::start_break(self, i, task);
+                Ok(())
+            }
             Command::StartNight => {
                 if self.phase != Phase::Day {
                     return Err(CommandError::WrongPhase);
@@ -591,6 +641,16 @@ impl World {
                     row[weekday as usize % 7] = old;
                 }
                 self.app.draft_dirty = was_dirty;
+                Ok(())
+            }
+            UndoOp::Draft {
+                old,
+                was_dirty,
+                was_manual,
+            } => {
+                self.app.draft = old;
+                self.app.draft_dirty = was_dirty;
+                self.app.manual_rozpis = was_manual;
                 Ok(())
             }
             UndoOp::Price { item, old } => {

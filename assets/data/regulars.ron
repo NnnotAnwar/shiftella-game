@@ -2,6 +2,7 @@
 // Keys: regular.<id>.name / .bio, plus each stage's `lines` (ambient speech bubbles).
 // Arc counter = arc.<id>; flags arc.<id>.good / arc.<id>.bad. Cutscenes for stages use
 // trigger ArcStage(regular, stage) in cutscenes.ron. See docs/CONTENT.md.
+// ServedFastStreak minutes count from the order to the first item on the table.
 #![enable(implicit_some)]
 [
     (
@@ -20,7 +21,7 @@
         stages: [
             (stage: 0, nights: (1, 30), lines: ["regular.mirek.line.0a", "regular.mirek.line.0b"]),
             (stage: 1, nights: (2, 30),
-             conditions: [ServedFastStreak(regular: "mirek", minutes: 5, visits: 3)],
+             conditions: [ServedFastStreak(regular: "mirek", minutes: 10, visits: 3)],
              lines: ["regular.mirek.line.1a"]),
             (stage: 2, nights: (8, 30), conditions: [NightAtLeast(8)],
              lines: ["regular.mirek.line.2a"]),
@@ -49,7 +50,7 @@
         stages: [
             (stage: 0, nights: (3, 30), lines: ["regular.hana.line.0a", "regular.hana.line.0b"]),
             (stage: 1, nights: (4, 30),
-             conditions: [ServedFastStreak(regular: "hana", minutes: 4, visits: 3)],
+             conditions: [ServedFastStreak(regular: "hana", minutes: 9, visits: 3)],
              lines: ["regular.hana.line.1a"]),
             (stage: 2, nights: (12, 30), conditions: [NightAtLeast(12)],
              lines: ["regular.hana.line.2a"]),
@@ -90,7 +91,7 @@
     ),
     (
         id: "vera",
-        full_name: "Věra Soukupová",
+        full_name: "Vera Soukupova",
         age: 83,
         base: "insomniacs",
         first_night: 5,
@@ -104,7 +105,7 @@
             (stage: 1, nights: (6, 30),
              conditions: [CleanStreak(regular: "vera", clean: 0.8, visits: 3)],
              lines: ["regular.vera.line.1a"]),
-            (stage: 2, nights: (14, 30), conditions: [NightAtLeast(14), TrustAtLeast("vera", 30.0)],
+            (stage: 2, nights: (14, 30), conditions: [NightAtLeast(14), TrustAtLeast("vera", 25.0)],
              lines: ["regular.vera.line.2a"],
              effects: [FindNote("note_05"), SetFlag("recipe_kulajda"), UnlockMenu("grandma_kulajda"), GiveItem("recipe_book")]),
             (stage: 3, nights: (15, 30),
@@ -147,15 +148,15 @@
         age: 52,
         base: "train_crew",
         first_night: 9,
-        visits: [(from: "01:00", to: "01:10"), (from: "04:30", to: "04:40")],
+        visits: [(from: "01:00", to: "01:25"), (from: "04:30", to: "04:50")],
         orders: ["black_coffee"],
-        patience_minutes: 3.0,
+        patience_minutes: 6.0,
         look: (body: "average", skin: ["#E3BFA3"], hair: ["short"], hair_colors: ["#6E6676"],
                outfit: "uniform", outfit_colors: ["#24306B"], accessories: ["badge_shiftella", "glasses"]),
         stages: [
             (stage: 0, nights: (9, 30), lines: ["regular.radek.line.0a"]),
             (stage: 1, nights: (10, 23),
-             conditions: [Any([ServedFastStreak(regular: "radek", minutes: 3, visits: 5), NightAtLeast(22)])],
+             conditions: [Any([ServedFastStreak(regular: "radek", minutes: 7, visits: 4), NightAtLeast(22)])],
              lines: ["regular.radek.line.1a"],
              effects: [SetFlag("radek_warns_trains")]),
             (stage: 2, nights: (23, 23), conditions: [NightAtLeast(23)],

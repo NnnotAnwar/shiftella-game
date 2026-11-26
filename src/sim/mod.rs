@@ -21,6 +21,8 @@ mod world;
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_qa;
 
 pub use app::digest_lines;
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};

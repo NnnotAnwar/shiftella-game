@@ -983,7 +983,7 @@ pub struct RegularDef {
 }
 
 impl RegularDef {
-    /// Display name (cast-style, e.g. "Mirek" / "Paní Věra").
+    /// Display name (cast-style, e.g. "Mirek" / "Paní Vera").
     pub fn name_key(&self) -> String {
         format!("regular.{}.name", self.id)
     }
