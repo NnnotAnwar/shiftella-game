@@ -988,6 +988,11 @@ fn find_work(w: &World, content: &Content, idx: usize) -> Option<Work> {
     best.map(|b| b.1)
 }
 
+/// The task a helper's duties would give them now (read-only; the character card's "next").
+pub(crate) fn peek_work(w: &World, content: &Content, idx: usize) -> Option<Task> {
+    find_work(w, content, idx).map(|wk| wk.task)
+}
+
 fn claim(w: &mut World, task: &Task, me: u32) {
     match task {
         Task::TakeOrder { party, register } => {

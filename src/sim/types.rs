@@ -1009,6 +1009,12 @@ pub enum Command {
     SetTutorial {
         on: bool,
     },
+    /// Night only: a helper on the floor ends their shift now and walks home (wages follow
+    /// the minutes worked; a tired helper is glad of it, mood +4). Errors: `WrongPhase` by
+    /// day, `Invalid` for Karolina, someone not on the floor, or the last minutes.
+    SendHome {
+        staff: u32,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

@@ -12,12 +12,6 @@ en Break
 uk Перерва
 ru Перерыв
 
-ui.crew.break_tip
-cs Pošle na krátkou pauzu hned teď (kdo má hlad, i se nají).
-en Sends them on a short break right now (they eat if hungry).
-uk Відправляє на коротку перерву просто зараз (голодні ще й поїдять).
-ru Отправляет на короткий перерыв прямо сейчас (голодные заодно поедят).
-
 ui.crew.break_toast
 cs {name} si dává pauzu.
 en {name} is taking a break.

@@ -6,6 +6,7 @@
 //! Test automation (env):
 //! * `SHIFTELLA_SHOT=path.png` — render `SHIFTELLA_FRAMES` (default 45) frames, save, exit
 //! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|build|crew|app|
+//!   crew_karolina|crew_helper|crew_classic|crew_day|crew_hire|
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
 //!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day`
@@ -354,6 +355,25 @@ impl App {
                 if name == "pause" {
                     g.pause = Some(Default::default());
                 }
+                self.game(g)
+            }
+            // the character card (C): Karolina's, a helper's (also Classic and by day), hiring
+            "crew_karolina" | "crew_helper" | "crew_classic" | "crew_day" | "crew_hire" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let diff = if name == "crew_classic" {
+                    "classic"
+                } else {
+                    "cozy"
+                };
+                let n = night.unwrap_or(8);
+                let m = (name != "crew_day").then(|| minute.unwrap_or(150));
+                let mut g = GameScreen::new_story(&content, diff, true);
+                g.fast_forward(&content, &loc, n, m, n > 1);
+                g.open_crew_card(match name {
+                    "crew_karolina" => "karolina",
+                    "crew_hire" => "hire",
+                    _ => "helper",
+                });
                 self.game(g)
             }
             "night1_handson" | "order_card" | "minigame" | "jukebox" | "book" => {

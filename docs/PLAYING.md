@@ -128,7 +128,7 @@ to swap; every few tries Lida's margin note reveals an ingredient on a silhouett
 | **WASD / arrows**, right-drag, wheel | move / zoom the camera · **Home** — whole café |
 | **Space** | pause / resume |
 | **1 / 2 / 3** | speed ×1 / ×2 / ×3 (also the buttons on the clock card) |
-| **C** | crew — needs, skills, traits, relationships, what they're doing; hire, let go |
+| **C** | crew — the character card (Karolina, each helper, hiring); **arrows** step through the crew |
 | **H** (or **P**) | duties — who helps with what tonight |
 | **T** | the Shiftella app — rozpis, requests, messages, board, checklists, digest, payroll |
 | **K** | grandma's recipe book |
@@ -144,6 +144,34 @@ to swap; every few tries Lida's margin note reveals an ingredient on a silhouett
 
 In cutscenes: click / **Space** — next line, **1–4** — choices, hold **Esc** — skip,
 **A** — auto-advance, hold **Ctrl** — faster.
+
+## The crew panel (C) — the character card
+
+Click Karolina or a helper in the café (or press **C**) to open their card on the left. The
+strip of faces on top is the whole crew — Karolina first, then the helpers (a green dot: on
+the floor, amber: still to come, red: sick) and **Hire** with the number of candidates.
+**Arrows** step through it, **Esc** closes the card.
+
+* **Karolina's card** is about you: what she is doing **now** and what is queued **next**
+  (× drops an act, like a right-click on the chip over her head), what **waits** only for
+  her (orders, wishes, rounds to make, trays, tables, the sink, mud, tip coins, moments —
+  hover a chip for what it is), **tonight's** numbers (made by hand, perfect cups, tips,
+  rhythm / best) and the duties no helper holds — those are **yours** (delegate them on the
+  Duties board, **H**). Energy shows only on Classic; on Cozy she never tires.
+* **A helper's card**: role and age, tonight's shift (a pill: "22:00–02:00", "From 02:00",
+  "Off tonight"…), what they do **now** and **next** in words ("Making: Latte · Mrs Vera",
+  "Break around 01:30", "Home at 02:00"), their **duties** as six one-click toggles (the same
+  as the Duties board — both always agree; the pips are their skill, a heart their
+  favourite, the dots how many duties they can hold), **mood** with the reason ("Friction
+  with Zdeněk", "Wish not kept: Sun off", "Happy with this week's schedule"), **energy**
+  with the reason on Classic (on Cozy only when they get tired), traits (hover for what they
+  do), their **wishes** for the schedule and who they get along with.
+* Quick actions, one click, no questions: **Follow** (the camera glides over), **Break**
+  (Classic, or when they're tired), **Send home** (ends their shift now; tired people are
+  glad of it), **Schedule** (opens their row in the Shiftella rozpis), by day **Let go**.
+* **Hire**: every candidate with their role, wage and what they are good at in one line.
+
+The panel is only as tall as the card; on a small screen or at UI scale 1.3 the card scrolls.
 
 ## Guests and regulars
 
@@ -210,6 +238,10 @@ the game still renders every frame and the screenshot is the real picture (`src/
 `SHIFTELLA_HIDDEN=0` keeps the window visible, e.g. to watch an autoplay run. Prefer the
 headless checks (`cargo test`, `game_autoplay`, `sim_balance`, `sim_headless`) where a
 picture isn't needed.
+
+Character card scenes: `SHIFTELLA_SCENE=crew_karolina|crew_helper|crew_classic|crew_day|crew_hire`
+(story night 8 at 00:30 unless `SHIFTELLA_NIGHT` / `SHIFTELLA_TIME` say otherwise;
+`crew_classic` plays the story on Classic, `crew_day` opens the card in the day phase).
 
 `SHIFTELLA_TIME=HH:MM` also takes the preparation half hour: `21:30`–`21:59` start the night
 before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`).

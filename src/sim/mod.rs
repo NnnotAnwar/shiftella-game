@@ -10,6 +10,7 @@ mod app;
 mod atmos;
 pub mod bot;
 mod commands;
+mod crew;
 mod duties;
 mod economy;
 pub mod grid;
@@ -50,6 +51,7 @@ mod tests_sys;
 mod tests_t10;
 
 pub use app::digest_lines;
+pub use crew::{Activity, Feeling, Feelings, IdleWhy, ShiftTonight, TaskFor, TodoParts};
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;

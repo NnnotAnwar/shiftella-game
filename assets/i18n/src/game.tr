@@ -192,12 +192,6 @@ en Thank you for playing
 uk Дякуємо за гру
 ru Спасибо за игру
 
-ui.crew.fire_day_only
-cs Propustit jde jen přes den
-en You can let people go only during the day
-uk Звільнити можна лише вдень
-ru Уволить можно только днём
-
 ui.crew.fired_toast
 cs {name} odchází
 en {name} is leaving

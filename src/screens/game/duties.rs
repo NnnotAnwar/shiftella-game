@@ -6,6 +6,7 @@ use macroquad::prelude::*;
 
 use super::world_view::{self as wv, sim};
 use super::{Ctx, GameScreen, Notice};
+use crate::content::Content;
 use crate::content::handson::Duty as CDuty;
 use crate::ui::handson::{
     DutiesAction, DutiesLabels, DutiesView, Duty, HelperRow, duties_board, duties_board_size,
@@ -35,8 +36,29 @@ pub fn to_sim(d: Duty) -> CDuty {
     }
 }
 
+/// Gives (`on`) or takes back a helper's duty — the one path for the board and the character
+/// card (`crew_ui`), so both always show the same. A full helper says so in a toast.
+pub fn set_duty(g: &mut GameScreen, content: &Content, staff: u32, duty: CDuty, on: bool) -> bool {
+    match g.world.apply(content, Command::SetDuty { staff, duty, on }) {
+        Ok(()) => {
+            g.hands.tut.bump("duty_set");
+            true
+        }
+        Err(sim::CommandError::Capacity) => {
+            g.notices.push(Notice::Key {
+                kind: ToastKind::Info,
+                icon: Icon::Crew,
+                key: "ui.duties.full_short".into(),
+                args: Vec::new(),
+            });
+            false
+        }
+        Err(_) => false,
+    }
+}
+
 /// Helpers in board order (on shift first, then by name).
-fn helpers(g: &GameScreen) -> Vec<sim::Staff> {
+pub fn helpers(g: &GameScreen) -> Vec<sim::Staff> {
     let mut v: Vec<sim::Staff> = g
         .world
         .staff()
@@ -48,13 +70,15 @@ fn helpers(g: &GameScreen) -> Vec<sim::Staff> {
     v
 }
 
-pub fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
-    let content = cx.content;
-    let loc = cx.loc;
-    let crew = helpers(g);
+/// The board's rows for these helpers (read straight from the world).
+pub fn helper_rows(
+    g: &GameScreen,
+    content: &Content,
+    loc: &crate::settings::Locale,
+    crew: &[sim::Staff],
+) -> Vec<HelperRow> {
     let night = g.world.night();
-    let rows: Vec<HelperRow> = crew
-        .iter()
+    crew.iter()
         .map(|s| {
             let cap = g.world.capacity(content, s.id).max(1);
             let likes = content
@@ -64,8 +88,8 @@ pub fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             let skills = CDuty::ALL.map(|d| s.skill(d.job(), night).round().clamp(0.0, 10.0) as u8);
             let next_slot = s.duties.len() as u32 >= cap && cap < 3;
             HelperRow {
-                name: wv::staff_name(&loc, s),
-                role: wv::staff_role(&loc, content, s),
+                name: wv::staff_name(loc, s),
+                role: wv::staff_role(loc, content, s),
                 capacity: cap as u8,
                 duties: s.duties.iter().map(|d| to_ui(*d)).collect(),
                 on_shift: s.on_duty() || g.world.phase() == sim::Phase::Day,
@@ -74,7 +98,14 @@ pub fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 note: next_slot.then(|| loc.tr_owned("ui.duties.grows")),
             }
         })
-        .collect();
+        .collect()
+}
+
+pub fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
+    let content = cx.content;
+    let loc = cx.loc;
+    let crew = helpers(g);
+    let rows = helper_rows(g, content, &loc, &crew);
     let view = DutiesView {
         helpers: rows,
         karolina: loc.tr_owned("ui.staff.you_row"),
@@ -116,29 +147,7 @@ pub fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         return;
     };
     let set = |g: &mut GameScreen, staff: u32, duty: Duty, on: bool| -> bool {
-        match g.world.apply(
-            content,
-            Command::SetDuty {
-                staff,
-                duty: to_sim(duty),
-                on,
-            },
-        ) {
-            Ok(()) => {
-                g.hands.tut.bump("duty_set");
-                true
-            }
-            Err(sim::CommandError::Capacity) => {
-                g.notices.push(Notice::Key {
-                    kind: ToastKind::Info,
-                    icon: Icon::Crew,
-                    key: "ui.duties.full_short".into(),
-                    args: Vec::new(),
-                });
-                false
-            }
-            Err(_) => false,
-        }
+        set_duty(g, content, staff, to_sim(duty), on)
     };
     match action {
         DutiesAction::Toggle { helper, duty } => {
