@@ -13,6 +13,7 @@ use super::draw::*;
 use super::light::Light;
 use super::look::{Expression, Facing, PersonLook};
 use super::person::{draw_cup, draw_portrait, draw_steam};
+use super::theme::{LampStyle, decor, draw_doily};
 use crate::map::TILE;
 
 /// A piece's state this frame.
@@ -40,7 +41,7 @@ impl Default for FurnitureState {
 }
 
 /// Every id `draw_furniture` can draw (the contract with the content data).
-pub const FURNITURE_IDS: [&str; 32] = [
+pub const FURNITURE_IDS: [&str; 36] = [
     "table_round_2",
     "table_square_4",
     "chair",
@@ -73,6 +74,10 @@ pub const FURNITURE_IDS: [&str; 32] = [
     "radio",
     "candle",
     "bucket",
+    "spruce_tree",
+    "garland_box",
+    "tip_jar",
+    "advent_wreath",
 ];
 
 /// Height of the counter / kitchen units' work surface.
@@ -86,6 +91,8 @@ pub fn furniture_sort_key(sprite: &str, tile_origin: Vec2, size: (u8, u8)) -> f3
         "rug" => tile_origin.y - 100_000.0,
         "pendant_lamp" => tile_origin.y + 100_000.0,
         "grandma_photo" => tile_origin.y,
+        // counter-top props: after the counter on the same tile
+        "tip_jar" | "advent_wreath" => tile_origin.y + d + 0.5,
         _ => tile_origin.y + d,
     }
 }
@@ -100,14 +107,33 @@ pub fn furniture_lights(sprite: &str, o: Vec2, size: (u8, u8), st: &FurnitureSta
     if !st.active {
         return v;
     }
+    let lamp = decor().lamp_light(c::AMBER);
     match sprite {
         "floor_lamp" => {
-            v.push(Light::new(vec2(cx, cy - 10.0), 3.4 * TILE, c::AMBER, 0.85).flicker(0.03));
-            v.push(Light::new(vec2(cx, cy - 86.0), 0.9 * TILE, c::AMBER, 0.7));
+            v.push(Light::new(vec2(cx, cy - 10.0), 3.4 * TILE, lamp, 0.85).flicker(0.03));
+            v.push(Light::new(vec2(cx, cy - 86.0), 0.9 * TILE, lamp, 0.7));
         }
         "pendant_lamp" => {
-            v.push(Light::new(vec2(cx, cy - 18.0), 2.9 * TILE, c::AMBER, 0.95).flicker(0.025));
-            v.push(Light::new(vec2(cx, cy - 92.0), 0.8 * TILE, c::AMBER, 0.8));
+            v.push(Light::new(vec2(cx, cy - 18.0), 2.9 * TILE, lamp, 0.95).flicker(0.025));
+            v.push(Light::new(vec2(cx, cy - 92.0), 0.8 * TILE, lamp, 0.8));
+        }
+        "spruce_tree" => {
+            v.push(Light::new(vec2(cx, cy - 40.0), 2.2 * TILE, c::AMBER, 0.6).flicker(0.08));
+        }
+        "tip_jar" => {
+            v.push(Light::new(
+                vec2(cx, cy - COUNTER_H - 10.0),
+                0.7 * TILE,
+                c::AMBER,
+                0.3,
+            ));
+        }
+        "advent_wreath" => {
+            let lit = (st.dirty.clamp(0.0, 1.0) * 4.0).round() as u8;
+            v.extend(super::festive::advent_wreath_lights(
+                vec2(cx, o.y + d * 0.5 - COUNTER_H),
+                lit,
+            ));
         }
         "candle" | "table_round_2" | "table_square_4" => {
             let h = if sprite == "candle" { 8.0 } else { 34.0 };
@@ -356,6 +382,9 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 1.2,
                 alpha(c::LAVENDER_RIM, 0.4),
             );
+            if decor().lace {
+                draw_doily(cx - rx * 0.12, cy - h + 1.5, rx * 0.4, ry * 0.4);
+            }
             mess(cx, cy - h, rx * 0.8, ry * 0.7, state.dirty, seed);
             if state.active {
                 draw_candle(vec2(cx + rx * 0.35, cy - h - ry * 0.15), t, seed);
@@ -404,6 +433,9 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 1.2,
                 alpha(c::LAVENDER_RIM, 0.4),
             );
+            if decor().lace {
+                draw_doily(cx, y0 + td * 0.45 - h, tw * 0.17, td * 0.2);
+            }
             mess(
                 cx,
                 y0 + td / 2.0 - h,
@@ -427,16 +459,16 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 cy + 6.0 - h + 3.0,
                 12.0,
                 6.0,
-                shade(c::FABRIC_PLUM, 0.7),
-                shade(c::FABRIC_PLUM, 0.55),
+                shade(decor().textile, 0.7),
+                shade(decor().textile, 0.55),
             );
             ellipse_v(
                 cx,
                 cy + 6.0 - h,
                 12.0,
                 6.0,
-                tint_light(c::FABRIC_PLUM, 0.15),
-                c::FABRIC_PLUM,
+                tint_light(decor().textile, 0.15),
+                decor().textile,
             );
         }
         "bar_counter" | "counter_corner" => {
@@ -925,27 +957,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             if state.active {
                 glow(cx, sy + 8.0, 34.0, alpha(c::AMBER, 0.35));
             }
-            poly_v(
-                &[
-                    vec2(cx - 9.0, sy),
-                    vec2(cx + 9.0, sy),
-                    vec2(cx + 15.0, sy + 18.0),
-                    vec2(cx - 15.0, sy + 18.0),
-                ],
-                lit_t,
-                lit_b,
-            );
-            ellipse(
-                cx,
-                sy + 18.0,
-                15.0,
-                3.0,
-                if state.active {
-                    Color::from_hex(0xfff0d0)
-                } else {
-                    lit_b
-                },
-            );
+            draw_floor_shade(cx, sy, state.active, lit_t, lit_b);
         }
         "pendant_lamp" => {
             let ly = cy - 96.0;
@@ -982,46 +994,15 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                     ],
                 );
             }
-            let shade_top = Color::from_hex(0x4c45a8);
-            let shade_bot = Color::from_hex(0x2f2a78);
-            poly_v(
-                &[
-                    vec2(cx - 4.0, ly - 6.0),
-                    vec2(cx + 4.0, ly - 6.0),
-                    vec2(cx + 14.0, ly + 6.0),
-                    vec2(cx - 14.0, ly + 6.0),
-                ],
-                shade_top,
-                shade_bot,
-            );
-            ellipse(
-                cx,
-                ly + 6.0,
-                14.0,
-                3.2,
-                if state.active {
-                    Color::from_hex(0xffe9c2)
-                } else {
-                    shade(shade_bot, 0.8)
-                },
-            );
-            if state.active {
-                ellipse(cx, ly + 6.5, 5.0, 2.2, WHITE);
-            }
-            draw_line(
-                cx - 9.0,
-                ly - 1.0,
-                cx - 3.0,
-                ly - 5.0,
-                1.0,
-                alpha(c::LAVENDER_RIM, 0.6),
-            );
+            draw_pendant_shade(cx, ly, state.active, t);
         }
         "sofa" | "armchair" | "window_seat" => {
+            let st = decor();
             let fabric = match sprite {
-                "sofa" => c::FABRIC_PLUM,
-                "armchair" => c::FABRIC_TEAL,
-                _ => c::FABRIC_ROSE,
+                "sofa" => st.textile,
+                "armchair" => st.textile_alt,
+                _ if st == super::theme::ThemeStyle::DEFAULT => c::FABRIC_ROSE,
+                _ => mix(st.textile, st.accent, 0.35),
             };
             draw_seat(o, w, d, fabric, sprite == "window_seat", seed);
         }
@@ -1189,6 +1170,18 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
         }
         "candle" => draw_candle(vec2(cx, cy), t, seed),
         "bucket" => draw_bucket(vec2(cx, cy + 8.0), state, seed),
+        // festive and hands-on pieces (`active` = lights on / box open; `dirty` = how much is
+        // hung on the tree / coins in the jar / candles lit on the wreath)
+        "spruce_tree" => super::festive::draw_spruce(o, w, d, state.active, 1.0 - state.dirty, t),
+        "garland_box" => super::festive::draw_garland_box(o, w, d, state.active, t),
+        "tip_jar" => {
+            super::festive::draw_tip_jar(vec2(cx, o.y + d * 0.55 - COUNTER_H), state.dirty, 0.0, t)
+        }
+        "advent_wreath" => super::festive::draw_advent_wreath(
+            vec2(cx, o.y + d * 0.5 - COUNTER_H),
+            (state.dirty.clamp(0.0, 1.0) * 4.0).round() as u8,
+            t,
+        ),
         _ => {
             // placeholder: a soft lavender box with a "?"
             let (x, y0) = (o.x + 8.0, o.y + 10.0);
@@ -1206,6 +1199,266 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             arc(q + vec2(0.0, -3.0), 4.0, 4.0, PI, PI * 2.4, 2.0, WHITE);
             draw_line(q.x, q.y + 1.0, q.x, q.y + 3.5, 2.0, WHITE);
             ellipse(q.x, q.y + 6.5, 1.3, 1.3, WHITE);
+        }
+    }
+}
+
+/// The shade of a pendant lamp in the current decor style (`ly` — the shade's mouth line).
+fn draw_pendant_shade(cx: f32, ly: f32, on: bool, t: f32) {
+    let st = decor();
+    let bulb = |r: f32| {
+        if on {
+            ellipse(cx, ly + 6.5, r, r * 0.44, WHITE);
+        }
+    };
+    let mouth_lit = Color::from_hex(0xffe9c2);
+    match st.lamp {
+        LampStyle::Cone => {
+            let shade_top = if st == super::theme::ThemeStyle::DEFAULT {
+                Color::from_hex(0x4c45a8)
+            } else {
+                st.lampshade
+            };
+            let shade_bot = shade(shade_top, 0.62);
+            poly_v(
+                &[
+                    vec2(cx - 4.0, ly - 6.0),
+                    vec2(cx + 4.0, ly - 6.0),
+                    vec2(cx + 14.0, ly + 6.0),
+                    vec2(cx - 14.0, ly + 6.0),
+                ],
+                shade_top,
+                shade_bot,
+            );
+            ellipse(
+                cx,
+                ly + 6.0,
+                14.0,
+                3.2,
+                if on { mouth_lit } else { shade(shade_bot, 0.8) },
+            );
+            bulb(5.0);
+            draw_line(
+                cx - 9.0,
+                ly - 1.0,
+                cx - 3.0,
+                ly - 5.0,
+                1.0,
+                alpha(c::LAVENDER_RIM, 0.6),
+            );
+        }
+        LampStyle::Fringed | LampStyle::Ribbon => {
+            // a soft fabric drum with a scalloped fringe (or a red bow)
+            let col = st.lampshade;
+            let lit = if on { tint_light(col, 0.35) } else { col };
+            rrect_v(cx - 13.0, ly - 7.0, 26.0, 13.0, 4.0, lit, shade(col, 0.75));
+            ellipse(cx, ly - 7.0, 13.0, 2.4, shade(col, 0.6));
+            ellipse(
+                cx,
+                ly + 6.0,
+                13.0,
+                3.0,
+                if on { mouth_lit } else { shade(col, 0.6) },
+            );
+            bulb(4.5);
+            if st.lamp == LampStyle::Fringed {
+                for i in 0..9 {
+                    let fx = cx - 12.0 + i as f32 * 3.0;
+                    let sway = (t * 1.3 + i as f32 * 0.6).sin() * 0.4;
+                    draw_line(
+                        fx,
+                        ly + 6.0,
+                        fx + sway,
+                        ly + 10.0,
+                        1.0,
+                        alpha(Color::from_hex(0xf0d8b8), 0.9),
+                    );
+                }
+            } else {
+                let red = Color::from_hex(0xc23a4a);
+                rect_v(cx - 13.0, ly - 2.0, 26.0, 3.0, red, shade(red, 0.8));
+                poly(
+                    &[
+                        vec2(cx, ly - 0.5),
+                        vec2(cx - 6.0, ly - 4.0),
+                        vec2(cx - 6.0, ly + 3.0),
+                    ],
+                    red,
+                );
+                poly(
+                    &[
+                        vec2(cx, ly - 0.5),
+                        vec2(cx + 6.0, ly - 4.0),
+                        vec2(cx + 6.0, ly + 3.0),
+                    ],
+                    red,
+                );
+                draw_line(cx, ly, cx - 2.5, ly + 7.0, 1.4, red);
+                draw_line(cx, ly, cx + 2.5, ly + 7.0, 1.4, red);
+            }
+        }
+        LampStyle::Tulip => {
+            // a brass gallery and a glass tulip (amber-green when lit)
+            let brass = Color::from_hex(0xd9a85c);
+            rrect_v(cx - 3.0, ly - 9.0, 6.0, 4.0, 1.5, brass, shade(brass, 0.6));
+            let glass = st.lampshade;
+            let (top, bot) = if on {
+                (tint_light(glass, 0.3), glass)
+            } else {
+                (shade(glass, 0.75), shade(glass, 0.5))
+            };
+            let mut pts = [Vec2::ZERO; 12];
+            for (i, p) in pts.iter_mut().enumerate() {
+                let a = i as f32 / 12.0 * std::f32::consts::TAU;
+                let bulge = 1.0 + 0.25 * (a * 3.0).cos().max(0.0) * a.sin().max(0.0);
+                *p = vec2(
+                    cx + a.cos() * 11.0 * bulge,
+                    ly + 1.0 + a.sin() * 7.0 * bulge,
+                );
+            }
+            fan_pub(vec2(cx, ly + 1.0), &pts, ly - 6.0, ly + 8.0, top, bot);
+            // the petals' lines
+            for k in [-1.0_f32, 0.0, 1.0] {
+                draw_line(
+                    cx + k * 5.0,
+                    ly - 5.0,
+                    cx + k * 7.5,
+                    ly + 7.0,
+                    0.8,
+                    alpha(brass, 0.6),
+                );
+            }
+            ellipse(cx, ly + 7.5, 9.0, 2.2, if on { mouth_lit } else { bot });
+            bulb(3.5);
+        }
+        LampStyle::Enamel => {
+            // a white enamel dome with a coloured rim
+            let white = st.lampshade;
+            let rim = st.trim;
+            ellipse_v(
+                cx,
+                ly + 1.0,
+                15.0,
+                9.0,
+                tint_light(white, 0.1),
+                shade(white, 0.78),
+            );
+            rect_v(
+                cx - 16.0,
+                ly + 1.0,
+                32.0,
+                6.0,
+                shade(white, 0.8),
+                shade(white, 0.7),
+            );
+            ellipse(cx, ly + 6.5, 16.0, 3.0, rim);
+            ellipse(
+                cx,
+                ly + 6.0,
+                13.5,
+                2.4,
+                if on { mouth_lit } else { shade(white, 0.55) },
+            );
+            rrect(cx - 2.5, ly - 10.0, 5.0, 4.0, 1.5, rim);
+            bulb(5.0);
+            draw_line(
+                cx - 11.0,
+                ly - 2.0,
+                cx - 5.0,
+                ly - 6.0,
+                1.2,
+                alpha(WHITE, 0.6),
+            );
+        }
+        LampStyle::LedRing => {
+            // a slim dark ring with a warm LED inside
+            let dark = st.lampshade;
+            ellipse(cx, ly + 4.0, 15.0, 4.6, dark);
+            ellipse(
+                cx,
+                ly + 4.0,
+                12.5,
+                3.2,
+                if on {
+                    Color::from_hex(0xffe2b0)
+                } else {
+                    shade(dark, 0.6)
+                },
+            );
+            ellipse(cx, ly + 3.4, 10.0, 2.2, dark);
+            if on {
+                glow(cx, ly + 4.0, 18.0, alpha(c::INDIGO_GLOW, 0.18));
+            }
+            draw_line(
+                cx - 10.0,
+                ly + 2.0,
+                cx - 4.0,
+                ly + 0.5,
+                1.0,
+                alpha(c::INDIGO_SOFT, 0.7),
+            );
+        }
+    }
+}
+
+/// The floor lamp's shade in the current decor style (`sy` — the shade's top).
+fn draw_floor_shade(cx: f32, sy: f32, on: bool, lit_t: Color, lit_b: Color) {
+    let st = decor();
+    let mouth = if on { Color::from_hex(0xfff0d0) } else { lit_b };
+    match st.lamp {
+        LampStyle::Cone | LampStyle::LedRing => {
+            poly_v(
+                &[
+                    vec2(cx - 9.0, sy),
+                    vec2(cx + 9.0, sy),
+                    vec2(cx + 15.0, sy + 18.0),
+                    vec2(cx - 15.0, sy + 18.0),
+                ],
+                lit_t,
+                lit_b,
+            );
+            ellipse(cx, sy + 18.0, 15.0, 3.0, mouth);
+        }
+        LampStyle::Fringed | LampStyle::Ribbon | LampStyle::Enamel => {
+            let col = mix(lit_t, st.lampshade, 0.55);
+            rrect_v(
+                cx - 14.0,
+                sy,
+                28.0,
+                18.0,
+                4.0,
+                col,
+                mix(lit_b, shade(st.lampshade, 0.7), 0.55),
+            );
+            ellipse(cx, sy + 18.0, 14.0, 3.0, mouth);
+            if st.lamp == LampStyle::Fringed {
+                for i in 0..10 {
+                    let fx = cx - 13.0 + i as f32 * 2.9;
+                    draw_line(
+                        fx,
+                        sy + 18.0,
+                        fx,
+                        sy + 22.0,
+                        1.0,
+                        alpha(Color::from_hex(0xf0d8b8), 0.9),
+                    );
+                }
+            } else if st.lamp == LampStyle::Ribbon {
+                let red = Color::from_hex(0xc23a4a);
+                rect_v(cx - 14.0, sy + 6.0, 28.0, 3.0, red, shade(red, 0.8));
+                ellipse(cx + 8.0, sy + 7.5, 3.0, 2.0, red);
+            }
+        }
+        LampStyle::Tulip => {
+            // three small glass tulips on brass arms
+            let brass = Color::from_hex(0xd9a85c);
+            for k in [-1.0_f32, 0.0, 1.0] {
+                let tx = cx + k * 10.0;
+                let ty = sy + 6.0 + k.abs() * 4.0;
+                draw_line(cx, sy + 14.0, tx, ty, 1.4, brass);
+                ellipse_v(tx, ty + 4.0, 6.0, 6.0, lit_t, mix(lit_b, st.lampshade, 0.5));
+                ellipse(tx, ty + 8.0, 5.0, 1.6, mouth);
+            }
         }
     }
 }
@@ -1440,8 +1693,8 @@ fn draw_chair(o: Vec2, facing: Facing) {
         sw,
         sd,
         5.0,
-        tint_light(c::FABRIC_PLUM, 0.15),
-        c::FABRIC_PLUM,
+        tint_light(decor().textile, 0.15),
+        decor().textile,
     );
     match facing {
         Facing::Up => back(sx + 1.0, sy0 + sd + 1.0, sw - 2.0, 4.0),
@@ -1545,8 +1798,8 @@ fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u3
         16.0,
         14.0,
         5.0,
-        tint_light(c::AMBER, 0.2),
-        c::AMBER_DEEP,
+        tint_light(decor().accent, 0.2),
+        decor().accent,
     );
     if window_seat {
         let px2 = x + sw - 30.0;
@@ -1726,6 +1979,7 @@ fn draw_jukebox(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
 }
 
 fn draw_rug(o: Vec2, w: f32, d: f32) {
+    let st = decor();
     let (x, y, rw, rh) = (o.x + 6.0, o.y + 6.0, w - 12.0, d - 12.0);
     rrect(
         x + 1.0,
@@ -1735,31 +1989,16 @@ fn draw_rug(o: Vec2, w: f32, d: f32) {
         6.0,
         Color::new(0.03, 0.02, 0.08, 0.3),
     );
-    rrect_v(
-        x,
-        y,
-        rw,
-        rh,
-        6.0,
-        Color::from_hex(0x3b2f7a),
-        Color::from_hex(0x2b2160),
-    );
-    rrect(
-        x + 5.0,
-        y + 5.0,
-        rw - 10.0,
-        rh - 10.0,
-        4.0,
-        Color::from_hex(0xc98a4b),
-    );
+    rrect_v(x, y, rw, rh, 6.0, st.rug_base, shade(st.rug_base, 0.75));
+    rrect(x + 5.0, y + 5.0, rw - 10.0, rh - 10.0, 4.0, st.rug_border);
     rrect_v(
         x + 8.0,
         y + 8.0,
         rw - 16.0,
         rh - 16.0,
         3.0,
-        Color::from_hex(0x5a3f8f),
-        Color::from_hex(0x46317a),
+        st.rug_field,
+        shade(st.rug_field, 0.82),
     );
     // diamonds along the middle
     let n = ((rw - 16.0) / 40.0).floor().max(1.0) as i32;
@@ -1774,7 +2013,7 @@ fn draw_rug(o: Vec2, w: f32, d: f32) {
                 vec2(cx, cy + s),
                 vec2(cx - s, cy),
             ],
-            Color::from_hex(0xc98a4b),
+            st.rug_border,
         );
         poly(
             &[
@@ -1783,7 +2022,7 @@ fn draw_rug(o: Vec2, w: f32, d: f32) {
                 vec2(cx, cy + s * 0.5),
                 vec2(cx - s * 0.5, cy),
             ],
-            Color::from_hex(0x7c3aed),
+            st.rug_motif,
         );
     }
     // fringe

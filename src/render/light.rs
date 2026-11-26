@@ -159,6 +159,11 @@ pub struct Lighting {
     pub resolution: f32,
     /// A soft additive glow of bright sources on top (0 = off).
     pub bloom: f32,
+    /// The hall's coziness 0..1 (0.5 = neutral): higher = warmer lamps, softer shadows,
+    /// more bloom (`design/handson.md` §11.3). See also `draw_dust_motes`.
+    pub coziness: f32,
+    /// The render target the view camera draws into (`None` = the screen).
+    out: Option<RenderTarget>,
 }
 
 impl Default for Lighting {
@@ -228,13 +233,18 @@ impl Lighting {
             time: 0.0,
             resolution: 0.5,
             bloom: 1.0,
+            coziness: 0.5,
+            out: None,
         }
     }
 
     /// Start a frame. `view` — the camera the world is drawn to the screen with
     /// (`WorldCamera::to_camera2d()`), `ambient` — from `ambient_for` / `ambient_blackout`.
+    /// A view camera with a `render_target` lights that target instead of the screen
+    /// (used for polaroid snapshots).
     pub fn begin(&mut self, view: &Camera2D, ambient: Color) {
         self.view = Some(copy_cam(view));
+        self.out = view.render_target.clone();
         self.ambient = ambient;
         self.lights.clear();
         self.quads.clear();
@@ -369,8 +379,12 @@ impl Lighting {
     }
 
     fn ensure_rt(&mut self) -> RenderTarget {
-        let w = ((screen_width() * self.resolution) as u32).max(1);
-        let h = ((screen_height() * self.resolution) as u32).max(1);
+        let (sw, sh) = match &self.out {
+            Some(o) => (o.texture.width(), o.texture.height()),
+            None => (screen_width(), screen_height()),
+        };
+        let w = ((sw * self.resolution) as u32).max(1);
+        let h = ((sh * self.resolution) as u32).max(1);
         if self.rt.is_none() || self.rt_size != (w, h) {
             let rt = render_target(w, h);
             rt.texture.set_filter(FilterMode::Linear);
@@ -408,12 +422,14 @@ impl Lighting {
             viewport: None,
         };
         set_camera(&light_cam);
-        let a = self.ambient;
+        let grade = CozyGrade::from_coziness(self.coziness);
+        let a = grade.ambient(self.ambient);
         clear_background(Color::new(a.r * 0.5, a.g * 0.5, a.b * 0.5, 1.0));
         gl_use_material(&self.add_mat);
         for (i, l) in self.lights.iter().enumerate() {
-            let k = self.flicker_k(l, i) * l.intensity * 0.5;
-            let col = Color::new(l.color.r, l.color.g, l.color.b, k.min(1.0));
+            let k = self.flicker_k(l, i) * l.intensity * 0.5 * grade.light_gain;
+            let lc = grade.light_color(l.color);
+            let col = Color::new(lc.r, lc.g, lc.b, k.min(1.0));
             radial(
                 l.pos.x,
                 l.pos.y,
@@ -432,24 +448,51 @@ impl Lighting {
         }
         gl_use_default_material();
 
-        // 2) onto the screen: 2 × world × light
-        set_default_camera();
-        gl_use_material(&self.mul_mat);
-        draw_texture_ex(
-            &rt.texture,
-            0.0,
-            0.0,
-            WHITE,
-            DrawTextureParams {
-                dest_size: Some(vec2(screen_width(), screen_height())),
-                ..Default::default()
-            },
-        );
+        // 2) onto the screen (or the output target): 2 × world × light
+        let view = Camera2D {
+            render_target: self.out.clone(),
+            ..view
+        };
+        match &self.out {
+            None => {
+                set_default_camera();
+                gl_use_material(&self.mul_mat);
+                draw_texture_ex(
+                    &rt.texture,
+                    0.0,
+                    0.0,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(screen_width(), screen_height())),
+                        ..Default::default()
+                    },
+                );
+            }
+            Some(_) => {
+                // the light map covers exactly the view: draw it over the view's world rect
+                set_camera(&view);
+                gl_use_material(&self.mul_mat);
+                let hw = 1.0 / view.zoom.x.abs();
+                let hh = 1.0 / view.zoom.y.abs();
+                draw_texture_ex(
+                    &rt.texture,
+                    view.target.x - hw,
+                    view.target.y - hh,
+                    WHITE,
+                    DrawTextureParams {
+                        dest_size: Some(vec2(2.0 * hw, 2.0 * hh)),
+                        flip_y: view.zoom.y < 0.0,
+                        ..Default::default()
+                    },
+                );
+            }
+        }
         gl_use_default_material();
 
         // 3) a soft glow around bright warm sources
         set_camera(&view);
-        if self.bloom > 0.0 {
+        let bloom = self.bloom * grade.bloom;
+        if bloom > 0.0 {
             for (i, l) in self.lights.iter().enumerate() {
                 if l.intensity < 0.5 {
                     continue;
@@ -459,9 +502,95 @@ impl Lighting {
                     l.pos.x,
                     l.pos.y,
                     l.radius * 0.45,
-                    alpha(l.color, 0.05 * l.intensity * k * self.bloom),
+                    alpha(grade.light_color(l.color), 0.05 * l.intensity * k * bloom),
                 );
             }
+        }
+    }
+
+    /// Dust motes drifting slowly in the warm lamp pools — only at high coziness
+    /// (fades in from 0.6). Call after `apply` (the world camera is active).
+    pub fn draw_dust_motes(&self, t: f32) {
+        let k = ((self.coziness - 0.6) / 0.3).clamp(0.0, 1.0);
+        if k <= 0.0 {
+            return;
+        }
+        for l in &self.lights {
+            // lamps: warm, strong, wide (not candles, phones or the street)
+            let warm = l.color.r > l.color.b + 0.2;
+            if !warm || l.intensity < 0.8 || l.radius < 2.5 * TILE || l.radius > 3.6 * TILE {
+                continue;
+            }
+            let seed = (l.pos.x as i32 as u32).wrapping_mul(31) ^ (l.pos.y as i32 as u32);
+            for i in 0..9u32 {
+                let ph = hash01(seed.wrapping_add(i * 7));
+                // a slow drift inside a column above the pool, looping
+                let life = 9.0 + ph * 6.0;
+                let a = ((t + ph * life) % life) / life;
+                let x = l.pos.x
+                    + (hash01(seed.wrapping_add(i * 7 + 1)) - 0.5) * l.radius * 0.9
+                    + (t * 0.3 + ph * 9.0).sin() * 8.0;
+                let y = l.pos.y + 0.3 * l.radius - a * l.radius * 1.1;
+                let fade = (a * (1.0 - a) * 4.0).min(1.0);
+                let tw = 0.6 + 0.4 * (t * 1.7 + ph * 20.0).sin();
+                let r = 0.7 + hash01(seed.wrapping_add(i * 7 + 2)) * 0.9;
+                let col = mix(l.color, WHITE, 0.6);
+                glow(x, y, r * 3.0, alpha(col, 0.18 * fade * tw * k));
+                draw_circle(x, y, r * 0.6, alpha(col, 0.55 * fade * tw * k));
+            }
+        }
+    }
+}
+
+/// How the coziness value shapes the light (warmth, shadow softness, bloom).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct CozyGrade {
+    /// −1 (bare, cool) … 0 (neutral) … +1 (like home, warm).
+    pub warmth: f32,
+    /// Ambient lift (softer shadows) multiplier.
+    pub lift: f32,
+    /// Lamp intensity multiplier.
+    pub light_gain: f32,
+    /// Bloom multiplier.
+    pub bloom: f32,
+}
+
+impl CozyGrade {
+    pub fn from_coziness(coziness: f32) -> CozyGrade {
+        let z = ((coziness.clamp(0.0, 1.0) - 0.5) * 2.0).clamp(-1.0, 1.0);
+        CozyGrade {
+            warmth: z,
+            lift: 1.0 + 0.1 * z,
+            light_gain: 1.0 + 0.1 * z,
+            bloom: (1.0 + 0.9 * z).max(0.3),
+        }
+    }
+
+    /// The darkness colour graded: warmer and a little lighter when cozy.
+    pub fn ambient(&self, a: Color) -> Color {
+        let z = self.warmth;
+        let warm = if z >= 0.0 {
+            Color::new(a.r * 1.18, a.g * 1.05, a.b * 0.94, 1.0)
+        } else {
+            Color::new(a.r * 0.9, a.g * 0.95, a.b * 1.05, 1.0)
+        };
+        let m = mix(a, warm, z.abs() * 0.6);
+        Color::new(
+            (m.r * self.lift).min(1.0),
+            (m.g * self.lift).min(1.0),
+            (m.b * self.lift).min(1.0),
+            1.0,
+        )
+    }
+
+    /// A light's colour graded: warm lamps get warmer when cozy (cool lights untouched).
+    pub fn light_color(&self, col: Color) -> Color {
+        if self.warmth > 0.0 && col.r > col.b {
+            mix(col, c::AMBER_DEEP, 0.3 * self.warmth)
+        } else if self.warmth < 0.0 && col.r > col.b {
+            mix(col, Color::from_hex(0xf3ecff), 0.25 * -self.warmth)
+        } else {
+            col
         }
     }
 }
@@ -469,6 +598,21 @@ impl Lighting {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn coziness_is_neutral_in_the_middle() {
+        let g = CozyGrade::from_coziness(0.5);
+        let a = ambient_for(0.4);
+        assert_eq!(g.ambient(a), a);
+        assert_eq!(g.light_color(c::AMBER), c::AMBER);
+        let warm = CozyGrade::from_coziness(1.0);
+        let lum = |c: Color| c.r + c.g + c.b;
+        assert!(lum(warm.ambient(a)) > lum(a), "softer shadows");
+        assert!(warm.ambient(a).r / warm.ambient(a).b > a.r / a.b, "warmer");
+        assert!(warm.bloom > g.bloom && CozyGrade::from_coziness(0.0).bloom < g.bloom);
+        // cool lights (windows, screens) keep their colour
+        assert_eq!(warm.light_color(c::INDIGO_GLOW), c::INDIGO_GLOW);
+    }
 
     #[test]
     fn night_is_darkest_in_the_middle() {

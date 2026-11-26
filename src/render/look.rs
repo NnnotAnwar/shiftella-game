@@ -65,10 +65,20 @@ pub enum Emote {
     Music,
     Exclamation,
     Money,
+    /// "Perfect!" — a golden sparkle burst (match tier perfect, §3.5).
+    Sparkle,
+    /// A content little smile (okay serve, a greeting).
+    Smile,
+    /// A warm heart in an amber glow (comforting moments: the blanket, candles).
+    WarmHeart,
+    /// Sleepy: a crescent moon with a tiny star (drowsy, not yet asleep — `Zzz` is asleep).
+    Sleepy,
+    /// Hums along to a liked record: a spinning vinyl with a note.
+    LikedRecord,
 }
 
 impl Emote {
-    pub const ALL: [Emote; 8] = [
+    pub const ALL: [Emote; 13] = [
         Emote::Coffee,
         Emote::Heart,
         Emote::Zzz,
@@ -77,6 +87,11 @@ impl Emote {
         Emote::Music,
         Emote::Exclamation,
         Emote::Money,
+        Emote::Sparkle,
+        Emote::Smile,
+        Emote::WarmHeart,
+        Emote::Sleepy,
+        Emote::LikedRecord,
     ];
 }
 

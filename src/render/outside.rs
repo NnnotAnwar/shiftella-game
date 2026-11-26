@@ -16,15 +16,15 @@ use crate::map::TILE;
 
 /// Street bands from the bottom (by the café wall) upwards (into the distance).
 #[derive(Debug, Clone, Copy)]
-struct Bands {
-    sidewalk: (f32, f32),
-    street: (f32, f32),
-    platform: (f32, f32),
-    tracks: (f32, f32),
-    far: (f32, f32),
+pub(super) struct Bands {
+    pub sidewalk: (f32, f32),
+    pub street: (f32, f32),
+    pub platform: (f32, f32),
+    pub tracks: (f32, f32),
+    pub far: (f32, f32),
 }
 
-fn bands(r: Rect) -> Bands {
+pub(super) fn bands(r: Rect) -> Bands {
     let b = r.y + r.h;
     let sw = (b - 1.5 * TILE, b);
     let st = (sw.0 - 1.7 * TILE, sw.0);
@@ -40,8 +40,41 @@ fn bands(r: Rect) -> Bands {
     }
 }
 
+/// One house silhouette on the far side of the tracks.
+#[derive(Debug, Clone, Copy)]
+pub(super) struct FarHouse {
+    pub x: f32,
+    pub w: f32,
+    /// The top of the walls (a pointed roof rises 18 px above it).
+    pub top: f32,
+    pub pointed: bool,
+    pub i: u32,
+}
+
+/// The far houses (deterministic from the rect).
+pub(super) fn far_houses(r: Rect) -> Vec<FarHouse> {
+    let b = bands(r);
+    let mut v = Vec::new();
+    let mut x = r.x - 20.0;
+    let mut i = 0u32;
+    while x < r.x + r.w {
+        let w = 60.0 + hash01(i * 3 + 1) * 90.0;
+        let h = 30.0 + hash01(i * 3 + 2) * (b.far.1 - b.far.0 - 30.0).max(10.0) * 0.8;
+        v.push(FarHouse {
+            x,
+            w,
+            top: b.far.1 - h,
+            pointed: hash01(i * 7) > 0.5,
+            i,
+        });
+        x += w + 6.0 + hash01(i * 11) * 20.0;
+        i += 1;
+    }
+    v
+}
+
 /// x coordinates of the streetlamps along the pavement.
-fn lamp_xs(r: Rect) -> impl Iterator<Item = f32> {
+pub(super) fn lamp_xs(r: Rect) -> impl Iterator<Item = f32> {
     let step = 7.0 * TILE;
     let first = (r.x / step).ceil() * step + 2.5 * TILE;
     (0..)
@@ -91,12 +124,15 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         c::VIOLET_NIGHT_0,
         c::VIOLET_NIGHT_1,
     );
-    let mut x = r.x - 20.0;
-    let mut i = 0u32;
-    while x < r.x + r.w {
-        let w = 60.0 + hash01(i * 3 + 1) * 90.0;
-        let h = 30.0 + hash01(i * 3 + 2) * (b.far.1 - b.far.0 - 30.0).max(10.0) * 0.8;
-        let top = b.far.1 - h;
+    for house in far_houses(r) {
+        let FarHouse {
+            x,
+            w,
+            top,
+            pointed,
+            i,
+        } = house;
+        let h = b.far.1 - top;
         let col = mix(
             Color::from_hex(0x1d1636),
             Color::from_hex(0x2a2048),
@@ -104,7 +140,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         );
         rect_v(x, top, w, h, col, shade(col, 0.85));
         // roofs: sometimes pointed
-        if hash01(i * 7) > 0.5 {
+        if pointed {
             poly(
                 &[
                     vec2(x - 4.0, top),
@@ -137,8 +173,6 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
                 }
             }
         }
-        x += w + 6.0 + hash01(i * 11) * 20.0;
-        i += 1;
     }
     // fog
     rect_v(
@@ -682,28 +716,38 @@ fn with_font<R>(f: impl FnOnce(Option<&Font>) -> R) -> R {
 
 /// Text in world coordinates (crisp at any zoom). `y` is the baseline.
 pub fn world_text(text: &str, pos: Vec2, size: f32, col: Color, centered: bool) {
+    world_text_rot(text, pos, size, col, centered, 0.0);
+}
+
+/// Like [`world_text`], rotated by `rotation` radians around `pos`.
+pub fn world_text_rot(text: &str, pos: Vec2, size: f32, col: Color, centered: bool, rotation: f32) {
     with_font(|font| {
         let (fs, scale, aspect) = camera_font_scale(size);
         let dim = measure_text(text, font, fs, scale);
-        let x = if centered {
-            pos.x - dim.width / 2.0
-        } else {
-            pos.x
-        };
+        let off = if centered { dim.width / 2.0 } else { 0.0 };
+        let (s, c0) = rotation.sin_cos();
         draw_text_ex(
             text,
-            x,
-            pos.y,
+            pos.x - off * c0,
+            pos.y - off * s,
             TextParams {
                 font,
                 font_size: fs,
                 font_scale: scale,
                 font_scale_aspect: aspect,
                 color: col,
-                ..Default::default()
+                rotation,
             },
         );
     });
+}
+
+/// The width of `text` at `size` in the current camera's units.
+pub fn world_text_width(text: &str, size: f32) -> f32 {
+    with_font(|font| {
+        let (fs, scale, _) = camera_font_scale(size);
+        measure_text(text, font, fs, scale).width
+    })
 }
 
 /// A flickering holographic sign (`pos` = bottom centre, on its projector post).
