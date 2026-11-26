@@ -504,6 +504,36 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
     }
 }
 
+/// Train length and where it is: the x of its nose for `progress` (see [`draw_train`]).
+const TRAIN_LEN: f32 = 14.0 * TILE;
+const TRAIN_CAR: f32 = 3.5 * TILE;
+
+fn train_x(r: Rect, progress: f32) -> f32 {
+    r.x + r.w - (r.w + TRAIN_LEN + 2.0 * TILE) * progress
+}
+
+/// The lit carriage windows of a passing train as x-runs `(x0, x1)` in world px — exactly
+/// where [`draw_train`] draws them, so the light through the café windows moves with the
+/// train (`Lighting::train_sweep`).
+pub fn train_window_runs(rect_world: Rect, progress: f32) -> Vec<(f32, f32)> {
+    if !(0.0..=1.0).contains(&progress) {
+        return Vec::new();
+    }
+    let x = train_x(rect_world, progress);
+    let mut runs: Vec<(f32, f32)> = Vec::new();
+    let mut cx = x + 30.0;
+    while cx < x + TRAIN_LEN - 20.0 {
+        if (cx - x) % TRAIN_CAR < TRAIN_CAR - 30.0 {
+            match runs.last_mut() {
+                Some(last) if cx - last.1 < 8.0 => last.1 = cx + 22.0,
+                _ => runs.push((cx, cx + 22.0)),
+            }
+        }
+        cx += 28.0;
+    }
+    runs
+}
+
 /// A train on the far tracks. `progress` 0..1 — passing right to left; outside — nothing.
 pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
     if !(0.0..=1.0).contains(&progress) {
@@ -511,8 +541,8 @@ pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
     }
     let r = rect_world;
     let b = bands(r);
-    let len = 14.0 * TILE;
-    let x = r.x + r.w - (r.w + len + 2.0 * TILE) * progress;
+    let len = TRAIN_LEN;
+    let x = train_x(r, progress);
     let (ty0, ty1) = b.tracks;
     let bot = ty1 - 14.0;
     let h = 58.0;
@@ -546,7 +576,7 @@ pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
     );
     glow(x + 8.0, bot - 22.0, 18.0, alpha(WHITE, 0.6));
     // carriage windows (warm), passengers' silhouettes
-    let car = 3.5 * TILE;
+    let car = TRAIN_CAR;
     let mut cx = x + 30.0;
     let mut k = 0u32;
     while cx < x + len - 20.0 {

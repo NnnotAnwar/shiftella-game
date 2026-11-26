@@ -434,7 +434,7 @@ impl CafeScene {
         lighting.begin(cam, ambient);
         lighting.set_time(t);
         lighting.add_window_light(0.35 + 0.65 * level);
-        lighting.train_sweep(train_p);
+        lighting.train_sweep(train_p, self.street);
         for (i, (p, st)) in self.furniture.iter().zip(&states).enumerate() {
             let k = if p.is_lamp() { self.lamp[i] } else { 1.0 };
             for mut l in furniture_lights(p.sprite, p.origin, p.size, st) {

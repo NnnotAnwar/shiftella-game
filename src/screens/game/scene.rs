@@ -195,6 +195,14 @@ impl WorldScene {
 
     /// Animation step (real seconds, already scaled by the game speed if wanted).
     pub fn update(&mut self, dt: f32) {
+        // automation: `SHIFTELLA_TRAIN_P=0.4` freezes a passing train at that point
+        static TRAIN_P: std::sync::OnceLock<Option<f32>> = std::sync::OnceLock::new();
+        if let Some(p) = *TRAIN_P.get_or_init(|| {
+            std::env::var("SHIFTELLA_TRAIN_P").ok().and_then(|v| v.parse().ok())
+        }) {
+            self.train = Some(p);
+            return;
+        }
         if let Some(p) = &mut self.train {
             *p += dt / TRAIN_SECONDS;
             if *p > 1.05 {
@@ -790,7 +798,7 @@ impl WorldScene {
                 }
             }
         }
-        lighting.train_sweep(train_p);
+        lighting.train_sweep(train_p, self.street);
         for (i, (sprite, origin, size, st)) in pieces.iter().enumerate() {
             let k = lamp_k(sprite, *origin);
             for mut l in furniture_lights(sprite, *origin, *size, st) {
