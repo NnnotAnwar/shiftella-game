@@ -1,0 +1,283 @@
+# Build mode 0.2 (package A, build-ux): dragging placed pieces, the coziness preview, card
+# chips and hover numbers, how locked pieces and themes unlock, "wanted" badges.
+# Karolina is addressed in the second person (feminine forms in cs/uk/ru).
+
+# --- the hint line under the cards ---
+
+bux.hint.idle
+cs Táhni postavený kus a přesuň ho (stůl si vezme židle) · X bourání · Ctrl+Z zpět
+en Drag a placed piece to move it (a table brings its chairs) · X demolish · Ctrl+Z undo
+uk Перетягни поставлену річ, щоб пересунути (стіл забере стільці) · X знести · Ctrl+Z назад
+ru Перетащи поставленную вещь, чтобы передвинуть (стол возьмёт стулья) · X снести · Ctrl+Z назад
+
+bux.hint.placing
+cs Klik postaví · R otočit · pravé tlačítko / Esc zruší
+en Click to place · R rotate · right-click / Esc cancel
+uk Клік — поставити · R повернути · ПКМ / Esc — скасувати
+ru Клик — поставить · R повернуть · ПКМ / Esc — отмена
+
+bux.hint.moving
+cs Pusť nebo klikni, kam to patří · R otočit · pravé tlačítko / Esc vrátí
+en Drop or click where it goes · R rotate · right-click / Esc puts it back
+uk Відпусти або клацни, куди поставити · R повернути · ПКМ / Esc — повернути на місце
+ru Отпусти или кликни, куда поставить · R повернуть · ПКМ / Esc — вернуть на место
+
+bux.hint.demolish
+cs Klikni na kus, který má jít pryč — vrátí se půlka ceny · Ctrl+Z zpět
+en Click a piece to take it away — half the price comes back · Ctrl+Z undo
+uk Клацни на річ, яку прибрати, — повернеться половина ціни · Ctrl+Z назад
+ru Кликни на вещь, которую убрать, — вернётся половина цены · Ctrl+Z назад
+
+bux.hint.themes
+cs Téma koupíš jednou, přes den ho můžeš kdykoli změnit zdarma
+en A theme is bought once; in the day you can switch it for free
+uk Тему купуєш один раз, удень її можна змінювати безкоштовно
+ru Тему покупаешь один раз, днём её можно менять бесплатно
+
+# --- hovering a placed piece / why it can't move ---
+
+bux.hover.move
+cs Táhni a přesuň
+en Drag to move
+uk Тягни, щоб пересунути
+ru Тяни, чтобы передвинуть
+
+bux.hover.move_chairs
+cs Táhni — židle půjdou s ním
+en Drag — the chairs come along
+uk Тягни — стільці підуть разом
+ru Тяни — стулья поедут вместе
+
+bux.in_use.seated
+cs Sedí tu host — počkej, až odejde
+en A guest is sitting here — wait until they leave
+uk Тут сидить гість — зачекай, поки піде
+ru Здесь сидит гость — подожди, пока уйдёт
+
+bux.in_use.busy
+cs Někdo u toho právě pracuje
+en Someone is working at it right now
+uk Хтось зараз цим користується
+ru Кто-то сейчас этим пользуется
+
+# --- cards ---
+
+bux.placed
+cs Už stojí v sále
+en Already in the café
+uk Уже стоїть у залі
+ru Уже стоит в зале
+
+bux.wanted
+cs {name} čeká
+en {name} is waiting
+uk {name} чекає
+ru {name} ждёт
+
+bux.lock.night
+cs Od noci {night}
+en From night {night}
+uk З ночі {night}
+ru С ночи {night}
+
+bux.lock.sandbox
+cs Až kavárna trochu poroste
+en Once the café grows a little
+uk Коли кав'ярня трохи підросте
+ru Когда кафе немного подрастёт
+
+bux.lock.flag.lori_invited
+cs Až pozveš Lori hrát
+en When you invite Lori to play
+uk Коли запросиш Лорі грати
+ru Когда пригласишь Лори играть
+
+bux.tip.locked
+cs Odemkne se:
+en Unlocks:
+uk Відкриється:
+ru Откроется:
+
+bux.tip.beauty
+cs Krása +{n} — přidá útulnosti sálu
+en Beauty +{n} — adds to the hall's coziness
+uk Краса +{n} — додає залі затишку
+ru Красота +{n} — добавляет залу уюта
+
+bux.tip.seats
+cs Míst k sezení: {n}
+en Seats {n}
+uk Місць: {n}
+ru Мест: {n}
+
+bux.tip.comfort
+cs pohodlí {n}
+en comfort {n}
+uk зручність {n}
+ru удобство {n}
+
+bux.tip.comfort_hall
+cs Pohodlí sálu +{n}
+en Hall comfort +{n}
+uk Зручність зали +{n}
+ru Удобство зала +{n}
+
+bux.tip.light
+cs Světlo — rozsvítí místa do {n} polí
+en Light — lights the seats within {n} tiles
+uk Світло — освітлює місця в межах {n} клітинок
+ru Свет — освещает места в пределах {n} клеток
+
+bux.tip.music
+cs Hraje hudba
+en Plays music
+uk Грає музика
+ru Играет музыка
+
+bux.tip.socket
+cs Má zásuvku — na notebook a nabíječku
+en Has a socket — for a laptop and a charger
+uk Має розетку — для ноутбука й зарядки
+ru Есть розетка — для ноутбука и зарядки
+
+bux.tip.per_tile
+cs cena za pole
+en price per tile
+uk ціна за клітинку
+ru цена за клетку
+
+bux.tip.station.coffee
+cs Pracovní místo: káva
+en Work station: coffee
+uk Робоче місце: кава
+ru Рабочее место: кофе
+
+bux.tip.station.stove
+cs Pracovní místo: polévky a teplá jídla
+en Work station: soups and hot dishes
+uk Робоче місце: супи й гарячі страви
+ru Рабочее место: супы и горячие блюда
+
+bux.tip.station.oven
+cs Pracovní místo: pečení
+en Work station: baking
+uk Робоче місце: випічка
+ru Рабочее место: выпечка
+
+bux.tip.station.fridge
+cs Pracovní místo: lednice a spíž
+en Work station: fridge and pantry
+uk Робоче місце: холодильник і комора
+ru Рабочее место: холодильник и кладовая
+
+bux.tip.station.sink
+cs Pracovní místo: mytí nádobí
+en Work station: washing up
+uk Робоче місце: миття посуду
+ru Рабочее место: мытьё посуды
+
+bux.tip.station.register
+cs Pracovní místo: pokladna
+en Work station: the till
+uk Робоче місце: каса
+ru Рабочее место: касса
+
+bux.tip.station.drone
+cs Pracovní místo: rozvoz dronem
+en Work station: drone deliveries
+uk Робоче місце: доставка дроном
+ru Рабочее место: доставка дроном
+
+# --- who is waiting for what (the build-wishes stub; package C brings its own lines) ---
+
+bux.wish.filip
+cs stolek se zásuvkou pro notebook
+en a table with a socket for the laptop
+uk столик із розеткою для ноутбука
+ru столик с розеткой для ноутбука
+
+bux.wish.lori
+cs malé pódium, aby mohla hrát
+en a little stage to play on
+uk маленька сцена, щоб грати
+ru маленькая сцена, чтобы играть
+
+bux.wish.hana
+cs tichý kout — křeslo a lampa
+en a quiet corner — an armchair and a lamp
+uk тихий куток — крісло й лампа
+ru тихий уголок — кресло и лампа
+
+# --- how a decor theme unlocks (joined: "Reputation 50 or 3 000 Kč in tips") ---
+
+bux.cond.or
+cs nebo
+en or
+uk або
+ru или
+
+bux.cond.and
+cs a
+en and
+uk і
+ru и
+
+bux.cond.reputation
+cs reputace {n}
+en reputation {n}
+uk репутація {n}
+ru репутация {n}
+
+bux.cond.tips
+cs {money} na spropitném
+en {money} in tips
+uk {money} чайових
+ru {money} чаевых
+
+bux.cond.night
+cs od noci {n}
+en from night {n}
+uk з ночі {n}
+ru с ночи {n}
+
+bux.cond.coziness
+cs útulnost {n}
+en coziness {n}
+uk затишок {n}
+ru уют {n}
+
+bux.cond.item
+cs {item}
+en the {item}
+uk {item}
+ru {item}
+
+bux.cond.arc
+cs dál v příběhu: {name}
+en further along {name}'s story
+uk далі в історії: {name}
+ru дальше в истории: {name}
+
+bux.theme_unlock.winter_lights
+cs Až pověsíš babiččiny girlandy
+en When you hang grandma's garlands
+uk Коли повісиш бабусині гірлянди
+ru Когда повесишь бабушкины гирлянды
+
+bux.now.reputation
+cs Teď: reputace {n}
+en Now: reputation {n}
+uk Зараз: репутація {n}
+ru Сейчас: репутация {n}
+
+bux.now.tips
+cs spropitné zatím {money}
+en tips so far {money}
+uk чайових поки {money}
+ru чаевых пока {money}
+
+bux.now.night
+cs dnes noc {n}
+en tonight is night {n}
+uk зараз ніч {n}
+ru сейчас ночь {n}

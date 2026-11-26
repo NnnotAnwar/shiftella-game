@@ -9,6 +9,8 @@
 mod app;
 mod atmos;
 pub mod bot;
+mod build_ux;
+mod build_wishes;
 mod commands;
 mod duties;
 mod economy;
@@ -39,6 +41,8 @@ mod tests;
 #[cfg(test)]
 mod tests_balance;
 #[cfg(test)]
+mod tests_build_ux;
+#[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
 mod tests_prep;
@@ -50,6 +54,8 @@ mod tests_sys;
 mod tests_t10;
 
 pub use app::digest_lines;
+pub use build_ux::{InUseReason, PieceMove};
+pub use build_wishes::BuildWish;
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;

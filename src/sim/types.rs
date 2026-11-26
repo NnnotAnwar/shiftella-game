@@ -1009,6 +1009,10 @@ pub enum Command {
     SetTutorial {
         on: bool,
     },
+    /// Build mode: move several pieces at once (a table with its chairs) — one undo step.
+    MoveGroup {
+        moves: Vec<super::build_ux::PieceMove>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
