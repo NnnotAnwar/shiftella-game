@@ -448,7 +448,7 @@ app.handover.regular
 cs Hledá vás {name}. Asi přijde zase.
 en {name} was asking about you. Probably coming back.
 uk Вас шукає {name}. Мабуть, прийде знову.
-ru Вас спрашивал(а) {name}. Наверное, придёт снова.
+ru Вас ищет {name}. Наверное, придёт снова.
 
 app.handover.signature
 cs — {name}

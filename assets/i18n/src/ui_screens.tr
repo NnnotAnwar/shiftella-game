@@ -379,10 +379,10 @@ uk Підсумок ночі
 ru Итоги ночи
 
 ui.app.tab.payroll
-cs Podklady pro mzdy
+cs Podklady
 en Payroll basis
-uk Дані для зарплати
-ru Данные для зарплаты
+uk Зарплати
+ru Зарплаты
 
 ui.app.tab.bot
 cs Zprávy

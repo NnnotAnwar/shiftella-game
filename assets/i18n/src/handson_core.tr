@@ -80,7 +80,7 @@ ui.order.by_hand
 cs Ručně
 en By hand
 uk Власноруч
-ru Своими руками
+ru Вручную
 
 ui.order.quick
 cs Rychle
@@ -343,10 +343,10 @@ uk Запропонувати
 ru Предложить
 
 ui.duties.capacity
-cs {n} z {max} povinností
+cs Povinnosti: {n}/{max}
 en {n} of {max} duties
-uk {n} з {max} обов'язків
-ru {n} из {max} обязанностей
+uk Обов'язки: {n}/{max}
+ru Обязанности: {n}/{max}
 
 ui.duties.full
 cs {name} už má plné ruce.
@@ -417,10 +417,10 @@ uk Повторювати
 ru Повторять
 
 ui.jukebox.once
-cs Přehrát jednou
+cs Jednou
 en Play once
-uk Зіграти раз
-ru Сыграть раз
+uk Один раз
+ru Один раз
 
 ui.jukebox.locked
 cs V jukeboxu zatím není

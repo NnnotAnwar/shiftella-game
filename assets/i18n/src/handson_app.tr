@@ -209,10 +209,10 @@ uk {name}: рознесено тацей — {n}
 ru {name}: разнесено подносов — {n}
 
 app.insight.busiest_hour
-cs Nejvíc lidí bylo v {time}. Za týden ({weekday}) to bude asi podobné.
+cs Nejvíc lidí v {time}. Za týden ({weekday}) asi podobně.
 en The busiest hour was {time}. Next {weekday} will probably be similar.
-uk Найбільше людей було о {time}. Через тиждень ({weekday}), мабуть, буде так само.
-ru Больше всего людей было в {time}. Через неделю ({weekday}), наверное, будет так же.
+uk Пік — о {time}. Через тиждень ({weekday}) буде схоже.
+ru Пик — в {time}. Через неделю ({weekday}) будет похоже.
 
 app.insight.wishes
 cs Přání dnes v noci: {n}, z toho přesně trefených {perfect}.
@@ -522,10 +522,10 @@ uk Сонячно
 ru Солнечно
 
 pref.kind.day_off
-cs {day} volno
+cs Volno: {day}
 en {day} off
-uk {day} вихідний
-ru {day} выходной
+uk Вихідний: {day}
+ru Выходной: {day}
 
 pref.kind.shift_pref
 cs Směny: {shift}

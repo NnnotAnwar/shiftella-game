@@ -1290,8 +1290,8 @@ ru Следующая страница
 ui.rozpis.wellbeing
 cs Nálada
 en Mood
-uk Настрій
-ru Настроение
+uk Тонус
+ru Тонус
 
 ui.rozpis.locked
 cs Jsi tu každou noc — je to tvoje kavárna.
@@ -1402,16 +1402,16 @@ uk Допоможе з боргом
 ru Поможет с долгом
 
 ui.payroll.effect.half
-cs Nálada týmu +4 příští týden
+cs Nálada týmu +4 na týden
 en Crew mood +4 next week
-uk Настрій команди +4 наступного тижня
-ru Настроение команды +4 на следующей неделе
+uk Настрій команди +4 на тиждень
+ru Настроение команды +4 на неделю
 
 ui.payroll.effect.crew
 cs Nálada týmu +8, pohoda +5
 en Crew mood +8, wellbeing +5
-uk Настрій команди +8, самопочуття +5
-ru Настроение команды +8, самочувствие +5
+uk Настрій +8, самопочуття +5
+ru Настроение +8, самочувствие +5
 
 ui.payroll.total
 cs Celkem
