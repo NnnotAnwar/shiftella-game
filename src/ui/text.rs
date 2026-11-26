@@ -306,6 +306,12 @@ impl Fonts {
         visible_chars: usize,
     ) -> f32 {
         let lh = style.line_h();
+        if r.h > 0.5 {
+            let n = max_lines.map_or(lines.len(), |m| lines.len().min(m));
+            if n as f32 * lh > r.h + lh * 0.5 {
+                note_overflow(r, "text taller than its box");
+            }
+        }
         let cap = self.cap_height(style);
         let count = max_lines.map_or(lines.len(), |m| lines.len().min(m));
         let mut left = visible_chars;
@@ -530,4 +536,30 @@ mod tests {
         assert_eq!(initials(""), "");
         assert_eq!(initials("Jan Petr Svoboda"), "JS");
     }
+}
+
+thread_local! {
+    static OVERFLOWS: std::cell::RefCell<Vec<(Rect, String)>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Set by `Ui::new` from `SHIFTELLA_LAYOUT_DEBUG`.
+pub(crate) static LAYOUT_DEBUG: std::sync::atomic::AtomicBool =
+    std::sync::atomic::AtomicBool::new(false);
+
+/// Layout debug: remember a text box whose text doesn't fit (drawn by `Ui::end_frame`).
+fn note_overflow(r: Rect, what: &str) {
+    if !LAYOUT_DEBUG.load(std::sync::atomic::Ordering::Relaxed) {
+        return;
+    }
+    OVERFLOWS.with(|o| {
+        let mut o = o.borrow_mut();
+        if o.len() < 256 {
+            o.push((r, what.to_string()));
+        }
+    });
+}
+
+/// Text boxes that overflowed this frame (see [`note_overflow`]).
+pub(crate) fn take_overflows() -> Vec<(Rect, String)> {
+    OVERFLOWS.with(|o| std::mem::take(&mut *o.borrow_mut()))
 }

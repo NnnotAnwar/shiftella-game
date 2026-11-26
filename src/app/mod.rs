@@ -317,6 +317,9 @@ impl App {
                 if name == "build" {
                     g.ui_state.build.selected = Some("table_round".into());
                 }
+                if let Some(tab) = env("SHIFTELLA_APP_TAB").and_then(|t| t.parse().ok()) {
+                    g.ui_state.app_tab = tab;
+                }
                 if name == "pause" {
                     g.pause = Some(Default::default());
                 }

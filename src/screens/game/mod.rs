@@ -171,6 +171,8 @@ pub struct UiState {
     pub build: build::BuildState,
     pub handover_text: String,
     pub log_filter: usize,
+    /// Whom the board's thank-you note is for (index into the crew).
+    pub thank_pick: usize,
 }
 
 impl GameScreen {
@@ -1161,6 +1163,13 @@ impl GameScreen {
         if !self.player.is_playing() {
             self.flush_notices(ui, &loc);
             ui.set_toast_bottom_inset(56.0);
+            // by day the planning panel owns the right column: toasts stay beside it
+            let right = self
+                .anchors
+                .iter()
+                .find(|a| a.0 == "day.panel")
+                .map_or(0.0, |a| ui.screen().w - a.1.x);
+            ui.set_toast_right_inset(right);
             for ev in ui.draw_toasts(ToastAnchor::BottomRight) {
                 self.toast_clicked(content, ev.toast, ev.tag);
             }

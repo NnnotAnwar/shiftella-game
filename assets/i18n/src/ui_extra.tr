@@ -65,3 +65,21 @@ cs Ručně
 en Manual
 sk Ručne
 uk Вручну
+
+ui.app.thank_post
+cs Poděkovat: {name}
+en Thank {name}
+sk Poďakovať: {name}
+uk Подякувати: {name}
+
+ui.app.thank_next
+cs Jiný kolega
+en Someone else
+sk Iný kolega
+uk Хтось інший
+
+ui.app.posted
+cs Vyvěšeno na nástěnce
+en Posted on the board
+sk Vyvesené na nástenke
+uk Опубліковано на дошці
