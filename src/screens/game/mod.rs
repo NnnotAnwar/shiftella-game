@@ -8,6 +8,9 @@
 
 mod app_tool;
 mod build;
+mod build_cards;
+mod build_overlay;
+mod build_themes;
 pub mod coach;
 mod day;
 mod duties;
@@ -25,6 +28,9 @@ pub mod scene;
 mod scene_fx;
 pub mod tutorial;
 pub mod world_view;
+
+/// Build mode's drag state (screenshot scenes set it up).
+pub use build::{Drag as BuildDrag, THEME_TAB as BUILD_THEME_TAB};
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -1190,6 +1196,7 @@ impl GameScreen {
         // faces for avatars: baked before anything of this frame is drawn
         self.register_faces(ui, &loc);
         hands_ui::faces(self, ui, content, &loc);
+        build::faces(self, ui, content, &loc);
         for e in std::mem::take(&mut self.deferred) {
             self.handle_event(content, e, Some(&loc));
         }
@@ -1323,7 +1330,8 @@ impl GameScreen {
                 let want = vec2(k.pos.0, k.pos.1 - 40.0);
                 self.cam.center = self.cam.center.lerp(want, (dt * 3.0).min(1.0));
             }
-            self.scene.clamp_camera(&mut self.cam);
+            // build mode keeps the hall above its panel (else the scene's own clamp)
+            build::camera(self, dt);
             let cam = self.cam.to_camera2d();
             let mouse_world = self.cam.screen_to_world(Vec2::from(mouse_position()));
             self.hovered = None;
@@ -1656,6 +1664,8 @@ impl GameScreen {
                 }
             }
         }
+        // build mode: a press on a placed piece becomes a drag, a released drag drops
+        build::frame(self, ui, content, loc, blocked);
         if blocked || !is_mouse_button_pressed(MouseButton::Left) {
             return;
         }

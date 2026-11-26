@@ -102,13 +102,32 @@ opening ritual.
 * **Napkins** — a perfect cup for someone who needed it sometimes earns a folded thank-you
   napkin next to the tip coin. They are kept in the recipe book (the Napkins ribbon).
 
+## Building (B)
+
+* The build panel sits low at the bottom; the hall moves up (and zooms out a touch if it has
+  to) so the counter and the corners stay visible above it. Holding a piece near the edge of
+  the view pans towards it.
+* **Cards** show the price and small chips for what a piece gives: ♥ beauty (coziness),
+  seats, comfort, ☀ light reach, music, a work station, a socket. Hover a card for the
+  description and the exact numbers. Locked cards say how they unlock ("From night 6",
+  "When you invite Lori to play"). A face and *"Filip is waiting"* mark a piece a regular
+  asked for (the tab shows an amber count too).
+* **Moving**: press on a placed piece and drag it — a table takes its chairs along. **R**
+  turns the whole group. It's free and **Ctrl+Z** puts it back. A piece somebody uses (a
+  guest on the chair, a helper at the machine) says so and stays put.
+* **While holding a piece** the atmosphere meter and a little label over the piece show how
+  much coziness it would add or take (`+0,6`), the lamps' warm pools appear with the seats
+  they light (a warm dot = lit, a violet ring = in the dark), and decor shows its 3-tile
+  beauty reach.
+
 ## Seasons, themes and the journal
 
 * The month moves from late autumn (wet leaves) to frost, Advent (grandma's garlands — hang
   them when her box appears on the counter — and a wreath) and the first snow.
 * **Build → Theme** — decor themes for the hall (Grandma's original, Prague Art Nouveau,
   Station Retro, Nocturne 2039, Winter Lights). Unlocked themes are bought once and switched
-  for free during the day.
+  for free during the day. A locked theme says how it unlocks (e.g. *reputation 50 or
+  3 000 Kč in tips*); hover it to see how far along you are.
 * **The polaroid journal (J)** — every morning the night's best moment develops in the summary
   (drag over it to shake it faster); click one of the two small ones to keep that instead.
   The journal keeps one per night — thirty slots in the story.
@@ -135,7 +154,7 @@ to swap; every few tries Lida's margin note reveals an ingredient on a silhouett
 | **J** | the polaroid journal |
 | **V** | grandma's jukebox |
 | **F** | the nearest night moment's card |
-| **B** | build — click a piece, click in the café; **R** rotate, **X** demolish, **Ctrl+Z** undo, right-click / **Esc** cancel |
+| **B** | build — click a card, click in the café; drag a placed piece to move it (a table brings its chairs; a click picks it up, the next click puts it down); **R** rotate (also while moving), **X** demolish, **Tab** next tab, **Ctrl+Z** undo, right-click / **Esc** cancel |
 | **L** | log (tonight / story) — also a click on the ticker at the top |
 | **F1** | how to play |
 | **M** | sound on / off |

@@ -8,7 +8,8 @@
 //! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|build|crew|app|
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
-//!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day`
+//!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
+//!   build_drag` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y` / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   (hands-on scenes are played to their moment by the autoplayer;
 //!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
 //!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
@@ -324,7 +325,10 @@ impl App {
                 };
                 self.game(g)
             }
-            "night" | "pause" | "crew" | "app" | "priorities" | "duties" | "log" | "build" => {
+            "night" | "pause" | "crew" | "app" | "priorities" | "duties" | "log" | "build"
+            | "build_drag" => {
+                let drag = name == "build_drag";
+                let name = if drag { "build" } else { name };
                 let n = night.unwrap_or(if name == "night" || name == "pause" {
                     1
                 } else {
@@ -346,7 +350,38 @@ impl App {
                     _ => None,
                 };
                 if name == "build" {
-                    g.ui_state.build.selected = Some("table_round".into());
+                    // SHIFTELLA_BUILD_DEF / _AT=x,y / _TAB / _TURNS: a held piece over a tile;
+                    // build_drag: the first round table (with its chairs) is being moved
+                    let def = env("SHIFTELLA_BUILD_DEF").unwrap_or_else(|| "table_round".into());
+                    let at = env("SHIFTELLA_BUILD_AT").and_then(|s| {
+                        let (x, y) = s.split_once(',')?;
+                        Some((x.parse::<f32>().ok()?, y.parse::<f32>().ok()?))
+                    });
+                    let st = &mut g.ui_state.build;
+                    if let Some(tab) = env("SHIFTELLA_BUILD_TAB").and_then(|t| t.parse().ok()) {
+                        st.tab = tab;
+                    }
+                    st.fake_mouse = at.map(|(x, y)| vec2(x + 0.5, y + 0.5) * crate::map::TILE);
+                    if drag {
+                        let table = g
+                            .world
+                            .furniture()
+                            .iter()
+                            .find(|p| p.def == "table_round")
+                            .map(|p| p.uid);
+                        if let Some(uid) = table {
+                            g.ui_state.build.drag = Some(game::BuildDrag {
+                                uid,
+                                grab: (0, 0),
+                                turns: env("SHIFTELLA_BUILD_TURNS")
+                                    .and_then(|t| t.parse().ok())
+                                    .unwrap_or(0),
+                                sticky: true,
+                            });
+                        }
+                    } else if def != "none" {
+                        g.ui_state.build.selected = Some(def);
+                    }
                 }
                 if let Some(tab) = env("SHIFTELLA_APP_TAB").and_then(|t| t.parse().ok()) {
                     g.ui_state.app_tab = tab;
@@ -500,7 +535,7 @@ impl App {
                 let n = night.unwrap_or(22);
                 let mut g = story_at(n, None, &self.i18n, lang);
                 g.panel = Some(game::Panel::Build);
-                g.ui_state.build.tab = crate::content::BuildCategory::ALL.len() + 1;
+                g.ui_state.build.tab = game::BUILD_THEME_TAB;
                 self.game(g)
             }
             "rozpis" | "payroll" => {

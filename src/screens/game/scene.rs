@@ -77,6 +77,8 @@ pub struct WorldScene {
     pub sec_per_minute: f32,
     /// `t` when the doors opened tonight (the door sign flips).
     pub doors_opened_at: Option<f32>,
+    /// Placed pieces not drawn this frame (build mode: the group being dragged).
+    pub hidden_furniture: Vec<u32>,
 }
 
 impl Default for WorldScene {
@@ -121,6 +123,7 @@ impl WorldScene {
             candles_since: None,
             sec_per_minute: 1.5,
             doors_opened_at: None,
+            hidden_furniture: Vec::new(),
         }
     }
 
@@ -518,6 +521,9 @@ impl WorldScene {
         let mut pieces: Vec<(String, Vec2, (u8, u8), FurnitureState)> =
             Vec::with_capacity(placed.len());
         for (p, v) in placed.iter().zip(&views) {
+            if self.hidden_furniture.contains(&p.uid) {
+                continue;
+            }
             let sprite = content
                 .furniture_def(&p.def)
                 .map(|d| d.sprite.clone())
