@@ -298,7 +298,8 @@ impl RecipeDef {
     }
     /// Bubble when a regular / helper teaches it (`Taught` only).
     pub fn teach_key(&self) -> Option<String> {
-        matches!(self.unlock, RecipeUnlock::Taught { .. }).then(|| format!("recipe.{}.teach", self.id))
+        matches!(self.unlock, RecipeUnlock::Taught { .. })
+            .then(|| format!("recipe.{}.teach", self.id))
     }
 
     /// The ingredient set (order never matters).
@@ -412,7 +413,12 @@ pub fn experiment<'a>(
             ExperimentOutcome::Gated(r)
         };
     }
-    let family = |id: &str| file.ingredients.iter().find(|i| i.id == id).map(|i| i.family);
+    let family = |id: &str| {
+        file.ingredients
+            .iter()
+            .find(|i| i.id == id)
+            .map(|i| i.family)
+    };
     let best = file
         .recipes
         .iter()

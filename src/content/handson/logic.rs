@@ -48,7 +48,10 @@ pub enum XCondition {
     /// Karolina knows this recipe.
     RecipeKnown(String),
     /// Karolina has served this regular this recipe at least once (any night).
-    ServedRecipe { regular: String, recipe: String },
+    ServedRecipe {
+        regular: String,
+        recipe: String,
+    },
     /// The regular's last `visits` visits each got a Karolina-made item with match ≥ `min`.
     WishMatchStreak {
         regular: String,
@@ -76,7 +79,11 @@ pub enum XCondition {
     /// The person of this archetype has worked ≥ n shifts.
     ShiftsWorked(String, u32),
     /// Two archetypes have shared ≥ `shifts` shifts (≥ 4 h together each).
-    SharedShifts { a: String, b: String, shifts: u32 },
+    SharedShifts {
+        a: String,
+        b: String,
+        shifts: u32,
+    },
     /// Lifetime tips in the jar ≥ CZK.
     TipsLifetimeAtLeast(u32),
     /// Thank-you napkins collected ≥ n.
@@ -139,9 +146,15 @@ pub enum CameraTarget {
 pub enum XEffect {
     // --- control flow (over Fx) -------------------------------------------------------------
     /// With probability `chance` apply `effects`.
-    Maybe { chance: f32, effects: Vec<Fx> },
+    Maybe {
+        chance: f32,
+        effects: Vec<Fx>,
+    },
     /// After `minutes` game minutes (dropped if the night ends first).
-    Later { minutes: u32, effects: Vec<Fx> },
+    Later {
+        minutes: u32,
+        effects: Vec<Fx>,
+    },
     /// Evaluated when run.
     If {
         conditions: Vec<Cond>,
@@ -204,11 +217,17 @@ pub enum XEffect {
     /// Relationship of the target helper with Karolina ±.
     TargetRelationship(f32),
     /// Mood ± for the employed story person of this archetype.
-    ArchetypeMood { staff: String, add: f32 },
+    ArchetypeMood {
+        staff: String,
+        add: f32,
+    },
 
     // --- the hall ---------------------------------------------------------------------------------
     /// Satisfaction ± for guests within `tiles` of the anchor.
-    GuestSatisfactionNear { add: f32, tiles: u32 },
+    GuestSatisfactionNear {
+        add: f32,
+        tiles: u32,
+    },
     /// Wishes with these tags are picked × `mul` more often.
     WishBoost {
         tags: Vec<Taste>,
@@ -216,9 +235,15 @@ pub enum XEffect {
         minutes: Option<u32>,
     },
     /// Coziness ± (0–100 scale) for `minutes` (`None` = rest of the night).
-    Coziness { add: f32, minutes: Option<u32> },
+    Coziness {
+        add: f32,
+        minutes: Option<u32>,
+    },
     /// Guest patience × `mul`.
-    Patience { mul: f32, minutes: Option<u32> },
+    Patience {
+        mul: f32,
+        minutes: Option<u32>,
+    },
     /// Candles on every table while the power is out (they count as light).
     LightCandles,
     /// A bucket on the anchor tile (blocks it, plinks).
@@ -228,33 +253,60 @@ pub enum XEffect {
     /// The anchor window opens for N minutes (visual; closes itself).
     WindowOpen(u32),
     /// A tip into the jar, random CZK in the inclusive range.
-    Tip { min: u32, max: u32 },
+    Tip {
+        min: u32,
+        max: u32,
+    },
 
     // --- rituals, handover, stock -----------------------------------------------------------------
     /// Quick-brew quality ± for `minutes` (`None` = rest of the night).
-    QuickQuality { add: f32, minutes: Option<u32> },
+    QuickQuality {
+        add: f32,
+        minutes: Option<u32>,
+    },
     /// The first `count` items of `job` take × `mul` longer ("the machine is cold").
-    SlowFirstItems { job: Job, count: u32, mul: f32 },
+    SlowFirstItems {
+        job: Job,
+        count: u32,
+        mul: f32,
+    },
     /// Chance that one item runs out later tonight (off the menu for `minutes`).
-    StockoutRisk { chance: f32, minutes: u32 },
+    StockoutRisk {
+        chance: f32,
+        minutes: u32,
+    },
     /// The opening stock check is done: auto-restock prioritises tonight's low list.
     StockChecked,
     /// The subject item (handover) is restocked first.
     RestockFirst,
     /// Wear ± (0–1) of furniture with the tag.
-    Wear { tag: String, add: f32 },
+    Wear {
+        tag: String,
+        add: f32,
+    },
     /// Cash is counted: digest insights complete, tips booked tonight.
     CashUp,
     /// Items of that checklist take × `mul` of their time.
-    ChecklistSpeed { list: ChecklistKind, mul: f32 },
+    ChecklistSpeed {
+        list: ChecklistKind,
+        mul: f32,
+    },
     /// Helpers wait at their stations `minutes` before the subject train; the rail pre-opens.
-    HelpersReady { minutes: u32 },
+    HelpersReady {
+        minutes: u32,
+    },
     /// The subject regular's order card shows a "remember" mark; `trust` extra when served.
-    RememberRegular { trust: f32 },
+    RememberRegular {
+        trust: f32,
+    },
     /// The subject table is fixed: wobble gone, beauty ±.
-    FixTable { beauty: f32 },
+    FixTable {
+        beauty: f32,
+    },
     /// The subject menu item is in the spotlight tonight: helpers prep × `prep_mul`.
-    ItemSpotlight { prep_mul: f32 },
+    ItemSpotlight {
+        prep_mul: f32,
+    },
     /// Open swap requests are more likely to be picked up by colleagues tonight.
     SwapBoard,
 }
@@ -619,7 +671,10 @@ mod tests {
                 Cond::X(XCondition::QuietHour)
             ]))
         );
-        assert!(matches!(c[3], Cond::Core(Condition::ServedFastStreak { .. })));
+        assert!(matches!(
+            c[3],
+            Cond::Core(Condition::ServedFastStreak { .. })
+        ));
     }
 
     #[test]

@@ -114,7 +114,9 @@ pub enum TutAnchor {
 pub enum TutDone {
     Event(TutEvent),
     /// Only "Got it" (or a timeout of `seconds` real seconds).
-    GotIt { seconds: f32 },
+    GotIt {
+        seconds: f32,
+    },
 }
 
 /// Whose voice the tip is in: Karolina's thoughts, or Lida's note (amber italics).

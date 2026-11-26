@@ -362,4 +362,3 @@ impl DecorFile {
         self.themes.iter().find(|t| t.default)
     }
 }
-

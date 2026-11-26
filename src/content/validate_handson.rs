@@ -3,12 +3,12 @@
 
 use std::collections::{BTreeSet, HashSet};
 
+use super::{Index, check_placeholders, duplicates};
 use crate::content::handson::keys::UI_KEYS;
 use crate::content::handson::logic::{XRef, visit_conds, visit_fx, walk_fx};
 use crate::content::handson::*;
-use crate::content::{Content, MUSIC_TRACKS};
-use super::{Index, check_placeholders, duplicates};
 use crate::content::logic::Ref;
+use crate::content::{Content, MUSIC_TRACKS};
 use crate::i18n::I18n;
 
 /// Ids of everything hands-on, for resolving [`XRef`]s.
@@ -27,7 +27,12 @@ impl<'a> HIndex<'a> {
     fn build(h: &'a HandsOn) -> HIndex<'a> {
         HIndex {
             recipes: h.recipes.recipes.iter().map(|r| r.id.as_str()).collect(),
-            ingredients: h.recipes.ingredients.iter().map(|r| r.id.as_str()).collect(),
+            ingredients: h
+                .recipes
+                .ingredients
+                .iter()
+                .map(|r| r.id.as_str())
+                .collect(),
             moments: h.moments.iter().map(|m| m.id.as_str()).collect(),
             records: h.records.records.iter().map(|r| r.id.as_str()).collect(),
             themes: h.decor.themes.iter().map(|t| t.id.as_str()).collect(),
@@ -102,7 +107,9 @@ impl Ctx<'_, '_> {
 
     fn guest_or_regular(&mut self, id: &str, ctx: &str) {
         if !self.ix.guests.contains(id) && !self.ix.regulars.contains_key(id) {
-            self.push(format!("{ctx}: `{id}` is neither a guest archetype nor a regular"));
+            self.push(format!(
+                "{ctx}: `{id}` is neither a guest archetype nor a regular"
+            ));
         }
     }
 
@@ -138,7 +145,12 @@ pub(super) fn theme_tag_ok(c: &Content, tag: &str) -> bool {
 pub(super) fn validate(c: &Content, i18n: &I18n, ix: &Index<'_>, out: &mut Vec<String>) {
     let h = &c.handson;
     let hx = HIndex::build(h);
-    let mut v = Ctx { ix, hx: &hx, i18n, out };
+    let mut v = Ctx {
+        ix,
+        hx: &hx,
+        i18n,
+        out,
+    };
 
     // --- unique ids -------------------------------------------------------------------------
     duplicates(
@@ -146,19 +158,43 @@ pub(super) fn validate(c: &Content, i18n: &I18n, ix: &Index<'_>, out: &mut Vec<S
         h.recipes.ingredients.iter().map(|x| x.id.as_str()),
         v.out,
     );
-    duplicates("recipes", h.recipes.recipes.iter().map(|x| x.id.as_str()), v.out);
-    duplicates("wishes", h.wishes.wishes.iter().map(|x| x.id.as_str()), v.out);
+    duplicates(
+        "recipes",
+        h.recipes.recipes.iter().map(|x| x.id.as_str()),
+        v.out,
+    );
+    duplicates(
+        "wishes",
+        h.wishes.wishes.iter().map(|x| x.id.as_str()),
+        v.out,
+    );
     duplicates("moments", h.moments.iter().map(|x| x.id.as_str()), v.out);
-    duplicates("records", h.records.records.iter().map(|x| x.id.as_str()), v.out);
-    duplicates("themes", h.decor.themes.iter().map(|x| x.id.as_str()), v.out);
-    duplicates("season phases", h.seasons.phases.iter().map(|x| x.id.as_str()), v.out);
+    duplicates(
+        "records",
+        h.records.records.iter().map(|x| x.id.as_str()),
+        v.out,
+    );
+    duplicates(
+        "themes",
+        h.decor.themes.iter().map(|x| x.id.as_str()),
+        v.out,
+    );
+    duplicates(
+        "season phases",
+        h.seasons.phases.iter().map(|x| x.id.as_str()),
+        v.out,
+    );
     duplicates(
         "latte patterns",
         h.minigames.latte_patterns.iter().map(|x| x.id.as_str()),
         v.out,
     );
     duplicates("tutorial", h.tutorial.iter().map(|x| x.id.as_str()), v.out);
-    duplicates("napkins", h.extras.napkins.iter().map(|x| x.id.as_str()), v.out);
+    duplicates(
+        "napkins",
+        h.extras.napkins.iter().map(|x| x.id.as_str()),
+        v.out,
+    );
     for kind in MiniGameKind::ALL {
         duplicates(
             &format!("minigame {} variants", kind.id()),
@@ -193,7 +229,12 @@ pub(super) fn validate(c: &Content, i18n: &I18n, ix: &Index<'_>, out: &mut Vec<S
         }
     }
     for e in &h.tuning.rozpis.life_events {
-        check_placeholders(i18n, &format!("app.request.{}", e.id), &e.placeholders, v.out);
+        check_placeholders(
+            i18n,
+            &format!("app.request.{}", e.id),
+            &e.placeholders,
+            v.out,
+        );
     }
     for o in &c.app.handover_options {
         check_placeholders(i18n, &o.key(), &o.placeholders, v.out);
@@ -243,7 +284,9 @@ fn tuning(v: &mut Ctx, h: &HandsOn) {
     }
     let m = &t.match_tiers;
     if !(m.perfect > m.good && m.good > m.okay && m.okay > 0.0) {
-        v.push(format!("{ctx}: match tiers must be perfect > good > okay > 0"));
+        v.push(format!(
+            "{ctx}: match tiers must be perfect > good > okay > 0"
+        ));
     }
     let mut last = 0;
     for w in &t.wish_chance {
@@ -267,7 +310,10 @@ fn tuning(v: &mut Ctx, h: &HandsOn) {
         }
     }
     if !v.ix.traits.contains(t.capacity.trait_bonus.as_str()) {
-        v.push(format!("{ctx}: capacity trait `{}` unknown", t.capacity.trait_bonus));
+        v.push(format!(
+            "{ctx}: capacity trait `{}` unknown",
+            t.capacity.trait_bonus
+        ));
     }
     if t.capacity.base == 0 || t.capacity.base > t.capacity.max {
         v.push(format!("{ctx}: bad capacity base/max"));
@@ -279,7 +325,9 @@ fn tuning(v: &mut Ctx, h: &HandsOn) {
     let r = &t.rozpis;
     let rctx = "handson.ron rozpis";
     if r.rings.windows(2).any(|w| w[0].min <= w[1].min) || r.rings.is_empty() {
-        v.push(format!("{rctx}: rings must be sorted by min, highest first"));
+        v.push(format!(
+            "{rctx}: rings must be sorted by min, highest first"
+        ));
     }
     if r.week_icons.windows(2).any(|w| w[0] >= w[1]) {
         v.push(format!("{rctx}: week_icons must ascend"));
@@ -347,7 +395,9 @@ fn recipes(v: &mut Ctx, c: &Content) {
         }
         for rev in &r.revealed {
             if !r.ingredients.contains(rev) {
-                v.push(format!("{ctx}: revealed `{rev}` is not one of its ingredients"));
+                v.push(format!(
+                    "{ctx}: revealed `{rev}` is not one of its ingredients"
+                ));
             }
         }
         let set = r.ingredient_set();
@@ -360,10 +410,7 @@ fn recipes(v: &mut Ctx, c: &Content) {
         }
         for var in &r.variants {
             if !h.minigames.has_variant(r.minigame, var) {
-                v.push(format!(
-                    "{ctx}: {} has no variant `{var}`",
-                    r.minigame.id()
-                ));
+                v.push(format!("{ctx}: {} has no variant `{var}`", r.minigame.id()));
             }
         }
         if r.minigame.tier() != Tier::Must {
@@ -391,7 +438,9 @@ fn recipes(v: &mut Ctx, c: &Content) {
                 if c.menu_item(&r.base_item)
                     .is_some_and(|m| m.unlock_night <= 1 && m.unlock_flag.is_none())
                 {
-                    v.push(format!("{ctx}: WithMenu but the base item is on the menu from night 1"));
+                    v.push(format!(
+                        "{ctx}: WithMenu but the base item is on the menu from night 1"
+                    ));
                 }
             }
             RecipeUnlock::Starter | RecipeUnlock::Experiment => {}
@@ -400,11 +449,14 @@ fn recipes(v: &mut Ctx, c: &Content) {
             v.push(format!("{ctx}: not experimentable — needs a gated_hint"));
         }
         if r.unlock == RecipeUnlock::Experiment && !r.experimentable {
-            v.push(format!("{ctx}: Experiment unlock but experimentable: false"));
+            v.push(format!(
+                "{ctx}: Experiment unlock but experimentable: false"
+            ));
         }
-        if !matches!(r.unlock, RecipeUnlock::Starter | RecipeUnlock::WithMenu) && r.hint.is_none()
-        {
-            v.push(format!("{ctx}: needs a source hint for its silhouette card"));
+        if !matches!(r.unlock, RecipeUnlock::Starter | RecipeUnlock::WithMenu) && r.hint.is_none() {
+            v.push(format!(
+                "{ctx}: needs a source hint for its silhouette card"
+            ));
         }
     }
     for i in &rf.ingredients {
@@ -450,7 +502,9 @@ fn wishes(v: &mut Ctx, c: &Content) {
                 v.push(format!("{ctx}: a personal wish must have who: [\"{reg}\"]"));
             }
         } else if w.who.iter().any(|x| v.ix.regulars.contains_key(x.as_str())) {
-            v.push(format!("{ctx}: a wish for a regular needs the `<regular>.` id prefix"));
+            v.push(format!(
+                "{ctx}: a wish for a regular needs the `<regular>.` id prefix"
+            ));
         }
         if let Some(l) = &w.latte
             && !v.hx.lattes.contains(l.as_str())
@@ -499,7 +553,9 @@ fn moments(v: &mut Ctx, c: &Content) {
             v.push(format!("{ctx}: follow-up moment never spawned"));
         }
         if m.weight <= 0.0 || m.per_night_max == 0 || m.expires_minutes == 0 {
-            v.push(format!("{ctx}: weight, per_night_max and expires_minutes must be > 0"));
+            v.push(format!(
+                "{ctx}: weight, per_night_max and expires_minutes must be > 0"
+            ));
         }
         match &m.anchor {
             MomentAnchor::Tag(t) => v.tag(t, &ctx),
@@ -556,15 +612,24 @@ fn minigames(v: &mut Ctx, c: &Content) {
         if let Some(p) = &lv.pattern
             && !v.hx.lattes.contains(p.as_str())
         {
-            v.push(format!("{ctx}: latte variant `{}` uses unknown pattern `{p}`", lv.variant));
+            v.push(format!(
+                "{ctx}: latte variant `{}` uses unknown pattern `{p}`",
+                lv.variant
+            ));
         }
     }
     for t in &mg.tea_steep {
         if !(1.0..=5.0).contains(&t.target) {
-            v.push(format!("{ctx}: tea `{}` target must be on the 1–5 scale", t.variant));
+            v.push(format!(
+                "{ctx}: tea `{}` target must be on the 1–5 scale",
+                t.variant
+            ));
         }
         if !TEA_KINDS.contains(&t.tea_kind.as_str()) {
-            v.push(format!("{ctx}: tea `{}` kind `{}` unknown", t.variant, t.tea_kind));
+            v.push(format!(
+                "{ctx}: tea `{}` kind `{}` unknown",
+                t.variant, t.tea_kind
+            ));
         }
     }
     for p in &mg.plate {
@@ -576,7 +641,10 @@ fn minigames(v: &mut Ctx, c: &Content) {
     }
     for m in &mg.mulled_spice {
         if m.spices.iter().any(|s| !m.tray.contains(s)) {
-            v.push(format!("{ctx}: mulled `{}` spices must be on the tray", m.variant));
+            v.push(format!(
+                "{ctx}: mulled `{}` spices must be on the tray",
+                m.variant
+            ));
         }
     }
 }
@@ -584,7 +652,12 @@ fn minigames(v: &mut Ctx, c: &Content) {
 fn records(v: &mut Ctx, c: &Content) {
     let rf = &c.handson.records;
     let ctx = "records.ron";
-    for t in [&rf.house.calm, &rf.house.rush, &rf.house.quiet, &rf.house.day] {
+    for t in [
+        &rf.house.calm,
+        &rf.house.rush,
+        &rf.house.quiet,
+        &rf.house.day,
+    ] {
         if !MUSIC_TRACKS.contains(&t.as_str()) {
             v.push(format!("{ctx}: unknown house track `{t}`"));
         }
@@ -592,7 +665,9 @@ fn records(v: &mut Ctx, c: &Content) {
     let moods: Vec<HallMood> = rf.moods.iter().map(|m| m.mood).collect();
     for mood in HallMood::ALL {
         if moods.iter().filter(|m| **m == mood).count() != 1 {
-            v.push(format!("{ctx}: mood {mood:?} must have exactly one effect entry"));
+            v.push(format!(
+                "{ctx}: mood {mood:?} must have exactly one effect entry"
+            ));
         }
     }
     for m in &rf.moods {
@@ -611,7 +686,9 @@ fn records(v: &mut Ctx, c: &Content) {
     }
     let starters = rf.records.iter().filter(|r| r.is_starter()).count();
     if starters != 3 {
-        v.push(format!("{ctx}: exactly 3 starter records, found {starters}"));
+        v.push(format!(
+            "{ctx}: exactly 3 starter records, found {starters}"
+        ));
     }
     for r in &rf.records {
         let rctx = format!("record `{}`", r.id);
@@ -656,7 +733,11 @@ fn seasons(v: &mut Ctx, c: &Content) {
                 v.push(format!("{ctx}: unknown latte `{l}`"));
             }
         }
-        for m in p.moments.iter().chain(p.moment_weight.iter().map(|(m, _)| m)) {
+        for m in p
+            .moments
+            .iter()
+            .chain(p.moment_weight.iter().map(|(m, _)| m))
+        {
             if !v.hx.moments.contains(m.as_str()) {
                 v.push(format!("{ctx}: unknown moment `{m}`"));
             }
@@ -668,7 +749,9 @@ fn seasons(v: &mut Ctx, c: &Content) {
         }
     }
     if covered[1..].iter().any(|n| *n != 1) {
-        v.push(format!("seasons.ron: story phases must cover nights 1..={total} exactly once"));
+        v.push(format!(
+            "seasons.ron: story phases must cover nights 1..={total} exactly once"
+        ));
     }
     for sp in &s.sandbox {
         if !v.hx.phases.contains(sp.phase.as_str()) {
@@ -696,7 +779,13 @@ fn decor(v: &mut Ctx, c: &Content) {
             v.push(format!("{ctx}: accent_tag must be `theme:{}`", t.id));
         }
         let tn = &t.tints;
-        for col in [&tn.wall, &tn.wall_trim, &tn.floor, &tn.textile, &tn.lampshade] {
+        for col in [
+            &tn.wall,
+            &tn.wall_trim,
+            &tn.floor,
+            &tn.textile,
+            &tn.lampshade,
+        ] {
             if !hex(col) {
                 v.push(format!("{ctx}: colour `{col}` must be #RRGGBB"));
             }
@@ -740,7 +829,9 @@ fn decor(v: &mut Ctx, c: &Content) {
     }
     for comp in CozyComponent::ALL {
         if cz.weights.iter().filter(|(x, _)| *x == comp).count() != 1 {
-            v.push(format!("decor.ron: coziness weight for {comp:?} missing or repeated"));
+            v.push(format!(
+                "decor.ron: coziness weight for {comp:?} missing or repeated"
+            ));
         }
     }
     if cz.levels.windows(2).any(|w| w[0] >= w[1]) {
@@ -769,6 +860,25 @@ fn journal(v: &mut Ctx, c: &Content) {
             v.push(format!("journal.ron: unknown moment `{m}`"));
         }
     }
+    // every moment that captures a MomentWarm highlight needs its caption, and vice versa
+    for m in &c.handson.moments {
+        let mut warm = false;
+        for o in &m.options {
+            walk_fx(&o.effects, &mut |e| {
+                if matches!(e, Fx::X(XEffect::Highlight(HighlightKind::MomentWarm))) {
+                    warm = true;
+                }
+            });
+        }
+        if warm != j.moments.contains(&m.id) {
+            v.push(format!(
+                "journal.ron: moment `{}` {} a MomentWarm highlight but is {}listed in `moments`",
+                m.id,
+                if warm { "captures" } else { "doesn't capture" },
+                if warm { "not " } else { "" }
+            ));
+        }
+    }
     v.unit(j.full_house_share, "full_house_share", "journal.ron");
 }
 
@@ -780,9 +890,9 @@ fn tutorial(v: &mut Ctx, c: &Content) {
             v.push(format!("{ctx}: night out of range"));
         }
         match &s.trigger {
-            TutTrigger::After(prev) if !seen.contains(prev.as_str()) => {
-                v.push(format!("{ctx}: `After` must name an earlier step, not `{prev}`"))
-            }
+            TutTrigger::After(prev) if !seen.contains(prev.as_str()) => v.push(format!(
+                "{ctx}: `After` must name an earlier step, not `{prev}`"
+            )),
             TutTrigger::RegularArrives(r) => v.regular(r, &ctx),
             _ => {}
         }
@@ -809,7 +919,10 @@ fn extras(v: &mut Ctx, c: &Content) {
     v.ix.check(Ref::Counter(&e.cat.counter), v.i18n, ctx, v.out);
     if e.cat.levels.windows(2).any(|w| w[0].level >= w[1].level)
         || e.cat.levels.first().map(|l| l.level) != Some(0)
-        || e.cat.levels.last().is_some_and(|l| l.level as i32 > e.cat.max)
+        || e.cat
+            .levels
+            .last()
+            .is_some_and(|l| l.level as i32 > e.cat.max)
     {
         v.push(format!("{ctx}: cat levels must ascend from 0 up to max"));
     }
@@ -830,7 +943,10 @@ fn extras(v: &mut Ctx, c: &Content) {
     for n in &e.cat.names {
         v.ix.check(Ref::Var("cat_name", n), v.i18n, ctx, v.out);
     }
-    if e.tip_goals.windows(2).any(|w| w[0].lifetime >= w[1].lifetime) {
+    if e.tip_goals
+        .windows(2)
+        .any(|w| w[0].lifetime >= w[1].lifetime)
+    {
         v.push(format!("{ctx}: tip goals must ascend"));
     }
     for g in &e.tip_goals {
@@ -882,7 +998,11 @@ fn staff_and_guests(v: &mut Ctx, c: &Content) {
         if g.music_likes.iter().any(|r| g.music_dislikes.contains(r)) {
             v.push(format!("{ctx}: likes and dislikes the same record"));
         }
-        let ws: BTreeSet<String> = g.weather_mult.iter().map(|(w, _)| format!("{w:?}")).collect();
+        let ws: BTreeSet<String> = g
+            .weather_mult
+            .iter()
+            .map(|(w, _)| format!("{w:?}"))
+            .collect();
         if ws.len() != g.weather_mult.len() {
             v.push(format!("{ctx}: weather listed twice"));
         }
@@ -937,7 +1057,11 @@ fn app(v: &mut Ctx, c: &Content) {
         v.conds(&o.when, &ctx);
         v.fx(&o.next_night, &ctx);
     }
-    duplicates("insights", app.insights.iter().map(|o| o.id.as_str()), v.out);
+    duplicates(
+        "insights",
+        app.insights.iter().map(|o| o.id.as_str()),
+        v.out,
+    );
     match &app.payroll_rules {
         None => v.push("shiftella.ron: payroll_rules missing".into()),
         Some(p) => {
@@ -1002,7 +1126,10 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
     for n in 1..=h.recipes.experiment.nothing_lines {
         k.push(format!("experiment.nothing.{n}"));
     }
-    for kind in MiniGameKind::ALL.into_iter().filter(|k| k.tier() == Tier::Must) {
+    for kind in MiniGameKind::ALL
+        .into_iter()
+        .filter(|k| k.tier() == Tier::Must)
+    {
         k.push(kind.title_key());
     }
     k.extend(
@@ -1049,7 +1176,11 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
         k.extend([p.name_key(), p.toast_key()]);
     }
     if let Some(cal) = &c.story.calendar {
-        k.extend(cal.days.iter().map(crate::content::story::StoryCalendar::day_key));
+        k.extend(
+            cal.days
+                .iter()
+                .map(crate::content::story::StoryCalendar::day_key),
+        );
     }
     for t in &h.decor.themes {
         k.extend([t.name_key(), t.desc_key()]);
@@ -1076,9 +1207,7 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
             continue;
         }
         for st in reg.stages.iter().filter(|s| s.stage >= 1) {
-            k.push(
-                HighlightKind::ArcBeat.caption_key(Some(&format!("{}.{}", reg.id, st.stage))),
-            );
+            k.push(HighlightKind::ArcBeat.caption_key(Some(&format!("{}.{}", reg.id, st.stage))));
         }
     }
     for s in &h.journal.scenes {

@@ -2,7 +2,8 @@
 // Keys: staff.<id>.role / .bio / .likes / .dislikes. Wage = CZK per night (8 h).
 // In Story mode the archetype *is* the story person (story_name). Names are never translated.
 // Hands-on: default_duty = the duty the hire card proposes; prefs = the rozpis puzzle chips
-// (quotes: staff.<id>.pref.<n>). The first helpers (barista, cook, porter) come from night 3.
+// (quotes: staff.<id>.pref.<n>). handson.md moves the first hire to night 3 — pending T4 (the sim QA
+// tests still hire on night 2); story.ron already shows the hire hints on night 3.
 #![enable(implicit_some)]
 (
     archetypes: [
@@ -17,7 +18,7 @@
             gender: Female,
             age: (19, 27),
             wage: 1100,
-            hire_from_night: 3,
+            hire_from_night: 2,
             default_duty: Bar,
             prefs: [(kind: ShiftPref(Late), strength: Wish, quote: "staff.barista.pref.late"), (kind: DayOff(Sun), strength: Wish, quote: "staff.barista.pref.sunday")],
             name_pools: ["cs", "sk", "intl"],
@@ -39,7 +40,7 @@
             gender: Male,
             age: (40, 64),
             wage: 1350,
-            hire_from_night: 3,
+            hire_from_night: 2,
             default_duty: Kitchen,
             prefs: [(kind: NoBackToBack, strength: Need, quote: "staff.cook.pref.back"), (kind: ShiftPref(Full), strength: Wish, quote: "staff.cook.pref.full")],
             name_pools: ["cs", "sk", "uk", "intl"],
@@ -61,7 +62,7 @@
             gender: Male,
             age: (20, 35),
             wage: 950,
-            hire_from_night: 3,
+            hire_from_night: 2,
             default_duty: Dishes,
             prefs: [(kind: WorksWith("cook"), strength: Wish, quote: "staff.porter.pref.cook")],
             name_pools: ["cs", "sk", "intl"],

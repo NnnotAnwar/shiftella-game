@@ -75,7 +75,9 @@ pub enum BotHandler {
     /// A rail chip + a soft ping `minutes` before the subject time.
     RemindBefore(u32),
     /// Order the low ingredient group by drone (needs `drone_dock`; arrives in 30 min).
-    OrderDrone { minutes: u32 },
+    OrderDrone {
+        minutes: u32,
+    },
     /// Take the subject item off tonight's menu.
     MenuOff,
     /// Spawn / apply a moment now.

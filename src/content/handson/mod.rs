@@ -20,6 +20,9 @@ pub mod tuning;
 pub mod tutorial;
 pub mod wishes;
 
+#[cfg(test)]
+mod tests;
+
 pub use app::*;
 pub use extras::*;
 pub use journal::*;
@@ -145,7 +148,10 @@ impl HandsOn {
 
     /// Recipes riding on a menu item (the base recipe first).
     pub fn recipes_for_item<'a>(&'a self, item: &'a str) -> impl Iterator<Item = &'a RecipeDef> {
-        self.recipes.recipes.iter().filter(move |r| r.base_item == item)
+        self.recipes
+            .recipes
+            .iter()
+            .filter(move |r| r.base_item == item)
     }
 
     /// Recipes known on night 1.

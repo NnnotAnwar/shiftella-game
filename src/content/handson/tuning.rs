@@ -218,7 +218,7 @@ impl HandsonTuning {
             .iter()
             .filter(|w| night >= w.from_night)
             .map(|w| w.chance)
-            .last()
+            .next_back()
             .unwrap_or(0.0)
     }
 
