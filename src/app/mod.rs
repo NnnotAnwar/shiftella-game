@@ -195,11 +195,18 @@ fn env(name: &str) -> Option<String> {
     std::env::var(name).ok().filter(|s| !s.trim().is_empty())
 }
 
-fn env_minute() -> Option<u32> {
+/// `SHIFTELLA_TIME=HH:MM` as minutes since 22:00; 21:30–21:59 (the preparation half hour
+/// before the doors open) are negative.
+fn env_minute() -> Option<i32> {
     let t = env("SHIFTELLA_TIME")?;
     let (h, m) = t.split_once(':')?;
-    let (h, m): (u32, u32) = (h.parse().ok()?, m.parse().ok()?);
-    Some(((h + 24 - 22) % 24) * 60 + m)
+    let (h, m): (i32, i32) = (h.parse().ok()?, m.parse().ok()?);
+    let since = ((h + 24 - 22) % 24) * 60 + m;
+    Some(if since >= 24 * 60 - 30 {
+        since - 24 * 60
+    } else {
+        since
+    })
 }
 
 impl App {
@@ -284,7 +291,7 @@ impl App {
         let night = env("SHIFTELLA_NIGHT").and_then(|n| n.parse().ok());
         let minute = env_minute();
         let shot = env("SHIFTELLA_SHOT").is_some();
-        let story_at = |night: u32, minute: Option<u32>, i18n: &I18n, lang: Lang| {
+        let story_at = |night: u32, minute: Option<i32>, i18n: &I18n, lang: Lang| {
             let loc = Locale::new(i18n, lang);
             let mut g = GameScreen::new_story(&content, "cozy", true);
             g.fast_forward(&content, &loc, night, minute, night > 1);
@@ -361,11 +368,11 @@ impl App {
                 let mg = env("SHIFTELLA_MG");
                 match name {
                     "order_card" => g.play_headless(&content, &loc, 900.0, &|g| {
-                        g.world.minute() >= until && g.hands.order.is_some()
+                        g.world.minutes_since_open() >= until && g.hands.order.is_some()
                     }),
                     "minigame" => {
                         g.play_headless(&content, &loc, 900.0, &|g| {
-                            g.world.minute() >= until
+                            g.world.minutes_since_open() >= until
                                 && (g.hands.minigame.is_some() || g.hands.order.is_some())
                         });
                         // a chosen game for the guest on the card (or a seated guest)
@@ -401,7 +408,9 @@ impl App {
                             );
                         }
                     }
-                    _ => g.play_headless(&content, &loc, 900.0, &|g| g.world.minute() >= until),
+                    _ => g.play_headless(&content, &loc, 900.0, &|g| {
+                        g.world.minutes_since_open() >= until
+                    }),
                 }
                 if name == "jukebox" {
                     g.hands.records_open = true;
@@ -907,6 +916,9 @@ mod tests {
         // SAFETY: test-local variable, read right after.
         unsafe { std::env::set_var("SHIFTELLA_TIME", "03:33") };
         assert_eq!(env_minute(), Some(5 * 60 + 33));
+        // the preparation half hour before the doors open
+        unsafe { std::env::set_var("SHIFTELLA_TIME", "21:40") };
+        assert_eq!(env_minute(), Some(-20));
         unsafe { std::env::remove_var("SHIFTELLA_TIME") };
     }
 }

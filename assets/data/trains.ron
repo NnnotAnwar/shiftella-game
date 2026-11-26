@@ -15,6 +15,8 @@
     ],
     home: "holesovice",
     trains: [
+        // passes by during the preparation half hour (doors still closed: nobody comes in)
+        (id: "Nex 9047", kind: Freight, from: "ejpovice", to: "decin", arrives: "21:47", guests: (0, 0), guest: "train_crew"),
         (id: "Os 2141", kind: Regional, from: "adamov", to: "holesovice", arrives: "22:47", guests: (2, 5), guest: "travelers"),
         (id: "EN 471", kind: Night, from: "cheb", to: "frydlant", arrives: "00:15", guests: (4, 8), guest: "travelers"),
         (id: "Nex 9002", kind: Freight, from: "decin", to: "beroun", arrives: "01:52", guests: (0, 1), guest: "train_crew"),

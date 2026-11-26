@@ -41,11 +41,7 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     g.anchors.push(("panel", r));
     ui.region(r);
     let labels: Vec<(Icon, &str)> = TABS.iter().map(|(i, k)| (*i, loc.tr(k))).collect();
-    let time = if g.world.phase() == Phase::Night {
-        wv::clock_of_minute(g.world.minute())
-    } else {
-        "21:30".into()
-    };
+    let time = g.world.clock_label();
     let unread = super::hud::pending_requests(&g.world)
         + g.world
             .app()

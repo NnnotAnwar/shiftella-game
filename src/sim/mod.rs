@@ -41,6 +41,8 @@ mod tests_balance;
 #[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
+mod tests_prep;
+#[cfg(test)]
 mod tests_qa;
 #[cfg(test)]
 mod tests_sys;
@@ -119,6 +121,25 @@ pub(crate) fn trains_tick(w: &mut World, content: &Content) {
     }
 }
 
+/// The preparation half hour (21:30–22:00): a train timetabled before 22:00 only passes by
+/// outside — the doors are still closed, nobody gets off for the café. `m` = minutes since
+/// 22:00 (negative).
+pub(crate) fn prep_trains(w: &mut World, content: &Content, m: i32) {
+    for t in &content.trains.trains {
+        if t.arrives.minutes_since_open() != m || m >= 0 {
+            continue;
+        }
+        let mut ctx = EffectCtx::default();
+        if !logic::all(w, content, &t.announce_if, &mut ctx) {
+            continue;
+        }
+        w.emit(SimEvent::TrainPassing {
+            train: t.id.clone(),
+            station: t.from.clone(),
+        });
+    }
+}
+
 impl World {
     /// Hover bubble line for a guest (regulars' `ambient_lines`).
     pub fn ambient_line_for(&self, content: &Content, guest: u32) -> Option<String> {
@@ -152,9 +173,19 @@ impl World {
 impl World {
     /// Real seconds per tick at ×1 (`handson.ron`; 0.13 → 10.4 minutes + overlays). Integration:
     /// `acc += dt × speed × overlay; while acc >= this { tick }`.
+    /// During the preparation half hour (doors closed) a tick is `prep_tick_scale` of that.
     pub fn real_seconds_per_tick(&self, content: &Content) -> f32 {
-        let v = content.handson.tuning.real_seconds_per_tick_x1;
-        if v > 0.0 { v } else { REAL_SECONDS_PER_TICK_X1 }
+        let t = &content.handson.tuning;
+        let v = if t.real_seconds_per_tick_x1 > 0.0 {
+            t.real_seconds_per_tick_x1
+        } else {
+            REAL_SECONDS_PER_TICK_X1
+        };
+        if self.in_prep() {
+            v * t.prep_tick_scale.clamp(0.3, 1.0)
+        } else {
+            v
+        }
     }
     /// Sim dt multiplier while an overlay (order card, mini-game, book, moment card, the phone
     /// app) is open: Cozy 0.25, Classic 0.35; clamp the speed to ×1 meanwhile.

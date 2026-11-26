@@ -1494,6 +1494,28 @@ tonight. The whole Closing list → "Closed properly." → tomorrow's Opening it
 Sim: `ChecklistDef` += `owner, anchor, gesture`; `TickChecklist { id }` becomes a queued act for Karolina
 (walk + gesture); events `ChecklistTicked { id, by }`, `RitualComplete { list }`.
 
+**The preparation half hour (21:30–22:00, owner's decision 2026-11-26).** With the night starting at
+22:00 the seven opening items had to be done in ~40 real seconds while Mirek (22:04) and the first guests
+were already walking in — nobody managed it. Now "Start the night" begins at **21:30 with the doors
+closed**: rain, quiet music, the lights coming up, the sign on the door says *Closed*, **no guests**
+(no rushes, regulars, moments, events or story beats before 22:00; a freight train may pass by
+outside at 21:47). Karolina can do every opening item; helpers on tonight's rozpis walk in around
+21:38–21:45 and do their `Either` items first while nobody waits. At **22:00** the doors open (a bell,
+the sign flips to *Open*, toast "Doors open") and everything keyed to 22:00 stays there (story beats,
+trains, guests, the tutorial's Mirek at 22:04). The ritual deadline stays **22:30**, so a calm player
+finishes before the first guests and still has 30 minutes of service as slack.
+- **Clock & HUD:** the clock shows 21:30→; the night bar spans 21:30 → 06:00 (a faint prep stretch, a
+  white tick at 22:00, train markers incl. the prep freight); ×2/×3 work; **Open now** (beside the
+  coziness meter, prep only) opens the doors at once (`Command::OpenDoors`).
+- **Pacing:** prep ticks run at `prep_tick_scale` 0.7 of a normal tick (~27 real s at ×1), keeping
+  the evening at ~12–14 real minutes (bot: 13.4 → 13.9).
+- **Wages:** the preparation is **not paid** — the shift on the rozpis (and the payroll basis) is still
+  22:00–06:00; needs, mood drift and `minutes_worked` start at 22:00. (Paying it would shift weekly
+  hours, náhradní volno and the rozpis puzzle for little gain.)
+- **Tutorial night 1:** the window, the machine and the opening list (`checklist_open`) appear from
+  21:30, before Mirek.
+- **Bot:** opening ritual completed every night (rituals 0.4 → 1.0 per night of 2).
+
 ### 13.2 Rozpis
 §12.
 

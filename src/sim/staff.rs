@@ -519,9 +519,11 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
             );
         }
     }
-    // those starting at opening are already inside
+    // Karolina is already inside at 21:30; helpers starting at 22:00 walk in during the
+    // preparation half hour (`tick_staff`, from `PREP_CREW_ARRIVES`)
     for i in 0..w.staff.len() {
-        if w.staff[i].status == (StaffStatus::Expected { minute: 0 }) {
+        let prep = w.prep_left > 0 && !w.staff[i].owner;
+        if !prep && w.staff[i].status == (StaffStatus::Expected { minute: 0 }) {
             let t = idle_tile(w, content, i);
             let s = &mut w.staff[i];
             s.status = StaffStatus::OnDuty;
@@ -923,7 +925,12 @@ fn checklist_works(w: &World, content: &Content, job: Job, duty: Duty) -> Vec<Wo
             work: c.minutes.max(1) as f32
                 * TICKS_PER_MINUTE as f32
                 * super::tool::checklist_speed(w, content, &c.id),
-            rank: 5,
+            // before the doors open the opening items come first (nobody is waiting yet)
+            rank: if w.in_prep() && c.list == ChecklistKind::Opening {
+                0
+            } else {
+                5
+            },
         });
     }
     out
@@ -1167,9 +1174,20 @@ pub(crate) fn go(w: &mut World, idx: usize, goal: (i32, i32)) -> bool {
 
 pub(crate) fn tick_staff(w: &mut World, content: &Content) {
     let m = w.minute();
+    let prep = w.in_prep().then(|| w.prep_minute());
+    let mut helper = 0u32;
     for idx in 0..w.staff.len() {
+        // the early crew walks in a couple of minutes apart in the preparation (21:38–21:45);
+        // the late ones (and later shifts) come by the night clock as before
+        let arrives_now = |minute: u32, helper: u32| match prep {
+            Some(pm) => minute == 0 && pm >= PREP_CREW_ARRIVES + (helper * 2) % 8,
+            None => m >= minute,
+        };
+        if !w.staff[idx].owner {
+            helper += 1;
+        }
         match w.staff[idx].status {
-            StaffStatus::Expected { minute } if m >= minute => {
+            StaffStatus::Expected { minute } if arrives_now(minute, helper.saturating_sub(1)) => {
                 // arrives from the street
                 let edge = w.grid.street_edges()[idx % 2];
                 let t = idle_tile(w, content, idx);
@@ -1229,7 +1247,9 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
         }
         // choose something to do
         let idle = matches!(w.staff[idx].task, None | Some(Task::Idle { .. }));
-        if idle && (w.tick + idx as u32).is_multiple_of(2) {
+        // (every other tick per person; the prep ticks count too — the night clock stands still)
+        let beat = w.tick + PREP_TICKS.saturating_sub(w.prep_left);
+        if idle && (beat + idx as u32).is_multiple_of(2) {
             if let Some(b) = wants_break(w, content, idx) {
                 start_break(w, idx, b);
             } else if let Some(wk) = find_work(w, content, idx) {

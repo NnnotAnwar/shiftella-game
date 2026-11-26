@@ -75,6 +75,8 @@ pub struct WorldScene {
     candles_since: Option<f32>,
     /// Real seconds per game minute at ×1 (marker fade).
     pub sec_per_minute: f32,
+    /// `t` when the doors opened tonight (the door sign flips).
+    pub doors_opened_at: Option<f32>,
 }
 
 impl Default for WorldScene {
@@ -118,6 +120,7 @@ impl WorldScene {
             cozy_hint: None,
             candles_since: None,
             sec_per_minute: 1.5,
+            doors_opened_at: None,
         }
     }
 
@@ -412,7 +415,14 @@ impl WorldScene {
             weather = Weather::default();
         }
         // stage lights: 1 = the café as the sim has it, 0 = dark and closed
-        let level = cs.map_or(1.0, |p| {
+        // the preparation half hour: the café lights come up over its first minutes
+        let warm_up = if cs.is_none() && world.in_prep() {
+            let k = (world.prep_progress() / 0.2).clamp(0.0, 1.0);
+            0.55 + 0.45 * k * k * (3.0 - 2.0 * k)
+        } else {
+            1.0
+        };
+        let level = cs.map_or(warm_up, |p| {
             let l = p.scene.light_level();
             // closing time in the endings: dawn already greys the room, it never goes black
             if p.current_id().starts_with("ending") {

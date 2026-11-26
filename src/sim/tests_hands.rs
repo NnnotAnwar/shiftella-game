@@ -26,6 +26,7 @@ fn story_night(c: &Content, n: u32, d: Difficulty) -> World {
     bot::finish_cutscenes(&mut w, c);
     w.start_night(c);
     bot::finish_cutscenes(&mut w, c);
+    w.skip_prep(c);
     quiet(&mut w);
     w.drain_events();
     w
@@ -457,6 +458,7 @@ fn helpers_never_take_wishes_and_karolina_can_hand_one_off() {
     let helper = helper_with(&mut w, &c, &[Duty::Register, Duty::Bar, Duty::Serving]);
     bot::finish_cutscenes(&mut w, &c);
     w.start_night(&c);
+    w.skip_prep(&c);
     quiet(&mut w);
     let hi = w.staff.iter().position(|s| s.id == helper).unwrap();
     w.staff[hi].status = StaffStatus::OnDuty;

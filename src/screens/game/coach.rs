@@ -181,7 +181,7 @@ fn helpers(g: &GameScreen) -> usize {
 }
 
 /// Should the step appear now?
-fn trigger(g: &GameScreen, content: &crate::content::Content, id: &str) -> bool {
+pub(super) fn trigger(g: &GameScreen, content: &crate::content::Content, id: &str) -> bool {
     let after = |prev: &str| done(g, prev);
     let night = g.world.phase() == Phase::Night;
     let busy = g.hands.minigame.is_some();

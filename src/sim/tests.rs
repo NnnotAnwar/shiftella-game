@@ -558,6 +558,7 @@ fn choice_events_wait_and_default() {
     let c = content();
     let mut w = sandbox(&c, 8, Difficulty::Cozy);
     w.start_night(&c);
+    w.skip_prep(&c);
     finish_cutscenes(&mut w, &c);
     w.drain_events();
     w.debug_fire_event(&c, "staff_birthday");
@@ -603,6 +604,7 @@ fn blackout_and_later_effects_survive_a_save() {
     let c = content();
     let mut w = sandbox(&c, 9, Difficulty::Cozy);
     w.start_night(&c);
+    w.skip_prep(&c);
     finish_cutscenes(&mut w, &c);
     w.debug_fire_event(&c, "power_outage");
     assert!(w.blackout());
@@ -646,11 +648,15 @@ fn story_opening_cutscene_pauses_the_clock() {
             .contains(&SimEvent::PlayCutscene("opening".into()))
     );
     assert_eq!(w.playing_cutscene(), Some("opening"));
-    let t = w.minute();
+    let t = w.minutes_since_open();
+    assert_eq!(
+        t, -30,
+        "the night begins at 21:30 (the preparation half hour)"
+    );
     for _ in 0..50 {
         w.tick(&c);
     }
-    assert_eq!(w.minute(), t, "clock paused during a cutscene");
+    assert_eq!(w.minutes_since_open(), t, "clock paused during a cutscene");
     assert_eq!(
         w.apply(&c, Command::SetMusic { on: true }),
         Err(CommandError::CutscenePlaying)
@@ -667,7 +673,7 @@ fn story_opening_cutscene_pauses_the_clock() {
     for _ in 0..50 {
         w.tick(&c);
     }
-    assert!(w.minute() > t);
+    assert!(w.minutes_since_open() > t);
 }
 
 #[test]

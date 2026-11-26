@@ -81,6 +81,8 @@ pub struct BotNight {
     pub same_kind_max: u32,
     /// Sim ticks that ran under an overlay, and the real seconds those overlays took.
     pub overlay_ticks: u32,
+    /// Ticks of the preparation half hour (they run at `prep_tick_scale`).
+    pub prep_ticks: u32,
     pub overlay_seconds: f32,
     pub ticks: u32,
     pub max_rail: usize,
@@ -290,6 +292,9 @@ impl PlayerBot {
         while w.phase() == Phase::Night && !w.is_closed() && guard < NIGHT_TICKS * 3 {
             self.finish_scenes(w, content);
             self.step(w, content);
+            if w.in_prep() {
+                self.cur.prep_ticks += 1;
+            }
             w.tick(content);
             self.cur.ticks += 1;
             out.extend(w.drain_events());
@@ -298,8 +303,14 @@ impl PlayerBot {
         self.finish_scenes(w, content);
         out.extend(w.drain_events());
         let tick_s = w.real_seconds_per_tick(content);
-        self.cur.real_minutes = ((self.cur.ticks.saturating_sub(self.cur.overlay_ticks)) as f32
-            * tick_s
+        // the preparation half hour runs at `prep_tick_scale` of a tick
+        let prep_s = tick_s * content.handson.tuning.prep_tick_scale.clamp(0.3, 1.0);
+        let plain = self
+            .cur
+            .ticks
+            .saturating_sub(self.cur.overlay_ticks + self.cur.prep_ticks);
+        self.cur.real_minutes = (plain as f32 * tick_s
+            + self.cur.prep_ticks as f32 * prep_s
             + self.cur.overlay_seconds)
             / 60.0;
         self.cur.same_kind_max = longest_run(&self.kinds);
@@ -344,7 +355,8 @@ impl PlayerBot {
             return Some(t);
         }
         // rituals
-        if (1..30).contains(&m)
+        // (the preparation half hour first: the window before the doors open)
+        if (w.in_prep() || (1..30).contains(&m))
             && w.app()
                 .checklist
                 .iter()
@@ -885,7 +897,11 @@ impl PlayerBot {
                     crate::content::handson::ChecklistOwner::Karolina => {
                         !matches!(c.id.as_str(), "light_off_at_six" | "handover_note") || m >= 466
                     }
-                    crate::content::handson::ChecklistOwner::Either(d) => !helper_on(w, d),
+                    // (the last ten minutes before the doors open: whatever the crew hasn't
+                    // started, she does herself)
+                    crate::content::handson::ChecklistOwner::Either(d) => {
+                        !helper_on(w, d) || w.in_prep() && w.prep_minute() >= 20
+                    }
                 })
                 .map(|c| c.id.clone())
                 .collect();

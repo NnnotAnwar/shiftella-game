@@ -13,8 +13,9 @@ let mut world = World::new_story(&content, Difficulty::Cozy);          // fixed 
 ## 1. Frame loop (integration)
 
 ```rust
-// one tick = world.real_seconds_per_tick(&content) at ×1 (handson.ron: 0.15 s → a night is
-// 12 real minutes; sim::REAL_SECONDS_PER_TICK_X1 is the default). While an overlay is open
+// one tick = world.real_seconds_per_tick(&content) at ×1 (handson.ron: 0.13 s → a night is
+// 10.4 real minutes of sim; sim::REAL_SECONDS_PER_TICK_X1 is the default). Ask for it every
+// frame: during the preparation half hour it is × `prep_tick_scale` (0.7). While an overlay is open
 // (order card, mini-game, book, moment card, phone app) multiply dt by
 // world.overlay_scale(&content) (Cozy 0.1, Classic 0.35) and clamp the speed to ×1.
 if !paused {
@@ -37,8 +38,23 @@ for e in world.drain_events() { audio.on(&e); ui.on(&e); cutscenes.on(&e); }
   (read-only; clones the world — fine per step, not per frame). Queued cutscenes start one after
   another (each emits its own `PlayCutscene`).
 * Day phase: planning (hire, build, schedule, prices). `world.start_night(&content)` (or
-  `Command::StartNight`) → 22:00. At 06:00 the sim emits `NightEnded { summary }`, then (story)
-  `NightEnd` cutscenes / payment, the ending check, and `DayStarted { night }` for the next night.
+  `Command::StartNight`) → **21:30, the preparation half hour** (see below), then 22:00.
+  At 06:00 the sim emits `NightEnded { summary }`, then (story) `NightEnd` cutscenes / payment, the ending check, and `DayStarted { night }` for the next night.
+* **The preparation half hour (21:30–22:00).** The night begins with the doors closed:
+  `in_prep()` is true, `clock()` / `clock_label()` run 21:30 → 21:59, `minutes_since_open()`
+  is −30 … −1, while the night clock (`minute()`, `tick_count()`, `night_progress()`) stands at
+  0 / 22:00. `PREP_TICKS` (300) prep ticks run only the quiet systems: Karolina's queue (every
+  checklist item, records, specials), the crew on tonight's rozpis walking in from 21:38
+  (`PREP_CREW_ARRIVES`, a couple of minutes apart; their opening `Either` items come first
+  while nobody waits), tutorial `At("21:xx")` steps, trains timetabled before 22:00 passing by
+  outside (`Nex 9047` at 21:47; nobody gets off). **No** guests, rushes, regulars, moments,
+  story beats, narrator events, needs or wages: the shift (and the timesheet) still starts
+  at 22:00, so everything keyed to 22:00 stays there. The last prep tick (or
+  `Command::OpenDoors`, "Open the doors now", only in prep) emits
+  `SimEvent::DoorsOpened { early_minutes }`; the next tick is 22:00's first minute. The opening
+  ritual deadline is still 22:30. `evening_progress()` is 0–1 over 21:30 → 06:00 (the HUD bar),
+  `prep_progress()` 0–1 over the half hour. Tests: `World::skip_prep` (cfg(test)) plays it
+  through.
 * Headless: `world.run_night_headless(&content)` runs a whole night with **nobody behind the
   counter** (Karolina steps back: helpers do their duties, Cozy guests forgive). To play,
   use `sim::bot::PlayerBot::run_night` (§9).
@@ -63,6 +79,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | `CutsceneFinished { id, choices }`, `Talk { guest }` | see §1 / §4 |
 | `BuySupplies { amount }`, `SetAutoRestock { target }`, `SetPrice { item, price }`, `SetMenuItem { item, on }`, `RenameCafe { name }` | |
 | `TickChecklist { id }` (night), `PostAnnouncement { id, args }`, `WriteHandover { text }` | at night ticking an item is Karolina's act (she walks to it); jobless items (`light_window`, `handover_note`, `light_off_at_six`) are hers alone |
+| `OpenDoors` | "Open the doors now": ends the preparation half hour early (only before 22:00 → `WrongPhase` otherwise); emits `DoorsOpened`, the clock jumps to 22:00 |
 | Karolina: `PlayerTakeOrder`, `PlayerBrew`, `PlayerUsual`, `PlayerHandOff`, `PlayerCancel`, `PlayerQueue`, `PlayerUnqueue`, `PlayerWashProgress`, `PlayerGreet` | §9.1 |
 | `PlayRecord { id, repeat }`, `RecordFinished { id }`, `SetAssistWishes { on }` | §9.6; accessibility hand-off |
 
@@ -71,8 +88,10 @@ floors, lamps, duties, draft shifts, prices, menu). The stack clears at phase ch
 
 ## 3. Queries (read-only)
 
-* Time: `phase()`, `night()`, `minute()` (since 22:00), `tick_count()`, `clock()` / `clock_label()`,
-  `night_progress()` (for `render::ambient_for`), `weekday()`, `weather()`, `blackout()`, `music_on()`.
+* Time: `phase()`, `night()`, `minute()` (since 22:00; 0 through the preparation), `tick_count()`,
+  `clock()` / `clock_label()` (21:00 in the day, 21:30→ in the preparation), `minutes_since_open()`
+  (signed: −30 at 21:30), `in_prep()`, `doors_open()`, `prep_minute()`, `prep_progress()`,
+  `evening_progress()`, `night_progress()` (for `render::ambient_for`), `weekday()`, `weather()`, `blackout()`, `music_on()`.
 * Map: `grid()` → `Grid { width: 30, height: 18 }` — rows 0–15 = `map::CAFE_LAYOUT` frame (cutscene
   spots match), rows 16–17 = street/sidewalk in front of the door. `tile(x, y) → TileInfo { kind:
   Floor|Wall|Window|Door|Street, floor: Floor (id(): floor_wood|floor_tile|floor_carpet|pavement), room:
@@ -109,7 +128,7 @@ Audio/UI: `GuestArrived`, `GuestTurnedAway`, `GuestLeft`, `OrderTaken`, `OrderRe
 `ChoiceResolved`, `EventHint` (Foresight), `Toast { key }`, `Hint { key }`, `BotMessage { msg, template,
 key: "app.bot.<t>", args }`, `Speech { speaker, agent, key }` (beat lines, arc lines on arrival),
 `PlayCutscene`, `EndingReached`, `NoteFound`, `ItemGained/Lost`, `FlagSet`, `RegularArrived`, `ArcAdvanced`,
-`ClockStop`, `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`,
+`ClockStop`, `DoorsOpened { early_minutes }` (22:00, the preparation is over), `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`,
 `MenuUnlocked`, `FurnitureUnlocked`, `FurniturePlaced/Removed`, `DayStarted`, `NightStarted`, `NightEnded`.
 
 Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order card),
@@ -162,6 +181,8 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
 `world.save_to_string()` → RON with `version` (`SAVE_VERSION = 2`); `World::load_from_str(&text)`.
 Caches (walk masks, paths) rebuild on the next tick (or call `rebuild_caches(&content)` before queries).
 Same seed + same commands ⇒ identical saves (tested, also with the player-bot).
+A save made in the preparation half hour keeps `prep_left` (ticks until the doors open) and
+continues identically; saves without the field (0.1.0) load with the doors open.
 
 **v1 → v2:** every new field is `#[serde(default)]`. On load a version-1 world gets helpers'
 duties from their priority-1 jobs (cleaning → dishes), Karolina's autopilot task dropped, and on
@@ -291,6 +312,11 @@ goes to the front of her queue, the order card proposes Quick once a night had
 keeps a colleague's pref (so the story crew gets a happy week from Auto-fill alone).
 `sim_balance` prints a T9 line (todo peak p50/p90, overlay minutes, payments by run, endings,
 cat affection); `SIM_TOWN=1` lists sandbox towns. Locks: `src/sim/tests_balance.rs`.
+**Preparation half hour:** the bot lights the window and queues the opening items from 21:30;
+`Either` items wait for a helper holding the duty until 21:50, then she does what's left.
+`BotNight::prep_ticks` count at `prep_tick_scale` in `real_minutes`. Story Cozy, 8 seeds × 30
+nights: night 13.4 → 13.9 real min, rituals 0.4 → 1.0 per night (the opening list is ready by
+21:50–21:59 every night), mini-games 11.8, forgiven 8.8 %, idle 6.8 %, payments 40/40.
 
 ## 10. Sim systems (T5: design/handson.md §4–§6, §11–§13)
 

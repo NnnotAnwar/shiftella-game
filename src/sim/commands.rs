@@ -654,6 +654,13 @@ impl World {
                 super::staff::start_break(self, i, task);
                 Ok(())
             }
+            Command::OpenDoors => {
+                if !self.in_prep() {
+                    return Err(CommandError::WrongPhase);
+                }
+                self.open_doors(content);
+                Ok(())
+            }
             Command::StartNight => {
                 if self.phase != Phase::Day {
                     return Err(CommandError::WrongPhase);

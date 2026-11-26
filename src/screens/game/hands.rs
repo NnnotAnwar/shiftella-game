@@ -589,15 +589,17 @@ impl GameScreen {
                         },
                     );
                 }
-                if self.world.window_light_on(content) {
-                    return false;
-                }
+                // (a lamp still on from last night — no light at six — counts once she
+                // has checked it: the opening item is ticked either way)
                 let open = self
                     .world
                     .app()
                     .checklist
                     .iter()
                     .any(|c| c.id == "light_window" && !c.done && c.claim.is_none());
+                if !open && self.world.window_light_on(content) {
+                    return false;
+                }
                 open && self.hand(
                     content,
                     Command::TickChecklist {

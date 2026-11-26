@@ -278,6 +278,59 @@ pub fn draw_world(
             );
         }
     }
+    // the little sign on the door: "Closed" through the preparation half hour, it flips to
+    // "Open" at 22:00
+    if let Some(&(dx, dy)) = g.world.grid().door_tiles().first() {
+        let open = g.world.doors_open();
+        let label = loc.tr_owned(if open {
+            "prep.sign.open"
+        } else {
+            "prep.sign.closed"
+        });
+        let flip = g
+            .scene
+            .doors_opened_at
+            .map(|at| ((t - at) / 0.7).clamp(0.0, 1.0))
+            .unwrap_or(1.0);
+        // a quick turn on its string: narrow → full width (the new side)
+        let sx = (flip * std::f32::consts::PI).cos().abs().max(0.08);
+        let c = vec2(dx as f32 + 0.5, dy as f32 + 0.1) * TILE;
+        let w = (render::world_text_width(&label, 11.0) + 12.0) * sx;
+        let r = Rect::new(c.x - w / 2.0, c.y - 9.0, w, 18.0);
+        let base = if open {
+            Color::new(0.06, 0.6, 0.45, 0.95)
+        } else {
+            Color::new(0.62, 0.22, 0.32, 0.92)
+        };
+        draw_line(
+            c.x - 6.0,
+            r.y,
+            c.x,
+            r.y - 6.0,
+            1.0,
+            Color::new(0.8, 0.7, 0.5, 0.8),
+        );
+        draw_line(
+            c.x + 6.0,
+            r.y,
+            c.x,
+            r.y - 6.0,
+            1.0,
+            Color::new(0.8, 0.7, 0.5, 0.8),
+        );
+        if open && flip < 1.0 {
+            draw_circle(
+                c.x,
+                c.y,
+                18.0 * (1.0 - flip),
+                Color::new(0.2, 0.9, 0.6, 0.25),
+            );
+        }
+        crate::ui::draw::fill_rrect(r, 3.0, base);
+        if sx > 0.6 {
+            render::world_text(&label, vec2(c.x, r.y + 13.5), 11.0, WHITE, true);
+        }
+    }
     // marks over guests: "!" waiting to order, a check when she's on it, the usual, water,
     // and the wish bubble while a wish waits for a recipe
     let me = g.world.karolina().map(|k| k.id);

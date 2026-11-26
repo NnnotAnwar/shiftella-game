@@ -26,6 +26,7 @@ fn night(c: &Content, n: u32) -> World {
     bot::finish_cutscenes(&mut w, c);
     w.start_night(c);
     bot::finish_cutscenes(&mut w, c);
+    w.skip_prep(c);
     quiet(&mut w);
     w.drain_events();
     w
@@ -1102,6 +1103,7 @@ fn cover_other_moves_a_late_helpers_duty_until_they_arrive() {
         w.apply(&c, Command::Hire { candidate: id }).unwrap();
     }
     w.start_night(&c);
+    w.skip_prep(&c);
     let helpers: Vec<u32> = w
         .staff()
         .iter()
@@ -1298,6 +1300,18 @@ fn the_night_one_tutorial_brings_mirek_early() {
     bot::finish_cutscenes(&mut w, &c);
     w.start_night(&c);
     bot::finish_cutscenes(&mut w, &c);
+    // the preparation half hour first: nobody comes in before the doors open
+    let prep = ticks(&mut w, &c, PREP_TICKS);
+    assert!(
+        prep.iter()
+            .any(|e| matches!(e, SimEvent::DoorsOpened { .. }))
+    );
+    assert!(!prep.iter().any(|e| matches!(
+        e,
+        SimEvent::RegularArrived { .. } | SimEvent::GuestArrived { .. }
+    )));
+    assert_eq!(w.clock_label(), "22:00");
+    // Mirek still comes at 22:04
     let ev = ticks(&mut w, &c, 6 * TICKS_PER_MINUTE);
     assert!(
         ev.iter()

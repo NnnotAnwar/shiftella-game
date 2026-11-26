@@ -155,12 +155,20 @@ pub struct QuietHour {
     pub toast: String,
 }
 
+fn default_prep_tick_scale() -> f32 {
+    0.7
+}
+
 /// `assets/data/handson.ron`.
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct HandsonTuning {
     /// Real seconds per sim tick at ×1 (0.15 → a night is 12 real minutes).
     pub real_seconds_per_tick_x1: f32,
+    /// Real seconds per tick × this during the preparation half hour (21:30–22:00, doors
+    /// closed): 0.7 → the half hour is ~27 real seconds at ×1 instead of 39.
+    #[serde(default = "default_prep_tick_scale")]
+    pub prep_tick_scale: f32,
     pub overlay_scale: OverlayScale,
     pub player_walk_mul: f32,
     pub player_work_mul: f32,

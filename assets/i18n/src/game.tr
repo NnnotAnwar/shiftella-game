@@ -583,10 +583,10 @@ uk Нове в меню: {item}
 ru Новое в меню: {item}
 
 ui.ticker.night_started
-cs Noc {night} začíná · 22:00
-en Night {night} begins · 22:00
-uk Ніч {night} починається · 22:00
-ru Ночь {night} начинается · 22:00
+cs Noc {night} začíná · otevíráme ve 22:00
+en Night {night} begins · doors at 22:00
+uk Ніч {night} починається · відчиняємо о 22:00
+ru Ночь {night} начинается · открываемся в 22:00
 
 ui.ticker.note_found
 cs Babiččin lístek nalezen ({n} z 10)

@@ -1,7 +1,7 @@
 # Playing Shiftella
 
 You inherit grandma Lida's night café, Café Nocturne, next to Praha-Holešovice station in Prague.
-It opens at 22:00 and closes at 06:00. Keep the light in the window on, keep the regulars
+Its doors open at 22:00 and it closes at 06:00. Keep the light in the window on, keep the regulars
 warm, pay off the debt — or let the café go, gently. Nothing here is meant to stress you.
 
 ## The rhythm
@@ -10,11 +10,22 @@ warm, pay off the debt — or let the café go, gently. Nothing here is meant to
    money, the next debt payment, who may drop by, train times, how many people are on shift.
    Hire people (**C**), arrange the rozpis in the Shiftella app (**T**), build (**B**), and
    decide who helps with what tonight (**H**, duties). Press **Start the night** (or **Enter**).
-2. **Night — you work behind the counter.** Karolina does the café's real work herself:
+2. **21:30 — the preparation half hour.** The night begins with the doors closed (the little
+   sign on the door says *Closed*): rain, quiet music, the lights coming up, no guests. Do the
+   opening list in peace — light the window, warm up the machine, check the fridge, wipe the
+   tables, count the float, chalk tonight's specials, put on a record (Shiftella **T** →
+   checklists, or click the ticks on the furniture). Helpers on tonight's rozpis walk in around
+   21:40 and do the items of their duties. The whole list by 22:30 → *"The café is ready."*
+   (crew mood +2, coziness +2 tonight). The half hour runs a little quicker than the night
+   (about 27 seconds at ×1); ×2/×3 work, and **Open now** beside the coziness meter opens the
+   doors at once (the clock jumps to 22:00). A freight train passes by outside at 21:47.
+3. **22:00 — the doors open** (a bell, the sign flips to *Open*, toast *Doors open*) and the
+   night goes on as always: guests, trains, regulars, Mirek's early visit on night 1 at 22:04.
+4. **Night — you work behind the counter.** Karolina does the café's real work herself:
    greet guests, take their orders, read their wishes, brew, serve, pick up the tips, clear,
    wash up and mop. Helpers (from night 3) only do the duties you give them. Events pop up as
    toasts; some have buttons (they wait while paused, and fall back to a default after a while).
-3. **Morning.** A short summary of the night: guests, revenue, tips, wages, costs, reputation,
+5. **Morning.** A short summary of the night: guests, revenue, tips, wages, costs, reputation,
    grandma's notes found — and the night's polaroid developing beside it. Then the next day
    begins (and the game autosaves).
 
@@ -162,7 +173,8 @@ the clock crawls.
   act right now says why and the message stays open. (The bot never does clock-ins.)
 * **Board** — announcements; at closing (from 05:00) pick up to two handover notes for
   tomorrow — each one does something next night.
-* **Checklists** — the opening and closing rituals, with whose job each item is.
+* **Checklists** — the opening and closing rituals, with whose job each item is. The
+  opening list fits in the preparation half hour (21:30–22:00) before the first guests.
 * **Night digest** — last night's numbers and up to four insights, each with a link
   (Rozpis, Recipe book, Pantry, Build, Duties…).
 * **Payroll basis** (podklady pro mzdy) — the week's hours and wages, the tip split (all to
@@ -171,7 +183,8 @@ the clock crawls.
 
 ## Saving
 
-* Autosave: at the start of every day and when you quit.
+* Autosave: at the start of every day and when you quit. A save made in the preparation
+  half hour loads there (doors still closed); 0.1.0 saves load as before.
 * Three manual slots in the pause menu (**Esc** → Save game / Load game).
 * **Continue** in the main menu loads the most recent save.
 * Files: `~/Library/Application Support/Shiftella/saves/` (fallback `./saves/`).
@@ -180,6 +193,8 @@ the clock crawls.
 
 * The first two nights are yours alone; the first helper can start on night 3 (crew panel).
 * Give each helper one clear duty first (dishes is a good start) — the guests stay yours.
+* The night bar runs 21:30 → 06:00: the faint first stretch is the preparation (doors
+  closed), the white tick is 22:00.
 * Trains bring small rushes (the markers on the night progress bar). Quick-brew the plain
   tickets and keep the wishes for by hand.
 * Pendant lamps, plants and a rug make the hall nicer; guests stay happier.
@@ -195,3 +210,6 @@ the game still renders every frame and the screenshot is the real picture (`src/
 `SHIFTELLA_HIDDEN=0` keeps the window visible, e.g. to watch an autoplay run. Prefer the
 headless checks (`cargo test`, `game_autoplay`, `sim_balance`, `sim_headless`) where a
 picture isn't needed.
+
+`SHIFTELLA_TIME=HH:MM` also takes the preparation half hour: `21:30`–`21:59` start the night
+before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`).
