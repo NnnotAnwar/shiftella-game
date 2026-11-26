@@ -6,6 +6,7 @@ pub mod audio;
 pub mod camera;
 pub mod clock;
 pub mod content;
+pub mod crashlog;
 pub mod cutscene;
 pub mod i18n;
 pub mod map;

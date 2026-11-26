@@ -2270,6 +2270,8 @@
     "ui.settings.fullscreen": "Повний екран",
     "ui.settings.language": "Мова",
     "ui.settings.mute": "Вимкнути звук (M)",
+    "ui.settings.open_log": "Тека з логом",
+    "ui.settings.open_log_tip": "Відкриває теку з файлом shiftella.log (запис про збої гри). Нічого нікуди не надсилається.",
     "ui.settings.pause_on_events": "Пауза під час важливих подій",
     "ui.settings.relaxed_minigames": "Спокійні мініігри",
     "ui.settings.reset": "Скинути до типових",

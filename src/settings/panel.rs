@@ -219,10 +219,25 @@ pub fn settings_panel(ui: &mut Ui, loc: &Locale, s: &mut Settings, r: Rect) -> S
     if ui.button("set_back", br, &back).clicked {
         out.close = true;
     }
+    // the crash log's folder (crate::crashlog); the tooltip shows the path
+    let tip = format!(
+        "{} {}",
+        loc.tr("ui.settings.open_log_tip"),
+        crate::crashlog::log_dir().display()
+    );
+    let log = Button::new(loc.tr("ui.settings.open_log"))
+        .ghost()
+        .icon(Icon::Log)
+        .tooltip(&tip);
+    let lw = ui.button_width(&log);
+    let lr = Rect::new(br.right() + 8.0, br.y, lw, br.h);
+    if ui.button("set_open_log", lr, &log).clicked {
+        let _ = crate::crashlog::open_log_folder();
+    }
     let path_st = t.small().color(t.text_disabled);
     ui.fonts.draw_in(
         loc.tr("mainmenu.settings.saved_auto"),
-        Rect::new(br.right() + 12.0, br.y, r.right() - br.right() - 30.0, br.h),
+        Rect::new(lr.right() + 12.0, br.y, r.right() - lr.right() - 30.0, br.h),
         &path_st,
         Align::Right,
     );

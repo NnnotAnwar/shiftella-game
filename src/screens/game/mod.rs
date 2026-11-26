@@ -952,7 +952,13 @@ impl GameScreen {
     }
 
     pub fn save(&self, content: &Content, store: &SaveStore, slot: Slot) -> Result<(), String> {
-        store.write(slot, &self.save_file(content)?).map(|_| ())
+        let r = self
+            .save_file(content)
+            .and_then(|f| store.write(slot, &f).map(|_| ()));
+        if let Err(e) = &r {
+            crate::crashlog::warn(&format!("can't save {slot:?}: {e}"));
+        }
+        r
     }
 
     /// Autosave at a safe point (start of a day, not inside a cutscene).

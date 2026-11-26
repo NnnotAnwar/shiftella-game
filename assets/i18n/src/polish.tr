@@ -1,0 +1,13 @@
+# 0.2 package G (polish): the crash log button in Settings.
+
+ui.settings.open_log
+cs Složka s logem
+en Log folder
+uk Тека з логом
+ru Папка с логом
+
+ui.settings.open_log_tip
+cs Otevře složku se souborem shiftella.log (záznam o pádech hry). Nic se nikam neposílá.
+en Opens the folder with shiftella.log (a record of crashes). Nothing is ever sent anywhere.
+uk Відкриває теку з файлом shiftella.log (запис про збої гри). Нічого нікуди не надсилається.
+ru Открывает папку с файлом shiftella.log (запись о сбоях игры). Ничего никуда не отправляется.

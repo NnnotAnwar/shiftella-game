@@ -243,9 +243,11 @@ impl Settings {
             Ok(()) => Ok(primary),
             Err(e) => {
                 let local = PathBuf::from("settings.ron");
-                self.save_to(&local)
-                    .map(|_| local)
-                    .map_err(|e2| format!("{e}; {e2}"))
+                self.save_to(&local).map(|_| local).map_err(|e2| {
+                    let msg = format!("{e}; {e2}");
+                    crate::crashlog::warn(&format!("can't save the settings: {msg}"));
+                    msg
+                })
             }
         }
     }
