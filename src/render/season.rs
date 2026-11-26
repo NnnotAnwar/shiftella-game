@@ -818,14 +818,15 @@ pub fn draw_breath(look: &PersonLook, pose: &PersonPose, t: f32, strength: f32) 
     let moving = matches!(pose.pose, Pose::Walk | Pose::Carry);
     for puff in 0..2 {
         let age = ((t + look.phase * 5.0 + puff as f32 * period * 0.5) % period) / period;
-        if age > 0.55 {
+        if age > 0.8 {
             continue;
         }
-        let k = age / 0.55;
-        let travel = 14.0 * k * look.height + if moving { 4.0 * k } else { 0.0 };
-        let p = a + dir * travel + vec2(0.0, -6.0 * k * k);
-        let fade = (k * 5.0).min(1.0) * (1.0 - k);
-        let r = (3.5 + 10.0 * k) * look.height;
+        let k = age / 0.8;
+        let e = 1.0 - (1.0 - k) * (1.0 - k);
+        let travel = 22.0 * e * look.height + if moving { 6.0 * k } else { 0.0 };
+        let p = a + dir * travel + vec2((k * 9.0).sin() * 1.5, -8.0 * k * k);
+        let fade = (k * 6.0).min(1.0) * (1.0 - k).powf(1.3);
+        let r = (4.0 + 12.0 * e) * look.height;
         glow(
             p.x,
             p.y,
@@ -833,10 +834,10 @@ pub fn draw_breath(look: &PersonLook, pose: &PersonPose, t: f32, strength: f32) 
             Color::new(0.93, 0.93, 1.0, 0.5 * fade * strength),
         );
         glow(
-            p.x - dir.x * 2.0,
-            p.y + 1.0,
-            r * 0.6,
-            Color::new(1.0, 1.0, 1.0, 0.25 * fade * strength),
+            p.x - dir.x * 3.0,
+            p.y + 1.5,
+            r * 0.55,
+            Color::new(1.0, 1.0, 1.0, 0.35 * fade * strength),
         );
     }
 }
