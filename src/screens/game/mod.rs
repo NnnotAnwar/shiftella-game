@@ -1506,7 +1506,6 @@ impl GameScreen {
         } else {
             signature_ui::board(self, ui, cx);
             hud::draw(self, ui, cx);
-            hands_ui::hud(self, ui, cx);
             if self.summary.is_none() {
                 extras_ui::atmosphere(self, ui, cx);
                 // screenshot runs: SHIFTELLA_COZY_HINT=1 shows the meter's world hint
@@ -1514,12 +1513,16 @@ impl GameScreen {
                     self.scene.cozy_hint = Some(self.world.coziness().weakest);
                 }
             }
+            // the left column under the meter first: the rail keeps clear of its anchors
             if self.world.phase() == Phase::Night && self.summary.is_none() {
-                extras_ui::tip_goal(self, ui, cx);
-                extras_ui::napkin(self, ui, cx);
                 walk_home::backstep_chip(self, ui, cx);
                 photo_mode::button(self, ui, cx);
                 stories_ui::draw(self, ui, cx);
+            }
+            hands_ui::hud(self, ui, cx);
+            if self.world.phase() == Phase::Night && self.summary.is_none() {
+                extras_ui::tip_goal(self, ui, cx);
+                extras_ui::napkin(self, ui, cx);
             }
             // after the HUD and the rail: the bubble keeps clear of them
             if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {

@@ -621,7 +621,11 @@ fn storm_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         })
         .collect();
     // a narrow column under the atmosphere meter: it stays clear of the hall
-    let w = size.x;
+    // as wide as the meter, wider when the count line needs it (large text, long languages)
+    let w = size
+        .x
+        .max(ui.fonts.measure(&count, &sub) + 20.0)
+        .max(ui.fonts.measure(&title, &st) + 36.0);
     let r = Rect::new(12.0, top, w, 40.0 + 2.0 * 26.0 + 3.0 + 6.0);
     g.anchors.push(("hud.storm", r));
     ui.glass(r, &Glass::hud().radius(8.0));

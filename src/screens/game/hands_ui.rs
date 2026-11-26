@@ -299,13 +299,26 @@ fn rail(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         // below the cards: between the atmosphere meter (left) and the tip jar (right,
         // up to 260 pt); when even that is too narrow (a large UI scale / text size) the
         // rail goes one row lower
-        let left = 12.0 + crate::ui::handson::ATMO_SIZE.x + 8.0;
+        let mut left = 12.0 + crate::ui::handson::ATMO_SIZE.x + 8.0;
         let right = ui.screen().w - 12.0 - 200.0 - 8.0;
-        let w = ticket_rail_rect(top, out.len()).w;
+        let rr = ticket_rail_rect(top, out.len());
+        let w = rr.w;
+        // the column under the meter (camera, "step out", the storm card) when it reaches
+        // the rail's height
+        for a in g.anchors.iter().filter(|a| {
+            matches!(a.0, "hud.camera" | "hud.backstep" | "hud.storm")
+                && a.1.y < rr.bottom()
+                && a.1.bottom() > rr.y
+        }) {
+            left = left.max(a.1.right() + 8.0);
+        }
         if w <= right - left {
             top.x = top.x.clamp(left + w / 2.0, right - w / 2.0);
         } else {
             top.y += 28.0 + 8.0;
+            // one row lower it may still reach the column under the meter: slide right
+            let far = ui.screen().w - 12.0 - w / 2.0;
+            top.x = top.x.max(left + w / 2.0).min(far.max(left + w / 2.0));
         }
     }
     g.anchors.push(("rail", ticket_rail_rect(top, out.len())));
