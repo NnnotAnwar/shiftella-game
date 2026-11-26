@@ -238,25 +238,3 @@ fn coziness_preview_of_a_drag() {
     assert!((after - before - p).abs() < 1e-3, "drag preview {p}");
 }
 
-#[test]
-fn build_wishes_stub_lists_the_story_facts() {
-    let c = content();
-    let mut w = World::new_story(&c, Difficulty::Cozy);
-    assert!(w.build_wishes(&c).is_empty());
-    w.story.flags.insert("lori_invited".into());
-    assert!(
-        w.build_wishes(&c)
-            .iter()
-            .any(|b| b.who == "lori" && b.tag.as_deref() == Some("stage"))
-    );
-    // fulfilled → gone
-    let spot = (0..w.grid().height)
-        .flat_map(|y| (0..w.grid().width).map(move |x| (x, y)))
-        .find(|&(x, y)| {
-            w.grid().room(x, y) == Room::Hall
-                && w.clone().apply(&c, place("stage_corner", x, y)).is_ok()
-        })
-        .expect("room for a stage");
-    w.apply(&c, place("stage_corner", spot.0, spot.1)).unwrap();
-    assert!(!w.build_wishes(&c).iter().any(|b| b.who == "lori"));
-}

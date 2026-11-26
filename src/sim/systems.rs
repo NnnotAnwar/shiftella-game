@@ -357,6 +357,9 @@ pub struct Highlight {
     pub caption_key: String,
     pub args: Vec<(String, String)>,
     pub snap: SceneSnapData,
+    /// A before / after polaroid: the hall as it was, same window (`snap` is the after).
+    #[serde(default)]
+    pub before: Option<SceneSnapData>,
 }
 
 /// A kept polaroid.

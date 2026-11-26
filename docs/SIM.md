@@ -470,3 +470,73 @@ polaroid, counts the jar, buys / switches themes, auto-fills on Mondays, answers
 buttons, ticks checklists nobody else does, picks specials, books payroll (`thrifty` keeps money
 comparable). `sim_balance` prints a T5 line (moments per night, two-open check, journal
 completeness, per-system counts). `--thrifty` for money comparisons.
+
+## 11. Reasons to build (0.2 package C: `build_wishes`, `corners`, `attic`, `backroom`, `build_content`)
+
+State: `World.build: BuildState` (`#[serde(default)]`, every field defaulted — 0.1.x saves load
+unchanged; `world.build_state()`). Hooks: day start (attic restock, requests, corners), night
+start (requests, corners, the before / after plan), each night minute (requests), 06:00 (the
+before / after joins the morning), after every furniture command and its undo (corners,
+requests). Nothing consumes the world RNG except the requests' rewards (`Fx`).
+
+### 11.1 Requests (`build_wishes.ron`)
+`World::build_wishes(&c) -> Vec<BuildWish { who, def, tag, reason_key }>` — open requests not
+answered yet (the build card's "wanted" badge). `who` = a regular id (`"filip"`), a helper's
+staff id as a number (`"7"`) or a guest archetype id (`"students"`).
+`World::build_requests(&c) -> Vec<BuildRequest { id, who: BuildWho::{Regular, Staff, Guests},
+def, tag, reason_key, ask_key, thanks_key, status: BuildRequestStatus::{Waiting, Built,
+Thanked(night)}, opened, arc }>` (waiting first; the app's cards), `build_requests_waiting(&c)`.
+A request opens once its person is known (a regular who has visited, a helper of that
+archetype employed — `Staff(None)` = the first helper — or any guest archetype) and `appear`
+holds, unless `done` already holds (`BuildWishOpened { id, who }`). At night, while the person
+is in the café (seated / queueing; a helper on duty) they say `.ask` once (`Speech`); once
+`done` holds they say `.thanks` (`Speech`), `BuildWishFulfilled { id, who }` and the `reward`
+Fx run with the person as target (`TargetTrust`, `TargetStaffMood`, `TargetSatisfaction`,
+`ThankYouNote`…). Story arcs keep their own conditions (`arc: true` only marks the card).
+
+### 11.2 Corners (`corners.ron`)
+`World::corners(&c) -> Vec<CornerView { id, name_key, tiles, bonus, center, members }>` (pure;
+labels in build mode), `World::corners_bonus(&c)`. A corner = its first need (the anchor piece,
+in the hall) + every other need's `count` pieces within `radius` tiles (Chebyshev, footprint to
+footprint); pieces aren't shared within a kind; `max` per kind; the sum is capped at
+`max_bonus` and added to `coziness().value` (not to a part). Arrivals: each standing corner
+multiplies its `attracts` archetypes' weight by `attract_mul`. A new instance emits
+`CornerFormed { id, tile, first }`. Grandma's default café forms none.
+
+### 11.3 Grandma's attic (`attic.ron`)
+`World::attic(&c) -> AtticView { open, offers: [AtticOffer { id, price, new_price, owned, placed
+}], upstairs, next_night }`. Restock at day start on `first_night` (3) and then every
+`restock_weekday` (Sat): `per_week` pieces with `from_night ≤ night`, not owned, picked by an
+RNG of the seed + night (`AtticRestocked`, toast `attic.toast.found/.restocked`).
+`Command::BuyAtticPiece { id }` (Day only): buys an offered piece (or brings a bought one down
+for free) onto the free hall tile nearest (8, 12) with a free ring around it, never by the door
+(`paid: 0` — removing refunds nothing and it waits upstairs); `AtticPieceBought { id, uid, price
+}` + `FurniturePlaced`. Errors `Locked`, `AlreadyPlaced`, `NotEnoughMoney`, `Occupied`,
+`WrongPhase`. The pieces are `furniture.ron` defs hidden by the never-set flag `attic_piece`.
+
+### 11.4 The back room (`attic.ron` → `back_room`)
+`World::back_room(&c) -> BackRoomView { open, available, from_night, price, tiles }`.
+`Command::OpenBackRoom` (Day, once, from night 15, 14 000 Kč) widens the grid by
+`BACK_COLS` (6) columns to the right: every old tile keeps its coordinates (cutscene spots, the
+jukebox, saves), x 30–34 × y 1–14 become hall floor with the new outer wall at x 35 (two
+windows in the back wall), the street continues below, and two tiles of the old right wall
+(x 29, first free pair of rows 3/4, 2/3…) become the doorway. Grandma's pieces are placed free.
+`BackRoomOpened { price, tiles }`, toast `backroom.toast.opened`; the undo stack is cleared.
+The back room's floor doesn't count in the beauty denominator (extra floor never thins the
+hall out). The render rebuilds its statics by the grid's size.
+
+### 11.5 Before / after (journal kind `BeforeAfter`)
+At each night start the sim remembers the hall (furniture coziness = light + beauty + comfort
+in day light + corners, the corner set, the uids, the back room, a whole-interior snapshot).
+If the next night start finds the back room newly open, a new corner, or a gain ≥ `min_gain`
+(1.0), the "after" is shot at `after_at` (00:30) around the change and the remembered hall is
+cropped to the same window: `Highlight { kind: BeforeAfter, before: Some(snap), snap: after,
+caption_key: journal.caption.before_after, args: [what = @key] }`. At 06:00 it always joins the
+morning's candidates (replacing the weakest if the list is full). `Highlight.before` is
+`#[serde(default)]`; the journal UI composes the two photos side by side.
+
+### 11.6 The player-bot
+`BotConfig.build` (default true): an attentive bot builds for the regulars, opens the back room
+once it has the price + 8 000 to spare, and buys the cheapest attic piece with 6 000 to spare
+(not when `thrifty`). `build: false` = a player who never builds (tested: the story still ends
+in the light).

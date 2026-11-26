@@ -30,6 +30,8 @@
         (kind: RozpisHappy, score: 25),
         (kind: AnwarCameo, score: 20),
         (kind: QuietNight, score: 10),
+        // package C: the hall changed in a day (always offered next morning)
+        (kind: BeforeAfter, score: 58, placeholders: ["what"]),
     ],
     scenes: [
         "opening", "mirek_first", "guest333_first", "vera_recipe", "lori_platform", "hana_asleep",

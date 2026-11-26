@@ -31,8 +31,18 @@ fn interior_bounds(w: &World) -> (i32, i32, i32) {
 }
 
 pub(crate) fn snap(w: &World, content: &Content, focus: Option<(i32, i32)>) -> SceneSnapData {
+    snap_sized(w, content, focus, None)
+}
+
+/// [`snap`] with another window size in tiles (`None` = `journal.ron` → `snap_tiles`).
+pub(crate) fn snap_sized(
+    w: &World,
+    content: &Content,
+    focus: Option<(i32, i32)>,
+    size: Option<(i32, i32)>,
+) -> SceneSnapData {
     let jf = &content.handson.journal;
-    let (sw, sh) = (jf.snap_tiles.0.max(4) as i32, jf.snap_tiles.1.max(4) as i32);
+    let (sw, sh) = size.unwrap_or((jf.snap_tiles.0.max(4) as i32, jf.snap_tiles.1.max(4) as i32));
     let focus = focus
         .or_else(|| super::player::karolina_idx(w).map(|k| w.staff[k].tile()))
         .unwrap_or((w.grid.width / 2, w.grid.height / 2));
@@ -254,6 +264,7 @@ pub(crate) fn capture(
         caption_key,
         args,
         snap,
+        before: None,
     };
     let keep = jf.keep_per_night.max(1) as usize;
     let list = &mut w.sys.journal.tonight;

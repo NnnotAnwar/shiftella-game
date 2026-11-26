@@ -727,6 +727,41 @@ pub enum SimEvent {
     TutorialEffects {
         id: String,
     },
+    // --- 0.2 package C: reasons to build --------------------------------------------------------
+    /// A build request shows (`build_wish.<id>.*`; `who` as in `BuildWish::who`).
+    BuildWishOpened {
+        id: String,
+        who: String,
+    },
+    /// They saw it built and reacted (their `Speech` with `build_wish.<id>.thanks` comes
+    /// just before; the reward ran).
+    BuildWishFulfilled {
+        id: String,
+        who: String,
+    },
+    /// Pieces placed together formed a corner (`corner.<id>.name`); `first` = the first of
+    /// its kind ever.
+    CornerFormed {
+        id: String,
+        tile: (i32, i32),
+        first: bool,
+    },
+    /// New things in grandma's attic (`first` = the attic was just found).
+    AtticRestocked {
+        pieces: Vec<String>,
+        first: bool,
+    },
+    /// An attic piece came down into the hall (`price` 0 = it was bought before).
+    AtticPieceBought {
+        id: String,
+        uid: u32,
+        price: i64,
+    },
+    /// Grandma's back room is open again (the grid is wider now: rebuild the statics).
+    BackRoomOpened {
+        price: i64,
+        tiles: Vec<(i32, i32)>,
+    },
 }
 
 /// Every player action.
@@ -1013,6 +1048,16 @@ pub enum Command {
     MoveGroup {
         moves: Vec<super::build_ux::PieceMove>,
     },
+    // --- 0.2 package C: reasons to build --------------------------------------------------------
+    /// Grandma's attic (Day only): buy this week's piece and bring it down into the hall, or
+    /// bring a piece bought before back down for free. Errors `Locked` (not on offer),
+    /// `AlreadyPlaced`, `NotEnoughMoney`, `Occupied` (no free spot), `WrongPhase`.
+    BuyAtticPiece {
+        id: String,
+    },
+    /// Reopen grandma's back room (Day only, once; `attic.ron` → `back_room`). Errors
+    /// `NotUnlocked` (too early), `NotEnoughMoney`, `AlreadyPlaced`, `WrongPhase`.
+    OpenBackRoom,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

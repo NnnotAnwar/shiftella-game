@@ -1,0 +1,50 @@
+// Corners (design/v0.2.md item 6, package C): pieces placed together in the hall form a
+// named corner. The first need is the anchor (one piece); every other piece stands within
+// `radius` tiles of it (footprint to footprint). Each corner adds `bonus` coziness (0–100
+// scale; `max` of a kind count, all together ≤ max_bonus) and draws `attracts` a little more
+// often (arrival weight × attract_mul). Keys corner.<id>.name / .desc.
+#![enable(implicit_some)]
+(
+    max_bonus: 8.0,
+    // the morning after the hall changed: a before / after polaroid (journal kind BeforeAfter)
+    before_after: (min_gain: 1.0, after_at: "00:30"),
+    corners: [
+        (id: "reading_nook", radius: 2, bonus: 3.0, attracts: ["insomniacs", "students"],
+         needs: [
+            (defs: ["armchair", "attic_sewing_chair"]),
+            (defs: ["floor_lamp", "attic_reading_lamp", "pendant_lamp", "attic_tram_lamp", "lamp_brass", "led_strip"]),
+            (defs: ["bookshelf", "attic_bookcase", "record_shelf"]),
+         ]),
+        (id: "window_spot", radius: 2, bonus: 2.5, attracts: ["travelers", "night_wanderer"],
+         needs: [
+            (tags: ["window_spot"]),
+            (defs: ["plant_small", "plant_tall", "attic_rubber_plant"]),
+            (defs: ["floor_lamp", "attic_reading_lamp", "pendant_lamp", "attic_tram_lamp", "lamp_brass", "led_strip", "fairy_lights"]),
+         ]),
+        (id: "little_stage", radius: 2, bonus: 2.5, attracts: ["clubbers", "students"],
+         needs: [
+            (tags: ["stage"]),
+            (defs: ["floor_lamp", "attic_reading_lamp", "pendant_lamp", "attic_tram_lamp", "lamp_brass", "led_strip", "fairy_lights"]),
+         ]),
+        (id: "listening_corner", radius: 2, bonus: 2.0, attracts: ["insomniacs", "shift_workers"],
+         needs: [
+            (defs: ["jukebox", "radio", "record_shelf"]),
+            (defs: ["sofa", "armchair", "attic_sewing_chair", "attic_station_bench"]),
+         ]),
+        (id: "coat_corner", radius: 1, bonus: 1.5, attracts: ["taxi_drivers", "train_crew"],
+         needs: [
+            (tags: ["coats"]),
+            (defs: ["stool", "attic_piano_stool", "attic_station_bench", "plant_small", "plant_tall", "attic_rubber_plant"]),
+         ]),
+        (id: "study_table", radius: 1, bonus: 1.5, attracts: ["students", "drone_operators"],
+         needs: [
+            (tags: ["power_socket"]),
+            (defs: ["floor_lamp", "attic_reading_lamp", "pendant_lamp", "attic_tram_lamp", "lamp_brass", "led_strip"]),
+         ]),
+        (id: "green_corner", radius: 1, bonus: 1.5, attracts: ["nurses"],
+         needs: [
+            (defs: ["plant_small", "plant_tall", "attic_rubber_plant"]),
+            (defs: ["plant_small", "plant_tall", "attic_rubber_plant"], count: 2),
+         ]),
+    ],
+)

@@ -9,7 +9,8 @@
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
 //!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
-//!   build_drag` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y` / `_TAB` / `_TURNS`: a held or dragged piece)
+//!   build_drag|attic|backroom|requests|corner|before_after` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
+//!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   (hands-on scenes are played to their moment by the autoplayer;
 //!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
 //!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
@@ -558,6 +559,19 @@ impl App {
                 let n = night.unwrap_or(2);
                 let mut g = story_at(n, None, &self.i18n, lang);
                 g.summary = None;
+                self.game(g)
+            }
+            // package C: grandma's attic, the back room, requests, a corner, before / after
+            "attic" | "backroom" | "requests" | "corner" | "before_after" => {
+                let n = night.unwrap_or(match name {
+                    "attic" => 13,
+                    "backroom" => 16,
+                    "requests" => 12,
+                    _ => 9,
+                });
+                let loc = Locale::new(&self.i18n, lang);
+                let mut g = story_at(n, None, &self.i18n, lang);
+                game::build_content_scene(&mut g, &content, &loc, name, n);
                 self.game(g)
             }
             "season_snow" | "night27_snow" | "night22" | "night14" => {

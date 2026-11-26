@@ -825,6 +825,9 @@ pub struct World {
     /// T5 systems: moments, extras, atmosphere, journal, rozpis puzzle, the app as a tool.
     #[serde(default)]
     pub(crate) sys: super::systems::SystemsState,
+    /// Package C: build requests, corners, grandma's attic, the back room, before / after.
+    #[serde(default)]
+    pub(crate) build: super::build_content::BuildState,
     #[serde(skip)]
     pub(crate) events: Vec<SimEvent>,
     #[serde(skip)]
@@ -908,6 +911,7 @@ impl World {
             relationships: BTreeMap::new(),
             hands: HandsState::default(),
             sys: Default::default(),
+            build: Default::default(),
             events: Vec::new(),
             paths: PathCache::default(),
         }
@@ -1320,6 +1324,7 @@ impl World {
         super::tool::on_day_start(self, content);
         super::rozpis::score(self, content);
         super::story::on_day_start(self, content);
+        super::build_content::on_day_start(self, content);
         self.emit(SimEvent::DayStarted { night: self.night });
     }
 
@@ -1405,6 +1410,7 @@ impl World {
         super::xlogic::run_next_night(self, content);
         super::rozpis::on_night_start(self, content);
         super::atmos::on_night_start(self, content);
+        super::build_content::on_night_start(self, content);
         self.emit(SimEvent::NightStarted { night: self.night });
         super::story::on_night_start(self, content);
     }
@@ -1583,6 +1589,7 @@ impl World {
         super::moments::naming_nudge(self, content);
         super::atmos::on_minute(self, content);
         super::journal::on_minute(self, content);
+        super::build_content::on_minute(self, content);
         super::tool::on_minute(self, content);
         super::rozpis::on_minute(self, content);
         let q = self.queue_len() as u32;
@@ -1598,6 +1605,7 @@ impl World {
         super::moments::on_night_end(self, content);
         super::tool::on_night_end(self, content);
         super::rozpis::on_night_end(self);
+        super::build_content::on_night_end(self, content);
         super::journal::on_night_end(self, content);
         self.tonight.insights = super::tool::insights(self, content);
         self.tonight.coziness_avg = super::atmos::night_avg(self);

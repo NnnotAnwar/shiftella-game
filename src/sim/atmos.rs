@@ -339,7 +339,10 @@ pub(crate) fn compute(w: &World, content: &Content) -> Coziness {
             plants += 1;
         }
     }
-    let tiles = hall_tiles(w).max(1) as f32;
+    // the back room is extra floor: it doesn't thin the hall's beauty out
+    let tiles = hall_tiles(w)
+        .saturating_sub(super::backroom::floor_tiles(w))
+        .max(1) as f32;
     let beauty =
         (beauty_sum / (tiles * def.beauty_per_tile)).clamp(0.0, 1.0) * wt(CozyComponent::Beauty);
     // comfort
@@ -403,6 +406,8 @@ pub(crate) fn compute(w: &World, content: &Content) -> Coziness {
     let touches = touch.min(wt(CozyComponent::Touches));
     let parts = [light, beauty, comfort, clean, music, theme_part, touches];
     let mut value: f32 = parts.iter().sum();
+    // corners (pieces placed together: a reading nook, a window spot…)
+    value += super::corners::coziness_bonus(w, content);
     if let Some(mood) = w.hall_mood(content) {
         for (m, add) in &def.mood_bonus {
             if *m == mood {

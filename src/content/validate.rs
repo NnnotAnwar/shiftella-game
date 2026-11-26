@@ -14,6 +14,9 @@ use crate::i18n::{I18n, Lang, placeholders};
 #[path = "validate_handson.rs"]
 mod hands;
 
+#[path = "validate_build.rs"]
+mod build_v;
+
 /// UI keys the content module itself relies on (units, enums).
 fn builtin_keys() -> Vec<String> {
     let mut keys: Vec<String> = Job::ALL
@@ -162,6 +165,7 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
         });
     }
     keys.extend(hands::required_keys(c));
+    keys.extend(build_v::required_keys(c));
     let mut seen = HashSet::new();
     keys.retain(|k| seen.insert(k.clone()));
     keys
@@ -860,6 +864,7 @@ pub(super) fn validate(c: &Content, i18n: &I18n) -> Vec<String> {
 
     // --- hands-on -------------------------------------------------------------------------
     hands::validate(c, i18n, &ix, &mut out);
+    build_v::validate(c, i18n, &ix, &mut out);
 
     // --- i18n -----------------------------------------------------------------------------
     for key in required_keys(c) {

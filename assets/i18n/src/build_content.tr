@@ -1,0 +1,753 @@
+# Package C (design/v0.2.md): reasons to build — requests from guests and staff, corners,
+# grandma's attic (second-hand pieces with a line about grandma Lida), the back room and the
+# before / after polaroid. Karolina is addressed in the second person (feminine in cs/uk/ru).
+
+# --- requests: build_wish.<id>.reason (card title) / .ask (their line) / .thanks ----------------
+
+build_wish.filip_socket.reason
+cs stůl se zásuvkou
+en a table with a socket
+uk столик із розеткою
+ru столик с розеткой
+
+build_wish.filip_socket.ask
+cs Promiňte… nemáte tu někde zásuvku? Notebook mi umírá a zkouška ne.
+en Sorry… is there a socket anywhere? My laptop is dying and the exam isn't.
+uk Вибачте… тут ніде немає розетки? Ноутбук помирає, а іспит — ні.
+ru Простите… здесь нигде нет розетки? Ноутбук умирает, а экзамен — нет.
+
+build_wish.filip_socket.thanks
+cs Zásuvka! U stolu! Tohle je nejlepší kavárna ve městě. Vážně.
+en A socket! At a table! This is the best café in town. Seriously.
+uk Розетка! Біля столика! Це найкраща кав'ярня в місті. Серйозно.
+ru Розетка! У столика! Это лучшее кафе в городе. Серьёзно.
+
+build_wish.lori_stage.reason
+cs malé pódium
+en a little stage
+uk маленька сцена
+ru маленькая сцена
+
+build_wish.lori_stage.ask
+cs Kdyby tu byl kousek místa a trochu světla… zahrála bych vám. Jen tak, za čaj.
+en If there were a little space and a bit of light… I'd play for you. Just for a tea.
+uk Якби тут був клаптик місця і трохи світла… я б вам заграла. Просто так, за чай.
+ru Будь здесь немного места и чуть-чуть света… я бы вам сыграла. Просто так, за чай.
+
+build_wish.lori_stage.thanks
+cs Pódium… pro mě? Tak to musím hrát líp než kdy dřív.
+en A stage… for me? Then I'll have to play better than ever.
+uk Сцена… для мене? Тоді доведеться грати краще, ніж будь-коли.
+ru Сцена… для меня? Тогда придётся играть лучше, чем когда-либо.
+
+build_wish.hana_quiet.reason
+cs tichý kout
+en a quiet corner
+uk тихий куточок
+ru тихий уголок
+
+build_wish.hana_quiet.ask
+cs Kdyby tu bylo jedno křeslo s lampou, kde se dá na deset minut zmizet…
+en If there were one armchair with a lamp, somewhere to vanish for ten minutes…
+uk Якби тут було одне крісло з лампою, де можна на десять хвилин зникнути…
+ru Если бы здесь было одно кресло с лампой, где можно на десять минут исчезнуть…
+
+build_wish.hana_quiet.thanks
+cs Křeslo. A lampa. Ty jsi mi to fakt postavila… Děkuju.
+en An armchair. And a lamp. You really set it up for me… Thank you.
+uk Крісло. І лампа. Ти справді це для мене влаштувала… Дякую.
+ru Кресло. И лампа. Ты правда это для меня устроила… Спасибо.
+
+build_wish.vera_window.reason
+cs místo u okna
+en a seat by the window
+uk місце біля вікна
+ru место у окна
+
+build_wish.vera_window.ask
+cs Lida mi vždycky držela místo u okna. Odtamtud je vidět na koleje.
+en Lida always kept me a seat by the window. You can see the tracks from there.
+uk Ліда завжди тримала мені місце біля вікна. Звідти видно колії.
+ru Лида всегда держала мне место у окна. Оттуда видно пути.
+
+build_wish.vera_window.thanks
+cs Lavička u okna… Jako za Lidy. Tady se mi křížovka luští sama.
+en A bench by the window… Just like in Lida's day. The crossword solves itself here.
+uk Лавка біля вікна… Як за Ліди. Тут кросворд розгадується сам.
+ru Скамейка у окна… Как при Лиде. Тут кроссворд разгадывается сам.
+
+build_wish.mirek_radio.reason
+cs staré rádio
+en the old radio
+uk старе радіо
+ru старое радио
+
+build_wish.mirek_radio.ask
+cs Lida mívala na pultu rádio. Hrálo potichu, celou noc. Chybí mi to.
+en Lida used to keep a radio on the counter. It played softly all night. I miss it.
+uk Ліда тримала радіо на прилавку. Воно тихо грало всю ніч. Мені цього бракує.
+ru У Лиды на прилавке было радио. Тихо играло всю ночь. Мне этого не хватает.
+
+build_wish.mirek_radio.thanks
+cs Rádio! Přesně takhle to tu znělo, když jsem byl mladej.
+en The radio! That's exactly how this place sounded when I was young.
+uk Радіо! Саме так тут звучало, коли я був молодий.
+ru Радио! Именно так здесь звучало, когда я был молодым.
+
+build_wish.radek_board.reason
+cs tabule s odjezdy
+en a departures board
+uk табло з відправленнями
+ru табло с отправлениями
+
+build_wish.radek_board.ask
+cs Tabule s odjezdy na zdi by se hodila. Lidi by se míň ptali a víc pili.
+en A departures board on the wall would help. People would ask less and drink more.
+uk Табло з відправленнями на стіні б не завадило. Люди менше питали б і більше пили.
+ru Табло с отправлениями на стене не помешало бы. Люди меньше спрашивали бы и больше пили.
+
+build_wish.radek_board.thanks
+cs Tabule visí, vlaky jedou. Pořádek. Takhle se mi to líbí.
+en Board's up, trains are running. Order. That's how I like it.
+uk Табло висить, потяги їдуть. Порядок. Отак мені до вподоби.
+ru Табло висит, поезда идут. Порядок. Вот так мне нравится.
+
+build_wish.crew_coats.reason
+cs věšák na kabáty
+en a coat rack
+uk вішак для одягу
+ru вешалка для пальто
+
+build_wish.crew_coats.ask
+cs Karolino, nešel by věšák? Bundy nám zatím visí na lednici.
+en Karolina, could we get a coat rack? Our jackets are hanging on the fridge.
+uk Кароліно, а можна вішак? Наші куртки поки висять на холодильнику.
+ru Каролина, а можно вешалку? Наши куртки пока висят на холодильнике.
+
+build_wish.crew_coats.thanks
+cs Věšák! Konečně nemám šálu v mléce.
+en A coat rack! Finally my scarf isn't in the milk.
+uk Вішак! Нарешті мій шарф не в молоці.
+ru Вешалка! Наконец-то мой шарф не в молоке.
+
+build_wish.cook_rack.reason
+cs odkapávač na nádobí
+en a dish rack
+uk сушарка для посуду
+ru сушилка для посуды
+
+build_wish.cook_rack.ask
+cs U dřezu by se hodil odkapávač. Talíře nám schnou na židlích.
+en A dish rack by the sink would help. The plates are drying on the chairs.
+uk Біля мийки б не завадила сушарка. Тарілки сохнуть на стільцях.
+ru У мойки пригодилась бы сушилка. Тарелки сохнут на стульях.
+
+build_wish.cook_rack.thanks
+cs Odkapávač. Malá věc, velká radost. Díky!
+en A dish rack. Small thing, big joy. Thanks!
+uk Сушарка. Дрібниця, а як приємно. Дякую!
+ru Сушилка. Мелочь, а как приятно. Спасибо!
+
+build_wish.barista_grinder.reason
+cs druhý mlýnek
+en a second grinder
+uk другий млинок
+ru вторая кофемолка
+
+build_wish.barista_grinder.ask
+cs S druhým mlýnkem by bylo pořád čerstvě namleto. Káva by voněla až na nástupiště.
+en With a second grinder I'd always have it freshly ground. You'd smell the coffee on the platform.
+uk З другим млинком завжди було б свіжозмелене. Кава пахла б аж до перону.
+ru Со второй кофемолкой всегда было бы свежемолотое. Кофе пахло бы до самого перрона.
+
+build_wish.barista_grinder.thanks
+cs Ten zvuk! Čerstvě mletá káva — tohle je moje hudba.
+en That sound! Freshly ground coffee — that's my music.
+uk Цей звук! Свіжозмелена кава — оце моя музика.
+ru Этот звук! Свежемолотый кофе — вот моя музыка.
+
+build_wish.students_sockets.reason
+cs víc zásuvek
+en more sockets
+uk більше розеток
+ru больше розеток
+
+build_wish.students_sockets.ask
+cs U Filipova stolu je plno. Nešel by ještě jeden se zásuvkou?
+en Filip's table is full. Could there be another one with a socket?
+uk Біля Філіпового столика тісно. А можна ще один із розеткою?
+ru У Филипова столика тесно. А можно ещё один с розеткой?
+
+build_wish.students_sockets.thanks
+cs Dvě zásuvky! Tak tady dneska dopíšeme celou seminárku.
+en Two sockets! Tonight we'll finish the whole term paper here.
+uk Дві розетки! Сьогодні допишемо тут усю курсову.
+ru Две розетки! Сегодня допишем здесь всю курсовую.
+
+build_wish.nurses_sofa.reason
+cs gauč
+en a sofa
+uk диван
+ru диван
+
+build_wish.nurses_sofa.ask
+cs Po dvanáctce se člověk chce do něčeho zabořit. Třeba do gauče.
+en After a twelve-hour shift I'd love to sink into something. A sofa, say.
+uk Після дванадцятигодинної зміни так хочеться в щось провалитися. У диван, наприклад.
+ru После двенадцатичасовой смены так хочется во что-нибудь провалиться. В диван, например.
+
+build_wish.nurses_sofa.thanks
+cs Gauč… Pět minut. Jenom pět minut a jsem zase člověk.
+en A sofa… Five minutes. Just five and I'm human again.
+uk Диван… П'ять хвилин. Лише п'ять — і я знову людина.
+ru Диван… Пять минут. Всего пять — и я снова человек.
+
+build_wish.insomniacs_rug.reason
+cs koberec
+en a rug
+uk килим
+ru ковёр
+
+build_wish.insomniacs_rug.ask
+cs Ve tři ráno tu táhne od podlahy. Koberec by to spravil.
+en At three in the morning the floor gets cold. A rug would fix it.
+uk О третій ночі тут тягне від підлоги. Килим би врятував.
+ru В три часа ночи здесь тянет от пола. Ковёр бы спас.
+
+build_wish.insomniacs_rug.thanks
+cs Koberec. Nohy v teple, hlava v klidu. Možná dneska i usnu.
+en A rug. Warm feet, quiet head. Maybe I'll even sleep tonight.
+uk Килим. Ногам тепло, у голові тихо. Може, сьогодні навіть засну.
+ru Ковёр. Ногам тепло, в голове тихо. Может, сегодня даже усну.
+
+# --- corners: corner.<id>.name / .desc ------------------------------------------------------------
+
+corner.reading_nook.name
+cs Čtenářský koutek
+en Reading nook
+uk Читацький куточок
+ru Уголок для чтения
+
+corner.reading_nook.desc
+cs Křeslo, lampa a knihovna u sebe.
+en An armchair, a lamp and a bookshelf together.
+uk Крісло, лампа й книжкова полиця поруч.
+ru Кресло, лампа и книжная полка рядом.
+
+corner.window_spot.name
+cs Místečko u okna
+en Window spot
+uk Місце біля вікна
+ru Местечко у окна
+
+corner.window_spot.desc
+cs Lavička u okna, kytka a lampa.
+en A window seat, a plant and a lamp.
+uk Лавка біля вікна, рослина й лампа.
+ru Скамейка у окна, растение и лампа.
+
+corner.little_stage.name
+cs Malé pódium
+en Little stage
+uk Маленька сцена
+ru Маленькая сцена
+
+corner.little_stage.desc
+cs Pódium s lampou nad hlavou.
+en A stage with a lamp above it.
+uk Сцена з лампою над головою.
+ru Сцена с лампой над головой.
+
+corner.listening_corner.name
+cs Poslechový koutek
+en Listening corner
+uk Куточок для музики
+ru Уголок для музыки
+
+corner.listening_corner.desc
+cs Jukebox nebo rádio a pohodlné sezení vedle.
+en The jukebox or a radio with a soft seat beside it.
+uk Музичний автомат чи радіо і м'яке сидіння поруч.
+ru Музыкальный автомат или радио и мягкое сиденье рядом.
+
+corner.coat_corner.name
+cs Kout na kabáty
+en Coat corner
+uk Куточок для одягу
+ru Уголок для пальто
+
+corner.coat_corner.desc
+cs Věšák a vedle stolička nebo kytka.
+en A coat rack with a stool or a plant beside it.
+uk Вішак, а поруч табурет чи рослина.
+ru Вешалка, а рядом табурет или растение.
+
+corner.study_table.name
+cs Studijní stůl
+en Study table
+uk Стіл для навчання
+ru Стол для учёбы
+
+corner.study_table.desc
+cs Stůl se zásuvkou pod lampou.
+en A table with a socket under a lamp.
+uk Столик із розеткою під лампою.
+ru Столик с розеткой под лампой.
+
+corner.green_corner.name
+cs Zelený kout
+en Green corner
+uk Зелений куточок
+ru Зелёный уголок
+
+corner.green_corner.desc
+cs Tři kytky pohromadě.
+en Three plants together.
+uk Три рослини разом.
+ru Три растения вместе.
+
+# corner.<id>.what — the corner inside a sentence (the before / after caption)
+
+corner.reading_nook.what
+cs čtenářský koutek
+en the reading nook
+uk читацький куточок
+ru уголок для чтения
+
+corner.window_spot.what
+cs místečko u okna
+en the window spot
+uk місце біля вікна
+ru местечко у окна
+
+corner.little_stage.what
+cs malé pódium
+en the little stage
+uk маленька сцена
+ru маленькая сцена
+
+corner.listening_corner.what
+cs poslechový koutek
+en the listening corner
+uk куточок для музики
+ru уголок для музыки
+
+corner.coat_corner.what
+cs kout na kabáty
+en the coat corner
+uk куточок для одягу
+ru уголок для пальто
+
+corner.study_table.what
+cs studijní stůl
+en the study table
+uk стіл для навчання
+ru стол для учёбы
+
+corner.green_corner.what
+cs zelený kout
+en the green corner
+uk зелений куточок
+ru зелёный уголок
+
+# --- grandma's attic: furniture + attic.<id>.story -------------------------------------------------
+
+furniture.attic_sewing_chair.name
+cs Babiččino šicí křeslo
+en Grandma's sewing chair
+uk Бабусине крісло для шиття
+ru Бабушкино кресло для шитья
+
+furniture.attic_sewing_chair.desc
+cs Měkké, trochu vybledlé. S lampou vedle tvoří tichý kout.
+en Soft, a little faded. With a lamp beside it, it makes a quiet corner.
+uk М'яке, трохи вицвіле. Разом із лампою поруч — тихий куточок.
+ru Мягкое, чуть выцветшее. С лампой рядом — тихий уголок.
+
+attic.attic_sewing_chair.story
+cs Lida v něm zašívala záclony kavárny — a pak v něm usínala.
+en Lida darned the café's curtains in it — and then fell asleep in it.
+uk Ліда штопала в ньому фіранки кав'ярні — а потім у ньому й засинала.
+ru Лида штопала в нём занавески кафе — а потом в нём же и засыпала.
+
+furniture.attic_reading_lamp.name
+cs Mosazná lampa na čtení
+en Brass reading lamp
+uk Латунна лампа для читання
+ru Латунная лампа для чтения
+
+furniture.attic_reading_lamp.desc
+cs Teplé světlo do širokého kruhu.
+en Warm light in a wide circle.
+uk Тепле світло широким колом.
+ru Тёплый свет широким кругом.
+
+attic.attic_reading_lamp.story
+cs Pod ní Lida četla každý dopis dvakrát.
+en Lida read every letter twice under this lamp.
+uk Під нею Ліда перечитувала кожен лист двічі.
+ru Под ней Лида перечитывала каждое письмо дважды.
+
+furniture.attic_rubber_plant.name
+cs Babiččin fíkus
+en Grandma's rubber plant
+uk Бабусин фікус
+ru Бабушкин фикус
+
+furniture.attic_rubber_plant.desc
+cs Velké lesklé listy, roste i ve tmě.
+en Big glossy leaves, grows even in the dark.
+uk Велике блискуче листя, росте навіть у темряві.
+ru Большие блестящие листья, растёт даже в темноте.
+
+attic.attic_rubber_plant.story
+cs Lida ho zalévala vystydlou kávou. Prý mu to chutnalo.
+en Lida watered it with cold coffee. She said it liked that.
+uk Ліда поливала його холодною кавою. Казала, йому смакує.
+ru Лида поливала его остывшим кофе. Говорила, ему нравится.
+
+furniture.attic_bentwood_stand.name
+cs Ohýbaný věšák
+en Bentwood coat stand
+uk Гнутий вішак
+ru Гнутая вешалка
+
+furniture.attic_bentwood_stand.desc
+cs Thonetka na kabáty. Personál ocení.
+en A bentwood stand for coats. The crew will love it.
+uk Віденський вішак для пальт. Персонал оцінить.
+ru Венская вешалка для пальто. Персонал оценит.
+
+attic.attic_bentwood_stand.story
+cs Pořád na něm visí její červený deštník.
+en Her red umbrella still hangs on it.
+uk На ньому досі висить її червона парасолька.
+ru На ней до сих пор висит её красный зонтик.
+
+furniture.attic_station_bench.name
+cs Lavice z čekárny
+en Waiting-room bench
+uk Лавка з зали очікування
+ru Скамья из зала ожидания
+
+furniture.attic_station_bench.desc
+cs Dřevěná lavice pro dva, vyleštěná léty.
+en A wooden bench for two, polished by the years.
+uk Дерев'яна лавка на двох, відполірована роками.
+ru Деревянная скамья на двоих, отполированная годами.
+
+attic.attic_station_bench.story
+cs Z čekárny u druhé koleje. Na téhle lavici seděl Jindra, když odjížděl.
+en From the waiting room by platform two. Jindra sat on this bench the night he left.
+uk Із зали очікування біля другої колії. На цій лавці сидів Їндра, коли поїхав.
+ru Из зала ожидания у второго пути. На этой скамье сидел Индра в ночь, когда уехал.
+
+furniture.attic_bookcase.name
+cs Prosklená knihovna
+en Glass-front bookcase
+uk Засклена шафа для книжок
+ru Застеклённый книжный шкаф
+
+furniture.attic_bookcase.desc
+cs Krásná a plná. Do čtenářského koutku jako stvořená.
+en Lovely and full. Made for a reading nook.
+uk Гарна й повна. Наче створена для читацького куточка.
+ru Красивый и полный. Будто создан для уголка для чтения.
+
+attic.attic_bookcase.story
+cs Její kuchařky — v několika jsou ještě vylisované kytky.
+en Her cookbooks — a few still have pressed flowers inside.
+uk Її кулінарні книжки — у кількох досі засушені квіти.
+ru Её кулинарные книги — в некоторых до сих пор засушенные цветы.
+
+furniture.attic_rag_rug.name
+cs Hadrový koberec
+en Rag rug
+uk Килимок із клаптиків
+ru Лоскутный коврик
+
+furniture.attic_rag_rug.desc
+cs Pestrý a teplý, 2×2.
+en Colourful and warm, 2×2.
+uk Барвистий і теплий, 2×2.
+ru Пёстрый и тёплый, 2×2.
+
+attic.attic_rag_rug.story
+cs Utkaný ze starých zástěr — jeden pruh za každý rok kavárny.
+en Woven from old aprons — one stripe for every year of the café.
+uk Витканий зі старих фартухів — по смужці за кожен рік кав'ярні.
+ru Соткан из старых фартуков — по полоске за каждый год кафе.
+
+furniture.attic_marble_table.name
+cs Mramorový stolek
+en Marble table
+uk Мармуровий столик
+ru Мраморный столик
+
+furniture.attic_marble_table.desc
+cs Chladná deska, teplé vzpomínky. Postav k němu židle.
+en A cool top, warm memories. Put chairs beside it.
+uk Холодна стільниця, теплі спогади. Постав поруч стільці.
+ru Холодная столешница, тёплые воспоминания. Поставь рядом стулья.
+
+attic.attic_marble_table.story
+cs U něj Lida každé ráno počítala tržbu — a vždycky jí pár korun přebylo pro kočku.
+en Lida counted the till at it every morning — and always had a few coins left for the cat.
+uk За ним Ліда щоранку рахувала виторг — і завжди лишала кілька монет для кота.
+ru За ним Лида каждое утро считала выручку — и всегда оставляла пару монет для кота.
+
+furniture.attic_tram_lamp.name
+cs Tramvajová lampa
+en Tram lamp
+uk Трамвайна лампа
+ru Трамвайная лампа
+
+furniture.attic_tram_lamp.desc
+cs Závěsné světlo nad stůl.
+en A hanging light for over a table.
+uk Підвісне світло над столиком.
+ru Подвесной свет над столиком.
+
+attic.attic_tram_lamp.story
+cs Z poslední holešovické tramvaje z roku 1998. Lida ji vyměnila za tři bábovky.
+en From the last Holešovice tram of 1998. Lida traded three bundt cakes for it.
+uk З останнього голешовицького трамвая 1998 року. Ліда виміняла її на три бабки.
+ru Из последнего голешовицкого трамвая 1998 года. Лида выменяла её на три кекса.
+
+furniture.attic_piano_stool.name
+cs Klavírní stolička
+en Piano stool
+uk Табурет від піаніно
+ru Табурет от пианино
+
+furniture.attic_piano_stool.desc
+cs Točí se a trochu vrže.
+en It spins and creaks a little.
+uk Крутиться й трохи рипить.
+ru Крутится и немного скрипит.
+
+attic.attic_piano_stool.story
+cs Od pianina, které Lida prodala v roce 1990, aby zaplatila nájem. Stoličku si nechala.
+en From the upright piano Lida sold in 1990 to pay the rent. She kept the stool.
+uk Від піаніно, яке Ліда продала 1990 року, щоб заплатити оренду. Табурет залишила.
+ru От пианино, которое Лида продала в 1990-м, чтобы заплатить за аренду. Табурет оставила.
+
+furniture.attic_window_bench.name
+cs Kuchyňská lavice
+en Kitchen window bench
+uk Кухонна лавка
+ru Кухонная скамья
+
+furniture.attic_window_bench.desc
+cs Lavice pro dva — nejlíp pod okno.
+en A bench for two — best under a window.
+uk Лавка на двох — найкраще під вікном.
+ru Скамья на двоих — лучше всего под окном.
+
+attic.attic_window_bench.story
+cs Stála pod jejím kuchyňským oknem. Lida na ní loupala hrách a dívala se na vlaky.
+en It stood under her kitchen window. Lida shelled peas on it and watched the trains.
+uk Стояла під її кухонним вікном. Ліда лущила на ній горох і дивилася на потяги.
+ru Стояла под её кухонным окном. Лида лущила на ней горох и смотрела на поезда.
+
+# --- sim toasts & captions ----------------------------------------------------------------------
+
+attic.toast.found
+cs Na půdě! Klíč od babiččiny půdy visel za fotkou. Nahoře čeká pár věcí z bleších trhů (Den → Půda).
+en The attic! The key to grandma's attic was behind her photo. A few flea-market pieces wait upstairs (Day → Attic).
+uk Горище! Ключ від бабусиного горища висів за світлиною. Нагорі чекає кілька речей з барахолки (День → Горище).
+ru Чердак! Ключ от бабушкиного чердака висел за фотографией. Наверху ждут несколько вещей с барахолки (День → Чердак).
+
+attic.toast.restocked
+cs Sobota: na půdě se našly nové staré věci.
+en Saturday: a few new old things turned up in the attic.
+uk Субота: на горищі знайшлися нові старі речі.
+ru Суббота: на чердаке нашлись новые старые вещи.
+
+backroom.toast.opened
+cs Zadní místnost je zase otevřená. Prach je pryč, stoly čekají na hosty.
+en The back room is open again. The dust is gone, the tables wait for guests.
+uk Задня кімната знову відчинена. Пил зник, столики чекають на гостей.
+ru Задняя комната снова открыта. Пыль ушла, столики ждут гостей.
+
+build.before_after.back_room
+cs zadní místnost
+en the back room
+uk задня кімната
+ru задняя комната
+
+build.before_after.cozier
+cs útulnější kavárna
+en a cosier café
+uk затишніша кав'ярня
+ru уютнее кафе
+
+journal.caption.before_after
+cs Předtím a potom: {what}.
+en Before and after: {what}.
+uk До і після: {what}.
+ru До и после: {what}.
+
+# --- the attic panel ---------------------------------------------------------------------------
+
+ui.attic.title
+cs Babiččina půda
+en Grandma's attic
+uk Бабусине горище
+ru Бабушкин чердак
+
+ui.attic.button
+cs Půda
+en Attic
+uk Горище
+ru Чердак
+
+ui.attic.sub
+cs Nové věci každou sobotu · příště noc {night}
+en New things every Saturday · next on night {night}
+uk Нові речі щосуботи · наступні на ніч {night}
+ru Новые вещи каждую субботу · следующие в ночь {night}
+
+ui.attic.locked
+cs Klíč od půdy se najde na noc {night}.
+en The attic key turns up on night {night}.
+uk Ключ від горища знайдеться на ніч {night}.
+ru Ключ от чердака найдётся в ночь {night}.
+
+ui.attic.empty
+cs Tento týden nic nového. Zkus to v sobotu.
+en Nothing new up here this week. Try again on Saturday.
+uk Цього тижня нічого нового. Зазирни в суботу.
+ru На этой неделе ничего нового. Загляни в субботу.
+
+ui.attic.bring
+cs Snést dolů
+en Bring down
+uk Знести вниз
+ru Спустить вниз
+
+ui.attic.new_price
+cs nové {price}
+en new {price}
+uk нове {price}
+ru новое {price}
+
+ui.attic.upstairs
+cs Čeká nahoře
+en Waiting upstairs
+uk Чекає нагорі
+ru Ждёт наверху
+
+ui.attic.free
+cs zdarma
+en free
+uk безкоштовно
+ru бесплатно
+
+ui.attic.placed
+cs {item} je dole v kavárně — přetáhni ho, kam chceš (B).
+en {item} is down in the café — drag it wherever you like (B).
+uk {item} уже внизу в кав'ярні — перетягни, куди хочеш (B).
+ru {item} уже внизу в кафе — перетащи, куда хочешь (B).
+
+ui.attic.day_only
+cs Věci se snáší přes den.
+en Things come down in the daytime.
+uk Речі зносять удень.
+ru Вещи спускают днём.
+
+ui.attic.no_room
+cs V sále není volné místo — něco posuň.
+en There's no free spot in the hall — move something.
+uk У залі немає вільного місця — щось посунь.
+ru В зале нет свободного места — что-нибудь подвинь.
+
+# --- the back room (in the attic panel) -------------------------------------------------------
+
+ui.backroom.title
+cs Zadní místnost
+en The back room
+uk Задня кімната
+ru Задняя комната
+
+ui.backroom.locked
+cs Zamčená od babiččiných časů. Znovu otevřít se dá od noci {night}.
+en Locked since grandma's day. It can be reopened from night {night}.
+uk Зачинена ще з бабусиних часів. Відчинити можна з ночі {night}.
+ru Заперта с бабушкиных времён. Открыть можно с ночи {night}.
+
+ui.backroom.ready
+cs Pod prostěradly čekají dva stoly. Víc míst, víc podlahy na zařizování.
+en Two tables wait under dust sheets. More seats, more floor to decorate.
+uk Під простирадлами чекають два столики. Більше місць, більше підлоги для облаштування.
+ru Под простынями ждут два столика. Больше мест, больше пола для обустройства.
+
+ui.backroom.open
+cs Otevřít
+en Reopen
+uk Відчинити
+ru Открыть
+
+ui.backroom.is_open
+cs Znovu otevřená od noci {night}.
+en Open again since night {night}.
+uk Знову відчинена з ночі {night}.
+ru Снова открыта с ночи {night}.
+
+# --- requests in the Shiftella app (Requests tab) ------------------------------------------------
+
+ui.requests.build_title
+cs Přání pro kavárnu
+en Wishes for the café
+uk Побажання для кав'ярні
+ru Пожелания для кафе
+
+ui.requests.waiting
+cs Čeká
+en Waiting
+uk Чекає
+ru Ждёт
+
+ui.requests.built
+cs Stojí — uvidí to
+en Built — they'll see it
+uk Стоїть — побачать
+ru Стоит — увидят
+
+ui.requests.thanked
+cs Poděkováno
+en Thanked
+uk Подякували
+ru Поблагодарили
+
+ui.requests.story
+cs Důležité pro jejich příběh
+en Matters to their story
+uk Важливо для їхньої історії
+ru Важно для их истории
+
+ui.requests.build
+cs Stavět
+en Build
+uk Будувати
+ru Строить
+
+ui.requests.opened
+cs Nové přání: {name} — {reason}
+en New wish: {name} — {reason}
+uk Нове побажання: {name} — {reason}
+ru Новое пожелание: {name} — {reason}
+
+# --- corners (toast) -----------------------------------------------------------------------------
+
+ui.corner.formed
+cs Nový kout: {name}
+en A new corner: {name}
+uk Новий куточок: {name}
+ru Новый уголок: {name}
+
+ui.corner.bonus
+cs +{n} útulnost
+en +{n} coziness
+uk +{n} затишку
+ru +{n} уюта

@@ -35,6 +35,8 @@ pub struct Photos {
     cache: HashMap<u64, RenderTarget>,
     /// Keys wanted this frame (rendered next frame, one at a time).
     wanted: Vec<(u64, SceneSnap)>,
+    /// Before / after polaroids wanted (both halves are rendered, then put side by side).
+    wanted_pair: Vec<(u64, SceneSnap, SceneSnap)>,
     pub journal: JournalState,
     /// The morning pick: which candidate is chosen, and how far it has developed (0..1).
     pub pick: usize,
@@ -229,14 +231,57 @@ impl Photos {
         if let Some(t) = self.cache.get(&k) {
             return Some(t.texture.clone());
         }
+        if let Some(before) = &h.before {
+            if !self.wanted_pair.iter().any(|w| w.0 == k) {
+                self.wanted_pair
+                    .push((k, snap_of(content, before), snap_of(content, &h.snap)));
+            }
+            return None;
+        }
         if !self.wanted.iter().any(|w| w.0 == k) {
             self.wanted.push((k, snap_of(content, &h.snap)));
         }
         None
     }
 
+    /// A before / after polaroid: the middle of each photo, side by side (before left).
+    fn render_pair(&mut self, before: &SceneSnap, after: &SceneSnap) -> RenderTarget {
+        let r = self.renderer.get_or_insert_with(SnapRenderer::new);
+        let a = r.render(before, PHOTO_W, PHOTO_H);
+        let b = r.render(after, PHOTO_W, PHOTO_H);
+        let (w, h) = (PHOTO_W as f32, PHOTO_H as f32);
+        let out = render_target(PHOTO_W, PHOTO_H);
+        out.texture.set_filter(FilterMode::Linear);
+        let mut cam = Camera2D::from_display_rect(Rect::new(0.0, 0.0, w, h));
+        cam.render_target = Some(out.clone());
+        set_camera(&cam);
+        clear_background(Color::new(0.97, 0.95, 0.9, 1.0));
+        let gap = 3.0;
+        for (i, t) in [&a, &b].into_iter().enumerate() {
+            draw_texture_ex(
+                &t.texture,
+                i as f32 * (w / 2.0 + gap),
+                0.0,
+                WHITE,
+                DrawTextureParams {
+                    dest_size: Some(vec2(w / 2.0 - gap, h)),
+                    source: Some(Rect::new(w / 4.0, 0.0, w / 2.0, h)),
+                    ..Default::default()
+                },
+            );
+        }
+        set_default_camera();
+        out
+    }
+
     /// Renders one wanted photo (call before the UI camera is set).
     pub fn render_pending(&mut self) {
+        if !self.wanted_pair.is_empty() {
+            let (k, before, after) = self.wanted_pair.remove(0);
+            let rt = self.render_pair(&before, &after);
+            self.cache.insert(k, rt);
+            return;
+        }
         if self.wanted.is_empty() {
             return;
         }
