@@ -69,6 +69,8 @@ struct Mood {
     season: SeasonLook,
     rain: f32,
     fog: f32,
+    /// A storm: the wind loop plays (sounds).
+    storm: bool,
 }
 
 #[derive(Debug)]
@@ -119,7 +121,12 @@ fn mood(g: &GameScreen, content: &Content, weather: Option<Weather>) -> Mood {
         season.snow_cover = season.snow_cover.max(0.8);
         season.breath = 1.0;
     }
-    Mood { season, rain, fog }
+    Mood {
+        season,
+        rain,
+        fog,
+        storm: w == Weather::Storm,
+    }
 }
 
 // ───────────────────────── starting ─────────────────────────
@@ -245,8 +252,7 @@ pub fn backstep_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     ui.glass(r, &Glass::hud().radius(8.0));
     let br = r.inset(4.0);
     if ui.button("walk_backstep", br, &b).clicked {
-        // a new sound would go here: the back door's creak (sounds agent)
-        cx.audio.play_sfx(Sfx::DoorBell);
+        cx.audio.play_sfx_vol(Sfx::DoorCreak, 0.9);
         step_out(g, cx.content, None);
     }
 }
@@ -341,6 +347,10 @@ pub fn frame(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) -> bool {
     }
     sounds(g, cx);
     g.update_audio(&content, cx.audio);
+    if g.walk.on_back_step() {
+        // outside under the awning: its own rain loop instead of the rain on the café window
+        cx.audio.set_rain(false);
+    }
     if done {
         g.walk.scene = None;
     }
@@ -354,35 +364,98 @@ fn set_view_camera(view: Rect) {
     set_camera(&cam);
 }
 
+/// The scenes' sounds (CC0, package K). Bits in `sounds` mark the one-shots already played;
+/// loops are asked for every frame and fade out by themselves when the scene closes.
 fn sounds(g: &mut GameScreen, cx: &mut Ctx) {
+    let mut cues = Cues::default();
     match g.walk.scene.as_mut() {
-        Some(Scene::Walk(w)) => {
-            // new sounds would go here (sounds agent): keys in the lock at the start, steps on
-            // wet cobbles while walking, pigeons taking off, the tram bell, the front door
-            if w.t > 0.6 && w.sounds & 1 == 0 {
-                w.sounds |= 1;
-                cx.audio.play_sfx_vol(Sfx::DoorBell, 0.5);
-            }
-            if w.route.is_some() && w.t - w.picked_at > 0.6 && w.sounds & 2 == 0 {
-                w.sounds |= 2;
-                cx.audio.play_sfx_vol(Sfx::Footsteps, 0.5);
-            }
-            if w.route.as_deref() == Some("tram")
-                && w.t - w.picked_at > 0.4 + WALK_S * 0.24
-                && w.sounds & 4 == 0
-            {
-                w.sounds |= 4;
-                cx.audio.play_sfx_vol(Sfx::TrainPass, 0.5);
-            }
-        }
-        Some(Scene::Back(b)) => {
-            // a new sound would go here: rain on the awning (loop), a phone buzz
-            if b.t > MESSAGE_AT && b.sounds & 1 == 0 && b.message.is_some() {
-                b.sounds |= 1;
-                cx.audio.play_sfx_vol(Sfx::UiClick, 0.6);
-            }
-        }
+        Some(Scene::Walk(w)) => walk_sounds(w, &mut cues),
+        Some(Scene::Back(b)) => back_sounds(b, &mut cues),
         None => {}
+    }
+    for (s, v) in cues.sfx {
+        cx.audio.play_sfx_vol(s, v);
+    }
+    for (a, v) in cues.loops {
+        cx.audio.want_amb(a, v);
+    }
+}
+
+/// What a scene wants to hear this frame (kept apart from the mixer so tests stay silent).
+#[derive(Debug, Default)]
+struct Cues {
+    sfx: Vec<(Sfx, f32)>,
+    loops: Vec<(crate::audio::AmbLoop, f32)>,
+}
+
+/// `true` the first time `bit` is set.
+fn once(bits: &mut u32, bit: u32) -> bool {
+    let first = *bits & bit == 0;
+    *bits |= bit;
+    first
+}
+
+fn walk_sounds(w: &mut Walk, c: &mut Cues) {
+    use crate::audio::AmbLoop;
+    let f = walk_frame(w);
+    // she locks the café door
+    if w.t > 0.6 && once(&mut w.sounds, 1) {
+        c.sfx.push((Sfx::KeysLock, 0.8));
+    }
+    // her steps on the wet pavement while she walks (louder after rain)
+    if f.visible && f.pose == Pose::Walk && w.closing.is_none() {
+        let wet = f.season.wet.max(f.rain.min(1.0));
+        c.loops.push((AmbLoop::WetSteps, 0.55 + 0.35 * wet));
+    }
+    // the pigeons take off as she comes near (`dawn::draw_pigeons`)
+    if f.visible {
+        for (i, gx) in dawn::pigeon_spots(f.route).iter().enumerate().take(4) {
+            if f.karolina.x > gx - 80.0 && once(&mut w.sounds, 16 << i) {
+                c.sfx.push((Sfx::Pigeons, 0.7));
+            }
+        }
+    }
+    if w.route.is_none() {
+        return;
+    }
+    let u = (w.t - w.picked_at - 0.4) / WALK_S;
+    if f.route == Some(DawnRoute::Tram) {
+        // the tram comes in, rings as it leaves the stop, and goes on without her
+        if u > 0.2 && once(&mut w.sounds, 4) {
+            c.sfx.push((Sfx::TramPass, 0.8));
+        }
+        if u > 0.47 && once(&mut w.sounds, 8) {
+            c.sfx.push((Sfx::TramBell, 0.8));
+        }
+        if u > 0.9 && once(&mut w.sounds, 256) {
+            c.sfx.push((Sfx::TramPass, 0.5));
+        }
+    }
+    // home: her front door
+    if u > 1.0 + 0.7 / WALK_S && once(&mut w.sounds, 2) {
+        c.sfx.push((Sfx::DoorOutside, 0.6));
+    }
+}
+
+fn back_sounds(b: &mut Back, c: &mut Cues) {
+    use crate::audio::AmbLoop;
+    if b.mood.rain > 0.0 {
+        c.loops.push((AmbLoop::RainAwning, b.mood.rain.min(1.0)));
+    }
+    if b.mood.storm {
+        c.loops.push((AmbLoop::Storm, 0.8));
+    }
+    if b.t > MESSAGE_AT && b.message.is_some() && once(&mut b.sounds, 1) {
+        c.sfx.push((Sfx::PhoneBuzz, 0.8));
+    }
+    // the cat sits down beside her (`render::backstep`, at 6 s), says hello and, if it
+    // trusts her, purrs
+    if b.t > 6.3 && once(&mut b.sounds, 2) {
+        c.sfx.push((Sfx::CatMeow, 0.45 + 0.3 * b.cat));
+    }
+    if b.t > 6.8 && b.cat > 0.3 && b.closing.is_none() {
+        c.loops
+            .push((AmbLoop::CatPurr, ((b.cat - 0.3) / 0.7).clamp(0.2, 1.0)));
     }
 }
 
@@ -828,9 +901,92 @@ mod tests {
                 season: SeasonLook::NONE,
                 rain: 0.0,
                 fog: 0.0,
+                storm: false,
             },
             sounds: 0,
         }
+    }
+
+    /// Runs a walk to the end and collects what it played (one-shots) and the loops it asked for.
+    fn walk_cues(route: &str) -> (Vec<Sfx>, usize) {
+        let mut w = walk_with(route);
+        let (mut sfx, mut steps) = (Vec::new(), 0);
+        while w.t < 0.4 + WALK_S + ARRIVE_S {
+            let mut c = Cues::default();
+            walk_sounds(&mut w, &mut c);
+            sfx.extend(c.sfx.iter().map(|s| s.0));
+            steps += c.loops.len();
+            w.t += 1.0 / 30.0;
+        }
+        (sfx, steps)
+    }
+
+    #[test]
+    fn the_walk_home_sounds_like_the_way_she_takes() {
+        for id in ["embankment", "park", "bakery", "tram"] {
+            let (sfx, steps) = walk_cues(id);
+            let n = |s: Sfx| sfx.iter().filter(|x| **x == s).count();
+            assert_eq!(n(Sfx::KeysLock), 1, "{id}: locks up once");
+            assert_eq!(n(Sfx::DoorOutside), 1, "{id}: her front door once");
+            assert!(steps > 100, "{id}: steps while she walks ({steps})");
+            let spots = dawn::pigeon_spots(DawnRoute::from_id(id)).len();
+            assert!(
+                n(Sfx::Pigeons) >= 1 && n(Sfx::Pigeons) <= spots,
+                "{id}: pigeons"
+            );
+            if id == "tram" {
+                assert_eq!(n(Sfx::TramBell), 1);
+                assert_eq!(n(Sfx::TramPass), 2, "it comes, and goes on");
+            } else {
+                assert_eq!(n(Sfx::TramBell) + n(Sfx::TramPass), 0, "{id}: no tram");
+            }
+            assert!(!sfx.contains(&Sfx::DoorBell), "{id}: no café bell outside");
+        }
+    }
+
+    #[test]
+    fn the_back_step_has_rain_on_the_awning_the_phone_and_the_cat() {
+        let mut b = Back {
+            t: 0.0,
+            closing: None,
+            mood: Mood {
+                season: SeasonLook::NONE,
+                rain: 0.8,
+                fog: 0.0,
+                storm: false,
+            },
+            message: Some(("m".into(), "n".into())),
+            clock: String::new(),
+            cat: 0.9,
+            sounds: 0,
+        };
+        let (mut sfx, mut purr, mut rain) = (Vec::new(), 0, 0);
+        while b.t < 12.0 {
+            let mut c = Cues::default();
+            back_sounds(&mut b, &mut c);
+            sfx.extend(c.sfx.iter().map(|s| s.0));
+            for (a, _) in &c.loops {
+                match a {
+                    crate::audio::AmbLoop::CatPurr => purr += 1,
+                    crate::audio::AmbLoop::RainAwning => rain += 1,
+                    _ => {}
+                }
+            }
+            b.t += 1.0 / 30.0;
+        }
+        assert_eq!(sfx, vec![Sfx::PhoneBuzz, Sfx::CatMeow]);
+        assert!(purr > 60 && rain > 300, "purr {purr}, rain {rain}");
+        // a shy cat (low affection) says hello but doesn't purr; no rain, no awning loop
+        b.t = 0.0;
+        b.sounds = 0;
+        b.cat = 0.1;
+        b.mood.rain = 0.0;
+        b.message = None;
+        let mut c = Cues::default();
+        b.t = 8.0;
+        back_sounds(&mut b, &mut c);
+        assert_eq!(c.sfx.len(), 1);
+        assert!(c.loops.is_empty());
     }
 
     #[test]

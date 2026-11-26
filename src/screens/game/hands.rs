@@ -709,7 +709,7 @@ impl GameScreen {
                 if ok {
                     self.hands
                         .equip_sounds
-                        .push((crate::audio::Sfx::UiClick, 0.45));
+                        .push((crate::audio::Sfx::LampSwitch, 0.8));
                     self.hands.tut.bump("lamp_toggled");
                 }
                 ok
@@ -904,6 +904,9 @@ impl GameScreen {
                 let fridge =
                     self.world.equipment_kind(content, uid) == Some(sim::EquipKind::Fridge);
                 if fridge && self.hands.book.is_none() {
+                    self.hands
+                        .equip_sounds
+                        .push((crate::audio::Sfx::FridgeDoor, 0.55));
                     self.open_book(None);
                     return true;
                 }
@@ -1474,7 +1477,7 @@ impl GameScreen {
     /// Appliance events (v0.2): the sound, a small float over the piece, the till's count.
     fn equip_event(&mut self, content: &Content, e: &SimEvent) {
         use crate::audio::Sfx;
-        use sim::{EquipAction as A, EquipCue};
+        use sim::EquipCue;
         let top = |w: &World, uid: u32| {
             w.furniture_by_uid(uid)
                 .map(|p| vec2(p.x as f32 + 0.5, p.y as f32 - 0.35) * TILE)
@@ -1482,14 +1485,11 @@ impl GameScreen {
         match e {
             SimEvent::EquipmentUsed { uid, action, by } => {
                 let mine = by.is_some() && *by == self.world.karolina().map(|k| k.id);
-                let sound = match action {
-                    A::WarmUp | A::PullTray | A::Service | A::CleanUp => (Sfx::CoffeeMachine, 0.5),
-                    A::CountTill => (Sfx::CashRegister, 0.5),
-                    A::Trash => (Sfx::DoorBell, 0.25),
-                    _ => (Sfx::CupSaucer, 0.45),
-                };
                 if mine {
-                    self.hands.equip_sounds.push(sound);
+                    let kind = self.world.equipment_kind(content, *uid);
+                    self.hands
+                        .equip_sounds
+                        .extend_from_slice(equip_sounds(*action, kind));
                     self.hands.tut.bump("equip_done");
                     if let Some(at) = top(&self.world, *uid) {
                         self.hands.floats.push(Float {
@@ -1503,10 +1503,12 @@ impl GameScreen {
                 let _ = content;
             }
             SimEvent::EquipmentCue { cue, .. } => {
+                // the pot's bubbling itself is the soup loop swelling (`update_audio`); the cue
+                // adds a small lid rattle
                 let sound = match cue {
-                    EquipCue::Ding => (Sfx::DoorBell, 0.3),
-                    EquipCue::Bubbling => (Sfx::CupSaucer, 0.2),
-                    EquipCue::Sputter => (Sfx::CoffeeMachine, 0.25),
+                    EquipCue::Ding => (Sfx::OvenDing, 0.8),
+                    EquipCue::Bubbling => (Sfx::PotLid, 0.25),
+                    EquipCue::Sputter => (Sfx::MachineSputter, 0.45),
                 };
                 self.hands.equip_sounds.push(sound);
             }
@@ -1527,6 +1529,7 @@ impl GameScreen {
                 );
             }
             SimEvent::TrashOut { cat: true } => {
+                self.hands.equip_sounds.push((Sfx::CatMeow, 0.45));
                 self.toast_key(ToastKind::Info, Icon::Heart, "equip.trash.cat", &[]);
             }
             _ => {}
@@ -2149,5 +2152,33 @@ pub fn tier_id(t: MatchTier) -> &'static str {
         MatchTier::Good => "good",
         MatchTier::Okay => "okay",
         MatchTier::NotQuite => "not_quite",
+    }
+}
+
+/// The sounds of a chore Karolina finished at an appliance (CC0 files, v0.2 package K).
+/// Servicing a worn piece sounds like that piece: the purge on the machine, the door on the
+/// fridge or the oven, the spoon on the stove.
+fn equip_sounds(
+    action: sim::EquipAction,
+    kind: Option<sim::EquipKind>,
+) -> &'static [(crate::audio::Sfx, f32)] {
+    use crate::audio::Sfx;
+    use sim::{EquipAction as A, EquipKind as K};
+    match action {
+        A::WarmUp => &[(Sfx::MachineHiss, 0.8)],
+        A::PullTray => &[(Sfx::ShotPull, 0.8)],
+        A::Service => match kind {
+            Some(K::Fridge) => &[(Sfx::FridgeDoor, 0.7)],
+            Some(K::Oven) => &[(Sfx::OvenDoor, 0.7)],
+            Some(K::Stove) => &[(Sfx::PotStir, 0.7)],
+            _ => &[(Sfx::MachinePurge, 0.8)],
+        },
+        A::CleanUp => &[(Sfx::GroupClean, 0.8)],
+        A::SoupOn => &[(Sfx::PotLid, 0.7)],
+        A::Stir => &[(Sfx::PotStir, 0.75)],
+        A::Bake | A::TakeOut => &[(Sfx::OvenDoor, 0.75)],
+        A::Milk => &[(Sfx::FridgeDoor, 0.7), (Sfx::BottleClink, 0.5)],
+        A::CountTill => &[(Sfx::TillCoins, 0.8)],
+        A::Trash => &[(Sfx::TrashBag, 0.7), (Sfx::DoorOutside, 0.55)],
     }
 }

@@ -1064,7 +1064,11 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         tastes: taste_names(&loc),
     };
     let area = ui.screen();
+    let tab_before = open.state.tab;
     let action = recipe_book(ui, "book", area, &view, &labels, &mut open.state);
+    if open.state.tab != tab_before {
+        cx.audio.play_sfx_vol(crate::audio::Sfx::PageFlip, 0.7);
+    }
     let bs = crate::ui::handson::BOOK_SIZE;
     g.anchors.push((
         "book",

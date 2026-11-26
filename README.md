@@ -86,11 +86,13 @@ cargo clippy --all-targets
 scripts/package-macos.sh     # dist/Shiftella.app + dist/Shiftella-macos.zip
 ```
 
-**Audio is not in this repository.** The music and sound effects were generated with
+**Most audio is not in this repository.** The music and most sound effects were generated with
 [ElevenLabs](https://elevenlabs.io), whose licence allows them in the game but not redistributed on
-their own, so they ship only inside the release build. A source build runs silently; to generate
-your own audio, put `ELEVENLABS_API_KEY=…` in `.env` and run `python3 -I design/audio/generate.py`
-(prompts in `design/audio/prompts.json`).
+their own, so they ship only inside the release build. A source build plays only the CC0 sounds
+in `assets/audio/cc0/` (appliances, the walk home, the back step; sources and changes in
+`assets/audio/CREDITS.md`, cut with `design/audio/cut_cc0.sh`). To generate your own audio, put
+`ELEVENLABS_API_KEY=…` in `.env` and run `python3 -I design/audio/generate.py` (prompts in
+`design/audio/prompts.json`).
 
 ## Repository layout
 
@@ -109,7 +111,8 @@ Developer automation (jump into any scene, autoplay, invisible screenshot runs) 
 
 ## Credits
 
-Made with love by **Anwar** & **Claude**. Music and sound effects: ElevenLabs. Font:
+Made with love by **Anwar** & **Claude**. Music and sound effects: ElevenLabs, plus CC0
+recordings from Freesound and Kenney (listed in `assets/audio/CREDITS.md`). Font:
 [Inter](https://rsms.me/inter/) (SIL Open Font License 1.1, see `assets/fonts/OFL.txt`).
 Train stations on the line are named after Shiftella release codenames — Adamov, Beroun, Cheb,
 Děčín, Ejpovice, Frýdlant.

@@ -3,9 +3,11 @@
 .DS_Store
 /shots
 /dist
-/assets/audio/
-/design/audio/raw/
 
-# Generated audio (ElevenLabs licence: ships only inside release builds)
-/assets/audio/
+# Generated audio (ElevenLabs licence: ships only inside release builds). Everything under
+# assets/audio/ stays ignored except the CC0 sounds and their credits (v0.2 package K).
+/assets/audio/*
+!/assets/audio/cc0/
+!/assets/audio/CREDITS.md
+# raw downloads (Freesound / Kenney originals) are never committed, only the cut files
 /design/audio/raw/

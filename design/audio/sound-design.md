@@ -247,7 +247,9 @@ shiftella-game/
 ├── .env                      # ELEVENLABS_API_KEY=... (git-ignored, never commit it)
 ├── assets/audio/             # generated, NOT in the public repo (ships in release builds only)
 │   ├── music/                # mus_*.ogg, stg_*.ogg
-│   └── sfx/                  # sfx_*.wav, ui_*.wav, amb_*.ogg
+│   ├── sfx/                  # sfx_*.wav, ui_*.wav, amb_*.ogg
+│   ├── cc0/                  # CC0 cuts (Freesound, Kenney): committed, see CREDITS.md
+│   └── CREDITS.md            # every cc0/ file: source, author, URL, licence, what was changed
 └── design/audio/
     ├── sound-design.md       # this document
     ├── prompts.json          # generation prompts
@@ -257,6 +259,11 @@ shiftella-game/
     ├── sources.md            # candidates from the web
     └── raw/                  # source mp3s from ElevenLabs, NOT in the public repo
 ```
+
+The game looks a sound id up in `sfx/` first and then in `cc0/` (`audio::sound_paths`), so a
+generated file of the same id replaces a CC0 one. The CC0 files are cut by
+`design/audio/cut_cc0.sh` (all at −24 LUFS, loops crossfaded at the seam) and checked with
+`design/audio/cc0_report.sh`.
 
 When there are more than 30 files, `assets/audio/sfx/` can be split into `sfx/`, `ui/`, `ambience/`. The paths in the code then change — agree on it with the programmers.
 

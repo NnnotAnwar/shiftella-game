@@ -38,7 +38,9 @@ pub const MUSIC_TRACKS: &[&str] = &[
     "jukebox_cafe_waltz",
 ];
 
-/// Sound ids usable in cutscenes (files in `assets/audio/sfx/`).
+/// Sound ids usable in cutscenes (files in `assets/audio/sfx/` — the generated pack, not in
+/// the repository — or `assets/audio/cc0/`, committed). `amb_` ids loop: a cutscene step's
+/// volume holds the loop at that level, `0` lets it fade out.
 pub const SFX_IDS: &[&str] = &[
     "amb_rain_window_loop",
     "amb_train_pass_far",
@@ -50,6 +52,41 @@ pub const SFX_IDS: &[&str] = &[
     "sfx_power_outage",
     "ui_alert_event",
     "ui_click",
+    // CC0 (assets/audio/cc0/, assets/audio/CREDITS.md)
+    "sfx_machine_hiss",
+    "sfx_machine_purge",
+    "sfx_machine_sputter",
+    "sfx_shot_pull",
+    "sfx_group_clean",
+    "sfx_knock_box",
+    "sfx_pot_lid",
+    "sfx_pot_stir",
+    "sfx_oven_ding",
+    "sfx_oven_door",
+    "sfx_fridge_door",
+    "sfx_bottle_clink",
+    "sfx_till_coins",
+    "sfx_trash_bag",
+    "sfx_door_outside",
+    "sfx_lamp_switch",
+    "sfx_keys_lock",
+    "sfx_pigeons",
+    "sfx_tram_bell",
+    "sfx_tram_pass",
+    "sfx_door_creak",
+    "sfx_phone_buzz",
+    "sfx_cat_meow",
+    "sfx_book_open",
+    "sfx_page_flip",
+    "sfx_blanket",
+    "sfx_chalk",
+    "photo_shutter",
+    "photo_eject",
+    "amb_soup_simmer",
+    "amb_rain_awning",
+    "amb_storm",
+    "amb_cat_purr",
+    "amb_wet_steps",
 ];
 
 /// Everything in `assets/data`.
@@ -268,11 +305,12 @@ mod tests {
     #[test]
     fn audio_ids_exist_on_disk() {
         let root = concat!(env!("CARGO_MANIFEST_DIR"), "/assets/audio");
-        // The audio is not in the source repository (licence): it ships only inside release
-        // builds. A checkout without `assets/audio` has nothing to check; one with it (a release
-        // tree) must have every file.
-        if !std::path::Path::new(root).is_dir() {
-            eprintln!("audio_ids_exist_on_disk: no assets/audio — skipped");
+        // The generated audio is not in the source repository (licence): it ships only inside
+        // release builds. A checkout without it (`assets/audio/music`) has nothing to check; one
+        // with it (a release tree) must have every file. The CC0 sounds (`assets/audio/cc0/`) are
+        // always there — `audio::tests::cc0_sounds_are_on_disk_and_credited` checks them.
+        if !std::path::Path::new(&format!("{root}/music")).is_dir() {
+            eprintln!("audio_ids_exist_on_disk: no generated pack (assets/audio/music) — skipped");
             return;
         }
         for m in MUSIC_TRACKS {
@@ -282,12 +320,12 @@ mod tests {
             );
         }
         for s in SFX_IDS {
-            let ogg = format!("{root}/sfx/{s}.ogg");
-            let wav = format!("{root}/sfx/{s}.wav");
-            assert!(
-                std::path::Path::new(&ogg).exists() || std::path::Path::new(&wav).exists(),
-                "{s}"
-            );
+            let found = ["sfx", "cc0"].iter().any(|d| {
+                ["ogg", "wav"]
+                    .iter()
+                    .any(|e| std::path::Path::new(&format!("{root}/{d}/{s}.{e}")).exists())
+            });
+            assert!(found, "{s}");
         }
     }
 

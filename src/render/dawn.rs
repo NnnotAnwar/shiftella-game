@@ -2083,8 +2083,9 @@ fn draw_lamps(view: Rect, f: &DawnFrame, sk: &Sky) {
     }
 }
 
-/// Where the pigeons peck on this route.
-fn pigeon_spots(route: Option<DawnRoute>) -> &'static [f32] {
+/// Where the pigeons peck on this route (they take off as she comes within ~90 px; the walk
+/// home plays their flutter then).
+pub fn pigeon_spots(route: Option<DawnRoute>) -> &'static [f32] {
     match route {
         None => &[330.0],
         Some(DawnRoute::Embankment) => &[700.0, 1500.0],

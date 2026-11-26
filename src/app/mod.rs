@@ -911,6 +911,8 @@ pub async fn run() {
     if !silent && !crate::audio::audio_available() {
         eprintln!("info: assets/audio not found — playing without sound");
         silent = true;
+    } else if !silent && !crate::audio::generated_pack_available() {
+        eprintln!("info: no generated music / sound pack — playing the CC0 sounds only");
     }
     if !silent {
         for i in 0..Audio::FILES {

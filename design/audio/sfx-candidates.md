@@ -1,6 +1,11 @@
 # SFX candidates for the v0.2 interactions
 
-Research only: **nothing has been downloaded.** The owner approves every download first.
+**Status (2026-11-26):** the owner approved the list and the 25 Freesound files + Kenney packs were
+downloaded into `design/audio/raw/` (git-ignored). The cut files are in `assets/audio/cc0/`,
+credited in `assets/audio/CREDITS.md` (not `CREDITS.txt`). Wet footsteps came out of the Kenney
+concrete steps instead of sean_sd2007's take (too much traffic under the steps).
+
+Originally research only: the owner approved every download first.
 Checked on 2026-11-26. Every Freesound licence below was read on the sound's own page. The Kenney licences were read on the pack pages, and the Kenney file names come from public repositories that ship the unchanged packs (for example `godotengine/godot-benchmarks`, `supplemental/audio`).
 
 ## What the code expects
