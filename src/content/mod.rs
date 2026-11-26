@@ -264,6 +264,13 @@ mod tests {
     #[test]
     fn audio_ids_exist_on_disk() {
         let root = concat!(env!("CARGO_MANIFEST_DIR"), "/assets/audio");
+        // The audio is not in the source repository (licence): it ships only inside release
+        // builds. A checkout without `assets/audio` has nothing to check; one with it (a release
+        // tree) must have every file.
+        if !std::path::Path::new(root).is_dir() {
+            eprintln!("audio_ids_exist_on_disk: no assets/audio — skipped");
+            return;
+        }
         for m in MUSIC_TRACKS {
             assert!(
                 std::path::Path::new(&format!("{root}/music/{m}.ogg")).exists(),
