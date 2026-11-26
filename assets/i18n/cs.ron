@@ -1965,7 +1965,7 @@
     "ui.crew.fire_day_only": "Propustit jde jen přes den",
     "ui.crew.fired_toast": "{name} odchází",
     "ui.crew.fired_undo": "{name} odchází · Zpět",
-    "ui.crew.follow": "Sledovat kamerou",
+    "ui.crew.follow": "Sledovat",
     "ui.crew.hire": "Najmout",
     "ui.crew.hired": "Nový člen týmu: {staff}",
     "ui.crew.hired_toast": "{name} je v týmu",

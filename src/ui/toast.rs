@@ -240,7 +240,7 @@ impl Ui {
             self.fonts
                 .wrap(b, WIDTH - 52.0 - 14.0, &self.theme.small())
                 .len()
-                .min(3)
+                .min(4)
         });
         let text_h = 18.0 + body_lines as f32 * 16.0;
         let mut h = 12.0 + text_h.max(28.0) + 12.0;
@@ -370,7 +370,7 @@ impl Ui {
                 Rect::new(tx, y, tw, 48.0),
                 &t.small().line_height(1.33),
                 Align::Left,
-                Some(3),
+                Some(4),
             );
             y += used;
         }

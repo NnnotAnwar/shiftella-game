@@ -806,7 +806,8 @@ fn pantry(
         (Shelf::Bar, &l.bar_shelf),
         (Shelf::Kitchen, &l.kitchen_shelf),
     ];
-    let item_h = JAR.y + 15.0;
+    // a name under each jar: one line, or two smaller ones ("Корица и гвоздика")
+    let item_h = JAR.y + 26.0;
     let mut content_h = 0.0;
     for (sh, _) in shelves {
         let n = v.pantry.iter().filter(|i| i.shelf == sh).count();
@@ -856,15 +857,21 @@ fn pantry(
                 );
             }
             let name = if ing.unlocked { ing.name.as_str() } else { "" };
-            ui.fonts.draw_in(
+            ui.fonts.draw_fit(
                 name,
-                Rect::new(cell.x - 2.0, cell.y + JAR.y, JAR.x + 4.0, 15.0),
+                Rect::new(
+                    cell.x - gap * 0.5 + 1.0,
+                    cell.y + JAR.y,
+                    JAR.x + gap - 2.0,
+                    26.0,
+                ),
                 &TextStyle::new(
                     10.5,
                     Weight::Medium,
                     if chosen { t.indigo_300 } else { t.text_dim },
                 ),
                 Align::Center,
+                0.86,
             );
             let tip = if ing.unlocked {
                 format!("{} · {}", ing.name, ing.family)

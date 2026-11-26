@@ -685,8 +685,19 @@ pub fn rozpis_board(
     let auto = Button::new(&l.autofill).icon(Icon::Sparkle);
     let clear = Button::new(&l.clear).ghost();
     let pw = ui.button_width(&publish);
-    let aw = ui.button_width(&auto);
-    let cw = ui.button_width(&clear);
+    let mut aw = ui.button_width(&auto);
+    let mut cw = ui.button_width(&clear);
+    // a narrow tablet (large UI scale, a long language): Clear, then Auto-fill become icon
+    // buttons (with their names as tooltips) so the week's badge keeps its room
+    let badge_min = fairness_badge_width(ui, &v.fairness).min(150.0) + 12.0;
+    let icon_clear = ar.w < pw + cw + aw + 10.0 + badge_min;
+    if icon_clear {
+        cw = 30.0;
+    }
+    let icon_auto = ar.w < pw + cw + aw + 10.0 + badge_min;
+    if icon_auto {
+        aw = 30.0;
+    }
     let mut x = ar.right() - pw;
     if ui
         .button(id.with("publish"), Rect::new(x, ar.y, pw, 30.0), &publish)
@@ -695,17 +706,35 @@ pub fn rozpis_board(
         action = Some(RozpisAction::Publish);
     }
     x -= cw + 4.0;
-    if ui
-        .button(id.with("clear"), Rect::new(x, ar.y, cw, 30.0), &clear)
+    let clear_r = Rect::new(x, ar.y, cw, 30.0);
+    let clicked = if icon_clear {
+        ui.icon_button(
+            id.with("clear"),
+            clear_r,
+            Icon::Undo,
+            &crate::ui::IconButton::ghost().tooltip(&l.clear),
+        )
         .clicked
-    {
+    } else {
+        ui.button(id.with("clear"), clear_r, &clear).clicked
+    };
+    if clicked {
         action = Some(RozpisAction::Clear);
     }
     x -= aw + 6.0;
-    if ui
-        .button(id.with("auto"), Rect::new(x, ar.y, aw, 30.0), &auto)
+    let auto_r = Rect::new(x, ar.y, aw, 30.0);
+    let clicked = if icon_auto {
+        ui.icon_button(
+            id.with("auto"),
+            auto_r,
+            Icon::Sparkle,
+            &crate::ui::IconButton::secondary().tooltip(&l.autofill),
+        )
         .clicked
-    {
+    } else {
+        ui.button(id.with("auto"), auto_r, &auto).clicked
+    };
+    if clicked {
         action = Some(RozpisAction::AutoFill);
     }
     let fw = fairness_badge_width(ui, &v.fairness).min(x - ar.x - 12.0);
@@ -795,7 +824,17 @@ fn draw_cell(ui: &mut Ui, cell: Rect, s: ShiftCell, label: &str, hover: f32, loc
                 ),
             );
             let st = fit(ui, st);
-            ui.fonts.draw_in(label, cell, &st, Align::Center);
+            if ui.fonts.measure(label, &st) > cell.w - 3.0 {
+                // a narrow cell (large UI scale): the shift's icon instead of a cut word
+                let icon = match s {
+                    ShiftCell::Full => Icon::Clock,
+                    ShiftCell::Early => Icon::Sunrise,
+                    _ => Icon::Moon,
+                };
+                draw_icon(icon, cell.center(), 12.0, WHITE);
+            } else {
+                ui.fonts.draw_in(label, cell, &st, Align::Center);
+            }
         }
     }
     if hover > 0.01 {

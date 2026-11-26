@@ -346,6 +346,12 @@ impl Ui {
                     eprintln!("layout: {key}");
                 }
             }
+            for text in super::text::take_cuts() {
+                let key = format!("cut: {text}");
+                if self.layout_logged.insert(key.clone()) {
+                    eprintln!("layout: {key}");
+                }
+            }
         }
         self.draw_popup();
         self.draw_tooltip();

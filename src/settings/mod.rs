@@ -17,7 +17,7 @@
 
 mod panel;
 
-pub use panel::{PANEL_SIZE, SettingsResponse, settings_panel};
+pub use panel::{PANEL_SIZE, SettingsResponse, panel_rect, settings_panel};
 
 use std::path::{Path, PathBuf};
 

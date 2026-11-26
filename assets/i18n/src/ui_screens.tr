@@ -295,10 +295,10 @@ uk колеги
 ru коллеги
 
 ui.crew.follow
-cs Sledovat kamerou
-en Follow with camera
-uk Стежити камерою
-ru Следить камерой
+cs Sledovat
+en Follow
+uk Стежити
+ru Следить
 
 ui.priorities.title
 cs Priority práce
@@ -375,7 +375,7 @@ ru Передача смены
 ui.app.tab.digest
 cs Přehled noci
 en Night digest
-uk Підсумок ночі
+uk Підсумок
 ru Итоги ночи
 
 ui.app.tab.payroll
@@ -387,7 +387,7 @@ ru Зарплаты
 ui.app.tab.bot
 cs Zprávy
 en Messages
-uk Повідомлення
+uk Чат
 ru Сообщения
 
 ui.app.schedule_title

@@ -315,7 +315,26 @@ impl Fonts {
 
     /// Single line inside `r`: vertically centred, aligned, ellipsised to fit.
     /// Returns the drawn width.
+    /// A text a little too wide first gets up to 15 % smaller (never below 9 pt); only then
+    /// is it cut with "…" (long words in cs/uk/ru at a large UI scale).
     pub fn draw_in(&self, text: &str, r: Rect, style: &TextStyle, align: Align) -> f32 {
+        if r.w > 1.0 && self.measure(text, style) > r.w {
+            let min = (style.size * 0.85).max(9.0).min(style.size);
+            let mut size = style.size;
+            while size > min {
+                size = (size - 0.5).max(min);
+                let st = style.size(size);
+                if self.measure(text, &st) <= r.w {
+                    return self.draw_in_exact(text, r, &st, align);
+                }
+            }
+            return self.draw_in_exact(text, r, &style.size(min), align);
+        }
+        self.draw_in_exact(text, r, style, align)
+    }
+
+    /// [`Fonts::draw_in`] at exactly `style.size` (cut with "…" if it doesn't fit).
+    fn draw_in_exact(&self, text: &str, r: Rect, style: &TextStyle, align: Align) -> f32 {
         let t = self.ellipsize(text, r.w, style);
         let w = self.measure(&t, style);
         let x = match align {
@@ -324,6 +343,48 @@ impl Fonts {
             Align::Right => r.x + r.w - w,
         };
         self.draw(&t, x, self.baseline_in(r, style), style)
+    }
+
+    /// Like [`Fonts::draw_in`], but a text that doesn't fit first gets smaller (down to
+    /// `min_scale` of its size), then — if `r` is tall enough — wraps onto two lines at that
+    /// size; only then is it cut with "…". For labels whose words matter (instructions,
+    /// names, the ticker) in the longer languages and at a large UI scale.
+    pub fn draw_fit(&self, text: &str, r: Rect, style: &TextStyle, align: Align, min_scale: f32) {
+        if self.measure(text, style) <= r.w {
+            self.draw_in_exact(text, r, style, align);
+            return;
+        }
+        let min = (style.size * min_scale.clamp(0.5, 1.0))
+            .max(9.0)
+            .min(style.size);
+        let mut size = style.size;
+        while size > min {
+            size = (size - 0.5).max(min);
+            let st = style.size(size);
+            if self.measure(text, &st) <= r.w {
+                self.draw_in_exact(text, r, &st, align);
+                return;
+            }
+        }
+        let st = style.size(min);
+        let lh = st.line_h();
+        if r.h >= lh * 2.0 - 1.0 {
+            let lines = self.wrap(text, r.w, &st);
+            if lines.len() >= 2 {
+                let top = r.y + (r.h - lh * 2.0) * 0.5;
+                let n = lines.len().min(2);
+                let mut shown: Vec<String> = lines[..n].to_vec();
+                if lines.len() > 2 {
+                    let rest = lines[1..].join(" ");
+                    shown[1] = self.ellipsize(&rest, r.w, &st).into_owned();
+                }
+                for (i, l) in shown.iter().enumerate() {
+                    self.draw_in_exact(l, Rect::new(r.x, top + i as f32 * lh, r.w, lh), &st, align);
+                }
+                return;
+            }
+        }
+        self.draw_in_exact(text, r, &st, align);
     }
 
     /// Draw so the text ends at `right` (baseline `y`).
@@ -340,7 +401,11 @@ impl Fonts {
 
     /// Cut with "…" so it fits `max_w`.
     pub fn ellipsize<'a>(&self, text: &'a str, max_w: f32, style: &TextStyle) -> Cow<'a, str> {
-        ellipsize_with(text, max_w, |s| self.measure(s, style))
+        let out = ellipsize_with(text, max_w, |s| self.measure(s, style));
+        if matches!(out, Cow::Owned(_)) {
+            note_cut(text);
+        }
+        out
     }
 
     /// Greedy word-wrap into lines no wider than `max_w`.
@@ -632,6 +697,26 @@ mod tests {
 
 thread_local! {
     static OVERFLOWS: std::cell::RefCell<Vec<(Rect, String)>> = const { std::cell::RefCell::new(Vec::new()) };
+    static CUTS: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Layout debug: a text cut with "…" to fit (logged once by `Ui::end_frame`, so a sweep can
+/// list every truncated string per language and resolution).
+fn note_cut(text: &str) {
+    if !LAYOUT_DEBUG.load(std::sync::atomic::Ordering::Relaxed) {
+        return;
+    }
+    CUTS.with(|c| {
+        let mut c = c.borrow_mut();
+        if c.len() < 256 {
+            c.push(text.to_string());
+        }
+    });
+}
+
+/// Texts cut with "…" this frame (see [`note_cut`]).
+pub(crate) fn take_cuts() -> Vec<String> {
+    CUTS.with(|c| std::mem::take(&mut *c.borrow_mut()))
 }
 
 /// Set by `Ui::new` from `SHIFTELLA_LAYOUT_DEBUG`.
