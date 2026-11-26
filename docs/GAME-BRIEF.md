@@ -114,7 +114,11 @@ Do not edit files outside your area. If you need something from another area, wr
 your final report as an interface request.
 
 ## 6. Hands-on gameplay (in v0.1.0, owner decision 2026-11-26)
-Goal: the player is not only a manager — the heir works behind the counter herself. Relaxing,
+Goal: the player is not only a manager — the heir works behind the counter herself.
+**Core principle (owner): "I don't want to just watch the game play itself."** The loop is PLAYER-FIRST:
+the heir does the core work by hand every night; staff are helpers who only take what the player
+delegates (limited, never the whole café); regulars, wishes, specials, moments and story beats always need
+the player; at ×1 there is almost always something meaningful to do. Relaxing,
 tactile, never failable. Three features:
 
 1. **The heir behind the counter (direct control).** A `player` actor (look preset `player`) lives in the
