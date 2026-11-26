@@ -9,6 +9,8 @@
 //! SIM_VISITS=1     # print each regular's last visits (night:served minutes) and trust
 //! ```
 //! `--player-bot` is the default; `--no-bot` = nobody behind the counter (Karolina steps back).
+//! `--inattentive`: the bot leaves every story choice on its default and builds nothing for
+//! the regulars (before T10 it always played like that).
 
 use std::collections::BTreeMap;
 
@@ -64,6 +66,7 @@ fn main() {
     let seeds: u64 = pos.get(3).and_then(|s| s.parse().ok()).unwrap_or(6);
     let no_bot = args.iter().any(|a| a == "--no-bot");
     let thrifty = args.iter().any(|a| a == "--thrifty");
+    let attentive = !args.iter().any(|a| a == "--inattentive");
     let (quality, react) = match args.iter().position(|a| a == "--player-bot") {
         Some(i) => (
             args.get(i + 1).and_then(|s| s.parse().ok()).unwrap_or(0.75),
@@ -128,6 +131,7 @@ fn main() {
             hire_nights: plan.clone(),
             seed,
             thrifty,
+            attentive,
             ..Default::default()
         });
         for _ in 0..nights {

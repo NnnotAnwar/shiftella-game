@@ -37,6 +37,8 @@ mod xlogic;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod tests_arcs;
+#[cfg(test)]
 mod tests_balance;
 #[cfg(test)]
 mod tests_hands;
