@@ -681,7 +681,12 @@ fn minigame(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
     let status = if paused {
         MiniGameStatus::Running
     } else if let Some(ap) = auto {
-        let input = if ap.keyboard {
+        let input = if ap.skip_minigames {
+            crate::minigame::MgInput {
+                skip: true,
+                ..Default::default()
+            }
+        } else if ap.keyboard {
             mg.game.autoplay_keyboard_input()
         } else {
             mg.game.autoplay_input()

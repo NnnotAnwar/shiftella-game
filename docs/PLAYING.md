@@ -185,3 +185,13 @@ the clock crawls.
 * Pendant lamps, plants and a rug make the hall nicer; guests stay happier.
 * A paused game is a fine place to think. Event buttons still work while paused.
 * On Cozy nothing can really go wrong. Classic makes the payments matter.
+
+## For developers: automation runs
+
+Screenshot, autoplay and QA runs (`SHIFTELLA_SHOT`, `SHIFTELLA_AUTOPLAY`, or
+`SHIFTELLA_HIDDEN=1`) are **invisible** on macOS: no Dock icon, never frontmost, no focus
+taken, no sound, the window fully transparent and click-through behind the other windows —
+the game still renders every frame and the screenshot is the real picture (`src/platform.rs`).
+`SHIFTELLA_HIDDEN=0` keeps the window visible, e.g. to watch an autoplay run. Prefer the
+headless checks (`cargo test`, `game_autoplay`, `sim_balance`, `sim_headless`) where a
+picture isn't needed.

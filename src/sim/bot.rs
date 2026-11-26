@@ -10,6 +10,7 @@
 //! specials, and books the weekly payroll with a tip split. It only uses the public `World`
 //! API, like the UI.
 
+use super::grid;
 use super::hands::*;
 use super::rng::Rng;
 use super::types::*;
@@ -44,6 +45,10 @@ pub struct BotConfig {
     /// Balance runs: no decor purchases, the tip split stays with the café, no star bonus
     /// (to compare money with runs before the T5 systems).
     pub thrifty: bool,
+    /// T10: plays the story like an attentive player — answers story choices kindly
+    /// ([`attentive_choices`]) and builds what a regular asks for (Filip's socket table, Lori's
+    /// stage). `false` = every scene ends on its defaults (no choice picked), as before.
+    pub attentive: bool,
 }
 
 impl Default for BotConfig {
@@ -61,6 +66,7 @@ impl Default for BotConfig {
             calm_todo: 4,
             seed: 1,
             thrifty: false,
+            attentive: true,
         }
     }
 }
@@ -122,7 +128,7 @@ impl PlayerBot {
 
     /// The Day phase: hire by plan (Classic waits for money), delegate free slots, publish.
     pub fn day(&mut self, w: &mut World, content: &Content) {
-        finish_cutscenes(w, content);
+        self.finish_scenes(w, content);
         let helpers = w.staff().iter().filter(|s| !s.owner).count();
         let want = self
             .cfg
@@ -163,6 +169,9 @@ impl PlayerBot {
             }
         }
         self.systems_day(w, content);
+        if self.cfg.attentive {
+            build_for_regulars(w, content);
+        }
         let _ = w.apply(content, Command::PublishSchedule);
         self.delegate(w, content);
         // tonight's opening record: a starter, by the night
@@ -265,7 +274,7 @@ impl PlayerBot {
         let mut out = Vec::new();
         if w.phase() == Phase::Day {
             self.day(w, content);
-            finish_cutscenes(w, content);
+            self.finish_scenes(w, content);
             out.extend(w.drain_events());
             w.start_night(content);
         }
@@ -279,14 +288,14 @@ impl PlayerBot {
         self.kinds.clear();
         let mut guard = 0u32;
         while w.phase() == Phase::Night && !w.is_closed() && guard < NIGHT_TICKS * 3 {
-            finish_cutscenes(w, content);
+            self.finish_scenes(w, content);
             self.step(w, content);
             w.tick(content);
             self.cur.ticks += 1;
             out.extend(w.drain_events());
             guard += 1;
         }
-        finish_cutscenes(w, content);
+        self.finish_scenes(w, content);
         out.extend(w.drain_events());
         let tick_s = w.real_seconds_per_tick(content);
         self.cur.real_minutes = ((self.cur.ticks.saturating_sub(self.cur.overlay_ticks)) as f32
@@ -296,6 +305,15 @@ impl PlayerBot {
         self.cur.same_kind_max = longest_run(&self.kinds);
         self.nights.push(std::mem::take(&mut self.cur));
         out
+    }
+
+    /// Ends playing story scenes: attentive choices, or the defaults.
+    pub fn finish_scenes(&mut self, w: &mut World, content: &Content) {
+        if self.cfg.attentive {
+            finish_cutscenes_attentive(w, content);
+        } else {
+            finish_cutscenes(w, content);
+        }
     }
 
     /// Before each tick: maybe one decision.
@@ -728,7 +746,8 @@ impl PlayerBot {
                 .theme(id)
                 .map(|t| t.price as i64)
                 .unwrap_or(0);
-            if !self.cfg.thrifty && !w.theme_owned(content, id) && w.money() > price + 9000 {
+            if !self.cfg.thrifty && !w.theme_owned(content, id) && spare(w, content) > price + 9000
+            {
                 let _ = w.apply(content, Command::BuyTheme { id: id.clone() });
             }
         }
@@ -1092,4 +1111,202 @@ pub fn finish_cutscenes(w: &mut World, content: &Content) {
             },
         );
     }
+}
+
+/// Ends every playing cutscene answering its choices like an attentive, kind player
+/// ([`attentive_choices`]).
+pub fn finish_cutscenes_attentive(w: &mut World, content: &Content) {
+    for _ in 0..64 {
+        let Some(id) = w.playing_cutscene().map(str::to_string) else {
+            return;
+        };
+        let choices = content
+            .cutscene(&id)
+            .map(|cs| {
+                let mut out = Vec::new();
+                attentive_walk(w, content, &cs.steps, &mut out, 0);
+                out
+            })
+            .unwrap_or_default();
+        let _ = w.apply(content, Command::CutsceneFinished { id, choices });
+    }
+}
+
+/// The choices an attentive player makes in cutscene `id` (indices into each `Choice`'s full
+/// option list, in the order shown): among the options offered right now, the one that does
+/// the most good for the people in it (trust, reputation), never selling the café or sending
+/// someone away; ties go to the first option.
+pub fn attentive_choices(w: &World, content: &Content, id: &str) -> Vec<usize> {
+    let mut out = Vec::new();
+    if let Some(cs) = content.cutscene(id) {
+        attentive_walk(w, content, &cs.steps, &mut out, 0);
+    }
+    out
+}
+
+fn attentive_walk(
+    w: &World,
+    content: &Content,
+    steps: &[crate::content::CutsceneStep],
+    out: &mut Vec<usize>,
+    depth: u32,
+) {
+    use crate::content::CutsceneStep;
+    if depth > 6 {
+        return;
+    }
+    for step in steps {
+        match step {
+            CutsceneStep::Choice { options } => {
+                let best = options
+                    .iter()
+                    .enumerate()
+                    .filter(|(_, o)| w.eval_conditions(content, &o.conditions))
+                    .map(|(i, o)| (i, kindness(o)))
+                    .fold(None::<(usize, f32)>, |acc, (i, k)| match acc {
+                        Some((_, b)) if b >= k => acc,
+                        _ => Some((i, k)),
+                    });
+                if let Some((i, _)) = best {
+                    out.push(i);
+                }
+            }
+            CutsceneStep::If {
+                conditions,
+                then,
+                otherwise,
+            } => {
+                let branch = if w.eval_conditions(content, conditions) {
+                    then
+                } else {
+                    otherwise
+                };
+                attentive_walk(w, content, branch, out, depth + 1);
+            }
+            CutsceneStep::Call { cutscene } => {
+                if let Some(cs) = content.cutscene(cutscene) {
+                    attentive_walk(w, content, &cs.steps, out, depth + 1);
+                }
+            }
+            _ => {}
+        }
+    }
+}
+
+/// How kind a story option is (see [`attentive_choices`]).
+fn kindness(o: &crate::content::ChoiceOption) -> f32 {
+    use crate::content::Effect;
+    let mut k = 0.0;
+    for e in &o.effects {
+        match e {
+            Effect::Trust(_, t) => k += t,
+            Effect::Reputation(r) => k += r * 2.0,
+            Effect::Money(m) => k += (*m as f32 / 200.0).clamp(-5.0, 0.0),
+            Effect::SetVar(_, v) if v == "accepted" || v == "burned" => k -= 100.0,
+            _ => {}
+        }
+    }
+    if let Some(f) = &o.set_flag
+        && ["_sent_away", "_alone", "_silence", "_woken"]
+            .iter()
+            .any(|s| f.ends_with(s))
+    {
+        k -= 50.0;
+    }
+    k
+}
+
+/// An attentive player builds what a regular asks for: a table with a socket once Filip has
+/// asked for one (from night 7), a little stage once Lori is invited — with money to spare.
+pub fn build_for_regulars(w: &mut World, content: &Content) {
+    let has_tag = |w: &World, tag: &str| {
+        w.furniture().iter().any(|p| {
+            content
+                .furniture_def(&p.def)
+                .is_some_and(|d| d.has_tag(tag))
+        })
+    };
+    let filip_met = w.night() > 7 && w.story().regulars.contains_key("filip");
+    if filip_met && !has_tag(w, "power_socket") {
+        place_group(w, content, "table_socket", true);
+    }
+    if w.flag("lori_invited") && !has_tag(w, "stage") {
+        place_group(w, content, "stage_corner", false);
+    }
+}
+
+/// Places `def` on the first free hall spot (with chairs on both sides for a table), keeping a
+/// free row around it so nothing gets walled in. Needs the price + a 6000 cushion.
+fn place_group(w: &mut World, content: &Content, def: &str, chairs: bool) -> bool {
+    let Some(d) = content.furniture_def(def) else {
+        return false;
+    };
+    let cost = d.price as i64 + if chairs { 900 } else { 0 };
+    if spare(w, content) < cost + 6000 {
+        return false;
+    }
+    let (gw, gh) = (w.grid().width, w.grid().height);
+    let (sw, sh) = (d.size.0 as i32, d.size.1 as i32);
+    let free = |w: &World, x: i32, y: i32| {
+        w.grid().is_indoor_floor(x, y)
+            && w.grid().object_at(x, y).is_none()
+            && w.grid()
+                .tile(x, y)
+                .is_some_and(|t| t.kind == grid::TileKind::Floor)
+    };
+    for y in 2..gh - 2 {
+        for x in 2..gw - 2 {
+            let (x0, x1) = if chairs {
+                (x - 1, x + sw)
+            } else {
+                (x, x + sw - 1)
+            };
+            let ok = (y - 1..=y + sh).all(|ty| (x0 - 1..=x1 + 1).all(|tx| free(w, tx, ty)));
+            if !ok {
+                continue;
+            }
+            if w.apply(
+                content,
+                Command::PlaceFurniture {
+                    def: def.to_string(),
+                    x,
+                    y,
+                    rot: 0,
+                },
+            )
+            .is_err()
+            {
+                continue;
+            }
+            if chairs {
+                for (cx, rot) in [(x - 1, 3), (x + sw, 1)] {
+                    let _ = w.apply(
+                        content,
+                        Command::PlaceFurniture {
+                            def: "chair".into(),
+                            x: cx,
+                            y,
+                            rot,
+                        },
+                    );
+                }
+            }
+            return true;
+        }
+    }
+    false
+}
+
+/// Money the bot may spend on nice-to-haves: on Classic the next debt payment (within a week)
+/// is kept aside, like a careful player does; on Cozy a missed payment is only a mild story
+/// consequence.
+fn spare(w: &World, content: &Content) -> i64 {
+    if w.difficulty() != Difficulty::Classic || w.mode() != Mode::Story {
+        return w.money();
+    }
+    let due = (w.night()..w.night() + 7)
+        .find_map(|n| content.story.payment_on(n))
+        .map(|p| p.amount.min(w.debt().max(0)))
+        .unwrap_or(0);
+    w.money() - due
 }

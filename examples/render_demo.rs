@@ -27,6 +27,7 @@ use shiftella_game::render::draw::{alpha, radial};
 use shiftella_game::render::*;
 
 fn window_conf() -> Conf {
+    shiftella_game::platform::hide_for_automation();
     Conf {
         window_title: "Shiftella — render demo".to_owned(),
         window_width: 1280,

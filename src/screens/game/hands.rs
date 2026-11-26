@@ -156,6 +156,8 @@ pub struct Autoplay {
     pub cooldown: f32,
     /// Mini-games by keyboard (`SHIFTELLA_AUTOPLAY=keys`).
     pub keyboard: bool,
+    /// Every mini-game skipped at once (`SHIFTELLA_AUTOPLAY=skip`; QA: Relaxed + skip all).
+    pub skip_minigames: bool,
 }
 
 /// Counters of things the coach marks wait for (this night).
@@ -1692,10 +1694,13 @@ impl GameScreen {
         max_s: f32,
         stop: &dyn Fn(&GameScreen) -> bool,
     ) {
-        let before = self.hands.autoplay.replace(Autoplay {
+        let before = self.hands.autoplay;
+        let ap = Autoplay {
             cooldown: 0.0,
             keyboard: false,
-        });
+            skip_minigames: before.is_some_and(|a| a.skip_minigames),
+        };
+        self.hands.autoplay = Some(ap);
         let dt = 1.0 / 30.0;
         let mut t = 0.0;
         while t < max_s && self.world.phase() == Phase::Night && !stop(self) {
@@ -1711,7 +1716,14 @@ impl GameScreen {
             let _ = self.hands_frame(content, dt);
             self.autoplay_step(content, dt);
             if let Some(mg) = self.hands.minigame.as_mut() {
-                let input = mg.game.autoplay_input();
+                let input = if ap.skip_minigames {
+                    crate::minigame::MgInput {
+                        skip: true,
+                        ..Default::default()
+                    }
+                } else {
+                    mg.game.autoplay_input()
+                };
                 if let crate::minigame::MiniGameStatus::Done { quality } = mg.game.step(&input, dt)
                 {
                     self.minigame_done(content, quality);

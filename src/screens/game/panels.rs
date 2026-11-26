@@ -78,9 +78,28 @@ pub fn crew(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         g.ui_state.crew_selected = staff.first().map(|s| s.id);
     }
     let cands = g.world.candidates().to_vec();
-    let detail_h = 262.0;
-    let list_h = (rest.h - detail_h - 8.0).max(120.0);
-    let (list_r, detail_r) = rest.split_top(list_h, 8.0);
+    // the detail card's height: one or more rows of trait chips + needs/skills + actions
+    let trait_rows = staff
+        .iter()
+        .find(|s| Some(s.id) == g.ui_state.crew_selected)
+        .map(|s| {
+            let (mut rows, mut x) = (1, 0.0);
+            for tr in &s.traits {
+                let w = ui.chip_width(&loc.tr_owned(&format!("trait.{tr}.name")), false) + 6.0;
+                if x > 0.0 && x + w > rest.w - 24.0 {
+                    rows += 1;
+                    x = 0.0;
+                }
+                x += w;
+            }
+            rows
+        })
+        .unwrap_or(1);
+    let detail_h = 262.0 + (trait_rows - 1) as f32 * 26.0;
+    // a short screen (large UI scale) keeps a little list and scrolls the card
+    let min_list = 96.0_f32.min(rest.h * 0.35);
+    let list_h = (rest.h - detail_h - 8.0).max(min_list);
+    let (list_r, detail_view) = rest.split_top(list_h, 8.0);
     let row_h = 44.0;
     let content_h = staff.len() as f32 * (row_h + 2.0)
         + if cands.is_empty() {
@@ -193,6 +212,24 @@ pub fn crew(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     else {
         return;
     };
+    let scroll = (detail_view.h < detail_h - 0.5)
+        .then(|| ui.begin_scroll(("crew_detail", s.id), detail_view, detail_h));
+    let detail_r = match &scroll {
+        Some(sa) => Rect::new(detail_view.x, sa.top(), detail_view.w - 6.0, detail_h),
+        None => detail_view,
+    };
+    crew_detail(g, ui, cx, &s, detail_r);
+    if let Some(sa) = scroll {
+        ui.end_scroll(sa);
+    }
+}
+
+/// The selected person's card in the crew panel (`r` is its full height).
+fn crew_detail(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, s: &Staff, detail_r: Rect) {
+    let t = ui.theme.clone();
+    let loc = cx.loc;
+    let content = cx.content;
+    let s = s.clone();
     ui.glass(detail_r, &Glass::card());
     let cr = detail_r.inset(12.0);
     let name = wv::staff_name(&loc, &s);
@@ -247,14 +284,15 @@ pub fn crew(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         (Need::Mood, "ui.need.mood", s.mood),
         (Need::Hunger, "ui.need.hunger", s.hunger),
     ] {
-        ui.label(
-            Rect::new(cr.x, yy, 64.0, 14.0),
+        ui.fonts.draw_fit(
             loc.tr(key),
+            Rect::new(cr.x, yy, 70.0, 14.0),
             &t.small().color(t.text),
             Align::Left,
+            0.8,
         );
         ui.need_bar(
-            Rect::new(cr.x + 64.0, yy + 5.0, half - 64.0, 5.0),
+            Rect::new(cr.x + 72.0, yy + 5.0, half - 72.0, 5.0),
             need,
             v / 100.0,
         );
@@ -264,15 +302,16 @@ pub fn crew(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let mut sy = ny;
     for (i, j) in Job::ALL.iter().enumerate() {
         let x0 = cr.x + half + 12.0;
-        ui.label(
-            Rect::new(x0, sy - 2.0, 70.0, 14.0),
+        ui.fonts.draw_fit(
             loc.tr(j.name_key()),
+            Rect::new(x0, sy - 2.0, 76.0, 14.0),
             &t.small().size(11.0),
             Align::Left,
+            0.82,
         );
         let v = s.skills[i] / 10.0;
         ui.progress(
-            Rect::new(x0 + 70.0, sy + 3.0, half - 92.0, 4.0),
+            Rect::new(x0 + 78.0, sy + 3.0, half - 100.0, 4.0),
             v,
             t.indigo_300,
         );
@@ -398,7 +437,18 @@ fn trait_tone(d: &crate::content::TraitDef) -> Tone {
 
 /// Shows a failed command as a short warning toast.
 pub fn command_error(g: &mut GameScreen, loc: &Locale, e: &str) {
-    let key = if e.starts_with("NotEnoughMoney") {
+    // a bot button that can't act now says why (`sim::tool::handle`)
+    let key = if e.contains("night only") {
+        "ui.error.night_only"
+    } else if e.contains("nobody can come in") {
+        "ui.error.nobody_free"
+    } else if e.contains("nobody free to cover") || e.contains("nobody is late") {
+        "ui.error.nobody_cover"
+    } else if e.contains("no free seat") {
+        "ui.error.no_seat"
+    } else if e.contains("no drone dock") {
+        "ui.error.no_dock"
+    } else if e.starts_with("NotEnoughMoney") {
         "ui.error.money"
     } else if e.starts_with("WrongPhase") {
         "ui.error.phase"

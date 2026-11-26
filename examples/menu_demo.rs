@@ -18,6 +18,7 @@ use shiftella_game::settings::{Locale, Settings, load_i18n};
 use shiftella_game::ui::{Fonts, Ui};
 
 fn conf() -> Conf {
+    shiftella_game::platform::hide_for_automation();
     Conf {
         window_title: "Shiftella — menu demo".to_owned(),
         window_width: 1280,

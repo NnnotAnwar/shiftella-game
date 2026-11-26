@@ -17,7 +17,7 @@
 
 mod panel;
 
-pub use panel::{PANEL_SIZE, SettingsResponse, settings_panel};
+pub use panel::{PANEL_SIZE, SettingsResponse, panel_rect, settings_panel};
 
 use std::path::{Path, PathBuf};
 
@@ -261,6 +261,10 @@ impl Settings {
 
     /// Applies the window-related options (fullscreen) to the macroquad window.
     pub fn apply_window(&self) {
+        // an invisible automation run never goes fullscreen (crate::platform)
+        if crate::platform::automation_hidden() {
+            return;
+        }
         macroquad::window::set_fullscreen(self.fullscreen);
     }
 }

@@ -164,12 +164,17 @@ fn ticker(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         let st = t.number().size(12.0).color(t.text_disabled);
         x += ui.fonts.draw(&time, x, ui.fonts.baseline_in(er, &st), &st) + 8.0;
     }
-    ui.label(
-        Rect::new(x, er.y, er.right() - 44.0 - x, er.h),
+    // a long line (a train announcement in Russian) shrinks, then takes two lines; the
+    // tooltip has it whole
+    let text_w = er.right() - 44.0 - x;
+    ui.fonts.draw_fit(
         &text,
+        Rect::new(x, er.y + 1.0, text_w, er.h - 2.0),
         &t.body_medium(),
         Align::Left,
+        0.85,
     );
+    let long = ui.fonts.measure(&text, &t.body_medium().size(11.0)) > text_w;
     draw::vline(er.right() - 40.0, er.y + 8.0, er.bottom() - 8.0, t.divider);
     ui.keycap(vec2(er.right() - 30.0, er.center_y()), "L", false);
     if resp.clicked {
@@ -179,7 +184,11 @@ fn ticker(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             Some(Panel::Log)
         };
     }
-    ui.tooltip(&resp, loc.tr("ui.ticker.open_log"));
+    if long {
+        ui.tooltip(&resp, &format!("{text}\n{}", loc.tr("ui.ticker.open_log")));
+    } else {
+        ui.tooltip(&resp, loc.tr("ui.ticker.open_log"));
+    }
 }
 
 /// Seats in the café (guest capacity).

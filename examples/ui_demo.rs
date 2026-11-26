@@ -11,6 +11,7 @@ use shiftella_game::ui::layout::{grid_cell, weighted_row};
 use shiftella_game::ui::*;
 
 fn conf() -> Conf {
+    shiftella_game::platform::hide_for_automation();
     Conf {
         window_title: "Shiftella — UI kit".to_owned(),
         window_width: 1280,

@@ -5,7 +5,7 @@ use macroquad::prelude::*;
 
 use super::{Ctx, GameExit, GameScreen};
 use crate::save::{SaveMeta, Slot};
-use crate::settings::{Locale, PANEL_SIZE, settings_panel};
+use crate::settings::{Locale, settings_panel};
 use crate::ui::{Align, Button, Glass, Icon, RectExt, Ui, draw_icon};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
@@ -108,12 +108,7 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             }
         }
         Page::Settings => {
-            let r = Rect::new(
-                (s.w - PANEL_SIZE.x) / 2.0,
-                (s.h - PANEL_SIZE.y) / 2.0,
-                PANEL_SIZE.x,
-                PANEL_SIZE.y,
-            );
+            let r = crate::settings::panel_rect(vec2(s.w, s.h));
             let resp = settings_panel(ui, &loc, cx.settings, r);
             if resp.changed {
                 if let Err(e) = cx.settings.save() {

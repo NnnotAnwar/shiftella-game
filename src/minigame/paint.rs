@@ -187,11 +187,9 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
         } else {
             t.body().color(t.text_dim)
         };
-        let s = ui
-            .fonts
-            .ellipsize(msg, (text_right - x).max(10.0), &st)
-            .into_owned();
-        let w = ui.fonts.measure(&s, &st);
+        // the instruction matters: it shrinks, then takes two lines, before it is ever cut
+        let avail = (text_right - x).max(10.0);
+        let w = ui.fonts.measure(msg, &st).min(avail);
         if hint.emphasis {
             glow_circle(
                 vec2(x + w * 0.5, cy),
@@ -199,8 +197,13 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
                 with_alpha(t.amber, 0.08),
             );
         }
-        ui.fonts
-            .draw_in(&s, Rect::new(x, foot.y, w + 2.0, foot.h), &st, Align::Left);
+        ui.fonts.draw_fit(
+            msg,
+            Rect::new(x, foot.y, avail, foot.h),
+            &st,
+            Align::Left,
+            0.8,
+        );
     }
     CardOut { skip, done }
 }

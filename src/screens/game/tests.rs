@@ -375,6 +375,7 @@ fn three_autoplayed_nights_touch_the_systems() {
     g.hands.autoplay = Some(hands::Autoplay {
         cooldown: 0.0,
         keyboard: false,
+        skip_minigames: false,
     });
     for _ in 0..3 {
         let mut guard = 0;
@@ -400,4 +401,118 @@ fn three_autoplayed_nights_touch_the_systems() {
         !g.world.knowledge().tried.is_empty(),
         "experiments in the lulls"
     );
+}
+
+/// T10: a full story's journal (one polaroid per night) survives a save and every entry can
+/// be re-drawn from the loaded data (the save keeps data, never images).
+#[test]
+fn thirty_polaroids_survive_a_save_and_rebuild_their_scenes() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 30, None, true);
+    g.start_night(&c);
+    let mut guard = 0;
+    while g.world.ending().is_none() && guard < 40_000 {
+        if g.cutscene_playing() {
+            g.finish_cutscene_now(&c, &loc);
+        }
+        g.summary = None;
+        g.advance(&c, TICK_SECONDS * 4.0, Some(&loc));
+        guard += 1;
+    }
+    // the last morning's polaroid is kept when the ending closes the story
+    let nights: Vec<u32> = g.world.journal().iter().map(|e| e.night).collect();
+    let pending = g.world.pending_polaroids().map(|(n, _)| n);
+    let mut all = nights.clone();
+    all.extend(pending);
+    all.sort();
+    all.dedup();
+    assert_eq!(all, (1..=30).collect::<Vec<_>>(), "one polaroid per night");
+    assert_eq!(
+        nights.len() + usize::from(pending.is_some()),
+        30,
+        "exactly one each"
+    );
+    let file = g.save_file(&c).unwrap();
+    let back = GameScreen::from_save(&c, &file).unwrap();
+    assert_eq!(back.world.journal(), g.world.journal());
+    for e in back.world.journal() {
+        let snap = journal_ui::snap_of(&c, &e.highlight.snap);
+        assert!(!snap.tiles.is_empty(), "night {}: an empty photo", e.night);
+        assert!(
+            !e.highlight.caption_key.is_empty()
+                && loc.tr(&e.highlight.caption_key) != e.highlight.caption_key,
+            "night {}: caption {}",
+            e.night,
+            e.highlight.caption_key
+        );
+    }
+}
+
+/// T10: three manual slots and the autosave live side by side, Continue takes the newest,
+/// and a save of a finished story loads straight to the credits.
+#[test]
+fn manual_slots_continue_and_a_finished_story() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let dir = std::env::temp_dir().join(format!(
+        "shiftella-slots-test-{}-{}",
+        std::process::id(),
+        crate::save::now()
+    ));
+    let store = SaveStore::at(&dir);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    for (k, slot) in [
+        Slot::Auto,
+        Slot::Manual(1),
+        Slot::Manual(2),
+        Slot::Manual(3),
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        g.fast_forward(&c, &loc, k as u32 + 2, None, true);
+        let mut f = g.save_file(&c).unwrap();
+        f.meta.saved_at = 1_000 + k as u64; // a clock tick apart
+        store.write(slot, &f).unwrap();
+    }
+    let list = store.list();
+    assert_eq!(list.len(), 4, "auto + three manual slots");
+    let (latest, meta) = store.latest().unwrap();
+    assert_eq!((latest, meta.night), (Slot::Manual(3), 5));
+    let back = GameScreen::from_save(&c, &store.read(latest).unwrap()).unwrap();
+    assert_eq!(back.world.night(), 5);
+    // a finished story: the meta says so (the menu hides Continue) and it loads to the credits
+    let mut done = GameScreen::new_story(&c, "cozy", true);
+    done.fast_forward(&c, &loc, 30, None, true);
+    done.start_night(&c);
+    let mut guard = 0;
+    while done.world.ending().is_none() && guard < 40_000 {
+        if done.cutscene_playing() {
+            done.finish_cutscene_now(&c, &loc);
+        }
+        done.summary = None;
+        done.advance(&c, TICK_SECONDS * 4.0, Some(&loc));
+        guard += 1;
+    }
+    let f = done.save_file(&c).unwrap();
+    assert!(f.meta.finished);
+    let mut again = GameScreen::from_save(&c, &f).unwrap();
+    let mut exit = None;
+    for _ in 0..200 {
+        if again.cutscene_playing() {
+            again.finish_cutscene_now(&c, &loc);
+        }
+        again.summary = None;
+        again.advance(&c, 0.1, Some(&loc));
+        exit = again.exit();
+        if exit.is_some() {
+            break;
+        }
+    }
+    assert!(matches!(exit, Some(GameExit::Credits { .. })), "{exit:?}");
+    let _ = std::fs::remove_dir_all(&dir);
 }

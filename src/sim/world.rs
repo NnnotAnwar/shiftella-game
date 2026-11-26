@@ -1199,6 +1199,9 @@ impl World {
         self.phase = Phase::Day;
         self.tick = 0;
         self.undo.clear();
+        // last night's beat indices must not block today's day beats (e.g. night 17's 21:59
+        // franchise offer shares index 0 with night 16's first beat)
+        self.story.beats_done.clear();
         self.weekday = match self.mode {
             Mode::Story => content
                 .story

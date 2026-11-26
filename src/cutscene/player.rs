@@ -439,13 +439,29 @@ impl CutscenePlayer {
     /// Auto-plays `seconds` of the scene at the default pace (demos jump with `SHIFTELLA_T`).
     /// Choices pick their first option.
     pub fn fast_forward(&mut self, loc: &Locale, seconds: f32) {
+        self.fast_forward_with(loc, seconds, &[]);
+    }
+
+    /// [`Self::fast_forward`] answering the choices with `picks` (indices into each choice's
+    /// full option list, in order; an option not on offer or a missing pick → the first one).
+    pub fn fast_forward_with(&mut self, loc: &Locale, seconds: f32, picks: &[usize]) {
         let auto = self.auto_advance;
         self.auto_advance = true;
         let dt = 1.0 / 30.0;
         let mut t = 0.0;
+        let mut next = 0;
         while t < seconds && self.playing {
-            let choice =
-                matches!(self.active, Some(Active::Choice { t, .. }) if t > 1.2).then_some(0);
+            let choice = match &self.active {
+                Some(Active::Choice { t, options }) if *t > 1.2 => {
+                    let want = picks.get(next).copied();
+                    next += 1;
+                    Some(
+                        want.and_then(|w| options.iter().position(|(i, _)| *i == w))
+                            .unwrap_or(0),
+                    )
+                }
+                _ => None,
+            };
             self.step(
                 loc,
                 dt,
@@ -1024,11 +1040,19 @@ impl CutscenePlayer {
     }
 
     /// Hold-to-skip: runs the rest instantly (effects, notes, music state), choices unanswered.
+    /// Hold-Esc skip: runs the rest of the scene at once — effects, notes, actors, music —
+    /// but stops at a story choice that has options to offer (skipping must never answer, or
+    /// silently drop, a choice an arc depends on). Skip again after choosing.
     fn skip_to_end(&mut self, loc: &Locale) {
         self.outcome.skipped = true;
         let mut last_music = None;
+        if matches!(self.active, Some(Active::Choice { .. })) {
+            // already asking: the choice stays on screen
+            return;
+        }
         self.active = None;
         let mut guard = 0;
+        let mut asking = false;
         while let Some(op) = self.queue.pop_front() {
             guard += 1;
             if guard > 2000 {
@@ -1039,8 +1063,14 @@ impl CutscenePlayer {
                 Op::Step(CutsceneStep::Fade { to_black, .. }) => {
                     self.fade = if to_black { 1.0 } else { 0.0 }
                 }
-                Op::Step(CutsceneStep::Choice { .. })
-                | Op::Step(CutsceneStep::Narration { .. })
+                Op::Step(step @ CutsceneStep::Choice { .. }) => {
+                    self.begin_step(loc, step);
+                    if matches!(self.active, Some(Active::Choice { .. })) {
+                        asking = true;
+                        break;
+                    }
+                }
+                Op::Step(CutsceneStep::Narration { .. })
                 | Op::Step(CutsceneStep::Line { .. })
                 | Op::Step(CutsceneStep::Wait { .. })
                 | Op::Step(CutsceneStep::Sfx { .. })
@@ -1082,7 +1112,9 @@ impl CutscenePlayer {
         if let Some(track) = last_music {
             self.audio.push(AudioRequest::Music { track });
         }
-        self.finish();
+        if !asking {
+            self.finish();
+        }
     }
 
     // ───────────────────────── drawing ─────────────────────────
@@ -1484,7 +1516,53 @@ mod tests {
     }
 
     #[test]
-    fn hold_skip_applies_effects_and_notes_but_answers_no_choice() {
+    fn hold_skip_stops_at_a_choice_then_finishes() {
+        let (mut p, i18n, _) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        p.start(&def(
+            "s",
+            vec![
+                narration("scene.opening.01"),
+                CutsceneStep::Apply {
+                    effects: vec![Effect::GiveItem("cafe_keys".into())],
+                },
+                CutsceneStep::Choice {
+                    options: vec![opt("a", Some("x"), vec![]), opt("b", Some("y"), vec![])],
+                },
+                narration("scene.opening.01"),
+            ],
+        ));
+        p.step(&loc, 0.1, StepInput::default());
+        let skip = StepInput {
+            skip: true,
+            ..Default::default()
+        };
+        assert_eq!(p.step(&loc, 0.1, skip), CutsceneStatus::Playing);
+        assert!(matches!(p.active, Some(Active::Choice { .. })), "asks");
+        assert!(
+            p.outcome()
+                .effects
+                .contains(&Effect::GiveItem("cafe_keys".into()))
+        );
+        // skipping again keeps asking; answering, then skipping, finishes with the answer
+        assert_eq!(p.step(&loc, 0.1, skip), CutsceneStatus::Playing);
+        p.step(
+            &loc,
+            1.5,
+            StepInput {
+                choice: Some(1),
+                ..Default::default()
+            },
+        );
+        let status = p.step(&loc, 0.1, skip);
+        assert!(
+            matches!(status, CutsceneStatus::Finished { ref choices, .. } if choices.len() == 1)
+        );
+        assert_eq!(p.outcome().flags, vec!["y".to_string()]);
+    }
+
+    #[test]
+    fn hold_skip_runs_past_a_choice_with_nothing_to_offer() {
         let (mut p, i18n, _) = setup();
         let loc = Locale::new(&i18n, Lang::En);
         p.start(&def(
@@ -1492,7 +1570,7 @@ mod tests {
             vec![
                 narration("scene.opening.01"),
                 CutsceneStep::Choice {
-                    options: vec![opt("a", Some("x"), vec![])],
+                    options: vec![opt("a", Some("x"), vec![Condition::Flag("never".into())])],
                 },
                 CutsceneStep::ShowNote {
                     note_id: "note_01".into(),

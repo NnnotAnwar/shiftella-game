@@ -703,6 +703,15 @@ impl Weather {
 
 thread_local! {
     static FONT: OnceCell<Option<Font>> = const { OnceCell::new() };
+    /// World text changes raster size with the zoom: new glyphs are cached between batches
+    /// (see `ui::text::GlyphCache`), never in the middle of one.
+    static GLYPHS: crate::ui::text::GlyphCache = crate::ui::text::GlyphCache::default();
+}
+
+fn prepare_glyphs(font: Option<&Font>, text: &str, fs: u16) {
+    if let Some(f) = font {
+        GLYPHS.with(|g| g.prepare(f, text, fs));
+    }
 }
 
 fn with_font<R>(f: impl FnOnce(Option<&Font>) -> R) -> R {
@@ -723,6 +732,7 @@ pub fn world_text(text: &str, pos: Vec2, size: f32, col: Color, centered: bool) 
 pub fn world_text_rot(text: &str, pos: Vec2, size: f32, col: Color, centered: bool, rotation: f32) {
     with_font(|font| {
         let (fs, scale, aspect) = camera_font_scale(size);
+        prepare_glyphs(font, text, fs);
         let dim = measure_text(text, font, fs, scale);
         let off = if centered { dim.width / 2.0 } else { 0.0 };
         let (s, c0) = rotation.sin_cos();
@@ -746,6 +756,7 @@ pub fn world_text_rot(text: &str, pos: Vec2, size: f32, col: Color, centered: bo
 pub fn world_text_width(text: &str, size: f32) -> f32 {
     with_font(|font| {
         let (fs, scale, _) = camera_font_scale(size);
+        prepare_glyphs(font, text, fs);
         measure_text(text, font, fs, scale).width
     })
 }

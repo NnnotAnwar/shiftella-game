@@ -602,7 +602,9 @@ impl GameScreen {
     pub fn finish_cutscene_now(&mut self, content: &Rc<Content>, loc: &Locale) {
         let mut guard = 0;
         while self.player.is_playing() && guard < 8 {
-            self.player.fast_forward(loc, 600.0);
+            // the autoplayer answers like an attentive player (the balance bot's choices)
+            let picks = sim::bot::attentive_choices(&self.world, content, self.player.current_id());
+            self.player.fast_forward_with(loc, 600.0, &picks);
             let id = self.player.current_id().to_string();
             let choices = self
                 .player

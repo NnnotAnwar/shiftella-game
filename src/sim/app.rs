@@ -497,13 +497,16 @@ pub(crate) fn on_night_end(w: &mut World, content: &Content) {
         } else if let Some(best) = w.econ.sold.iter().max_by_key(|(_, n)| **n) {
             lines.push((
                 "app.handover.busy".to_string(),
-                vec![("item".to_string(), best.0.clone())],
+                vec![("item".to_string(), format!("menu.{}.name", best.0))],
             ));
         }
         if let Some(broken) = w.furniture.iter().find(|p| p.wear >= 0.5) {
             lines.push((
                 "app.handover.broken".to_string(),
-                vec![("thing".to_string(), broken.def.clone())],
+                vec![(
+                    "thing".to_string(),
+                    format!("furniture.{}.name", broken.def),
+                )],
             ));
         }
         if let Some(r) = w
@@ -515,7 +518,7 @@ pub(crate) fn on_night_end(w: &mut World, content: &Content) {
         {
             lines.push((
                 "app.handover.regular".to_string(),
-                vec![("name".to_string(), r)],
+                vec![("name".to_string(), format!("regular.{r}.name"))],
             ));
         }
         let star = w

@@ -588,23 +588,26 @@ pub(crate) fn advance_arc(w: &mut World, content: &Content, regular: &str) {
     });
     if stage >= 1 && r.look_preset.is_none() {
         let sub = format!("{regular}.{stage}");
-        let tile = w
+        let leader = w
             .story
             .regulars
             .get(regular)
             .and_then(|s| s.party)
             .and_then(|p| w.parties.iter().find(|x| x.id == p))
             .and_then(|p| p.leader())
-            .and_then(|l| w.guests.iter().find(|g| g.id == l))
-            .map(|g| g.tile());
-        super::journal::capture(
-            w,
-            content,
-            crate::content::handson::HighlightKind::ArcBeat,
-            Some(&sub),
-            Vec::new(),
-            tile,
-        );
+            .and_then(|l| w.guests.iter().find(|g| g.id == l));
+        let kind = crate::content::handson::HighlightKind::ArcBeat;
+        match leader {
+            // just came in: the photo waits until they sit down (not a dark figure by the door)
+            Some(g) if g.pose != Pose::Sit && g.seat.is_some() => {
+                let id = g.id;
+                w.sys.journal.on_seat.push((id, kind, Some(sub)));
+            }
+            g => {
+                let tile = g.map(|g| g.tile());
+                super::journal::capture(w, content, kind, Some(&sub), Vec::new(), tile);
+            }
+        }
     }
     if let Some(s) = r.stage(stage as u32) {
         let mut ctx = EffectCtx::default();

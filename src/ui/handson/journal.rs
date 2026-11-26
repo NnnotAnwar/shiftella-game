@@ -148,32 +148,41 @@ fn draw_polaroid(ui: &mut Ui, r: Rect, v: &PolaroidView, shadow_k: f32) {
     )
     .tabular();
     let dw = ui.fonts.measure(&v.date, &date_s);
-    let date_h = if v.date.is_empty() {
-        0.0
-    } else {
-        date_s.line_h() * 0.9
-    };
-    let avail = Rect::new(
-        band.x + 2.0,
-        band.y + 2.0,
-        band.w - 4.0,
-        (band.h - date_h - 3.0).max(8.0),
-    );
-    let mut size = (w * 0.05).clamp(10.0, 17.0);
-    let min = (w * 0.04).clamp(7.5, 12.0);
-    let mut cs = TextStyle::new(size, Weight::Medium, ink).line_height(1.12);
-    loop {
-        let lean = size * 0.16;
-        let n = ui
-            .fonts
-            .wrap(&v.caption, (avail.w - lean).max(10.0), &cs)
-            .len();
-        let max_lines = ((avail.h / cs.line_h()).floor() as usize).clamp(1, 2);
-        if n <= max_lines || size <= min {
-            break;
+    let date_line = date_s.line_h() * 0.9;
+    // the handwriting shrinks (to a still-legible size) until it fits in two lines; on a
+    // small grid polaroid that still can't, the date gives up its corner (the night is
+    // written under the photo anyway) — the caption is the memory
+    let fit = |ui: &Ui, date_h: f32| {
+        let avail = Rect::new(
+            band.x + 2.0,
+            band.y + 2.0,
+            band.w - 4.0,
+            (band.h - date_h - 3.0).max(8.0),
+        );
+        let mut size = (w * 0.05).clamp(10.0, 17.0);
+        let min = (w * 0.04).clamp(6.5, 12.0);
+        loop {
+            let cs = TextStyle::new(size, Weight::Medium, ink).line_height(1.12);
+            let n = ui
+                .fonts
+                .wrap(&v.caption, (avail.w - size * 0.16).max(10.0), &cs)
+                .len();
+            let max_lines = ((avail.h / cs.line_h()).floor() as usize).clamp(1, 2);
+            if n <= max_lines || size <= min {
+                return (avail, size, cs, n <= max_lines);
+            }
+            size = (size - 0.5).max(min);
         }
-        size = (size - 0.5).max(min);
-        cs = TextStyle::new(size, Weight::Medium, ink).line_height(1.12);
+    };
+    let with_date = if v.date.is_empty() { 0.0 } else { date_line };
+    let (mut avail, mut size, mut cs, fits) = fit(ui, with_date);
+    let mut show_date = !v.date.is_empty();
+    if !fits && show_date {
+        let (a, sz, c, fits2) = fit(ui, 0.0);
+        if fits2 {
+            (avail, size, cs) = (a, sz, c);
+            show_date = false;
+        }
     }
     let max_lines = ((avail.h / cs.line_h()).floor() as usize).clamp(1, 2);
     let lean = size * 0.16;
@@ -190,12 +199,14 @@ fn draw_polaroid(ui: &mut Ui, r: Rect, v: &PolaroidView, shadow_k: f32) {
         lines_h,
     );
     draw_handwritten_block(ui, &v.caption, cap_r, &cs, Align::Left, max_lines);
-    ui.fonts.draw(
-        &v.date,
-        band.right() - dw - 1.0,
-        band.bottom() - date_s.line_h() * 0.28,
-        &date_s,
-    );
+    if show_date {
+        ui.fonts.draw(
+            &v.date,
+            band.right() - dw - 1.0,
+            band.bottom() - date_s.line_h() * 0.28,
+            &date_s,
+        );
+    }
 }
 
 /// A taped strip of washi tape across a corner (decoration on the scrapbook).

@@ -4,8 +4,10 @@
 //! planned by the sim's player-bot and the morning polaroid is kept through the screen.
 //!
 //! ```sh
-//! cargo run --release --example game_autoplay -- [nights=1] [speed=1] [difficulty=cozy]
+//! cargo run --release --example game_autoplay -- [nights=1] [speed=1] [difficulty=cozy] [skip]
 //! ```
+//! `skip`: Settings → Relaxed mini-games on and every mini-game skipped (the T10 check that
+//! such a player still reaches an ending).
 //! For a windowed run with screenshots use the game itself:
 //! `SHIFTELLA_SCENE=night1_handson SHIFTELLA_AUTOPLAY=1 SHIFTELLA_SHOT=shots/run.png
 //! SHIFTELLA_SHOT_EVERY=300 SHIFTELLA_FRAMES=3000`.
@@ -22,14 +24,17 @@ fn main() {
     let nights: u32 = args.next().and_then(|a| a.parse().ok()).unwrap_or(1);
     let speed: u8 = args.next().and_then(|a| a.parse().ok()).unwrap_or(1);
     let difficulty = args.next().unwrap_or_else(|| "cozy".into());
+    let skip = args.next().is_some_and(|a| a == "skip");
     let root = env!("CARGO_MANIFEST_DIR");
     let content = Rc::new(Content::load(&format!("{root}/assets/data")).expect("content"));
     let i18n = load_i18n(&format!("{root}/assets/i18n")).expect("i18n");
     let loc = Locale::new(&i18n, shiftella_game::i18n::Lang::En);
     let mut g = GameScreen::new_story(&content, &difficulty, true);
+    g.relaxed = skip;
     g.hands.autoplay = Some(shiftella_game::screens::game::hands::Autoplay {
         cooldown: 0.0,
         keyboard: false,
+        skip_minigames: skip,
     });
     let mut total_real = 0.0;
     for _ in 0..nights {

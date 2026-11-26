@@ -34,7 +34,7 @@ use crate::content::Content;
 use crate::cutscene::AudioRequest;
 use crate::i18n::{I18n, Lang, format_money};
 use crate::render::draw_brand_mark;
-use crate::settings::{Locale, PANEL_SIZE, Settings, settings_panel};
+use crate::settings::{Locale, Settings, settings_panel};
 use crate::ui::draw::{Paint, fill_rrect, stroke_rrect, with_a};
 use crate::ui::{
     Align, Button, Glass, Icon, IconButton, RectExt, TextStyle, Tone, Ui, Weight, draw_icon,
@@ -970,12 +970,7 @@ impl MainMenu {
 
     fn settings_page(&mut self, ui: &mut Ui, loc: &Locale) -> Option<MenuAction> {
         let s = ui.screen();
-        let r = Rect::new(
-            (s.w - PANEL_SIZE.x) / 2.0,
-            ((s.h - PANEL_SIZE.y) / 2.0).max(12.0),
-            PANEL_SIZE.x,
-            PANEL_SIZE.y,
-        );
+        let r = crate::settings::panel_rect(vec2(s.w, s.h));
         let before_full = self.settings.fullscreen;
         let resp = settings_panel(ui, loc, &mut self.settings, r);
         let mut out = None;

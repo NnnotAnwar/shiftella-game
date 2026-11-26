@@ -152,6 +152,12 @@ ru Ты
 ui.rail.more
 * +{n}
 
+ui.reserved
+cs Rezervace
+en Reserved
+uk Резерв
+ru Резерв
+
 ui.rail.incoming
 cs {name} je na cestě
 en {name} is on the way

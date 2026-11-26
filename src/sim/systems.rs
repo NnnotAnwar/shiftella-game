@@ -384,6 +384,10 @@ pub struct JournalState {
     pub tonight_kinds: BTreeSet<String>,
     /// A day-phase highlight (rozpis happy) to capture at the next night start.
     pub deferred: Vec<(HighlightKind, Vec<(String, String)>)>,
+    /// Arrivals photographed once the guest sits down (the 3:33 guest, the cameo): at the
+    /// door they'd be a dark figure at the edge of the frame; an arc beat on arrival, too.
+    /// (guest id, kind, sub-caption)
+    pub on_seat: Vec<(u32, HighlightKind, Option<String>)>,
 }
 
 // ---------------------------------------------------------------------------------------------

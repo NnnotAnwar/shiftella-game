@@ -180,7 +180,8 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
     w.sys.tool.low_stock_sent = false;
     w.sys.tool.suggestions.clear();
     w.sys.tool.picks.clear();
-    w.sys.tool.reminders.clear();
+    // (reminders set by day — "remind me before Radek's train" — are for tonight: they're
+    // cleared when the night ends)
     w.sys.tool.covers.clear();
     w.sys.tool.drones.clear();
     w.sys.tool.trust_start = w.story.trust.clone();
@@ -358,6 +359,9 @@ pub(crate) fn on_night_end(w: &mut World, content: &Content) {
         }
     }
     w.sys.tool.next_notes = notes;
+    // tonight's reminders and the reservations nobody came for end with the night
+    w.sys.tool.reminders.clear();
+    w.sys.tool.reserved.clear();
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -545,8 +549,9 @@ pub(crate) fn handle(
         }
         BotHandler::CoverOther => {
             let Some(late) = subject_staff(w, msg) else {
-                return Ok(());
+                return Err(CommandError::Invalid("nobody is late".into()));
             };
+            let mut covered = false;
             let duties = w
                 .staff_by_id(late)
                 .map(|s| s.duties.clone())
@@ -569,14 +574,19 @@ pub(crate) fn handle(
                     super::duties::sync_priorities(&mut w.staff[i]);
                     super::logic::change_mood(w, content, i, -2.0, false);
                     w.sys.tool.covers.push((late, d, c));
+                    covered = true;
                     break;
                 }
+            }
+            if !covered {
+                // nobody on shift has room for it: the message stays open, she can cover
+                return Err(CommandError::Invalid("nobody free to cover".into()));
             }
             Ok(())
         }
         BotHandler::CallIn => {
             if w.phase != Phase::Night {
-                return Err(CommandError::WrongPhase);
+                return Err(CommandError::Invalid("night only".into()));
             }
             let wd = w.weekday as usize;
             let m = w.minute();
@@ -622,16 +632,30 @@ pub(crate) fn handle(
         }
         BotHandler::ReserveSeat => {
             let Some(r) = arg(msg, "regular").map(str::to_string) else {
-                return Ok(());
+                return Err(CommandError::Invalid("no regular to reserve for".into()));
             };
-            let seat = super::guests::seats(w, content)
-                .iter()
-                .filter(|s| s.free)
-                .map(|s| s.uid)
-                .min();
-            if let Some(seat) = seat {
-                w.sys.tool.reserved.insert(r, seat);
-            }
+            // their favourite kind of seat (window, socket…) if there is one, else any
+            // table seat nobody else has reserved
+            let prefer = content.regular(&r).and_then(|d| d.seat.clone());
+            let taken: Vec<u32> = w.sys.tool.reserved.values().copied().collect();
+            let seats = super::guests::seats(w, content);
+            let ok = |s: &&super::guests::SeatInfo| {
+                s.free && s.table.is_some() && !taken.contains(&s.uid)
+            };
+            let seat = prefer
+                .as_deref()
+                .and_then(|tag| {
+                    seats
+                        .iter()
+                        .filter(ok)
+                        .find(|s| super::guests::seat_has_tag(w, content, s, tag))
+                })
+                .or_else(|| seats.iter().find(ok))
+                .map(|s| s.uid);
+            let Some(seat) = seat else {
+                return Err(CommandError::Invalid("no free seat".into()));
+            };
+            w.sys.tool.reserved.insert(r, seat);
             Ok(())
         }
         BotHandler::RemindBefore(min) => {
@@ -654,7 +678,7 @@ pub(crate) fn handle(
                     .is_some_and(|d| d.has_tag("drone"))
             });
             if !dock {
-                return Err(CommandError::NotUnlocked);
+                return Err(CommandError::Invalid("no drone dock".into()));
             }
             let cost = 300;
             if w.econ.money < cost {

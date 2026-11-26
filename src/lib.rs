@@ -11,6 +11,7 @@ pub mod i18n;
 pub mod map;
 pub mod minigame;
 pub mod palette;
+pub mod platform;
 pub mod render;
 pub mod save;
 pub mod screens;

@@ -7,11 +7,80 @@
 
 use std::borrow::Cow;
 use std::cell::{Cell, RefCell};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use macroquad::prelude::*;
 
 use super::draw::{faded, snap};
+
+/// Keeps a macroquad font's glyph atlas from growing in the middle of a batch.
+///
+/// macroquad caches glyphs lazily (on the first `draw_text_ex` / `measure_text` of a
+/// character at a size) in one atlas texture per font. When a new glyph does not fit, the
+/// atlas doubles: the old texture is deleted and every glyph quad of that font already
+/// batched this frame — even earlier glyphs of the same string — samples a dead texture and
+/// renders as a black box (the "black boxes in Russian captions" bug: Cyrillic at the
+/// handwritten sizes was often what overflowed the atlas). [`GlyphCache::prepare`] caches a
+/// string's new glyphs *before* it is measured or drawn, after flushing what is batched so
+/// far, so the atlas only ever grows between batches.
+#[derive(Default)]
+pub struct GlyphCache {
+    /// Cached characters per raster size (physical pixels, as macroquad keys them).
+    seen: RefCell<HashMap<u16, GlyphSet>>,
+}
+
+#[derive(Default)]
+struct GlyphSet {
+    /// U+0000..U+05FF (Latin, Latin Extended, Cyrillic) as a bitmap; the rest in a set.
+    low: [u64; 24],
+    other: HashSet<char>,
+}
+
+impl GlyphSet {
+    fn has(&self, c: char) -> bool {
+        let u = c as usize;
+        if u < 24 * 64 {
+            self.low[u / 64] & (1 << (u % 64)) != 0
+        } else {
+            self.other.contains(&c)
+        }
+    }
+
+    fn add(&mut self, c: char) {
+        let u = c as usize;
+        if u < 24 * 64 {
+            self.low[u / 64] |= 1 << (u % 64);
+        } else {
+            self.other.insert(c);
+        }
+    }
+}
+
+impl GlyphCache {
+    /// Make sure every glyph of `text` at `font_size` (the value passed to `draw_text_ex` /
+    /// `measure_text`) is in `font`'s atlas before it is used.
+    pub fn prepare(&self, font: &Font, text: &str, font_size: u16) {
+        let phys = (font_size as f32 * miniquad::window::dpi_scale()).ceil() as u16;
+        let mut seen = self.seen.borrow_mut();
+        let set = seen.entry(phys).or_default();
+        let mut missing: Vec<char> = Vec::new();
+        for c in text.chars() {
+            if !set.has(c) && !missing.contains(&c) {
+                missing.push(c);
+            }
+        }
+        if missing.is_empty() {
+            return;
+        }
+        // draw what's batched with the current atlas texture before it may be replaced
+        push_camera_state();
+        pop_camera_state();
+        font.populate_font_cache(&missing, phys);
+        for c in missing {
+            set.add(c);
+        }
+    }
+}
 
 /// Font weight (static Inter files).
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -92,6 +161,7 @@ pub struct Fonts {
     scale: Cell<f32>,
     advances: RefCell<HashMap<(Weight, u16, char), f32>>,
     caps: RefCell<HashMap<(Weight, u16), f32>>,
+    glyphs: [GlyphCache; 4],
 }
 
 impl Fonts {
@@ -113,6 +183,7 @@ impl Fonts {
             scale: Cell::new(1.0),
             advances: RefCell::new(HashMap::new()),
             caps: RefCell::new(HashMap::new()),
+            glyphs: Default::default(),
         })
     }
 
@@ -136,7 +207,9 @@ impl Fonts {
             return *a;
         }
         let mut buf = [0u8; 4];
-        let a = measure_text(c.encode_utf8(&mut buf), Some(self.face(w)), fs, 1.0).width;
+        let s = c.encode_utf8(&mut buf);
+        self.prepare(w, fs, s);
+        let a = measure_text(s, Some(self.face(w)), fs, 1.0).width;
         self.advances.borrow_mut().insert((w, fs, c), a);
         a
     }
@@ -154,9 +227,15 @@ impl Fonts {
         if let Some(c) = self.caps.borrow().get(&key) {
             return *c * k;
         }
+        self.prepare(style.weight, fs, "H");
         let c = measure_text("H", Some(self.face(style.weight)), fs, 1.0).offset_y;
         self.caps.borrow_mut().insert(key, c);
         c * k
+    }
+
+    /// See [`GlyphCache`]: new glyphs are cached before a measure / draw, never inside one.
+    fn prepare(&self, w: Weight, fs: u16, text: &str) {
+        self.glyphs[w as usize].prepare(self.face(w), text, fs);
     }
 
     fn per_char(style: &TextStyle) -> bool {
@@ -184,6 +263,7 @@ impl Fonts {
                 + style.tracking * (n - 1.0).max(0.0);
         }
         let (fs, k) = self.raster(style.size);
+        self.prepare(style.weight, fs, text);
         measure_text(text, Some(self.face(style.weight)), fs, k).width
     }
 
@@ -193,6 +273,7 @@ impl Fonts {
             return 0.0;
         }
         let (fs, k) = self.raster(style.size);
+        self.prepare(style.weight, fs, text);
         let color = faded(style.color);
         let font = self.face(style.weight);
         let (x0, y) = (snap(x), snap(y));
@@ -234,7 +315,26 @@ impl Fonts {
 
     /// Single line inside `r`: vertically centred, aligned, ellipsised to fit.
     /// Returns the drawn width.
+    /// A text a little too wide first gets up to 15 % smaller (never below 9 pt); only then
+    /// is it cut with "…" (long words in cs/uk/ru at a large UI scale).
     pub fn draw_in(&self, text: &str, r: Rect, style: &TextStyle, align: Align) -> f32 {
+        if r.w > 1.0 && self.measure(text, style) > r.w {
+            let min = (style.size * 0.85).max(9.0).min(style.size);
+            let mut size = style.size;
+            while size > min {
+                size = (size - 0.5).max(min);
+                let st = style.size(size);
+                if self.measure(text, &st) <= r.w {
+                    return self.draw_in_exact(text, r, &st, align);
+                }
+            }
+            return self.draw_in_exact(text, r, &style.size(min), align);
+        }
+        self.draw_in_exact(text, r, style, align)
+    }
+
+    /// [`Fonts::draw_in`] at exactly `style.size` (cut with "…" if it doesn't fit).
+    fn draw_in_exact(&self, text: &str, r: Rect, style: &TextStyle, align: Align) -> f32 {
         let t = self.ellipsize(text, r.w, style);
         let w = self.measure(&t, style);
         let x = match align {
@@ -243,6 +343,48 @@ impl Fonts {
             Align::Right => r.x + r.w - w,
         };
         self.draw(&t, x, self.baseline_in(r, style), style)
+    }
+
+    /// Like [`Fonts::draw_in`], but a text that doesn't fit first gets smaller (down to
+    /// `min_scale` of its size), then — if `r` is tall enough — wraps onto two lines at that
+    /// size; only then is it cut with "…". For labels whose words matter (instructions,
+    /// names, the ticker) in the longer languages and at a large UI scale.
+    pub fn draw_fit(&self, text: &str, r: Rect, style: &TextStyle, align: Align, min_scale: f32) {
+        if self.measure(text, style) <= r.w {
+            self.draw_in_exact(text, r, style, align);
+            return;
+        }
+        let min = (style.size * min_scale.clamp(0.5, 1.0))
+            .max(9.0)
+            .min(style.size);
+        let mut size = style.size;
+        while size > min {
+            size = (size - 0.5).max(min);
+            let st = style.size(size);
+            if self.measure(text, &st) <= r.w {
+                self.draw_in_exact(text, r, &st, align);
+                return;
+            }
+        }
+        let st = style.size(min);
+        let lh = st.line_h();
+        if r.h >= lh * 2.0 - 1.0 {
+            let lines = self.wrap(text, r.w, &st);
+            if lines.len() >= 2 {
+                let top = r.y + (r.h - lh * 2.0) * 0.5;
+                let n = lines.len().min(2);
+                let mut shown: Vec<String> = lines[..n].to_vec();
+                if lines.len() > 2 {
+                    let rest = lines[1..].join(" ");
+                    shown[1] = self.ellipsize(&rest, r.w, &st).into_owned();
+                }
+                for (i, l) in shown.iter().enumerate() {
+                    self.draw_in_exact(l, Rect::new(r.x, top + i as f32 * lh, r.w, lh), &st, align);
+                }
+                return;
+            }
+        }
+        self.draw_in_exact(text, r, &st, align);
     }
 
     /// Draw so the text ends at `right` (baseline `y`).
@@ -259,7 +401,11 @@ impl Fonts {
 
     /// Cut with "…" so it fits `max_w`.
     pub fn ellipsize<'a>(&self, text: &'a str, max_w: f32, style: &TextStyle) -> Cow<'a, str> {
-        ellipsize_with(text, max_w, |s| self.measure(s, style))
+        let out = ellipsize_with(text, max_w, |s| self.measure(s, style));
+        if matches!(out, Cow::Owned(_)) {
+            note_cut(text);
+        }
+        out
     }
 
     /// Greedy word-wrap into lines no wider than `max_w`.
@@ -482,6 +628,17 @@ mod tests {
     }
 
     #[test]
+    fn glyph_set_tracks_latin_cyrillic_and_the_rest() {
+        let mut g = GlyphSet::default();
+        for c in ['a', 'ž', 'Щ', 'ї', '€', '🙂'] {
+            assert!(!g.has(c));
+            g.add(c);
+            assert!(g.has(c));
+        }
+        assert!(!g.has('b') && !g.has('Ш') && !g.has('₽'));
+    }
+
+    #[test]
     fn wraps_on_words() {
         let lines = wrap_with("Příliš žluťoučký kůň úpěl", 100.0, mono);
         assert_eq!(lines, vec!["Příliš", "žluťoučký", "kůň úpěl"]);
@@ -540,6 +697,26 @@ mod tests {
 
 thread_local! {
     static OVERFLOWS: std::cell::RefCell<Vec<(Rect, String)>> = const { std::cell::RefCell::new(Vec::new()) };
+    static CUTS: std::cell::RefCell<Vec<String>> = const { std::cell::RefCell::new(Vec::new()) };
+}
+
+/// Layout debug: a text cut with "…" to fit (logged once by `Ui::end_frame`, so a sweep can
+/// list every truncated string per language and resolution).
+fn note_cut(text: &str) {
+    if !LAYOUT_DEBUG.load(std::sync::atomic::Ordering::Relaxed) {
+        return;
+    }
+    CUTS.with(|c| {
+        let mut c = c.borrow_mut();
+        if c.len() < 256 {
+            c.push(text.to_string());
+        }
+    });
+}
+
+/// Texts cut with "…" this frame (see [`note_cut`]).
+pub(crate) fn take_cuts() -> Vec<String> {
+    CUTS.with(|c| std::mem::take(&mut *c.borrow_mut()))
 }
 
 /// Set by `Ui::new` from `SHIFTELLA_LAYOUT_DEBUG`.

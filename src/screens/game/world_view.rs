@@ -166,8 +166,12 @@ pub fn tr_args(loc: &Locale, key: &str, args: &[(String, String)]) -> String {
     let owned: Vec<(String, String)> = args
         .iter()
         .map(|(k, v)| {
+            let menu_key = format!("menu.{v}.name");
             let v = if v.contains('.') && !v.contains(' ') && loc.has(v) {
                 loc.tr_owned(v)
+            } else if k == "item" && loc.has(&menu_key) {
+                // a menu id the sim also acts on (the bot's "take it off the menu")
+                loc.tr_owned(&menu_key)
             } else {
                 v.clone()
             };

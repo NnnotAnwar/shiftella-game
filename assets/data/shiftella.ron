@@ -73,7 +73,7 @@
         (id: "time_off_toil", kind: TimeOffRequest, placeholders: ["name", "hours"],
          actions: [(id: "approve"), (id: "decline")]),
         (id: "sick_call", kind: SickCall, placeholders: ["name"],
-         actions: [(id: "get_well"), (id: "call_in", handler: CallIn), (id: "manage")]),
+         actions: [(id: "get_well"), (id: "call_in", handler: CallIn), (id: "manage", effects: [StaffMood(1.0)])]),
         (id: "handover_ready", kind: Handover, placeholders: ["name"]),
         (id: "night_digest", kind: NightDigest, placeholders: ["night", "guests", "revenue"]),
         (id: "payroll_ready", kind: PayrollSummary, placeholders: ["week", "hours", "total"]),

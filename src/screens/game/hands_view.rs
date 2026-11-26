@@ -249,6 +249,35 @@ pub fn draw_world(
             _ => {}
         }
     }
+    // a little "Reserved" tent card on a seat kept through the app for a regular
+    let reserved: Vec<u32> = g.world.reserved_seats().values().copied().collect();
+    if !reserved.is_empty() {
+        let label = loc.tr_owned("ui.reserved");
+        for uid in reserved {
+            let Some(p) = g.world.furniture_by_uid(uid) else {
+                continue;
+            };
+            let c = vec2(p.x as f32 + 0.5, p.y as f32 + 0.1) * TILE;
+            let w = render::world_text_width(&label, 9.0) + 10.0;
+            let r = Rect::new(c.x - w / 2.0, c.y - 13.0, w, 15.0);
+            draw_rectangle(
+                r.x + 1.5,
+                r.y + 2.0,
+                r.w,
+                r.h,
+                Color::new(0.05, 0.03, 0.1, 0.35),
+            );
+            draw_rectangle(r.x, r.y, r.w, r.h, Color::new(1.0, 0.95, 0.86, 0.95));
+            draw_rectangle(r.x, r.y, r.w, 2.0, Color::new(1.0, 0.77, 0.42, 1.0));
+            render::world_text(
+                &label,
+                vec2(c.x, r.y + 11.5),
+                9.0,
+                Color::new(0.24, 0.17, 0.42, 1.0),
+                true,
+            );
+        }
+    }
     // marks over guests: "!" waiting to order, a check when she's on it, the usual, water,
     // and the wish bubble while a wish waits for a recipe
     let me = g.world.karolina().map(|k| k.id);
