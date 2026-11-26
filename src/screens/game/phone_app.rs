@@ -842,21 +842,28 @@ fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
         let style = t.small().color(t.text);
         for (k, args) in &h.lines {
             let txt = wv::tr_args(&loc, k, args);
+            let room = ((c.bottom() - ly) / style.line_h()).floor() as usize;
+            if room == 0 {
+                break;
+            }
             ly += ui.fonts.draw_wrapped(
                 &txt,
                 Rect::new(c.x, ly, c.w, c.bottom() - ly),
                 &style,
                 Align::Left,
-                None,
+                Some(room),
             ) + 4.0;
         }
-        if let Some(txt) = &h.text {
+        let room = ((c.bottom() - ly) / style.line_h()).floor() as usize;
+        if let Some(txt) = &h.text
+            && room > 0
+        {
             ui.fonts.draw_wrapped(
                 &format!("„{txt}“"),
                 Rect::new(c.x, ly, c.w, c.bottom() - ly),
                 &t.small().color(t.indigo_300),
                 Align::Left,
-                None,
+                Some(room),
             );
         }
         y = cr.bottom() + 10.0;
