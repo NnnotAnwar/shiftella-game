@@ -719,6 +719,10 @@ pub async fn run() {
         }
     }
     audio.set_volumes(settings.music_volume, settings.sfx_volume);
+    // an invisible automation run is silent too (the audio is still loaded and mixed)
+    if crate::platform::automation_hidden() && !audio.mix.muted {
+        audio.toggle_mute();
+    }
 
     let placeholder = MainMenu::new(&content, settings.clone(), &ui);
     let mut app = App {
