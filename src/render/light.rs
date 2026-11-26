@@ -318,9 +318,11 @@ impl Lighting {
         // carriage windows: several bands in a row
         let fade = (progress * (1.0 - progress) * 4.0).clamp(0.0, 1.0).sqrt();
         let col = Color::from_hex(0xd8e0ff);
-        let head = x0 - 3.0 * TILE + span * progress;
+        // The train runs right → left (see `outside::draw_train`, nose on the left),
+        // so the band enters from the right and the carriages' lights trail behind it.
+        let head = x1 + 3.0 * TILE - span * progress;
         for car in 0..5 {
-            let bx = head - car as f32 * 1.1 * TILE;
+            let bx = head + car as f32 * 1.1 * TILE;
             let bw = 0.55 * TILE;
             for wi in 0..self.windows.len() {
                 let g = self.windows[wi];
