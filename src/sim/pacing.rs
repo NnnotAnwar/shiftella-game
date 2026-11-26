@@ -131,10 +131,10 @@ pub(crate) fn rhythm_on_serve(w: &mut World, content: &Content) -> f32 {
 // Karolina's pending things
 // ---------------------------------------------------------------------------------------------
 
-/// Things only Karolina will do right now (no helper on the floor holds that duty): waiting
-/// orders, open wishes, unowned rounds (a party's items at one station; a tray to carry), tip
-/// coins, dishes, the floor. The ticket rail + world markers + dirt, as one number (§9:
-/// median 1–3).
+/// Things waiting on Karolina right now (no helper on the floor holds that duty): waiting
+/// orders, open wishes, unowned rounds (a party's items at one station; a tray to carry),
+/// dishes, the floor. The ticket rail + world markers + dirt, as one number (§9: median 1–3).
+/// Tip coins are not counted (they never expire), but they keep her from being idle.
 pub(crate) fn todo(w: &World, content: &Content) -> u32 {
     let reg = duty_on_floor(w, Duty::Register);
     let serving = duty_on_floor(w, Duty::Serving);
@@ -182,10 +182,6 @@ pub(crate) fn todo(w: &World, content: &Content) -> u32 {
         }
     }
     n += rounds.len() as u32;
-    let mut tables: Vec<u32> = w.hands.tips.iter().map(|t| t.table).collect();
-    tables.sort();
-    tables.dedup();
-    n += tables.len() as u32;
     if !dishes {
         n += w
             .furniture
@@ -249,7 +245,8 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     // Karolina idle & the todo histogram
     let todo = todo(w, content);
     let busy = !w.hands.player.queue.is_empty() || w.hands.player.current.is_some();
-    let idle = !busy && todo == 0;
+    // tip coins never expire (nobody waits on them), but picking them up is something to do
+    let idle = !busy && todo == 0 && w.hands.tips.is_empty();
     let quiet = quiet_hour(w, content);
     let tally = &mut w.hands.tally;
     let k = (todo as usize).min(15);

@@ -312,13 +312,18 @@ impl PlayerBot {
             }
         }
         // an open wish whose order she took: the order card (+ the mini-game)
-        let open: Vec<(u32, bool)> = w
+        // regulars first (their visit windows are short), soonest to leave first
+        let mut open: Vec<(u32, bool, u32)> = w
             .parties()
             .iter()
             .filter(|p| p.state == PartyState::WaitFood && p.wish_open && !p.handed_off)
-            .filter_map(|p| p.leader().map(|l| (l, p.regular.is_some())))
+            .filter_map(|p| {
+                p.leader()
+                    .map(|l| (l, p.regular.is_none(), p.leave_by.unwrap_or(u32::MAX)))
+            })
             .collect();
-        if let Some(&(guest, _)) = open.first()
+        open.sort_by_key(|x| (x.1, x.2));
+        if let Some(&(guest, _, _)) = open.first()
             && w.player().queue.len() < PLAYER_QUEUE_MAX
         {
             return self.order_card(w, content, guest);
@@ -363,6 +368,20 @@ impl PlayerBot {
             .filter(|t| t.stage == TicketStage::Order && t.owner == TicketOwner::Nobody)
             .collect();
         orders.sort_by(|a, b| b.wait_frac.total_cmp(&a.wait_frac));
+        // a regular's order is done next (shift+click)
+        let regular = orders.iter().find(|t| t.regular.is_some()).map(|t| t.party);
+        if let Some(party) = regular
+            && w.apply(
+                content,
+                Command::PlayerQueue {
+                    act: PlayerAct::TakeOrder { party },
+                    front: true,
+                },
+            )
+            .is_ok()
+        {
+            return Some(0);
+        }
         let wishy = |t: &&&Ticket| {
             w.party_of_guest(t.guest)
                 .is_some_and(|p| p.order_kind.is_wish() || p.regular.is_some())

@@ -50,6 +50,9 @@ use std::collections::BTreeSet;
 use crate::content::handson::{Duty, HallMood};
 use crate::content::{Content, Job};
 
+/// Cozy: train passengers walk in within this many minutes (Classic: 6).
+pub const COZY_TRAIN_SPREAD: u32 = 14;
+
 /// Trains: arrivals by timetable (if `announce_if` holds), passengers come in.
 pub(crate) fn trains_tick(w: &mut World, content: &Content) {
     let m = w.minute();
@@ -72,9 +75,15 @@ pub(crate) fn trains_tick(w: &mut World, content: &Content) {
             let start = w.rng.range_u32(3, 6);
             let mut left = n;
             let group = content.guest(&t.guest).map(|g| g.group).unwrap_or((1, 2));
+            // Cozy: the passengers drift in over a longer stretch (a busy moment, not a wall)
+            let spread = if w.difficulty == Difficulty::Cozy {
+                COZY_TRAIN_SPREAD
+            } else {
+                6
+            };
             while left > 0 {
                 let size = w.rng.range_u32(group.0.max(1), group.1.max(1)).min(left);
-                let minute = m + start + w.rng.range_u32(0, 6);
+                let minute = m + start + w.rng.range_u32(0, spread);
                 w.spawns.push(guests::PendingSpawn {
                     minute,
                     archetype: t.guest.clone(),
