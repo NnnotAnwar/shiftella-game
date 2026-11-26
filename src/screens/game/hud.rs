@@ -312,19 +312,14 @@ fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let pending = pending_requests(&g.world);
     let items = [
         (Icon::Crew, "ui.toolbar.crew", "C", Panel::Crew),
-        (
-            Icon::Priorities,
-            "ui.toolbar.priorities",
-            "P",
-            Panel::Priorities,
-        ),
+        (Icon::Priorities, "ui.duties.title", "H", Panel::Duties),
         (Icon::Phone, "ui.toolbar.app", "T", Panel::App),
         (Icon::Build, "ui.toolbar.build", "B", Panel::Build),
         (Icon::Log, "ui.toolbar.log", "L", Panel::Log),
     ];
     let anchor_names = [
         "dock.crew",
-        "dock.priorities",
+        "dock.duties",
         "dock.app",
         "dock.build",
         "dock.log",
@@ -333,7 +328,14 @@ fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         .iter()
         .map(|(ic, l, k, _)| ui.button_width(&Button::new(loc.tr(l)).ghost().icon(*ic).shortcut(k)))
         .collect();
-    let total: f32 = widths.iter().sum::<f32>() + 4.0 * (items.len() as f32) + 36.0 + 32.0;
+    let book_w = ui.button_width(
+        &Button::new(loc.tr("ui.toolbar.book"))
+            .ghost()
+            .icon(Icon::Book)
+            .shortcut("K"),
+    );
+    let total: f32 =
+        widths.iter().sum::<f32>() + book_w + 4.0 * (items.len() as f32 + 1.0) + 36.0 + 32.0;
     let tb = anchored(ui.screen(), Anchor::BottomLeft, vec2(total, 36.0), 12.0);
     ui.glass(tb, &Glass::hud());
     let mut fr = Flow::row(tb.inset(4.0), 4.0);
@@ -357,6 +359,18 @@ fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         if *p == Panel::App && pending > 0 {
             ui.badge(vec2(r.x + 22.0, r.y + 4.0), pending);
         }
+    }
+    // the recipe book is an overlay, not a panel
+    let book = Button::new(loc.tr("ui.toolbar.book"))
+        .ghost()
+        .icon(Icon::Book)
+        .shortcut("K")
+        .selected(g.hands.book.is_some());
+    let bw = ui.button_width(&book);
+    let br = fr.next(bw);
+    g.anchors.push(("dock.book", br));
+    if ui.button(("dock", "book"), br, &book).clicked {
+        g.open_book(None);
     }
     let help_tip = loc.tr("ui.help.tip");
     if ui
@@ -468,7 +482,13 @@ pub fn bubble(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             });
         }
     }
-    let Some(b) = g.bubble.clone() else { return };
+    let Some(mut b) = g.bubble.clone() else {
+        return;
+    };
+    b.text = super::resolve_text(&loc, &b.text);
+    if b.text.is_empty() && b.talk.is_none() {
+        return;
+    }
     if g.time > b.until && !(g.hovered == Some(b.agent) && !b.pinned) {
         g.bubble = None;
         return;
@@ -495,17 +515,43 @@ pub fn bubble(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let w = text_w.max(talk_w) + 24.0;
     let lh = style.line_h();
     let h = lines.len() as f32 * lh + 18.0 + if b.talk.is_some() { 34.0 } else { 0.0 };
-    let r = Rect::new(anchor.x - w / 2.0, anchor.y - h - 12.0, w, h);
+    let mut r = Rect::new(anchor.x - w / 2.0, anchor.y - h - 12.0, w, h);
+    // never under the top HUD / the ticket rail: then the bubble hangs below the head
+    let top = g
+        .anchors
+        .iter()
+        .filter(|a| matches!(a.0, "hud.clock" | "hud.ticker" | "hud.money" | "rail"))
+        .filter(|a| a.1.x < r.right() && a.1.right() > r.x)
+        .map(|a| a.1.bottom())
+        .fold(0.0, f32::max);
+    // keep it on screen (a guest at the edge of the view)
+    let sw = ui.screen().w;
+    r.x = r.x.clamp(8.0, (sw - r.w - 8.0).max(8.0));
+    let below = r.y < top + 6.0;
+    if below {
+        r.y = anchor.y + 70.0;
+    }
     ui.glass(r, &Glass::tooltip().radius(10.0));
-    // tail
-    draw::fill_convex(
-        &[
-            vec2(anchor.x - 7.0, r.bottom() - 1.0),
-            vec2(anchor.x + 7.0, r.bottom() - 1.0),
-            vec2(anchor.x, r.bottom() + 9.0),
-        ],
-        Paint::Solid(t.glass_bottom),
-    );
+    // tail (towards the head, above or below)
+    if below {
+        draw::fill_convex(
+            &[
+                vec2(anchor.x - 7.0, r.y + 1.0),
+                vec2(anchor.x, r.y - 9.0),
+                vec2(anchor.x + 7.0, r.y + 1.0),
+            ],
+            Paint::Solid(t.glass_top),
+        );
+    } else {
+        draw::fill_convex(
+            &[
+                vec2(anchor.x - 7.0, r.bottom() - 1.0),
+                vec2(anchor.x + 7.0, r.bottom() - 1.0),
+                vec2(anchor.x, r.bottom() + 9.0),
+            ],
+            Paint::Solid(t.glass_bottom),
+        );
+    }
     let mut y = r.y + 9.0 + lh * 0.78;
     for l in &lines {
         ui.fonts.draw(l, r.x + 12.0, y, &style.color(t.text));

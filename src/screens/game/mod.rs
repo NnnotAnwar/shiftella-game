@@ -7,7 +7,12 @@
 //! * **frame** ([`GameScreen::frame`], [`GameScreen::hotkeys`]) — input, drawing, widgets.
 
 mod build;
+pub mod coach;
 mod day;
+mod duties;
+pub mod hands;
+mod hands_ui;
+mod hands_view;
 mod hud;
 mod panels;
 mod pause;
@@ -17,6 +22,7 @@ pub mod tutorial;
 pub mod world_view;
 
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::rc::Rc;
 
 use macroquad::prelude::*;
@@ -32,8 +38,9 @@ use scene::{Pick, WorldScene};
 use sim::{AgentRef, Command, NightSummary, Phase, SimEvent, World};
 use world_view::{self as wv, sim};
 
-/// Real seconds per sim tick at ×1 (10 ticks = 1 game minute → a night ≈ 8 min).
-pub const TICK_SECONDS: f32 = 0.1;
+/// Real seconds per sim tick at ×1 by default (10 ticks = 1 game minute → a night ≈ 12 min).
+/// The live value comes from `World::real_seconds_per_tick` (`handson.ron`).
+pub const TICK_SECONDS: f32 = sim::REAL_SECONDS_PER_TICK_X1;
 
 /// Everything a game frame needs from the app.
 pub struct Ctx<'a> {
@@ -61,7 +68,8 @@ pub enum GameExit {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Panel {
     Crew,
-    Priorities,
+    /// The duties board (H; P is an alias): who helps with what tonight.
+    Duties,
     App,
     Build,
     Log,
@@ -94,6 +102,38 @@ pub enum Notice {
         event: String,
         choice: String,
     },
+    /// A toast from an i18n key (args: `@key` = translate, `money:N` = format money).
+    Key {
+        kind: ToastKind,
+        icon: Icon,
+        key: String,
+        args: Vec<(String, String)>,
+    },
+}
+
+/// Bubble texts may be an i18n key (`@key:<key>`) when the logic half had no locale.
+pub fn resolve_text(loc: &Locale, text: &str) -> String {
+    match text.strip_prefix("@key:") {
+        Some("") => String::new(),
+        Some(k) => loc.tr_owned(k),
+        None => text.to_string(),
+    }
+}
+
+/// Translates argument values: `@key` → its text, `money:N` → "N Kč".
+pub fn resolve_args(loc: &Locale, args: &[(String, String)]) -> Vec<(String, String)> {
+    args.iter()
+        .map(|(k, v)| {
+            let v = if let Some(key) = v.strip_prefix('@') {
+                loc.tr_owned(key)
+            } else if let Some(n) = v.strip_prefix("money:") {
+                crate::i18n::format_money(loc.lang, n.parse().unwrap_or(0))
+            } else {
+                v.clone()
+            };
+            (k.clone(), v)
+        })
+        .collect()
 }
 
 /// Speech bubble over a guest.
@@ -150,6 +190,14 @@ pub struct GameScreen {
     pub times: FrameTimes,
     /// Screen rects of HUD pieces this frame, by name (tutorial arrows point at them).
     pub anchors: Vec<(&'static str, Rect)>,
+    /// Karolina's hands-on loop: order card, mini-game, rail, coins, … (see `hands`).
+    pub hands: hands::Hands,
+    /// Settings: relaxed mini-games (copied from the settings each frame).
+    pub relaxed: bool,
+    /// Latte art drawn in the last mini-game per guest (served cups show it).
+    pub latte_for: HashMap<u32, String>,
+    /// Karolina's first-night coach marks.
+    pub coach: coach::CoachState,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -221,6 +269,10 @@ impl GameScreen {
             times: FrameTimes::default(),
             anchors: Vec::new(),
             automation: std::env::var("SHIFTELLA_SHOT").is_ok(),
+            hands: hands::Hands::default(),
+            relaxed: false,
+            latte_for: HashMap::new(),
+            coach: coach::CoachState::default(),
         }
     }
 
@@ -285,7 +337,6 @@ impl GameScreen {
         self.speed == 0
             || self.pause.is_some()
             || self.cutscene_playing()
-            || self.tutorial_holds_clock()
             || self.summary.is_some()
             || self.world.phase() == Phase::Day
     }
@@ -309,10 +360,11 @@ impl GameScreen {
     /// Runs the sim for `dt` real seconds at the current speed; handles the events.
     pub fn advance(&mut self, content: &Rc<Content>, dt: f32, loc: Option<&Locale>) {
         if !self.frozen() {
-            self.acc += dt.min(0.25) * self.speed as f32;
+            let (rate, tick) = self.sim_rate(content);
+            self.acc += dt.min(0.25) * rate;
             let mut guard = 0;
-            while self.acc >= TICK_SECONDS && guard < 64 {
-                self.acc -= TICK_SECONDS;
+            while self.acc >= tick && guard < 64 {
+                self.acc -= tick;
                 self.world.tick(content);
                 guard += 1;
                 // stop stepping as soon as something needs the player
@@ -526,6 +578,7 @@ impl GameScreen {
                 _ => String::from("?"),
             }
         };
+        self.hands_event(content, &e);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;
@@ -736,6 +789,14 @@ impl GameScreen {
             SimEvent::ChoiceNeeded { .. } | SimEvent::EventStarted { .. } => {
                 audio.play_sfx_vol(Sfx::EventAlert, 0.8)
             }
+            // hands-on (design §14): existing sounds only
+            SimEvent::PlayerServed { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.7),
+            SimEvent::PlayerGreeted { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.3),
+            SimEvent::RecordChanged { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.3),
+            SimEvent::RecordUnlocked { .. } | SimEvent::PractisedRecipe { .. } => {
+                audio.play_sfx_vol(Sfx::UiClick, 0.5)
+            }
+            SimEvent::PlayerOrderTaken { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.35),
             _ => {}
         }
     }
@@ -806,21 +867,17 @@ impl GameScreen {
         }
     }
 
-    /// Music by guest load (calm ↔ rush), rain by weather.
-    fn update_audio(&mut self, audio: &mut Audio) {
+    /// Music from the sim (house calm / rush / quiet hour, grandma's records, the day
+    /// theme; silence in a blackout), rain by weather.
+    fn update_audio(&mut self, content: &Content, audio: &mut Audio) {
         if self.cutscene_playing() {
             return;
         }
         let night = self.world.phase() == Phase::Night;
-        let busy = self.world.guests_inside() >= 12 || self.world.queue_len() >= 4;
-        let quiet = self.world.guests_inside() <= 7 && self.world.queue_len() <= 1;
-        let track = match audio.music() {
-            _ if !night => Track::Calm,
-            Some(Track::Rush) if !quiet => Track::Rush,
-            _ if busy => Track::Rush,
-            _ => Track::Calm,
-        };
-        audio.set_music(Some(track));
+        match self.world.music_track(content) {
+            Some((id, vol)) => audio.set_music_vol(Track::from_id(&id), vol),
+            None => audio.set_music(None),
+        }
         audio.set_rain(self.world.weather().is_wet());
         // café life: an occasional footstep / coffee machine while it is busy
         if night && self.speed > 0 {
@@ -860,6 +917,13 @@ impl GameScreen {
             }
             let _ = self.world.run_night_headless(content);
             guard += 1;
+        }
+        // the last day too: tonight's candidates (the first helper comes on night 3)
+        if hire && self.world.phase() == Phase::Day {
+            let ids: Vec<u32> = self.world.candidates().iter().map(|c| c.id).collect();
+            for id in ids {
+                let _ = self.world.apply(content, Command::Hire { candidate: id });
+            }
         }
         let _ = self.world.drain_events();
         self.deferred.clear();
@@ -1015,6 +1079,7 @@ impl GameScreen {
         let loc = cx.loc;
         // faces for avatars: baked before anything of this frame is drawn
         self.register_faces(ui, &loc);
+        hands_ui::faces(self, ui, content, &loc);
         for e in std::mem::take(&mut self.deferred) {
             self.handle_event(content, e, Some(&loc));
         }
@@ -1028,6 +1093,7 @@ impl GameScreen {
         }
 
         // 1. cutscene or sim
+        self.relaxed = cx.settings.relaxed_minigames;
         let mut finished = None;
         if self.player.is_playing() {
             if let CutsceneStatus::Finished { id, choices } = self.player.update(ui, &loc, dt) {
@@ -1041,6 +1107,14 @@ impl GameScreen {
         if let Some((id, choices)) = finished {
             self.cutscene_finished(content, id, choices);
         }
+        // the autoplayer reads a scene for a moment, then moves on (default choices)
+        if (self.hands.autoplay.is_some() || self.hands.skip_scenes) && self.player.is_playing() {
+            self.hands.scene_wait += dt;
+            if self.hands.scene_wait > if self.hands.skip_scenes { 0.5 } else { 4.0 } {
+                self.hands.scene_wait = 0.0;
+                self.finish_cutscene_now(content, &loc);
+            }
+        }
         let events_before = self.world.drain_events();
         for e in &events_before {
             Self::event_audio(cx.audio, e);
@@ -1048,13 +1122,14 @@ impl GameScreen {
         for e in events_before {
             self.handle_event(content, e, Some(&loc));
         }
+        let (rate, tick) = self.sim_rate(content);
         if self.clock_stop > 0.0 {
             self.clock_stop = (self.clock_stop - dt).max(0.0);
         } else if !self.frozen() {
-            self.acc += dt.min(0.25) * self.speed as f32;
+            self.acc += dt.min(0.25) * rate;
             let mut guard = 0;
-            while self.acc >= TICK_SECONDS && guard < 64 {
-                self.acc -= TICK_SECONDS;
+            while self.acc >= tick && guard < 64 {
+                self.acc -= tick;
                 self.world.tick(content);
                 guard += 1;
                 ticks_run += 1;
@@ -1072,10 +1147,20 @@ impl GameScreen {
             }
         }
         self.drain_and_handle(content, Some(&loc));
+        if !self.player.is_playing() {
+            for (sfx, vol) in self.hands_frame(content, dt) {
+                cx.audio.play_sfx_vol(sfx, vol);
+            }
+            if self.hands.autoplay.is_some() {
+                self.autoplay_step(content, dt);
+            }
+        }
         self.autosave_if_due(content, cx.store);
-        self.update_audio(cx.audio);
+        self.update_audio(content, cx.audio);
         let anim_dt = if self.frozen() && !self.cutscene_playing() {
             dt * 0.35
+        } else if self.overlay_open() {
+            dt * 0.6
         } else {
             dt * self.speed.max(1) as f32
         };
@@ -1083,7 +1168,7 @@ impl GameScreen {
         let alpha = if self.frozen() || self.clock_stop > 0.0 {
             1.0
         } else {
-            self.acc / TICK_SECONDS
+            self.acc / tick
         };
         self.scene.refresh(&self.world, self.time, alpha);
 
@@ -1095,8 +1180,31 @@ impl GameScreen {
                 .draw_cutscene(&self.world, content, self.time, &self.player);
         } else {
             let wants_mouse = ui.wants_mouse();
-            if !wants_mouse && self.pause.is_none() && !self.automation {
+            // the mini-game owns WASD / arrows / the wheel while it is open
+            if !wants_mouse
+                && self.pause.is_none()
+                && !self.automation
+                && self.hands.minigame.is_none()
+                && !ui.wants_keyboard()
+            {
                 self.cam.update();
+            }
+            // screenshot runs: SHIFTELLA_ZOOM=k follows Karolina k× closer than the overview
+            if self.automation
+                && let Some(z) = std::env::var("SHIFTELLA_ZOOM")
+                    .ok()
+                    .and_then(|z| z.parse::<f32>().ok())
+                && let Some(k) = self.world.karolina()
+            {
+                let base = self.scene.overview_camera(Rect::new(
+                    0.0,
+                    0.0,
+                    screen_width(),
+                    screen_height(),
+                ));
+                self.cam.zoom = base.zoom * z;
+                let want = vec2(k.pos.0, k.pos.1 - 40.0);
+                self.cam.center = self.cam.center.lerp(want, (dt * 3.0).min(1.0));
             }
             self.scene.clamp_camera(&mut self.cam);
             let cam = self.cam.to_camera2d();
@@ -1121,10 +1229,26 @@ impl GameScreen {
             };
             self.scene
                 .draw(&self.world, content, &cam, t, sel, hov, &mut extra);
+            let target = if wants_mouse || self.pause.is_some() || self.panel == Some(Panel::Build)
+            {
+                None
+            } else {
+                hands_view::target(self, content, pick, mouse_world)
+            };
+            hands_view::draw_world(self, content, &loc, target, mouse_world);
             if self.panel == Some(Panel::Build) {
                 build::draw_world_overlay(self, content, ghost.as_ref());
             }
-            self.world_click(ui, content, pick, mouse_world, ghost.as_ref(), &loc);
+            self.world_click(
+                ui,
+                content,
+                pick,
+                target,
+                mouse_world,
+                ghost.as_ref(),
+                &loc,
+                dt,
+            );
         }
 
         let t_world = std::time::Instant::now();
@@ -1134,13 +1258,15 @@ impl GameScreen {
         if self.player.is_playing() {
             self.player.draw_ui(ui, &loc);
         } else {
-            if !matches!(self.panel, Some(Panel::App | Panel::Priorities)) {
+            hud::draw(self, ui, cx);
+            hands_ui::hud(self, ui, cx);
+            // after the HUD and the rail: the bubble keeps clear of them
+            if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {
                 hud::bubble(self, ui, cx);
             }
-            hud::draw(self, ui, cx);
             match self.panel {
                 Some(Panel::Crew) => panels::crew(self, ui, cx),
-                Some(Panel::Priorities) => panels::priorities(self, ui, cx),
+                Some(Panel::Duties) => duties::board(self, ui, cx),
                 Some(Panel::Log) => panels::log(self, ui, cx),
                 Some(Panel::App) => phone_app::draw(self, ui, cx),
                 Some(Panel::Build) => build::panel(self, ui, cx),
@@ -1150,8 +1276,10 @@ impl GameScreen {
             if self.world.phase() == Phase::Day && self.summary.is_none() {
                 day::planning(self, ui, cx);
             }
+            hands_ui::overlays(self, ui, cx, dt);
             self.tutorial_update(cx);
             tutorial::draw(self, ui, cx);
+            coach::draw(self, ui, cx);
             if self.summary.is_some() {
                 day::summary(self, ui, cx);
             }
@@ -1159,8 +1287,17 @@ impl GameScreen {
                 pause::draw(self, ui, cx);
             }
         }
-        // toasts wait while a scene is on screen
-        if !self.player.is_playing() {
+        // the mini-game loops (steam hiss, pour trickle) follow the game; silence otherwise
+        let loops = self
+            .hands
+            .minigame
+            .as_ref()
+            .filter(|_| self.pause.is_none())
+            .map(|m| m.game.loops())
+            .unwrap_or_default();
+        cx.audio.set_loops(loops.steam, loops.trickle);
+        // toasts wait while a scene or a mini-game is on screen (the cup has her attention)
+        if !self.player.is_playing() && self.hands.minigame.is_none() {
             self.flush_notices(ui, &loc);
             ui.set_toast_bottom_inset(56.0);
             // by day the planning panel owns the right column: toasts stay beside it
@@ -1217,6 +1354,16 @@ impl GameScreen {
                     let id = ui.push_toast(t);
                     self.choice_toasts.push((id, event, choices));
                 }
+                Notice::Key {
+                    kind,
+                    icon,
+                    key,
+                    args,
+                } => {
+                    let a = resolve_args(loc, &args);
+                    let text = wv::tr_args(loc, &key, &a);
+                    ui.push_toast(Toast::new(kind, text).icon(icon));
+                }
                 Notice::ChoiceResolved { event, choice } => {
                     if let Some(i) = self.choice_toasts.iter().position(|c| c.1 == event) {
                         let (id, _, _) = self.choice_toasts.remove(i);
@@ -1251,24 +1398,124 @@ impl GameScreen {
         }
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn world_click(
         &mut self,
         ui: &mut Ui,
         content: &Rc<Content>,
         pick: Option<Pick>,
+        target: Option<hands_view::Target>,
         mouse_world: Vec2,
         ghost: Option<&build::Ghost>,
         loc: &Locale,
+        dt: f32,
     ) {
-        if ui.wants_mouse() || self.pause.is_some() || self.summary.is_some() || self.automation {
-            return;
+        use hands::Intent;
+        use hands_view::Target;
+        let night = self.world.phase() == Phase::Night;
+        let blocked =
+            ui.wants_mouse() || self.pause.is_some() || self.summary.is_some() || self.automation;
+        let down = is_mouse_button_down(MouseButton::Left);
+        // hold-to-wash: the mouse went down on the sink, or E is held (keyboard play)
+        if night {
+            let mouse_hold = down && self.hands.press_sink.is_some() && !self.automation;
+            let key_hold = !ui.wants_keyboard()
+                && !self.automation
+                && self.hands.minigame.is_none()
+                && is_key_down(KeyCode::E);
+            let auto_hold = self.hands.autoplay.is_some();
+            self.wash_input(content, mouse_hold || key_hold || auto_hold, dt);
         }
-        if !is_mouse_button_pressed(MouseButton::Left) {
+        if !down {
+            self.hands.press_sink = None;
+        }
+        // a mop swipe across a dirt blot
+        if let Some(mut sw) = self.hands.swipe {
+            if down {
+                sw.travelled += sw.last.distance(mouse_world);
+                sw.last = mouse_world;
+                if sw.travelled >= hands::SWIPE_MIN {
+                    self.hands.swipe = None;
+                    self.intent(
+                        content,
+                        Intent::Mop {
+                            tile: sw.tile,
+                            front: ui.shift(),
+                        },
+                    );
+                } else {
+                    self.hands.swipe = Some(sw);
+                }
+            } else {
+                // only a click: show how (an arrow over the blot)
+                self.hands.swipe = None;
+                self.hands.swipe_hint = Some((sw.tile, self.time));
+                self.hands.swipe_hints_shown += 1;
+            }
+        }
+        // right-click (not a camera drag): cancel the current act / drop a queued chip
+        if is_mouse_button_pressed(MouseButton::Right) && !blocked {
+            self.hands.right_press = Some(Vec2::from(mouse_position()));
+        }
+        if is_mouse_button_released(MouseButton::Right)
+            && let Some(p0) = self.hands.right_press.take()
+            && p0.distance(Vec2::from(mouse_position())) < 6.0
+            && night
+            && !blocked
+            && self.panel != Some(Panel::Build)
+        {
+            match target {
+                Some(Target::Chip(i)) => {
+                    self.intent(content, Intent::Unqueue(i));
+                }
+                _ => {
+                    self.intent(content, Intent::Cancel);
+                }
+            }
+        }
+        if blocked || !is_mouse_button_pressed(MouseButton::Left) {
             return;
         }
         if self.panel == Some(Panel::Build) {
             build::click(self, ui, content, ghost, mouse_world, loc);
             return;
+        }
+        let front = ui.shift();
+        match target {
+            Some(Target::Chip(i)) => {
+                self.intent(content, Intent::Unqueue(i));
+                return;
+            }
+            Some(Target::Coin(table)) => {
+                self.intent(content, Intent::Tip { table, front });
+                return;
+            }
+            Some(Target::Dirt(tile)) => {
+                self.hands.swipe = Some(hands::Swipe {
+                    tile,
+                    last: mouse_world,
+                    travelled: 0.0,
+                });
+                return;
+            }
+            Some(Target::Sink(sink)) => {
+                self.hands.press_sink = Some(sink);
+                self.intent(content, Intent::Sink { sink, front });
+                return;
+            }
+            Some(Target::Table(table)) => {
+                self.intent(content, Intent::Table { table, front });
+                return;
+            }
+            Some(Target::Jukebox(_)) => {
+                self.intent(content, Intent::Jukebox);
+                return;
+            }
+            Some(Target::Window) => {
+                self.intent(content, Intent::Window);
+                return;
+            }
+            _ => {}
         }
         match pick {
             Some(Pick::Agent(a)) => {
@@ -1280,8 +1527,14 @@ impl GameScreen {
                         self.bubble = None;
                     }
                     AgentRef::Guest(g) => {
-                        let line = self.world.ambient_line_for(content, g);
+                        let acted =
+                            night && self.intent(content, Intent::Guest { guest: g, front });
                         let talk = self.world.talk_available(content, g);
+                        // a click that did something shows no bubble (unless there's a Talk)
+                        if acted && talk.is_none() {
+                            return;
+                        }
+                        let line = self.world.ambient_line_for(content, g);
                         let text = match line {
                             Some(k) => loc.tr_owned(&k),
                             None => hud::guest_line(self, content, g, loc),
@@ -1307,6 +1560,7 @@ impl GameScreen {
 
     /// Hotkeys — after `ui.end_frame()` (widgets consumed their keys first).
     pub fn hotkeys(&mut self, ui: &mut Ui, cx: &mut Ctx) {
+        use hands::Intent;
         let content = cx.content;
         if self.player.is_playing() || self.automation {
             return;
@@ -1326,8 +1580,18 @@ impl GameScreen {
             }
             return;
         }
+        // an open mini-game / card / book keeps the keyboard (it consumed its own keys)
+        if self.hands.minigame.is_some() {
+            return;
+        }
         if ui.esc() {
-            if self.panel == Some(Panel::Build) && self.ui_state.build.active() {
+            if self.hands.book.is_some() {
+                self.hands.book = None;
+            } else if self.hands.records_open {
+                self.hands.records_open = false;
+            } else if self.hands.order.is_some() {
+                self.hands.order = None;
+            } else if self.panel == Some(Panel::Build) && self.ui_state.build.active() {
                 self.ui_state.build.cancel();
             } else if self.bubble.as_ref().is_some_and(|b| b.pinned) || self.selected.is_some() {
                 self.bubble = None;
@@ -1339,23 +1603,41 @@ impl GameScreen {
             }
             return;
         }
+        let card = self.hands.order.is_some() || self.hands.book.is_some();
         let toggle = |p: &mut Option<Panel>, which: Panel| {
             *p = if *p == Some(which) { None } else { Some(which) };
         };
-        if ui.key(KeyCode::C) {
-            toggle(&mut self.panel, Panel::Crew);
-        }
-        if ui.key(KeyCode::P) {
-            toggle(&mut self.panel, Panel::Priorities);
-        }
-        if ui.key(KeyCode::T) {
-            toggle(&mut self.panel, Panel::App);
-        }
-        if ui.key(KeyCode::B) {
-            toggle(&mut self.panel, Panel::Build);
-        }
-        if ui.key(KeyCode::L) {
-            toggle(&mut self.panel, Panel::Log);
+        if !card {
+            if ui.key(KeyCode::C) {
+                toggle(&mut self.panel, Panel::Crew);
+            }
+            // H = the duties board (P stays as the old priorities key)
+            if ui.key(KeyCode::H) || ui.key(KeyCode::P) {
+                toggle(&mut self.panel, Panel::Duties);
+            }
+            if ui.key(KeyCode::T) {
+                toggle(&mut self.panel, Panel::App);
+            }
+            if ui.key(KeyCode::B) {
+                toggle(&mut self.panel, Panel::Build);
+            }
+            if ui.key(KeyCode::L) {
+                toggle(&mut self.panel, Panel::Log);
+            }
+            if ui.key(KeyCode::K) {
+                self.open_book(None);
+            }
+            if ui.key(KeyCode::J) {
+                self.notices.push(Notice::Key {
+                    kind: ToastKind::Info,
+                    icon: Icon::Book,
+                    key: "ui.journal.soon".into(),
+                    args: Vec::new(),
+                });
+            }
+            if ui.key(KeyCode::V) {
+                self.intent(content, Intent::Jukebox);
+            }
         }
         if ui.key(KeyCode::F1) {
             toggle(&mut self.panel, Panel::Help);
@@ -1377,6 +1659,59 @@ impl GameScreen {
         if self.world.phase() == Phase::Day && ui.enter() {
             self.start_night(content);
         }
+        // keyboard play at night (design §9: a whole night keyboard-only)
+        if self.world.phase() == Phase::Night && !card && self.panel != Some(Panel::Build) {
+            let front = ui.shift();
+            if ui.enter() {
+                // the focused ticket on the rail ([ / ] move), else the first one
+                self.act_on_rail(content);
+            }
+            // at the sink E is the hold-to-wash key, not "the next chore"
+            let at_sink = self
+                .world
+                .player()
+                .current
+                .as_ref()
+                .is_some_and(|c| matches!(c.act, sim::PlayerAct::Wash { .. }) && c.stage == 1);
+            if ui.key(KeyCode::E) && !at_sink {
+                self.intent(content, Intent::Chore { front });
+            }
+            if ui.key(KeyCode::G) {
+                self.intent(content, Intent::Greet);
+            }
+            if ui.key(KeyCode::Backspace) {
+                self.intent(content, Intent::Cancel);
+            }
+        }
+    }
+
+    /// Enter on the rail: claim / open the focused ticket (or the first).
+    pub fn act_on_rail(&mut self, content: &Rc<Content>) {
+        let tickets = hands_ui::rail_tickets(self, content);
+        let pick = self
+            .hands
+            .rail
+            .focused
+            .and_then(|f| tickets.iter().find(|t| t.0 == f))
+            .or_else(|| tickets.first())
+            .cloned();
+        if let Some((_, party, guest)) = pick {
+            self.intent(content, hands::Intent::Ticket { party, guest });
+        }
+    }
+
+    /// The recipe book (K); `pick_for` = from an order card (pick mode).
+    pub fn open_book(&mut self, pick_for: Option<(u32, crate::ui::handson::BrewMode)>) {
+        if self.hands.book.is_some() && pick_for.is_none() {
+            self.hands.book = None;
+            return;
+        }
+        self.hands.book = Some(hands::BookOpen {
+            pick_for: pick_for.map(|p| p.0),
+            mode: pick_for.map(|p| p.1).unwrap_or_default(),
+            ..Default::default()
+        });
+        self.hands.tut.bump("book_opened");
     }
 }
 

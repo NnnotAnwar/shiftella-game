@@ -1639,3 +1639,9 @@ Extra acceptance for the new sections:
 - T6 (UI widgets) runs on mock data; T7 wires them. Mini-games: disable WASD camera while one is open.
 - Polaroid snapshot render target should be larger than 360x270 (looks soft in the enlarged journal view) — T6 note.
 - The existing tutorial (src/screens/game/tutorial.rs) can switch to ui::handson::coach_mark.
+- (T7) Guest cards show the archetype plural ("Travellers") — content needs singular guest names / "a traveller".
+- (T7) Garlic soup (česnečka) plates as "Dill soup" in the Plate mini-game — fix the dish/name mapping.
+- (T7) `story.hint.first_order` text is outdated ("Click the guest at the counter…").
+- (T7) Duties widget header still shows "P" instead of "H".
+- (T7) Event toasts (e.g. Lost drone) stay on screen a long time and stack over the night view — shorter lifetime / collapse.
+- (T7) Night 1 at ×1 takes ~15 real minutes with overlays (target 12–14).

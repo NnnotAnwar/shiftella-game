@@ -20,7 +20,7 @@ pub struct SettingsResponse {
 }
 
 /// Preferred size of the panel.
-pub const PANEL_SIZE: Vec2 = Vec2::new(500.0, 580.0);
+pub const PANEL_SIZE: Vec2 = Vec2::new(500.0, 592.0);
 
 /// Draws the settings panel into `r` (use [`PANEL_SIZE`]) and edits `s` in place.
 /// The caller saves (`Settings::save`) and applies the values when `changed`.
@@ -32,7 +32,7 @@ pub fn settings_panel(ui: &mut Ui, loc: &Locale, s: &mut Settings, r: Rect) -> S
     out.close |= closed;
 
     let label_w = 184.0;
-    let row_h = 34.0;
+    let row_h = 32.0;
     let mut y = body.y + 10.0;
     let x0 = body.x + 18.0;
     let w = body.w - 36.0;
@@ -162,6 +162,14 @@ pub fn settings_panel(ui: &mut Ui, loc: &Locale, s: &mut Settings, r: Rect) -> S
         &t.small(),
         Align::Left,
     );
+    y += 8.0;
+    let c = row(ui, &mut y, loc.tr("ui.settings.relaxed_minigames"));
+    if ui
+        .toggle("set_relaxed", c, &mut s.relaxed_minigames)
+        .changed
+    {
+        out.changed = true;
+    }
 
     // ── footer
     let back = Button::new(loc.tr("ui.common.back"))

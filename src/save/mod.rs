@@ -78,6 +78,12 @@ pub struct TutorialProgress {
     /// The panel of the current step has been opened (it finishes when closed again).
     #[serde(default)]
     pub panel_seen: bool,
+    /// Night coach marks (`tutorial.ron` ids) already done or dismissed.
+    #[serde(default)]
+    pub coach_done: Vec<String>,
+    /// The night coach marks were skipped for good.
+    #[serde(default)]
+    pub coach_skipped: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]

@@ -54,6 +54,10 @@ pub struct WorldScene {
     size: (i32, i32),
     /// Per agent: (feet at the previous tick, feet at the last tick, that tick).
     tracks: HashMap<(u8, u32), (Vec2, Vec2, u32)>,
+    /// Guests served by Karolina: their cup glyph (+ latte art) on the table.
+    pub served: HashMap<u32, (CupGlyph, Option<LatteArt>)>,
+    /// Dirt blots being mopped: tile → `t` when the mop went over it (a little shine).
+    pub shine: Vec<((i32, i32), f32)>,
 }
 
 impl Default for WorldScene {
@@ -86,6 +90,8 @@ impl WorldScene {
             people: Vec::new(),
             size: (30, 18),
             tracks: HashMap::new(),
+            served: HashMap::new(),
+            shine: Vec::new(),
         }
     }
 
@@ -398,6 +404,30 @@ impl WorldScene {
         for g in &self.glass {
             weather.draw_window_rain(*g, t);
         }
+        // dirt blots on the hall floor (mop them with a swipe), and the shine where she mopped
+        if cs.is_none() {
+            for (x, y) in world.dirt_spots() {
+                draw_dirt_blot(
+                    vec2(x as f32 + 0.5, y as f32 + 0.55) * TILE,
+                    x * 31 + y * 17,
+                );
+            }
+            for (tile, t0) in &self.shine {
+                let age = t - t0;
+                if (0.0..1.4).contains(&age) {
+                    let c = vec2(tile.0 as f32 + 0.5, tile.1 as f32 + 0.55) * TILE;
+                    let k = age / 1.4;
+                    draw_ellipse(
+                        c.x,
+                        c.y,
+                        22.0 + 8.0 * k,
+                        9.0 + 3.0 * k,
+                        0.0,
+                        alpha(pal::INDIGO_GLOW, 0.22 * (1.0 - k)),
+                    );
+                }
+            }
+        }
         // rain over the sidewalk in front of the door
         let walk = Rect::new(
             -TILE,
@@ -485,9 +515,21 @@ impl WorldScene {
                         let side = if f == Facing::Left { 0.7 } else { 0.3 };
                         let at = (table + vec2(side, 0.42)) * TILE - vec2(0.0, 30.0);
                         let phase = (sx * 7 + sy * 3) as f32;
-                        q.push_custom(table.y * TILE + TILE + 0.02, move || {
-                            draw_cup(at, 0.85, t + phase, true)
-                        });
+                        // Karolina's own cups show their glyph (and the latte art)
+                        let served = match v.agent {
+                            AgentRef::Guest(id) => self.served.get(&id).copied(),
+                            AgentRef::Staff(_) => None,
+                        };
+                        match served {
+                            Some((glyph, art)) => {
+                                q.push_custom(table.y * TILE + TILE + 0.02, move || {
+                                    draw_served_cup(at + vec2(0.0, 6.0), glyph, art, t + phase)
+                                });
+                            }
+                            None => q.push_custom(table.y * TILE + TILE + 0.02, move || {
+                                draw_cup(at, 0.85, t + phase, true)
+                            }),
+                        }
                     }
                 }
             }
@@ -529,6 +571,21 @@ impl WorldScene {
             .collect();
         for (o, st) in &buckets {
             q.push_furniture("bucket", *o, (1, 1), *st);
+        }
+        // grandma's tip jar beside the register (glows with the rush rhythm)
+        if cs.is_none()
+            && let Some(reg) = world.furniture().iter().find(|p| {
+                content
+                    .furniture_def(&p.def)
+                    .is_some_and(|d| d.has_tag("register"))
+            })
+        {
+            let at = vec2(reg.x as f32 * TILE - 10.0, reg.y as f32 * TILE + 34.0);
+            let fill = (world.tonight().tips as f32 / 800.0).clamp(0.05, 1.0);
+            let rhythm = (world.rhythm() as f32 / 5.0).clamp(0.0, 1.0);
+            q.push_custom(reg.y as f32 * TILE + TILE + 0.5, move || {
+                draw_tip_jar(at, fill, rhythm, t)
+            });
         }
         extra(&mut q);
         q.flush();
@@ -660,5 +717,26 @@ impl WorldScene {
         let pose = wv::person_pose(v, t);
         let h = if v.pose == sim::Pose::Sit { 70.0 } else { 92.0 };
         Some(pose.feet - vec2(0.0, h))
+    }
+}
+
+/// A soft muddy blot on the floor (rain from the street, spilled coffee).
+fn draw_dirt_blot(c: Vec2, seed: i32) {
+    let col = Color::new(0.24, 0.17, 0.13, 0.42);
+    let j = |k: i32| ((seed * 37 + k * 101) % 97) as f32 / 97.0 - 0.5;
+    draw_ellipse(c.x, c.y, 17.0, 7.5, 0.0, col);
+    draw_ellipse(c.x + 9.0 + j(1) * 6.0, c.y + 2.0, 8.0, 4.0, 0.0, col);
+    draw_ellipse(c.x - 10.0 + j(2) * 5.0, c.y - 2.5, 7.0, 3.2, 0.0, col);
+    draw_ellipse(
+        c.x - 2.0,
+        c.y - 1.5,
+        10.0,
+        3.5,
+        0.0,
+        Color::new(0.3, 0.22, 0.17, 0.3),
+    );
+    // two footprints of whoever walked through
+    for (dx, dy) in [(4.0, -6.0), (12.0, -2.0)] {
+        draw_ellipse(c.x + dx + j(3) * 4.0, c.y + dy, 2.6, 1.6, 0.0, col);
     }
 }

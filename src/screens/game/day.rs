@@ -12,7 +12,7 @@ use sim::Mode;
 pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     if matches!(
         g.panel,
-        Some(super::Panel::App | super::Panel::Priorities | super::Panel::Build)
+        Some(super::Panel::App | super::Panel::Duties | super::Panel::Build)
     ) {
         // keep the screen clear for the big panels; the Start button lives in the dock row
         start_button_only(g, ui, cx);

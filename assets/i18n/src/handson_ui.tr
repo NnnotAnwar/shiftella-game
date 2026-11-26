@@ -1,0 +1,128 @@
+# Hands-on integration (T7): HUD, order card, rail, served floats, the book's labels, the duties
+# board, the jukebox, the How-to-play page. English in every column until T9 translates them.
+
+ui.toolbar.book
+* Book
+
+ui.order.plain_caption
+* Plain order
+
+# --- the ticket rail ---------------------------------------------------------------------------
+ui.rail.stage.order
+* waiting to order
+
+ui.rail.stage.make
+* to make: {item}
+
+ui.rail.stage.serve
+* ready: {item}
+
+# --- served (a float over the guest; {quality} = Beautiful / Lovely / Good / Homely) ------------
+ui.served.perfect
+* Just right · {quality}
+
+ui.served.good
+* Good match · {quality}
+
+ui.served.okay
+* Nice · {quality}
+
+ui.served.not_quite
+* Not quite · {quality}
+
+ui.served.plain
+* {quality}
+
+ui.hands.tip_float
+* +{amount}
+
+ui.hands.brew_later
+* That one can't be made just now — the order is still on the rail.
+
+ui.hands.practised
+* {recipe} — practised. Quick brews of it come out better now.
+
+ui.journal.soon
+* The journal opens with the first morning's photo.
+
+# --- grandma's jukebox -------------------------------------------------------------------------
+ui.jukebox.now_playing_short
+* Now playing
+
+ui.jukebox.liked_by
+* Likes it:
+
+# --- the recipe book (K) -----------------------------------------------------------------------
+ui.book.tastes
+* Tastes
+
+ui.book.minigame
+* Made by hand
+
+ui.book.where
+* Where to learn it
+
+ui.book.clear
+* Clear
+
+ui.book.slots
+* Pick 2–3 jars
+
+ui.book.bar_shelf
+* Bar shelf
+
+ui.book.kitchen_shelf
+* Kitchen shelf
+
+ui.book.empty
+* Nothing here yet.
+
+ui.book.not_for_this
+* Not this one — that's not what they ordered.
+
+ui.book.experiments_soon
+* Grandma's pantry is still being sorted — experiments come soon.
+
+# --- the duties board (H) ----------------------------------------------------------------------
+ui.duties.left_for_you
+* Left for you:
+
+ui.duties.all_covered
+* Every duty has a helper — the guests are still yours.
+
+ui.duties.off_shift
+* off tonight
+
+ui.duties.full_short
+* Hands full — take a duty away first.
+
+ui.duties.skill
+* skill {n}
+
+ui.duties.likes
+* Likes this one
+
+ui.duties.none
+* No helpers yet — tonight it's just you. The first one can start on night 3 (C).
+
+ui.duties.grows
+* Can take one more duty after a few nights.
+
+# --- How to play (F1) --------------------------------------------------------------------------
+ui.help.hands.title
+* Behind the counter
+
+ui.help.hands.body
+* Karolina does the work herself. Click a guest to greet them and take the order; click a table to clear it, a coin to pick up the tip, the sink and hold to wash, swipe a dirt blot to mop it, the jukebox to change the record. Shift+click puts it first in her queue; right-click cancels what she's doing. Keyboard: Enter takes the ticket on the rail ([ ] move), E does the nearest chore (hold E at the sink), G waves, Backspace cancels.
+
+ui.help.brewing.title
+* Brewing
+
+ui.help.brewing.body
+* The order card shows the wish and up to four recipes (1–4). Quick (Q) lets the machine do it; By hand plays a short mini-game for a better cup. U is the usual for a trusted regular, H hands a wish to a helper, K opens the recipe book. In a mini-game Space holds, arrows steer, Enter is done, Tab skips — a skipped cup is still a good cup. The night slows down while a card is open.
+
+ui.help.duties.title
+* Duties (H)
+
+ui.help.duties.body
+* Helpers only do what you give them: dishes, floor, register, bar, kitchen, serving. Each can carry one to three duties. Wishes, regulars and the little moments always stay yours.

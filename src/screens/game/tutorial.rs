@@ -18,69 +18,40 @@ use crate::ui::draw::{self, Paint, fill_convex, fill_rrect, stroke_rrect, with_a
 use crate::ui::{Align, Button, Glass, Icon, RectExt, Ui, draw_icon};
 use sim::Phase;
 
-/// One coach mark.
+/// One coach mark of the first day (the first night is taught by `coach` — Karolina's
+/// hands-on coach marks from `tutorial.ron`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Step {
     Welcome,
-    Crew,
     App,
-    Priorities,
     Build,
     Start,
-    Time,
-    Guests,
-    Staff,
-    Events,
-    Money,
-    Enjoy,
 }
 
-pub const STEPS: [Step; 12] = [
-    Step::Welcome,
-    Step::Crew,
-    Step::App,
-    Step::Priorities,
-    Step::Build,
-    Step::Start,
-    Step::Time,
-    Step::Guests,
-    Step::Staff,
-    Step::Events,
-    Step::Money,
-    Step::Enjoy,
-];
+pub const STEPS: [Step; 4] = [Step::Welcome, Step::App, Step::Build, Step::Start];
 
-/// Index of the first night step.
-const FIRST_NIGHT: usize = 6;
+/// Index where the night coach marks take over.
+pub const FIRST_NIGHT: usize = STEPS.len();
 
 impl Step {
     pub fn id(self) -> &'static str {
         match self {
             Step::Welcome => "welcome",
-            Step::Crew => "crew",
             Step::App => "app",
-            Step::Priorities => "priorities",
             Step::Build => "build",
             Step::Start => "start",
-            Step::Time => "time",
-            Step::Guests => "guests",
-            Step::Staff => "staff",
-            Step::Events => "events",
-            Step::Money => "money",
-            Step::Enjoy => "enjoy",
         }
     }
 
+    /// Day steps only (kept for the card layout code).
     pub fn night(self) -> bool {
-        STEPS.iter().position(|s| *s == self).unwrap_or(0) >= FIRST_NIGHT
+        false
     }
 
     /// The panel this step is about (its card moves beside the panel while it is open).
     fn panel(self) -> Option<Panel> {
         match self {
-            Step::Crew | Step::Staff => Some(Panel::Crew),
             Step::App => Some(Panel::App),
-            Step::Priorities => Some(Panel::Priorities),
             Step::Build => Some(Panel::Build),
             _ => None,
         }
@@ -89,15 +60,10 @@ impl Step {
     /// UI anchor the arrow points at (see `GameScreen::anchors`).
     fn target(self) -> Option<&'static str> {
         match self {
-            Step::Welcome | Step::Guests | Step::Enjoy => None,
-            Step::Crew | Step::Staff => Some("dock.crew"),
+            Step::Welcome => None,
             Step::App => Some("dock.app"),
-            Step::Priorities => Some("dock.priorities"),
             Step::Build => Some("dock.build"),
             Step::Start => Some("day.start"),
-            Step::Time => Some("hud.clock"),
-            Step::Events => Some("toasts"),
-            Step::Money => Some("hud.money"),
         }
     }
 }
@@ -118,7 +84,7 @@ impl GameScreen {
         self.extra.tutorial = Some(TutorialProgress {
             active: true,
             step,
-            panel_seen: false,
+            ..Default::default()
         });
     }
 
@@ -126,27 +92,18 @@ impl GameScreen {
     pub fn tutorial_step(&self) -> Option<Step> {
         let p = self.extra.tutorial.as_ref()?;
         let i = current(p)?;
-        let step = STEPS[i];
-        let phase_ok = step.night() == (self.world.phase() == Phase::Night);
         let free = !self.cutscene_playing()
             && self.world.playing_cutscene().is_none()
             && self.summary.is_none()
             && self.pause.is_none();
-        (phase_ok && free).then_some(step)
+        (self.world.phase() == Phase::Day && free).then_some(STEPS[i])
     }
 
-    /// A night card waits for reading: the clock holds.
-    pub fn tutorial_holds_clock(&self) -> bool {
-        self.tutorial_step().is_some_and(Step::night)
-    }
-
+    /// Day cards are done: the night coach marks take over (the tutorial stays active).
     fn tutorial_advance(&mut self) {
         if let Some(p) = &mut self.extra.tutorial {
             p.step += 1;
             p.panel_seen = false;
-            if p.step as usize >= STEPS.len() {
-                p.active = false;
-            }
         }
     }
 
@@ -155,15 +112,18 @@ impl GameScreen {
         let Some(p) = self.extra.tutorial.clone() else {
             return;
         };
-        let Some(i) = current(&p) else { return };
+        if !p.active {
+            return;
+        }
         // past the first night (a loaded save, a long night): done
-        if self.world.night() > 1 && !(self.world.phase() == Phase::Day && i < FIRST_NIGHT) {
+        if self.world.night() > 1 {
             self.finish_tutorial(cx);
             return;
         }
+        let Some(i) = current(&p) else { return };
         let step = STEPS[i];
-        // the night started before the day cards were through: jump to the night
-        if !step.night() && self.world.phase() == Phase::Night {
+        // the night started before the day cards were through: the night marks take over
+        if self.world.phase() == Phase::Night {
             if let Some(p) = &mut self.extra.tutorial {
                 p.step = FIRST_NIGHT as u32;
                 p.panel_seen = false;
@@ -177,18 +137,12 @@ impl GameScreen {
         {
             p.panel_seen = true;
         }
-        let hired = self.world.staff().iter().any(|s| !s.owner);
         let done = match step {
-            // already staffed: nothing to teach here
-            Step::Crew => hired && !open || p.panel_seen && !open,
-            Step::App | Step::Priorities | Step::Build => p.panel_seen && !open,
+            Step::App | Step::Build => p.panel_seen && !open,
             _ => false,
         };
         if done {
             self.tutorial_advance();
-        }
-        if self.extra.tutorial.as_ref().is_some_and(|p| !p.active) {
-            self.finish_tutorial(cx);
         }
     }
 
@@ -300,12 +254,7 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let title_st = t.strong().size(15.0);
     let lines = ui.fonts.wrap(&body, w - 32.0, &body_st);
     let h = 16.0 + 16.0 + 24.0 + lines.len() as f32 * body_st.line_h() + 14.0 + 28.0 + 14.0;
-    let (night_n, day_n) = (STEPS.len() - FIRST_NIGHT, FIRST_NIGHT);
-    let (n, of) = if step.night() {
-        (i - FIRST_NIGHT + 1, night_n)
-    } else {
-        (i + 1, day_n)
-    };
+    let (n, of) = (i + 1, STEPS.len());
     let panel_open = step.panel().is_some() && g.panel == step.panel();
     let target = if panel_open {
         g.anchor("panel")
@@ -412,38 +361,24 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     );
     // buttons
     let by = r.bottom() - 14.0 - 28.0;
-    let last = i + 1 == STEPS.len();
-    let next_label = if last {
-        loc.tr("ui.tutorial.done")
-    } else {
-        loc.tr("ui.tutorial.next")
-    };
-    let next = Button::new(next_label)
+    // the night coach marks follow the day cards, so there is always a "next"
+    let next = Button::new(loc.tr("ui.tutorial.next"))
         .primary()
         .trailing(Icon::ChevronRight);
     let nw = ui.button_width(&next);
     let nr = Rect::new(r.right() - 16.0 - nw, by, nw, 28.0);
-    let mut advance = ui.button(id.with("next"), nr, &next).clicked;
-    if !last {
-        let skip = Button::new(loc.tr("ui.tutorial.skip")).ghost();
-        let sw = ui.button_width(&skip).min(nr.x - r.x - 24.0);
-        let sr = Rect::new(r.x + 10.0, by, sw, 28.0);
-        if ui.button(id.with("skip"), sr, &skip).clicked {
-            draw::pop_alpha();
-            g.finish_tutorial(cx);
-            return;
-        }
+    let advance = ui.button(id.with("next"), nr, &next).clicked;
+    let skip = Button::new(loc.tr("ui.tutorial.skip")).ghost();
+    let sw = ui.button_width(&skip).min(nr.x - r.x - 24.0);
+    let sr = Rect::new(r.x + 10.0, by, sw, 28.0);
+    if ui.button(id.with("skip"), sr, &skip).clicked {
+        draw::pop_alpha();
+        g.finish_tutorial(cx);
+        return;
     }
     draw::pop_alpha();
-    // Enter reads "next" only on cards that don't ask for Enter themselves
-    if step != Step::Start && step.night() && ui.enter() {
-        advance = true;
-    }
     if advance {
         g.tutorial_advance();
-        if g.extra.tutorial.as_ref().is_some_and(|p| !p.active) {
-            g.finish_tutorial(cx);
-        }
     }
 }
 
@@ -467,11 +402,13 @@ fn edge_point(r: Rect, p: Vec2, dir: Vec2) -> Vec2 {
 }
 
 /// Sections of the "How to play" page: (icon, i18n id).
-const HELP: [(Icon, &str); 8] = [
+const HELP: [(Icon, &str); 10] = [
     (Icon::Sun, "rhythm"),
+    (Icon::Coffee, "hands"),
+    (Icon::Cup, "brewing"),
     (Icon::Crew, "crew"),
     (Icon::Phone, "app"),
-    (Icon::Priorities, "priorities"),
+    (Icon::Priorities, "duties"),
     (Icon::Build, "build"),
     (Icon::Moon, "night"),
     (Icon::Sparkle, "events"),
@@ -588,13 +525,12 @@ mod tests {
     }
 
     #[test]
-    fn day_and_night_steps_split_where_the_night_begins() {
-        assert!(STEPS[..FIRST_NIGHT].iter().all(|s| !s.night()));
-        assert!(STEPS[FIRST_NIGHT..].iter().all(|s| s.night()));
+    fn the_night_coach_takes_over_after_the_day_cards() {
+        assert!(STEPS.iter().all(|s| !s.night()));
         let p = TutorialProgress {
             active: true,
-            step: STEPS.len() as u32,
-            panel_seen: false,
+            step: FIRST_NIGHT as u32,
+            ..Default::default()
         };
         assert_eq!(current(&p), None);
     }

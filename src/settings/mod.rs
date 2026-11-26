@@ -145,6 +145,8 @@ pub struct Settings {
     pub pause_on_events: bool,
     /// Coach marks on the first day and night of a new game (turned off once finished).
     pub show_tutorial: bool,
+    /// Relaxed mini-games (design §2.0): wider sweet spots, a quality floor, a Done button.
+    pub relaxed_minigames: bool,
 }
 
 impl Default for Settings {
@@ -159,6 +161,7 @@ impl Default for Settings {
             fullscreen: false,
             pause_on_events: false,
             show_tutorial: true,
+            relaxed_minigames: false,
         }
     }
 }
@@ -292,6 +295,7 @@ mod tests {
             fullscreen: true,
             pause_on_events: true,
             show_tutorial: false,
+            relaxed_minigames: true,
         };
         let back = Settings::from_ron(&s.to_ron()).unwrap();
         assert_eq!(back, s);
