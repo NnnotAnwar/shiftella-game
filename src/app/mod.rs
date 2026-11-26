@@ -6,7 +6,14 @@
 //! Test automation (env):
 //! * `SHIFTELLA_SHOT=path.png` — render `SHIFTELLA_FRAMES` (default 45) frames, save, exit
 //! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|build|crew|app|
-//!   priorities|log|summary|pause|ending_light|ending_last_train|credits|sandbox`
+//!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
+//!   night1_handson|order_card|minigame|jukebox|book` (hands-on scenes are played to their
+//!   moment by the autoplayer; `SHIFTELLA_MG=froth|latte|pour|tea|plate` picks the game)
+//! * `SHIFTELLA_AUTOPLAY=1|keys` — Karolina plays the night by herself through the same
+//!   intents as the mouse and keyboard (`keys`: mini-games by keyboard);
+//!   `SHIFTELLA_SPEED=1|2|3` — the starting speed;
+//!   `SHIFTELLA_SHOT_EVERY=n` — also save `<shot>_<frame>.png` every n frames;
+//!   `SHIFTELLA_SKIP_SCENES=1` — story scenes finish at once
 //! * `SHIFTELLA_LANG=cs|en|sk|uk`, `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`,
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
 
@@ -227,6 +234,16 @@ impl App {
             p.active = true;
             p.step = step;
         }
+        if let Some(a) = env("SHIFTELLA_AUTOPLAY") {
+            g.hands.autoplay = Some(game::hands::Autoplay {
+                cooldown: 0.5,
+                keyboard: a == "keys",
+            });
+        }
+        g.hands.skip_scenes = env("SHIFTELLA_SKIP_SCENES").is_some();
+        if let Some(s) = env("SHIFTELLA_SPEED").and_then(|s| s.parse::<u8>().ok()) {
+            g.set_speed(s);
+        }
         Screen::Game(Box::new(g))
     }
 
@@ -272,6 +289,7 @@ impl App {
             "language" => self.menu(Some(MenuPage::Language)),
             "newgame" => self.menu(Some(MenuPage::NewGame)),
             "sandbox_setup" => self.menu(Some(MenuPage::Sandbox)),
+            "settings" => self.menu(Some(MenuPage::Settings)),
             "opening" => {
                 let mut g = GameScreen::new_story(&content, "cozy", false);
                 if let Some(t) = env("SHIFTELLA_T").and_then(|t| t.parse::<f32>().ok()) {
@@ -286,14 +304,14 @@ impl App {
                 g.panel = match env("SHIFTELLA_PANEL").as_deref() {
                     Some("crew") => Some(game::Panel::Crew),
                     Some("app") => Some(game::Panel::App),
-                    Some("priorities") => Some(game::Panel::Priorities),
+                    Some("priorities" | "duties") => Some(game::Panel::Duties),
                     Some("build") => Some(game::Panel::Build),
                     Some("help") => Some(game::Panel::Help),
                     _ => None,
                 };
                 self.game(g)
             }
-            "night" | "pause" | "crew" | "app" | "priorities" | "log" | "build" => {
+            "night" | "pause" | "crew" | "app" | "priorities" | "duties" | "log" | "build" => {
                 let n = night.unwrap_or(if name == "night" || name == "pause" {
                     1
                 } else {
@@ -309,7 +327,7 @@ impl App {
                 g.panel = match name {
                     "crew" => Some(game::Panel::Crew),
                     "app" => Some(game::Panel::App),
-                    "priorities" => Some(game::Panel::Priorities),
+                    "priorities" | "duties" => Some(game::Panel::Duties),
                     "log" => Some(game::Panel::Log),
                     "build" => Some(game::Panel::Build),
                     _ => None,
@@ -322,6 +340,66 @@ impl App {
                 }
                 if name == "pause" {
                     g.pause = Some(Default::default());
+                }
+                self.game(g)
+            }
+            "night1_handson" | "order_card" | "minigame" | "jukebox" | "book" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let n = night.unwrap_or(if name == "jukebox" { 2 } else { 1 });
+                let mut g = story_at(n, Some(0), &self.i18n, lang);
+                let until = minute.unwrap_or(match name {
+                    "night1_handson" => 95,
+                    "jukebox" => 40,
+                    _ => 75,
+                });
+                let mg = env("SHIFTELLA_MG");
+                match name {
+                    "order_card" => g.play_headless(&content, &loc, 900.0, &|g| {
+                        g.world.minute() >= until && g.hands.order.is_some()
+                    }),
+                    "minigame" => {
+                        g.play_headless(&content, &loc, 900.0, &|g| {
+                            g.world.minute() >= until
+                                && (g.hands.minigame.is_some() || g.hands.order.is_some())
+                        });
+                        // a chosen game for the guest on the card (or a seated guest)
+                        let guest = g
+                            .hands
+                            .order
+                            .as_ref()
+                            .map(|o| o.guest)
+                            .or_else(|| g.hands.minigame.as_ref().map(|m| m.guest));
+                        let recipe = match mg.as_deref() {
+                            Some("froth") => Some("r_cappuccino"),
+                            Some("latte") => Some("r_moon_latte"),
+                            Some("pour") => Some("r_black"),
+                            Some("tea") => Some("r_lemon_tea"),
+                            Some("plate") => Some("r_topinka"),
+                            _ => None,
+                        };
+                        if let (Some(guest), Some(r)) = (guest, recipe) {
+                            g.hands.order = None;
+                            g.start_minigame(&content, guest, r, false);
+                        } else if g.hands.minigame.is_none()
+                            && let Some(o) = g.hands.order.clone()
+                            && let Some((r, _)) = g.world.best_matches(&content, o.guest).first()
+                        {
+                            let r = r.clone();
+                            g.brew_chosen(
+                                &content,
+                                o.guest,
+                                &r,
+                                crate::ui::handson::BrewMode::ByHand,
+                            );
+                        }
+                    }
+                    _ => g.play_headless(&content, &loc, 900.0, &|g| g.world.minute() >= until),
+                }
+                if name == "jukebox" {
+                    g.hands.records_open = true;
+                }
+                if name == "book" {
+                    g.open_book(None);
                 }
                 self.game(g)
             }
@@ -629,6 +707,20 @@ pub async fn run() {
             break;
         }
         frame += 1;
+        // SHIFTELLA_SHOT_EVERY=n: a numbered screenshot every n frames on the way (smoke runs)
+        if let Some(path) = &shot
+            && let Some(every) = env("SHIFTELLA_SHOT_EVERY").and_then(|n| n.parse::<u32>().ok())
+            && every > 0
+            && frame.is_multiple_of(every)
+            && frame < frames
+        {
+            let mut img = get_screen_data();
+            for px in img.bytes.as_chunks_mut::<4>().0 {
+                px[3] = 255;
+            }
+            let stem = path.trim_end_matches(".png");
+            img.export_png(&format!("{stem}_{frame:05}.png"));
+        }
         if let Some(path) = &shot
             && frame >= frames
         {

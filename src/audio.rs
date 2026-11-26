@@ -4,9 +4,12 @@
 //! ([`crate::cutscene::AudioRequest`]), UI sounds ([`crate::ui::UiSound`]).
 //! Missing files are not fatal: a warning is printed and that sound stays silent.
 //!
-//! * Music: three looping tracks (menu, calm night, rush) that **crossfade**; the game
-//!   picks calm/rush by the guest load ([`Audio::set_music`]). Ducked while dialogue runs.
+//! * Music: nine looping tracks (menu, calm night, rush and grandma's six jukebox records)
+//!   that **crossfade** (2.5 s); the game plays what the sim's `World::music_track` says
+//!   ([`Audio::set_music_vol`]). Ducked while dialogue runs.
 //! * Ambience: the rain-on-the-window loop ([`Audio::set_rain`]).
+//! * Mini-game loops (design §14): steam (`sfx_coffee_machine` looped) and a soft pour
+//!   trickle (a second `amb_rain_window_loop` instance), see [`Audio::set_loops`].
 //! * One-shots: [`Sfx`] by enum or by content id (`content::SFX_IDS`).
 //! * Volumes come from the settings ([`Audio::set_volumes`]); `M` mutes everything.
 //!
@@ -23,8 +26,10 @@ use crate::ui::{ToastKind, UiSound};
 const MUSIC_BASE: f32 = 0.55;
 const AMBIENCE_BASE: f32 = 0.32;
 const SFX_BASE: f32 = 0.85;
-/// Seconds for a full crossfade.
-const FADE_SECONDS: f32 = 2.4;
+/// Seconds for a full crossfade (design §10.3: 2.5 s).
+const FADE_SECONDS: f32 = 2.5;
+/// Number of music tracks.
+pub const TRACKS: usize = 9;
 /// Music level while a dialogue line is on screen.
 const DUCK: f32 = 0.33;
 /// Ambience (rain) under dialogue: a little lower, still clearly audible.
@@ -38,16 +43,39 @@ pub enum Track {
     Menu,
     Calm,
     Rush,
+    /// Grandma's records (design §10.2).
+    PragueSwing,
+    PianoTrio,
+    BossaRain,
+    FolkLullaby,
+    Synth2039,
+    CafeWaltz,
 }
 
 impl Track {
-    pub const ALL: [Track; 3] = [Track::Menu, Track::Calm, Track::Rush];
+    pub const ALL: [Track; TRACKS] = [
+        Track::Menu,
+        Track::Calm,
+        Track::Rush,
+        Track::PragueSwing,
+        Track::PianoTrio,
+        Track::BossaRain,
+        Track::FolkLullaby,
+        Track::Synth2039,
+        Track::CafeWaltz,
+    ];
 
     pub fn id(self) -> &'static str {
         match self {
             Track::Menu => "mus_menu_theme",
             Track::Calm => "mus_night_calm_loop",
             Track::Rush => "mus_rush_loop",
+            Track::PragueSwing => "jukebox_prague_swing",
+            Track::PianoTrio => "jukebox_piano_trio",
+            Track::BossaRain => "jukebox_bossa_rain",
+            Track::FolkLullaby => "jukebox_folk_lullaby",
+            Track::Synth2039 => "jukebox_synth_2039",
+            Track::CafeWaltz => "jukebox_cafe_waltz",
         }
     }
 
@@ -135,9 +163,14 @@ impl Sfx {
 #[derive(Debug, Clone)]
 pub struct Mix {
     /// Current level 0..1 per track.
-    pub level: [f32; 3],
+    pub level: [f32; TRACKS],
     /// Wanted track (`None` = silence).
     pub target: Option<Track>,
+    /// Volume of each track while it plays (the quiet-hour piano runs at 0.7).
+    pub track_volume: [f32; TRACKS],
+    /// Mini-game loops: wanted and current level (steam, trickle).
+    pub loop_target: [f32; 2],
+    pub loop_level: [f32; 2],
     /// Music multiplier while dialogue / narration text is on screen (1 = none).
     pub duck: f32,
     /// Ambience multiplier while text is on screen.
@@ -152,8 +185,11 @@ pub struct Mix {
 impl Default for Mix {
     fn default() -> Self {
         Mix {
-            level: [0.0; 3],
+            level: [0.0; TRACKS],
             target: None,
+            track_volume: [1.0; TRACKS],
+            loop_target: [0.0; 2],
+            loop_level: [0.0; 2],
             duck: 1.0,
             amb_duck: 1.0,
             music_volume: 0.7,
@@ -188,6 +224,16 @@ impl Mix {
         };
         self.duck = ramp(self.duck, DUCK);
         self.amb_duck = ramp(self.amb_duck, AMB_DUCK);
+        // mini-game loops follow quickly (a held steam wand, a pour)
+        for i in 0..2 {
+            let (l, want) = (self.loop_level[i], self.loop_target[i]);
+            let k = dt / 0.18;
+            self.loop_level[i] = if l < want {
+                (l + k).min(want)
+            } else {
+                (l - k).max(want)
+            };
+        }
         let rain_target = if self.rain { 1.0 } else { 0.0 };
         self.rain_level = if self.rain_level < rain_target {
             (self.rain_level + dt / 1.5).min(1.0)
@@ -201,7 +247,19 @@ impl Mix {
         if self.muted {
             return 0.0;
         }
-        MUSIC_BASE * self.music_volume * self.duck * self.level[t.index()]
+        MUSIC_BASE
+            * self.music_volume
+            * self.duck
+            * self.level[t.index()]
+            * self.track_volume[t.index()]
+    }
+
+    /// Volume of a mini-game loop (0 = steam, 1 = trickle).
+    pub fn loop_gain(&self, i: usize) -> f32 {
+        if self.muted {
+            return 0.0;
+        }
+        SFX_BASE * self.sfx_volume * self.loop_level[i] * if i == 0 { 0.5 } else { 0.9 }
     }
 
     pub fn rain_gain(&self) -> f32 {
@@ -223,9 +281,12 @@ impl Mix {
 }
 
 pub struct Audio {
-    music: [Option<Sound>; 3],
+    music: [Option<Sound>; TRACKS],
     /// A looping track is currently started (so `update` can stop silent ones).
-    playing: [bool; 3],
+    playing: [bool; TRACKS],
+    /// Mini-game loops: steam (the coffee machine) and a pour trickle (rain, second instance).
+    loops: [Option<Sound>; 2],
+    loop_playing: [bool; 2],
     rain: Option<Sound>,
     rain_playing: bool,
     sfx: Vec<Option<Sound>>,
@@ -257,8 +318,10 @@ impl Audio {
     /// Silent mixer (headless tests, `SHIFTELLA_SHOT` runs).
     pub fn silent() -> Audio {
         Audio {
-            music: [None, None, None],
-            playing: [false; 3],
+            music: Default::default(),
+            playing: [false; TRACKS],
+            loops: [None, None],
+            loop_playing: [false; 2],
             rain: None,
             rain_playing: false,
             sfx: Sfx::ALL.iter().map(|_| None).collect(),
@@ -268,17 +331,21 @@ impl Audio {
     }
 
     /// Number of files [`Audio::load_step`] goes through.
-    pub const FILES: usize = 4 + Sfx::ALL.len();
+    pub const FILES: usize = TRACKS + 3 + Sfx::ALL.len();
 
     /// Loads file number `i` (0..[`Audio::FILES`]) — lets the boot screen draw between files.
     pub async fn load_step(&mut self, i: usize) {
-        if i < 3 {
+        if i < TRACKS {
             let t = Track::ALL[i];
             self.music[i] = load(&format!("assets/audio/music/{}.ogg", t.id())).await;
-        } else if i == 3 {
+        } else if i == TRACKS {
             self.rain = load("assets/audio/sfx/amb_rain_window_loop.ogg").await;
-        } else if let Some(s) = Sfx::ALL.get(i - 4) {
-            self.sfx[i - 4] = load(&s.path()).await;
+        } else if i == TRACKS + 1 {
+            self.loops[0] = load(&Sfx::CoffeeMachine.path()).await;
+        } else if i == TRACKS + 2 {
+            self.loops[1] = load("assets/audio/sfx/amb_rain_window_loop.ogg").await;
+        } else if let Some(s) = Sfx::ALL.get(i - TRACKS - 3) {
+            self.sfx[i - TRACKS - 3] = load(&s.path()).await;
         }
     }
 
@@ -289,7 +356,20 @@ impl Audio {
 
     /// Crossfade to `track` (`None` = fade out).
     pub fn set_music(&mut self, track: Option<Track>) {
+        self.set_music_vol(track, 1.0);
+    }
+
+    /// Crossfade to `track`, played at `volume` (0..1) of the music level.
+    pub fn set_music_vol(&mut self, track: Option<Track>, volume: f32) {
         self.mix.target = track;
+        if let Some(t) = track {
+            self.mix.track_volume[t.index()] = volume.clamp(0.0, 1.0);
+        }
+    }
+
+    /// Mini-game loops this frame (0..1 each): steam hiss and pour trickle (§14).
+    pub fn set_loops(&mut self, steam: f32, trickle: f32) {
+        self.mix.loop_target = [steam.clamp(0.0, 1.0), trickle.clamp(0.0, 1.0)];
     }
 
     pub fn music(&self) -> Option<Track> {
@@ -389,6 +469,27 @@ impl Audio {
                 self.playing[i] = false;
             }
         }
+        for i in 0..2 {
+            let g = self.mix.loop_gain(i);
+            let Some(s) = &self.loops[i] else { continue };
+            if g > 0.001 {
+                if !self.loop_playing[i] {
+                    play_sound(
+                        s,
+                        PlaySoundParams {
+                            looped: true,
+                            volume: g,
+                        },
+                    );
+                    self.loop_playing[i] = true;
+                } else {
+                    set_sound_volume(s, g);
+                }
+            } else if self.loop_playing[i] {
+                stop_sound(s);
+                self.loop_playing[i] = false;
+            }
+        }
         let g = self.mix.rain_gain();
         if let Some(s) = &self.rain {
             if g > 0.001 {
@@ -441,7 +542,7 @@ mod tests {
     fn mute_and_duck() {
         let mut m = Mix {
             target: Some(Track::Menu),
-            level: [1.0, 0.0, 0.0],
+            level: [1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             ..Default::default()
         };
         let full = m.music_gain(Track::Menu);
@@ -458,7 +559,7 @@ mod tests {
     fn dialogue_ducks_music_smoothly_and_comes_back() {
         let mut m = Mix {
             target: Some(Track::Calm),
-            level: [0.0, 1.0, 0.0],
+            level: [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
             rain: true,
             rain_level: 1.0,
             ..Default::default()
@@ -483,6 +584,38 @@ mod tests {
         // the user's volume still scales everything
         m.music_volume = 0.0;
         assert_eq!(m.music_gain(Track::Calm), 0.0);
+    }
+
+    #[test]
+    fn jukebox_record_crossfades_at_its_volume() {
+        let mut m = Mix {
+            target: Some(Track::Calm),
+            level: [0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+            ..Default::default()
+        };
+        m.target = Some(Track::PianoTrio);
+        m.track_volume[Track::PianoTrio.index()] = 0.7;
+        // audible within 3 s (design §15 acceptance)
+        for _ in 0..180 {
+            m.step(1.0 / 60.0, false);
+        }
+        assert_eq!(m.level[Track::Calm.index()], 0.0);
+        let full = MUSIC_BASE * m.music_volume;
+        assert!((m.music_gain(Track::PianoTrio) - full * 0.7).abs() < 1e-4);
+    }
+
+    #[test]
+    fn minigame_loops_follow_quickly() {
+        let mut m = Mix {
+            loop_target: [0.8, 0.0],
+            ..Default::default()
+        };
+        m.step(0.25, false);
+        assert!(m.loop_gain(0) > 0.0);
+        m.loop_target = [0.0, 0.25];
+        m.step(0.5, false);
+        assert_eq!(m.loop_gain(0), 0.0);
+        assert!(m.loop_gain(1) > 0.0);
     }
 
     #[test]
