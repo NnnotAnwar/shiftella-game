@@ -37,7 +37,7 @@ pub fn polaroid_size(w: f32) -> Vec2 {
     let w = w.max(20.0);
     let b = (w * 0.05).max(4.0);
     let ph = (w - 2.0 * b) * 0.75;
-    vec2(w, b + ph + w * 0.17)
+    vec2(w, b + ph + w * 0.21)
 }
 
 /// Height ÷ width of a typical polaroid (for fitting one into a box).
@@ -138,29 +138,62 @@ fn draw_polaroid(ui: &mut Ui, r: Rect, v: &PolaroidView, shadow_k: f32) {
         photo.w,
         r.bottom() - photo.bottom(),
     );
+    // the caption gets the whole band; the date sits small in its bottom-right corner, and
+    // the handwriting shrinks (down to a still-legible size) until it fits in two lines
     let ink = Color::from_hex(0x2E2840);
-    let cap_size = (w * 0.05).clamp(10.0, 17.0);
-    let cs = TextStyle::new(cap_size, Weight::Medium, ink).line_height(1.22);
     let date_s = TextStyle::new(
-        (cap_size * 0.72).max(8.5),
+        (w * 0.034).clamp(7.0, 11.0),
         Weight::Medium,
         Color::from_hex(0x8A8396),
     )
     .tabular();
     let dw = ui.fonts.measure(&v.date, &date_s);
-    let lines_h = cs.line_h() * if band.h > cs.line_h() * 2.4 { 2.0 } else { 1.0 };
-    let cap_r = Rect::new(
+    let date_h = if v.date.is_empty() {
+        0.0
+    } else {
+        date_s.line_h() * 0.9
+    };
+    let avail = Rect::new(
         band.x + 2.0,
-        band.y + (band.h - lines_h) / 2.0 - 1.0,
-        band.w - dw - 10.0,
+        band.y + 2.0,
+        band.w - 4.0,
+        (band.h - date_h - 3.0).max(8.0),
+    );
+    let mut size = (w * 0.05).clamp(10.0, 17.0);
+    let min = (w * 0.04).clamp(7.5, 12.0);
+    let mut cs = TextStyle::new(size, Weight::Medium, ink).line_height(1.12);
+    loop {
+        let lean = size * 0.16;
+        let n = ui
+            .fonts
+            .wrap(&v.caption, (avail.w - lean).max(10.0), &cs)
+            .len();
+        let max_lines = ((avail.h / cs.line_h()).floor() as usize).clamp(1, 2);
+        if n <= max_lines || size <= min {
+            break;
+        }
+        size = (size - 0.5).max(min);
+        cs = TextStyle::new(size, Weight::Medium, ink).line_height(1.12);
+    }
+    let max_lines = ((avail.h / cs.line_h()).floor() as usize).clamp(1, 2);
+    let lean = size * 0.16;
+    let n = ui
+        .fonts
+        .wrap(&v.caption, (avail.w - lean).max(10.0), &cs)
+        .len()
+        .clamp(1, max_lines);
+    let lines_h = n as f32 * cs.line_h();
+    let cap_r = Rect::new(
+        avail.x,
+        avail.y + (avail.h - lines_h) / 2.0,
+        avail.w,
         lines_h,
     );
-    let max_lines = (lines_h / cs.line_h()).round() as usize;
-    draw_handwritten_block(ui, &v.caption, cap_r, &cs, Align::Left, max_lines.max(1));
+    draw_handwritten_block(ui, &v.caption, cap_r, &cs, Align::Left, max_lines);
     ui.fonts.draw(
         &v.date,
         band.right() - dw - 1.0,
-        band.bottom() - band.h * 0.22,
+        band.bottom() - date_s.line_h() * 0.28,
         &date_s,
     );
 }

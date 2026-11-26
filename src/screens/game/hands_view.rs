@@ -35,6 +35,58 @@ pub enum Target {
     Jukebox(u32),
     /// A window while the light in the window is still off.
     Window,
+    /// A night moment's glowing marker (index into `WorldScene::markers`).
+    Moment(usize),
+    /// An open opening / closing ritual item on this piece (index into `content.app.checklists`).
+    Checklist(usize),
+}
+
+/// Checklist items Karolina can do by hand in the world right now: (index into
+/// `content.app.checklists`, furniture uid it sits on). Opening items until done, closing
+/// items from 05:00; the window light, the record and the handover note have their own ways.
+pub fn open_rituals(g: &GameScreen, content: &Content) -> Vec<(usize, u32)> {
+    let w = &g.world;
+    if w.phase() != Phase::Night {
+        return Vec::new();
+    }
+    let m = w.minute();
+    let mut out = Vec::new();
+    for (i, it) in content.app.checklists.iter().enumerate() {
+        // the window has its own target; the record is picked at the jukebox
+        if matches!(
+            it.id.as_str(),
+            "light_window" | "record_on" | "light_off_at_six"
+        ) {
+            continue;
+        }
+        // the handover note waits for closing time
+        if it.id == "handover_note" && m < 466 {
+            continue;
+        }
+        let open = w
+            .app()
+            .checklist
+            .iter()
+            .any(|c| c.id == it.id && !c.done && c.claim.is_none());
+        let in_time = match it.list {
+            crate::content::ChecklistKind::Opening => true,
+            crate::content::ChecklistKind::Closing => m >= 7 * 60,
+        };
+        let Some(tag) = it.anchor.as_deref() else {
+            continue;
+        };
+        if !open || !in_time {
+            continue;
+        }
+        if let Some(p) = w
+            .furniture()
+            .iter()
+            .find(|p| def_has(content, w, p.uid, tag))
+        {
+            out.push((i, p.uid));
+        }
+    }
+    out
 }
 
 pub fn taste_icon(t: Taste) -> TasteIcon {
@@ -96,6 +148,12 @@ pub fn target(
                 return Some(Target::Coin(c.table));
             }
         }
+        // moment markers float over everything else in the room
+        for (i, (_, mk)) in g.scene.markers.iter().enumerate() {
+            if mk.orb(g.time).distance(m) < crate::render::marker_radius(mk) + 4.0 {
+                return Some(Target::Moment(i));
+            }
+        }
     }
     match pick {
         Some(Pick::Agent(AgentRef::Guest(id))) => return Some(Target::Guest(id)),
@@ -129,9 +187,14 @@ pub fn target(
                 return Some(Target::Table(uid));
             }
         }
+        // a ritual item on this piece (warm up the machine, count the float…)
+        if let Some((i, _)) = open_rituals(g, content).into_iter().find(|r| r.1 == uid) {
+            return Some(Target::Checklist(i));
+        }
     }
+    let closing = night && super::hands::lights_off_due(g);
     if night
-        && !g.world.window_light_on(content)
+        && (!g.world.window_light_on(content) || closing)
         && [tile, below].iter().any(|t| {
             g.world
                 .grid()
@@ -230,6 +293,39 @@ pub fn draw_world(
             }
             _ => {}
         }
+    }
+    // ritual items: a little checkbox chip on their furniture
+    for (i, uid) in open_rituals(g, content) {
+        let Some(p) = g.world.furniture_by_uid(uid) else {
+            continue;
+        };
+        let hov = hover == Some(Target::Checklist(i));
+        let c = vec2(p.x as f32 + 0.5, p.y as f32 - 0.45) * TILE + vec2(0.0, (t * 2.0).sin() * 1.5);
+        let r = Rect::new(c.x - 9.0, c.y - 9.0, 18.0, 18.0);
+        draw_circle(
+            c.x,
+            c.y,
+            15.0,
+            Color::new(0.39, 0.4, 0.95, if hov { 0.3 } else { 0.16 }),
+        );
+        crate::ui::draw::fill_rrect(r, 5.0, Color::new(0.11, 0.1, 0.24, 0.9));
+        crate::ui::draw::stroke_rrect(r, 5.0, 1.4, Color::new(0.65, 0.7, 1.0, 0.9));
+        draw_line(
+            c.x - 4.0,
+            c.y,
+            c.x - 1.0,
+            c.y + 3.5,
+            2.0,
+            Color::new(0.65, 0.7, 1.0, 0.55),
+        );
+        draw_line(
+            c.x - 1.0,
+            c.y + 3.5,
+            c.x + 4.5,
+            c.y - 3.5,
+            2.0,
+            Color::new(0.65, 0.7, 1.0, 0.55),
+        );
     }
     // tip coins and their glints
     for c in &g.hands.coins {

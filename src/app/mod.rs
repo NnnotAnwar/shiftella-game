@@ -7,8 +7,12 @@
 //! * `SHIFTELLA_SHOT=path.png` — render `SHIFTELLA_FRAMES` (default 45) frames, save, exit
 //! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|build|crew|app|
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
-//!   night1_handson|order_card|minigame|jukebox|book` (hands-on scenes are played to their
-//!   moment by the autoplayer; `SHIFTELLA_MG=froth|latte|pour|tea|plate` picks the game)
+//!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
+//!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day`
+//!   (hands-on scenes are played to their moment by the autoplayer;
+//!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
+//!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
+//!   the enlarged polaroid, `SHIFTELLA_AUTOFILL=1` auto-fills the rozpis first)
 //! * `SHIFTELLA_AUTOPLAY=1|keys` — Karolina plays the night by herself through the same
 //!   intents as the mouse and keyboard (`keys`: mini-games by keyboard);
 //!   `SHIFTELLA_SPEED=1|2|3` — the starting speed;
@@ -375,6 +379,8 @@ impl App {
                             Some("pour") => Some("r_black"),
                             Some("tea") => Some("r_lemon_tea"),
                             Some("plate") => Some("r_topinka"),
+                            Some("soup") => Some("r_garlic_soup"),
+                            Some("borscht") => Some("r_borscht"),
                             _ => None,
                         };
                         if let (Some(guest), Some(r)) = (guest, recipe) {
@@ -401,6 +407,121 @@ impl App {
                 if name == "book" {
                     g.open_book(None);
                 }
+                self.game(g)
+            }
+            // T8: the world's systems, each played to its moment
+            "moments" | "garlands" | "cat" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let n = night.unwrap_or(match name {
+                    "garlands" => 21,
+                    "cat" => 12,
+                    _ => 3,
+                });
+                let mut g = story_at(n, Some(minute.unwrap_or(5)), &self.i18n, lang);
+                let want = env("SHIFTELLA_MOMENT");
+                let want_c = want.clone();
+                g.play_headless(&content, &loc, 1500.0, &move |g| {
+                    g.world.active_moments().iter().any(|m| {
+                        m.resolving.is_none()
+                            && want_c.as_deref().is_none_or(|w| w == m.id)
+                            && (name != "garlands" || m.id == "m_hang_garlands")
+                            && (name != "cat" || m.id == "m_station_cat")
+                    })
+                });
+                // no autoplayer on screen: the card stays open for the shot
+                let id = g
+                    .world
+                    .active_moments()
+                    .iter()
+                    .find(|m| m.resolving.is_none())
+                    .map(|m| m.id.clone());
+                if let Some(id) = id
+                    && env("SHIFTELLA_NO_CARD").is_none()
+                {
+                    g.open_moment(&id);
+                }
+                self.game(g)
+            }
+            "pantry" | "napkins" => {
+                let n = night.unwrap_or(if name == "napkins" { 10 } else { 4 });
+                let mut g = story_at(n, None, &self.i18n, lang);
+                g.open_book(None);
+                if let Some(b) = &mut g.hands.book {
+                    b.state.tab = 3;
+                    if name == "napkins" {
+                        b.napkins = true;
+                        b.state.tab = 0;
+                    }
+                }
+                // one experiment on the counter, so the page shows a result
+                if name == "pantry" {
+                    let pantry: Vec<String> = g.world.pantry().iter().take(2).cloned().collect();
+                    let _ = g.command(
+                        &content,
+                        sim::Command::TryExperiment {
+                            ingredients: pantry,
+                        },
+                    );
+                    g.drain_and_handle(&content, Some(&Locale::new(&self.i18n, lang)));
+                }
+                self.game(g)
+            }
+            "journal" => {
+                let n = night.unwrap_or(12);
+                let mut g = story_at(n, None, &self.i18n, lang);
+                g.summary = None;
+                g.panel = Some(game::Panel::Journal);
+                if let Some(p) = env("SHIFTELLA_PAGE").and_then(|p| p.parse::<usize>().ok()) {
+                    g.photos.journal.page = p;
+                }
+                if let Some(o) = env("SHIFTELLA_OPEN").and_then(|p| p.parse::<usize>().ok()) {
+                    g.photos.journal.open = Some(o);
+                }
+                self.game(g)
+            }
+            "polaroid" => {
+                let n = night.unwrap_or(5);
+                let mut g = story_at(n, Some(479), &self.i18n, lang);
+                g.run_to_morning(&content, &Locale::new(&self.i18n, lang));
+                self.game(g)
+            }
+            "themes" => {
+                let n = night.unwrap_or(22);
+                let mut g = story_at(n, None, &self.i18n, lang);
+                g.panel = Some(game::Panel::Build);
+                g.ui_state.build.tab = crate::content::BuildCategory::ALL.len() + 1;
+                self.game(g)
+            }
+            "rozpis" | "payroll" => {
+                let n = night.unwrap_or(8);
+                let mut g = story_at(n, minute, &self.i18n, lang);
+                g.summary = None;
+                if name == "payroll" {
+                    g.panel = Some(game::Panel::Payroll);
+                } else {
+                    g.panel = Some(game::Panel::App);
+                    g.ui_state.app_tab = 0;
+                    if env("SHIFTELLA_AUTOFILL").is_some() {
+                        let _ = g.command(&content, sim::Command::AutoFillRozpis);
+                    }
+                }
+                self.game(g)
+            }
+            // a plain day of night N (coach marks: `SHIFTELLA_TUTORIAL=4`)
+            "day" => {
+                let n = night.unwrap_or(2);
+                let mut g = story_at(n, None, &self.i18n, lang);
+                g.summary = None;
+                self.game(g)
+            }
+            "season_snow" | "night27_snow" | "night22" | "night14" => {
+                let n = night.unwrap_or(match name {
+                    "night22" => 22,
+                    "night14" => 14,
+                    "night27_snow" => 27,
+                    _ => 29,
+                });
+                let g = story_at(n, Some(minute.unwrap_or(150)), &self.i18n, lang);
                 self.game(g)
             }
             "night9_anwar" | "anwar" => {

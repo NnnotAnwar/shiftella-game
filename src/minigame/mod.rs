@@ -121,19 +121,43 @@ pub enum PlateSet {
     Soup,
     /// Topinka (fried bread) with garlic, cheese and pickles; onion garnish.
     Topinka,
+    /// Česnečka: golden garlic soup with croutons, cheese and garlic; parsley flecks.
+    GarlicSoup,
+    /// Borscht: beetroot soup with smetana, dill and garlic croutons.
+    Borscht,
 }
 
 impl PlateSet {
-    pub const ALL: [PlateSet; 3] = [PlateSet::Medovnik, PlateSet::Soup, PlateSet::Topinka];
+    pub const ALL: [PlateSet; 5] = [
+        PlateSet::Medovnik,
+        PlateSet::Soup,
+        PlateSet::Topinka,
+        PlateSet::GarlicSoup,
+        PlateSet::Borscht,
+    ];
     pub fn id(self) -> &'static str {
         match self {
             PlateSet::Medovnik => "medovnik",
             PlateSet::Soup => "soup",
             PlateSet::Topinka => "topinka",
+            PlateSet::GarlicSoup => "garlic_soup",
+            PlateSet::Borscht => "borscht",
         }
     }
+    /// Plate set by id; the soups' recipe variants (`garlic`, `kulajda`) map too.
     pub fn from_id(id: &str) -> Option<PlateSet> {
-        PlateSet::ALL.into_iter().find(|s| s.id() == id)
+        match id {
+            "garlic" => Some(PlateSet::GarlicSoup),
+            "kulajda" => Some(PlateSet::Soup),
+            _ => PlateSet::ALL.into_iter().find(|s| s.id() == id),
+        }
+    }
+    /// The soups are served in a bowl.
+    pub fn is_soup(self) -> bool {
+        matches!(
+            self,
+            PlateSet::Soup | PlateSet::GarlicSoup | PlateSet::Borscht
+        )
     }
     pub fn key(self) -> String {
         format!("minigame.plate.dish.{}", self.id())
@@ -546,6 +570,8 @@ pub const TEXT_KEYS: &[&str] = &[
     "minigame.plate.dish.medovnik",
     "minigame.plate.dish.soup",
     "minigame.plate.dish.topinka",
+    "minigame.plate.dish.garlic_soup",
+    "minigame.plate.dish.borscht",
 ];
 
 impl MiniGameText {

@@ -25,7 +25,7 @@ use crate::ui::handson::{
     ticket_rail, ticket_rail_rect,
 };
 use crate::ui::{Align, Button, Glass, Icon, RectExt, Ui, draw_icon};
-use sim::{AgentRef, Phase, TicketStage};
+use sim::{AgentRef, Command, Phase, TicketStage};
 
 // ───────────────────────── content → widget mapping ─────────────────────────
 
@@ -97,7 +97,7 @@ fn guest_name(g: &GameScreen, loc: &Locale, guest: u32) -> (String, String) {
         None => {
             let arch = p.map(|p| p.archetype.clone()).unwrap_or_default();
             (
-                loc.tr_owned(&format!("guest.{arch}.name")),
+                super::world_view::guest_one(loc, &arch),
                 // a bounded set of face slots (each baked face is a small texture)
                 format!("#guest{}", guest % 32),
             )
@@ -188,7 +188,14 @@ pub fn hud(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     if g.world.phase() != Phase::Night || g.summary.is_some() {
         return;
     }
-    rail(g, ui, cx);
+    // the big panels (the app, the journal, payroll) have the screen; the rail waits
+    let big = matches!(
+        g.panel,
+        Some(super::Panel::App | super::Panel::Journal | super::Panel::Payroll)
+    );
+    if !big {
+        rail(g, ui, cx);
+    }
     tip_jar(g, ui, cx);
 }
 
@@ -281,7 +288,17 @@ fn rail(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     if out.is_empty() {
         return;
     }
-    let top = vec2(ui.screen().w / 2.0, 52.0);
+    // between the clock and the money cards when it fits; a long rail drops below them
+    let mut top = vec2(ui.screen().w / 2.0, 52.0);
+    let rr = ticket_rail_rect(top, out.len());
+    let clash = g
+        .anchors
+        .iter()
+        .filter(|a| matches!(a.0, "hud.clock" | "hud.money"))
+        .any(|a| a.1.overlaps(&rr));
+    if clash {
+        top.y = 12.0 + 64.0 + 6.0;
+    }
     g.anchors.push(("rail", ticket_rail_rect(top, out.len())));
     let more = loc.tr_owned("ui.rail.title");
     if let Some(RailAction::Focus(id)) =
@@ -349,10 +366,28 @@ fn tip_jar(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             &[("percent", &(rhythm * 4).to_string())],
         )
     } else {
-        loc.trf(
+        let life = g.world.tips_lifetime();
+        let mut t = loc.trf(
             "ui.tipjar.lifetime",
-            &[("amount", &format_money(loc.lang, g.world.tips_lifetime()))],
-        )
+            &[("amount", &format_money(loc.lang, life))],
+        );
+        // the next lifetime goal (it brings a piece of decor for the hall)
+        if let Some(goal) = cx
+            .content
+            .handson
+            .extras
+            .tip_goals
+            .iter()
+            .map(|g| g.lifetime as i64)
+            .find(|g| *g > life)
+        {
+            t.push('\n');
+            t.push_str(&loc.trf(
+                "ui.tipjar.goal",
+                &[("amount", &format_money(loc.lang, goal))],
+            ));
+        }
+        t
     };
     ui.tooltip(&resp, &tip);
     // "It's quiet — ×2?" (the lull director's last suggestion; never speeds up by itself)
@@ -382,18 +417,24 @@ pub fn overlays(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
     if g.world.phase() == Phase::Night {
         order(g, ui, cx);
     }
+    if g.world.phase() == Phase::Night {
+        super::moments_ui::draw(g, ui, cx);
+    }
     if g.hands.records_open {
         records(g, ui, cx);
     }
     if g.hands.book.is_some() {
         book(g, ui, cx);
+        if g.hands.book.as_ref().is_some_and(|b| b.pick_for.is_none()) {
+            super::extras_ui::napkins_page(g, ui, cx);
+        }
     }
     if g.hands.minigame.is_some() {
         minigame(g, ui, cx, dt);
     }
 }
 
-fn hud_avoid(g: &GameScreen) -> Vec<Rect> {
+pub fn hud_avoid(g: &GameScreen) -> Vec<Rect> {
     [
         "hud.clock",
         "hud.money",
@@ -796,7 +837,24 @@ fn records(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                     repeat: !g.hands.play_once,
                 },
             ) {
-                Ok(()) => g.hands.records_open = false,
+                Ok(()) => {
+                    g.hands.records_open = false;
+                    // putting a record on is the opening ritual's item too
+                    let open = g
+                        .world
+                        .app()
+                        .checklist
+                        .iter()
+                        .any(|c| c.id == "record_on" && !c.done && c.claim.is_none());
+                    if open && g.world.phase() == Phase::Night {
+                        let _ = g.command(
+                            content,
+                            sim::Command::TickChecklist {
+                                id: "record_on".into(),
+                            },
+                        );
+                    }
+                }
                 Err(e) if e.contains("NoPower") => g.notices.push(super::Notice::Key {
                     kind: crate::ui::ToastKind::Info,
                     icon: Icon::Vinyl,
@@ -848,7 +906,28 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         let ingredients = if known {
             r.ingredients.iter().map(ing).collect()
         } else {
-            r.revealed.iter().map(ing).collect()
+            // the data's hints plus grandma's margin notes
+            g.world
+                .revealed_ingredients(content, &r.id)
+                .iter()
+                .map(ing)
+                .collect()
+        };
+        let patterns = if known && r.minigame == crate::content::handson::MiniGameKind::LatteArt {
+            g.world
+                .lattes()
+                .iter()
+                .map(|p| {
+                    let k = format!("latte.{p}");
+                    if loc.has(&k) {
+                        loc.tr_owned(&k)
+                    } else {
+                        p.clone()
+                    }
+                })
+                .collect()
+        } else {
+            Vec::new()
         };
         let price = g.world.price_of(content, &r.base_item) + r.price_add;
         recipes.push(BookRecipe {
@@ -856,7 +935,7 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             name: loc.tr_owned(&r.name_key()),
             known,
             practised: stats.is_some_and(|s| s.practised),
-            new: false,
+            new: g.hands.new_recipes.contains(&r.id),
             dish: dish_of(content, &r.id),
             tags: r.tags.iter().map(|t| taste_tag(*t)).collect(),
             ingredient_count: r.ingredients.len() as u8,
@@ -889,7 +968,7 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                         .map(|h| loc.tr_owned(&format!("book.hint.{h}")))
                 })
                 .flatten(),
-            patterns: Vec::new(),
+            patterns,
         });
         ids.push(r.id.clone());
     }
@@ -905,24 +984,55 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 crate::content::handson::Shelf::Bar => Shelf::Bar,
                 crate::content::handson::Shelf::Kitchen => Shelf::Kitchen,
             },
-            unlocked: know.ingredients.contains(&i.id),
+            unlocked: g.world.pantry().contains(&i.id),
             color: family_color(i.family),
         })
         .collect();
+    let jar_ids: Vec<String> = content
+        .handson
+        .recipes
+        .ingredients
+        .iter()
+        .map(|i| i.id.clone())
+        .collect();
+    let cost = g.world.experiment_cost(content);
+    let try_cost = Some(if cost <= 0 {
+        loc.tr_owned("book.free")
+    } else {
+        loc.trf("book.cost", &[("amount", &format_money(loc.lang, cost))])
+    });
     let Some(open) = g.hands.book.as_mut() else {
         return;
     };
+    let result = open.note.clone().map(|n| {
+        let args = super::resolve_args(&loc, &n.args);
+        let mut text = super::world_view::tr_args(&loc, &n.key, &args);
+        if let Some(cat) = args.iter().find(|a| a.0 == "cat") {
+            text.push(' ');
+            text.push_str(&cat.1);
+        }
+        ExperimentResult {
+            kind: n.kind,
+            text,
+            recipe: n
+                .recipe
+                .as_ref()
+                .and_then(|r| ids.iter().position(|x| x == r)),
+        }
+    });
+    let margin_note = open.margin.as_ref().and_then(|rid| {
+        let ing = g.world.revealed_ingredients(content, rid);
+        let last = ing.last()?;
+        let name = content.handson.ingredient(last)?.name_key();
+        Some(loc.trf("book.margin_note", &[("ingredient", loc.tr(&name))]))
+    });
     let view = BookView {
         recipes,
         pantry,
-        result: open.note.clone().map(|text| ExperimentResult {
-            kind: ExperimentKind::Nothing,
-            text,
-            recipe: None,
-        }),
+        result,
         pick_mode: open.pick_for.is_some(),
-        try_cost: None,
-        margin_note: None,
+        try_cost,
+        margin_note,
     };
     let labels = BookLabels {
         title: loc.tr_owned("book.title"),
@@ -965,14 +1075,47 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 if g.can_brew(content, guest, &id) {
                     g.brew_chosen(content, guest, &id, mode);
                 } else if let Some(open) = g.hands.book.as_mut() {
-                    open.note = Some(loc.tr_owned("ui.book.not_for_this"));
+                    open.note = Some(super::hands::BookNote {
+                        kind: ExperimentKind::Nothing,
+                        key: "ui.book.not_for_this".into(),
+                        args: Vec::new(),
+                        recipe: None,
+                    });
                 }
             }
         }
-        Some(BookAction::Try(_)) => {
-            open.note = Some(loc.tr_owned("ui.book.experiments_soon"));
+        Some(BookAction::Try(slots)) => {
+            let ingredients: Vec<String> = slots
+                .iter()
+                .flatten()
+                .filter_map(|i| jar_ids.get(*i).cloned())
+                .collect();
+            g.hands.tut.bump("experiment_tried");
+            match g.command(content, Command::TryExperiment { ingredients }) {
+                Ok(()) => {
+                    if g.world.phase() == Phase::Night
+                        && let Some(open) = g.hands.book.as_mut()
+                    {
+                        // at night she tries it at the counter: the result follows
+                        open.note = Some(super::hands::BookNote {
+                            kind: ExperimentKind::Nothing,
+                            key: "ui.book.trying".into(),
+                            args: Vec::new(),
+                            recipe: None,
+                        });
+                        open.state.slots.clear();
+                    } else if let Some(open) = g.hands.book.as_mut() {
+                        open.state.slots.clear();
+                    }
+                }
+                Err(e) => super::panels::command_error(g, &loc, &e),
+            }
         }
-        Some(BookAction::Opened(_)) => {}
+        Some(BookAction::Opened(i)) => {
+            if let Some(id) = ids.get(i) {
+                g.hands.new_recipes.remove(id);
+            }
+        }
         Some(BookAction::Close) => {
             let back = open.pick_for;
             g.hands.book = None;

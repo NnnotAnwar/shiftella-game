@@ -199,7 +199,7 @@ ui.duties.player_only
 * Only you: wishes, regulars, specials, moments and the window light.
 
 story.hint.duties
-* Helpers only do the duties you give them (P). The guests with wishes are yours.
+* Helpers only do the duties you give them (H). The guests with wishes are yours.
 
 # --- moment card -------------------------------------------------------------------------------------
 ui.moment.expires

@@ -1,4 +1,4 @@
-//! The duties board (P): who helps with what tonight (design §1.3). Rows are helpers,
+//! The duties board (H): who helps with what tonight (design §1.3). Rows are helpers,
 //! columns the six duties. Click a duty to give / take it, drag a given duty onto another
 //! helper to move it. Capacity dots show how many duties each helper can carry (1–3).
 //! Duties nobody holds stay with Karolina (the strip at the bottom).
@@ -108,7 +108,7 @@ pub fn duties_board(
     let t = ui.theme.clone();
     let id = ui.id(key);
     ui.glass(r, &Glass::panel().solid());
-    let (body, closed) = ui.panel_header(r, &l.title, Some("P"), Some(&l.subtitle));
+    let (body, closed) = ui.panel_header(r, &l.title, Some("H"), Some(&l.subtitle));
     let mut action = closed.then_some(DutiesAction::Close);
     let inner = body.inset_ltrb(14.0, 10.0, 14.0, 12.0);
     // rows leave 6 pt on the right for a scrollbar; columns follow the rows

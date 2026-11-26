@@ -655,3 +655,103 @@ thanks.lori.1
 
 thanks.guest_333.1
 * Děkuji.
+
+# --- T8 integration: the journal, the rozpis, the payroll screen, app links ------------------------
+ui.journal.page
+* Page {n} of {m}
+
+ui.journal.prev
+* Previous page
+
+ui.journal.next
+* Next page
+
+ui.rozpis.wellbeing
+* Mood
+
+ui.rozpis.locked
+* You're here every night — it's your café.
+
+ui.rozpis.coverage_tip
+* {on} of {suggested} helpers
+
+ui.app.handover_pick
+* Notes for tomorrow — pick up to two
+
+ui.book.trying
+* Karolina tries it at the counter…
+
+ui.napkin.empty
+* No napkins yet. A perfect cup for someone who needed it — and sometimes they write back.
+
+ui.link.rozpis
+* Rozpis
+
+ui.link.book
+* Recipe book
+
+ui.link.pantry
+* Pantry
+
+ui.link.build
+* Build
+
+ui.link.duties
+* Duties
+
+ui.link.money
+* Payroll
+
+ui.link.journal
+* Journal
+
+ui.link.board
+* Board
+
+ui.payroll.toil_owed
+* {hours} h owed
+
+ui.payroll.detail.cafe
+* {cafe} stays with the café
+
+ui.payroll.detail.half
+* {cafe} to the café · {crew} to the crew
+
+ui.payroll.detail.crew
+* {crew} to the crew
+
+ui.payroll.effect.cafe
+* Helps with the debt
+
+ui.payroll.effect.half
+* Crew mood +4 next week
+
+ui.payroll.effect.crew
+* Crew mood +8, wellbeing +5
+
+ui.payroll.total
+* Total
+
+ui.payroll.star_head
+* Star of the week
+
+ui.payroll.star_tip
+* {amount} bonus · mood +10
+
+ui.payroll.granted
+* Night off granted
+
+ui.payroll.insights
+* Last night
+
+ui.payroll.sent
+* Sent to the accountant
+
+ui.payroll.open
+* Open the payroll basis
+
+ui.payroll.open_sent
+* See this week's payroll
+
+ui.theme.locked
+* Not unlocked yet

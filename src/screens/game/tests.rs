@@ -238,3 +238,166 @@ fn keyboard_intents_reach_the_sim() {
         .is_some_and(|p| p.order_claim.is_some());
     assert!(claimed, "Enter on the rail sent Karolina to take the order");
 }
+
+// ───────────────────────── T8: the world's systems on screen ─────────────────────────
+
+/// A moment's marker → its card → an option: Karolina walks over (her queue shows the walk)
+/// and the moment resolves; the result line becomes a toast.
+#[test]
+fn moments_open_a_card_and_resolve_through_the_screen() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.start_night(&c);
+    g.set_speed(3);
+    g.play_headless(&c, &loc, 1500.0, &|g| {
+        g.world
+            .active_moments()
+            .iter()
+            .any(|m| m.resolving.is_none())
+    });
+    let m = g
+        .world
+        .active_moments()
+        .iter()
+        .find(|m| m.resolving.is_none())
+        .cloned()
+        .expect("a moment appeared on night 1");
+    assert!(g.open_moment(&m.id));
+    assert!(g.hands.overlay(), "a moment card slows the night");
+    let opt = g.world.moment_options(&c, &m.id)[0].clone();
+    assert!(g.moment_option(&c, &m.id, &opt));
+    assert!(g.hands.moment.is_none(), "the card closes at once");
+    let resolving = g
+        .world
+        .active_moments()
+        .iter()
+        .any(|x| x.id == m.id && x.resolving.is_some());
+    assert!(resolving, "Karolina is on her way");
+    let id = m.id.clone();
+    g.play_headless(&c, &loc, 600.0, &move |g| {
+        !g.world.active_moments().iter().any(|x| x.id == id)
+    });
+    assert!(
+        g.world.systems().moments.resolved_ever.contains(&m.id),
+        "{} resolved",
+        m.id
+    );
+}
+
+/// The morning shows the night's polaroids; closing the summary keeps the chosen one; the
+/// journal's snapshots map onto the render's scene snaps.
+#[test]
+fn the_morning_polaroid_goes_into_the_journal() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.start_night(&c);
+    g.set_speed(3);
+    g.play_headless(&c, &loc, 3600.0, &|_| false);
+    let (night, cands) = g
+        .world
+        .pending_polaroids()
+        .expect("candidates in the morning");
+    assert_eq!(night, 1);
+    let snap = journal_ui::snap_of(&c, &cands[0].snap);
+    assert_eq!(
+        snap.tiles.len(),
+        snap.size.0 as usize * snap.size.1 as usize
+    );
+    assert!(!journal_ui::caption(&loc, &cands[0]).contains("journal.caption"));
+    g.photos.pick = cands.len().saturating_sub(1);
+    journal_ui::keep_morning(&mut g, &c);
+    assert!(g.world.pending_polaroids().is_none());
+    assert_eq!(g.world.journal().len(), 1);
+    assert_eq!(
+        journal_ui::night_date(&c, &g.world, 1),
+        g.world.journal()[0].date
+    );
+}
+
+/// The book's pantry: Try sends the experiment; by day the result shows on the page.
+#[test]
+fn a_day_experiment_from_the_pantry() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.open_book(None);
+    let jars: Vec<String> = g.world.pantry().iter().take(2).cloned().collect();
+    assert!(
+        g.command(&c, sim::Command::TryExperiment { ingredients: jars })
+            .is_ok()
+    );
+    // the next frame handles the result (it carries text)
+    g.drain_and_handle(&c, Some(&loc));
+    let note = g
+        .hands
+        .book
+        .as_ref()
+        .and_then(|b| b.note.clone())
+        .expect("the result is on the page");
+    assert!(note.key.starts_with("experiment."), "{}", note.key);
+}
+
+/// The soups plate their own bowl; the singular guest name; deep links open the panels.
+#[test]
+fn soups_names_and_links() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let soup = c.handson.recipe("r_garlic_soup").unwrap();
+    let (kind, v) = hands::playable(soup, 1);
+    assert_eq!(kind, crate::minigame::MiniGameKind::Plate);
+    assert_eq!(v, "garlic_soup");
+    let (_, v) = hands::playable(c.handson.recipe("r_borscht").unwrap(), 1);
+    assert_eq!(v, "borscht");
+    assert_eq!(world_view::guest_one(&loc, "travelers"), "Traveller");
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.follow_link(crate::content::handson::AppLink::Journal);
+    assert_eq!(g.panel, Some(Panel::Journal));
+    g.follow_link(crate::content::handson::AppLink::Rozpis);
+    assert_eq!((g.panel, g.ui_state.app_tab), (Some(Panel::App), 0));
+    g.follow_link(crate::content::handson::AppLink::Pantry);
+    assert_eq!(g.hands.book.as_ref().map(|b| b.state.tab), Some(3));
+}
+
+/// Three nights through the screen's autoplayer (its day planned by the player-bot): the
+/// rituals, the handover, experiments, a polaroid every morning.
+#[test]
+fn three_autoplayed_nights_touch_the_systems() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.hands.autoplay = Some(hands::Autoplay {
+        cooldown: 0.0,
+        keyboard: false,
+    });
+    for _ in 0..3 {
+        let mut guard = 0;
+        while g.world.phase() == Phase::Day && guard < 20 {
+            if g.cutscene_playing() {
+                g.finish_cutscene_now(&c, &loc);
+            }
+            g.autoplay_day(&c, 1.0, 0.0);
+            guard += 1;
+        }
+        g.set_speed(3);
+        g.play_headless(&c, &loc, 3600.0, &|_| false);
+        assert_eq!(
+            g.world.systems().tool.rituals,
+            [true, true],
+            "night {}: opening and closing",
+            g.world.night()
+        );
+    }
+    g.autoplay_day(&c, 1.0, 0.0);
+    assert_eq!(g.world.journal().len(), 3, "a polaroid a morning");
+    assert!(
+        !g.world.knowledge().tried.is_empty(),
+        "experiments in the lulls"
+    );
+}

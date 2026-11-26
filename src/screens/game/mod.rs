@@ -6,18 +6,23 @@
 //!   no `Ui`, no GPU;
 //! * **frame** ([`GameScreen::frame`], [`GameScreen::hotkeys`]) — input, drawing, widgets.
 
+mod app_tool;
 mod build;
 pub mod coach;
 mod day;
 mod duties;
+mod extras_ui;
 pub mod hands;
 mod hands_ui;
 mod hands_view;
 mod hud;
+mod journal_ui;
+mod moments_ui;
 mod panels;
 mod pause;
 mod phone_app;
 pub mod scene;
+mod scene_fx;
 pub mod tutorial;
 pub mod world_view;
 
@@ -75,6 +80,10 @@ pub enum Panel {
     Log,
     /// "How to play" reference (F1).
     Help,
+    /// The polaroid journal (J).
+    Journal,
+    /// The weekly payroll basis (podklady pro mzdy) as a decision screen.
+    Payroll,
 }
 
 /// A line in the top ticker / log.
@@ -109,6 +118,59 @@ pub enum Notice {
         key: String,
         args: Vec<(String, String)>,
     },
+    /// The same with a title key (a moment's name over its result line).
+    KeyTitled {
+        kind: ToastKind,
+        icon: Icon,
+        title: String,
+        key: String,
+        args: Vec<(String, String)>,
+    },
+}
+
+/// Seconds a toast stays at night: short, so they never pile over the café.
+fn night_duration(kind: ToastKind) -> f32 {
+    match kind {
+        ToastKind::Info => 4.5,
+        ToastKind::Success => 4.0,
+        ToastKind::Event => 6.0,
+        ToastKind::Warning => 7.0,
+    }
+}
+
+/// A long line becomes a short title + the rest as the body (titles are one line).
+fn split_title(ui: &Ui, text: &str) -> (String, Option<String>) {
+    let st = ui.theme.strong();
+    let room = 250.0;
+    if ui.fonts.measure(text, &st) <= room {
+        return (text.to_string(), None);
+    }
+    for sep in [". ", " — ", ": ", "! ", "? "] {
+        if let Some(i) = text.find(sep) {
+            let head = text[..i + sep.trim_end().len()].trim().to_string();
+            let rest = text[i + sep.len()..].trim().to_string();
+            if !rest.is_empty() && ui.fonts.measure(&head, &st) <= room {
+                return (
+                    head.trim_end_matches(['—', ':']).trim().to_string(),
+                    Some(rest),
+                );
+            }
+        }
+    }
+    // no sentence break that fits: the first words as the title, the whole line below
+    let mut head = String::new();
+    for w in text.split_whitespace() {
+        let next = if head.is_empty() {
+            w.to_string()
+        } else {
+            format!("{head} {w}")
+        };
+        if ui.fonts.measure(&format!("{next}…"), &st) > room {
+            break;
+        }
+        head = next;
+    }
+    (format!("{head}…"), Some(text.to_string()))
 }
 
 /// Bubble texts may be an i18n key (`@key:<key>`) when the logic half had no locale.
@@ -198,6 +260,12 @@ pub struct GameScreen {
     pub latte_for: HashMap<u32, String>,
     /// Karolina's first-night coach marks.
     pub coach: coach::CoachState,
+    /// A camera hint from the sim (a moment, a bot button): ease towards this world point.
+    pub cam_target: Option<Vec2>,
+    /// Polaroid photos (rendered from the journal's scene snapshots) and the journal's page.
+    pub photos: journal_ui::Photos,
+    /// Plain toasts on screen (newest last): their ids, a signature and when they came.
+    recent_toasts: std::collections::VecDeque<(ToastId, String, f32)>,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -221,6 +289,10 @@ pub struct UiState {
     pub log_filter: usize,
     /// Whom the board's thank-you note is for (index into the crew).
     pub thank_pick: usize,
+    /// The rozpis puzzle board (paint, keyboard cursor, flash).
+    pub rozpis: crate::ui::handson::RozpisState,
+    /// Staff granted a night off on this week's payroll screen.
+    pub toil_granted: Vec<u32>,
 }
 
 impl GameScreen {
@@ -273,6 +345,9 @@ impl GameScreen {
             relaxed: false,
             latte_for: HashMap::new(),
             coach: coach::CoachState::default(),
+            cam_target: None,
+            photos: journal_ui::Photos::default(),
+            recent_toasts: Default::default(),
         }
     }
 
@@ -579,6 +654,7 @@ impl GameScreen {
             }
         };
         self.hands_event(content, &e);
+        self.extras_event(content, &e);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;
@@ -874,9 +950,16 @@ impl GameScreen {
             return;
         }
         let night = self.world.phase() == Phase::Night;
-        match self.world.music_track(content) {
-            Some((id, vol)) => audio.set_music_vol(Track::from_id(&id), vol),
-            None => audio.set_music(None),
+        // the old radio (a moment) plays over the house music for a while
+        let radio = self
+            .world
+            .radio()
+            .filter(|_| !self.world.blackout())
+            .and_then(|(id, vol)| Track::from_id(id).map(|t| (t, vol)));
+        match (radio, self.world.music_track(content)) {
+            (Some((t, vol)), _) => audio.set_music_vol(Some(t), vol),
+            (None, Some((id, vol))) => audio.set_music_vol(Track::from_id(&id), vol),
+            (None, None) => audio.set_music(None),
         }
         audio.set_rain(self.world.weather().is_wet());
         // café life: an occasional footstep / coffee machine while it is busy
@@ -905,26 +988,22 @@ impl GameScreen {
         hire: bool,
     ) {
         let mut guard = 0;
+        // past nights are played by the sim's player-bot (a calm player: by hand for the
+        // regulars, moments, the jar, a polaroid every morning), so a late night looks like
+        // one a person would have reached
+        let mut bot = sim::bot::PlayerBot::new(sim::bot::BotConfig {
+            seed: self.world.seed(),
+            hire_nights: if hire { vec![3, 5, 9, 14] } else { Vec::new() },
+            ..Default::default()
+        });
         while self.world.night() < night && guard < 400 && !self.world.is_closed() {
-            if self.world.phase() == Phase::Day && hire {
-                let ids: Vec<u32> = self.world.candidates().iter().map(|c| c.id).collect();
-                for id in ids {
-                    let _ = self.world.apply(content, Command::Hire { candidate: id });
-                }
-            }
-            if self.world.phase() == Phase::Day {
-                self.world.start_night(content);
-            }
-            let _ = self.world.run_night_headless(content);
+            let _ = bot.run_night(&mut self.world, content);
             guard += 1;
         }
-        // the last day too: tonight's candidates (the first helper comes on night 3)
-        if hire && self.world.phase() == Phase::Day {
-            let ids: Vec<u32> = self.world.candidates().iter().map(|c| c.id).collect();
-            for id in ids {
-                let _ = self.world.apply(content, Command::Hire { candidate: id });
-            }
+        if self.world.phase() == Phase::Day {
+            bot.day(&mut self.world, content);
         }
+
         let _ = self.world.drain_events();
         self.deferred.clear();
         self.summary = None;
@@ -942,6 +1021,7 @@ impl GameScreen {
                         },
                     );
                 }
+                bot.step(&mut self.world, content);
                 self.world.tick(content);
                 let evs = self.world.drain_events();
                 for e in evs {
@@ -1153,6 +1233,7 @@ impl GameScreen {
             }
             if self.hands.autoplay.is_some() {
                 self.autoplay_step(content, dt);
+                self.autoplay_day(content, dt, 1.5);
             }
         }
         self.autosave_if_due(content, cx.store);
@@ -1188,6 +1269,12 @@ impl GameScreen {
                 && !ui.wants_keyboard()
             {
                 self.cam.update();
+            }
+            if let Some(tgt) = self.cam_target {
+                self.cam.center = self.cam.center.lerp(tgt, (dt * 2.5).min(1.0));
+                if self.cam.center.distance(tgt) < 6.0 || self.automation {
+                    self.cam_target = None;
+                }
             }
             // screenshot runs: SHIFTELLA_ZOOM=k follows Karolina k× closer than the overview
             if self.automation
@@ -1235,6 +1322,13 @@ impl GameScreen {
             } else {
                 hands_view::target(self, content, pick, mouse_world)
             };
+            self.scene.hover_moment = match target {
+                Some(hands_view::Target::Moment(i)) => {
+                    self.scene.markers.get(i).map(|m| m.0.clone())
+                }
+                _ => None,
+            };
+            self.scene.sec_per_minute = self.world.real_seconds_per_tick(content) * 10.0;
             hands_view::draw_world(self, content, &loc, target, mouse_world);
             if self.panel == Some(Panel::Build) {
                 build::draw_world_overlay(self, content, ghost.as_ref());
@@ -1252,7 +1346,8 @@ impl GameScreen {
         }
 
         let t_world = std::time::Instant::now();
-        // 3. UI
+        // 3. UI (photos for polaroids render first: they use their own camera)
+        journal_ui::prepare(self);
         ui.set_camera();
         self.anchors.clear();
         if self.player.is_playing() {
@@ -1260,6 +1355,17 @@ impl GameScreen {
         } else {
             hud::draw(self, ui, cx);
             hands_ui::hud(self, ui, cx);
+            if self.summary.is_none() {
+                extras_ui::atmosphere(self, ui, cx);
+                // screenshot runs: SHIFTELLA_COZY_HINT=1 shows the meter's world hint
+                if self.automation && std::env::var("SHIFTELLA_COZY_HINT").is_ok() {
+                    self.scene.cozy_hint = Some(self.world.coziness().weakest);
+                }
+            }
+            if self.world.phase() == Phase::Night && self.summary.is_none() {
+                extras_ui::tip_goal(self, ui, cx);
+                extras_ui::napkin(self, ui, cx);
+            }
             // after the HUD and the rail: the bubble keeps clear of them
             if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {
                 hud::bubble(self, ui, cx);
@@ -1271,6 +1377,8 @@ impl GameScreen {
                 Some(Panel::App) => phone_app::draw(self, ui, cx),
                 Some(Panel::Build) => build::panel(self, ui, cx),
                 Some(Panel::Help) => tutorial::help(self, ui, cx),
+                Some(Panel::Journal) => journal_ui::journal_panel(self, ui, cx),
+                Some(Panel::Payroll) => phone_app::payroll_panel(self, ui, cx),
                 None => {}
             }
             if self.world.phase() == Phase::Day && self.summary.is_none() {
@@ -1279,10 +1387,10 @@ impl GameScreen {
             hands_ui::overlays(self, ui, cx, dt);
             self.tutorial_update(cx);
             tutorial::draw(self, ui, cx);
-            coach::draw(self, ui, cx);
             if self.summary.is_some() {
                 day::summary(self, ui, cx);
             }
+            coach::draw(self, ui, cx);
             if self.pause.is_some() {
                 pause::draw(self, ui, cx);
             }
@@ -1321,6 +1429,46 @@ impl GameScreen {
         };
     }
 
+    /// A plain toast: short at night, at most two on screen, no repeats in a row.
+    fn push_plain_toast(
+        &mut self,
+        ui: &mut Ui,
+        kind: ToastKind,
+        icon: Icon,
+        title: String,
+        body: Option<String>,
+    ) {
+        let (title, body) = match body {
+            Some(b) => (title, Some(b)),
+            None => split_title(ui, &title),
+        };
+        let sig = format!("{title}|{}", body.as_deref().unwrap_or(""));
+        if self
+            .recent_toasts
+            .iter()
+            .any(|(_, s, at)| *s == sig && self.time - at < 8.0)
+        {
+            return;
+        }
+        let mut t = Toast::new(kind, title).icon(icon);
+        if let Some(b) = body {
+            t = t.body(b);
+        }
+        let night = self.world.phase() == Phase::Night;
+        if night {
+            t = t.duration(night_duration(kind));
+        }
+        let id = ui.push_toast(t);
+        self.recent_toasts.push_back((id, sig, self.time));
+        // at night the stack collapses to the two newest (the log keeps everything)
+        let keep = if night { 2 } else { 3 };
+        while self.recent_toasts.len() > keep {
+            if let Some((old, _, _)) = self.recent_toasts.pop_front() {
+                ui.dismiss_toast(old);
+            }
+        }
+    }
+
     fn flush_notices(&mut self, ui: &mut Ui, loc: &Locale) {
         for n in std::mem::take(&mut self.notices) {
             match n {
@@ -1329,13 +1477,7 @@ impl GameScreen {
                     icon,
                     title,
                     body,
-                } => {
-                    let mut t = Toast::new(kind, title).icon(icon);
-                    if let Some(b) = body {
-                        t = t.body(b);
-                    }
-                    ui.push_toast(t);
-                }
+                } => self.push_plain_toast(ui, kind, icon, title, body),
                 Notice::Choice { event, choices } => {
                     let title = loc.tr_owned(&format!("event.{event}.title"));
                     let body = loc.tr_owned(&format!("event.{event}.text"));
@@ -1362,7 +1504,18 @@ impl GameScreen {
                 } => {
                     let a = resolve_args(loc, &args);
                     let text = wv::tr_args(loc, &key, &a);
-                    ui.push_toast(Toast::new(kind, text).icon(icon));
+                    self.push_plain_toast(ui, kind, icon, text, None);
+                }
+                Notice::KeyTitled {
+                    kind,
+                    icon,
+                    title,
+                    key,
+                    args,
+                } => {
+                    let a = resolve_args(loc, &args);
+                    let text = wv::tr_args(loc, &key, &a);
+                    self.push_plain_toast(ui, kind, icon, loc.tr_owned(&title), Some(text));
                 }
                 Notice::ChoiceResolved { event, choice } => {
                     if let Some(i) = self.choice_toasts.iter().position(|c| c.1 == event) {
@@ -1515,6 +1668,21 @@ impl GameScreen {
                 self.intent(content, Intent::Window);
                 return;
             }
+            Some(Target::Checklist(i)) => {
+                if let Some(it) = content.app.checklists.get(i) {
+                    let id = it.id.clone();
+                    if self.hand(content, Command::TickChecklist { id }) {
+                        self.hands.tut.bump("ritual_ticked");
+                    }
+                }
+                return;
+            }
+            Some(Target::Moment(i)) => {
+                if let Some(id) = self.scene.markers.get(i).map(|m| m.0.clone()) {
+                    self.open_moment(&id);
+                }
+                return;
+            }
             _ => {}
         }
         match pick {
@@ -1576,6 +1744,7 @@ impl GameScreen {
         }
         if self.summary.is_some() {
             if ui.enter() || ui.esc() || ui.key(KeyCode::Space) {
+                journal_ui::keep_morning(self, content);
                 self.summary = None;
             }
             return;
@@ -1587,6 +1756,8 @@ impl GameScreen {
         if ui.esc() {
             if self.hands.book.is_some() {
                 self.hands.book = None;
+            } else if self.hands.moment.is_some() {
+                self.hands.moment = None;
             } else if self.hands.records_open {
                 self.hands.records_open = false;
             } else if self.hands.order.is_some() {
@@ -1628,12 +1799,7 @@ impl GameScreen {
                 self.open_book(None);
             }
             if ui.key(KeyCode::J) {
-                self.notices.push(Notice::Key {
-                    kind: ToastKind::Info,
-                    icon: Icon::Book,
-                    key: "ui.journal.soon".into(),
-                    args: Vec::new(),
-                });
+                toggle(&mut self.panel, Panel::Journal);
             }
             if ui.key(KeyCode::V) {
                 self.intent(content, Intent::Jukebox);
@@ -1679,6 +1845,12 @@ impl GameScreen {
             if ui.key(KeyCode::G) {
                 self.intent(content, Intent::Greet);
             }
+            // F: the nearest night moment's card
+            if ui.key(KeyCode::F)
+                && let Some(id) = self.nearest_moment()
+            {
+                self.open_moment(&id);
+            }
             if ui.key(KeyCode::Backspace) {
                 self.intent(content, Intent::Cancel);
             }
@@ -1700,6 +1872,36 @@ impl GameScreen {
         }
     }
 
+    /// A deep link from the app (a digest insight, a bot button, the payroll screen).
+    pub fn follow_link(&mut self, link: crate::content::handson::AppLink) {
+        use crate::content::handson::AppLink as L;
+        match link {
+            L::Rozpis => {
+                self.panel = Some(Panel::App);
+                self.ui_state.app_tab = 0;
+            }
+            L::Board => {
+                self.panel = Some(Panel::App);
+                self.ui_state.app_tab = 3;
+            }
+            L::RecipeBook => {
+                self.panel = None;
+                self.open_book(None);
+            }
+            L::Pantry => {
+                self.panel = None;
+                self.open_book(None);
+                if let Some(b) = &mut self.hands.book {
+                    b.state.tab = 3;
+                }
+            }
+            L::Build => self.panel = Some(Panel::Build),
+            L::Duties => self.panel = Some(Panel::Duties),
+            L::Money => self.panel = Some(Panel::Payroll),
+            L::Journal => self.panel = Some(Panel::Journal),
+        }
+    }
+
     /// The recipe book (K); `pick_for` = from an order card (pick mode).
     pub fn open_book(&mut self, pick_for: Option<(u32, crate::ui::handson::BrewMode)>) {
         if self.hands.book.is_some() && pick_for.is_none() {
@@ -1709,6 +1911,8 @@ impl GameScreen {
         self.hands.book = Some(hands::BookOpen {
             pick_for: pick_for.map(|p| p.0),
             mode: pick_for.map(|p| p.1).unwrap_or_default(),
+            note: self.hands.last_experiment.take(),
+            margin: self.hands.last_margin.clone(),
             ..Default::default()
         });
         self.hands.tut.bump("book_opened");

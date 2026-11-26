@@ -15,7 +15,8 @@ warm, pay off the debt — or let the café go, gently. Nothing here is meant to
    wash up and mop. Helpers (from night 3) only do the duties you give them. Events pop up as
    toasts; some have buttons (they wait while paused, and fall back to a default after a while).
 3. **Morning.** A short summary of the night: guests, revenue, tips, wages, costs, reputation,
-   grandma's notes found. Then the next day begins (and the game autosaves).
+   grandma's notes found — and the night's polaroid developing beside it. Then the next day
+   begins (and the game autosaves).
 
 Story mode has 30 nights and exactly two endings — «Light in the Window» and «Last Train».
 Sandbox is endless, with a random town from a seed you can share.
@@ -61,7 +62,53 @@ serving; each carries one to three duties. Wishes, regulars, specials and the li
 are always yours.
 
 **Grandma's jukebox** — Lida's records really change the music (and the mood of the room);
-Repeat or Play once. Regulars have favourites.
+Repeat or Play once. Regulars have favourites. Putting a record on is also part of the
+opening ritual.
+
+## Little moments, the cat and the atmosphere
+
+* **Night moments** — a softly glowing orb appears somewhere in the café: the fogged window
+  when a train comes, the station cat at the door, a sleeping student, a lost traveller, a
+  leak, a blackout… Click the orb (or press **F** for the nearest one) and a small card shows
+  two or three choices. Pick one and Karolina walks over to do it (her chip over her head shows
+  the moment's icon). Nothing bad happens if you let one pass. A lost traveller asks which
+  train: the right one is highlighted.
+* **The station cat** — feed it and scratch its ears night after night: it moves from the
+  doormat to the radiator, then to the window seat, then follows you around. At the end it
+  gets a name.
+* **Atmosphere** — the candle under the clock is the hall's coziness (Bare → Like home).
+  Hover it to see what it's made of; the weakest part glows in the café (dark seats, dirty
+  tables, a silent jukebox). Lamps, rugs, plants, music, a clean floor and the theme raise it;
+  cosy halls make guests happier, more patient and more generous.
+* **Rituals** — opening items (light the window, warm up the machine, check the stock, wipe the
+  tables, count the float, the specials board, a record) and closing items (dishes, clean the
+  machine, cash up, the fridge, the handover note, lights off at six) show a small checkbox
+  chip on their furniture. Click the chip — or tick them in the app — and Karolina does them;
+  helpers do the ones of their duty. A whole list done gives the night a little glow
+  ("The café is ready.", "Closed properly.").
+* **The tip jar** — tonight's tips and the lifetime total. When the jar reaches a goal, a
+  "Count the jar" chip appears: pick one of two decor pieces for the hall.
+* **Napkins** — a perfect cup for someone who needed it sometimes earns a folded thank-you
+  napkin next to the tip coin. They are kept in the recipe book (the Napkins ribbon).
+
+## Seasons, themes and the journal
+
+* The month moves from late autumn (wet leaves) to frost, Advent (grandma's garlands — hang
+  them when her box appears on the counter — and a wreath) and the first snow.
+* **Build → Theme** — decor themes for the hall (Grandma's original, Prague Art Nouveau,
+  Station Retro, Nocturne 2039, Winter Lights). Unlocked themes are bought once and switched
+  for free during the day.
+* **The polaroid journal (J)** — every morning the night's best moment develops in the summary
+  (drag over it to shake it faster); click one of the two small ones to keep that instead.
+  The journal keeps one per night — thirty slots in the story.
+
+## The recipe book (K)
+
+Drinks, food and specials you know (with grandma's notes, how often you've made them and
+your best cup), and silhouettes of the ones you don't — their tastes, how many ingredients,
+and a hint where to learn them. **Pantry**: put 2–3 jars in the slots and **Try**. By day the
+result is instant; at night Karolina tries it at the counter. "So close" lines tell you what
+to swap; every few tries Lida's margin note reveals an ingredient on a silhouette.
 
 ## Controls
 
@@ -74,8 +121,9 @@ Repeat or Play once. Regulars have favourites.
 | **H** (or **P**) | duties — who helps with what tonight |
 | **T** | the Shiftella app — rozpis, requests, messages, board, checklists, digest, payroll |
 | **K** | grandma's recipe book |
-| **J** | the polaroid journal (opens with the first morning's photo) |
+| **J** | the polaroid journal |
 | **V** | grandma's jukebox |
+| **F** | the nearest night moment's card |
 | **B** | build — click a piece, click in the café; **R** rotate, **X** demolish, **Ctrl+Z** undo, right-click / **Esc** cancel |
 | **L** | log (tonight / story) — also a click on the ticker at the top |
 | **F1** | how to play |
@@ -97,17 +145,29 @@ over the month. Serve them well and in time, keep their seat free, keep the plac
 
 ## The Shiftella app (T)
 
-* **Rozpis** — the week's shifts per person (22–06, 22–02, 02–06, off). Click a cell to
-  change the **draft**, right-click to go back; **Publish** sends it to everyone. The night
-  uses the published rozpis; last-minute edits make the crew a little grumpy.
-* **Requests** — shift swaps and time off (dovolená, náhradní volno): approve or decline.
-* **Messages** — @shiftella_bot: late-arrival alerts, requests, the night digest. Some have
-  buttons. (The bot never does clock-ins — people aren't punch cards.)
-* **Board** — announcements and the předávka (handover note) for the next shift.
-* **Checklists** — opening and closing items; some are yours (light the window, the handover
-  note), the crew does the rest when there's time.
-* **Night digest** and **Payroll basis** (podklady pro mzdy) — hours, night hours and wages
-  per person, ready for the accountant.
+Everything in the app does something tonight or tomorrow. While the phone is open at night,
+the clock crawls.
+
+* **Rozpis** — a light weekly puzzle. Every helper has a few preference chips ("Sun off",
+  "Late shifts", "Likes working with Bára"; hover for their own words; a firmer border is a
+  Need). Cells cycle Full → Early → Late → off (right-click goes back, drag paints). Chips glow
+  emerald when honoured and amber when the draft breaks them; the ring on the right is their
+  wellbeing, the badge below is the week's weather. **Auto-fill** keeps as many wishes as it
+  can and says which didn't fit; **Publish** sends it. A happy week shows in the crew's mood.
+  Your own row is locked: you're there every night.
+* **Requests** — swaps, time off (dovolená, náhradní volno) and "Can I go at 2?": answering
+  matters for people's wellbeing.
+* **Messages** — @shiftella_bot. The buttons act in the café (reserve a regular's seat,
+  remind me before Radek's train, ask someone to cover, order by drone…). A button that can't
+  act right now says why and the message stays open. (The bot never does clock-ins.)
+* **Board** — announcements; at closing (from 05:00) pick up to two handover notes for
+  tomorrow — each one does something next night.
+* **Checklists** — the opening and closing rituals, with whose job each item is.
+* **Night digest** — last night's numbers and up to four insights, each with a link
+  (Rozpis, Recipe book, Pantry, Build, Duties…).
+* **Payroll basis** (podklady pro mzdy) — the week's hours and wages, the tip split (all to
+  the café / half / all to the crew, with the real numbers), a star of the week, owed
+  náhradní volno → a night off, and **Send to the accountant**.
 
 ## Saving
 

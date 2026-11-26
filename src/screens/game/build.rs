@@ -253,6 +253,9 @@ pub fn panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     for c in BuildCategory::ALL {
         labels.push(Tab::new(loc.tr(cat_key(c))));
     }
+    // the hall's decor theme (design §11.2) is the last tab
+    labels.push(Tab::new(loc.tr("ui.theme.tab")));
+    let theme_tab = labels.len() - 1;
     // demolish / undo on the right of the tab row, sized to their labels
     let demolish = Button::new(loc.tr("ui.build.demolish"))
         .icon(Icon::Close)
@@ -277,6 +280,12 @@ pub fn panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         g.drain_and_handle(content, None);
     }
 
+    if g.ui_state.build.tab == theme_tab {
+        g.ui_state.build.selected = None;
+        g.ui_state.build.demolish = false;
+        themes(g, ui, cx, rest);
+        return;
+    }
     let buildable = g.world.buildable(content);
     let defs: Vec<_> = content
         .furniture
@@ -414,5 +423,168 @@ fn push_scale(k: f32) {
 
 fn pop_scale() {
     let gl = unsafe { get_internal_gl() };
+    gl.quad_gl.pop_model_matrix();
+}
+
+/// Build → Theme: a card per decor theme with a little preview of its wall, floor and a
+/// table; buy once, switch for free in the Day phase.
+fn themes(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, rest: Rect) {
+    use crate::render::{DecorTheme, ThemeStyle, with_decor};
+    let t = ui.theme.clone();
+    let loc = cx.loc;
+    let content = cx.content;
+    let day = g.world.phase() == sim::Phase::Day;
+    let current = g.world.theme(content).to_string();
+    let season = super::scene_fx::season_of(&g.world, content).1;
+    let defs: Vec<_> = content.handson.decor.themes.clone();
+    let card_w = ((rest.w - 8.0 * (defs.len() as f32 - 1.0)) / defs.len().max(1) as f32).min(190.0);
+    let card_h = rest.h - 6.0;
+    let mut x = rest.x;
+    for d in &defs {
+        let r = Rect::new(x, rest.y, card_w, card_h);
+        x += card_w + 8.0;
+        let owned = g.world.theme_owned(content, &d.id);
+        let unlocked = owned || g.world.themes_unlocked().contains(&d.id);
+        let on = current == d.id;
+        let resp = ui.interact(ui.id(("theme_card", d.id.as_str())), r);
+        fill_rrect(
+            r,
+            10.0,
+            if on {
+                with_a(t.indigo, 0.3)
+            } else if resp.hovered {
+                Color::new(1.0, 1.0, 1.0, 0.07)
+            } else {
+                Color::new(1.0, 1.0, 1.0, 0.035)
+            },
+        );
+        if on {
+            stroke_rrect(r, 10.0, 1.0, t.indigo_300);
+        }
+        // the preview: two tiles of wall, a floor, a table and a lamp in the theme's look
+        let prev = Rect::new(r.x + 8.0, r.y + 8.0, r.w - 16.0, card_h - 70.0);
+        let style = DecorTheme::from_id(&d.id)
+            .map(|th| th.style(season))
+            .unwrap_or(ThemeStyle::GRANDMA);
+        fill_rrect(prev, 8.0, Color::new(0.05, 0.04, 0.1, 0.6));
+        ui.push_clip(prev);
+        with_decor(style, || {
+            draw_theme_preview(content, prev, ui.time() as f32)
+        });
+        ui.pop_clip();
+        if !unlocked {
+            draw_rectangle(
+                prev.x,
+                prev.y,
+                prev.w,
+                prev.h,
+                Color::new(0.05, 0.04, 0.1, 0.6),
+            );
+            crate::ui::draw_icon(Icon::Lock, prev.center(), 18.0, t.text_dim);
+        }
+        let name = loc.tr_owned(&d.name_key());
+        ui.fonts.draw_in(
+            &name,
+            Rect::new(r.x + 8.0, prev.bottom() + 4.0, r.w - 16.0, 18.0),
+            &t.small_medium()
+                .color(if unlocked { t.text } else { t.text_disabled }),
+            Align::Center,
+        );
+        ui.tooltip(&resp, &loc.tr_owned(&d.desc_key()));
+        let br = Rect::new(r.x + 8.0, r.bottom() - 34.0, r.w - 16.0, 26.0);
+        if on {
+            ui.fonts.draw_in(
+                &format!("✓ {}", loc.tr("ui.theme.owned")),
+                br,
+                &t.key().color(t.emerald_400),
+                Align::Center,
+            );
+        } else if owned {
+            let b = Button::new(loc.tr("ui.theme.apply"))
+                .secondary()
+                .disabled(!day)
+                .tooltip(if day { "" } else { loc.tr("ui.theme.day_only") });
+            if ui.button(("theme_use", d.id.as_str()), br, &b).clicked {
+                match g.command(content, Command::SetTheme { id: d.id.clone() }) {
+                    Ok(()) => g.hands.tut.bump("theme_set"),
+                    Err(e) => super::panels::command_error(g, &loc, &e),
+                }
+            }
+        } else if unlocked {
+            let price = format_money(loc.lang, d.price as i64);
+            let label = loc.trf("ui.theme.buy", &[("price", &price)]);
+            let b = Button::new(&label)
+                .primary()
+                .disabled(g.world.money() < d.price as i64);
+            if ui.button(("theme_buy", d.id.as_str()), br, &b).clicked {
+                match g.command(content, Command::BuyTheme { id: d.id.clone() }) {
+                    Ok(()) => {
+                        g.hands.tut.bump("theme_bought");
+                        if day {
+                            let _ = g.command(content, Command::SetTheme { id: d.id.clone() });
+                        }
+                    }
+                    Err(e) => super::panels::command_error(g, &loc, &e),
+                }
+            }
+        } else {
+            ui.fonts.draw_in(
+                loc.tr("ui.theme.locked"),
+                br,
+                &t.small().color(t.text_disabled),
+                Align::Center,
+            );
+        }
+    }
+}
+
+/// A tiny room in the current decor: the lower wall with a window, the floor, a table with a
+/// chair, a lamp and a plant (cropped to `r`; the caller clips).
+fn draw_theme_preview(content: &Content, r: Rect, t: f32) {
+    use crate::render::{WallKind, WallMask, draw_floor, draw_wall};
+    let sprite = |id: &str| {
+        content
+            .furniture_def(id)
+            .map(|d| d.sprite.clone())
+            .unwrap_or_else(|| id.to_string())
+    };
+    // 5 tiles wide; the view starts a little above the wall's foot (the wainscot and the
+    // pattern show), the furniture stands right in front of it
+    let k = r.w / (5.0 * TILE);
+    let origin = vec2(r.x, r.y + 0.62 * TILE * k);
+    let gl = unsafe { get_internal_gl() };
+    gl.quad_gl.push_model_matrix(
+        Mat4::from_translation(vec3(origin.x, origin.y, 0.0)) * Mat4::from_scale(vec3(k, k, 1.0)),
+    );
+    let is_wall = |x: i32, y: i32| y == 0 && (-1..6).contains(&x);
+    let is_floor = |x: i32, y: i32| (1..4).contains(&y) && (-1..6).contains(&x);
+    for y in 1..4 {
+        for x in 0..5 {
+            draw_floor("floor_wood", vec2(x as f32, y as f32 - 1.0));
+        }
+    }
+    for x in 0..5 {
+        let m = WallMask::compute(x, 0, is_wall, is_floor);
+        let kind = if x == 2 {
+            WallKind::Window
+        } else {
+            WallKind::Plain
+        };
+        draw_wall(vec2(x as f32, -1.0), m, kind);
+    }
+    let st = FurnitureState {
+        active: true,
+        t,
+        ..Default::default()
+    };
+    let chair = FurnitureState {
+        facing: crate::render::Facing::Right,
+        ..st
+    };
+    draw_furniture(&sprite("plant_tall"), vec2(0.1, -0.35) * TILE, (1, 1), &st);
+    draw_furniture(&sprite("chair"), vec2(1.1, -0.05) * TILE, (1, 1), &chair);
+    draw_furniture(&sprite("table_round"), vec2(2.0, -0.05) * TILE, (1, 1), &st);
+    draw_furniture(&sprite("floor_lamp"), vec2(3.2, -0.4) * TILE, (1, 1), &st);
+    draw_furniture(&sprite("armchair"), vec2(4.0, -0.05) * TILE, (1, 1), &st);
     gl.quad_gl.pop_model_matrix();
 }

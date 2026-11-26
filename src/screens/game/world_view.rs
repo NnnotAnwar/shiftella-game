@@ -160,9 +160,24 @@ pub fn staff_doing(loc: &Locale, s: &Staff) -> String {
     }
 }
 
-/// Text for a log / bot / toast key with string args.
+/// Text for a log / bot / toast key with string args. Arg values that are i18n keys
+/// (`regular.mirek.name`, `recipe.r_chai.name` — the sim's own args) are translated too.
 pub fn tr_args(loc: &Locale, key: &str, args: &[(String, String)]) -> String {
-    let a: Vec<(&str, &str)> = args.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    let owned: Vec<(String, String)> = args
+        .iter()
+        .map(|(k, v)| {
+            let v = if v.contains('.') && !v.contains(' ') && loc.has(v) {
+                loc.tr_owned(v)
+            } else {
+                v.clone()
+            };
+            (k.clone(), v)
+        })
+        .collect();
+    let a: Vec<(&str, &str)> = owned
+        .iter()
+        .map(|(k, v)| (k.as_str(), v.as_str()))
+        .collect();
     loc.trf(key, &a)
 }
 
@@ -198,6 +213,17 @@ pub fn sandbox_setup(s: &crate::screens::menu::SandboxSetup) -> sim::SandboxSetu
         start_money: Some(s.start_money),
         institutions: None,
         options,
+    }
+}
+
+/// One guest of an archetype ("Traveller", not "Travellers"): `guest.<archetype>.one`,
+/// falling back to the archetype's plural name.
+pub fn guest_one(loc: &Locale, archetype: &str) -> String {
+    let one = format!("guest.{archetype}.one");
+    if loc.has(&one) {
+        loc.tr_owned(&one)
+    } else {
+        loc.tr_owned(&format!("guest.{archetype}.name"))
     }
 }
 

@@ -10,10 +10,18 @@ use crate::ui::{Align, Button, Glass, Icon, RectExt, Ui, draw_icon};
 use sim::Mode;
 
 pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
-    if matches!(
-        g.panel,
-        Some(super::Panel::App | super::Panel::Duties | super::Panel::Build)
-    ) {
+    if g.hands.book.is_some()
+        || matches!(
+            g.panel,
+            Some(
+                super::Panel::App
+                    | super::Panel::Duties
+                    | super::Panel::Build
+                    | super::Panel::Journal
+                    | super::Panel::Payroll
+            )
+        )
+    {
         // keep the screen clear for the big panels; the Start button lives in the dock row
         start_button_only(g, ui, cx);
         return;
@@ -192,14 +200,27 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             ui.fonts
                 .draw(loc.tr("ui.plan.regulars"), c.x, y + 12.0, &t.micro());
             y += 18.0;
+            // at most two rows of chips; the rest fold into "+n" (the card has a fixed height)
             let mut x = c.x;
-            for n in regs {
-                let cw = ui.chip_width(&n, true);
-                if x + cw > c.right() {
+            let mut row = 0;
+            let total = regs.len();
+            for (i, n) in regs.iter().enumerate() {
+                let cw = ui.chip_width(n, true);
+                let more_w = ui.chip_width("+9", false) + 6.0;
+                let last_row = row == 1;
+                let fits = x + cw <= c.right()
+                    && (!last_row || i + 1 == total || x + cw + more_w <= c.right());
+                if !fits {
+                    if last_row {
+                        let rest = format!("+{}", total - i);
+                        ui.chip(vec2(x, y), &rest, crate::ui::Tone::Neutral, None);
+                        break;
+                    }
                     x = c.x;
                     y += 26.0;
+                    row += 1;
                 }
-                let r = ui.chip(vec2(x, y), &n, crate::ui::Tone::Accent, Some(Icon::Heart));
+                let r = ui.chip(vec2(x, y), n, crate::ui::Tone::Accent, Some(Icon::Heart));
                 x = r.right() + 6.0;
             }
             y += 30.0;
@@ -309,10 +330,18 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     // dim the world a little
     let dim = ui.ease_value(ui.id("summary_dim"), 1.0, 0.25);
     draw_rectangle(0.0, 0.0, s.w, s.h, Color::new(0.03, 0.02, 0.08, 0.45 * dim));
-    let (w, h) = (440.0, 430.0);
+    // the night's polaroid develops beside the numbers (pick one of the three)
+    let photo = g.world.pending_polaroids().is_some();
+    let pw = if photo { 300.0 } else { 0.0 };
+    let (w, h) = (440.0 + pw, 430.0_f32.min(s.h - 24.0));
     let pr = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0 - 10.0, w, h);
     ui.glass(pr, &Glass::panel().radius(14.0));
-    let c = pr.inset(22.0);
+    let c = Rect::new(pr.x, pr.y, 440.0, pr.h).inset(22.0);
+    if photo {
+        let area = Rect::new(pr.x + 440.0 - 6.0, pr.y + 16.0, pw - 16.0, pr.h - 32.0);
+        crate::ui::draw::vline(area.x - 6.0, pr.y + 22.0, pr.bottom() - 22.0, t.divider);
+        super::journal_ui::morning_pick(g, ui, cx, area);
+    }
     draw_icon(Icon::Sun, vec2(c.x + 10.0, c.y + 12.0), 20.0, t.amber);
     ui.fonts.draw(
         &loc.trf("ui.summary.title", &[("night", &sm.night.to_string())]),
@@ -482,6 +511,7 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         )
         .clicked
     {
+        super::journal_ui::keep_morning(g, cx.content);
         g.summary = None;
     }
     let _ = wv::clock_of_minute(0);

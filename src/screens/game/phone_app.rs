@@ -73,7 +73,7 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let c = out.content.inset(4.0);
     ui.push_clip(out.content);
     match g.ui_state.app_tab {
-        0 => schedule(g, ui, cx, c),
+        0 => super::app_tool::rozpis_tab(g, ui, cx, c),
         1 => requests(g, ui, cx, c),
         2 => messages(g, ui, cx, c),
         3 => board(g, ui, cx, c),
@@ -133,6 +133,8 @@ fn empty(ui: &mut Ui, r: Rect, loc: &Locale) {
     );
 }
 
+/// The old plain rozpis grid (kept for reference; the tab shows the rozpis puzzle).
+#[allow(dead_code)]
 fn schedule(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     let t = ui.theme.clone();
     let loc = cx.loc;
@@ -417,6 +419,10 @@ fn status_chip(ui: &mut Ui, loc: &Locale, pos: Vec2, s: RequestStatus) {
     ui.chip(pos, loc.tr(k), tone, None);
 }
 
+fn card_h_early() -> f32 {
+    74.0
+}
+
 fn requests(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     let t = ui.theme.clone();
     let loc = cx.loc;
@@ -436,8 +442,68 @@ fn requests(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     for s in app.time_off.iter().rev() {
         items.push((false, s.id));
     }
-    if items.is_empty() {
+    let early: Vec<sim::EarlyLeaveRequest> = g.world.early_leave_requests().to_vec();
+    if items.is_empty() && early.is_empty() {
         empty(ui, r, &loc);
+        return;
+    }
+    // "Can I go at 2?" — tonight's early-leave requests first
+    let early_h = early.len() as f32 * (card_h_early() + 8.0);
+    let mut ey = r.y;
+    for e in early.iter().rev() {
+        let cr = Rect::new(r.x, ey, r.w - 10.0, card_h_early());
+        ey += card_h_early() + 8.0;
+        ui.glass(cr, &Glass::card().tint(t.amber));
+        let c = cr.inset(12.0);
+        crate::ui::draw_icon(Icon::Clock, vec2(c.x + 9.0, c.y + 8.0), 16.0, t.amber);
+        let txt = loc.trf(
+            "app.request.early_leave",
+            &[
+                ("name", &name(e.staff)),
+                ("time", &wv::clock_of_minute(e.minute)),
+            ],
+        );
+        ui.fonts.draw_in(
+            &txt,
+            Rect::new(c.x + 24.0, c.y, c.w - 130.0, 18.0),
+            &t.strong(),
+            Align::Left,
+        );
+        status_chip(ui, &loc, vec2(c.right() - 100.0, c.y - 2.0), e.status);
+        if e.status == RequestStatus::Pending {
+            let br = Rect::new(c.x + 24.0, c.bottom() - 26.0, (c.w - 24.0).min(300.0), 26.0);
+            let (a, b) = br.split_left(br.w / 2.0 - 3.0, 6.0);
+            let ok = ui
+                .button(
+                    ("early_ok", e.id),
+                    a,
+                    &Button::new(loc.tr("app.bot.early_leave.action.approve"))
+                        .primary()
+                        .icon(Icon::Check),
+                )
+                .clicked;
+            let no = ui
+                .button(
+                    ("early_no", e.id),
+                    b,
+                    &Button::new(loc.tr("app.bot.early_leave.action.decline")).ghost(),
+                )
+                .clicked;
+            if (ok || no)
+                && let Err(err) = g.command(
+                    content,
+                    Command::AnswerEarlyLeave {
+                        id: e.id,
+                        approve: ok,
+                    },
+                )
+            {
+                super::panels::command_error(g, &loc, &err);
+            }
+        }
+    }
+    let r = Rect::new(r.x, r.y + early_h, r.w, (r.h - early_h).max(0.0));
+    if items.is_empty() {
         return;
     }
     let card_h = 92.0;
@@ -495,6 +561,23 @@ fn requests(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             Align::Left,
         );
         status_chip(ui, &loc, vec2(c.right() - 100.0, c.y - 2.0), status);
+        // why they ask (a life event, a Need the draft breaks)
+        let reason = g
+            .world
+            .request_meta(id)
+            .and_then(|m| m.reason_key.clone())
+            .map(|k| {
+                let who = g
+                    .world
+                    .request_meta(id)
+                    .map(|m| name(m.staff))
+                    .unwrap_or_default();
+                loc.trf(&k, &[("name", &who), ("day", &when), ("time", "02:00")])
+            });
+        let when = match reason {
+            Some(r) => format!("{when} · {r}"),
+            None => when,
+        };
         ui.fonts.draw_in(
             &when,
             Rect::new(c.x + 24.0, c.y + 20.0, c.w - 24.0, 16.0),
@@ -602,13 +685,18 @@ fn messages(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
                 };
                 let bw = ui.button_width(&b);
                 if ui.button(("bot", m.id, i), fr.next(bw), &b).clicked {
-                    let _ = g.command(
+                    // a button that can't act now says so; the message stays open
+                    if let Err(e) = g.command(
                         content,
                         Command::BotAction {
                             msg: m.id,
                             action: a.id.clone(),
                         },
-                    );
+                    ) {
+                        super::panels::command_error(g, &loc, &e);
+                    } else {
+                        g.hands.tut.bump("bot_button");
+                    }
                 }
             }
         } else if let Some(a) = &m.answered {
@@ -731,7 +819,16 @@ fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     // handover
     ui.section(right.with_h(24.0), loc.tr("ui.app.tab.handover"));
     let mut y = right.y + 30.0;
-    if let Some(h) = app.handovers.last() {
+    // at closing: pick up to two notes for tomorrow (each does something next night)
+    let picked = super::app_tool::handover_picker(
+        g,
+        ui,
+        cx,
+        Rect::new(right.x, y, right.w, right.h - 110.0),
+    );
+    if picked > 0.0 {
+        y += picked + 6.0;
+    } else if let Some(h) = app.handovers.last() {
         let cr = Rect::new(right.x, y, right.w, right.h - 120.0);
         ui.glass(cr, &Glass::card());
         let c = cr.inset(12.0);
@@ -870,7 +967,18 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             let who = st
                 .and_then(|s| s.by)
                 .and_then(|id| g.world.staff_by_id(id))
-                .map(|s| wv::staff_name(&loc, s));
+                .map(|s| wv::staff_name(&loc, s))
+                .or_else(|| {
+                    // not done yet: whose it is (yours, or a helper with that duty)
+                    (!checked).then(|| match it.owner() {
+                        crate::content::handson::ChecklistOwner::Karolina => {
+                            loc.tr_owned("ui.rail.karolina")
+                        }
+                        crate::content::handson::ChecklistOwner::Either(d) => {
+                            format!("{} · {}", loc.tr("ui.rail.karolina"), loc.tr(&d.name_key()))
+                        }
+                    })
+                });
             let label = loc.tr_owned(&format!("app.checklist.{}", it.id));
             let was = checked;
             ui.check_item(
@@ -951,11 +1059,43 @@ fn digest(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             None,
         ) + if i == 0 { 16.0 } else { 8.0 };
     }
+    // the insights: what last night says about the next one, each with a link
+    let room = c.bottom() - y - 4.0;
+    if room > 40.0 {
+        super::app_tool::insights(g, ui, cx, Rect::new(c.x, y + 4.0, c.w, room));
+    }
+}
+
+/// The payroll decision screen (opened from the tab, a digest link or a bot button).
+pub fn payroll_panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
+    super::app_tool::payroll_panel(g, ui, cx);
 }
 
 fn payroll(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     let t = ui.theme.clone();
     let loc = cx.loc;
+    // the decision lives on its own screen; the tab keeps the summary and opens it
+    if g.world.app().payroll.last().is_some() {
+        let sent = g
+            .world
+            .app()
+            .payroll
+            .last()
+            .is_some_and(|w| g.world.payroll_sent(w.week));
+        let b = Button::new(loc.tr(if sent {
+            "ui.payroll.open_sent"
+        } else {
+            "ui.payroll.open"
+        }))
+        .primary()
+        .icon(Icon::FileExport);
+        let bw = ui.button_width(&b);
+        let br = Rect::new(r.right() - bw - 12.0, r.bottom() - 34.0, bw, 28.0);
+        if ui.button("payroll_open", br, &b).clicked {
+            g.panel = Some(super::Panel::Payroll);
+        }
+    }
+    let r = Rect::new(r.x, r.y, r.w, r.h - 36.0);
     let Some(week) = g.world.app().payroll.last().cloned() else {
         ui.fonts.draw_in(
             loc.tr("ui.app.payroll_empty"),

@@ -115,8 +115,8 @@ impl GameScreen {
         if !p.active {
             return;
         }
-        // past the first night (a loaded save, a long night): done
-        if self.world.night() > 1 {
+        // past the coach marks' last night (a loaded save): done
+        if self.world.night() > super::coach::LAST_NIGHT {
             self.finish_tutorial(cx);
             return;
         }
