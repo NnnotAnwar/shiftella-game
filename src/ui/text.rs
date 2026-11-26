@@ -17,12 +17,14 @@ use super::draw::{faded, snap};
 ///
 /// macroquad caches glyphs lazily (on the first `draw_text_ex` / `measure_text` of a
 /// character at a size) in one atlas texture per font. When a new glyph does not fit, the
-/// atlas doubles: the old texture is deleted and every glyph quad of that font already
-/// batched this frame — even earlier glyphs of the same string — samples a dead texture and
-/// renders as a black box (the "black boxes in Russian captions" bug: Cyrillic at the
-/// handwritten sizes was often what overflowed the atlas). [`GlyphCache::prepare`] caches a
-/// string's new glyphs *before* it is measured or drawn, after flushing what is batched so
-/// far, so the atlas only ever grows between batches.
+/// atlas doubles and its GL texture is replaced. [`GlyphCache::prepare`] caches a string's new
+/// glyphs *before* it is measured or drawn, after flushing what is batched so far, so the
+/// atlas only ever grows between batches.
+///
+/// The black boxes in the Russian UI were a miniquad bug on top of this (a stale texture
+/// binding cache when the replaced texture's GL name was reused); it is fixed, and the old
+/// texture is now kept alive until the end of the frame, in `vendor/miniquad` (see
+/// `vendor/README.md`). This cache stays as the cheap first line of defence.
 #[derive(Default)]
 pub struct GlyphCache {
     /// Cached characters per raster size (physical pixels, as macroquad keys them).
