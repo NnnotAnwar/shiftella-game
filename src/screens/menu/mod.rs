@@ -281,6 +281,7 @@ impl MainMenu {
 
     /// Draws the live background and the current page. Returns an action when one is chosen.
     pub fn draw(&mut self, ui: &mut Ui, i18n: &I18n, host: &dyn MenuHost) -> Option<MenuAction> {
+        self.backdrop.set_lang(self.settings.lang());
         self.backdrop.draw();
         ui.set_camera();
         let loc = Locale::new(i18n, self.settings.lang());
