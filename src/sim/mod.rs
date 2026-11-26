@@ -20,6 +20,7 @@ mod knowledge;
 mod logic;
 mod moments;
 mod music;
+mod names;
 mod narrator;
 mod orders;
 mod pacing;
@@ -41,6 +42,8 @@ mod tests_balance;
 #[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
+mod tests_names;
+#[cfg(test)]
 mod tests_prep;
 #[cfg(test)]
 mod tests_qa;
@@ -54,6 +57,7 @@ pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;
 pub use moments::CatView;
+pub use names::{Extra, Garment, Persona, StrangerLook, stranger_look};
 pub use orders::PLAIN_CREDIT;
 pub use player::{MOP_AMOUNT, WASH_PER_SECOND};
 pub use staff::FIRST_HIRE_NIGHT;

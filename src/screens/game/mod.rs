@@ -12,6 +12,7 @@ pub mod coach;
 mod day;
 mod duties;
 mod extras_ui;
+mod guest_label;
 pub mod hands;
 mod hands_ui;
 mod hands_view;
@@ -667,6 +668,7 @@ impl GameScreen {
         };
         self.hands_event(content, &e);
         self.extras_event(content, &e);
+        self.names_event(&e, loc);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;
@@ -1971,8 +1973,14 @@ mod capitalize_tests {
 
     #[test]
     fn toast_body_starts_with_a_capital_in_every_language() {
-        assert_eq!(capitalize_first("say hello, take the order"), "Say hello, take the order");
-        assert_eq!(capitalize_first("pozdrav, vezmi objednávku"), "Pozdrav, vezmi objednávku");
+        assert_eq!(
+            capitalize_first("say hello, take the order"),
+            "Say hello, take the order"
+        );
+        assert_eq!(
+            capitalize_first("pozdrav, vezmi objednávku"),
+            "Pozdrav, vezmi objednávku"
+        );
         assert_eq!(capitalize_first("привітайся"), "Привітайся");
         assert_eq!(capitalize_first("поздоровайся"), "Поздоровайся");
         assert_eq!(capitalize_first("Already"), "Already");

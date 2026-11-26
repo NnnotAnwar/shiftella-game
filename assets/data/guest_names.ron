@@ -1,0 +1,162 @@
+// Strangers (non-regular guests): what they look like, how Karolina describes them until she
+// knows them, and the first names they tell her. Read by `src/sim/names.rs` (compiled in).
+//
+// * `female` / `male`: first names — [Latin (cs, en), Cyrillic (uk), optional Russian spelling].
+//   Names of regulars, story staff and the cast are left out on purpose (Hana, Vera, Bára, Ema…).
+// * `styles`: per guest archetype (`guests.ron` id): the share of women, of elderly guests, the
+//   tops and extras they wear (weights) and whole-phrase descriptions (`phrases`). A phrase may
+//   need a visible feature (`needs: Extra(FlatCap)` / `Top(Coat)`); it is only used when the
+//   guest really wears it. Generic phrases for every extra / top / elderly guest exist on top.
+//   Texts: `stranger.<phrase>.<f|m>` and `stranger.<phrase>.<f|m>.short` in
+//   `assets/i18n/src/guest_names.tr`.
+// * Earrings and hair clips are only ever drawn on women; elderly guests wear calm extras.
+#![enable(implicit_some)]
+(
+    female: [
+        ["Tereza", "Тереза"], ["Klára", "Клара"], ["Lenka", "Ленка"], ["Markéta", "Маркета"],
+        ["Eliška", "Елішка", "Элишка"], ["Zuzana", "Зузана"], ["Petra", "Петра"],
+        ["Barbora", "Барбора"], ["Simona", "Сімона", "Симона"], ["Adéla", "Адела"],
+        ["Oksana", "Оксана"], ["Olena", "Олена"], ["Daryna", "Дарина"],
+        ["Solomiya", "Соломія", "Соломия"], ["Yulia", "Юлія", "Юлия"], ["Kasia", "Кася"],
+        ["Magda", "Магда"], ["Agata", "Агата"], ["Lena", "Лена"], ["Greta", "Грета"],
+        ["Linh", "Лінь", "Линь"], ["Lan", "Лан"], ["Ruby", "Рубі", "Руби"],
+        ["Sofie", "Софі", "Софи"], ["Ines", "Інес", "Инес"], ["Nora", "Нора"],
+        ["Mila", "Міла", "Мила"], ["Lucia", "Луція", "Луция"], ["Zora", "Зора"], ["Maja", "Мая"],
+    ],
+    male: [
+        ["Tomáš", "Томаш"], ["Ondřej", "Ондржей"], ["Matěj", "Матей"], ["Lukáš", "Лукаш"],
+        ["Vojta", "Войта"], ["Jiří", "Їржі", "Иржи"], ["Pavel", "Павел"], ["Marek", "Марек"],
+        ["Petr", "Петр"], ["Adam", "Адам"], ["Dominik", "Домінік", "Доминик"],
+        ["Taras", "Тарас"], ["Bohdan", "Богдан"], ["Ostap", "Остап"], ["Mykola", "Микола"],
+        ["Dmytro", "Дмитро"], ["Wojtek", "Войтек"], ["Bartek", "Бартек"], ["Jonas", "Йонас"],
+        ["Felix", "Фелікс", "Феликс"], ["Minh", "Мінь", "Минь"], ["Nam", "Нам"],
+        ["Leon", "Леон"], ["Oskar", "Оскар"], ["Sam", "Сем", "Сэм"], ["Theo", "Тео"],
+        ["Karim", "Карім", "Карим"], ["Emil", "Еміль", "Эмиль"], ["Juraj", "Юрай"],
+        ["Matúš", "Матуш"],
+    ],
+    styles: [
+        (
+            id: "default", female: 0.5, elder: 0.1,
+            tops: [(Jacket, 3), (Coat, 2), (Sweater, 2), (Hoodie, 1), (Shirt, 1), (Tee, 1), (Cardigan, 1)],
+            extras: [(Nothing, 4), (Glasses, 2), (Scarf, 2), (Beanie, 1), (Headphones, 1), (FlatCap, 1), (Hat, 1), (Earrings, 1), (Hairclip, 1)],
+            phrases: [],
+        ),
+        (
+            id: "travelers", female: 0.5, elder: 0.12,
+            tops: [(Coat, 4), (Jacket, 3), (Sweater, 2), (Hoodie, 1)],
+            extras: [(Nothing, 3), (Scarf, 2), (Beanie, 2), (Glasses, 1), (Headphones, 1), (Hat, 1), (Earrings, 1)],
+            phrases: [
+                (id: "traveler_train"),
+                (id: "traveler_connection"),
+                (id: "traveler_coat", needs: Top(Coat)),
+                (id: "traveler_beanie", needs: Extra(Beanie)),
+            ],
+        ),
+        (
+            id: "taxi_drivers", female: 0.3, elder: 0.08,
+            tops: [(Jacket, 5), (Sweater, 2), (Shirt, 2)],
+            extras: [(FlatCap, 4), (Nothing, 3), (Glasses, 1), (Scarf, 1)],
+            phrases: [
+                (id: "taxi_break"),
+                (id: "taxi_last"),
+                (id: "taxi_cap", needs: Extra(FlatCap)),
+            ],
+        ),
+        (
+            id: "nurses", female: 0.7, elder: 0.03,
+            tops: [(Scrubs, 7), (Cardigan, 2), (Coat, 1)],
+            extras: [(Nothing, 4), (Glasses, 2), (Hairclip, 2), (Scarf, 1)],
+            phrases: [
+                (id: "nurse_shift"),
+                (id: "nurse_break"),
+                (id: "nurse_scrubs", needs: Top(Scrubs)),
+            ],
+        ),
+        (
+            id: "students", female: 0.5, elder: 0.0,
+            tops: [(Hoodie, 5), (Sweater, 2), (Tee, 2), (Jacket, 1)],
+            extras: [(Headphones, 4), (Nothing, 3), (Glasses, 2), (Beanie, 2), (Earrings, 1)],
+            phrases: [
+                (id: "student_exam"),
+                (id: "student_headphones", needs: Extra(Headphones)),
+                (id: "student_hoodie", needs: Top(Hoodie)),
+            ],
+        ),
+        (
+            id: "insomniacs", female: 0.5, elder: 0.35,
+            tops: [(Cardigan, 4), (Sweater, 3), (Coat, 2)],
+            extras: [(Glasses, 3), (Scarf, 3), (Nothing, 3), (Hat, 1)],
+            phrases: [
+                (id: "insomniac"),
+                (id: "insomniac_cardigan", needs: Top(Cardigan)),
+                (id: "insomniac_scarf", needs: Extra(Scarf)),
+            ],
+        ),
+        (
+            id: "train_crew", female: 0.4, elder: 0.05,
+            tops: [(Jacket, 5), (Shirt, 3), (Coat, 1)],
+            extras: [(Nothing, 4), (Glasses, 1), (Scarf, 1), (FlatCap, 1)],
+            phrases: [
+                (id: "conductor"),
+                (id: "attendant"),
+            ],
+        ),
+        (
+            id: "drone_operators", female: 0.4, elder: 0.0,
+            tops: [(Jacket, 4), (Hoodie, 3), (Tee, 1)],
+            extras: [(Headphones, 4), (Nothing, 3), (Glasses, 2), (Beanie, 1)],
+            phrases: [
+                (id: "drone_break"),
+                (id: "drone_headphones", needs: Extra(Headphones)),
+            ],
+        ),
+        (
+            id: "shift_workers", female: 0.35, elder: 0.03,
+            tops: [(Jacket, 5), (Hoodie, 2), (Sweater, 2)],
+            extras: [(Nothing, 4), (Beanie, 3), (Glasses, 1), (FlatCap, 1)],
+            phrases: [
+                (id: "depot"),
+                (id: "depot_shift"),
+                (id: "depot_beanie", needs: Extra(Beanie)),
+            ],
+        ),
+        (
+            id: "clubbers", female: 0.5, elder: 0.0,
+            tops: [(Jacket, 4), (Tee, 2), (Shirt, 2), (Hoodie, 1)],
+            extras: [(Nothing, 3), (Earrings, 3), (Headphones, 2), (Hat, 1), (Glasses, 1)],
+            phrases: [
+                (id: "concert"),
+                (id: "concert_earrings", needs: Extra(Earrings)),
+                (id: "concert_hat", needs: Extra(Hat)),
+            ],
+        ),
+        (
+            id: "patrol", female: 0.4, elder: 0.0,
+            tops: [(Jacket, 6), (Coat, 2)],
+            extras: [(Nothing, 4), (Glasses, 1), (Scarf, 1)],
+            phrases: [
+                (id: "patrol"),
+                (id: "patrol_coffee"),
+            ],
+        ),
+        (
+            id: "truckers", female: 0.2, elder: 0.1,
+            tops: [(Jacket, 5), (Sweater, 2), (Shirt, 1)],
+            extras: [(FlatCap, 3), (Nothing, 3), (Beanie, 2), (Glasses, 1)],
+            phrases: [
+                (id: "trucker"),
+                (id: "trucker_self_driving"),
+                (id: "trucker_cap", needs: Extra(FlatCap)),
+            ],
+        ),
+        (
+            id: "night_wanderer", female: 0.5, elder: 0.2,
+            tops: [(Coat, 6), (Cardigan, 1)],
+            extras: [(Nothing, 3), (Scarf, 2), (Hat, 2)],
+            phrases: [
+                (id: "wanderer"),
+                (id: "wanderer_hat", needs: Extra(Hat)),
+            ],
+        ),
+    ],
+)

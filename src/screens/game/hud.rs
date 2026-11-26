@@ -474,7 +474,7 @@ pub fn guest_line(g: &GameScreen, content: &Content, guest: u32, loc: &Locale) -
         return String::new();
     };
     let _ = content;
-    let name = wv::guest_one(loc, &p.archetype);
+    let name = super::guest_label::party_label(w, loc, guest);
     use sim::PartyState as S;
     let state = match p.state {
         S::Queue | S::WaitOrder => loc.tr_owned("ui.guest.waiting"),

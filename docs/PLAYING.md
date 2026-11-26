@@ -154,6 +154,14 @@ something to tell you tonight, a **Talk** button appears.
 Mirek, Hana, Vera, Filip, Radek, Lori and the quiet guest of 3:33 each have a small story
 over the month. Serve them well and in time, keep their seat free, keep the place clean.
 
+**Strangers** are everyone else — travellers, nurses, cabbies, students… You don't know
+them yet, so they are shown by what you see: "Woman in a flat cap", "Student in headphones",
+"Elderly gentleman in a hat" (the ticket rail shows a 1–2 word form, hover a ticket for the
+whole one). Wave at them when they come in, or serve them a cup made by your own hands, and
+they tell you their name ("I'm Tereza, thank you!"): from then on the bubble, the rail, the
+order card and the night log (L) use it. A group reads "Tereza + 2". Strangers don't come
+back on another night — tomorrow brings new faces. Regulars are always known by name.
+
 ## The Shiftella app (T)
 
 Everything in the app does something tonight or tomorrow. While the phone is open at night,

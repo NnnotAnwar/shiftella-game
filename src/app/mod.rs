@@ -8,7 +8,8 @@
 //! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|build|crew|app|
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
-//!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day`
+//!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
+//!   guest_names`
 //!   (hands-on scenes are played to their moment by the autoplayer;
 //!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
 //!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
@@ -418,6 +419,18 @@ impl App {
                 if name == "book" {
                     g.open_book(None);
                 }
+                self.game(g)
+            }
+            // 0.2 E: strangers by description, then by name (an unknown one's card + bubble)
+            "guest_names" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let mut g = story_at(night.unwrap_or(8), Some(0), &self.i18n, lang);
+                let until = minute.unwrap_or(150);
+                // stop at the first moment past `until` with someone she doesn't know yet
+                g.play_headless(&content, &loc, 1500.0, &move |g| {
+                    g.world.minutes_since_open() >= until && !g.unknown_strangers().is_empty()
+                });
+                g.show_strangers(&content, &loc);
                 self.game(g)
             }
             // T8: the world's systems, each played to its moment

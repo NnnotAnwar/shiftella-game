@@ -128,7 +128,7 @@ Audio/UI: `GuestArrived`, `GuestTurnedAway`, `GuestLeft`, `OrderTaken`, `OrderRe
 `ChoiceResolved`, `EventHint` (Foresight), `Toast { key }`, `Hint { key }`, `BotMessage { msg, template,
 key: "app.bot.<t>", args }`, `Speech { speaker, agent, key }` (beat lines, arc lines on arrival),
 `PlayCutscene`, `EndingReached`, `NoteFound`, `ItemGained/Lost`, `FlagSet`, `RegularArrived`, `ArcAdvanced`,
-`ClockStop`, `DoorsOpened { early_minutes }` (22:00, the preparation is over), `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`,
+`ClockStop`, `GuestIntroduced { guest, key }` (§11), `DoorsOpened { early_minutes }` (22:00, the preparation is over), `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`,
 `MenuUnlocked`, `FurnitureUnlocked`, `FurniturePlaced/Removed`, `DayStarted`, `NightStarted`, `NightEnded`.
 
 Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order card),
@@ -458,3 +458,35 @@ polaroid, counts the jar, buys / switches themes, auto-fills on Mondays, answers
 buttons, ticks checklists nobody else does, picks specials, books payroll (`thrifty` keeps money
 comparable). `sim_balance` prints a T5 line (moments per night, two-open check, journal
 completeness, per-system counts). `--thrifty` for money comparisons.
+
+## 11. Strangers: a description, then a name (`sim::names`, design/v0.2.md §E)
+
+Every non-regular guest gets `Guest.persona: Option<Persona>` at spawn (`#[serde(default)]`;
+regulars and story guests keep `None`):
+`Persona { female, elder, name /* Latin, cs/en */, name_uk, name_ru, desc, alt, known }`.
+`world.persona(guest)`; `persona.name_in(lang_code)`, `desc_key()` → `stranger.<desc>.<f|m>`,
+`short_key()` / `alt_short_key()` → the rail's 1–2 word form (the plain visual one when the
+phrase's doesn't fit).
+
+* **Deterministic, no balance effect:** everything is derived from the guest's `look_seed`
+  (already drawn at spawn) through a local SplitMix stream — no draws from the world RNG, so
+  `sim_headless` numbers are unchanged. Names already used by tonight's guests are skipped
+  while the pool allows.
+* **The look matches:** `sim::stranger_look(seed, archetype) -> StrangerLook { female, elder,
+  top: Garment, extra: Extra, bits }` is pure; the screens dress `PersonLook::random(seed)`
+  with it (`screens::game::guest_label::stranger_look`: hair / beard by presentation, grey hair
+  when elderly, the top and the extra), so "a woman in a flat cap" is drawn as one. Women-only
+  extras (earrings, hair clip), calm extras and no hoodies / T-shirts for elderly guests,
+  scrubs for nurses only. Data: `assets/data/guest_names.ron` (styles per archetype, phrases
+  that `needs` a visible feature, name pools).
+* **Getting to know them:** `World::emit` watches `PlayerGreeted { guest }` (a wave) and
+  `PlayerServed { guest }` (only Karolina's own items) → `persona.known = true` and
+  `SimEvent::GuestIntroduced { guest, key: "stranger.intro.<greet|serve>.<n>" }` (once; the
+  line has `{name}`). Helpers serving never introduce; `Talk` is for regulars only.
+* **Saves:** a guest loaded without a persona (0.1.x saves, the v1 fixtures) gets one in
+  `World::load_from_str` (not yet known). Strangers never come back on another night.
+* UI: `screens::game::guest_label::{label, party_label ("Tereza + 2"), rail_label}`; the
+  introduction bubble (appended to a reaction shown at the same moment) and a night-log line
+  `stranger.log.met`. Scene for shots: `SHIFTELLA_SCENE=guest_names` (night 8, played by the
+  autoplayer to `SHIFTELLA_TIME`, then an unknown stranger's card and a pinned bubble).
+  Tests: `src/sim/tests_names.rs`, `guest_label::tests`.

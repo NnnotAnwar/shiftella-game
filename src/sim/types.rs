@@ -727,6 +727,12 @@ pub enum SimEvent {
     TutorialEffects {
         id: String,
     },
+    /// A stranger told Karolina their name (greeted / served by her): the bubble line
+    /// `key` = `stranger.intro.<greet|serve>.<n>` with `{name}` (`sim::names`).
+    GuestIntroduced {
+        guest: u32,
+        key: String,
+    },
 }
 
 /// Every player action.

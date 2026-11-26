@@ -94,14 +94,12 @@ fn guest_name(g: &GameScreen, loc: &Locale, guest: u32) -> (String, String) {
             let n = loc.tr_owned(&format!("regular.{r}.name"));
             (n.clone(), n)
         }
-        None => {
-            let arch = p.map(|p| p.archetype.clone()).unwrap_or_default();
-            (
-                super::world_view::guest_one(loc, &arch),
-                // a bounded set of face slots (each baked face is a small texture)
-                format!("#guest{}", guest % 32),
-            )
-        }
+        None => (
+            // a stranger: the description until Karolina knows them, then the name
+            super::guest_label::party_label(&g.world, loc, guest),
+            // a bounded set of face slots (each baked face is a small texture)
+            format!("#guest{}", guest % 32),
+        ),
     }
 }
 
@@ -261,7 +259,7 @@ fn rail(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         out.push(Ticket {
             id: *id,
             guest: face,
-            label: name.clone(),
+            label: super::guest_label::rail_label(ui, &g.world, &loc, t.guest),
             tooltip: format!("{name} · {stage} · {who}"),
             item,
             owner,

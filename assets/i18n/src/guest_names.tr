@@ -1,0 +1,1387 @@
+# Strangers (non-regular guests) — design/v0.2.md §E, `src/sim/names.rs`.
+# Until Karolina knows a stranger they are shown by a description: `stranger.<phrase>.<f|m>`
+# (whole phrases — never glued — with the grammar of the presentation) and a 1–2 word
+# `….short` for the ticket rail (the visual short form stands in when it doesn't fit).
+# Descriptions are labels: capitalised, no article. No colour words (the look decides them).
+
+# Visible extras
+
+stranger.x_glasses.f
+cs Žena v brýlích
+en Woman in glasses
+uk Жінка в окулярах
+ru Женщина в очках
+
+stranger.x_glasses.f.short
+cs V brýlích
+en In glasses
+uk В окулярах
+ru В очках
+
+stranger.x_glasses.m
+cs Muž v brýlích
+en Man in glasses
+uk Чоловік в окулярах
+ru Мужчина в очках
+
+stranger.x_glasses.m.short
+cs V brýlích
+en In glasses
+uk В окулярах
+ru В очках
+
+stranger.x_scarf.f
+cs Žena v šále
+en Woman in a scarf
+uk Жінка в шарфі
+ru Женщина в шарфе
+
+stranger.x_scarf.f.short
+cs V šále
+en In a scarf
+uk У шарфі
+ru В шарфе
+
+stranger.x_scarf.m
+cs Muž v šále
+en Man in a scarf
+uk Чоловік у шарфі
+ru Мужчина в шарфе
+
+stranger.x_scarf.m.short
+cs V šále
+en In a scarf
+uk У шарфі
+ru В шарфе
+
+stranger.x_beanie.f
+cs Žena v kulichu
+en Woman in a bobble hat
+uk Жінка в шапці з помпоном
+ru Женщина в шапке с помпоном
+
+stranger.x_beanie.f.short
+cs V kulichu
+en Bobble hat
+uk У шапці
+ru В шапке
+
+stranger.x_beanie.m
+cs Muž v kulichu
+en Man in a bobble hat
+uk Чоловік у шапці з помпоном
+ru Мужчина в шапке с помпоном
+
+stranger.x_beanie.m.short
+cs V kulichu
+en Bobble hat
+uk У шапці
+ru В шапке
+
+stranger.x_headphones.f
+cs Žena se sluchátky
+en Woman in headphones
+uk Жінка в навушниках
+ru Женщина в наушниках
+
+stranger.x_headphones.f.short
+cs Sluchátka
+en Headphones
+uk Навушники
+ru Наушники
+
+stranger.x_headphones.m
+cs Muž se sluchátky
+en Man in headphones
+uk Чоловік у навушниках
+ru Мужчина в наушниках
+
+stranger.x_headphones.m.short
+cs Sluchátka
+en Headphones
+uk Навушники
+ru Наушники
+
+stranger.x_earrings.f
+cs Žena se zlatými náušnicemi
+en Woman with gold earrings
+uk Жінка із золотими сережками
+ru Женщина с золотыми серёжками
+
+stranger.x_earrings.f.short
+cs Náušnice
+en Earrings
+uk Сережки
+ru Серёжки
+
+stranger.x_earrings.m
+cs Muž se zlatými náušnicemi
+en Man with gold earrings
+uk Чоловік із золотими сережками
+ru Мужчина с золотыми серёжками
+
+stranger.x_earrings.m.short
+cs Náušnice
+en Earrings
+uk Сережки
+ru Серёжки
+
+stranger.x_flat_cap.f
+cs Žena v bekovce
+en Woman in a flat cap
+uk Жінка в кашкеті
+ru Женщина в кепке
+
+stranger.x_flat_cap.f.short
+cs V bekovce
+en Flat cap
+uk У кашкеті
+ru В кепке
+
+stranger.x_flat_cap.m
+cs Muž v bekovce
+en Man in a flat cap
+uk Чоловік у кашкеті
+ru Мужчина в кепке
+
+stranger.x_flat_cap.m.short
+cs V bekovce
+en Flat cap
+uk У кашкеті
+ru В кепке
+
+stranger.x_hat.f
+cs Žena v klobouku
+en Woman in a hat
+uk Жінка в капелюсі
+ru Женщина в шляпе
+
+stranger.x_hat.f.short
+cs V klobouku
+en In a hat
+uk У капелюсі
+ru В шляпе
+
+stranger.x_hat.m
+cs Muž v klobouku
+en Man in a hat
+uk Чоловік у капелюсі
+ru Мужчина в шляпе
+
+stranger.x_hat.m.short
+cs V klobouku
+en In a hat
+uk У капелюсі
+ru В шляпе
+
+stranger.x_hairclip.f
+cs Žena se sponkou ve vlasech
+en Woman with a hair clip
+uk Жінка із заколкою
+ru Женщина с заколкой
+
+stranger.x_hairclip.f.short
+cs Sponka
+en Hair clip
+uk Заколка
+ru Заколка
+
+stranger.x_hairclip.m
+cs Muž se sponkou ve vlasech
+en Man with a hair clip
+uk Чоловік із заколкою
+ru Мужчина с заколкой
+
+stranger.x_hairclip.m.short
+cs Sponka
+en Hair clip
+uk Заколка
+ru Заколка
+
+# Tops
+
+stranger.t_tee.f
+cs Žena v tričku
+en Woman in a T-shirt
+uk Жінка у футболці
+ru Женщина в футболке
+
+stranger.t_tee.f.short
+cs V tričku
+en T-shirt
+uk У футболці
+ru В футболке
+
+stranger.t_tee.m
+cs Muž v tričku
+en Man in a T-shirt
+uk Чоловік у футболці
+ru Мужчина в футболке
+
+stranger.t_tee.m.short
+cs V tričku
+en T-shirt
+uk У футболці
+ru В футболке
+
+stranger.t_sweater.f
+cs Žena ve svetru
+en Woman in a sweater
+uk Жінка у светрі
+ru Женщина в свитере
+
+stranger.t_sweater.f.short
+cs Ve svetru
+en Sweater
+uk У светрі
+ru В свитере
+
+stranger.t_sweater.m
+cs Muž ve svetru
+en Man in a sweater
+uk Чоловік у светрі
+ru Мужчина в свитере
+
+stranger.t_sweater.m.short
+cs Ve svetru
+en Sweater
+uk У светрі
+ru В свитере
+
+stranger.t_hoodie.f
+cs Žena v mikině
+en Woman in a hoodie
+uk Жінка в худі
+ru Женщина в худи
+
+stranger.t_hoodie.f.short
+cs V mikině
+en Hoodie
+uk У худі
+ru В худи
+
+stranger.t_hoodie.m
+cs Muž v mikině
+en Man in a hoodie
+uk Чоловік у худі
+ru Мужчина в худи
+
+stranger.t_hoodie.m.short
+cs V mikině
+en Hoodie
+uk У худі
+ru В худи
+
+stranger.t_shirt.f
+cs Žena v košili
+en Woman in a shirt
+uk Жінка в сорочці
+ru Женщина в рубашке
+
+stranger.t_shirt.f.short
+cs V košili
+en In a shirt
+uk У сорочці
+ru В рубашке
+
+stranger.t_shirt.m
+cs Muž v košili
+en Man in a shirt
+uk Чоловік у сорочці
+ru Мужчина в рубашке
+
+stranger.t_shirt.m.short
+cs V košili
+en In a shirt
+uk У сорочці
+ru В рубашке
+
+stranger.t_cardigan.f
+cs Žena v kardiganu
+en Woman in a cardigan
+uk Жінка в кардигані
+ru Женщина в кардигане
+
+stranger.t_cardigan.f.short
+cs V kardiganu
+en Cardigan
+uk У кардигані
+ru В кардигане
+
+stranger.t_cardigan.m
+cs Muž v kardiganu
+en Man in a cardigan
+uk Чоловік у кардигані
+ru Мужчина в кардигане
+
+stranger.t_cardigan.m.short
+cs V kardiganu
+en Cardigan
+uk У кардигані
+ru В кардигане
+
+stranger.t_jacket.f
+cs Žena v bundě
+en Woman in a jacket
+uk Жінка в куртці
+ru Женщина в куртке
+
+stranger.t_jacket.f.short
+cs V bundě
+en Jacket
+uk У куртці
+ru В куртке
+
+stranger.t_jacket.m
+cs Muž v bundě
+en Man in a jacket
+uk Чоловік у куртці
+ru Мужчина в куртке
+
+stranger.t_jacket.m.short
+cs V bundě
+en Jacket
+uk У куртці
+ru В куртке
+
+stranger.t_coat.f
+cs Žena v dlouhém kabátě
+en Woman in a long coat
+uk Жінка в довгому пальті
+ru Женщина в длинном пальто
+
+stranger.t_coat.f.short
+cs V kabátě
+en In a coat
+uk У пальті
+ru В пальто
+
+stranger.t_coat.m
+cs Muž v dlouhém kabátě
+en Man in a long coat
+uk Чоловік у довгому пальті
+ru Мужчина в длинном пальто
+
+stranger.t_coat.m.short
+cs V kabátě
+en In a coat
+uk У пальті
+ru В пальто
+
+stranger.t_scrubs.f
+cs Žena v nemocničním úboru
+en Woman in scrubs
+uk Жінка в медичному костюмі
+ru Женщина в медицинской форме
+
+stranger.t_scrubs.f.short
+cs V úboru
+en Scrubs
+uk У формі
+ru В форме
+
+stranger.t_scrubs.m
+cs Muž v nemocničním úboru
+en Man in scrubs
+uk Чоловік у медичному костюмі
+ru Мужчина в медицинской форме
+
+stranger.t_scrubs.m.short
+cs V úboru
+en Scrubs
+uk У формі
+ru В форме
+
+# Elderly guests
+
+stranger.elder.f
+cs Starší paní
+en Elderly lady
+uk Літня пані
+ru Пожилая дама
+
+stranger.elder.f.short
+cs Paní
+en Lady
+uk Пані
+ru Дама
+
+stranger.elder.m
+cs Starší pán
+en Elderly gentleman
+uk Літній пан
+ru Пожилой господин
+
+stranger.elder.m.short
+cs Pán
+en Gentleman
+uk Пан
+ru Господин
+
+stranger.elder_glasses.f
+cs Paní v brýlích
+en Elderly lady in glasses
+uk Бабуся в окулярах
+ru Бабушка в очках
+
+stranger.elder_glasses.f.short
+cs Paní
+en Lady
+uk Бабуся
+ru Бабушка
+
+stranger.elder_glasses.m
+cs Pán v brýlích
+en Elderly man in glasses
+uk Дідусь в окулярах
+ru Дедушка в очках
+
+stranger.elder_glasses.m.short
+cs Pán
+en Gentleman
+uk Дідусь
+ru Дедушка
+
+stranger.elder_scarf.f
+cs Paní v šále
+en Elderly lady in a scarf
+uk Бабуся в шарфі
+ru Бабушка в шарфе
+
+stranger.elder_scarf.f.short
+cs Paní
+en Lady
+uk Бабуся
+ru Бабушка
+
+stranger.elder_scarf.m
+cs Pán v šále
+en Elderly man in a scarf
+uk Дідусь у шарфі
+ru Дедушка в шарфе
+
+stranger.elder_scarf.m.short
+cs Pán
+en Gentleman
+uk Дідусь
+ru Дедушка
+
+stranger.elder_hat.f
+cs Paní v klobouku
+en Elderly lady in a hat
+uk Бабуся в капелюшку
+ru Бабушка в шляпке
+
+stranger.elder_hat.f.short
+cs Paní
+en Lady
+uk Бабуся
+ru Бабушка
+
+stranger.elder_hat.m
+cs Pán v klobouku
+en Old gentleman in a hat
+uk Дідусь у капелюсі
+ru Дедушка в шляпе
+
+stranger.elder_hat.m.short
+cs Pán
+en Gentleman
+uk Дідусь
+ru Дедушка
+
+stranger.elder_cap.f
+cs Paní v bekovce
+en Elderly lady in a flat cap
+uk Бабуся в кашкеті
+ru Бабушка в кепке
+
+stranger.elder_cap.f.short
+cs Paní
+en Lady
+uk Бабуся
+ru Бабушка
+
+stranger.elder_cap.m
+cs Pán v bekovce
+en Old man in a flat cap
+uk Дідусь у кашкеті
+ru Дедушка в кепке
+
+stranger.elder_cap.m.short
+cs Pán
+en Old man
+uk Дідусь
+ru Дедушка
+
+# Travellers
+
+stranger.traveler_train.f
+cs Cestující z nočního vlaku
+en Traveller off the night train
+uk Пасажирка з нічного потяга
+ru Пассажирка с ночного поезда
+
+stranger.traveler_train.f.short
+cs Cestující
+en Traveller
+uk Пасажирка
+ru Пассажирка
+
+stranger.traveler_train.m
+cs Cestující z nočního vlaku
+en Traveller off the night train
+uk Пасажир з нічного потяга
+ru Пассажир с ночного поезда
+
+stranger.traveler_train.m.short
+cs Cestující
+en Traveller
+uk Пасажир
+ru Пассажир
+
+stranger.traveler_connection.f
+cs Cestující na přestupu
+en Traveller between trains
+uk Пасажирка на пересадці
+ru Пассажирка на пересадке
+
+stranger.traveler_connection.f.short
+cs Cestující
+en Traveller
+uk Пасажирка
+ru Пассажирка
+
+stranger.traveler_connection.m
+cs Cestující na přestupu
+en Traveller between trains
+uk Пасажир на пересадці
+ru Пассажир на пересадке
+
+stranger.traveler_connection.m.short
+cs Cestující
+en Traveller
+uk Пасажир
+ru Пассажир
+
+stranger.traveler_coat.f
+cs Cestující v dlouhém kabátě
+en Traveller in a long coat
+uk Пасажирка в довгому пальті
+ru Пассажирка в длинном пальто
+
+stranger.traveler_coat.f.short
+cs Cestující
+en Traveller
+uk Пасажирка
+ru Пассажирка
+
+stranger.traveler_coat.m
+cs Cestující v dlouhém kabátě
+en Traveller in a long coat
+uk Пасажир у довгому пальті
+ru Пассажир в длинном пальто
+
+stranger.traveler_coat.m.short
+cs Cestující
+en Traveller
+uk Пасажир
+ru Пассажир
+
+stranger.traveler_beanie.f
+cs Cestující v kulichu
+en Traveller in a bobble hat
+uk Пасажирка в шапці з помпоном
+ru Пассажирка в шапке с помпоном
+
+stranger.traveler_beanie.f.short
+cs Cestující
+en Traveller
+uk Пасажирка
+ru Пассажирка
+
+stranger.traveler_beanie.m
+cs Cestující v kulichu
+en Traveller in a bobble hat
+uk Пасажир у шапці з помпоном
+ru Пассажир в шапке с помпоном
+
+stranger.traveler_beanie.m.short
+cs Cestující
+en Traveller
+uk Пасажир
+ru Пассажир
+
+# Taxi drivers
+
+stranger.taxi_break.f
+cs Taxikářka na pauze
+en Taxi driver on a break
+uk Таксистка на перерві
+ru Таксистка на перерыве
+
+stranger.taxi_break.f.short
+cs Taxikářka
+en Cabbie
+uk Таксистка
+ru Таксистка
+
+stranger.taxi_break.m
+cs Taxikář na pauze
+en Taxi driver on a break
+uk Таксист на перерві
+ru Таксист на перерыве
+
+stranger.taxi_break.m.short
+cs Taxikář
+en Cabbie
+uk Таксист
+ru Таксист
+
+stranger.taxi_last.f
+cs Jedna z posledních taxikářek
+en One of the last taxi drivers
+uk Одна з останніх таксисток
+ru Одна из последних таксисток
+
+stranger.taxi_last.f.short
+cs Taxikářka
+en Cabbie
+uk Таксистка
+ru Таксистка
+
+stranger.taxi_last.m
+cs Jeden z posledních taxikářů
+en One of the last taxi drivers
+uk Один з останніх таксистів
+ru Один из последних таксистов
+
+stranger.taxi_last.m.short
+cs Taxikář
+en Cabbie
+uk Таксист
+ru Таксист
+
+stranger.taxi_cap.f
+cs Taxikářka v bekovce
+en Cabbie in a flat cap
+uk Таксистка в кашкеті
+ru Таксистка в кепке
+
+stranger.taxi_cap.f.short
+cs Taxikářka
+en Cabbie
+uk Таксистка
+ru Таксистка
+
+stranger.taxi_cap.m
+cs Taxikář v bekovce
+en Cabbie in a flat cap
+uk Таксист у кашкеті
+ru Таксист в кепке
+
+stranger.taxi_cap.m.short
+cs Taxikář
+en Cabbie
+uk Таксист
+ru Таксист
+
+# Nurses
+
+stranger.nurse_shift.f
+cs Sestřička po službě
+en Nurse after her shift
+uk Медсестра після зміни
+ru Медсестра после смены
+
+stranger.nurse_shift.f.short
+cs Sestřička
+en Nurse
+uk Медсестра
+ru Медсестра
+
+stranger.nurse_shift.m
+cs Zdravotník po službě
+en Nurse after his shift
+uk Медбрат після зміни
+ru Медбрат после смены
+
+stranger.nurse_shift.m.short
+cs Zdravotník
+en Nurse
+uk Медбрат
+ru Медбрат
+
+stranger.nurse_break.f
+cs Sestra na krátké pauze
+en Nurse on a short break
+uk Медсестра на короткій перерві
+ru Медсестра на коротком перерыве
+
+stranger.nurse_break.f.short
+cs Sestra
+en Nurse
+uk Медсестра
+ru Медсестра
+
+stranger.nurse_break.m
+cs Zdravotník na krátké pauze
+en Nurse on a short break
+uk Медбрат на короткій перерві
+ru Медбрат на коротком перерыве
+
+stranger.nurse_break.m.short
+cs Zdravotník
+en Nurse
+uk Медбрат
+ru Медбрат
+
+stranger.nurse_scrubs.f
+cs Sestra v nemocničním úboru
+en Nurse in scrubs
+uk Медсестра в медичному костюмі
+ru Медсестра в медицинской форме
+
+stranger.nurse_scrubs.f.short
+cs Sestra
+en Nurse
+uk Медсестра
+ru Медсестра
+
+stranger.nurse_scrubs.m
+cs Zdravotník v nemocničním úboru
+en Nurse in scrubs
+uk Медбрат у медичному костюмі
+ru Медбрат в медицинской форме
+
+stranger.nurse_scrubs.m.short
+cs Zdravotník
+en Nurse
+uk Медбрат
+ru Медбрат
+
+# Students
+
+stranger.student_exam.f
+cs Studentka před zkouškou
+en Student before an exam
+uk Студентка перед іспитом
+ru Студентка перед экзаменом
+
+stranger.student_exam.f.short
+cs Studentka
+en Student
+uk Студентка
+ru Студентка
+
+stranger.student_exam.m
+cs Student před zkouškou
+en Student before an exam
+uk Студент перед іспитом
+ru Студент перед экзаменом
+
+stranger.student_exam.m.short
+cs Student
+en Student
+uk Студент
+ru Студент
+
+stranger.student_headphones.f
+cs Studentka se sluchátky
+en Student in headphones
+uk Студентка в навушниках
+ru Студентка в наушниках
+
+stranger.student_headphones.f.short
+cs Studentka
+en Student
+uk Студентка
+ru Студентка
+
+stranger.student_headphones.m
+cs Student se sluchátky
+en Student in headphones
+uk Студент у навушниках
+ru Студент в наушниках
+
+stranger.student_headphones.m.short
+cs Student
+en Student
+uk Студент
+ru Студент
+
+stranger.student_hoodie.f
+cs Studentka v mikině
+en Student in a hoodie
+uk Студентка в худі
+ru Студентка в худи
+
+stranger.student_hoodie.f.short
+cs Studentka
+en Student
+uk Студентка
+ru Студентка
+
+stranger.student_hoodie.m
+cs Student v mikině
+en Student in a hoodie
+uk Студент у худі
+ru Студент в худи
+
+stranger.student_hoodie.m.short
+cs Student
+en Student
+uk Студент
+ru Студент
+
+# Insomniacs
+
+stranger.insomniac.f
+cs Žena, která nemůže spát
+en Someone who can't sleep
+uk Жінка, якій не спиться
+ru Женщина, которой не спится
+
+stranger.insomniac.f.short
+cs Nespavá
+en Sleepless
+uk Безсонна
+ru Неспящая
+
+stranger.insomniac.m
+cs Muž, který nemůže spát
+en Someone who can't sleep
+uk Чоловік, якому не спиться
+ru Мужчина, которому не спится
+
+stranger.insomniac.m.short
+cs Nespavec
+en Sleepless
+uk Безсонний
+ru Неспящий
+
+stranger.insomniac_cardigan.f
+cs Noční sova v kardiganu
+en Night owl in a cardigan
+uk Нічна сова в кардигані
+ru Ночная сова в кардигане
+
+stranger.insomniac_cardigan.f.short
+cs Noční sova
+en Night owl
+uk Нічна сова
+ru Ночная сова
+
+stranger.insomniac_cardigan.m
+cs Noční sova v kardiganu
+en Night owl in a cardigan
+uk Нічна сова в кардигані
+ru Ночная сова в кардигане
+
+stranger.insomniac_cardigan.m.short
+cs Noční sova
+en Night owl
+uk Нічна сова
+ru Ночная сова
+
+stranger.insomniac_scarf.f
+cs Noční sova v teplé šále
+en Night owl in a warm scarf
+uk Нічна сова в теплому шарфі
+ru Ночная сова в тёплом шарфе
+
+stranger.insomniac_scarf.f.short
+cs Noční sova
+en Night owl
+uk Нічна сова
+ru Ночная сова
+
+stranger.insomniac_scarf.m
+cs Noční sova v teplé šále
+en Night owl in a warm scarf
+uk Нічна сова в теплому шарфі
+ru Ночная сова в тёплом шарфе
+
+stranger.insomniac_scarf.m.short
+cs Noční sova
+en Night owl
+uk Нічна сова
+ru Ночная сова
+
+# Train crew
+
+stranger.conductor.f
+cs Průvodčí mezi spoji
+en Conductor between trains
+uk Провідниця між рейсами
+ru Проводница между рейсами
+
+stranger.conductor.f.short
+cs Průvodčí
+en Conductor
+uk Провідниця
+ru Проводница
+
+stranger.conductor.m
+cs Průvodčí mezi spoji
+en Conductor between trains
+uk Провідник між рейсами
+ru Проводник между рейсами
+
+stranger.conductor.m.short
+cs Průvodčí
+en Conductor
+uk Провідник
+ru Проводник
+
+stranger.attendant.f
+cs Stevardka z nočního vlaku
+en Night-train attendant
+uk Провідниця нічного потяга
+ru Проводница ночного поезда
+
+stranger.attendant.f.short
+cs Stevardka
+en Attendant
+uk Провідниця
+ru Проводница
+
+stranger.attendant.m
+cs Stevard z nočního vlaku
+en Night-train attendant
+uk Провідник нічного потяга
+ru Проводник ночного поезда
+
+stranger.attendant.m.short
+cs Stevard
+en Attendant
+uk Провідник
+ru Проводник
+
+# Drone operators
+
+stranger.drone_break.f
+cs Dronařka na pauze
+en Drone pilot on a break
+uk Операторка дронів на перерві
+ru Пилот дронов на перерыве
+
+stranger.drone_break.f.short
+cs Dronařka
+en Drone pilot
+uk Операторка
+ru Пилот
+
+stranger.drone_break.m
+cs Dronař na pauze
+en Drone pilot on a break
+uk Оператор дронів на перерві
+ru Пилот дронов на перерыве
+
+stranger.drone_break.m.short
+cs Dronař
+en Drone pilot
+uk Оператор
+ru Пилот
+
+stranger.drone_headphones.f
+cs Dronařka se sluchátky
+en Drone pilot in headphones
+uk Операторка дронів у навушниках
+ru Пилот дронов в наушниках
+
+stranger.drone_headphones.f.short
+cs Dronařka
+en Drone pilot
+uk Операторка
+ru Пилот
+
+stranger.drone_headphones.m
+cs Dronař se sluchátky
+en Drone pilot in headphones
+uk Оператор дронів у навушниках
+ru Пилот дронов в наушниках
+
+stranger.drone_headphones.m.short
+cs Dronař
+en Drone pilot
+uk Оператор
+ru Пилот
+
+# Shift workers (the depot)
+
+stranger.depot.f
+cs Pracovnice z depa
+en Worker from the depot
+uk Робітниця з депо
+ru Работница из депо
+
+stranger.depot.f.short
+cs Z depa
+en Worker
+uk З депо
+ru Из депо
+
+stranger.depot.m
+cs Pracovník z depa
+en Worker from the depot
+uk Робітник з депо
+ru Рабочий из депо
+
+stranger.depot.m.short
+cs Z depa
+en Worker
+uk З депо
+ru Из депо
+
+stranger.depot_shift.f
+cs Pracovnice po noční směně
+en Worker after the night shift
+uk Робітниця після нічної зміни
+ru Работница после ночной смены
+
+stranger.depot_shift.f.short
+cs Z depa
+en Worker
+uk З депо
+ru Из депо
+
+stranger.depot_shift.m
+cs Pracovník po noční směně
+en Worker after the night shift
+uk Робітник після нічної зміни
+ru Рабочий после ночной смены
+
+stranger.depot_shift.m.short
+cs Z depa
+en Worker
+uk З депо
+ru Из депо
+
+stranger.depot_beanie.f
+cs Pracovnice z depa v kulichu
+en Depot worker in a bobble hat
+uk Робітниця з депо в шапці
+ru Работница из депо в шапке
+
+stranger.depot_beanie.f.short
+cs Z depa
+en Worker
+uk З депо
+ru Из депо
+
+stranger.depot_beanie.m
+cs Pracovník z depa v kulichu
+en Depot worker in a bobble hat
+uk Робітник з депо в шапці
+ru Рабочий из депо в шапке
+
+stranger.depot_beanie.m.short
+cs Z depa
+en Worker
+uk З депо
+ru Из депо
+
+# The concert crowd
+
+stranger.concert.f
+cs Slečna z koncertu
+en Girl from the concert
+uk Дівчина з концерту
+ru Девушка с концерта
+
+stranger.concert.f.short
+cs Z koncertu
+en From a gig
+uk З концерту
+ru С концерта
+
+stranger.concert.m
+cs Mladík z koncertu
+en Guy from the concert
+uk Хлопець з концерту
+ru Парень с концерта
+
+stranger.concert.m.short
+cs Z koncertu
+en From a gig
+uk З концерту
+ru С концерта
+
+stranger.concert_earrings.f
+cs Slečna se zlatými náušnicemi
+en Girl with gold earrings
+uk Дівчина із золотими сережками
+ru Девушка с золотыми серёжками
+
+stranger.concert_earrings.f.short
+cs Z koncertu
+en From a gig
+uk З концерту
+ru С концерта
+
+stranger.concert_earrings.m
+cs Mladík se zlatými náušnicemi
+en Guy with gold earrings
+uk Хлопець із золотими сережками
+ru Парень с золотыми серёжками
+
+stranger.concert_earrings.m.short
+cs Z koncertu
+en From a gig
+uk З концерту
+ru С концерта
+
+stranger.concert_hat.f
+cs Slečna v klobouku
+en Girl in a hat
+uk Дівчина в капелюсі
+ru Девушка в шляпе
+
+stranger.concert_hat.f.short
+cs Z koncertu
+en From a gig
+uk З концерту
+ru С концерта
+
+stranger.concert_hat.m
+cs Mladík v klobouku
+en Guy in a hat
+uk Хлопець у капелюсі
+ru Парень в шляпе
+
+stranger.concert_hat.m.short
+cs Z koncertu
+en From a gig
+uk З концерту
+ru С концерта
+
+# The night patrol
+
+stranger.patrol.f
+cs Policistka na noční obchůzce
+en Officer on the night round
+uk Патрульна на нічному чергуванні
+ru Патрульная на ночном дежурстве
+
+stranger.patrol.f.short
+cs Policistka
+en Officer
+uk Патрульна
+ru Патрульная
+
+stranger.patrol.m
+cs Policista na noční obchůzce
+en Officer on the night round
+uk Патрульний на нічному чергуванні
+ru Патрульный на ночном дежурстве
+
+stranger.patrol.m.short
+cs Policista
+en Officer
+uk Патрульний
+ru Патрульный
+
+stranger.patrol_coffee.f
+cs Policistka na rychlé kávě
+en Officer in for a quick coffee
+uk Патрульна, що забігла на каву
+ru Патрульная, заглянувшая на кофе
+
+stranger.patrol_coffee.f.short
+cs Policistka
+en Officer
+uk Патрульна
+ru Патрульная
+
+stranger.patrol_coffee.m
+cs Policista na rychlé kávě
+en Officer in for a quick coffee
+uk Патрульний, що забіг на каву
+ru Патрульный, заглянувший на кофе
+
+stranger.patrol_coffee.m.short
+cs Policista
+en Officer
+uk Патрульний
+ru Патрульный
+
+# Truckers
+
+stranger.trucker.f
+cs Řidička kamionu
+en Long-haul trucker
+uk Далекобійниця
+ru Дальнобойщица
+
+stranger.trucker.f.short
+cs Řidička
+en Trucker
+uk Далекобійниця
+ru Дальнобойщица
+
+stranger.trucker.m
+cs Řidič kamionu
+en Long-haul trucker
+uk Далекобійник
+ru Дальнобойщик
+
+stranger.trucker.m.short
+cs Řidič
+en Trucker
+uk Далекобійник
+ru Дальнобойщик
+
+stranger.trucker_self_driving.f
+cs Řidička, jejíž kamion jezdí sám
+en Trucker whose truck drives itself
+uk Далекобійниця, чия фура їде сама
+ru Дальнобойщица, чья фура едет сама
+
+stranger.trucker_self_driving.f.short
+cs Řidička
+en Trucker
+uk Далекобійниця
+ru Дальнобойщица
+
+stranger.trucker_self_driving.m
+cs Řidič, jehož kamion jezdí sám
+en Trucker whose truck drives itself
+uk Далекобійник, чия фура їде сама
+ru Дальнобойщик, чья фура едет сама
+
+stranger.trucker_self_driving.m.short
+cs Řidič
+en Trucker
+uk Далекобійник
+ru Дальнобойщик
+
+stranger.trucker_cap.f
+cs Řidička kamionu v bekovce
+en Trucker in a flat cap
+uk Далекобійниця в кашкеті
+ru Дальнобойщица в кепке
+
+stranger.trucker_cap.f.short
+cs Řidička
+en Trucker
+uk Далекобійниця
+ru Дальнобойщица
+
+stranger.trucker_cap.m
+cs Řidič kamionu v bekovce
+en Trucker in a flat cap
+uk Далекобійник у кашкеті
+ru Дальнобойщик в кепке
+
+stranger.trucker_cap.m.short
+cs Řidič
+en Trucker
+uk Далекобійник
+ru Дальнобойщик
+
+# The night wanderer
+
+stranger.wanderer.f
+cs Tichá cizinka z mlhy
+en Quiet stranger from the fog
+uk Тиха незнайомка з туману
+ru Тихая незнакомка из тумана
+
+stranger.wanderer.f.short
+cs Cizinka
+en Stranger
+uk Незнайомка
+ru Незнакомка
+
+stranger.wanderer.m
+cs Tichý cizinec z mlhy
+en Quiet stranger from the fog
+uk Тихий незнайомець з туману
+ru Тихий незнакомец из тумана
+
+stranger.wanderer.m.short
+cs Cizinec
+en Stranger
+uk Незнайомець
+ru Незнакомец
+
+stranger.wanderer_hat.f
+cs Cizinka v klobouku
+en Stranger in a wide hat
+uk Незнайомка в капелюсі
+ru Незнакомка в шляпе
+
+stranger.wanderer_hat.f.short
+cs Cizinka
+en Stranger
+uk Незнайомка
+ru Незнакомка
+
+stranger.wanderer_hat.m
+cs Cizinec v klobouku
+en Stranger in a wide hat
+uk Незнайомець у капелюсі
+ru Незнакомец в шляпе
+
+stranger.wanderer_hat.m.short
+cs Cizinec
+en Stranger
+uk Незнайомець
+ru Незнакомец
+
+# They tell Karolina their name: after a greeting / after she served them by hand.
+# Gender-neutral on purpose (no past tense), {name} in the reader's script.
+
+stranger.intro.greet.1
+cs Ahoj, já jsem {name}.
+en Hi! I'm {name}.
+uk Привіт! Я {name}.
+ru Привет! Я {name}.
+
+stranger.intro.greet.2
+cs Dobrý večer! {name}, těší mě.
+en Evening! {name} — nice to meet you.
+uk Добрий вечір! Я {name}, дуже приємно.
+ru Добрый вечер! Я {name}, очень приятно.
+
+stranger.intro.greet.3
+cs Á, dobrý večer. Jsem {name}.
+en Oh, hello. I'm {name}.
+uk О, вітаю. Я {name}.
+ru О, здравствуйте. Я {name}.
+
+stranger.intro.serve.1
+cs Jsem {name}, děkuju!
+en I'm {name}, thank you!
+uk Я {name}, дякую!
+ru Я {name}, спасибо!
+
+stranger.intro.serve.2
+cs Přesně tohle bylo potřeba. Mimochodem, jsem {name}.
+en Just what I needed. I'm {name}, by the way.
+uk Саме те, що треба. До речі, я {name}.
+ru То, что нужно. Кстати, я {name}.
+
+stranger.intro.serve.3
+cs Díky! Jsem {name} a tohle místo si zapamatuju.
+en Thanks! I'm {name} — I'll remember this place.
+uk Дякую! Я {name}, і я запам'ятаю це місце.
+ru Спасибо! Я {name}, и я запомню это место.
+
+stranger.intro.serve.4
+cs Krása. Jsem {name}, těší mě.
+en Lovely. I'm {name}, nice to meet you.
+uk Чудово. Я {name}, приємно познайомитися.
+ru Чудесно. Я {name}, приятно познакомиться.
+
+# A party on the order card / in the bubble: "Tereza + 2".
+stranger.party
+* {name} + {n}
+
+# The night log (L → tonight) when someone tells their name.
+stranger.log.met
+cs Nová známost: {name} ({desc})
+en New acquaintance: {name} ({desc})
+uk Нове знайомство: {name} ({desc})
+ru Новое знакомство: {name} ({desc})

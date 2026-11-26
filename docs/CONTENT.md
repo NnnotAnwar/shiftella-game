@@ -117,6 +117,7 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | journal.ron | `JournalFile` | polaroid highlight rules, captioned scenes and moments (§10.8) |
 | tutorial.ron | `Vec<TutorialStep>` | 26 coach marks, nights 1–4 + 8 + 21 (§10.9) |
 | extras.ron | `ExtrasFile` | station cat levels, tip-jar goals, 40 napkins, rituals, mug lines (§10.10) |
+| guest_names.ron | `sim::names` (compiled in) | strangers: 30 + 30 first names (Latin + Cyrillic, optional Russian spelling), per archetype the share of women / elderly guests, tops, extras and whole-phrase descriptions (`needs` a visible feature); texts in `guest_names.tr` (`stranger.<phrase>.<f|m>[.short]`, `stranger.intro.*`, `stranger.party`, `stranger.log.met`) |
 
 ### Core types (`content::defs`)
 
