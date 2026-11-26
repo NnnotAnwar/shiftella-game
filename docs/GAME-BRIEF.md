@@ -112,3 +112,37 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   pauses the clock until `Command::CutsceneFinished { id, choices }`).
 Do not edit files outside your area. If you need something from another area, write it in
 your final report as an interface request.
+
+## 6. Hands-on gameplay (in v0.1.0, owner decision 2026-11-26)
+Goal: the player is not only a manager — the heir works behind the counter herself. Relaxing,
+tactile, never failable. Three features:
+
+1. **The heir behind the counter (direct control).** A `player` actor (look preset `player`) lives in the
+   sim like staff but has no job priorities; she only does what the player asks. Click a guest → she walks
+   over and takes the order → the guest's **wish** is shown → the player picks a recipe → a short
+   **brewing mini-game** plays in a glass overlay (the night keeps running slowly, or pauses on Cozy) →
+   she serves it. Staff skip orders the player has claimed. At any time the player can step back and just
+   manage. Quality 0..1 from the mini-game affects mood, tips and regulars' trust — but even 0 is "fine".
+   Sim API: `Command::PlayerTakeOrder { guest }`, `Command::PlayerBrew { guest, recipe, quality }`
+   (she walks to the station, works for the recipe's prep time, then serves automatically),
+   `Command::PlayerCancel`; events `SimEvent::PlayerOrderTaken { guest, wish }`, `PlayerServed { guest, recipe,
+   match_score, quality }`.
+2. **Drinks by mood, recipe book.** Guests (especially regulars) order a *wish*, e.g. "something warm, not too
+   sweet — long day". `Wish { tags: Vec<Taste>, text_key }` with `Taste { Warm, Cold, Sweet, Bitter, Strong,
+   Mild, Comforting, Fancy, Quick, Filling }`. `RecipeDef { id, name_key, desc_key, tags, base_item /* menu id */,
+   minigame: MiniGameKind, unlock: … }`. Match score = tag overlap → satisfaction / trust / story progress.
+   Recipes are discovered from grandma's notes, regulars, and **experiments** (combine 2–3 ingredients in the
+   recipe book → maybe a new recipe). The **recipe book** (hotkey **R**… use **K** — R is rotate in build) is a
+   collection screen with discovered / undiscovered (silhouette) entries.
+3. **Small night moments.** Short, warm, one-click interactions instead of dry events: choose a record on the
+   jukebox (music changes the hall's mood), light candles during a blackout, put a bucket under a roof leak,
+   feed the station cat, help a lost traveller find their train via the Shiftella app, open the window for
+   fresh air when it's stuffy, etc. `MomentDef { id, kind, conditions, anchor /* tile or furniture tag */,
+   options: [{ label_key, effects }] }` → `SimEvent::MomentAvailable { id, anchor }` (a small glowing
+   marker in the world) → `Command::ResolveMoment { id, option }`.
+
+Mini-games (`src/minigame/**`, `MiniGameKind`): **MilkFroth** (hold to froth, release in the sweet spot),
+**LatteArt** (draw a heart/rosetta/tulip by dragging; scored by similarity), **PourOver** (pour in slow
+circles to a gentle rhythm), **TeaSteep** (lift the tea bag when the colour looks right), **Plate** (arrange a
+pastry / soup garnish). Each: `start(kind, seed)`, `update(&mut Ui, dt) -> MiniGameStatus { Running,
+Done { quality } }`, `draw(&mut Ui, rect)`; skippable (auto quality 0.7), 8–20 seconds, cosy SFX hooks.
