@@ -11,8 +11,8 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   and human, never cyberpunk-grim. International feel with a Czech note (renamed 2026-11-26 from the
   former fictional town "Mlhov nad Šeřavou" and café "U Výhybky").
 - **Heroine (the player): Karolina** — grandma Lida's granddaughter, the heir (uk: Кароліна). Lines may use
-  feminine grammatical forms in cs/sk/uk. In the Shiftella app her row reads "Karolina (you)" localized
-  (cs/sk "(ty)", uk "(ти)").
+  feminine grammatical forms in cs/uk/ru. In the Shiftella app her row reads "Karolina (you)" localized
+  (cs "(ty)", uk "(ти)", ru "(ты)").
 - **Names:** simplified, international-friendly with a Czech note: grandma **Lida**, her fiancé **Jindra**,
   regulars Mirek, Hana, **Vera**, Filip, Radek, Lori; the 3:33 guest; Anwar (cameo). Staff/guest name pools: an
   international mix (Czech, Slovak, Ukrainian, European) with few diacritics.
@@ -42,9 +42,10 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   - Notifications arrive from **@shiftella_bot**. Never implement clock-in/out through the bot.
   - Easter eggs: stations on the train line are named after Shiftella release codenames —
     **Adamov, Beroun, Cheb, Děčín, Ejpovice, Frýdlant** … then Praha-Holešovice. Train announcements use them.
-- **Languages:** **CZ / EN / SK / UA** → codes `cs`, `en`, `sk`, `uk`. Every player-visible string goes
-  through i18n keys. First launch shows a language picker; choice saved in settings. Fallback: `en`, then the key.
-  No Russian in the game.
+- **Languages (changed 2026-11-26):** **CZ / EN / UA / RU** → codes `cs`, `en`, `uk`, `ru` (Slovak was dropped,
+  Russian added). Every player-visible string goes through i18n keys. First launch shows a language picker;
+  choice saved in settings (a saved `sk` falls back to `cs`). Fallback: `en`, then the key. The swap happens in
+  the translation task (T9); until then the code may still contain `sk`.
 
 ## 2. Visual style — our own, not a RimWorld copy
 - **Palette = Shiftella's universe (purple/indigo):** accent indigo `#6366F1` (600 `#4F46E5`,
