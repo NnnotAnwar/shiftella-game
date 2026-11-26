@@ -1203,6 +1203,21 @@ impl Ui {
                 Color::new(1.0, 1.0, 1.0, 0.0),
             ),
         );
+        if let Some(tex) = crate::render::faces::face_texture(name) {
+            // the person's face, cut to the circle, with the lit rim on top
+            crate::render::faces::draw_face_circle(&tex, c, d - 1.0, super::draw::faded(WHITE));
+            stroke_circle(
+                c,
+                r - 0.5,
+                1.0,
+                Paint::vertical(
+                    bb,
+                    Color::new(1.0, 1.0, 1.0, 0.40),
+                    Color::new(1.0, 1.0, 1.0, 0.06),
+                ),
+            );
+            return;
+        }
         let st = TextStyle::new(
             (d * 0.38).clamp(9.0, 22.0),
             super::text::Weight::SemiBold,

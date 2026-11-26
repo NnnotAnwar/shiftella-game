@@ -60,6 +60,7 @@
 mod brand;
 pub mod colors;
 pub mod draw;
+pub mod faces;
 mod furniture;
 mod light;
 mod look;

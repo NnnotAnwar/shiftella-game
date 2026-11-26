@@ -170,6 +170,34 @@ fn schedule(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             Err(e) => super::panels::command_error(g, &loc, &e),
         }
     }
+    // hand the rozpis back to the app (undoable with Ctrl+Z / the toast)
+    let auto = Button::new(loc.tr("ui.app.autofill"))
+        .ghost()
+        .icon(Icon::Sparkle)
+        .tooltip(loc.tr("ui.app.autofill_tip"));
+    let aw = ui.button_width(&auto);
+    if ui
+        .button("autofill", fr.next(aw).inset_xy(0.0, 1.0), &auto)
+        .clicked
+    {
+        match g.command(content, Command::AutoSchedule) {
+            Ok(()) => g.toast(
+                crate::ui::ToastKind::Info,
+                Icon::Sparkle,
+                loc.tr_owned("ui.app.autofilled"),
+                Some(loc.tr_owned("ui.app.autofilled_body")),
+            ),
+            Err(e) => super::panels::command_error(g, &loc, &e),
+        }
+    }
+    let (mode, mode_tone) = if app.manual_rozpis {
+        (loc.tr("ui.app.mode_manual"), Tone::Neutral)
+    } else {
+        (loc.tr("ui.app.mode_auto"), Tone::Accent)
+    };
+    let mw = ui.chip_width(mode, false);
+    let mr = fr.next(mw);
+    ui.chip(vec2(mr.x, mr.center_y() - 11.0), mode, mode_tone, None);
     let (chip, tone, icon) = if app.draft_dirty {
         (loc.tr("ui.app.draft"), Tone::Warn, Icon::Note)
     } else {

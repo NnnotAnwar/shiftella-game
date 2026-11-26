@@ -105,10 +105,10 @@ sk Čiernu. Ako robila Lida — aby v nej stála lyžička.
 uk Чорну. Як робила Ліда — щоб ложечка стояла.
 
 scene.mirek_first.04
-cs Zkusím to. Jsem její vnouče.
-en I'll try. I'm her grandchild.
-sk Skúsim to. Som jej vnúča.
-uk Спробую. Вона була моєю бабусею.
+cs Zkusím to. Jsem její vnučka.
+en I'll try. I'm her granddaughter.
+sk Skúsim to. Som jej vnučka.
+uk Спробую. Я її онука.
 
 scene.mirek_first.05
 cs …Máš její oči. Pane Bože. No. Tak kafe. A topinku, jestli sporák ještě žije.
@@ -167,10 +167,10 @@ uk Годинник знову цокає. 03:34.
 
 # --- scene vera_first
 scene.vera_first.01
-cs Tak ty jsi to vnouče. Lidino.
-en So you're the grandchild. Lida's.
-sk Tak ty si to vnúča. Lidino.
-uk Так ось хто ти. Лідина рідня.
+cs Tak ty jsi ta vnučka. Lidina.
+en So you're the granddaughter. Lida's.
+sk Tak ty si tá vnučka. Lidina.
+uk То ти та сама онука. Лідина.
 
 scene.vera_first.02
 cs Čaj s citronem. A otři ten stůl. Lida by ho takhle nikdy nenechala.
@@ -1282,10 +1282,10 @@ sk Vezmeš si babkinu kuchársku knihu, fotku zo steny a kľúč, ktorý ležal 
 uk Ти береш бабусину кулінарну книгу, фото зі стіни й ключ, що лежав під килимком.
 
 scene.ending_last_train.15
-cs Promiň, babi. Svítilo to, dokud to šlo.
+cs Promiň, babi. Nechala jsem ho svítit, dokud to šlo.
 en Sorry, Grandma. I kept it on as long as I could.
-sk Prepáč, babka. Svietilo to, kým sa dalo.
-uk Вибач, бабусю. Воно світило, поки було можна.
+sk Prepáč, babka. Nechala som ho svietiť, kým sa dalo.
+uk Вибач, бабусю. Я тримала його світлим, скільки могла.
 
 scene.ending_last_train.16
 cs Tomu, kdo drží světlo: světlo není budova. Vezmi si ho s sebou.

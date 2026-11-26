@@ -319,7 +319,8 @@ pub fn crew(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     }
     // actions
     let br = Rect::new(cr.x, cr.bottom() - 26.0, cr.w, 26.0);
-    let (a, b) = if s.owner {
+    let night = g.world.phase() == Phase::Night;
+    let (a, b) = if s.owner && !night {
         (br, Rect::new(0.0, 0.0, 0.0, 0.0))
     } else {
         br.split_left(br.w / 2.0 - 3.0, 6.0)
@@ -336,7 +337,33 @@ pub fn crew(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         g.cam.center = head;
         g.selected = Some(AgentRef::Staff(s.id));
     }
-    if !s.owner
+    // at night: send them for a breather (they eat if hungry); by day: let go (with Undo)
+    if night {
+        let resting = matches!(s.task, Some(sim::Task::Break { .. }));
+        let on_floor = s.status == sim::StaffStatus::OnDuty;
+        if ui
+            .button(
+                "break",
+                b,
+                &Button::new(loc.tr("ui.crew.break"))
+                    .icon(Icon::Cup)
+                    .selected(resting)
+                    .disabled(resting || !on_floor)
+                    .tooltip(loc.tr("ui.crew.break_tip")),
+            )
+            .clicked
+        {
+            match g.command(content, Command::SendOnBreak { staff: s.id }) {
+                Ok(()) => g.toast(
+                    crate::ui::ToastKind::Info,
+                    Icon::Cup,
+                    loc.trf("ui.crew.break_toast", &[("name", &name)]),
+                    None,
+                ),
+                Err(e) => command_error(g, &loc, &e),
+            }
+        }
+    } else if !s.owner
         && ui
             .button(
                 "fire",

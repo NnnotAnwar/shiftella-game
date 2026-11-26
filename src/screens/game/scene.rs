@@ -418,26 +418,6 @@ impl WorldScene {
             };
             pieces.push((sprite, origin, (v.size.0 as u8, v.size.1 as u8), st));
         }
-        // warm pendant lamps over the tables (visual; a placed pendant lamp replaces it)
-        let lamps_at: Vec<(i32, i32)> = placed
-            .iter()
-            .filter(|p| p.def == "pendant_lamp")
-            .map(|p| (p.x, p.y))
-            .collect();
-        for (p, v) in placed.iter().zip(&views) {
-            let is_table = content
-                .furniture_def(&p.def)
-                .is_some_and(|d| d.has_tag("table"));
-            if is_table && !lamps_at.contains(&(v.tile.0, v.tile.1)) {
-                let origin = vec2(v.tile.0 as f32, v.tile.1 as f32) * TILE;
-                let st = FurnitureState {
-                    active: !blackout && lamp_k("pendant_lamp", origin) > 0.5,
-                    t,
-                    ..Default::default()
-                };
-                pieces.push(("pendant_lamp".into(), origin, (1, 1), st));
-            }
-        }
         // people (in a cutscene: the frozen night minus the ones the scene plays itself)
         let mut looks = Vec::with_capacity(self.people.len());
         let all_people = std::mem::take(&mut self.people);

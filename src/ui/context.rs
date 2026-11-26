@@ -86,6 +86,9 @@ const HOVER_TAU: f32 = 0.045;
 pub struct Ui {
     pub fonts: Fonts,
     pub theme: Theme,
+    /// Faces for avatars by display name (the game registers its people; see
+    /// [`Ui::register_face`]). Names without a face show initials.
+    pub(crate) faces: std::collections::HashMap<String, crate::render::PersonLook>,
     user_scale: f32,
     screen: Vec2,
     time: f64,
@@ -136,6 +139,7 @@ impl Ui {
         Ui {
             fonts,
             theme: Theme::SHIFTELLA,
+            faces: std::collections::HashMap::new(),
             user_scale: 1.0,
             screen: vec2(1280.0, 720.0),
             time: 0.0,
@@ -205,6 +209,17 @@ impl Ui {
     pub fn dt(&self) -> f32 {
         self.dt
     }
+    /// Avatars of `name` show this person's face instead of initials. Call at the start of a
+    /// frame, before drawing: a new face is rendered into a small texture right away.
+    pub fn register_face(&mut self, name: &str, look: crate::render::PersonLook) {
+        if self.faces.get(name) != Some(&look) {
+            self.faces.insert(name.to_string(), look);
+        }
+        if crate::render::faces::prepare(name, &look) {
+            set_default_camera();
+        }
+    }
+
     /// Frames since the Ui was created (detects "not drawn last frame").
     pub fn frame_count(&self) -> u64 {
         self.frame

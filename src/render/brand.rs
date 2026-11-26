@@ -19,8 +19,9 @@ use super::draw::{alpha, glow, rrect_v};
 struct Brand {
     /// Mip chain of the brand mark, largest first.
     mark: Vec<Texture2D>,
-    /// "S" app logo, largest first (texture side in px).
-    app: Vec<Texture2D>,
+    /// "S" app logo, largest first (texture side in px). The targets stay alive: dropping
+    /// one frees its texture.
+    app: Vec<RenderTarget>,
 }
 
 thread_local! {
@@ -72,7 +73,7 @@ fn texture(img: &Image) -> Texture2D {
 }
 
 /// Renders the "S" squircle into a `side`-px render target.
-fn bake_app_logo(side: u32, font: &Font) -> Texture2D {
+fn bake_app_logo(side: u32, font: &Font) -> RenderTarget {
     let rt = render_target(side, side);
     rt.texture.set_filter(FilterMode::Linear);
     let s = side as f32;
@@ -129,8 +130,10 @@ fn bake_app_logo(side: u32, font: &Font) -> Texture2D {
             ..Default::default()
         },
     );
+    // SAFETY: flushes macroquad's own batcher so the target is filled right away.
+    unsafe { get_internal_gl() }.flush();
     set_default_camera();
-    rt.texture
+    rt
 }
 
 /// Builds the cached logos. Call once after the window and fonts exist.
@@ -206,7 +209,14 @@ pub(crate) fn draw_app_logo(center: Vec2, size: f32) -> bool {
     let px = size * px_per_unit();
     BRAND.with(|b| {
         let b = b.borrow();
-        let Some(t) = b.as_ref().and_then(|b| pick(&b.app, px)) else {
+        let Some(t) = b.as_ref().and_then(|b| {
+            b.app
+                .iter()
+                .rev()
+                .map(|rt| &rt.texture)
+                .find(|t| t.width() >= px * 1.9)
+                .or_else(|| b.app.first().map(|rt| &rt.texture))
+        }) else {
             return false;
         };
         draw_texture_ex(

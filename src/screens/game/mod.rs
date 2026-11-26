@@ -365,6 +365,33 @@ impl GameScreen {
         }
     }
 
+    /// Avatars show faces: staff, candidates, Karolina and the bot, by their display names.
+    fn register_faces(&mut self, ui: &mut Ui, loc: &Locale) {
+        let staff_look = |s: &sim::Staff| sim::LookRef {
+            seed: s.look_seed,
+            staff: !s.owner,
+            preset: s.owner.then(|| "player".to_string()),
+            source: s.archetype.clone(),
+        };
+        let people: Vec<(String, sim::LookRef)> = self
+            .world
+            .staff()
+            .iter()
+            .chain(self.world.candidates().iter().map(|c| &c.staff))
+            .map(|s| (wv::staff_name(loc, s), staff_look(s)))
+            .collect();
+        for (name, l) in people {
+            let look = self.scene.look(&l);
+            ui.register_face(&name, look);
+        }
+        let player = crate::render::PersonLook::preset("player");
+        ui.register_face(loc.tr("cast.player.name"), player);
+        ui.register_face(
+            "@shiftella_bot",
+            crate::render::PersonLook::preset("shiftella_bot"),
+        );
+    }
+
     /// Hands the live café to the cutscene player: walkability for actor paths (around the
     /// player's own furniture) and where tonight's people already are.
     fn stage_player(&mut self) {
@@ -645,6 +672,11 @@ impl GameScreen {
                 let t = tr("ui.ticker.staff_sick", &[("name".into(), n)]);
                 self.push_ticker(Icon::Warning, t.clone());
                 self.toast(ToastKind::Warning, Icon::Crew, t, None);
+            }
+            SimEvent::StaffBreakEnded { staff } => {
+                let n = staff_name(&self.world, staff);
+                let t = tr("ui.ticker.break_ended", &[("name".into(), n)]);
+                self.push_ticker(Icon::Cup, t);
             }
             SimEvent::StaffWalkedOut { staff } => {
                 let n = staff_name(&self.world, staff);
@@ -979,6 +1011,8 @@ impl GameScreen {
             self.time += dt;
         }
         let loc = cx.loc;
+        // faces for avatars: baked before anything of this frame is drawn
+        self.register_faces(ui, &loc);
         for e in std::mem::take(&mut self.deferred) {
             self.handle_event(content, e, Some(&loc));
         }
