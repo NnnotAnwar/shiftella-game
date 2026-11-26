@@ -569,7 +569,9 @@ pub struct RailState {
     pub focused: Option<u64>,
 }
 
-const CHIP_W: f32 = 50.0;
+// 60: a stranger's short label ("В пальто", "Studentka") fits at 9 pt without "…"
+// (`screens::game::guest_label::RAIL_LABEL_W` = CHIP_W − 4).
+const CHIP_W: f32 = 60.0;
 const CHIP_H: f32 = 58.0;
 const MAX_CHIPS: usize = 8;
 

@@ -334,6 +334,9 @@ pub struct Guest {
     pub goal: Option<(i32, i32)>,
     pub gone: bool,
     pub stuck_ticks: u32,
+    /// A stranger's description and name (`sim::names`); `None` for regulars / story guests.
+    #[serde(default)]
+    pub persona: Option<super::names::Persona>,
 }
 
 impl Guest {
@@ -1091,7 +1094,11 @@ impl World {
     }
 
     pub(crate) fn emit(&mut self, e: SimEvent) {
+        let intro = super::names::introduced_by(&e);
         self.events.push(e);
+        if let Some((guest, how)) = intro {
+            super::names::introduce(self, guest, how);
+        }
     }
 
     pub(crate) fn log_key(&mut self, key: impl Into<String>, args: Vec<(String, String)>) {
@@ -1741,6 +1748,7 @@ impl World {
             }
         }
         world.version = SAVE_VERSION;
+        super::names::ensure_all(&mut world);
         Ok(world)
     }
 

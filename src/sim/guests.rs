@@ -700,6 +700,9 @@ pub(crate) fn spawn_party(
         let seed = w.rng.fork() ^ hash_str(archetype);
         let offset = (k as f32 * 9.0 - 9.0, 0.0);
         let c = grid::tile_center(start);
+        let persona = reg
+            .is_none()
+            .then(|| super::names::new_persona(w, seed, archetype));
         party.members.push(gid);
         w.guests.push(Guest {
             id: gid,
@@ -722,6 +725,7 @@ pub(crate) fn spawn_party(
             goal: None,
             gone: false,
             stuck_ticks: 0,
+            persona,
         });
     }
     w.tonight.guests_arrived += size;

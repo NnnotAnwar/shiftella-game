@@ -57,6 +57,8 @@ pub fn emote(e: sim::SimEmote) -> Emote {
 pub fn look_of(l: &LookRef) -> PersonLook {
     match &l.preset {
         Some(p) => PersonLook::preset(p),
+        // strangers are dressed to match their description (`sim::names`)
+        None if !l.staff => super::guest_label::stranger_look(l.seed, &l.source),
         None => PersonLook::random(l.seed, l.staff),
     }
 }

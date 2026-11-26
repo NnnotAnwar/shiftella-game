@@ -18,6 +18,7 @@ mod crew_ui;
 mod day;
 mod duties;
 mod extras_ui;
+mod guest_label;
 pub mod hands;
 mod hands_ui;
 mod hands_view;
@@ -681,6 +682,7 @@ impl GameScreen {
         self.hands_event(content, &e);
         self.extras_event(content, &e);
         self.build_content_event(content, &e, loc);
+        self.names_event(&e, loc);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;
