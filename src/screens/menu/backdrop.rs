@@ -44,6 +44,8 @@ pub struct Backdrop {
     weather: Weather,
     guests: [PersonLook; 3],
     font: Option<Font>,
+    /// New glyphs of the sign are cached between batches (see `ui::text::GlyphCache`).
+    glyphs: crate::ui::GlyphCache,
 }
 
 impl Default for Backdrop {
@@ -67,6 +69,7 @@ impl Backdrop {
                 PersonLook::random(41, true),
             ],
             font,
+            glyphs: Default::default(),
         }
     }
 
@@ -1185,6 +1188,7 @@ impl Backdrop {
             let fs = (size * k).round().max(1.0) as u16;
             let sc = size / fs as f32;
             let gaps = (text.chars().count() - 1) as f32 * 2.0;
+            self.glyphs.prepare(font, text, fs);
             let total = measure_text(text, Some(font), fs, sc).width + gaps;
             let mut x = c.x + 14.0 - total / 2.0;
             for (i, ch) in text.chars().enumerate() {
@@ -1216,6 +1220,7 @@ impl Backdrop {
             let size = 10.5;
             let fs = (size * k).round().max(1.0) as u16;
             let sc = size / fs as f32;
+            self.glyphs.prepare(font, sub, fs);
             let w = measure_text(sub, Some(font), fs, sc).width + 1.5 * sub.chars().count() as f32;
             let mut x = c.x + 14.0 - w / 2.0;
             for ch in sub.chars() {

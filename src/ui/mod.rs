@@ -87,7 +87,7 @@ pub use icons::{Icon, draw_icon};
 pub use id::Id;
 pub use layout::{Anchor, Flow, RectExt, anchored, column, grid, grid_cell, row, weighted_row};
 pub use phone::{Device, PhoneFrame, PhoneOut};
-pub use text::{Align, Fonts, TextStyle, Weight};
+pub use text::{Align, Fonts, GlyphCache, TextStyle, Weight};
 pub use theme::{Theme, Tone};
 pub use toast::{Toast, ToastAnchor, ToastEvent, ToastId, ToastKind};
 pub use widgets::{
