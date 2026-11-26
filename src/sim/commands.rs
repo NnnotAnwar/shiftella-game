@@ -23,13 +23,13 @@ pub(crate) fn furniture_unlocked(w: &World, f: &FurnitureDef) -> bool {
     flag_ok && night_ok && f.category != BuildCategory::Structure
 }
 
-fn def<'a>(content: &'a Content, id: &str) -> Result<&'a FurnitureDef, CommandError> {
+pub(super) fn def<'a>(content: &'a Content, id: &str) -> Result<&'a FurnitureDef, CommandError> {
     content
         .furniture_def(id)
         .ok_or_else(|| CommandError::UnknownId(id.to_string()))
 }
 
-fn occupy(w: &mut World, d: &FurnitureDef, p: &Placed, on: bool) {
+pub(super) fn occupy(w: &mut World, d: &FurnitureDef, p: &Placed, on: bool) {
     let rug = grid::is_rug_layer(d);
     for (x, y) in grid::footprint(d, p.x, p.y, p.rot) {
         if let Some(i) = w.grid.idx(x, y) {
@@ -44,7 +44,7 @@ fn occupy(w: &mut World, d: &FurnitureDef, p: &Placed, on: bool) {
 }
 
 /// Every non-rug piece must stay usable (an access tile reachable from the entrance).
-fn connectivity_ok(w: &World, content: &Content) -> bool {
+pub(super) fn connectivity_ok(w: &World, content: &Content) -> bool {
     let reach = grid::reachable(&w.grid, w.grid.entrance());
     for p in &w.furniture {
         let Some(d) = content.furniture_def(&p.def) else {
@@ -118,7 +118,7 @@ pub(crate) fn place_free(
     place_piece(w, content, piece).is_ok()
 }
 
-fn in_use(_w: &World, p: &Placed) -> bool {
+pub(super) fn in_use(_w: &World, p: &Placed) -> bool {
     p.user.is_some() || p.claim.is_some() || p.seat_by.iter().any(|s| s.is_some())
 }
 
@@ -781,6 +781,11 @@ impl World {
                 super::tool::grant_toil(self, content, staff, weekday)
             }
             Command::SendPayroll { week } => super::tool::send_payroll(self, content, week),
+            Command::MoveGroup { moves } => {
+                let old = super::build_ux::move_pieces(self, content, &moves)?;
+                push_undo(self, UndoOp::MoveGroupBack { moves: old });
+                Ok(())
+            }
         }
     }
 
@@ -909,6 +914,9 @@ impl World {
                 Ok(())
             }
             UndoOp::Theme { old } => super::atmos::set_theme(self, content, &old).map(|_| ()),
+            UndoOp::MoveGroupBack { moves } => {
+                super::build_ux::move_pieces(self, content, &moves).map(|_| ())
+            }
         };
         if r.is_ok() && matches!(op, UndoOp::Shift { .. } | UndoOp::Draft { .. }) {
             super::rozpis::score(self, content);

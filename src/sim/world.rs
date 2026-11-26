@@ -757,6 +757,10 @@ pub enum UndoOp {
     Theme {
         old: String,
     },
+    /// `Command::MoveGroup`: where each piece stood.
+    MoveGroupBack {
+        moves: Vec<super::build_ux::PieceMove>,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

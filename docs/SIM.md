@@ -68,6 +68,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 |---|---|
 | `PlaceFurniture { def, x, y, rot }` | footprint, layer (rugs/stage/pendant lamps share tiles), money, unlocks, `unique`, never blocks the door / any piece (`BlocksPath`). Floors (`floor_*`) paint a tile. |
 | `MoveFurniture`, `RotateFurniture`, `RemoveFurniture` | not while in use (seat taken, station busy) → `InUse`; remove refunds 50 % |
+| `MoveGroup { moves: Vec<PieceMove { uid, x, y, rot }> }` | build mode's drag: all pieces are lifted, then put down (a table and its chairs may swap tiles); atomic — any `InUse` / `Occupied` / `BlocksPath` changes nothing; free; **one** undo step (`UndoOp::MoveGroupBack`) |
 | `SetFloor { x, y, floor }`, `SetFurnitureOn { uid, on }`, `SetMusic { on }` | lamps / jukebox / radio |
 | `Hire { candidate }`, `Fire { staff }` | candidates: `world.candidates()` (story persons from `hire_from_night`; sandbox: 3 generated, refreshed every 3 nights). The owner (`Staff::owner`, cast `player`) can't be fired. |
 | `SetDuty { staff, duty, on }` | delegate one of the six duties (§9.3); capacity-checked → `Capacity`; undoable. Karolina has none (`Invalid`). |
@@ -100,6 +101,17 @@ floors, lamps, duties, draft shifts, prices, menu). The stack clears at phase ch
   `furniture_views(&content)` → `FurnitureView { uid, active, dirty, facing, tile, size }` ≈
   `render::FurnitureState` (`tile × TILE` = `draw_furniture` origin; chairs face their table).
   `window_light_on(&content)`, `buildable(&content)`.
+* Build mode (`sim/build_ux.rs`): `move_group(&c, uid)` (a table + the seat pieces whose
+  every seat belongs to it; anything else → just itself), `group_moves(&c, uid, to, turns)`
+  (the group's `PieceMove`s when the first piece's top-left goes to `to`, turned `turns`
+  quarter turns around it: offsets `(dx, dy) → (−dy, dx)` per turn), `can_move_pieces(&c,
+  &moves)` (dry run), `in_use_reason(uid) -> Option<InUseReason { Seated, Busy }>`,
+  `coziness_preview(&c, def, x, y, rot) -> f32` and `coziness_preview_moves(&c, &moves)` —
+  the **change** of the 0–100 coziness value if the piece stood there (pure; on a copy;
+  floors → 0). `build_wishes(&c) -> Vec<BuildWish { who, def, tag, reason_key }>`
+  (`sim/build_wishes.rs`; package A's stub lists Filip → `power_socket` from night 7,
+  Lori → `stage` once `lori_invited`, Hana → `armchair` + `floor_lamp` until her corner
+  choice; package C replaces the body).
 * People: `staff_views()` / `guest_views()` → `AgentView { agent, look: LookRef { seed, staff, preset,
   source }, feet (world px), facing, pose, emote, seat_tile, holding }`. `Facing`/`Pose`/`SimEmote`
   mirror the render enums 1:1. Look: `preset` → `PersonLook::preset(id)` (owner `player`, regulars
