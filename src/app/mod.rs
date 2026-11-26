@@ -459,6 +459,7 @@ pub async fn run() {
             return;
         }
     };
+    crate::render::init_brand(fonts.face(crate::ui::Weight::Bold));
     let mut ui = Ui::new(fonts);
     let mut settings = Settings::load();
     if let Some(l) = env("SHIFTELLA_LANG").and_then(|c| Lang::from_code(&c)) {

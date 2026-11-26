@@ -42,7 +42,11 @@ pub fn draw(ui: &mut Ui, progress: f32, label: &str, t: f32) {
     }
     let size = 46.0;
     let w = wordmark_width(ui, size);
-    draw_wordmark(ui, (s.w - w) / 2.0, s.h * 0.46, size, t);
+    let mark = 48.0;
+    let total = mark + 12.0 + w;
+    let x0 = (s.w - total) / 2.0;
+    crate::render::draw_brand_mark(vec2(x0 + mark / 2.0, s.h * 0.46 - 16.0), mark, 0.8);
+    draw_wordmark(ui, x0 + mark + 12.0, s.h * 0.46, size, t);
     // progress line
     let bw = 220.0;
     let bar = Rect::new((s.w - bw) / 2.0, s.h * 0.46 + 40.0, bw, 3.0);

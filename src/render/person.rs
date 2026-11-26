@@ -1734,6 +1734,10 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
 pub fn draw_shiftella_logo(c0: Vec2, size: f32) {
     let h = size / 2.0;
     glow(c0.x, c0.y, size * 1.1, alpha(c::INDIGO_GLOW, 0.35));
+    // the crisp pre-rasterised logo (Inter "S"); the strokes below are the headless fallback
+    if super::brand::draw_app_logo(c0, size) {
+        return;
+    }
     rrect_v(
         c0.x - h,
         c0.y - h,

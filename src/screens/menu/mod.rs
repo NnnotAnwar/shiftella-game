@@ -33,7 +33,7 @@ use macroquad::prelude::*;
 use crate::content::Content;
 use crate::cutscene::AudioRequest;
 use crate::i18n::{I18n, Lang, format_money};
-use crate::render::draw_shiftella_logo;
+use crate::render::draw_brand_mark;
 use crate::settings::{Locale, PANEL_SIZE, Settings, settings_panel};
 use crate::ui::draw::{Paint, fill_rrect, stroke_rrect, with_a};
 use crate::ui::{
@@ -316,10 +316,10 @@ impl MainMenu {
     fn title(&self, ui: &mut Ui, loc: &Locale, x: f32, y: f32, centered: bool) {
         let size = 54.0;
         let ww = wordmark_width(ui, size);
-        let logo = 42.0;
+        let logo = 54.0;
         let total = logo + 14.0 + ww;
         let x0 = if centered { x - total / 2.0 } else { x };
-        draw_shiftella_logo(vec2(x0 + logo / 2.0, y - 19.0), logo);
+        draw_brand_mark(vec2(x0 + logo / 2.0, y - 19.0), logo, 1.0);
         draw_wordmark(ui, x0 + logo + 14.0, y, size, self.backdrop.t);
         let th = ui.theme.clone();
         let sub = TextStyle::new(16.0, Weight::Medium, th.text);

@@ -57,6 +57,7 @@
 
 #![allow(clippy::too_many_arguments)]
 
+mod brand;
 pub mod colors;
 pub mod draw;
 mod furniture;
@@ -67,6 +68,7 @@ mod person;
 mod queue;
 mod tiles;
 
+pub use brand::{draw_brand_mark, init as init_brand};
 pub use furniture::{
     COUNTER_H, FURNITURE_IDS, FurnitureState, draw_furniture, furniture_lights, furniture_sort_key,
     holo_flicker,
