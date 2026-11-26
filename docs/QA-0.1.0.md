@@ -174,8 +174,8 @@ why in the player's language; hidden automation runs never disturb the person at
 
 * Cozy rush peak (worst average of pending things) is 8.5 vs the ≤ 7 target; the median is
   below 1 — rushes are short. Balance knob for v0.1.x.
-* Classic final payment is hard for an attentive player (see §1) — by design "the real test",
-  but worth a look in balance.
+* Classic final payment: after QA the lead raised Classic `income_mul` 1.35 → 1.55 — the attentive
+  bot now makes all payments (6/6 «Light in the Window», 2–17 k left after the final payment).
 * At UI scale 1.3 on 720p a few secondary texts are still cut with "…": rail guest names
   (tooltip has them), the duties board role subtitle, the small polaroid captions in the
   morning summary, the second line of very long train announcements in the ticker (tooltip),

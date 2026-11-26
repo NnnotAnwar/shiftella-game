@@ -33,7 +33,7 @@
         bad_review_mul: 1.0,
         wear_mul: 1.0,
         need_decay_mul: 1.0,
-        income_mul: 1.35,
+        income_mul: 1.55,
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
         bankrupt_after: 3,
