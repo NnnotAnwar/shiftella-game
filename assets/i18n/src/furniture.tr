@@ -134,9 +134,9 @@ ru Принимает карты, телефоны и старые добрые 
 
 furniture.coffee_machine.name
 cs Kávovar Rapid
-en Rapid coffee machine
+en Rapid espresso
 uk Кавоварка «Рапід»
-ru Кофемашина «Рапид»
+ru Кофеварка «Рапид»
 
 furniture.coffee_machine.desc
 cs Syčí, jako by se urazil. Kouše.
@@ -208,7 +208,7 @@ furniture.dish_rack.name
 cs Odkapávač
 en Dish rack
 uk Сушарка для посуду
-ru Сушилка для посуды
+ru Сушка для посуды
 
 furniture.dish_rack.desc
 cs Víc místa na čisté nádobí.

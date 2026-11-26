@@ -237,7 +237,7 @@ never replace the polaroid you keep in the morning.
 | Key | |
 |---|---|
 | **WASD / arrows**, right-drag, wheel | move / zoom the camera · **Home** — whole café |
-| **Space** | pause / resume |
+| **Space** | pause / resume (all of these can be rebound: Settings → Controls) |
 | **1 / 2 / 3** | speed ×1 / ×2 / ×3 (also the buttons on the clock card) |
 | **C** | crew — the character card (Karolina, each helper, hiring); **arrows** step through the crew |
 | **H** (or **P** by day) | duties — who helps with what tonight |
@@ -256,6 +256,38 @@ never replace the polaroid you keep in the morning.
 
 In cutscenes: click / **Space** — next line, **1–4** — choices, hold **Esc** — skip,
 **A** — auto-advance, hold **Ctrl** — faster.
+
+These are the default keys. **Settings → Controls** rebinds the main actions (the panels C / H /
+T / B / L / K / J, the camera P, the jukebox V, the nearest moment F, the chore E, the wave G,
+pause, the three speeds, How to play and mute): click an action, press its new key (**Esc**
+cancels). Two actions on one key are marked with a warning sign; keys with a fixed meaning (Esc,
+Enter, the camera's WASD / arrows / Home, the rail's [ ] and Backspace, build mode's R / X / Tab,
+the modifiers) can't be taken. **Reset keys** brings the defaults back. Every key hint in the game
+follows: the keycaps on the dock and the panels, the speed tooltips, How to play and the tutorial
+lines. The old **P** for the duties board keeps working by day while P belongs to the camera.
+
+## Accessibility
+
+**Settings → Accessibility**:
+
+* **Text size** — 100 / 115 / 130 %. Only the text grows (titles, labels, captions), not the UI as
+  a whole — that's the **UI scale** on the General tab; the two combine. Panels that are sized by
+  their text grow with it; fixed widgets shrink a long word a little before it would be cut.
+* **Colour-blind friendly markers** (on by default) — everything over the café that used to differ
+  only by its colour gets a shape as well: a regular's ticket on the rail gets a small **star**
+  (not only the amber ring), an open opening/closing ritual over the furniture is an **empty box**
+  to tick (not a tick, which reads as done), tip coins get a light **rim** so they never melt into
+  the warm floor, and a dirt blot gets a dashed **"mop here" ring**. The order marks were already
+  shapes (**!** waiting, a **tick** when Karolina is on it, a cup with a heart for the usual, a
+  glass of water), as are the wish bubble (a thought bubble with taste icons), the emotes and the
+  night moments (an icon per kind). Off brings back the plain look.
+* **Relaxed mini-games** — wider sweet spots, a quality floor and a Done button.
+
+**No money pressure — the Carefree difficulty.** New story offers three presets: **Cozy**
+(recommended), **Carefree** and **Classic**. Carefree plays exactly like Cozy, except that grandma's
+debt never presses: each instalment is covered on its night (the debt shrinks, the till keeps its
+money, a line in the log says so), nothing can be missed, and the story reaches «Light in the
+Window» as on Cozy. The day card says "covered" next to the next instalment.
 
 ## The crew panel (C) — the character card
 

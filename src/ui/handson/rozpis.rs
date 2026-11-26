@@ -747,16 +747,29 @@ pub fn rozpis_board(
             (x - fr.right() - 18.0).max(0.0),
             30.0,
         );
-        if lr.w > 40.0 {
+        // the whole line, or just its first sentence, in two lines without breaking a word;
+        // when not even that fits (a large UI scale / text size) the fairness badge's
+        // tooltip carries it
+        let ls0 = t.small().size(11.0).line_height(1.3);
+        let fits = |ui: &Ui, s: &str| {
+            let words_fit = s
+                .split_whitespace()
+                .all(|w| ui.fonts.measure(w, &ls0) <= lr.w);
+            words_fit && ui.fonts.wrap(s, lr.w, &ls0).len() <= 2
+        };
+        let first = line
+            .split_inclusive(". ")
+            .next()
+            .unwrap_or(line)
+            .trim_end()
+            .to_string();
+        let shown = [line.clone(), first].into_iter().find(|s| fits(ui, s));
+        if lr.w > 40.0
+            && let Some(shown) = shown
+        {
             let resp = ui.interact(id.with("autoline"), lr);
-            let ls = t.small().color(mix(t.text_dim, t.text, resp.hover_t));
-            ui.fonts.draw_wrapped(
-                line,
-                lr,
-                &ls.size(11.0).line_height(1.3),
-                Align::Left,
-                Some(2),
-            );
+            let ls = ls0.color(mix(t.text_dim, t.text, resp.hover_t));
+            ui.fonts.draw_wrapped(&shown, lr, &ls, Align::Left, Some(2));
             ui.tooltip(&resp, line);
             if resp.clicked {
                 action = Some(RozpisAction::FlashAutofill);

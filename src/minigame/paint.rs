@@ -108,8 +108,8 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
     match &mg.guest {
         Some((name, wish)) => {
             ui.avatar(vec2(x + 7.0, card.y + 17.0), 14.0, name, None, false);
-            let st = t.small();
             let line = format!("{name} · {wish}");
+            let st = ui.fonts.fit_width(&line, avail - 18.0, &t.small());
             let s = ui.fonts.ellipsize(&line, avail - 18.0, &st).into_owned();
             ui.fonts.draw(&s, x + 18.0, card.y + 21.0, &st);
         }
@@ -120,7 +120,7 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
             ui.fonts.draw(&s, x, card.y + 20.0, &micro);
         }
     }
-    let st = t.h2();
+    let st = ui.fonts.fit_width(title, avail, &t.h2());
     let s = ui.fonts.ellipsize(title, avail, &st).into_owned();
     let w = ui.fonts.draw(&s, x, card.y + 38.0, &st);
     if let Some(k) = detail_key {
@@ -128,6 +128,7 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
         let rest = avail - w - 8.0;
         if rest > 30.0 {
             let d = format!("· {}", text.get(&k));
+            let ds = ui.fonts.fit_width(&d, rest, &ds);
             let d = ui.fonts.ellipsize(&d, rest, &ds).into_owned();
             ui.fonts.draw(&d, x + w + 6.0, card.y + 38.0, &ds);
         }

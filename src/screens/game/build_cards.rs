@@ -359,12 +359,13 @@ fn card(
     super::build::draw_preview(&d.sprite, d.size, prev, time, unlocked && !placed_unique);
     let dim = !unlocked || placed_unique;
     let name = loc.tr_owned(&d.name_key());
-    ui.fonts.draw_in(
+    ui.fonts.draw_fit(
         &name,
-        Rect::new(r.x + 4.0, r.y + 43.0, r.w - 8.0, 15.0),
+        Rect::new(r.x + 3.0, r.y + 43.0, r.w - 6.0, 15.0),
         &t.small_medium()
             .color(if dim { t.text_disabled } else { t.text }),
         Align::Center,
+        0.78,
     );
     if let Some(l) = &lock {
         // how to unlock, on the card itself (two short lines)
@@ -374,13 +375,11 @@ fn card(
             11.0,
             t.text_dim,
         );
-        ui.fonts.draw_wrapped(
-            l,
-            Rect::new(r.x + 5.0, r.y + 60.0, r.w - 10.0, 30.0),
-            &t.small().size(11.0).color(t.text_dim),
-            Align::Center,
-            Some(2),
-        );
+        let lr = Rect::new(r.x + 5.0, r.y + 60.0, r.w - 10.0, 30.0);
+        let st = ui
+            .fonts
+            .fit_lines(l, lr, &t.small().size(11.0).color(t.text_dim), 2);
+        ui.fonts.draw_wrapped(l, lr, &st, Align::Center, Some(2));
     } else {
         let price = if placed_unique {
             loc.tr_owned("bux.placed")
@@ -466,9 +465,27 @@ fn badge(g: &GameScreen, ui: &mut Ui, t: &Theme, loc: &Locale, r: Rect, who: &st
         && !g.world.staff().iter().any(|s| s.id.to_string() == who)
         && loc.has(&format!("guest.{who}.name"));
     let key = if many { "bux.wanted_many" } else { "bux.wanted" };
-    let text = loc.trf(key, &[("name", &name)]);
     let st = t.key().size(10.5).color(t.ink);
-    let tw = ui.fonts.measure(&text, &st).min(r.w - 30.0);
+    // "Mrs Vera is waiting" when it fits the card; else the first name, else the name alone
+    // (the amber badge with a face already says "wanted")
+    // (a first name only for the crew: "Mrs Vera" must not become "Mrs")
+    let staff = g.world.staff().iter().any(|s| s.id.to_string() == who);
+    let first = if staff {
+        name.split_whitespace().next().unwrap_or(&name).to_string()
+    } else {
+        name.clone()
+    };
+    let room = r.w - 30.0;
+    let text = [
+        loc.trf(key, &[("name", &name)]),
+        loc.trf(key, &[("name", &first)]),
+        name.clone(),
+        first,
+    ]
+    .into_iter()
+    .find(|s| ui.fonts.measure(s, &st) <= room)
+    .unwrap_or_else(|| name.clone());
+    let tw = ui.fonts.measure(&text, &st).min(room);
     let br = Rect::new(r.x + 3.0, r.y + 3.0, (tw + 26.0).min(r.w - 6.0), 17.0);
     fill_rrect(br, br.h / 2.0, t.amber);
     ui.avatar(vec2(br.x + 8.5, br.center_y()), 15.0, &name, None, false);

@@ -23,8 +23,9 @@ pub fn world_to_ui(g: &GameScreen, ui: &Ui, p: Vec2) -> Vec2 {
 pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     clock_card(g, ui, cx);
     doors_chip(g, ui, cx);
-    ticker(g, ui, cx);
+    // the side cards first: the ticker takes the room between them
     resources(g, ui, cx);
+    ticker(g, ui, cx);
     dock(g, ui, cx);
 }
 
@@ -35,7 +36,23 @@ fn weekday_short(w: crate::content::Weekday) -> String {
 fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let t = ui.theme.clone();
     let loc = cx.loc;
-    let r = anchored(ui.screen(), Anchor::TopLeft, vec2(340.0, 64.0), 12.0);
+    // content-sized: a larger text size widens the card instead of pushing the weekday
+    // under the speed buttons (4 × 28 + gaps on the right)
+    let (clock, sub) = {
+        let w = &g.world;
+        let wd = loc.tr_owned(&weekday_short(w.weekday()));
+        (
+            w.clock_label(),
+            loc.trf(
+                "ui.hud.day_night",
+                &[("weekday", &wd), ("night", &w.night().to_string())],
+            ),
+        )
+    };
+    let cw = ui.fonts.measure(&clock, &t.clock());
+    let sw = ui.fonts.measure(&sub, &t.small());
+    let width = (42.0 + cw + 8.0 + sw + 10.0 + 118.0 + 12.0).clamp(340.0, 420.0);
+    let r = anchored(ui.screen(), Anchor::TopLeft, vec2(width, 64.0), 12.0);
     g.anchors.push(("hud.clock", r));
     ui.glass(r, &Glass::hud());
     let speed = g.speed;
@@ -48,19 +65,14 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         if day { t.amber } else { t.indigo_300 },
     );
     // 21:00 in the day, 21:30→22:00 in the preparation half hour, then the night clock
-    let clock = w.clock_label();
-    let cw = ui.fonts.draw(&clock, r.x + 42.0, r.y + 34.0, &t.clock());
-    let wd = loc.tr_owned(&weekday_short(w.weekday()));
-    let sub = loc.trf(
-        "ui.hud.day_night",
-        &[("weekday", &wd), ("night", &w.night().to_string())],
-    );
+    ui.fonts.draw(&clock, r.x + 42.0, r.y + 34.0, &t.clock());
+    let sub_x = r.x + 50.0 + cw;
     ui.fonts.draw_in(
         &sub,
         Rect::new(
-            r.x + 50.0 + cw,
+            sub_x,
             r.y + 20.0,
-            104.0 - (cw - 76.0).max(0.0),
+            (r.right() - 12.0 - 118.0 - 6.0 - sub_x).max(20.0),
             18.0,
         ),
         &t.small(),
@@ -176,8 +188,18 @@ fn ticker(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let t = ui.theme.clone();
     let loc = cx.loc;
     let s = ui.screen();
-    let w = (s.w - 2.0 * 364.0).clamp(220.0, 460.0);
-    let er = anchored(s, Anchor::Top, vec2(w, 32.0), 12.0);
+    // between the clock and the money cards (they grow with the text size)
+    let side = |name: &str| g.anchors.iter().rev().find(|a| a.0 == name).map(|a| a.1);
+    let left = side("hud.clock").map_or(364.0, |r| r.right() + 12.0);
+    let right = side("hud.money").map_or(s.w - 364.0, |r| r.x - 12.0);
+    // (narrower than 220 pt only at a large UI scale and text size together)
+    let w = (right - left).clamp(140.0, 460.0);
+    let mut er = anchored(s, Anchor::Top, vec2(w, 32.0), 12.0);
+    if er.x < left && er.right() <= right {
+        er.x = left.min(right - w);
+    } else if er.right() > right {
+        er.x = (right - w).max(left);
+    }
     g.anchors.push(("hud.ticker", er));
     // glass before interact: a region declared after `interact` blocks it next frame
     ui.glass(er, &Glass::hud().radius(8.0));
@@ -203,16 +225,40 @@ fn ticker(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         let st = t.number().size(12.0).color(t.text_disabled);
         x += ui.fonts.draw(&time, x, ui.fonts.baseline_in(er, &st), &st) + 8.0;
     }
-    // a long line (a train announcement in Russian) shrinks, then takes two lines; the
-    // tooltip has it whole
+    // a long line (a train announcement in Russian) shrinks a little; if it still doesn't
+    // fit (a large UI scale / text size) it glides slowly to its end and back instead of
+    // being cut; the tooltip has it whole
     let text_w = er.right() - 44.0 - x;
-    ui.fonts.draw_fit(
-        &text,
-        Rect::new(x, er.y + 1.0, text_w, er.h - 2.0),
-        &t.body_medium(),
-        Align::Left,
-        0.85,
-    );
+    let st = t.body_medium();
+    let small = ui.fonts.fit_width(&text, text_w, &st);
+    let box_r = Rect::new(x, er.y + 1.0, text_w, er.h - 2.0);
+    let over = ui.fonts.measure(&text, &small) - text_w;
+    if over > 0.5 {
+        const SPEED: f32 = 28.0; // pt per second
+        const REST: f32 = 1.6; // s at each end
+        let run = over / SPEED;
+        let period = 2.0 * REST + 2.0 * run;
+        let k = (ui.time() as f32) % period;
+        let off = if k < REST {
+            0.0
+        } else if k < REST + run {
+            (k - REST) * SPEED
+        } else if k < 2.0 * REST + run {
+            over
+        } else {
+            over - (k - 2.0 * REST - run) * SPEED
+        };
+        ui.push_clip(box_r);
+        ui.fonts.draw(
+            &text,
+            x - off.clamp(0.0, over),
+            ui.fonts.baseline_in(box_r, &small),
+            &small,
+        );
+        ui.pop_clip();
+    } else {
+        ui.fonts.draw_fit(&text, box_r, &st, Align::Left, 0.85);
+    }
     let long = ui.fonts.measure(&text, &t.body_medium().size(11.0)) > text_w;
     draw::vline(er.right() - 40.0, er.y + 8.0, er.bottom() - 8.0, t.divider);
     ui.keycap(
@@ -247,20 +293,64 @@ fn resources(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let t = ui.theme.clone();
     let loc = cx.loc;
     let w = &g.world;
-    let rr = anchored(ui.screen(), Anchor::TopRight, vec2(340.0, 64.0), 12.0);
+    // every text is measured first: the card is as wide as its texts need (340 pt at the
+    // default text size, a little wider at 130 %), nothing is cut
+    let money = format_money(loc.lang, w.money());
+    let money_st = t
+        .h1()
+        .color(if w.money() < 0 { t.red_400 } else { t.amber })
+        .tabular();
+    let stars = w.reputation() / 20.0;
+    let rep = format_decimal(loc.lang, stars, 1);
+    let rep_st = t.h2().tabular();
+    let delta = (w.reputation() - w.tonight().reputation_start) / 20.0;
+    let delta_txt = (w.phase() == Phase::Night && delta.abs() >= 0.05).then(|| {
+        format!(
+            "{}{}",
+            if delta > 0.0 { "+" } else { "−" },
+            format_decimal(loc.lang, delta.abs(), 1)
+        )
+    });
+    let cap = capacity(cx.content, w);
+    let gv = loc.trf(
+        "ui.hud.guests_value",
+        &[
+            ("count", &w.guests_inside().to_string()),
+            ("cap", &cap.to_string()),
+        ],
+    );
+    let small = t.small();
+    let net = w.tonight().revenue + w.tonight().tips;
+    let line = if w.phase() == Phase::Night {
+        loc.trf(
+            "ui.hud.tonight",
+            &[("money", &format_money_delta(loc.lang, net))],
+        )
+    } else {
+        loc.trf(
+            "ui.hud.debt",
+            &[("money", &format_money(loc.lang, w.debt()))],
+        )
+    };
+    let q = loc.trf("ui.hud.queue", &[("n", &w.queue_len().to_string())]);
+    let weather = loc.tr(wv::weather_key(w.weather()));
+    let m = |s: &str, st: &crate::ui::TextStyle| ui.fonts.measure(s, st);
+    let (mw, rw, gw) = (
+        m(&money, &money_st),
+        m(&rep, &rep_st),
+        m(&gv, &t.h2().tabular()),
+    );
+    let dw = delta_txt.as_ref().map_or(0.0, |d| m(d, &t.key()) + 4.0);
+    let (lw, qw, ww) = (m(&line, &small), m(&q, &small), m(weather, &small));
+    let top_need = 38.0 + mw + 20.0 + 12.0 + rw + dw + 16.0 + 12.0 + gw + 16.0;
+    let bottom_need = 14.0 + lw + 14.0 + qw + 14.0 + 12.0 + ww + 12.0;
+    let width = top_need.max(bottom_need).clamp(340.0, 440.0);
+    let rr = anchored(ui.screen(), Anchor::TopRight, vec2(width, 64.0), 12.0);
     g.anchors.push(("hud.money", rr));
     ui.glass(rr, &Glass::hud());
     let base = rr.y + 30.0;
     draw_icon(Icon::Money, vec2(rr.x + 22.0, base - 5.0), 18.0, t.amber);
-    let money = format_money(loc.lang, w.money());
-    let mw = ui.fonts.draw(
-        &money,
-        rr.x + 38.0,
-        base,
-        &t.h1()
-            .color(if w.money() < 0 { t.red_400 } else { t.amber })
-            .tabular(),
-    );
+    let mw = ui.fonts.draw(&money, rr.x + 38.0, base, &money_st);
     let money_r = Rect::new(rr.x + 8.0, rr.y + 8.0, mw + 40.0, 30.0);
     let mresp = ui.interact(ui.id("money_tip"), money_r);
     let debt_tip = if w.debt() > 0 {
@@ -275,61 +365,35 @@ fn resources(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let mut x = rr.x + 46.0 + mw + 12.0;
     draw_icon(Icon::Star, vec2(x, base - 5.0), 16.0, t.amber);
     x += 12.0;
-    let stars = w.reputation() / 20.0;
-    let rep = format_decimal(loc.lang, stars, 1);
-    let rw = ui.fonts.draw(&rep, x, base, &t.h2().tabular());
+    let rw = ui.fonts.draw(&rep, x, base, &rep_st);
     let rresp = ui.interact(
         ui.id("rep_tip"),
         Rect::new(x - 20.0, rr.y + 8.0, rw + 24.0, 30.0),
     );
     ui.tooltip(&rresp, loc.tr("ui.hud.reputation"));
-    let delta = (w.reputation() - w.tonight().reputation_start) / 20.0;
-    if w.phase() == Phase::Night && delta.abs() >= 0.05 {
-        let txt = format!(
-            "{}{}",
-            if delta > 0.0 { "+" } else { "−" },
-            format_decimal(loc.lang, delta.abs(), 1)
-        );
+    if let Some(txt) = &delta_txt {
         let c = if delta > 0.0 {
             t.emerald_400
         } else {
             t.red_400
         };
-        ui.fonts.draw(&txt, x + rw + 4.0, base, &t.key().color(c));
+        ui.fonts.draw(txt, x + rw + 4.0, base, &t.key().color(c));
     }
-    x = rr.right() - 86.0;
+    x = (rr.right() - 16.0 - gw - 12.0).min(rr.right() - 86.0);
     draw_icon(Icon::User, vec2(x, base - 5.0), 16.0, t.text_dim);
-    let cap = capacity(cx.content, w);
-    let gv = loc.trf(
-        "ui.hud.guests_value",
-        &[
-            ("count", &w.guests_inside().to_string()),
-            ("cap", &cap.to_string()),
-        ],
-    );
     ui.fonts.draw(&gv, x + 12.0, base, &t.h2().tabular());
     let gresp = ui.interact(
         ui.id("guests_tip"),
-        Rect::new(x - 10.0, rr.y + 8.0, 84.0, 30.0),
+        Rect::new(x - 10.0, rr.y + 8.0, gw + 24.0, 30.0),
     );
     ui.tooltip(&gresp, loc.tr("ui.hud.guests"));
     hline(rr.x + 12.0, rr.right() - 12.0, rr.y + 40.0, t.divider);
-    let small = t.small();
-    let net = w.tonight().revenue + w.tonight().tips;
-    let line = if w.phase() == Phase::Night {
-        loc.trf(
-            "ui.hud.tonight",
-            &[("money", &format_money_delta(loc.lang, net))],
-        )
-    } else {
-        loc.trf(
-            "ui.hud.debt",
-            &[("money", &format_money(loc.lang, w.debt()))],
-        )
-    };
+    // the second line flows: tonight's money · the queue · the weather
+    let mut x = rr.x + 14.0;
+    let lw = lw.min(rr.w * 0.5);
     ui.fonts.draw_in(
         &line,
-        Rect::new(rr.x + 14.0, rr.y + 44.0, 124.0, 16.0),
+        Rect::new(x, rr.y + 44.0, lw, 16.0),
         &small.color(if w.phase() == Phase::Night {
             t.emerald_400
         } else {
@@ -337,23 +401,25 @@ fn resources(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         }),
         Align::Left,
     );
-    let q = loc.trf("ui.hud.queue", &[("n", &w.queue_len().to_string())]);
-    ui.fonts.draw_in(
-        &q,
-        Rect::new(rr.x + 140.0, rr.y + 44.0, 64.0, 16.0),
-        &small,
-        Align::Left,
-    );
+    x += lw + 14.0;
+    ui.fonts
+        .draw_in(&q, Rect::new(x, rr.y + 44.0, qw, 16.0), &small, Align::Left);
+    x += qw + 14.0;
     let wet = w.weather().is_wet();
     draw_icon(
         if wet { Icon::Rain } else { Icon::Moon },
-        vec2(rr.x + 214.0, rr.y + 52.0),
+        vec2(x + 6.0, rr.y + 52.0),
         14.0,
         t.indigo_300,
     );
     ui.fonts.draw_in(
-        loc.tr(wv::weather_key(w.weather())),
-        Rect::new(rr.x + 226.0, rr.y + 44.0, rr.w - 236.0, 16.0),
+        weather,
+        Rect::new(
+            x + 18.0,
+            rr.y + 44.0,
+            (rr.right() - 10.0 - x - 18.0).max(10.0),
+            16.0,
+        ),
         &small,
         Align::Left,
     );

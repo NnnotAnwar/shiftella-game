@@ -79,7 +79,13 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     }
     ui.pop_clip();
     // close button beside the device
-    let cr = Rect::new(r.right() + 8.0, r.y, 28.0, 28.0);
+    let mut cr = Rect::new(r.right() + 8.0, r.y, 28.0, 28.0);
+    // clear of the tip jar chip (it reaches this far at a large UI scale / text size)
+    if let Some(jar) = g.anchors.iter().find(|a| a.0 == "hud.tipjar").map(|a| a.1)
+        && jar.overlaps(&cr)
+    {
+        cr.y = jar.bottom() + 6.0;
+    }
     if ui
         .icon_button(
             "app_close",

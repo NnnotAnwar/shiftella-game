@@ -211,6 +211,7 @@ impl Ui {
         } else {
             1.0
         };
+        super::text::set_text_scale_global(self.theme.text_scale);
     }
     pub fn text_scale(&self) -> f32 {
         self.theme.text_scale

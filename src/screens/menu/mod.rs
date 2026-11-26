@@ -447,8 +447,12 @@ impl MainMenu {
                 Some(h) => {
                     ui.fonts.draw(label, tx, r.y + 20.0, &lst);
                     let hs = th.small().size(11.5);
-                    let h = ui.fonts.ellipsize(h, r.w - 72.0, &hs).to_string();
-                    ui.fonts.draw(&h, tx, r.y + 37.0, &hs);
+                    ui.fonts.draw_in(
+                        h,
+                        Rect::new(tx, r.y + 37.0 - 12.0, r.w - 72.0, 16.0),
+                        &hs,
+                        Align::Left,
+                    );
                 }
                 None => {
                     ui.fonts.draw_in(
@@ -631,12 +635,14 @@ impl MainMenu {
         let th = ui.theme.clone();
         // three presets (Cozy, Carefree, Classic) get a wider panel
         let max_w = if self.difficulties.len() >= 3 {
-            760.0
+            820.0
         } else {
             620.0
         };
         let w = (s.w - 48.0).min(max_w);
-        let h = 316.0;
+        // a larger text size makes the cards taller (their descriptions wrap to more lines)
+        let grow = 56.0 * ((ui.text_scale() - 1.0) / 0.3).clamp(0.0, 1.0);
+        let h = 316.0 + grow;
         let p = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0 + 40.0, w, h);
         self.title(ui, loc, s.w / 2.0, p.y - 96.0, true);
         ui.glass(p, &Glass::panel().solid().radius(14.0));
@@ -659,7 +665,7 @@ impl MainMenu {
             self.click(0.25);
         }
         let cards = crate::ui::row(
-            Rect::new(body.x + 18.0, body.y + 40.0, body.w - 36.0, 162.0),
+            Rect::new(body.x + 18.0, body.y + 40.0, body.w - 36.0, 162.0 + grow),
             n,
             12.0,
         );
@@ -698,6 +704,8 @@ impl MainMenu {
             }
             let icon = if i == self.default_difficulty {
                 Icon::Moon
+            } else if id == "relaxed" {
+                Icon::Feather
             } else {
                 Icon::Chart
             };
@@ -707,22 +715,24 @@ impl MainMenu {
                 18.0,
                 if on { th.indigo_300 } else { th.text_dim },
             );
-            let name = TextStyle::new(16.0, Weight::Bold, if on { WHITE } else { th.text });
-            ui.fonts.draw(
-                &loc.tr_owned(&format!("difficulty.{id}.name")),
-                r.x + 44.0,
-                r.y + 34.0,
-                &name,
-            );
+            let name = th
+                .h1()
+                .color(if on { WHITE } else { th.text })
+                .tracking(0.0);
+            let title = loc.tr_owned(&format!("difficulty.{id}.name"));
+            let nw = ui.fonts.measure(&title, &name);
+            ui.fonts.draw(&title, r.x + 44.0, r.y + 34.0, &name);
             if i == self.default_difficulty {
                 let label = loc.tr("mainmenu.newgame.recommended");
                 let cw = ui.chip_width(label, true);
-                ui.chip(
-                    vec2(r.right() - 12.0 - cw, r.y + 17.0),
-                    label,
-                    Tone::Ok,
-                    Some(Icon::Star),
-                );
+                // beside the name; at a large text size, at the card's foot instead
+                let beside = r.x + 44.0 + nw + 10.0 + cw + 12.0 <= r.right();
+                let at = if beside {
+                    vec2(r.right() - 12.0 - cw, r.y + 17.0)
+                } else {
+                    vec2(r.x + 18.0, r.bottom() - 12.0 - crate::ui::theme::size::CHIP)
+                };
+                ui.chip(at, label, Tone::Ok, Some(Icon::Star));
             }
             let desc = loc.tr_owned(&format!("difficulty.{id}.desc"));
             let ds = th.small().color(th.text_dim).line_height(1.5);
@@ -731,7 +741,7 @@ impl MainMenu {
                 Rect::new(r.x + 18.0, r.y + 52.0, r.w - 36.0, r.h - 60.0),
                 &ds,
                 Align::Left,
-                Some(4),
+                Some(5),
             );
         }
 
@@ -889,7 +899,7 @@ impl MainMenu {
         // two lines at most (long in cs / uk), never cut mid-sentence on one line
         let used = ui.fonts.draw_wrapped(
             &cdesc,
-            Rect::new(cx, y + 34.0, cw, 32.0),
+            Rect::new(cx, y + 34.0, cw, (hs.line_h() * 2.0).max(32.0)),
             &hs,
             Align::Left,
             Some(2),

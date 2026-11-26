@@ -739,3 +739,17 @@ go in a cup and their tastes), `one_of_family` (one milk), `photo` (`per_night` 
   base, + 20–25 Kč); both still reach «Light in the Window» (full). `sim_headless` prints a
   `house drink:` line (made night, tags, price add, by-name serves). Tests: `tests_signature`.
 
+
+## 13. Accessibility (design/v0.2.md J, package `access`)
+
+* **`Difficulty::Relaxed`** (data id `relaxed`, shown as «Carefree»; appended to the enum, old saves
+  load). `Difficulty::gentle()` is true for Cozy and Relaxed — every Cozy rule (`== Cozy` checks in
+  guests, staff, pacing, rushes, trains, knowledge, restock, overlay scale) now asks `gentle()`.
+  `difficulty.ron` gives it `payments: Forgiven` (new `PaymentRule`) with Cozy's multipliers.
+  `economy::collect_payment` on a Forgiven preset: `debt -= amount`, the payment is marked paid,
+  `payments_made += 1`, a log line `access.log.payment_covered`; no `PaymentMade` / `PaymentMissed`
+  event, the money is untouched. The ending conditions are unchanged (only Classic can close).
+  Tests: `tests_access` (a whole Carefree story with an always-empty till reaches «light» with no
+  payment event and the debt at 0).
+* Not in the sim: text size (`ui::Theme::text_scale` → `TextStyle::scale`), colour-blind markers
+  (`render::set_marker_shapes`), key bindings (`settings::keys`, i18n tokens `{key.<action>}`).

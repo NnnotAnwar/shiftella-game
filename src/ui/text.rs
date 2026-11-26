@@ -334,18 +334,21 @@ impl Fonts {
     /// Returns the drawn width.
     /// A text a little too wide first gets up to 15 % smaller (never below 9 pt); only then
     /// is it cut with "…" (long words in cs/uk/ru at a large UI scale).
+    /// With a larger text size ([`TextStyle::scale`]) a text that doesn't fit first gives up
+    /// the extra size, down to the same floor as at 100 % — larger where it fits, never cut
+    /// sooner than at the default size.
     pub fn draw_in(&self, text: &str, r: Rect, style: &TextStyle, align: Align) -> f32 {
         if r.w > 1.0 && self.measure(text, style) > r.w {
-            let min = (style.size * 0.85).max(9.0).min(style.size);
-            let mut size = style.size;
-            while size > min {
-                size = (size - 0.5).max(min);
-                let st = style.size(size);
+            let min = (style.size * 0.85).max(9.0).min(style.pt());
+            let mut pt = style.pt();
+            while pt > min {
+                pt = (pt - 0.5).max(min);
+                let st = at_pt(style, pt);
                 if self.measure(text, &st) <= r.w {
                     return self.draw_in_exact(text, r, &st, align);
                 }
             }
-            return self.draw_in_exact(text, r, &style.size(min), align);
+            return self.draw_in_exact(text, r, &at_pt(style, min), align);
         }
         self.draw_in_exact(text, r, style, align)
     }
@@ -371,19 +374,20 @@ impl Fonts {
             self.draw_in_exact(text, r, style, align);
             return;
         }
+        // (the floor is relative to the size at 100 % text, see `draw_in`)
         let min = (style.size * min_scale.clamp(0.5, 1.0))
             .max(9.0)
-            .min(style.size);
-        let mut size = style.size;
-        while size > min {
-            size = (size - 0.5).max(min);
-            let st = style.size(size);
+            .min(style.pt());
+        let mut pt = style.pt();
+        while pt > min {
+            pt = (pt - 0.5).max(min);
+            let st = at_pt(style, pt);
             if self.measure(text, &st) <= r.w {
                 self.draw_in_exact(text, r, &st, align);
                 return;
             }
         }
-        let st = style.size(min);
+        let st = at_pt(style, min);
         let lh = st.line_h();
         if r.h >= lh * 2.0 - 1.0 {
             let lines = self.wrap(text, r.w, &st);
@@ -442,6 +446,34 @@ impl Fonts {
     ) -> f32 {
         let lines = self.wrap(text, r.w, style);
         self.draw_lines(&lines, r, style, align, max_lines, usize::MAX)
+    }
+
+    /// `style` shrunk like [`Fonts::draw_in`] does (a larger text size first, then down to
+    /// 85 %) until `text` is at most `w` wide — for code that draws at a baseline and then
+    /// ellipsizes itself.
+    pub fn fit_width(&self, text: &str, w: f32, style: &TextStyle) -> TextStyle {
+        let min = (style.size * 0.85).max(9.0).min(style.pt());
+        let mut st = *style;
+        while self.measure(text, &st) > w && st.pt() > min {
+            st = at_pt(&st, (st.pt() - 0.5).max(min));
+        }
+        st
+    }
+
+    /// `style`, made a little smaller if needed (first giving up a larger text size, then
+    /// down to 85 % of the size) so `text` wraps into at most `max_lines` lines that fit in
+    /// `r` — for paragraphs in fixed boxes (cards) at a large text size.
+    pub fn fit_lines(&self, text: &str, r: Rect, style: &TextStyle, max_lines: usize) -> TextStyle {
+        let ok = |st: &TextStyle| {
+            let n = self.wrap(text, r.w, st).len();
+            n <= max_lines && n as f32 * st.line_h() <= r.h + 1.0
+        };
+        let min = (style.size * 0.85).max(9.0).min(style.pt());
+        let mut st = *style;
+        while !ok(&st) && st.pt() > min {
+            st = at_pt(&st, (st.pt() - 0.5).max(min));
+        }
+        st
     }
 
     /// Height a wrapped paragraph would take.
@@ -511,6 +543,29 @@ impl Fonts {
             }
         }
         count as f32 * lh
+    }
+}
+
+thread_local! {
+    static TEXT_SCALE: std::cell::Cell<f32> = const { std::cell::Cell::new(1.0) };
+}
+
+/// The player's text size (1.0–1.3) for layout code that has no `Ui` at hand (row heights
+/// computed ahead of drawing). Set by [`crate::ui::Ui::set_text_scale`].
+pub fn text_scale() -> f32 {
+    TEXT_SCALE.with(|c| c.get())
+}
+
+pub(crate) fn set_text_scale_global(s: f32) {
+    TEXT_SCALE.with(|c| c.set(s));
+}
+
+/// `style` drawn at `pt` points (its text-size factor adjusted, the nominal size kept).
+fn at_pt(style: &TextStyle, pt: f32) -> TextStyle {
+    if style.size > 0.0 {
+        style.scaled(pt / style.size)
+    } else {
+        *style
     }
 }
 

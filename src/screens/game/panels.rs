@@ -125,9 +125,11 @@ pub fn log(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     }
     let style = t.small().color(t.text);
     let wrap_w = list.w - 50.0;
+    // line boxes from the styles, so a larger text size grows the rows (not just the glyphs)
+    let (lh, th) = (style.line_h().max(16.0), t.micro().line_h().max(14.0));
     let heights: Vec<f32> = lines
         .iter()
-        .map(|(_, _, txt)| ui.fonts.wrap(txt, wrap_w, &style).len().max(1) as f32 * 16.0 + 22.0)
+        .map(|(_, _, txt)| ui.fonts.wrap(txt, wrap_w, &style).len().max(1) as f32 * lh + th + 8.0)
         .collect();
     let total: f32 = heights.iter().sum();
     let sa = ui.begin_scroll("log_scroll", list, total);
@@ -142,13 +144,13 @@ pub fn log(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         crate::ui::draw_icon(*icon, vec2(r.x + 16.0, r.y + 16.0), 14.0, t.violet_400);
         ui.fonts.draw_in(
             time,
-            Rect::new(r.x + 32.0, r.y + 4.0, r.w - 36.0, 14.0),
+            Rect::new(r.x + 32.0, r.y + 4.0, r.w - 36.0, th),
             &t.micro(),
             Align::Left,
         );
         ui.fonts.draw_wrapped(
             txt,
-            Rect::new(r.x + 32.0, r.y + 18.0, wrap_w, r.h - 18.0),
+            Rect::new(r.x + 32.0, r.y + 4.0 + th, wrap_w, r.h - 4.0 - th),
             &style,
             Align::Left,
             None,

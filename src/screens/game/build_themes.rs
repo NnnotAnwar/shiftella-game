@@ -249,13 +249,11 @@ pub fn themes(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, rest: Rect) {
             }
         } else if let Some(h) = hint {
             // how to unlock, in plain words (two short lines)
-            ui.fonts.draw_wrapped(
-                &h,
-                Rect::new(br.x, br.y - 2.0, br.w, 28.0),
-                &t.small().size(11.0).color(t.text_dim),
-                Align::Center,
-                Some(2),
-            );
+            let hr = Rect::new(br.x, br.y - 2.0, br.w, 28.0);
+            let st = ui
+                .fonts
+                .fit_lines(&h, hr, &t.small().size(11.0).color(t.text_dim), 2);
+            ui.fonts.draw_wrapped(&h, hr, &st, Align::Center, Some(2));
         }
     }
 }

@@ -94,10 +94,12 @@ const CARD_H: f32 = 56.0;
 const DONE_H: f32 = 30.0;
 
 fn card_h(r: &BuildRequest) -> f32 {
+    // a larger text size: taller rows (the title and two lines of their words)
+    let grow = (crate::ui::text::text_scale() - 1.0) / 0.3;
     if matches!(r.status, BuildRequestStatus::Thanked(_)) {
-        DONE_H
+        DONE_H + 6.0 * grow
     } else {
-        CARD_H
+        CARD_H + 20.0 * grow
     }
 }
 
@@ -209,9 +211,15 @@ pub fn requests_section(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) 
         if req.arc && !done {
             line = format!("{line} · {}", loc.tr("ui.requests.story"));
         }
+        let tl = t.strong().line_h().max(18.0);
         ui.fonts.draw_wrapped(
             &line,
-            Rect::new(c.x + 20.0, c.y + 18.0, c.w - 20.0, 30.0),
+            Rect::new(
+                c.x + 20.0,
+                c.y + tl,
+                c.w - 20.0,
+                cr.bottom() - 4.0 - c.y - tl,
+            ),
             &t.small().color(t.text_dim),
             Align::Left,
             Some(2),

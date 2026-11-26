@@ -1296,6 +1296,11 @@ fn x_button(ui: &mut Ui, key: impl std::hash::Hash, r: Rect, tip: &str) -> bool 
 
 const CAND_ROW: f32 = 46.0;
 
+/// A candidate's row: 46 pt, taller at a larger text size (three lines of text).
+fn cand_row() -> f32 {
+    CAND_ROW + 16.0 * ((crate::ui::text::text_scale() - 1.0) / 0.3).clamp(0.0, 1.0)
+}
+
 fn good_at(loc: &Locale, content: &Content, s: &Staff) -> String {
     let mut jobs: Vec<(f32, Duty)> = [
         Duty::Bar,
@@ -1338,8 +1343,12 @@ fn hire_list(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) {
     let cands = g.world.candidates().to_vec();
     let mut y = area.y;
     for c in &cands {
-        let r = Rect::new(area.x, y, area.w, CAND_ROW);
-        y += CAND_ROW + 2.0;
+        let r = Rect::new(area.x, y, area.w, cand_row());
+        y += cand_row() + 2.0;
+        // line boxes from the styles (they grow with the text size)
+        let ts = t.text_scale;
+        let (l1, l2) = (15.0 * ts, 14.0 * ts);
+        let top = r.y + ((r.h - l1 - 2.0 * l2) / 2.0).max(0.0);
         let name = c.staff.name.clone();
         ui.avatar(vec2(r.x + 15.0, r.center_y()), 30.0, &name, None, false);
         let b = Button::new(loc.tr("ui.crew.hire"))
@@ -1350,7 +1359,7 @@ fn hire_list(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) {
         let tw = r.w - 38.0 - bw - 8.0;
         ui.fonts.draw_in(
             &name,
-            Rect::new(tx, r.y + 2.0, tw, 16.0),
+            Rect::new(tx, top, tw, l1),
             &t.strong(),
             Align::Left,
         );
@@ -1362,18 +1371,20 @@ fn hire_list(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) {
                 &[("money", &format_money(loc.lang, c.staff.wage as i64))]
             )
         );
-        ui.fonts.draw_in(
+        ui.fonts.draw_fit(
             &sub,
-            Rect::new(tx, r.y + 17.0, tw, 14.0),
+            Rect::new(tx, top + l1, tw, l2),
             &t.small(),
             Align::Left,
+            0.8,
         );
         let good = good_at(&loc, content, &c.staff);
-        ui.fonts.draw_in(
+        ui.fonts.draw_fit(
             &good,
-            Rect::new(tx, r.y + 31.0, tw, 14.0),
+            Rect::new(tx, top + l1 + l2, tw, l2),
             &t.small().color(t.indigo_300),
             Align::Left,
+            0.8,
         );
         let br = Rect::new(r.right() - bw, r.center_y() - 12.0, bw, 24.0);
         if ui.button(("hire", c.id), br, &b).clicked {
@@ -1395,7 +1406,7 @@ fn hire_list(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) {
 
 fn hire_height(g: &GameScreen) -> f32 {
     let n = g.world.candidates().len().max(1) as f32;
-    n * (CAND_ROW + 2.0) - 2.0
+    n * (cand_row() + 2.0) - 2.0
 }
 
 // ---------------------------------------------------------------------------------------------

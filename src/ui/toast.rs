@@ -236,13 +236,16 @@ impl Ui {
     }
 
     fn toast_height(&self, t: &Toast) -> f32 {
+        // line boxes from the theme, so a larger text size makes the toast taller
+        let body_st = self.theme.small().line_height(1.33);
         let body_lines = t.body.as_ref().map_or(0, |b| {
             self.fonts
-                .wrap(b, WIDTH - 52.0 - 14.0, &self.theme.small())
+                .wrap(b, WIDTH - 52.0 - 14.0, &body_st)
                 .len()
                 .min(4)
         });
-        let text_h = 18.0 + body_lines as f32 * 16.0;
+        let title_h = self.theme.strong().line_h().max(18.0);
+        let text_h = title_h + body_lines as f32 * body_st.line_h().max(16.0);
         let mut h = 12.0 + text_h.max(28.0) + 12.0;
         h += self.action_rows(t).len() as f32 * 30.0;
         h
@@ -359,16 +362,17 @@ impl Ui {
         let title_w = if hovered { tw - 22.0 } else { tw };
         self.fonts.draw_in(
             &toast.title,
-            Rect::new(tx, r.y + 12.0, title_w, 18.0),
+            Rect::new(tx, r.y + 12.0, title_w, t.strong().line_h().max(18.0)),
             &t.strong(),
             Align::Left,
         );
-        let mut y = r.y + 12.0 + 18.0;
+        let mut y = r.y + 12.0 + t.strong().line_h().max(18.0);
         if let Some(b) = &toast.body {
+            let body_st = t.small().line_height(1.33);
             let used = self.fonts.draw_wrapped(
                 b,
-                Rect::new(tx, y, tw, 64.0),
-                &t.small().line_height(1.33),
+                Rect::new(tx, y, tw, body_st.line_h() * 4.0),
+                &body_st,
                 Align::Left,
                 Some(4),
             );
