@@ -796,9 +796,15 @@ pub(crate) fn spawn_party(
                     }
                     _ => None,
                 };
-                if let Some(kind) = kind {
-                    let tile = w.grid.entrance();
-                    super::journal::capture(w, content, kind, None, Vec::new(), Some(tile));
+                if let Some(kind) = kind
+                    && let Some(&leader) = w
+                        .parties
+                        .iter()
+                        .find(|p| p.id == id)
+                        .and_then(|p| p.members.first())
+                {
+                    // the photo is taken once they sit down (see `tick_guests`)
+                    w.sys.journal.on_seat.push((leader, kind, None));
                 }
                 w.emit(SimEvent::RegularIncoming {
                     regular: r.clone(),
@@ -1811,6 +1817,7 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
     let n = w.guests.len();
     let mut repath: Vec<u32> = Vec::new();
     let mut gone: Vec<u32> = Vec::new();
+    let mut sat_down: Vec<(u32, (i32, i32))> = Vec::new();
     let edges = w.grid.street_edges();
     for i in 0..n {
         let g = &mut w.guests[i];
@@ -1837,11 +1844,23 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
         if arrived {
             let tile = g.tile();
             if g.seat.is_some() && g.goal == Some(tile) {
+                if g.pose != Pose::Sit {
+                    sat_down.push((g.id, tile));
+                }
                 g.pose = Pose::Sit;
             } else if edges.contains(&tile) && g.goal == Some(tile) {
                 gone.push(g.id);
             } else {
                 g.pose = Pose::Idle;
+            }
+        }
+    }
+    // arrivals waiting for their photo until they sit (the 3:33 guest at the window…)
+    if !w.sys.journal.on_seat.is_empty() {
+        for (gid, tile) in sat_down {
+            while let Some(i) = w.sys.journal.on_seat.iter().position(|(g, ..)| *g == gid) {
+                let (_, kind, sub) = w.sys.journal.on_seat.remove(i);
+                super::journal::capture(w, content, kind, sub.as_deref(), Vec::new(), Some(tile));
             }
         }
     }

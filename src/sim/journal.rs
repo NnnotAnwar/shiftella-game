@@ -9,14 +9,38 @@ use crate::content::Content;
 use crate::content::handson::HighlightKind;
 
 /// The snapshot of the scene around `focus` (a tile; `None` = Karolina, else the window).
+/// Columns `x0..=x1` and the last row `y1` of the café itself (walls included, street not).
+fn interior_bounds(w: &World) -> (i32, i32, i32) {
+    let (mut x0, mut x1, mut y1) = (i32::MAX, i32::MIN, i32::MIN);
+    for y in 0..w.grid.height {
+        for x in 0..w.grid.width {
+            if w.grid
+                .tile(x, y)
+                .is_some_and(|t| t.kind != TileKind::Street)
+            {
+                x0 = x0.min(x);
+                x1 = x1.max(x);
+                y1 = y1.max(y);
+            }
+        }
+    }
+    if x0 > x1 {
+        return (0, w.grid.width - 1, w.grid.height - 1);
+    }
+    (x0, x1, y1)
+}
+
 pub(crate) fn snap(w: &World, content: &Content, focus: Option<(i32, i32)>) -> SceneSnapData {
     let jf = &content.handson.journal;
     let (sw, sh) = (jf.snap_tiles.0.max(4) as i32, jf.snap_tiles.1.max(4) as i32);
     let focus = focus
         .or_else(|| super::player::karolina_idx(w).map(|k| w.staff[k].tile()))
         .unwrap_or((w.grid.width / 2, w.grid.height / 2));
-    let ox = (focus.0 - sw / 2).clamp(0, (w.grid.width - sw).max(0));
-    let oy = (focus.1 - sh / 2).clamp(0, (w.grid.height - sh).max(0));
+    // frame the café, not the dark street and the void around it: the window stays inside
+    // the walls (the back wall's street band still shows above, like in the game)
+    let (x0, x1, y1) = interior_bounds(w);
+    let ox = (focus.0 - sw / 2).clamp(x0, (x1 + 1 - sw).max(x0));
+    let oy = (focus.1 - sh / 2).clamp(0, (y1 + 1 - sh).max(0));
     let inside = |t: (i32, i32)| t.0 >= ox && t.0 < ox + sw && t.1 >= oy && t.1 < oy + sh;
     let mut tiles = Vec::with_capacity((sw * sh) as usize);
     for y in oy..oy + sh {
@@ -252,6 +276,7 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
     }
     w.sys.journal.tonight.clear();
     w.sys.journal.tonight_kinds.clear();
+    w.sys.journal.on_seat.clear();
 }
 
 /// Day-phase highlights (a happy rozpis) get their snapshot early in the night.

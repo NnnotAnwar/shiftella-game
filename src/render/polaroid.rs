@@ -35,6 +35,9 @@ use super::theme::{DecorTheme, with_decor};
 use super::tiles::{WallKind, WallMask, draw_floor, draw_wall, window_glass_rect};
 use crate::map::TILE;
 
+/// The warm white of the instant camera's flash.
+const FLASH: Color = Color::new(1.0, 0.93, 0.84, 1.0);
+
 /// A floor in a snapshot.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum SnapFloor {
@@ -418,6 +421,23 @@ impl SnapRenderer {
                         l.add_light(Light::phone(a.feet - vec2(0.0, 40.0)));
                     }
                 }
+            }
+            // the instant camera's flash: a soft pool in the middle of the frame and a little
+            // fill on the people in it, so a moment by the door (no lamp there) still reads
+            let centre = vec2(view.x + view.w * 0.5, view.y + view.h * 0.55);
+            l.add_light(Light::new(
+                centre,
+                view.w.max(view.h) * 0.62,
+                FLASH,
+                if snap.blackout { 0.5 } else { 0.42 },
+            ));
+            for a in &snap.actors {
+                l.add_light(Light::new(
+                    a.feet - vec2(0.0, 0.55 * TILE),
+                    1.5 * TILE,
+                    FLASH,
+                    0.28,
+                ));
             }
             l.apply();
             garlands.draw_glow(snap.garlands, t);
