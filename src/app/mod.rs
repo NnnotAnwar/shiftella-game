@@ -12,7 +12,8 @@
 //!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
 //!   build_drag|attic|backroom|requests|corner|before_after` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
-//!   equipment|guest_names` (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
+//!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow`
+//!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
 //!   (hands-on scenes are played to their moment by the autoplayer;
 //!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
 //!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
@@ -654,6 +655,49 @@ impl App {
                 let n = night.unwrap_or(9);
                 let mut g = story_at(n, Some(minute.unwrap_or(85)), &self.i18n, lang);
                 g.focus_regular(&content, &Locale::new(&self.i18n, lang), "guest_anwar");
+                self.game(g)
+            }
+            // the walk home after the morning summary (design/v0.2.md F): SHIFTELLA_ROUTE picks
+            // the way, SHIFTELLA_T jumps into the walk, SHIFTELLA_WEATHER=rain|fog|snow|clear
+            "walk_home" | "walk_home_snow" | "walk_home_rain" | "backstep" | "backstep_snow" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let weather = env("SHIFTELLA_WEATHER").and_then(|w| match w.as_str() {
+                    "rain" => Some(crate::content::Weather::Rain),
+                    "downpour" => Some(crate::content::Weather::Downpour),
+                    "fog" => Some(crate::content::Weather::Fog),
+                    "snow" => Some(crate::content::Weather::Snow),
+                    "clear" => Some(crate::content::Weather::Clear),
+                    _ => None,
+                });
+                let weather = weather.or(match name {
+                    "walk_home_rain" => Some(crate::content::Weather::Rain),
+                    "walk_home_snow" | "backstep_snow" => Some(crate::content::Weather::Snow),
+                    _ => None,
+                });
+                let snowy = name.ends_with("_snow");
+                let route = env("SHIFTELLA_ROUTE");
+                let t = env("SHIFTELLA_T").and_then(|t| t.parse::<f32>().ok());
+                let mut g = if name.starts_with("backstep") {
+                    let n = night.unwrap_or(if snowy { 28 } else { 8 });
+                    let mut g = story_at(n, Some(minute.unwrap_or(95)), &self.i18n, lang);
+                    g.world.debug_end_rush();
+                    game::walk_home::step_out(&mut g, &content, weather);
+                    g
+                } else {
+                    let n = night.unwrap_or(if snowy { 27 } else { 4 });
+                    let mut g = story_at(n, Some(479), &self.i18n, lang);
+                    g.run_to_morning(&content, &loc);
+                    game::walk_home::close_summary_with(&mut g, &content, weather);
+                    g
+                };
+                if route.is_some() || t.is_some() {
+                    game::walk_home::debug_seek(
+                        &mut g,
+                        &content,
+                        route.as_deref(),
+                        t.unwrap_or(0.0),
+                    );
+                }
                 self.game(g)
             }
             "summary" => {

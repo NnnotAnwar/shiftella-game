@@ -1,0 +1,126 @@
+// Karolina's own small life (design/v0.2.md F): the walk home after the morning summary and
+// the break on the back step. Read by `src/sim/walk.rs` (compiled in with include_str!).
+// Text: assets/i18n/src/walk_home.tr — route names `walk.route.<id>`, the chip hint
+// `walk.route.<id>.hint`, the night-start toast `walk.route.<id>.tonight`, the lines `walk.line.*`,
+// the back-step messages `walk.msg.<id>` (sender name `walk.from.<from>`).
+//
+// Routes: `effects` (Fx, docs/CONTENT.md §10) run when the NEXT night starts (21:30). Keep them
+// small and cozy — never required, never punishing, no story flags, no money.
+// `walk_in`: one guest of that archetype comes in `minute` minutes after 22:00, with a wish.
+// `beats`: two lines shown on the way; per beat the FIRST variant whose `seasons` (season phase
+// ids, seasons.ron) and `weather` lists match is used (empty list = any), so the plain line
+// goes last.
+//
+// Back step: once a night from `from_minute` to `until_minute` (minutes after 22:00), never
+// during a rush. One message per break from a small pool: `acts` = story acts it belongs to
+// (empty = any night, also the sandbox). Unseen messages of tonight's act come first, then
+// unseen general ones, then the least seen.
+#![enable(implicit_some)]
+(
+    default_route: "embankment",
+    routes: [
+        (
+            id: "embankment",
+            // a clear head by the river: steady hands for the quick brews tonight
+            effects: [QuickQuality(add: 0.05, minutes: None), Toast("walk.route.embankment.tonight")],
+            beats: [
+                [
+                    (key: "walk.line.embankment.1.snow", seasons: ["first_snow"]),
+                    (key: "walk.line.embankment.1.fog", weather: [Fog]),
+                    (key: "walk.line.embankment.1.rain", weather: [Rain, Downpour, Storm]),
+                    (key: "walk.line.embankment.1"),
+                ],
+                [
+                    (key: "walk.line.embankment.2.festive", seasons: ["advent", "first_snow"]),
+                    (key: "walk.line.embankment.2.frost", seasons: ["frost"]),
+                    (key: "walk.line.embankment.2"),
+                ],
+            ],
+        ),
+        (
+            id: "park",
+            // Stromovka at dawn: a calm hall for the first hours
+            effects: [
+                HallMood(mood: Calm, minutes: Some(90)),
+                Patience(mul: 1.08, minutes: Some(150)),
+                Toast("walk.route.park.tonight"),
+            ],
+            beats: [
+                [
+                    (key: "walk.line.park.1.snow", seasons: ["first_snow"]),
+                    (key: "walk.line.park.1.frost", seasons: ["frost", "advent"]),
+                    (key: "walk.line.park.1.rain", weather: [Rain, Downpour, Storm]),
+                    (key: "walk.line.park.1"),
+                ],
+                [
+                    (key: "walk.line.park.2.fog", weather: [Fog]),
+                    (key: "walk.line.park.2"),
+                ],
+            ],
+        ),
+        (
+            id: "bakery",
+            // a fresh kolač waits on the counter: the hall smells of butter and plum jam
+            effects: [Coziness(add: 3.0, minutes: Some(240)), Toast("walk.route.bakery.tonight")],
+            beats: [
+                [
+                    (key: "walk.line.bakery.1.festive", seasons: ["advent", "first_snow"]),
+                    (key: "walk.line.bakery.1.rain", weather: [Rain, Downpour, Storm]),
+                    (key: "walk.line.bakery.1"),
+                ],
+                [
+                    (key: "walk.line.bakery.2.cold", seasons: ["frost", "advent", "first_snow"]),
+                    (key: "walk.line.bakery.2"),
+                ],
+            ],
+        ),
+        (
+            id: "tram",
+            // she talks to a nurse on the first tram — tonight the nurse drops by
+            effects: [
+                Toast("walk.route.tram.tonight"),
+                Later(minutes: 55, effects: [Toast("walk.route.tram.arrived")]),
+            ],
+            walk_in: (archetype: "nurses", minute: 55),
+            beats: [
+                [
+                    (key: "walk.line.tram.1.snow", seasons: ["first_snow"]),
+                    (key: "walk.line.tram.1.festive", seasons: ["advent"]),
+                    (key: "walk.line.tram.1.rain", weather: [Rain, Downpour, Storm]),
+                    (key: "walk.line.tram.1"),
+                ],
+                [
+                    (key: "walk.line.tram.2"),
+                ],
+            ],
+        ),
+    ],
+    backstep: (
+        from_minute: 30,
+        until_minute: 460,
+        messages: [
+            // act 1 (nights 1–7): she has just taken over grandma's café
+            (id: "mum_first_week", from: Mum, acts: [1]),
+            (id: "marta_window", from: Neighbour, acts: [1]),
+            (id: "terka_proud", from: Friend, acts: [1]),
+            // act 2 (8–16): the regulars, the café finds its feet
+            (id: "mum_dad", from: Mum, acts: [2]),
+            (id: "terka_visit", from: Friend, acts: [2]),
+            (id: "marta_lida_dance", from: Neighbour, acts: [2]),
+            // act 3 (17–24): the offers, the doubts
+            (id: "mum_whatever_you_choose", from: Mum, acts: [3]),
+            (id: "marta_geraniums", from: Neighbour, acts: [3]),
+            (id: "terka_tired", from: Friend, acts: [3]),
+            // act 4 (25–30): winter, the last stretch
+            (id: "mum_christmas", from: Mum, acts: [4]),
+            (id: "marta_snow", from: Neighbour, acts: [4]),
+            (id: "terka_light", from: Friend, acts: [4]),
+            // any night (and the sandbox)
+            (id: "mum_eat", from: Mum),
+            (id: "terka_meme", from: Friend),
+            (id: "marta_soup", from: Neighbour),
+            (id: "mum_sleep", from: Mum),
+            (id: "terka_song", from: Friend),
+        ],
+    ),
+)

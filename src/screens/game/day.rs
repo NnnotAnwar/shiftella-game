@@ -529,6 +529,7 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     {
         super::journal_ui::keep_morning(g, cx.content);
         g.summary = None;
+        super::walk_home::begin(g, cx.content, None);
     }
     let _ = wv::clock_of_minute(0);
 }

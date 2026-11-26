@@ -645,3 +645,34 @@ phrase's doesn't fit).
   `stranger.log.met`. Scene for shots: `SHIFTELLA_SCENE=guest_names` (night 8, played by the
   autoplayer to `SHIFTELLA_TIME`, then an unknown stranger's card and a pinned bubble).
   Tests: `src/sim/tests_names.rs`, `guest_label::tests`.
+## 11. The walk home and the back step (design/v0.2.md F, `sim::walk`)
+
+Karolina's own small life outside the café. Data `assets/data/walk_home.ron` (compiled in with
+`include_str!`, parsed once: `sim::walk::data()`); text `assets/i18n/src/walk_home.tr`.
+State `World.walk: WalkState` (`#[serde(default)]`, every field defaults — 0.1.x saves load
+with nothing planned). Neither feature touches story flags, trust, money or the world RNG; the
+player-bot never uses them (a full Cozy story that walks home every morning and steps out every
+night still reaches «Light in the Window» — `tests_walk.rs`).
+
+* `Command::WalkHome { route }` — Day only (`WrongPhase`), once a day (`Invalid`), a known
+  route (`UnknownId`). Stores `planned = (night, route)`, `usual = route`, `walks[route] += 1`.
+  At the next `start_night` (right after the `NextNight` effects, `walk::on_night_start`) the
+  route's `effects` (`Fx`, run with an empty `XTarget`) apply and `walk_in` schedules one
+  guest of that archetype with a wish at the given minute (`PendingSpawn { wish: true,
+  patience_mul 1.2, spend_mul 1.1 }`); `walk_tonight()` names it for that night. Routes:
+  `embankment` `QuickQuality(+0.05)`, `park` `HallMood(Calm, 90 min)` + `Patience(×1.08,
+  150 min)`, `bakery` `Coziness(+3, 240 min)`, `tram` a `nurses` walk-in at 22:55 (+ a toast
+  `walk.route.tram.arrived` via `Later`); each also toasts `walk.route.<id>.tonight` at 21:30.
+* `Command::StepOutBack` — Night with the doors open (`WrongPhase` otherwise), not tonight
+  already, minute `from_minute..until_minute` (30–460), not in a rush (`Invalid`). Picks the
+  message: unseen messages of tonight's story act first, then unseen general ones (`acts: []`,
+  the only ones in the sandbox), then the least seen — deterministic, no RNG. The UI holds the
+  café while the scene is on screen (`GameScreen::frozen`).
+* Queries: `walk()`, `usual_route()` (last pick, else `default_route`), `walked_home_today()`,
+  `walk_tonight()`, `walk_lines(&c, route)` (the first matching variant per beat by season
+  phase id and weather — `walk::lines`), `backstep_block(&c) -> Option<BackstepBlock>`
+  (`None` = the chip shows), `backstep_message() -> Option<&MessageDef>` (`text_key()`,
+  `from.name_key()`).
+* UI: `src/screens/game/walk_home.rs` (flow, chips, captions, the message card), art
+  `src/render/dawn.rs` (the dawn strip) and `src/render/backstep.rs`.
+

@@ -40,6 +40,7 @@ mod story;
 mod systems;
 mod tool;
 mod types;
+pub mod walk;
 mod world;
 mod xlogic;
 
@@ -65,6 +66,8 @@ mod tests_qa;
 mod tests_sys;
 #[cfg(test)]
 mod tests_t10;
+#[cfg(test)]
+mod tests_walk;
 
 pub use app::digest_lines;
 pub use build_ux::{InUseReason, PieceMove};
