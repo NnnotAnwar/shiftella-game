@@ -352,6 +352,8 @@ fn walk_in(w: &mut World, content: &Content) -> bool {
         spend_mul: 1.0,
         orders: Vec::new(),
         wish: true,
+        crowd: false,
+        held: 0,
     });
     let (mul, minutes, from) = content.handson.tuning.lull_walk_in;
     if w.mode == Mode::Sandbox || w.night >= from {

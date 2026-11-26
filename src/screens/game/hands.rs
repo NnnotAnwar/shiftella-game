@@ -1458,6 +1458,21 @@ impl GameScreen {
         }
         ap.cooldown = AUTOPLAY_REACT;
         self.hands.autoplay = Some(ap);
+        // closing time: the handover note and the light at six go to the front of her hands
+        // even before an open card (a late guest at 05:45 must not keep the lamp on)
+        if self.world.minute() >= 466 {
+            for id in ["handover_note", "light_off_at_six"] {
+                let open = self
+                    .world
+                    .app()
+                    .checklist
+                    .iter()
+                    .any(|c| c.id == id && !c.done && c.claim.is_none());
+                if open && self.queue(content, PlayerAct::Checklist { id: id.to_string() }, true) {
+                    return Some("closing");
+                }
+            }
+        }
         // an open card: the usual if offered, else the first suggestion in its default mode
         if let Some(o) = self.hands.order.clone() {
             if self.world.usual_available(content, o.guest).is_some() {

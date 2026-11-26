@@ -153,7 +153,13 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   station slow-downs × hall mood. Karolina is driven by her queue only (§9.1).
 * **Guests:** arrivals per minute from `hour_weights × weekday_mult` of the town's pools × reputation ×
   weather × `GuestRate` (× 0.5 in the quiet hour); trains add passengers (Cozy: spread over
-  `COZY_TRAIN_SPREAD` = 14 min); rushes from events. Seats are reserved on arrival (no seat →
+  `COZY_TRAIN_SPREAD` = 24 min); rushes from events. **Cozy: full hands** (0.2 polish) — while
+  `guests::cozy_pressure` (`karolina_todo` + parties arriving / in the queue / waiting to order)
+  ≥ `COZY_HOLD_PRESSURE` (3), a crowd party (`PendingSpawn.crowd`: train passengers, event-rush
+  guests; a random walk-in is deferred into one) lingers outside a minute longer (≤
+  `COZY_HOLD_MAX` 60 min, none from 05:00), and the ones who waited come in one party a
+  minute (all in by `COZY_HOLD_LAST` 05:20, so the closing checklist still fits). The Cozy
+  train spread is cut so passengers are in by last call (05:40). Classic never holds. Seats are reserved on arrival (no seat →
   they walk on). Plain parties queue at the register (or sit when the line is long); wish
   parties always sit and wait for Karolina. Patience runs on the wait clock (§9.4); food waits
   get `FOOD_PATIENCE` 2.4× (Cozy `COZY_FOOD_PATIENCE` 3.0×). Satisfaction: wait times, item

@@ -41,6 +41,8 @@ mod tests_balance;
 #[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
+mod tests_polish;
+#[cfg(test)]
 mod tests_prep;
 #[cfg(test)]
 mod tests_qa;
@@ -97,9 +99,11 @@ pub(crate) fn trains_tick(w: &mut World, content: &Content) {
             let start = w.rng.range_u32(3, 6);
             let mut left = n;
             let group = content.guest(&t.guest).map(|g| g.group).unwrap_or((1, 2));
-            // Cozy: the passengers drift in over a longer stretch (a busy moment, not a wall)
+            // Cozy: the passengers drift in over a longer stretch (a busy moment, not a wall),
+            // but not after last call (the 05:20 train used to bring people in at 05:50, right
+            // into the closing checklist)
             let spread = if w.difficulty == Difficulty::Cozy {
-                COZY_TRAIN_SPREAD
+                COZY_TRAIN_SPREAD.min(guests::LAST_CALL.saturating_sub(m + start + 1).max(1))
             } else {
                 6
             };
@@ -114,6 +118,8 @@ pub(crate) fn trains_tick(w: &mut World, content: &Content) {
                     spend_mul: 1.0,
                     orders: Vec::new(),
                     wish: false,
+                    crowd: true,
+                    held: 0,
                 });
                 left -= size;
             }

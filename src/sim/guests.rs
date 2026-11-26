@@ -60,7 +60,29 @@ pub struct PendingSpawn {
     /// The leader comes with a wish (lull-director walk-ins).
     #[serde(default)]
     pub wish: bool,
+    /// Part of a crowd (train passengers, an event rush): on Cozy it may linger outside
+    /// while Karolina's hands are full ([`COZY_HOLD_PRESSURE`]).
+    #[serde(default)]
+    pub crowd: bool,
+    /// Minutes it has lingered so far.
+    #[serde(default)]
+    pub held: u32,
 }
+
+/// Cozy: while her pressure ([`cozy_pressure`]: pending things + parties walking in or still
+/// to order) is at least this, a crowd's next party — train passengers, an event rush, a
+/// random walk-in — lingers outside (on the platform, at the menu in the window) a minute
+/// longer, and the ones who waited come in one party a minute. 0.2 polish: the Cozy rush
+/// peak (sim_balance's worst average, nights 1–10) went from 8.6–10.2 to 6.3–6.8 at the same
+/// income; Classic keeps its walls.
+pub const COZY_HOLD_PRESSURE: u32 = 3;
+/// A party lingers for her hands at most this many minutes …
+pub const COZY_HOLD_MAX: u32 = 60;
+/// … nobody starts lingering from this minute on (05:00, when the closing checklist starts) …
+pub const COZY_HOLD_UNTIL: u32 = 420;
+/// … and the last ones who waited are in by this minute (05:20: the closing checklist still
+/// fits before 06:00).
+pub const COZY_HOLD_LAST: u32 = 440;
 
 // ---------------------------------------------------------------------------------------------
 // Menu availability
@@ -454,6 +476,8 @@ pub(crate) fn schedule_rush(
             spend_mul,
             orders: orders.to_vec(),
             wish: false,
+            crowd: false,
+            held: 0,
         });
         left -= size;
     }
@@ -1015,8 +1039,27 @@ pub(crate) fn pick_archetype(w: &mut World, content: &Content, hour: usize) -> O
 // Per-minute logic
 // ---------------------------------------------------------------------------------------------
 
+/// Cozy: Karolina's pending things plus what is about to land on her — parties walking in and
+/// parties still to order (an order soon becomes a round or two).
+pub(crate) fn cozy_pressure(w: &World, content: &Content) -> u32 {
+    let coming = w
+        .parties
+        .iter()
+        .filter(|p| {
+            matches!(
+                p.state,
+                PartyState::Arriving | PartyState::Queue | PartyState::WaitOrder
+            )
+        })
+        .count() as u32;
+    super::pacing::todo(w, content) + coming
+}
+
 pub(crate) fn on_minute(w: &mut World, content: &Content) {
     let m = w.minute();
+    // Cozy: her hands are full (crowds and walk-ins linger outside a little)
+    let full_hands =
+        w.difficulty == Difficulty::Cozy && cozy_pressure(w, content) >= COZY_HOLD_PRESSURE;
     // Random walk-ins.
     if m < LAST_CALL
         && let Some(hour) = crate::content::ClockTime::from_minutes_since_open(m).open_hour_index()
@@ -1027,19 +1070,48 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             && let Some(arch) = content.guest(&a)
         {
             let size = w.rng.range_u32(arch.group.0.max(1), arch.group.1.max(1));
-            spawn_party(w, content, &a, size, None, 1.0, 1.0, &[], None, false);
+            if full_hands && m < COZY_HOLD_UNTIL {
+                // Cozy: they look at the menu in the window a while (see the crowds below)
+                w.spawns.push(PendingSpawn {
+                    minute: m,
+                    archetype: a,
+                    size,
+                    patience_mul: 1.0,
+                    spend_mul: 1.0,
+                    orders: Vec::new(),
+                    wish: false,
+                    crowd: true,
+                    held: 0,
+                });
+            } else {
+                spawn_party(w, content, &a, size, None, 1.0, 1.0, &[], None, false);
+            }
         }
     }
-    // Scheduled (rushes, trains).
+    // Scheduled (rushes, trains). Cozy: a crowd lingers while her hands are full, then
+    // comes in one party a minute (never a wall of people at once).
+    let hold =
+        full_hands && m < COZY_HOLD_UNTIL && w.spawns.iter().any(|s| s.crowd && s.minute <= m);
     let due: Vec<PendingSpawn> = {
         let mut due = Vec::new();
-        w.spawns.retain(|s| {
-            if s.minute <= m {
-                due.push(s.clone());
-                false
-            } else {
-                true
+        let mut released_held = false;
+        w.spawns.retain_mut(|s| {
+            if s.minute > m {
+                return true;
             }
+            // her hands are full: wait (up to `COZY_HOLD_MAX`); the ones who waited come in
+            // one party a minute (till 05:20: in before the closing checklist)
+            let lingers = s.crowd
+                && m < COZY_HOLD_LAST
+                && ((hold && s.held < COZY_HOLD_MAX) || (s.held > 0 && released_held));
+            if lingers {
+                s.held += 1;
+                s.minute = m + 1;
+                return true;
+            }
+            released_held |= s.held > 0;
+            due.push(s.clone());
+            false
         });
         due
     };

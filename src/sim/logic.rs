@@ -606,7 +606,12 @@ fn apply_one(w: &mut World, content: &Content, e: &Effect, ctx: &mut EffectCtx) 
                 pmul = pmul.max(1.0);
                 spread = spread.max(10) + 10;
             }
+            let before = w.spawns.len();
             super::guests::schedule_rush(w, content, guest, n, spread, pmul, *spend_mul, orders);
+            // a crowd: on Cozy it lingers outside while Karolina's hands are full
+            for s in &mut w.spawns[before..] {
+                s.crowd = true;
+            }
         }
         Effect::GuestStay(x) => {
             w.guest_stay_add += x;
