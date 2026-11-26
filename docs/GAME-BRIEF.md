@@ -153,3 +153,22 @@ Mini-games (`src/minigame/**`, `MiniGameKind`): **MilkFroth** (hold to froth, re
 circles to a gentle rhythm), **TeaSteep** (lift the tea bag when the colour looks right), **Plate** (arrange a
 pastry / soup garnish). Each: `start(kind, seed)`, `update(&mut Ui, dt) -> MiniGameStatus { Running,
 Done { quality } }`, `draw(&mut Ui, rect)`; skippable (auto quality 0.7), 8–20 seconds, cosy SFX hooks.
+
+### 6.4 The café changes over time (in v0.1.0)
+- **Seasons over the 30 nights:** late autumn (rain, leaves) → first snow around night 27 (snow outside,
+  frosted windows, steam on breath) → festive garlands and lights near the end. Sandbox cycles seasons slowly.
+- **Decor themes & coziness:** unlockable themes (e.g. Grandma's original, Prague Art-Nouveau, Station Retro,
+  Winter Lights) for walls/floors/lamps/textiles; a **coziness / atmosphere** value of the hall (lighting,
+  plants, rugs, music, cleanliness, theme) that gently raises guests' mood and patience and shows as a
+  soft "atmosphere" meter.
+- **Polaroid journal:** every morning the night's best moment (a regular's arc beat, a perfect latte, the
+  3:33 guest, a full house…) is captured as a small "polaroid" snapshot of the actual scene with a
+  handwritten-style caption, stored in the save and browsable in a **Journal** (hotkey **J**).
+
+### 6.5 The rozpis as a light puzzle (in v0.1.0)
+- Staff have **preferences**: "I have lectures on Tuesdays", "night owl — late shift please", "wants the weekend
+  off", "can't work two nights in a row", "loves working with Bára"… shown as small chips in the Shiftella app.
+- The rozpis shows a gentle **fairness / wellbeing score** per person and for the week; respecting wishes lowers
+  fatigue and raises mood (better work, fewer late arrivals and sick days); ignoring them is allowed but costs
+  mood. Auto-fill respects wishes where it can. This is the in-game echo of what the real Shiftella does —
+  keep it satisfying, not spreadsheet-heavy.
