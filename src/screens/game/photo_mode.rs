@@ -149,12 +149,15 @@ pub fn clamp_camera(g: &mut GameScreen) {
 /// Esc / P while the camera is up. True when photo mode had the keyboard.
 pub fn hotkeys(g: &mut GameScreen, ui: &mut Ui, loc: &crate::settings::Locale) -> bool {
     if g.photo.finder.is_some() {
-        if ui.esc() || ui.key(KeyCode::P) {
+        if ui.esc() || crate::settings::keys::pressed(ui, crate::settings::keys::Action::Photo) {
             close(g);
         }
         return true;
     }
-    if g.world.phase() == Phase::Night && ui.key(KeyCode::P) && can_open(g) {
+    if g.world.phase() == Phase::Night
+        && crate::settings::keys::pressed(ui, crate::settings::keys::Action::Photo)
+        && can_open(g)
+    {
         open(g, loc);
         return true;
     }

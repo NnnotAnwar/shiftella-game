@@ -328,7 +328,11 @@ pub fn journal(
         ui.fonts.baseline_in(head, &ts),
         &ts,
     );
-    ui.keycap(vec2(head.x + 36.0 + tw, head.center_y()), "J", false);
+    ui.keycap(
+        vec2(head.x + 36.0 + tw, head.center_y()),
+        &crate::settings::keys::label(crate::settings::keys::Action::Journal),
+        false,
+    );
     let close = Rect::new(head.right() - 26.0, head.y + 2.0, 26.0, 26.0);
     if ui
         .icon_button(

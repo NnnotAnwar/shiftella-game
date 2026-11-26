@@ -445,7 +445,7 @@ fn break_tile(w: &World, idx: usize) -> (i32, i32) {
 
 pub(crate) fn on_night_start(w: &mut World, content: &Content) {
     let wd = w.weekday as usize;
-    let cozy = w.difficulty == Difficulty::Cozy;
+    let cozy = w.difficulty.gentle();
     let night = w.night;
     for i in 0..w.staff.len() {
         let id = w.staff[i].id;
@@ -1522,7 +1522,7 @@ fn mishap(w: &mut World, content: &Content, idx: usize) {
             }
         }
     }
-    if w.difficulty == Difficulty::Cozy {
+    if w.difficulty.gentle() {
         chance *= 0.6;
     }
     // at most a couple of broken cups a night (each one is a toast)
@@ -1788,7 +1788,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             }
         }
         let floor = mood_floor(&w.staff[idx], content);
-        let cozy = w.difficulty == Difficulty::Cozy;
+        let cozy = w.difficulty.gentle();
         let classic_mul = content.handson.tuning.player_energy.classic_drain_mul;
         let s = &mut w.staff[idx];
         s.minutes_worked += 1;

@@ -228,10 +228,10 @@ uk Бабусина записка в шухляді
 ru Бабушкина записка в ящике
 
 signature.prompt_body
-cs «Každá pořádná kavárna má svůj nápoj. — L.» Kniha receptů (K) → Náš nápoj.
-en «Every café worth its name has a drink of its own. — L.» Recipe book (K) → Our drink.
-uk «У кожної справжньої кав'ярні є свій напій. — Л.» Книга рецептів (K) → Наш напій.
-ru «У каждого настоящего кафе есть свой напиток. — Л.» Книга рецептов (K) → Фирменный.
+cs «Každá pořádná kavárna má svůj nápoj. — L.» Kniha receptů ({key.book}) → Náš nápoj.
+en «Every café worth its name has a drink of its own. — L.» Recipe book ({key.book}) → Our drink.
+uk «У кожної справжньої кав'ярні є свій напій. — Л.» Книга рецептів ({key.book}) → Наш напій.
+ru «У каждого настоящего кафе есть свой напиток. — Л.» Книга рецептов ({key.book}) → Фирменный.
 
 # the chalkboard in the café
 

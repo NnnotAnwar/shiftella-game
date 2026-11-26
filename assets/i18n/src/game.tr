@@ -589,10 +589,10 @@ uk Знайдено записку бабусі ({n} з 10)
 ru Найдена записка бабушки ({n} из 10)
 
 ui.ticker.open_log
-cs Otevřít deník · L
-en Open the log · L
-uk Відкрити журнал · L
-ru Открыть журнал · L
+cs Otevřít deník · {key.log}
+en Open the log · {key.log}
+uk Відкрити журнал · {key.log}
+ru Открыть журнал · {key.log}
 
 ui.ticker.payment_made
 cs Splátka zaplacena: {money}

@@ -197,10 +197,10 @@ pub fn mode_id(w: &World) -> &'static str {
 
 /// The sim's difficulty from a content id.
 pub fn difficulty_from_id(id: &str) -> sim::Difficulty {
-    if id == "classic" {
-        sim::Difficulty::Classic
-    } else {
-        sim::Difficulty::Cozy
+    match id {
+        "classic" => sim::Difficulty::Classic,
+        "relaxed" => sim::Difficulty::Relaxed,
+        _ => sim::Difficulty::Cozy,
     }
 }
 

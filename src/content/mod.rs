@@ -286,7 +286,7 @@ mod tests {
         assert_eq!(c.story.nights.len(), 30);
         assert_eq!(c.story.notes.len(), 10);
         assert_eq!(c.story.endings.len(), 2, "exactly two endings");
-        assert_eq!(c.difficulties.len(), 2);
+        assert_eq!(c.difficulties.len(), 3, "Cozy, Carefree (relaxed), Classic");
         assert_eq!(c.default_difficulty().map(|d| d.id.as_str()), Some("cozy"));
         assert!(c.cutscenes.cutscenes.len() >= 20);
     }

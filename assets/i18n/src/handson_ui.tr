@@ -193,10 +193,10 @@ uk Це любить
 ru Это любит
 
 ui.duties.none
-cs Zatím žádní pomocníci — dnes jsi tu sama. První může nastoupit třetí noc (C).
-en No helpers yet — tonight it's just you. The first one can start on night 3 (C).
-uk Помічників ще немає — цієї ночі ти сама. Перший зможе почати третьої ночі (C).
-ru Помощников пока нет — этой ночью ты одна. Первый сможет начать на третью ночь (C).
+cs Zatím žádní pomocníci — dnes jsi tu sama. První může nastoupit třetí noc ({key.crew}).
+en No helpers yet — tonight it's just you. The first one can start on night 3 ({key.crew}).
+uk Помічників ще немає — цієї ночі ти сама. Перший зможе почати третьої ночі ({key.crew}).
+ru Помощников пока нет — этой ночью ты одна. Первый сможет начать на третью ночь ({key.crew}).
 
 ui.duties.grows
 cs Po pár nocích zvládne ještě jednu povinnost.
@@ -212,10 +212,10 @@ uk За стійкою
 ru За стойкой
 
 ui.help.hands.body
-cs Karolina dělá práci sama. Klikni na hosta — pozdraví ho a vezme objednávku; na stůl — sklidí ho; na minci — vezme dýško; na dřez a podrž — umyje nádobí; přejeď skvrnu — vytře ji; na jukebox — změní desku. Shift+klik dá věc v její frontě na první místo, pravé tlačítko zruší, co právě dělá. Klávesnice: Enter vezme lístek z lišty ([ ] posun), E udělá nejbližší práci (u dřezu E podrž), G zamává, Backspace ruší.
-en Karolina does the work herself. Click a guest to greet them and take the order; click a table to clear it, a coin to pick up the tip, the sink and hold to wash, swipe a dirt blot to mop it, the jukebox to change the record. Shift+click puts it first in her queue; right-click cancels what she's doing. Keyboard: Enter takes the ticket on the rail ([ ] move), E does the nearest chore (hold E at the sink), G waves, Backspace cancels.
-uk Кароліна робить усе сама. Клацни гостя — вона привітається й прийме замовлення; стіл — прибере його; монету — забере чайові; мийку й утримуй — помиє посуд; проведи по плямі — витре її; музичний автомат — змінить платівку. Shift+клік ставить справу першою в її черзі, правий клік скасовує поточну. Клавіатура: Enter бере чек із рейки ([ ] — вибір), E — найближча справа (біля мийки утримуй E), G — помахати, Backspace — скасувати.
-ru Каролина делает всё сама. Нажми на гостя — она поздоровается и примет заказ; на стол — уберёт его; на монету — заберёт чаевые; на мойку и удерживай — помоет посуду; проведи по пятну — вытрет его; на музыкальный автомат — сменит пластинку. Shift+клик ставит дело первым в её очереди, правый клик отменяет текущее. Клавиатура: Enter берёт чек с рейки ([ ] — выбор), E — ближайшее дело (у мойки удерживай E), G — помахать, Backspace — отменить.
+cs Karolina dělá práci sama. Klikni na hosta — pozdraví ho a vezme objednávku; na stůl — sklidí ho; na minci — vezme dýško; na dřez a podrž — umyje nádobí; přejeď skvrnu — vytře ji; na jukebox — změní desku. Shift+klik dá věc v její frontě na první místo, pravé tlačítko zruší, co právě dělá. Klávesnice: Enter vezme lístek z lišty ([ ] posun), {key.chore} udělá nejbližší práci (u dřezu {key.chore} podrž), {key.greet} zamává, Backspace ruší.
+en Karolina does the work herself. Click a guest to greet them and take the order; click a table to clear it, a coin to pick up the tip, the sink and hold to wash, swipe a dirt blot to mop it, the jukebox to change the record. Shift+click puts it first in her queue; right-click cancels what she's doing. Keyboard: Enter takes the ticket on the rail ([ ] move), {key.chore} does the nearest chore (hold {key.chore} at the sink), {key.greet} waves, Backspace cancels.
+uk Кароліна робить усе сама. Клацни гостя — вона привітається й прийме замовлення; стіл — прибере його; монету — забере чайові; мийку й утримуй — помиє посуд; проведи по плямі — витре її; музичний автомат — змінить платівку. Shift+клік ставить справу першою в її черзі, правий клік скасовує поточну. Клавіатура: Enter бере чек із рейки ([ ] — вибір), {key.chore} — найближча справа (біля мийки утримуй {key.chore}), {key.greet} — помахати, Backspace — скасувати.
+ru Каролина делает всё сама. Нажми на гостя — она поздоровается и примет заказ; на стол — уберёт его; на монету — заберёт чаевые; на мойку и удерживай — помоет посуду; проведи по пятну — вытрет его; на музыкальный автомат — сменит пластинку. Shift+клик ставит дело первым в её очереди, правый клик отменяет текущее. Клавиатура: Enter берёт чек с рейки ([ ] — выбор), {key.chore} — ближайшее дело (у мойки удерживай {key.chore}), {key.greet} — помахать, Backspace — отменить.
 
 ui.help.brewing.title
 cs Příprava
@@ -224,16 +224,16 @@ uk Приготування
 ru Приготовление
 
 ui.help.brewing.body
-cs Karta objednávky ukáže přání a až čtyři recepty (1–4). Rychle (Q) to udělá kávovar; Ručně je krátká minihra pro lepší šálek. U dá důvěrnému štamgastovi to obvyklé, H předá přání pomocníkovi, K otevře knihu receptů. V minihře mezerník drží, šipky řídí, Enter je hotovo, Tab přeskočí — přeskočený šálek je pořád dobrý šálek. Když je karta otevřená, noc zpomalí.
-en The order card shows the wish and up to four recipes (1–4). Quick (Q) lets the machine do it; By hand plays a short mini-game for a better cup. U is the usual for a trusted regular, H hands a wish to a helper, K opens the recipe book. In a mini-game Space holds, arrows steer, Enter is done, Tab skips — a skipped cup is still a good cup. The night slows down while a card is open.
-uk Картка замовлення показує побажання й до чотирьох рецептів (1–4). Швидко (Q) — усе зробить машина; Власноруч — коротка мінігра для кращої чашки. U — «як завжди» для постійного гостя, що довіряє, H — передати побажання помічнику, K — книга рецептів. У мінігрі пробіл утримує, стрілки керують, Enter — готово, Tab — пропустити: пропущена чашка все одно добра. Поки картка відкрита, ніч сповільнюється.
-ru Карточка заказа показывает пожелание и до четырёх рецептов (1–4). Быстро (Q) — всё сделает машина; Своими руками — короткая мини-игра для чашки получше. U — «как обычно» для доверяющего постоянного гостя, H — передать пожелание помощнику, K — книга рецептов. В мини-игре пробел удерживает, стрелки управляют, Enter — готово, Tab — пропустить: пропущенная чашка всё равно хорошая. Пока карточка открыта, ночь замедляется.
+cs Karta objednávky ukáže přání a až čtyři recepty (1–4). Rychle (Q) to udělá kávovar; Ručně je krátká minihra pro lepší šálek. U dá důvěrnému štamgastovi to obvyklé, H předá přání pomocníkovi, {key.book} otevře knihu receptů. V minihře mezerník drží, šipky řídí, Enter je hotovo, Tab přeskočí — přeskočený šálek je pořád dobrý šálek. Když je karta otevřená, noc zpomalí.
+en The order card shows the wish and up to four recipes (1–4). Quick (Q) lets the machine do it; By hand plays a short mini-game for a better cup. U is the usual for a trusted regular, H hands a wish to a helper, {key.book} opens the recipe book. In a mini-game Space holds, arrows steer, Enter is done, Tab skips — a skipped cup is still a good cup. The night slows down while a card is open.
+uk Картка замовлення показує побажання й до чотирьох рецептів (1–4). Швидко (Q) — усе зробить машина; Власноруч — коротка мінігра для кращої чашки. U — «як завжди» для постійного гостя, що довіряє, H — передати побажання помічнику, {key.book} — книга рецептів. У мінігрі пробіл утримує, стрілки керують, Enter — готово, Tab — пропустити: пропущена чашка все одно добра. Поки картка відкрита, ніч сповільнюється.
+ru Карточка заказа показывает пожелание и до четырёх рецептов (1–4). Быстро (Q) — всё сделает машина; Своими руками — короткая мини-игра для чашки получше. U — «как обычно» для доверяющего постоянного гостя, H — передать пожелание помощнику, {key.book} — книга рецептов. В мини-игре пробел удерживает, стрелки управляют, Enter — готово, Tab — пропустить: пропущенная чашка всё равно хорошая. Пока карточка открыта, ночь замедляется.
 
 ui.help.duties.title
-cs Povinnosti (H)
-en Duties (H)
-uk Обов'язки (H)
-ru Обязанности (H)
+cs Povinnosti ({key.duties})
+en Duties ({key.duties})
+uk Обов'язки ({key.duties})
+ru Обязанности ({key.duties})
 
 ui.help.duties.body
 cs Pomocníci dělají jen to, co jim svěříš: nádobí, podlahu, pokladnu, bar, kuchyň, obsluhu. Každý zvládne jednu až tři povinnosti. Přání, štamgasti a malé chvilky zůstávají vždycky tobě.

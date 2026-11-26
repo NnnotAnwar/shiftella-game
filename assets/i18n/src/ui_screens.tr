@@ -85,28 +85,28 @@ uk Журнал
 ru Журнал
 
 ui.speed.pause
-cs Pauza (mezerník)
-en Pause (Space)
-uk Пауза (пробіл)
-ru Пауза (пробел)
+cs Pauza ({key.pause})
+en Pause ({key.pause})
+uk Пауза ({key.pause})
+ru Пауза ({key.pause})
 
 ui.speed.normal
-cs Rychlost ×1 (1)
-en Speed ×1 (1)
-uk Швидкість ×1 (1)
-ru Скорость ×1 (1)
+cs Rychlost ×1 ({key.speed1})
+en Speed ×1 ({key.speed1})
+uk Швидкість ×1 ({key.speed1})
+ru Скорость ×1 ({key.speed1})
 
 ui.speed.fast
-cs Rychlost ×2 (2)
-en Speed ×2 (2)
-uk Швидкість ×2 (2)
-ru Скорость ×2 (2)
+cs Rychlost ×2 ({key.speed2})
+en Speed ×2 ({key.speed2})
+uk Швидкість ×2 ({key.speed2})
+ru Скорость ×2 ({key.speed2})
 
 ui.speed.faster
-cs Rychlost ×3 (3)
-en Speed ×3 (3)
-uk Швидкість ×3 (3)
-ru Скорость ×3 (3)
+cs Rychlost ×3 ({key.speed3})
+en Speed ×3 ({key.speed3})
+uk Швидкість ×3 ({key.speed3})
+ru Скорость ×3 ({key.speed3})
 
 ui.toolbar.crew
 cs Personál

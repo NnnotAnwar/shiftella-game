@@ -9,10 +9,10 @@ uk Відчиняємо о 22:00
 ru Открываемся в 22:00
 
 prep.toast.start.body
-cs Půl hodiny do prvních hostů. Rozsviť okno, nahřej kávovar, pusť desku — seznam na otevření je v Shiftelle (T).
-en Half an hour before the first guests. Light the window, warm up the machine, put on a record — the opening list is in Shiftella (T).
-uk Пів години до перших гостей. Засвіти вікно, нагрій кавоварку, постав платівку — список на відкриття в Shiftella (T).
-ru Полчаса до первых гостей. Зажги окно, разогрей кофемашину, поставь пластинку — список на открытие в Shiftella (T).
+cs Půl hodiny do prvních hostů. Rozsviť okno, nahřej kávovar, pusť desku — seznam na otevření je v Shiftelle ({key.app}).
+en Half an hour before the first guests. Light the window, warm up the machine, put on a record — the opening list is in Shiftella ({key.app}).
+uk Пів години до перших гостей. Засвіти вікно, нагрій кавоварку, постав платівку — список на відкриття в Shiftella ({key.app}).
+ru Полчаса до первых гостей. Зажги окно, разогрей кофемашину, поставь пластинку — список на открытие в Shiftella ({key.app}).
 
 prep.toast.doors_open.title
 cs Otevřeno

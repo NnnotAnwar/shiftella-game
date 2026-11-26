@@ -198,19 +198,18 @@ fn offer_card(
         Align::Center,
     );
     let story = loc.tr_owned(&format!("attic.{}.story", o.id));
-    let story_style = t.micro().color(t.text_dim);
-    ui.fonts.draw_wrapped(
-        &story,
-        Rect::new(
-            r.x + 10.0,
-            prev.bottom() + 22.0,
-            r.w - 20.0,
-            story_style.line_h() * 3.0,
-        ),
-        &story_style,
-        Align::Center,
-        Some(3),
+    // three lines above the price; a larger text size gives way before a line is cut
+    let sr = Rect::new(
+        r.x + 10.0,
+        prev.bottom() + 22.0,
+        r.w - 20.0,
+        (r.bottom() - 56.0 - 2.0 - prev.bottom() - 22.0).max(12.0),
     );
+    let story_style = ui
+        .fonts
+        .fit_lines(&story, sr, &t.micro().color(t.text_dim), 3);
+    ui.fonts
+        .draw_wrapped(&story, sr, &story_style, Align::Center, Some(3));
     let mut tip = loc.tr_owned(&d.desc_key());
     tip.push('\n');
     tip.push_str(&story);

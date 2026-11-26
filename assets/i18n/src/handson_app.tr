@@ -715,16 +715,16 @@ uk Старій кавоварці треба хвилинку, щоб прок�
 ru Старой кофемашине нужна минутка, чтобы проснуться. Держи, пока не загудит.
 
 tutorial.checklist_open
-cs Zbytek otevíracích rituálů mám v Shiftelle (T) — fajfky na lampě, lednici, pokladně. Do 22:00 je zavřeno, stihnu to v klidu; všechno do 22:30 a kavárna je připravená.
-en The rest of the opening rituals are in Shiftella (T) — little ticks on the lamp, the fridge, the till. The doors stay shut till 22:00, so there's time; all done by 22:30 and the café is ready.
-uk Решта ритуалів відкриття — у Shiftella (T): позначки на лампі, холодильнику, касі. До 22:00 зачинено, я встигну спокійно; усе до 22:30 — і кав'ярня готова.
-ru Остальные ритуалы открытия — в Shiftella (T): отметки на лампе, холодильнике, кассе. До 22:00 закрыто, я успею спокойно; всё до 22:30 — и кафе готово.
+cs Zbytek otevíracích rituálů mám v Shiftelle ({key.app}) — fajfky na lampě, lednici, pokladně. Do 22:00 je zavřeno, stihnu to v klidu; všechno do 22:30 a kavárna je připravená.
+en The rest of the opening rituals are in Shiftella ({key.app}) — little ticks on the lamp, the fridge, the till. The doors stay shut till 22:00, so there's time; all done by 22:30 and the café is ready.
+uk Решта ритуалів відкриття — у Shiftella ({key.app}): позначки на лампі, холодильнику, касі. До 22:00 зачинено, я встигну спокійно; усе до 22:30 — і кав'ярня готова.
+ru Остальные ритуалы открытия — в Shiftella ({key.app}): отметки на лампе, холодильнике, кассе. До 22:00 закрыто, я успею спокойно; всё до 22:30 — и кафе готово.
 
 tutorial.checklist_close
-cs Čas pořádně zavřít: nádobí, kávovar, pokladna, lednice (T). Po poctivém zavření je zítřejší otevření dvakrát rychlejší.
-en Time to close properly: dishes, the machine, the till, the fridge (T). A tidy close makes tomorrow's opening twice as quick.
-uk Час зачинитися як слід: посуд, кавоварка, каса, холодильник (T). Після охайного закриття завтра відкриюся вдвічі швидше.
-ru Пора закрыться как следует: посуда, кофемашина, касса, холодильник (T). После аккуратного закрытия завтра откроюсь вдвое быстрее.
+cs Čas pořádně zavřít: nádobí, kávovar, pokladna, lednice ({key.app}). Po poctivém zavření je zítřejší otevření dvakrát rychlejší.
+en Time to close properly: dishes, the machine, the till, the fridge ({key.app}). A tidy close makes tomorrow's opening twice as quick.
+uk Час зачинитися як слід: посуд, кавоварка, каса, холодильник ({key.app}). Після охайного закриття завтра відкриюся вдвічі швидше.
+ru Пора закрыться как следует: посуда, кофемашина, касса, холодильник ({key.app}). После аккуратного закрытия завтра откроюсь вдвое быстрее.
 
 tutorial.greet
 cs To je Mirek. Babiččin nejstarší štamgast. Zamávat neuškodí.
@@ -787,16 +787,16 @@ uk Записка для завтрашньої себе, а о шостій —
 ru Записка для завтрашней себя, а в шесть — погасить свет.
 
 tutorial.journal
-cs Babička měla za pokladnou krabici fotek. Budu si jednu vést taky. (J)
-en Grandma kept a box of photos behind the till. I'll keep one too. (J)
-uk Бабуся тримала за касою коробку з фото. Я теж збиратиму. (J)
-ru Бабушка держала за кассой коробку с фото. Я тоже буду собирать. (J)
+cs Babička měla za pokladnou krabici fotek. Budu si jednu vést taky. ({key.journal})
+en Grandma kept a box of photos behind the till. I'll keep one too. ({key.journal})
+uk Бабуся тримала за касою коробку з фото. Я теж збиратиму. ({key.journal})
+ru Бабушка держала за кассой коробку с фото. Я тоже буду собирать. ({key.journal})
 
 tutorial.book
-cs Babiččiny recepty jsou všechny tady — a kartička na lipový čaj, jejím písmem. (K)
-en Grandma's recipes are all in here — and a card for linden tea, in her handwriting. (K)
-uk Усі бабусині рецепти тут — і картка з липовим чаєм, її почерком. (K)
-ru Все бабушкины рецепты здесь — и карточка с липовым чаем, её почерком. (K)
+cs Babiččiny recepty jsou všechny tady — a kartička na lipový čaj, jejím písmem. ({key.book})
+en Grandma's recipes are all in here — and a card for linden tea, in her handwriting. ({key.book})
+uk Усі бабусині рецепти тут — і картка з липовим чаєм, її почерком. ({key.book})
+ru Все бабушкины рецепты здесь — и карточка с липовым чаем, её почерком. ({key.book})
 
 tutorial.experiment
 cs Lípa a med, píše se na kartičce. Do přihrádek spíže, pak Zkusit.

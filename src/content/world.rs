@@ -372,6 +372,9 @@ pub enum PaymentRule {
     Soft,
     /// Missing `close_after_missed` payments (or the final one) leads to the Last Train ending.
     Hard,
+    /// Relaxed (no money pressure): an instalment is covered when it comes due — the debt
+    /// shrinks, the till keeps its money, nothing can be missed.
+    Forgiven,
 }
 
 /// `difficulty.<id>.name` / `.desc`.

@@ -101,10 +101,10 @@ uk Передати
 ru Передать
 
 ui.order.book
-cs Kniha (K)
-en Book (K)
-uk Книга (K)
-ru Книга (K)
+cs Kniha ({key.book})
+en Book ({key.book})
+uk Книга ({key.book})
+ru Книга ({key.book})
 
 ui.order.plain
 cs Běžná objednávka: {item}
@@ -391,10 +391,10 @@ uk Лише ти: побажання, постійні гості, фірмов�
 ru Только ты: пожелания, постоянные гости, фирменные блюда, моменты и свет в окне.
 
 story.hint.duties
-cs Pomocníci dělají jen povinnosti, které jim dáš (H). Hosté s přáním jsou tvoji.
-en Helpers only do the duties you give them (H). The guests with wishes are yours.
-uk Помічники роблять лише ті обов'язки, які ти їм даси (H). Гості з побажаннями — твої.
-ru Помощники делают только те обязанности, которые ты им дашь (H). Гости с пожеланиями — твои.
+cs Pomocníci dělají jen povinnosti, které jim dáš ({key.duties}). Hosté s přáním jsou tvoji.
+en Helpers only do the duties you give them ({key.duties}). The guests with wishes are yours.
+uk Помічники роблять лише ті обов'язки, які ти їм даси ({key.duties}). Гості з побажаннями — твої.
+ru Помощники делают только те обязанности, которые ты им дашь ({key.duties}). Гости с пожеланиями — твои.
 
 # --- moment card -------------------------------------------------------------------------------------
 ui.moment.expires

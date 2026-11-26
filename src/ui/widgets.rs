@@ -757,8 +757,9 @@ impl Ui {
             } else {
                 mix(t.text_dim, t.text, resp.hover_t)
             });
+            // a long word at a large text size gets a little smaller before any "…"
             self.fonts
-                .draw_in(label, cell.inset_xy(4.0, 0.0), &st, Align::Center);
+                .draw_fit(label, cell.inset_xy(3.0, 0.0), &st, Align::Center, 0.75);
         }
         out
     }

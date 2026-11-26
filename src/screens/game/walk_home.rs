@@ -665,6 +665,7 @@ fn walk_ui(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         let title = loc.tr("walk.title");
         let pw = row_w + 20.0;
         let pr = Rect::new((s.w - pw) / 2.0, s.h - 96.0, pw, 74.0);
+        g.anchors.push(("walk.routes", pr));
         ui.glass(pr, &Glass::hud().radius(10.0));
         ui.fonts.draw_in(
             title,
@@ -805,7 +806,13 @@ fn skip_button(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         .trailing(Icon::Forward)
         .shortcut("Space");
     let w = ui.button_width(&b);
-    let r = Rect::new(s.w - 16.0 - w, s.h - 16.0 - 30.0, w, 30.0);
+    let mut r = Rect::new(s.w - 16.0 - w, s.h - 16.0 - 30.0, w, 30.0);
+    // a wide route picker (ru / uk at a large UI scale) reaches the corner: skip sits above it
+    if let Some(pr) = g.anchors.iter().find(|a| a.0 == "walk.routes").map(|a| a.1)
+        && pr.right() + 8.0 > r.x
+    {
+        r.y = pr.y - 8.0 - r.h;
+    }
     if ui.button("walk_skip", r, &b).clicked {
         let usual = g.world.usual_route().to_string();
         if let Some(Scene::Walk(w)) = g.walk.scene.as_ref()

@@ -299,8 +299,29 @@ fn card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         }
         rows
     };
+    // the bases wrap too (ru / uk at a large text size)
+    let base_rows = {
+        let mut rows = 1;
+        let mut x = 0.0;
+        let avail = w - 24.0 - LABEL_W;
+        for (b, _) in &bases {
+            let bw = ui.button_width(&Button::new(&loc.tr_owned(&b.name_key()))) - 4.0;
+            if x + bw > avail && x > 0.0 {
+                rows += 1;
+                x = 0.0;
+            }
+            x += bw + 5.0;
+        }
+        rows
+    };
     // header, the line from grandma, base, jars, style, tastes, name, ideas, footer
-    let h = 44.0 + 8.0 + 20.0 + (CHIP_H + 6.0) + jar_rows as f32 * (CHIP_H + 5.0) - 5.0
+    let h = 44.0
+        + 8.0
+        + 20.0
+        + (CHIP_H + 6.0)
+        + (base_rows - 1) as f32 * (CHIP_H + 5.0)
+        + jar_rows as f32 * (CHIP_H + 5.0)
+        - 5.0
         + 6.0
         + (CHIP_H + 8.0)
         + (26.0 + 8.0)
@@ -634,7 +655,7 @@ pub fn hotkeys(g: &mut GameScreen, ui: &mut Ui) -> bool {
     if !g.sig.open {
         return false;
     }
-    if ui.esc() || ui.key(KeyCode::K) {
+    if ui.esc() || crate::settings::keys::pressed(ui, crate::settings::keys::Action::Book) {
         g.close_signature();
     }
     true

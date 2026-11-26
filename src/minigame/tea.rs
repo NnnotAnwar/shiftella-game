@@ -719,8 +719,8 @@ impl Tea {
             r.y + 20.0,
             &micro,
         );
-        let st = th.strong();
         let key = self.kind.key();
+        let st = ui.fonts.fit_width(text.get(&key), r.w - 24.0, &th.strong());
         let name = ui
             .fonts
             .ellipsize(text.get(&key), r.w - 24.0, &st)

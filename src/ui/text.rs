@@ -114,6 +114,11 @@ pub struct TextStyle {
     pub tracking: f32,
     /// Line height as a multiple of `size`.
     pub line_height: f32,
+    /// The player's text size (Settings → Text size, 1.0–1.3) baked in by the theme's
+    /// type scale: glyphs and line boxes are `size × scale` points. A style made with
+    /// [`TextStyle::new`] stays at 1.0; `.size(n)` keeps the scale (a theme style resized
+    /// to 11 pt still follows the player's text size).
+    pub scale: f32,
 }
 
 impl TextStyle {
@@ -125,7 +130,17 @@ impl TextStyle {
             tabular: false,
             tracking: 0.0,
             line_height: 1.4,
+            scale: 1.0,
         }
+    }
+    /// The text-size factor (see [`TextStyle::scale`]).
+    pub const fn scaled(mut self, k: f32) -> Self {
+        self.scale = k;
+        self
+    }
+    /// The size glyphs are drawn at, in points (`size × scale`).
+    pub fn pt(&self) -> f32 {
+        self.size * self.scale
     }
     pub const fn color(mut self, c: Color) -> Self {
         self.color = c;
@@ -153,7 +168,7 @@ impl TextStyle {
     }
     /// Line box height in points.
     pub fn line_h(&self) -> f32 {
-        (self.size * self.line_height).round()
+        (self.pt() * self.line_height).round()
     }
 }
 
@@ -218,13 +233,13 @@ impl Fonts {
 
     /// Advance of one character (points).
     pub fn advance(&self, c: char, style: &TextStyle) -> f32 {
-        let (fs, k) = self.raster(style.size);
+        let (fs, k) = self.raster(style.pt());
         self.advance_unit(style.weight, fs, c) * k
     }
 
     /// Height of capital letters above the baseline (points).
     pub fn cap_height(&self, style: &TextStyle) -> f32 {
-        let (fs, k) = self.raster(style.size);
+        let (fs, k) = self.raster(style.pt());
         let key = (style.weight, fs);
         if let Some(c) = self.caps.borrow().get(&key) {
             return *c * k;
@@ -264,7 +279,7 @@ impl Fonts {
                 .sum::<f32>()
                 + style.tracking * (n - 1.0).max(0.0);
         }
-        let (fs, k) = self.raster(style.size);
+        let (fs, k) = self.raster(style.pt());
         self.prepare(style.weight, fs, text);
         measure_text(text, Some(self.face(style.weight)), fs, k).width
     }
@@ -274,7 +289,7 @@ impl Fonts {
         if text.is_empty() {
             return 0.0;
         }
-        let (fs, k) = self.raster(style.size);
+        let (fs, k) = self.raster(style.pt());
         self.prepare(style.weight, fs, text);
         let color = faded(style.color);
         let font = self.face(style.weight);
@@ -319,18 +334,21 @@ impl Fonts {
     /// Returns the drawn width.
     /// A text a little too wide first gets up to 15 % smaller (never below 9 pt); only then
     /// is it cut with "…" (long words in cs/uk/ru at a large UI scale).
+    /// With a larger text size ([`TextStyle::scale`]) a text that doesn't fit first gives up
+    /// the extra size, down to the same floor as at 100 % — larger where it fits, never cut
+    /// sooner than at the default size.
     pub fn draw_in(&self, text: &str, r: Rect, style: &TextStyle, align: Align) -> f32 {
         if r.w > 1.0 && self.measure(text, style) > r.w {
-            let min = (style.size * 0.85).max(9.0).min(style.size);
-            let mut size = style.size;
-            while size > min {
-                size = (size - 0.5).max(min);
-                let st = style.size(size);
+            let min = (style.size * 0.85).max(9.0).min(style.pt());
+            let mut pt = style.pt();
+            while pt > min {
+                pt = (pt - 0.5).max(min);
+                let st = at_pt(style, pt);
                 if self.measure(text, &st) <= r.w {
                     return self.draw_in_exact(text, r, &st, align);
                 }
             }
-            return self.draw_in_exact(text, r, &style.size(min), align);
+            return self.draw_in_exact(text, r, &at_pt(style, min), align);
         }
         self.draw_in_exact(text, r, style, align)
     }
@@ -356,19 +374,20 @@ impl Fonts {
             self.draw_in_exact(text, r, style, align);
             return;
         }
+        // (the floor is relative to the size at 100 % text, see `draw_in`)
         let min = (style.size * min_scale.clamp(0.5, 1.0))
             .max(9.0)
-            .min(style.size);
-        let mut size = style.size;
-        while size > min {
-            size = (size - 0.5).max(min);
-            let st = style.size(size);
+            .min(style.pt());
+        let mut pt = style.pt();
+        while pt > min {
+            pt = (pt - 0.5).max(min);
+            let st = at_pt(style, pt);
             if self.measure(text, &st) <= r.w {
                 self.draw_in_exact(text, r, &st, align);
                 return;
             }
         }
-        let st = style.size(min);
+        let st = at_pt(style, min);
         let lh = st.line_h();
         if r.h >= lh * 2.0 - 1.0 {
             let lines = self.wrap(text, r.w, &st);
@@ -427,6 +446,34 @@ impl Fonts {
     ) -> f32 {
         let lines = self.wrap(text, r.w, style);
         self.draw_lines(&lines, r, style, align, max_lines, usize::MAX)
+    }
+
+    /// `style` shrunk like [`Fonts::draw_in`] does (a larger text size first, then down to
+    /// 85 %) until `text` is at most `w` wide — for code that draws at a baseline and then
+    /// ellipsizes itself.
+    pub fn fit_width(&self, text: &str, w: f32, style: &TextStyle) -> TextStyle {
+        let min = (style.size * 0.85).max(9.0).min(style.pt());
+        let mut st = *style;
+        while self.measure(text, &st) > w && st.pt() > min {
+            st = at_pt(&st, (st.pt() - 0.5).max(min));
+        }
+        st
+    }
+
+    /// `style`, made a little smaller if needed (first giving up a larger text size, then
+    /// down to 85 % of the size) so `text` wraps into at most `max_lines` lines that fit in
+    /// `r` — for paragraphs in fixed boxes (cards) at a large text size.
+    pub fn fit_lines(&self, text: &str, r: Rect, style: &TextStyle, max_lines: usize) -> TextStyle {
+        let ok = |st: &TextStyle| {
+            let n = self.wrap(text, r.w, st).len();
+            n <= max_lines && n as f32 * st.line_h() <= r.h + 1.0
+        };
+        let min = (style.size * 0.85).max(9.0).min(style.pt());
+        let mut st = *style;
+        while !ok(&st) && st.pt() > min {
+            st = at_pt(&st, (st.pt() - 0.5).max(min));
+        }
+        st
     }
 
     /// Height a wrapped paragraph would take.
@@ -496,6 +543,29 @@ impl Fonts {
             }
         }
         count as f32 * lh
+    }
+}
+
+thread_local! {
+    static TEXT_SCALE: std::cell::Cell<f32> = const { std::cell::Cell::new(1.0) };
+}
+
+/// The player's text size (1.0–1.3) for layout code that has no `Ui` at hand (row heights
+/// computed ahead of drawing). Set by [`crate::ui::Ui::set_text_scale`].
+pub fn text_scale() -> f32 {
+    TEXT_SCALE.with(|c| c.get())
+}
+
+pub(crate) fn set_text_scale_global(s: f32) {
+    TEXT_SCALE.with(|c| c.set(s));
+}
+
+/// `style` drawn at `pt` points (its text-size factor adjusted, the nominal size kept).
+fn at_pt(style: &TextStyle, pt: f32) -> TextStyle {
+    if style.size > 0.0 {
+        style.scaled(pt / style.size)
+    } else {
+        *style
     }
 }
 
@@ -679,6 +749,23 @@ mod tests {
         assert!(e.starts_with("Ďakujem"));
         assert_eq!(ellipsize_with("abc", 5.0, mono), "");
         assert_eq!(ellipsize_with("abc", 12.0, mono), "…");
+    }
+
+    #[test]
+    fn text_size_scales_the_theme_type_scale_only() {
+        let mut t = crate::ui::Theme::SHIFTELLA;
+        let body = t.body();
+        assert_eq!((body.pt(), body.line_h()), (13.0, 18.0));
+        t.text_scale = 1.3;
+        let big = t.body();
+        assert_eq!(big.size, 13.0, "the nominal size stays");
+        assert!((big.pt() - 16.9).abs() < 1e-4);
+        assert_eq!(big.line_h(), (16.9_f32 * 1.4).round(), "line boxes grow with it");
+        // a theme style resized keeps the player's text size
+        assert!((t.small().size(10.0).pt() - 13.0).abs() < 1e-4);
+        // the logo and hand-made styles don't
+        assert_eq!(t.display().pt(), 44.0);
+        assert_eq!(TextStyle::new(9.0, Weight::Bold, WHITE).pt(), 9.0);
     }
 
     #[test]

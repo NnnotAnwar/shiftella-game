@@ -26,12 +26,15 @@ pub(crate) mod ser {
     }
 }
 
-/// Difficulty preset (`difficulty.ron` ids `cozy` / `classic`).
+/// Difficulty preset (`difficulty.ron` ids `cozy` / `classic` / `relaxed`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum Difficulty {
     #[default]
     Cozy,
     Classic,
+    /// Cozy with no money pressure (accessibility): the debt's instalments are covered when
+    /// they come due — nothing is taken from the till, no payment can be missed.
+    Relaxed,
 }
 
 impl Difficulty {
@@ -39,7 +42,14 @@ impl Difficulty {
         match self {
             Difficulty::Cozy => "cozy",
             Difficulty::Classic => "classic",
+            Difficulty::Relaxed => "relaxed",
         }
+    }
+
+    /// Cozy or Relaxed: every gentle rule of Cozy applies (Relaxed only adds "no money
+    /// pressure").
+    pub fn gentle(self) -> bool {
+        matches!(self, Difficulty::Cozy | Difficulty::Relaxed)
     }
 }
 

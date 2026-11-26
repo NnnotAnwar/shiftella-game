@@ -86,7 +86,7 @@ pub struct DutiesState {
     dragging: bool,
 }
 
-const NAME_W: f32 = 206.0;
+const NAME_W: f32 = 222.0;
 const ROW_H: f32 = 50.0;
 
 /// Natural size for `n` helpers (the caller may give less height: rows scroll).
@@ -108,7 +108,14 @@ pub fn duties_board(
     let t = ui.theme.clone();
     let id = ui.id(key);
     ui.glass(r, &Glass::panel().solid());
-    let (body, closed) = ui.panel_header(r, &l.title, Some("H"), Some(&l.subtitle));
+    let (body, closed) = ui.panel_header(
+        r,
+        &l.title,
+        Some(&crate::settings::keys::label(
+            crate::settings::keys::Action::Duties,
+        )),
+        Some(&l.subtitle),
+    );
     let mut action = closed.then_some(DutiesAction::Close);
     let inner = body.inset_ltrb(14.0, 10.0, 14.0, 12.0);
     // rows leave 6 pt on the right for a scrollbar; columns follow the rows
@@ -119,7 +126,11 @@ pub fn duties_board(
     for (ci, d) in Duty::ALL.iter().enumerate() {
         let cr = Rect::new(inner.x + NAME_W + ci as f32 * col_w, hr.y, col_w, hr.h);
         let resp = ui.interact(id.with(("head", ci)), cr);
-        let hs = t.small_medium().color(t.text_dim);
+        let mut hs = t.small_medium().color(t.text_dim);
+        // a larger text size gives way before the word is cut (back to 100 %)
+        while ui.fonts.measure(&l.duty[ci], &hs) > cr.w - 26.0 && hs.scale > 1.0 {
+            hs = hs.scaled((hs.scale - 0.05).max(1.0));
+        }
         let label = ui
             .fonts
             .ellipsize(&l.duty[ci], cr.w - 26.0, &hs)
@@ -202,20 +213,27 @@ pub fn duties_board(
             .replace("{used}", &used.to_string())
             .replace("{cap}", &cap.to_string());
         let dots_end = capacity_dots(&t, nx, row.y + 34.0, used, cap);
-        // the count first: long role names may be cut, the number may not
-        let sub = if h.on_shift {
-            format!("{cap_text} · {}", h.role)
-        } else {
-            l.off_shift.clone()
-        };
         let sub_r = Rect::new(
             dots_end + 6.0,
             row.y + 26.0,
             (row.x + NAME_W - 6.0 - dots_end - 6.0).max(0.0),
             16.0,
         );
+        // the count first; when "Duties: 3/3 · role" doesn't fit, the dots already say
+        // "duties", so the count goes numeric ("3/3 · role") before the role would be cut
+        let sub = if h.on_shift {
+            let full = format!("{cap_text} · {}", h.role);
+            if ui.fonts.measure(&full, &t.small()) <= sub_r.w {
+                full
+            } else {
+                format!("{used}/{cap} · {}", h.role)
+            }
+        } else {
+            l.off_shift.clone()
+        };
         let resp = ui.interact(id.with(("who", ri)), Rect::new(row.x, row.y, NAME_W, row.h));
-        ui.fonts.draw_in(&sub, sub_r, &t.small(), Align::Left);
+        ui.fonts
+            .draw_fit(&sub, sub_r, &t.small(), Align::Left, 0.78);
         if let Some(n) = &h.note {
             ui.tooltip(&resp, n);
         }

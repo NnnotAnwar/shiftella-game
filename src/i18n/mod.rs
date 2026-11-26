@@ -228,6 +228,51 @@ pub fn fill(template: &str, args: &[(&str, &str)]) -> String {
     out
 }
 
+/// `{key.<id>}` / `{Key.<id>}` → the action's keycap (see [`I18n::apply_keys`]).
+fn fill_keys(
+    text: &str,
+    badges: &std::collections::BTreeMap<&str, String>,
+    local: impl Fn(&str) -> Option<String>,
+) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(open) = rest.find('{') {
+        out.push_str(&rest[..open]);
+        let after = &rest[open + 1..];
+        let token = after.find('}').map(|close| (&after[..close], close));
+        let hit = token.and_then(|(name, close)| {
+            let (cap, id) = if let Some(id) = name.strip_prefix("key.") {
+                (false, id)
+            } else {
+                (true, name.strip_prefix("Key.")?)
+            };
+            let badge = badges.get(id)?;
+            let shown = local(badge).unwrap_or_else(|| badge.clone());
+            let shown = if cap {
+                let mut c = shown.chars();
+                c.next()
+                    .map(|f| f.to_uppercase().chain(c).collect())
+                    .unwrap_or_default()
+            } else {
+                shown
+            };
+            Some((shown, close))
+        });
+        match hit {
+            Some((shown, close)) => {
+                out.push_str(&shown);
+                rest = &after[close + 1..];
+            }
+            None => {
+                out.push('{');
+                rest = after;
+            }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
 /// Placeholder names used in a template (`{name}` → `name`).
 pub fn placeholders(template: &str) -> BTreeSet<&str> {
     let mut set = BTreeSet::new();
@@ -256,6 +301,9 @@ pub struct I18n {
     overrides: [HashMap<String, String>; 4],
     /// What the overrides were last built from (the caller's hash; 0 = none).
     override_stamp: u64,
+    /// Texts whose `{key.<action>}` tokens are filled with the player's key bindings
+    /// ([`I18n::apply_keys`]); they win over `tables`, the overrides win over them.
+    keyed: [HashMap<String, String>; 4],
 }
 
 impl I18n {
@@ -267,14 +315,45 @@ impl I18n {
             let text = std::fs::read_to_string(&path).map_err(|e| format!("{path}: {e}"))?;
             i18n.tables[lang.index()] = parse_table(&text).map_err(|e| format!("{path}: {e}"))?;
         }
+        i18n.apply_default_keys();
         Ok(i18n)
     }
 
     /// Builds from in-memory tables (tests, the source compiler).
     pub fn from_tables(tables: [HashMap<String, String>; 4]) -> I18n {
-        I18n {
+        let mut i18n = I18n {
             tables,
             ..Default::default()
+        };
+        i18n.apply_default_keys();
+        i18n
+    }
+
+    fn apply_default_keys(&mut self) {
+        self.apply_keys(&crate::settings::keys::KeyBindings::default().badges());
+    }
+
+    /// Fills the key tokens of every text: `{key.crew}` → the keycap of that action
+    /// (`badges`: action id → badge, e.g. `"crew" → "C"`), `{Key.pause}` the same with a
+    /// capital first letter (a sentence start). A badge with a localized name
+    /// (`access.keyname.<badge>`, e.g. Space → "mezerník") uses it. Unknown tokens stay.
+    pub fn apply_keys(&mut self, badges: &std::collections::BTreeMap<&str, String>) {
+        for lang in Lang::ALL {
+            let i = lang.index();
+            let table = &self.tables[i];
+            let mut keyed = HashMap::new();
+            for (k, v) in table {
+                if !(v.contains("{key.") || v.contains("{Key.")) {
+                    continue;
+                }
+                keyed.insert(
+                    k.clone(),
+                    fill_keys(v, badges, |b| {
+                        table.get(&format!("access.keyname.{b}")).cloned()
+                    }),
+                );
+            }
+            self.keyed[i] = keyed;
         }
     }
 
@@ -317,6 +396,7 @@ impl I18n {
     pub fn get(&self, lang: Lang, key: &str) -> Option<&str> {
         self.overrides[lang.index()]
             .get(key)
+            .or_else(|| self.keyed[lang.index()].get(key))
             .or_else(|| self.tables[lang.index()].get(key))
             .map(String::as_str)
     }
@@ -436,6 +516,55 @@ mod tests {
     use super::*;
 
     const DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/assets/i18n");
+
+    #[test]
+    fn key_tokens_follow_the_bindings() {
+        let cs = table(&[
+            ("tip", "Posádka ({key.crew}) · {name}"),
+            (
+                "time",
+                "{Key.pause} pozastaví, {key.speed1}/{key.speed2}/{key.speed3} rychlost",
+            ),
+            ("odd", "{key.nope} {Key.} {x"),
+            ("access.keyname.Space", "mezerník"),
+        ]);
+        let empty = HashMap::new;
+        let mut i = I18n::from_tables([cs, empty(), empty(), empty()]);
+        assert_eq!(i.tr(Lang::Cs, "tip"), "Posádka (C) · {name}");
+        assert_eq!(i.tr(Lang::Cs, "time"), "Mezerník pozastaví, 1/2/3 rychlost");
+        assert_eq!(i.tr(Lang::Cs, "odd"), "{key.nope} {Key.} {x");
+        assert_eq!(
+            i.trf(Lang::Cs, "tip", &[("name", "Bára")]),
+            "Posádka (C) · Bára"
+        );
+        let mut b = crate::settings::keys::KeyBindings::default();
+        b.set(
+            crate::settings::keys::Action::Crew,
+            macroquad::prelude::KeyCode::N,
+        );
+        b.set(
+            crate::settings::keys::Action::Pause,
+            macroquad::prelude::KeyCode::P,
+        );
+        i.apply_keys(&b.badges());
+        assert_eq!(i.tr(Lang::Cs, "tip"), "Posádka (N) · {name}");
+        assert_eq!(i.tr(Lang::Cs, "time"), "P pozastaví, 1/2/3 rychlost");
+    }
+
+    #[test]
+    fn shipped_texts_have_no_unfilled_key_tokens() {
+        let i = I18n::load(DIR).expect("i18n");
+        for lang in Lang::ALL {
+            for k in i.keys(lang) {
+                let t = i.tr(lang, k);
+                assert!(
+                    !t.contains("{key.") && !t.contains("{Key."),
+                    "{}: {k}: {t}",
+                    lang.code()
+                );
+            }
+        }
+    }
 
     fn table(pairs: &[(&str, &str)]) -> HashMap<String, String> {
         pairs

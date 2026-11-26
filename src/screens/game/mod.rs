@@ -10,9 +10,9 @@ mod app_tool;
 mod attic_ui;
 mod build;
 mod build_cards;
+mod build_content_ui;
 mod build_overlay;
 mod build_themes;
-mod build_content_ui;
 pub mod coach;
 mod crew_ui;
 mod day;
@@ -1742,7 +1742,9 @@ impl GameScreen {
             let key_hold = !ui.wants_keyboard()
                 && !self.automation
                 && self.hands.minigame.is_none()
-                && is_key_down(KeyCode::E);
+                && is_key_down(crate::settings::keys::key(
+                    crate::settings::keys::Action::Chore,
+                ));
             let auto_hold = self.hands.autoplay.is_some();
             self.wash_input(content, mouse_hold || key_hold || auto_hold, dt);
             // hold chores at an appliance (warm up, purge, clean): the same hold
@@ -1919,7 +1921,8 @@ impl GameScreen {
         if self.player.is_playing() || self.automation {
             return;
         }
-        if ui.key(KeyCode::M) {
+        use crate::settings::keys::{Action as A, pressed};
+        if pressed(ui, A::Mute) {
             cx.audio.toggle_mute();
         }
         if self.walk.is_open() || stories_ui::talk_hotkeys(self, ui) {
@@ -1979,40 +1982,43 @@ impl GameScreen {
             *p = if *p == Some(which) { None } else { Some(which) };
         };
         if !card {
-            if ui.key(KeyCode::C) {
+            // the keys come from Settings → Controls (crate::settings::keys)
+            if pressed(ui, A::Crew) {
                 toggle(&mut self.panel, Panel::Crew);
             }
-            // H = the duties board (P stays as the old priorities key)
-            if ui.key(KeyCode::H) || ui.key(KeyCode::P) {
+            // H = the duties board (P stays as the old priorities key while P is free)
+            if pressed(ui, A::Duties)
+                || (crate::settings::keys::legacy_duties_p() && ui.key(KeyCode::P))
+            {
                 toggle(&mut self.panel, Panel::Duties);
             }
-            if ui.key(KeyCode::T) {
+            if pressed(ui, A::App) {
                 toggle(&mut self.panel, Panel::App);
             }
-            if ui.key(KeyCode::B) {
+            if pressed(ui, A::Build) {
                 toggle(&mut self.panel, Panel::Build);
             }
-            if ui.key(KeyCode::L) {
+            if pressed(ui, A::Log) {
                 toggle(&mut self.panel, Panel::Log);
             }
-            if ui.key(KeyCode::K) {
+            if pressed(ui, A::Book) {
                 self.open_book(None);
             }
-            if ui.key(KeyCode::J) {
+            if pressed(ui, A::Journal) {
                 toggle(&mut self.panel, Panel::Journal);
             }
-            if ui.key(KeyCode::V) {
+            if pressed(ui, A::Jukebox) {
                 self.intent(content, Intent::Jukebox);
             }
         }
-        if ui.key(KeyCode::F1) {
+        if pressed(ui, A::Help) {
             toggle(&mut self.panel, Panel::Help);
         }
-        if ui.key(KeyCode::Space) {
+        if pressed(ui, A::Pause) {
             self.toggle_pause();
         }
-        for (k, s) in [(KeyCode::Key1, 1), (KeyCode::Key2, 2), (KeyCode::Key3, 3)] {
-            if ui.key(k) {
+        for (a, s) in [(A::Speed1, 1), (A::Speed2, 2), (A::Speed3, 3)] {
+            if pressed(ui, a) {
                 self.set_speed(s);
             }
         }
@@ -2041,14 +2047,14 @@ impl GameScreen {
                 .is_some_and(|c| matches!(c.act, sim::PlayerAct::Wash { .. }) && c.stage == 1);
             // (and at a hold chore at an appliance)
             let at_sink = at_sink || self.at_hold_chore();
-            if ui.key(KeyCode::E) && !at_sink {
+            if pressed(ui, A::Chore) && !at_sink {
                 self.intent(content, Intent::Chore { front });
             }
-            if ui.key(KeyCode::G) {
+            if pressed(ui, A::Greet) {
                 self.intent(content, Intent::Greet);
             }
             // F: the nearest night moment's card
-            if ui.key(KeyCode::F)
+            if pressed(ui, A::Moment)
                 && let Some(id) = self.nearest_moment()
             {
                 self.open_moment(&id);

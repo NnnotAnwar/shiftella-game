@@ -296,6 +296,17 @@ fn rail(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         .any(|a| a.1.overlaps(&rr));
     if clash {
         top.y = 12.0 + 64.0 + 6.0;
+        // below the cards: between the atmosphere meter (left) and the tip jar (right,
+        // up to 260 pt); when even that is too narrow (a large UI scale / text size) the
+        // rail goes one row lower
+        let left = 12.0 + crate::ui::handson::ATMO_SIZE.x + 8.0;
+        let right = ui.screen().w - 12.0 - 200.0 - 8.0;
+        let w = ticket_rail_rect(top, out.len()).w;
+        if w <= right - left {
+            top.x = top.x.clamp(left + w / 2.0, right - w / 2.0);
+        } else {
+            top.y += 28.0 + 8.0;
+        }
     }
     g.anchors.push(("rail", ticket_rail_rect(top, out.len())));
     let more = loc.tr_owned("ui.rail.title");
@@ -390,10 +401,11 @@ fn tip_jar(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     ui.tooltip(&resp, &tip);
     // "It's quiet — ×2?" (the lull director's last suggestion; never speeds up by itself)
     if g.time < g.hands.lull_until && g.speed < 2 && !g.overlay_open() {
+        let s2 = crate::settings::keys::label(crate::settings::keys::Action::Speed2);
         let b = Button::new(loc.tr("ui.lull.speed"))
             .secondary()
             .icon(Icon::Fast)
-            .shortcut("2");
+            .shortcut(&s2);
         let bw = ui.button_width(&b);
         let br = Rect::new(s.w - 12.0 - bw, r.bottom() + 6.0, bw, 28.0);
         g.anchors.push(("hud.lull", br));

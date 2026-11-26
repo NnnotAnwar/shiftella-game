@@ -228,7 +228,11 @@ pub fn recipe_book(
         &t.title(),
         Align::Left,
     );
-    ui.keycap(vec2(head.x + 32.0 + tw, head.center_y()), "K", false);
+    ui.keycap(
+        vec2(head.x + 32.0 + tw, head.center_y()),
+        &crate::settings::keys::label(crate::settings::keys::Action::Book),
+        false,
+    );
     let close = Rect::new(r.right() - 38.0, r.y + 12.0, 26.0, 26.0);
     if ui
         .icon_button(
@@ -961,12 +965,12 @@ fn pantry(
     }
     let by = sy + slot_d + 30.0;
     let can_try = st.slots.len() >= 2;
-    let tb = Button::new(&l.try_label)
+    let mut tb = Button::new(&l.try_label)
         .primary()
         .icon(Icon::Flask)
         .shortcut("T")
         .disabled(!can_try);
-    let tbw = ui.button_width(&tb);
+    let mut tbw = ui.button_width(&tb);
     let cost_w = v
         .try_cost
         .as_ref()
@@ -975,6 +979,14 @@ fn pantry(
     // the Clear label gives way to an icon when the row is too wide (long languages)
     let full_cw = ui.button_width(&clr);
     let compact = tbw + cost_w + 8.0 + full_cw > wb.w;
+    // still too wide (a large text size): the T keycap goes (the key still works)
+    if compact && tbw + cost_w + 8.0 + 30.0 > wb.w {
+        tb = Button::new(&l.try_label)
+            .primary()
+            .icon(Icon::Flask)
+            .disabled(!can_try);
+        tbw = ui.button_width(&tb);
+    }
     let cw = if compact { 30.0 } else { full_cw };
     let row_w = tbw + cost_w + 8.0 + cw;
     let bx = wb.x + ((wb.w - row_w) / 2.0).max(0.0);

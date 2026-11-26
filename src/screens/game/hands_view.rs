@@ -533,8 +533,17 @@ pub fn draw_world(
         crate::ui::draw::fill_rrect(r, 5.0 * s, Color::new(0.11, 0.1, 0.24, 0.9));
         crate::ui::draw::stroke_rrect(r, 5.0 * s, 1.4 * s, Color::new(0.65, 0.7, 1.0, 0.9));
         let ink = Color::new(0.75, 0.8, 1.0, 0.85);
-        draw_line(c.x - 4.0 * s, c.y, c.x - 1.0 * s, c.y + 3.5 * s, 2.0 * s, ink);
-        draw_line(c.x - 1.0 * s, c.y + 3.5 * s, c.x + 4.5 * s, c.y - 3.5 * s, 2.0 * s, ink);
+        if crate::render::marker_shapes() {
+            // colour-blind friendly: an open ritual reads as an empty box to tick (a tick
+            // would say "done"), with a soft dot that breathes
+            let b = Rect::new(c.x - 4.5 * s, c.y - 4.5 * s, 9.0 * s, 9.0 * s);
+            crate::ui::draw::stroke_rrect(b, 2.0 * s, 1.6 * s, ink);
+            let k = 0.6 + 0.4 * (t * 3.0).sin().abs();
+            draw_circle(c.x, c.y, 1.6 * s * k, ink);
+        } else {
+            draw_line(c.x - 4.0 * s, c.y, c.x - 1.0 * s, c.y + 3.5 * s, 2.0 * s, ink);
+            draw_line(c.x - 1.0 * s, c.y + 3.5 * s, c.x + 4.5 * s, c.y - 3.5 * s, 2.0 * s, ink);
+        }
     }
     // appliances that offer something: a small amber chip (the ritual chip marks the rest)
     let rituals: Vec<u32> = open_rituals(g, content).iter().map(|r| r.1).collect();

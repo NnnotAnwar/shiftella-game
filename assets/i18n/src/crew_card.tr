@@ -71,10 +71,10 @@ uk Помічники закривають усі обов'язки
 ru Помощники закрывают все обязанности
 
 crew.yours_tip
-cs {duty}: dnes ji nemá žádný pomocník, takže je tvoje. Předat ji můžeš na tabuli povinností (H).
-en {duty}: no helper holds it tonight, so it's yours. Hand it over on the Duties board (H).
-uk {duty}: сьогодні цим не займається жоден помічник, тож це твоє. Передати можна на дошці обов'язків (H).
-ru {duty}: сегодня этим не занят ни один помощник, так что это твоё. Передать можно на доске обязанностей (H).
+cs {duty}: dnes ji nemá žádný pomocník, takže je tvoje. Předat ji můžeš na tabuli povinností ({key.duties}).
+en {duty}: no helper holds it tonight, so it's yours. Hand it over on the Duties board ({key.duties}).
+uk {duty}: сьогодні цим не займається жоден помічник, тож це твоє. Передати можна на дошці обов'язків ({key.duties}).
+ru {duty}: сегодня этим не занят ни один помощник, так что это твоё. Передать можно на доске обязанностей ({key.duties}).
 
 crew.duties
 cs Povinnosti
@@ -739,10 +739,10 @@ uk Розклад
 ru Расписание
 
 crew.act.rozpis_tip
-cs Otevře jejich řádek v rozpisu Shiftelly (T)
-en Opens their row in the Shiftella schedule (T)
-uk Відкриває їхній рядок у розкладі Shiftella (T)
-ru Открывает их строку в расписании Shiftella (T)
+cs Otevře jejich řádek v rozpisu Shiftelly ({key.app})
+en Opens their row in the Shiftella schedule ({key.app})
+uk Відкриває їхній рядок у розкладі Shiftella ({key.app})
+ru Открывает их строку в расписании Shiftella ({key.app})
 
 crew.act.let_go
 cs Propustit
@@ -763,10 +763,10 @@ uk Обов'язки
 ru Обязанности
 
 crew.act.duties_tip
-cs Kdo dnes pomáhá s čím (H)
-en Who helps with what tonight (H)
-uk Хто сьогодні з чим допомагає (H)
-ru Кто сегодня с чем помогает (H)
+cs Kdo dnes pomáhá s čím ({key.duties})
+en Who helps with what tonight ({key.duties})
+uk Хто сьогодні з чим допомагає ({key.duties})
+ru Кто сегодня с чем помогает ({key.duties})
 
 crew.act.book
 cs Recepty
@@ -775,10 +775,10 @@ uk Рецепти
 ru Рецепты
 
 crew.act.book_tip
-cs Babiččina kniha receptů (K)
-en Grandma's recipe book (K)
-uk Бабусина книга рецептів (K)
-ru Бабушкина книга рецептов (K)
+cs Babiččina kniha receptů ({key.book})
+en Grandma's recipe book ({key.book})
+uk Бабусина книга рецептів ({key.book})
+ru Бабушкина книга рецептов ({key.book})
 
 # --- hiring ------------------------------------------------------------------------------
 

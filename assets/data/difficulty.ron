@@ -1,5 +1,6 @@
 // Difficulty presets. Keys: difficulty.<id>.name / .desc.
-// Cozy (default): no game over, soft payments. Classic: payments matter; closing is an ending, never a fail screen.
+// Cozy (default): no game over, soft payments. Relaxed: Cozy without money pressure (the debt's
+// instalments are covered). Classic: payments matter; closing is an ending, never a fail screen.
 #![enable(implicit_some)]
 [
     (
@@ -19,6 +20,21 @@
         // sandbox only: the landlord notices a busy café
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
+    ),
+    (
+        // Accessibility (0.2 package J): Cozy with no money pressure — every instalment of the
+        // debt is covered when it comes due (sim::economy::collect_payment), nothing can be
+        // missed; everything else as on Cozy (sim::Difficulty::gentle).
+        id: "relaxed",
+        start_money: 15000,
+        payments: Forgiven,
+        guest_patience_mul: 1.7,
+        bad_review_mul: 0.7,
+        wear_mul: 0.5,
+        need_decay_mul: 0.8,
+        income_mul: 1.5,
+        rent_growth_percent: 0.0,
+        rent_growth_every: 0,
     ),
     (
         id: "classic",

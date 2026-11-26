@@ -405,16 +405,16 @@ uk О шостій кав'ярня зачиняється. Вранці поба
 ru В шесть кафе закрывается. Утром увидишь итоги ночи.
 
 story.hint.hire
-cs Ve dne můžeš najímat. Otevři Personál (C) a vyber kandidáta.
-en You can hire during the day. Open Crew (C) and pick a candidate.
-uk Удень можна наймати. Відкрий «Персонал» (C) і вибери кандидата.
-ru Днём можно нанимать. Открой «Персонал» (C) и выбери кандидата.
+cs Ve dne můžeš najímat. Otevři Personál ({key.crew}) a vyber kandidáta.
+en You can hire during the day. Open Crew ({key.crew}) and pick a candidate.
+uk Удень можна наймати. Відкрий «Персонал» ({key.crew}) і вибери кандидата.
+ru Днём можно нанимать. Открой «Персонал» ({key.crew}) и выбери кандидата.
 
 story.hint.schedule
-cs Rozpis směn najdeš v aplikaci Shiftella (T). Kliknutím na buňku změníš koncept, pak ho zveřejni.
-en The shift schedule lives in the Shiftella app (T). Click a cell to change the draft, then Publish.
-uk Розклад змін — у застосунку Shiftella (T). Клацни клітинку, щоб змінити чернетку, потім опублікуй.
-ru Расписание смен — в приложении Shiftella (T). Нажми на клетку, чтобы изменить черновик, потом опубликуй.
+cs Rozpis směn najdeš v aplikaci Shiftella ({key.app}). Kliknutím na buňku změníš koncept, pak ho zveřejni.
+en The shift schedule lives in the Shiftella app ({key.app}). Click a cell to change the draft, then Publish.
+uk Розклад змін — у застосунку Shiftella ({key.app}). Клацни клітинку, щоб змінити чернетку, потім опублікуй.
+ru Расписание смен — в приложении Shiftella ({key.app}). Нажми на клетку, чтобы изменить черновик, потом опубликуй.
 
 story.hint.priorities
 cs V Prioritách (P) určíš, kdo co dělá přednostně. 1 je nejdůležitější.
@@ -429,10 +429,10 @@ uk Постійні гості мають свої години й улюбле�
 ru У постоянных гостей свои часы и любимые блюда. Обслуживай их быстро — и они раскроются.
 
 story.hint.build
-cs Ve Stavbě (B) přidáš stoly, lampy a rostliny. Peníze se strhnou hned, Ctrl+Z vrací.
-en In Build (B) you can add tables, lamps and plants. Money is taken right away; Ctrl+Z undoes.
-uk У «Будівництві» (B) додавай столи, лампи й рослини. Гроші списуються одразу, Ctrl+Z скасовує.
-ru В «Стройке» (B) добавляй столы, лампы и растения. Деньги списываются сразу, Ctrl+Z отменяет.
+cs Ve Stavbě ({key.build}) přidáš stoly, lampy a rostliny. Peníze se strhnou hned, Ctrl+Z vrací.
+en In Build ({key.build}) you can add tables, lamps and plants. Money is taken right away; Ctrl+Z undoes.
+uk У «Будівництві» ({key.build}) додавай столи, лампи й рослини. Гроші списуються одразу, Ctrl+Z скасовує.
+ru В «Стройке» ({key.build}) добавляй столы, лампы и растения. Деньги списываются сразу, Ctrl+Z отменяет.
 
 story.hint.window_light
 cs Lampa v okně musí svítit i ve 3:33.
