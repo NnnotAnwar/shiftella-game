@@ -1637,3 +1637,5 @@ Extra acceptance for the new sections:
 - Render `SnapActor` takes a render `PersonLook`: map the sim's `LookRef` (seed / preset) to it.
 - Content must give each recipe a `CupGlyph` family and map `Taste` → render `TasteIcon`.
 - T6 (UI widgets) runs on mock data; T7 wires them. Mini-games: disable WASD camera while one is open.
+- Polaroid snapshot render target should be larger than 360x270 (looks soft in the enlarged journal view) — T6 note.
+- The existing tutorial (src/screens/game/tutorial.rs) can switch to ui::handson::coach_mark.
