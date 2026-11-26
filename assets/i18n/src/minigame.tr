@@ -1,0 +1,356 @@
+# Brewing mini-games (src/minigame, design/handson.md §2): titles, prompts, quality labels,
+# latte patterns, dishes and teas. Karolina is not addressed here, so the forms stay neutral.
+
+minigame.milk_froth.title
+cs Napěnění mléka
+en Milk froth
+sk Napenenie mlieka
+uk Спінювання молока
+
+minigame.latte_art.title
+cs Latte art
+en Latte art
+sk Latte art
+uk Лате-арт
+
+minigame.pour_over.title
+cs Pour-over
+en Pour-over
+sk Pour-over
+uk Пуровер
+
+minigame.tea_steep.title
+cs Louhování čaje
+en Steeping tea
+sk Lúhovanie čaju
+uk Заварювання чаю
+
+minigame.plate.title
+cs Servírování
+en Plating
+sk Servírovanie
+uk Подача
+
+minigame.milk_froth.prompt.hold
+cs Držte a napěňujte · pulzujte pro pěnu · pusťte v jantaru
+en Hold to steam · pulse for foam · let go in the amber
+sk Držte a napeňujte · pulzujte pre penu · pustite v jantári
+uk Тримайте, щоб нагріти · пульсуйте для піни · відпустіть у бурштині
+
+minigame.milk_froth.prompt.release
+cs Pusťte!
+en Release!
+sk Pustite!
+uk Відпускайте!
+
+minigame.milk_froth.prompt.again
+cs Ještě trochu — podržte znovu
+en A little more — hold again
+sk Ešte trochu — podržte znova
+uk Ще трохи — утримуйте знову
+
+minigame.latte_art.prompt.trace
+cs Podržte a veďte konvičku od tečky po vzoru
+en Hold and draw from the dot along the guide
+sk Podržte a veďte kanvičku od bodky po vzore
+uk Утримуйте й ведіть від крапки вздовж візерунка
+
+minigame.latte_art.prompt.keys
+cs Držte mezerník · ťukněte ←/→ u značek
+en Hold Space · tap ←/→ at the marks
+sk Držte medzerník · ťuknite ←/→ pri značkách
+uk Тримайте пробіл · натискайте ←/→ біля позначок
+
+minigame.latte_art.prompt.done
+cs Líbí se vám? Hotovo — nebo dokreslete
+en Happy with it? Done — or keep drawing
+sk Páči sa vám? Hotovo — alebo dokreslite
+uk Подобається? Готово — або домалюйте
+
+minigame.pour_over.prompt.bloom_pour
+cs Nejdřív trochu nalijte, ať káva vykvete
+en First pour a little so the coffee can bloom
+sk Najprv trochu nalejte, nech káva rozkvitne
+uk Спершу налийте трохи, щоб кава розкрилася
+
+minigame.pour_over.prompt.bloom
+cs Nechte ji vykvést…
+en Let it bloom…
+sk Nechajte ju rozkvitnúť…
+uk Дайте їй розкритися…
+
+minigame.pour_over.prompt.circles
+cs Lijte v pomalých kruzích za světýlkem
+en Pour in slow circles with the little light
+sk Lejte v pomalých kruhoch za svetielkom
+uk Лийте повільними колами за вогником
+
+minigame.pour_over.prompt.keys
+cs Držte mezerník · ←/→ do rytmu
+en Hold Space · ←/→ on the beat
+sk Držte medzerník · ←/→ do rytmu
+uk Тримайте пробіл · ←/→ у ритм
+
+minigame.tea_steep.prompt.lift
+cs Vytáhněte sáček, až barva sedí se vzorkem · sáčkem můžete máčet
+en Lift the bag when the colour matches · drag it to dunk
+sk Vytiahnite vrecúško, keď farba sedí so vzorkou · vrecúškom môžete máčať
+uk Підніміть пакетик, коли колір збігається · потягайте, щоб занурити
+
+minigame.tea_steep.prompt.ready
+cs Vypadá to akorát — vytáhněte sáček
+en Looks just right — lift the bag
+sk Vyzerá to akurát — vytiahnite vrecúško
+uk Саме те — піднімайте пакетик
+
+minigame.tea_steep.prompt.lemon
+cs Pusťte plátek citronu doprostřed
+en Drop the lemon slice into the middle
+sk Pustite plátok citróna do stredu
+uk Відпустіть скибочку лимона посередині
+
+minigame.tea_steep.prompt.sugar
+cs Přidejte cukr — kostka za kliknutí
+en Add sugar — one cube per click
+sk Pridajte cukor — kocka za kliknutie
+uk Додайте цукор — кубик за клік
+
+minigame.plate.prompt.ghost
+cs Babiččin způsob — zapamatujte si rozložení
+en Lida's way — remember the layout
+sk Babkin spôsob — zapamätajte si rozloženie
+uk Як у Ліди — запам'ятайте розкладку
+
+minigame.plate.prompt.drag
+cs Přetáhněte ozdoby na talíř
+en Drag the garnish onto the plate
+sk Pretiahnite ozdoby na tanier
+uk Перетягніть прикраси на тарілку
+
+minigame.plate.prompt.garnish
+cs Ťukněte na zářící tečky
+en Tap the glowing dots
+sk Ťuknite na žiariace bodky
+uk Торкніться сяйливих крапок
+
+minigame.plate.prompt.done
+cs Krásné. Můžete podávat
+en Lovely. Ready to serve
+sk Krásne. Môžete podávať
+uk Гарно. Можна подавати
+
+minigame.quality.beautiful
+cs Nádhera!
+en Beautiful!
+sk Nádhera!
+uk Прекрасно!
+
+minigame.quality.lovely
+cs Moc hezké
+en Lovely
+sk Veľmi pekné
+uk Чудово
+
+minigame.quality.good
+cs Dobré
+en Good
+sk Dobré
+uk Добре
+
+minigame.quality.homely
+cs Jako doma
+en Homely
+sk Ako doma
+uk По-домашньому
+
+minigame.skip
+cs Přeskočit
+en Skip
+sk Preskočiť
+uk Пропустити
+
+minigame.done
+cs Hotovo
+en Done
+sk Hotovo
+uk Готово
+
+minigame.key.space
+cs Mezerník
+en Space
+sk Medzerník
+uk Пробіл
+
+minigame.target
+cs Cíl
+en Target
+sk Cieľ
+uk Мета
+
+minigame.strength
+cs Síla
+en Strength
+sk Sila
+uk Міцність
+
+minigame.water
+cs Voda
+en Water
+sk Voda
+uk Вода
+
+minigame.sugar
+cs Cukr
+en Sugar
+sk Cukor
+uk Цукор
+
+minigame.practised
+cs Zažité
+en Practised
+sk Zažité
+uk Відпрацьовано
+
+minigame.touch.extra_foam
+cs Víc pěny
+en Extra foam
+sk Viac peny
+uk Більше піни
+
+minigame.touch.light_foam
+cs Méně pěny
+en Light foam
+sk Menej peny
+uk Менше піни
+
+minigame.touch.strong
+cs Silnější
+en Stronger
+sk Silnejší
+uk Міцніше
+
+minigame.touch.mild
+cs Jemnější
+en Milder
+sk Jemnejší
+uk М'якше
+
+minigame.touch.cinnamon
+cs Se skořicí
+en With cinnamon
+sk So škoricou
+uk З корицею
+
+minigame.touch.honey
+cs S medem
+en With honey
+sk S medom
+uk З медом
+
+latte.heart
+cs Srdce
+en Heart
+sk Srdce
+uk Серце
+
+latte.tulip
+cs Tulipán
+en Tulip
+sk Tulipán
+uk Тюльпан
+
+latte.rosetta
+cs Rozeta
+en Rosetta
+sk Rozeta
+uk Розета
+
+latte.leaf
+cs Lísteček
+en Leaf
+sk Lístok
+uk Листочок
+
+latte.swan
+cs Labuť
+en Swan
+sk Labuť
+uk Лебідь
+
+latte.snowflake
+cs Vločka
+en Snowflake
+sk Vločka
+uk Сніжинка
+
+latte.moon
+cs Půlměsíc
+en Crescent moon
+sk Polmesiac
+uk Півмісяць
+
+latte.train
+cs Vláček
+en Little train
+sk Vláčik
+uk Потяг
+
+latte.cat
+cs Kočičí tvářička
+en Cat face
+sk Mačacia tvárička
+uk Котяча мордочка
+
+latte.note
+cs Nota
+en Music note
+sk Nota
+uk Нота
+
+latte.heart_l
+cs Srdce s L
+en Heart with an L
+sk Srdce s L
+uk Серце з літерою L
+
+minigame.tea_steep.kind.black
+cs Černý čaj
+en Black tea
+sk Čierny čaj
+uk Чорний чай
+
+minigame.tea_steep.kind.green
+cs Zelený čaj
+en Green tea
+sk Zelený čaj
+uk Зелений чай
+
+minigame.tea_steep.kind.herbal
+cs Bylinkový čaj
+en Herbal tea
+sk Bylinkový čaj
+uk Трав'яний чай
+
+minigame.tea_steep.kind.fruit
+cs Ovocný čaj
+en Fruit tea
+sk Ovocný čaj
+uk Фруктовий чай
+
+minigame.plate.dish.medovnik
+cs Medovník
+en Honey cake
+sk Medovník
+uk Медовик
+
+minigame.plate.dish.soup
+cs Kulajda
+en Dill soup
+sk Kulajda
+uk Суп кулайда
+
+minigame.plate.dish.topinka
+cs Topinka
+en Topinka
+sk Hrianka
+uk Топінка
