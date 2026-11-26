@@ -32,7 +32,7 @@ pub(crate) fn ellipse_arc(c: Vec2, rx: f32, ry: f32, a0: f32, a1: f32) -> Vec<Ve
 
 pub(crate) struct CardOut {
     pub skip: bool,
-    pub serve: bool,
+    pub done: bool,
 }
 
 fn kind_icon(k: MiniGameKind) -> Icon {
@@ -45,111 +45,129 @@ fn kind_icon(k: MiniGameKind) -> Icon {
     }
 }
 
-/// Card, header and footer. Returns button clicks.
+/// Card, header (guest chip + wish, recipe title) and footer (prompt, Done, Skip).
 pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardOut {
     let t = ui.theme.clone();
-    // a soft dim halo so the card reads over a busy café
     draw::shadow_rrect(
         card.grow(18.0),
         28.0,
         draw::Shadow::new(0.0, 0.0, 60.0, 0.0, Color::new(0.02, 0.01, 0.06, 0.35)),
     );
     ui.glass(card, &Glass::panel());
+    let text = &mg.text;
 
     // --- header ---
-    let tile = Rect::new(card.x + PAD, card.y + 11.0, 28.0, 28.0);
+    let tile = Rect::new(card.x + PAD, card.y + 10.0, 28.0, 28.0);
     glow_circle(tile.center(), 26.0, with_alpha(t.indigo, 0.35));
     fill_rrect(tile, 8.0, Paint::diagonal(tile, t.indigo, t.violet));
     fill_rrect(
         tile.inset(1.0).with_h(10.0),
         7.0,
-        Paint::vertical(tile, Color::new(1.0, 1.0, 1.0, 0.22), Color::new(1.0, 1.0, 1.0, 0.0)),
+        Paint::vertical(
+            tile,
+            Color::new(1.0, 1.0, 1.0, 0.22),
+            Color::new(1.0, 1.0, 1.0, 0.0),
+        ),
     );
     draw_icon(kind_icon(mg.kind), tile.center(), 16.0, t.text_on_accent);
-
-    let text = &mg.text;
-    let kind_name = text.get(&mg.kind.name_key()).to_string();
-    let detail = match &mg.game {
-        Game::Latte(_) => mg.variation.shape.map(|s| text.get(s.key())),
-        Game::Tea(_) => mg.variation.tea.map(|s| text.get(s.key())),
-        Game::Plate(_) => mg.variation.plate.map(|s| text.get(s.key())),
-        _ => None,
-    };
     let x = tile.right() + 10.0;
 
-    // right side: Skip, then the regular's-touch chip
-    let skip_label = text.get("minigame.skip");
-    let skip_b = Button::new(skip_label).ghost().shortcut("Esc");
-    let skip_w = ui.button_width(&skip_b);
-    let skip_r = Rect::new(card.right() - PAD - skip_w + 6.0, card.y + 11.0, skip_w, 28.0);
-    let skip = ui.button(("minigame_skip", mg.kind.id()), skip_r, &skip_b).clicked;
-    let mut right = skip_r.x - 8.0;
+    // right side of the header: regular's touch chip, practised star
+    let mut right = card.right() - PAD;
+    if mg.practised {
+        let label = text.get("minigame.practised");
+        let w = ui.chip_width(label, true);
+        let pos = vec2(right - w, tile.center_y() - 11.0);
+        ui.chip(pos, label, crate::ui::Tone::Warn, Some(Icon::Star));
+        right = pos.x - 6.0;
+    }
     if let Some(touch) = mg.variation.touch {
-        let label = text.get(touch.key());
+        let key = touch.key();
+        let label = text.get(&key);
         let w = ui.chip_width(label, true);
         let pos = vec2(right - w, tile.center_y() - 11.0);
         ui.chip(pos, label, crate::ui::Tone::Violet, Some(Icon::Heart));
-        right = pos.x - 8.0;
+        right = pos.x - 6.0;
     }
-
     let avail = (right - x).max(40.0);
-    let micro = t.micro();
-    let (title, sub) = if mg.title.is_empty() {
-        (kind_name.clone(), String::new())
-    } else {
-        (mg.title.clone(), kind_name.to_uppercase())
+
+    let detail_key = match &mg.game {
+        Game::Latte(_) => mg.variation.shape.map(|s| s.key()),
+        Game::Tea(_) => mg.variation.tea_kind.map(|s| s.key()),
+        Game::Plate(_) => mg.variation.plate.map(|s| s.key()),
+        _ => None,
     };
-    if sub.is_empty() {
-        let st = t.h1();
-        let base = ui.fonts.baseline_in(Rect::new(x, card.y + 8.0, avail, 34.0), &st);
-        let s = ui.fonts.ellipsize(&title, avail, &st).into_owned();
-        let w = ui.fonts.draw(&s, x, base, &st);
-        if let Some(d) = detail {
-            let ds = t.body().color(t.text_dim);
-            let rest = avail - w - 8.0;
-            if rest > 30.0 {
-                let d = format!("· {d}");
-                let d = ui.fonts.ellipsize(&d, rest, &ds).into_owned();
-                ui.fonts.draw(&d, x + w + 7.0, base, &ds);
-            }
-        }
+    let kind_key = mg.kind.title_key();
+    let kind_name = text.get(&kind_key);
+    let title = if mg.title.is_empty() {
+        kind_name
     } else {
-        let s = ui.fonts.ellipsize(&sub, avail, &micro).into_owned();
-        ui.fonts.draw(&s, x, card.y + 21.0, &micro);
-        let st = t.h2();
-        let s = ui.fonts.ellipsize(&title, avail, &st).into_owned();
-        let w = ui.fonts.draw(&s, x, card.y + 38.0, &st);
-        if let Some(d) = detail {
-            let ds = t.small();
-            let rest = avail - w - 8.0;
-            if rest > 30.0 {
-                let d = format!("· {d}");
-                let d = ui.fonts.ellipsize(&d, rest, &ds).into_owned();
-                ui.fonts.draw(&d, x + w + 6.0, card.y + 38.0, &ds);
-            }
+        mg.title.as_str()
+    };
+    // top line: guest portrait chip + wish, or the mini-game's name
+    match &mg.guest {
+        Some((name, wish)) => {
+            ui.avatar(vec2(x + 7.0, card.y + 17.0), 14.0, name, None, false);
+            let st = t.small();
+            let line = format!("{name} · {wish}");
+            let s = ui.fonts.ellipsize(&line, avail - 18.0, &st).into_owned();
+            ui.fonts.draw(&s, x + 18.0, card.y + 21.0, &st);
+        }
+        None => {
+            let micro = t.micro();
+            let up = kind_name.to_uppercase();
+            let s = ui.fonts.ellipsize(&up, avail, &micro).into_owned();
+            ui.fonts.draw(&s, x, card.y + 20.0, &micro);
+        }
+    }
+    let st = t.h2();
+    let s = ui.fonts.ellipsize(title, avail, &st).into_owned();
+    let w = ui.fonts.draw(&s, x, card.y + 38.0, &st);
+    if let Some(k) = detail_key {
+        let ds = t.small();
+        let rest = avail - w - 8.0;
+        if rest > 30.0 {
+            let d = format!("· {}", text.get(&k));
+            let d = ui.fonts.ellipsize(&d, rest, &ds).into_owned();
+            ui.fonts.draw(&d, x + w + 6.0, card.y + 38.0, &ds);
         }
     }
 
-    // --- footer ---
+    // --- footer: prompt on the left, Done and Skip bottom-right ---
+    let foot_y = card.y + super::HEADER_H + STAGE_SIZE.y;
     let foot = Rect::new(
         card.x + PAD,
-        card.y + super::HEADER_H + STAGE_SIZE.y,
+        foot_y,
         card.w - PAD * 2.0,
-        card.bottom() - (card.y + super::HEADER_H + STAGE_SIZE.y),
+        card.bottom() - foot_y,
     );
     let cy = foot.center_y();
-    let mut serve = false;
-    let mut text_right = foot.right();
-    if hint.serve && mg.finish.is_none() {
-        let label = text.get("minigame.serve");
-        let b = Button::new(label).primary().icon(Icon::Check).shortcut("Enter");
-        let w = ui.button_width(&b);
-        let r = Rect::new(foot.right() - w, cy - 14.0, w, 28.0);
-        serve = ui.button(("minigame_serve", mg.kind.id()), r, &b).clicked;
-        text_right = r.x - 10.0;
-    }
-    let mut x = foot.x + 2.0;
+    let mut skip = false;
+    let mut done = false;
     if mg.finish.is_none() {
+        let skip_key = if mg.kind == MiniGameKind::Plate {
+            "Esc"
+        } else {
+            "Tab"
+        };
+        let b = Button::new(text.get("minigame.skip"))
+            .ghost()
+            .shortcut(skip_key);
+        let w = ui.button_width(&b);
+        let r = Rect::new(foot.right() - w + 6.0, cy - 14.0, w, 28.0);
+        skip = ui.button(("minigame_skip", mg.kind.id()), r, &b).clicked;
+        let mut text_right = r.x - 6.0;
+        if hint.done {
+            let b = Button::new(text.get("minigame.done"))
+                .primary()
+                .icon(Icon::Check)
+                .shortcut("Enter");
+            let w = ui.button_width(&b);
+            let r = Rect::new(text_right - w, cy - 14.0, w, 28.0);
+            done = ui.button(("minigame_done", mg.kind.id()), r, &b).clicked;
+            text_right = r.x - 10.0;
+        }
+        let mut x = foot.x + 2.0;
         for k in hint.keys {
             let label = if *k == "Space" {
                 text.get("minigame.key.space")
@@ -157,10 +175,10 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
                 k
             };
             let r = ui.keycap(vec2(x, cy), label, false);
-            x = r.right() + 6.0;
+            x = r.right() + 5.0;
         }
         if !hint.keys.is_empty() {
-            x += 2.0;
+            x += 3.0;
         }
         let msg = text.get(hint.key);
         let st = if hint.emphasis {
@@ -169,14 +187,22 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
         } else {
             t.body().color(t.text_dim)
         };
-        let s = ui.fonts.ellipsize(msg, (text_right - x).max(10.0), &st).into_owned();
+        let s = ui
+            .fonts
+            .ellipsize(msg, (text_right - x).max(10.0), &st)
+            .into_owned();
         let w = ui.fonts.measure(&s, &st);
         if hint.emphasis {
-            glow_circle(vec2(x + w * 0.5, cy), w * 0.5 + 18.0, with_alpha(t.amber, 0.08));
+            glow_circle(
+                vec2(x + w * 0.5, cy),
+                w * 0.5 + 18.0,
+                with_alpha(t.amber, 0.08),
+            );
         }
-        ui.fonts.draw_in(&s, Rect::new(x, foot.y, w + 2.0, foot.h), &st, Align::Left);
+        ui.fonts
+            .draw_in(&s, Rect::new(x, foot.y, w + 2.0, foot.h), &st, Align::Left);
     }
-    CardOut { skip, serve }
+    CardOut { skip, done }
 }
 
 /// Dark warm counter with an amber lamp pool and a lavender rim from the window.
@@ -204,18 +230,51 @@ pub(crate) fn stage_backdrop(stage: Rect, t: f32) {
     for i in 0..9 {
         let y = stage.y + 18.0 + i as f32 * 31.0 + rd::hash01(i * 7 + 3) * 6.0;
         let a = 0.025 + rd::hash01(i * 13 + 1) * 0.02;
-        draw::hline(stage.x + 6.0, stage.right() - 6.0, y, Color::new(0.0, 0.0, 0.0, a * 2.0));
-        draw::hline(stage.x + 6.0, stage.right() - 6.0, y + 1.0, Color::new(1.0, 0.9, 0.8, a * 0.5));
+        draw::hline(
+            stage.x + 6.0,
+            stage.right() - 6.0,
+            y,
+            Color::new(0.0, 0.0, 0.0, a * 2.0),
+        );
+        draw::hline(
+            stage.x + 6.0,
+            stage.right() - 6.0,
+            y + 1.0,
+            Color::new(1.0, 0.9, 0.8, a * 0.5),
+        );
     }
 }
 
 /// Inner shadow and lit edge on top of the stage content.
 pub(crate) fn stage_vignette(stage: Rect) {
     let top = stage.with_h(22.0);
-    rd::rect_v(top.x, top.y, top.w, top.h, Color::new(0.02, 0.0, 0.06, 0.32), Color::new(0.02, 0.0, 0.06, 0.0));
+    rd::rect_v(
+        top.x,
+        top.y,
+        top.w,
+        top.h,
+        Color::new(0.02, 0.0, 0.06, 0.32),
+        Color::new(0.02, 0.0, 0.06, 0.0),
+    );
     let bot = Rect::new(stage.x, stage.bottom() - 26.0, stage.w, 26.0);
-    rd::rect_v(bot.x, bot.y, bot.w, bot.h, Color::new(0.02, 0.0, 0.06, 0.0), Color::new(0.02, 0.0, 0.06, 0.3));
-    stroke_rrect(stage, 10.0, 1.0, Paint::vertical(stage, Color::new(0.0, 0.0, 0.0, 0.35), Color::new(1.0, 1.0, 1.0, 0.07)));
+    rd::rect_v(
+        bot.x,
+        bot.y,
+        bot.w,
+        bot.h,
+        Color::new(0.02, 0.0, 0.06, 0.0),
+        Color::new(0.02, 0.0, 0.06, 0.3),
+    );
+    stroke_rrect(
+        stage,
+        10.0,
+        1.0,
+        Paint::vertical(
+            stage,
+            Color::new(0.0, 0.0, 0.0, 0.35),
+            Color::new(1.0, 1.0, 1.0, 0.07),
+        ),
+    );
 }
 
 /// Four-point twinkle. `age` 0..1.
@@ -229,17 +288,33 @@ pub(crate) fn sparkle(p: Vec2, size: f32, age: f32, warm: bool) {
     };
     rd::glow(p.x, p.y, k * 2.2, with_alpha(c, 0.35));
     fill_convex(
-        &[p + vec2(0.0, -k * 1.6), p + vec2(k * 0.28, 0.0), p + vec2(0.0, k * 1.6), p + vec2(-k * 0.28, 0.0)],
+        &[
+            p + vec2(0.0, -k * 1.6),
+            p + vec2(k * 0.28, 0.0),
+            p + vec2(0.0, k * 1.6),
+            p + vec2(-k * 0.28, 0.0),
+        ],
         Paint::Solid(c),
     );
     fill_convex(
-        &[p + vec2(-k * 1.6, 0.0), p + vec2(0.0, -k * 0.28), p + vec2(k * 1.6, 0.0), p + vec2(0.0, k * 0.28)],
+        &[
+            p + vec2(-k * 1.6, 0.0),
+            p + vec2(0.0, -k * 0.28),
+            p + vec2(k * 1.6, 0.0),
+            p + vec2(0.0, k * 0.28),
+        ],
         Paint::Solid(c),
     );
 }
 
 /// The little "Lovely!" chip with stars that pops in at the end.
-pub(crate) fn result_chip(ui: &mut Ui, stage: Rect, quality: f32, age: f32, text: &super::MiniGameText, focus: Vec2) {
+pub(crate) fn result_chip(
+    ui: &mut Ui,
+    stage: Rect,
+    quality: f32,
+    age: f32,
+    text: &super::MiniGameText,
+) {
     let t = ui.theme.clone();
     let veil = ease_out(age / 0.4);
     fill_rrect(stage, 10.0, Color::new(0.04, 0.02, 0.1, 0.28 * veil));
@@ -256,7 +331,6 @@ pub(crate) fn result_chip(ui: &mut Ui, stage: Rect, quality: f32, age: f32, text
     let w = (ui.fonts.measure(word, &st) + 44.0).max(150.0);
     let h = 70.0;
     // in the right-hand column, so the finished drink stays visible
-    let _ = focus;
     let cx = stage.right() - 12.0 - w / 2.0;
     let cy = stage.center_y();
     let size = vec2(w, h) * (0.85 + 0.15 * pop);
@@ -269,13 +343,31 @@ pub(crate) fn result_chip(ui: &mut Ui, stage: Rect, quality: f32, age: f32, text
         let sc = vec2(r.center().x + (i as f32 - 1.0) * 22.0, r.y + 22.0);
         let lit = (i as u32) < stars;
         let delay = (age - 0.18 - i as f32 * 0.09).max(0.0);
-        let s = if lit { 14.0 + 3.0 * (1.0 - ease_out(delay / 0.25)) } else { 13.0 };
+        let s = if lit {
+            14.0 + 3.0 * (1.0 - ease_out(delay / 0.25))
+        } else {
+            13.0
+        };
         if lit {
             glow_circle(sc, 16.0, with_alpha(t.amber, 0.3));
         }
-        draw_icon(Icon::Star, sc, s, if lit { t.amber } else { with_alpha(t.text_disabled, 0.6) });
+        draw_icon(
+            Icon::Star,
+            sc,
+            s,
+            if lit {
+                t.amber
+            } else {
+                with_alpha(t.text_disabled, 0.6)
+            },
+        );
     }
-    ui.fonts.draw_in(word, Rect::new(r.x, r.y + 34.0, r.w, 28.0), &st, Align::Center);
+    ui.fonts.draw_in(
+        word,
+        Rect::new(r.x, r.y + 34.0, r.w, 28.0),
+        &st,
+        Align::Center,
+    );
     draw::pop_alpha();
 }
 

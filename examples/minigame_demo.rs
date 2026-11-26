@@ -1,10 +1,14 @@
 //! Brewing mini-games over a dark café backdrop. `cargo run --example minigame_demo`
 //!
 //! * `SHIFTELLA_MG=froth|latte|pour|tea|plate` (default `latte`), `SHIFTELLA_SHAPE=heart|rosetta|
-//!   tulip|moon|train`, `SHIFTELLA_PLATE=medovnik|soup`, `SHIFTELLA_TEA=black|green|herbal|fruit`,
+//!   tulip|leaf|swan|snowflake|moon|train|cat|note|heart_l`, `SHIFTELLA_PLATE=medovnik|soup|topinka`,
+//!   `SHIFTELLA_TEA=black|green|herbal|fruit`,
 //!   `SHIFTELLA_TOUCH=extra_foam|light_foam|strong|mild|cinnamon|honey`, `SHIFTELLA_SEED=n`,
-//!   `SHIFTELLA_LANG=cs|en|sk|uk`, `SHIFTELLA_RELAXED=1`, `SHIFTELLA_TITLE="Flat white"`.
-//! * Keys: 1–5 pick a game, Tab next shape / set, F1 toggles autoplay, R restarts.
+//!   `SHIFTELLA_VARIANT=chocolate|two_sugars|…` (minigames.ron variant ids), `SHIFTELLA_PRACTISED=1`,
+//!   `SHIFTELLA_LANG=cs|en|sk|uk`, `SHIFTELLA_RELAXED=1`, `SHIFTELLA_TITLE="Flat white"`,
+//!   `SHIFTELLA_GUEST=Vera` (shows the guest chip and a wish line), `SHIFTELLA_KB=1` (scripted
+//!   keyboard play instead of mouse).
+//! * Keys: F2–F6 pick a game, F7 next shape / set, F1 toggles autoplay, F8 restarts.
 //! * Screenshot: `SHIFTELLA_SHOT=shots/latte.png SHIFTELLA_T=6` — plays the scripted input up
 //!   to `T` seconds, renders ~40 frames, saves the PNG and exits.
 //! * `SHIFTELLA_DEMO=cat` shows the station cat poses (also with `SHIFTELLA_SHOT`).
@@ -13,7 +17,7 @@ use macroquad::prelude::*;
 
 use shiftella_game::i18n::Lang;
 use shiftella_game::minigame::*;
-use shiftella_game::render::cat::{CatPose, draw_cat_ex, CatLook};
+use shiftella_game::render::cat::{CatLook, CatPose, draw_cat_ex};
 use shiftella_game::render::draw as rd;
 use shiftella_game::ui::draw::{Paint, fill_rrect};
 use shiftella_game::ui::*;
@@ -41,24 +45,15 @@ fn load_text(lang: Lang) -> MiniGameText {
     MiniGameText::from_lookup(|k| table.get(k).cloned().unwrap_or_else(|| k.to_string()))
 }
 
-fn parse_touch(s: &str) -> Option<RegularTouch> {
-    Some(match s {
-        "extra_foam" => RegularTouch::ExtraFoam,
-        "light_foam" => RegularTouch::LightFoam,
-        "strong" => RegularTouch::Strong,
-        "mild" => RegularTouch::Mild,
-        "cinnamon" => RegularTouch::Cinnamon,
-        "honey" => RegularTouch::Honey,
-        _ => return None,
-    })
-}
-
 struct Setup {
     kind: MiniGameKind,
     variation: Variation,
     seed: u64,
     relaxed: bool,
+    practised: bool,
+    keyboard: bool,
     title: Option<String>,
+    guest: Option<String>,
     lang: Lang,
 }
 
@@ -67,30 +62,29 @@ impl Setup {
         let kind = env("SHIFTELLA_MG")
             .and_then(|s| MiniGameKind::from_id(&s))
             .unwrap_or(MiniGameKind::LatteArt);
-        let mut variation = Variation {
-            shape: env("SHIFTELLA_SHAPE").and_then(|s| LatteShape::from_id(&s)),
-            ..Default::default()
-        };
-        variation.plate = env("SHIFTELLA_PLATE").and_then(|s| match s.as_str() {
-            "medovnik" => Some(PlateSet::Medovnik),
-            "soup" => Some(PlateSet::Soup),
-            _ => None,
-        });
-        variation.tea = env("SHIFTELLA_TEA").and_then(|s| match s.as_str() {
-            "black" => Some(TeaKind::Black),
-            "green" => Some(TeaKind::Green),
-            "herbal" => Some(TeaKind::Herbal),
-            "fruit" => Some(TeaKind::Fruit),
-            _ => None,
-        });
-        variation.touch = env("SHIFTELLA_TOUCH").and_then(|s| parse_touch(&s));
+        let mut variation = env("SHIFTELLA_VARIANT")
+            .map(|v| Variation::from_variant_id(kind, &v))
+            .unwrap_or_default();
+        if let Some(s) = env("SHIFTELLA_SHAPE").and_then(|s| LatteShape::from_id(&s)) {
+            variation.shape = Some(s);
+        }
+        variation.plate = env("SHIFTELLA_PLATE").and_then(|s| PlateSet::from_id(&s));
+        variation.tea_kind = env("SHIFTELLA_TEA").and_then(|s| TeaKind::from_id(&s));
+        variation.touch = env("SHIFTELLA_TOUCH").and_then(|s| RegularTouch::from_id(&s));
         Setup {
             kind,
             variation,
-            seed: env("SHIFTELLA_SEED").and_then(|s| s.parse().ok()).unwrap_or(7),
+            seed: env("SHIFTELLA_SEED")
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(7),
             relaxed: env("SHIFTELLA_RELAXED").is_some_and(|s| s != "0"),
+            practised: env("SHIFTELLA_PRACTISED").is_some_and(|s| s != "0"),
+            keyboard: env("SHIFTELLA_KB").is_some_and(|s| s != "0"),
             title: env("SHIFTELLA_TITLE"),
-            lang: env("SHIFTELLA_LANG").and_then(|s| Lang::from_code(&s)).unwrap_or(Lang::En),
+            guest: env("SHIFTELLA_GUEST"),
+            lang: env("SHIFTELLA_LANG")
+                .and_then(|s| Lang::from_code(&s))
+                .unwrap_or(Lang::En),
         }
     }
 
@@ -105,10 +99,18 @@ impl Setup {
             }
             .to_string()
         });
-        MiniGame::start(self.kind, self.seed, self.variation)
-            .with_title(title)
-            .with_text(text.clone())
+        let params = MiniGameParams::new(self.seed)
+            .variant(self.variation)
             .relaxed(self.relaxed)
+            .practised(self.practised)
+            .regular(self.guest.as_deref().map(str::to_lowercase).as_deref());
+        let mg = MiniGame::start(self.kind, params)
+            .with_title(title)
+            .with_text(text.clone());
+        match &self.guest {
+            Some(g) => mg.with_guest(g.clone(), "“Something warm, not too sweet — long day.”"),
+            None => mg,
+        }
     }
 }
 
@@ -116,17 +118,37 @@ impl Setup {
 fn backdrop(ui: &Ui, t: f32) {
     let s = ui.screen();
     let th = &ui.theme;
-    fill_rrect(s, 0.0, Paint::vertical(s, th.violet_night[0], th.violet_night[1]));
+    fill_rrect(
+        s,
+        0.0,
+        Paint::vertical(s, th.violet_night[0], th.violet_night[1]),
+    );
     // window with the street glow
     let win = Rect::new(s.w * 0.08, s.h * 0.1, s.w * 0.34, s.h * 0.46);
-    fill_rrect(win, 10.0, Paint::vertical(win, Color::from_hex(0x1f2448), Color::from_hex(0x2c2350)));
+    fill_rrect(
+        win,
+        10.0,
+        Paint::vertical(win, Color::from_hex(0x1f2448), Color::from_hex(0x2c2350)),
+    );
     for i in 0..26u32 {
         let x = win.x + rd::hash01(i * 7) * win.w;
         let ph = (t * (0.4 + rd::hash01(i * 3) * 0.5) + rd::hash01(i * 11)).fract();
         let y = win.y + ph * win.h;
-        draw_line(x, y, x - 2.0, y + 14.0, 1.0, Color::new(0.7, 0.72, 1.0, 0.25));
+        draw_line(
+            x,
+            y,
+            x - 2.0,
+            y + 14.0,
+            1.0,
+            Color::new(0.7, 0.72, 1.0, 0.25),
+        );
     }
-    rd::glow(win.x + win.w * 0.7, win.y + win.h * 0.35, 120.0, Color::new(0.5, 0.45, 1.0, 0.25));
+    rd::glow(
+        win.x + win.w * 0.7,
+        win.y + win.h * 0.35,
+        120.0,
+        Color::new(0.5, 0.45, 1.0, 0.25),
+    );
     // warm bokeh lamps
     for i in 0..14u32 {
         let x = rd::hash01(i * 13 + 1) * s.w;
@@ -143,10 +165,22 @@ fn backdrop(ui: &Ui, t: f32) {
     }
     // counter
     let counter = Rect::new(0.0, s.h * 0.72, s.w, s.h * 0.28);
-    rd::rect_v(counter.x, counter.y, counter.w, counter.h, Color::from_hex(0x3a2433), Color::from_hex(0x1a1020));
-    rd::rect_v(0.0, counter.y - 6.0, s.w, 8.0, Color::from_hex(0x6e4a52), Color::from_hex(0x3a2433));
-    // the overlay dims the world
-    draw_rectangle(0.0, 0.0, s.w, s.h, Color::new(0.03, 0.02, 0.07, 0.5));
+    rd::rect_v(
+        counter.x,
+        counter.y,
+        counter.w,
+        counter.h,
+        Color::from_hex(0x3a2433),
+        Color::from_hex(0x1a1020),
+    );
+    rd::rect_v(
+        0.0,
+        counter.y - 6.0,
+        s.w,
+        8.0,
+        Color::from_hex(0x6e4a52),
+        Color::from_hex(0x3a2433),
+    );
 }
 
 fn cat_gallery(ui: &mut Ui, t: f32) {
@@ -155,9 +189,21 @@ fn cat_gallery(ui: &mut Ui, t: f32) {
     let card = s.centered(vec2(860.0, 420.0));
     ui.glass(card, &Glass::panel());
     let floor = Rect::new(card.x + 16.0, card.y + 50.0, card.w - 32.0, card.h - 66.0);
-    fill_rrect(floor, 10.0, Paint::vertical(floor, Color::from_hex(0x2a1f3a), Color::from_hex(0x140e20)));
-    rd::radial(floor.center().x, floor.y + 80.0, 420.0, 200.0, Color::new(1.0, 0.72, 0.42, 0.12), Color::new(1.0, 0.72, 0.42, 0.0));
-    ui.fonts.draw("Station cat", card.x + 18.0, card.y + 31.0, &th.h1());
+    fill_rrect(
+        floor,
+        10.0,
+        Paint::vertical(floor, Color::from_hex(0x2a1f3a), Color::from_hex(0x140e20)),
+    );
+    rd::radial(
+        floor.center().x,
+        floor.y + 80.0,
+        420.0,
+        200.0,
+        Color::new(1.0, 0.72, 0.42, 0.12),
+        Color::new(1.0, 0.72, 0.42, 0.0),
+    );
+    ui.fonts
+        .draw("Station cat", card.x + 18.0, card.y + 31.0, &th.h1());
     let poses = [
         (CatPose::Sit, 0.2, "Sit"),
         (CatPose::Walk, 0.5, "Walk"),
@@ -173,12 +219,26 @@ fn cat_gallery(ui: &mut Ui, t: f32) {
         let x = floor.x + 90.0 + i as f32 * 166.0;
         let y = floor.y + 250.0;
         draw_cat_ex(vec2(x, y), &look_big, *pose, t + i as f32 * 0.7, *aff);
-        ui.fonts.draw_in(label, Rect::new(x - 80.0, y + 30.0, 160.0, 18.0), &th.small(), Align::Center);
+        ui.fonts.draw_in(
+            label,
+            Rect::new(x - 80.0, y + 30.0, 160.0, 18.0),
+            &th.small(),
+            Align::Center,
+        );
     }
     // world scale (as in the café: 1 tile = 64 px)
     let small = CatLook::default();
-    for (i, pose) in [CatPose::Sit, CatPose::Walk, CatPose::Eat, CatPose::Sleep].iter().enumerate() {
-        draw_cat_ex(vec2(floor.x + 40.0 + i as f32 * 60.0, floor.y + 60.0), &small, *pose, t, 0.3);
+    for (i, pose) in [CatPose::Sit, CatPose::Walk, CatPose::Eat, CatPose::Sleep]
+        .iter()
+        .enumerate()
+    {
+        draw_cat_ex(
+            vec2(floor.x + 40.0 + i as f32 * 60.0, floor.y + 60.0),
+            &small,
+            *pose,
+            t,
+            0.3,
+        );
     }
 }
 
@@ -190,7 +250,9 @@ async fn main() {
     let text = load_text(setup.lang);
     let shot = env("SHIFTELLA_SHOT");
     let cat_demo = env("SHIFTELLA_DEMO").as_deref() == Some("cat");
-    let target_t: f32 = env("SHIFTELLA_T").and_then(|s| s.parse().ok()).unwrap_or(4.0);
+    let target_t: f32 = env("SHIFTELLA_T")
+        .and_then(|s| s.parse().ok())
+        .unwrap_or(4.0);
     let frames = 40;
     let dt_fixed = 1.0 / 60.0;
     let mut autoplay = shot.is_some();
@@ -201,7 +263,11 @@ async fn main() {
         // fast-forward the scripted run up to just before T
         let pre = (target_t - frames as f32 * dt_fixed).max(0.0);
         while mg.elapsed() < pre {
-            let input = mg.autoplay_input();
+            let input = if setup.keyboard {
+                mg.autoplay_keyboard_input()
+            } else {
+                mg.autoplay_input()
+            };
             status = mg.step(&input, dt_fixed);
         }
         t = pre;
@@ -210,7 +276,11 @@ async fn main() {
     let mut done_for = 0.0;
     loop {
         ui.begin_frame();
-        let dt = if shot.is_some() { dt_fixed } else { get_frame_time().min(0.05) };
+        let dt = if shot.is_some() {
+            dt_fixed
+        } else {
+            get_frame_time().min(0.05)
+        };
         t += dt;
         clear_background(ui.theme.canvas[0]);
         ui.set_camera();
@@ -219,7 +289,11 @@ async fn main() {
             cat_gallery(&mut ui, t);
         } else {
             if autoplay {
-                let input = mg.autoplay_input();
+                let input = if setup.keyboard {
+                    mg.autoplay_keyboard_input()
+                } else {
+                    mg.autoplay_input()
+                };
                 status = mg.step(&input, dt);
                 let _ = ui.esc();
             } else {
@@ -228,12 +302,17 @@ async fn main() {
             let screen = ui.screen();
             mg.draw(&mut ui, screen);
             for s in mg.drain_sounds() {
-                eprintln!("sound: {s:?} -> {:?}", s.suggested_sfx());
+                eprintln!("sound: {s:?} -> {:?}", s.cue());
             }
             if let MiniGameStatus::Done { quality } = status {
                 let st = ui.theme.small().color(ui.theme.text);
-                let msg = format!("Done · quality {quality:.2} · R restarts");
-                ui.fonts.draw_in(&msg, Rect::new(0.0, ui.screen().h - 40.0, ui.screen().w, 20.0), &st, Align::Center);
+                let msg = format!("Done · quality {quality:.2} · F8 restarts");
+                ui.fonts.draw_in(
+                    &msg,
+                    Rect::new(0.0, ui.screen().h - 40.0, ui.screen().w, 20.0),
+                    &st,
+                    Align::Center,
+                );
                 done_for += dt;
             }
         }
@@ -241,30 +320,46 @@ async fn main() {
         let _ = ui.drain_sounds();
 
         // demo hotkeys
-        let keys = [KeyCode::Key1, KeyCode::Key2, KeyCode::Key3, KeyCode::Key4, KeyCode::Key5];
-        let mut restart = ui.key(KeyCode::R) || (done_for > 2.5 && shot.is_none());
+        let keys = [
+            KeyCode::F2,
+            KeyCode::F3,
+            KeyCode::F4,
+            KeyCode::F5,
+            KeyCode::F6,
+        ];
+        let mut restart = ui.key(KeyCode::F8) || (done_for > 2.5 && shot.is_none());
         for (i, k) in keys.iter().enumerate() {
             if ui.key(*k) {
                 setup.kind = MiniGameKind::ALL[i];
                 restart = true;
             }
         }
-        if ui.key(KeyCode::Tab) {
+        if ui.key(KeyCode::F7) {
             setup.seed += 1;
             match setup.kind {
                 MiniGameKind::LatteArt => {
-                    let i = setup.variation.shape.map(|s| LatteShape::ALL.iter().position(|x| *x == s).unwrap_or(0) + 1).unwrap_or(0);
+                    let i = setup
+                        .variation
+                        .shape
+                        .map(|s| LatteShape::ALL.iter().position(|x| *x == s).unwrap_or(0) + 1)
+                        .unwrap_or(0);
                     setup.variation.shape = Some(LatteShape::ALL[i % LatteShape::ALL.len()]);
                 }
                 MiniGameKind::Plate => {
-                    setup.variation.plate = Some(match setup.variation.plate {
-                        Some(PlateSet::Medovnik) => PlateSet::Soup,
-                        _ => PlateSet::Medovnik,
-                    });
+                    let i = setup
+                        .variation
+                        .plate
+                        .map(|s| PlateSet::ALL.iter().position(|x| *x == s).unwrap_or(0) + 1)
+                        .unwrap_or(0);
+                    setup.variation.plate = Some(PlateSet::ALL[i % PlateSet::ALL.len()]);
                 }
                 MiniGameKind::TeaSteep => {
-                    let i = setup.variation.tea.map(|s| TeaKind::ALL.iter().position(|x| *x == s).unwrap_or(0) + 1).unwrap_or(0);
-                    setup.variation.tea = Some(TeaKind::ALL[i % TeaKind::ALL.len()]);
+                    let i = setup
+                        .variation
+                        .tea_kind
+                        .map(|s| TeaKind::ALL.iter().position(|x| *x == s).unwrap_or(0) + 1)
+                        .unwrap_or(0);
+                    setup.variation.tea_kind = Some(TeaKind::ALL[i % TeaKind::ALL.len()]);
                 }
                 _ => {}
             }
@@ -286,7 +381,11 @@ async fn main() {
                     px[3] = 255;
                 }
                 img.export_png(path);
-                eprintln!("minigame_demo: saved {path} at t={:.2}s ({:?})", mg.elapsed(), status);
+                eprintln!(
+                    "minigame_demo: saved {path} at t={:.2}s ({:?})",
+                    mg.elapsed(),
+                    status
+                );
                 break;
             }
         }

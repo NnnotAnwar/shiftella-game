@@ -10,7 +10,9 @@ use std::f32::consts::PI;
 use macroquad::prelude::*;
 
 use super::colors as c;
-use super::draw::{alpha, capsule, ellipse, ellipse_v, glow, mix, poly, poly_v, shade, soft_shadow};
+use super::draw::{
+    alpha, capsule, ellipse, ellipse_v, glow, mix, poly, poly_v, shade, soft_shadow,
+};
 
 /// What the cat is doing.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
@@ -172,16 +174,39 @@ fn head(x: &Xf, h: Vec2, coat: &CatCoat, t: f32, eyes_open: f32, content: bool, 
             );
         }
     };
-    ear(h + vec2(-7.5, -3.0), h + vec2(-2.0, -6.5), h + vec2(-7.0, -12.5 + ear_twitch), true, coat.dark);
-    ear(h + vec2(0.5, -6.8), h + vec2(6.8, -3.5), h + vec2(5.0, -13.0), true, coat.base);
+    ear(
+        h + vec2(-7.5, -3.0),
+        h + vec2(-2.0, -6.5),
+        h + vec2(-7.0, -12.5 + ear_twitch),
+        true,
+        coat.dark,
+    );
+    ear(
+        h + vec2(0.5, -6.8),
+        h + vec2(6.8, -3.5),
+        h + vec2(5.0, -13.0),
+        true,
+        coat.base,
+    );
     // head
     x.ell(h.x, h.y, 8.6, 7.4, coat.light, coat.base);
     // cheek fluff
-    x.ell(h.x + 1.0, h.y + 3.0, 8.0, 4.6, coat.base, shade(coat.base, 0.92));
+    x.ell(
+        h.x + 1.0,
+        h.y + 3.0,
+        8.0,
+        4.6,
+        coat.base,
+        shade(coat.base, 0.92),
+    );
     // forehead stripes
     for (i, dx) in [-1.8f32, 0.6, 3.0].iter().enumerate() {
         let len = if i == 1 { 3.4 } else { 2.6 };
-        x.stroke(&[h + vec2(*dx, -6.6), h + vec2(*dx + 0.2, -6.6 + len)], 0.9, alpha(coat.stripe, 0.8));
+        x.stroke(
+            &[h + vec2(*dx, -6.6), h + vec2(*dx + 0.2, -6.6 + len)],
+            0.9,
+            alpha(coat.stripe, 0.8),
+        );
     }
     // muzzle (cream), towards the facing side
     let m = h + vec2(3.6, 2.6);
@@ -195,27 +220,63 @@ fn head(x: &Xf, h: Vec2, coat: &CatCoat, t: f32, eyes_open: f32, content: bool, 
             let arc_pts: Vec<Vec2> = (0..=6)
                 .map(|i| {
                     let a = PI * (i as f32 / 6.0);
-                    vec2(ex + a.cos() * 1.7 * big, h.y - 0.6 + -(a.sin()) * 1.1 * big + 0.6)
+                    vec2(
+                        ex + a.cos() * 1.7 * big,
+                        h.y - 0.6 + -(a.sin()) * 1.1 * big + 0.6,
+                    )
                 })
                 .collect();
             x.stroke(&arc_pts, 0.85, Color::from_hex(0x2a2238));
         } else {
             let ry = 2.0 * eyes_open;
             ellipse(e.x, e.y, 1.7 * s, ry * s, coat.eye);
-            ellipse(e.x + 0.2 * x.sx * s, e.y, 0.65 * s, ry * 0.92 * s, Color::from_hex(0x2a2238));
-            ellipse(e.x - 0.5 * x.sx * s, e.y - 0.7 * s * eyes_open, 0.45 * s, 0.45 * s, WHITE);
+            ellipse(
+                e.x + 0.2 * x.sx * s,
+                e.y,
+                0.65 * s,
+                ry * 0.92 * s,
+                Color::from_hex(0x2a2238),
+            );
+            ellipse(
+                e.x - 0.5 * x.sx * s,
+                e.y - 0.7 * s * eyes_open,
+                0.45 * s,
+                0.45 * s,
+                WHITE,
+            );
         }
     }
     // nose + mouth
     let n = h + vec2(4.4, 1.6);
-    x.tri(n + vec2(-1.1, -0.6), n + vec2(1.1, -0.6), n + vec2(0.0, 0.7), Color::from_hex(0xe48c9f));
-    x.stroke(&[n + vec2(0.0, 0.7), n + vec2(-0.9, 1.6), n + vec2(-1.8, 1.3)], 0.6, alpha(Color::from_hex(0x4a3a52), 0.8));
-    x.stroke(&[n + vec2(0.0, 0.7), n + vec2(0.9, 1.6), n + vec2(1.8, 1.3)], 0.6, alpha(Color::from_hex(0x4a3a52), 0.8));
+    x.tri(
+        n + vec2(-1.1, -0.6),
+        n + vec2(1.1, -0.6),
+        n + vec2(0.0, 0.7),
+        Color::from_hex(0xe48c9f),
+    );
+    x.stroke(
+        &[n + vec2(0.0, 0.7), n + vec2(-0.9, 1.6), n + vec2(-1.8, 1.3)],
+        0.6,
+        alpha(Color::from_hex(0x4a3a52), 0.8),
+    );
+    x.stroke(
+        &[n + vec2(0.0, 0.7), n + vec2(0.9, 1.6), n + vec2(1.8, 1.3)],
+        0.6,
+        alpha(Color::from_hex(0x4a3a52), 0.8),
+    );
     // whiskers (twitch a little)
     let w = (t * 1.7).sin() * 0.3;
     for (dy, end_dy) in [(0.8f32, -0.6f32), (1.8, 1.6)] {
-        x.stroke(&[n + vec2(1.5, dy), n + vec2(8.5, end_dy + w)], 0.35, Color::new(1.0, 1.0, 1.0, 0.55));
-        x.stroke(&[n + vec2(-2.5, dy), n + vec2(-9.5, end_dy + 0.4 - w)], 0.35, Color::new(1.0, 1.0, 1.0, 0.35));
+        x.stroke(
+            &[n + vec2(1.5, dy), n + vec2(8.5, end_dy + w)],
+            0.35,
+            Color::new(1.0, 1.0, 1.0, 0.55),
+        );
+        x.stroke(
+            &[n + vec2(-2.5, dy), n + vec2(-9.5, end_dy + 0.4 - w)],
+            0.35,
+            Color::new(1.0, 1.0, 1.0, 0.35),
+        );
     }
     // lavender rim light on the back of the head
     let rim: Vec<Vec2> = (0..=6)
@@ -232,8 +293,21 @@ fn heart(p: Vec2, s: f32, a: f32) {
     glow(p.x, p.y, 10.0 * s, alpha(c::ROSE, 0.3 * a));
     ellipse(p.x - 2.2 * s, p.y - 1.2 * s, 2.7 * s, 2.7 * s, col);
     ellipse(p.x + 2.2 * s, p.y - 1.2 * s, 2.7 * s, 2.7 * s, col);
-    poly(&[p + vec2(-4.8, -0.4) * s, p + vec2(4.8, -0.4) * s, p + vec2(0.0, 5.2) * s], col);
-    ellipse(p.x - 2.9 * s, p.y - 2.2 * s, 0.9 * s, 0.9 * s, alpha(WHITE, 0.75 * a));
+    poly(
+        &[
+            p + vec2(-4.8, -0.4) * s,
+            p + vec2(4.8, -0.4) * s,
+            p + vec2(0.0, 5.2) * s,
+        ],
+        col,
+    );
+    ellipse(
+        p.x - 2.9 * s,
+        p.y - 2.2 * s,
+        0.9 * s,
+        0.9 * s,
+        alpha(WHITE, 0.75 * a),
+    );
 }
 
 fn bowl(x: &Xf, at: Vec2, t: f32) {
@@ -251,12 +325,30 @@ fn bowl(x: &Xf, at: Vec2, t: f32) {
         c::INDIGO_SOFT,
         c::INDIGO_600,
     );
-    ellipse(q.x, q.y - 4.0 * s, 7.5 * s, 2.0 * s, Color::from_hex(0xd9dcff));
-    ellipse(q.x, q.y - 3.8 * s, 6.0 * s, 1.4 * s, Color::from_hex(0x8a5a3a));
+    ellipse(
+        q.x,
+        q.y - 4.0 * s,
+        7.5 * s,
+        2.0 * s,
+        Color::from_hex(0xd9dcff),
+    );
+    ellipse(
+        q.x,
+        q.y - 3.8 * s,
+        6.0 * s,
+        1.4 * s,
+        Color::from_hex(0x8a5a3a),
+    );
     // a few kibble bits
     for i in 0..4 {
         let dx = (i as f32 - 1.5) * 2.6 + (t * 0.0).sin();
-        ellipse(q.x + dx * s, q.y - 4.1 * s, 0.9 * s, 0.6 * s, Color::from_hex(0xb77b4c));
+        ellipse(
+            q.x + dx * s,
+            q.y - 4.1 * s,
+            0.9 * s,
+            0.6 * s,
+            Color::from_hex(0xb77b4c),
+        );
     }
 }
 
@@ -286,7 +378,12 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
             let swish = (t * 1.3).sin();
             tail(
                 &x,
-                [vec2(-9.0, -3.0), vec2(-14.0, 1.5), vec2(2.0, 2.5), vec2(10.0 + swish * 1.5, -1.0 - swish.max(0.0) * 3.0)],
+                [
+                    vec2(-9.0, -3.0),
+                    vec2(-14.0, 1.5),
+                    vec2(2.0, 2.5),
+                    vec2(10.0 + swish * 1.5, -1.0 - swish.max(0.0) * 3.0),
+                ],
                 2.8,
                 1.9,
                 coat,
@@ -297,20 +394,33 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
             x.ell(-4.0, -8.0, 10.0, 8.6, coat.light, coat.dark);
             for i in 0..3 {
                 let yy = -12.0 + i as f32 * 3.0;
-                x.stroke(&[vec2(-11.0, yy), vec2(-7.0, yy - 1.0), vec2(-4.0, yy + 0.5)], 1.0, alpha(coat.stripe, 0.6));
+                x.stroke(
+                    &[vec2(-11.0, yy), vec2(-7.0, yy - 1.0), vec2(-4.0, yy + 0.5)],
+                    1.0,
+                    alpha(coat.stripe, 0.6),
+                );
             }
             x.ell(2.0, -14.0 * b, 7.8, 11.0 * b, coat.light, coat.base);
-            x.ell(5.0, -13.0 * b, 4.2, 7.0 * b, coat.cream, shade(coat.cream, 0.9));
+            x.ell(
+                5.0,
+                -13.0 * b,
+                4.2,
+                7.0 * b,
+                coat.cream,
+                shade(coat.cream, 0.9),
+            );
             // front legs + paws
             x.cap(vec2(2.6, -10.0), vec2(2.6, -1.2), 2.2, coat.base);
             x.cap(vec2(7.0, -10.0), vec2(7.2, -1.2), 2.2, coat.light);
             x.ell(2.8, -1.0, 2.6, 1.5, coat.cream, shade(coat.cream, 0.9));
             x.ell(7.6, -1.0, 2.6, 1.5, coat.cream, shade(coat.cream, 0.9));
             // rim light along the back
-            let rim: Vec<Vec2> = (0..=7).map(|i| {
-                let a = PI * 0.95 + i as f32 / 7.0 * 0.8;
-                vec2(-4.0 + a.cos() * 9.6, -8.0 + a.sin() * 8.2)
-            }).collect();
+            let rim: Vec<Vec2> = (0..=7)
+                .map(|i| {
+                    let a = PI * 0.95 + i as f32 / 7.0 * 0.8;
+                    vec2(-4.0 + a.cos() * 9.6, -8.0 + a.sin() * 8.2)
+                })
+                .collect();
             x.stroke(&rim, 1.0, alpha(c::LAVENDER_RIM, 0.5));
             let h = vec2(4.5, -26.0 * b + (t * 0.6).sin() * 0.3);
             head(&x, h, coat, t, open, content, twitch);
@@ -323,7 +433,12 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
             // tail up with a curl at the tip
             tail(
                 &x,
-                [vec2(-12.0, -14.0 - bob), vec2(-19.0, -18.0), vec2(-18.0 + sway, -30.0), vec2(-13.0 + sway * 2.0, -32.0)],
+                [
+                    vec2(-12.0, -14.0 - bob),
+                    vec2(-19.0, -18.0),
+                    vec2(-18.0 + sway, -30.0),
+                    vec2(-13.0 + sway * 2.0, -32.0),
+                ],
                 2.6,
                 1.8,
                 coat,
@@ -334,22 +449,42 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
                 let sw = ph.sin() * 3.0;
                 let lift = ph.cos().max(0.0) * 1.6;
                 x.cap(hip, vec2(hip.x + sw, -1.2 - lift), 2.0, col);
-                x.ell(hip.x + sw + 0.8, -1.0 - lift, 2.3, 1.3, shade(coat.cream, 0.85), shade(coat.cream, 0.8));
+                x.ell(
+                    hip.x + sw + 0.8,
+                    -1.0 - lift,
+                    2.3,
+                    1.3,
+                    shade(coat.cream, 0.85),
+                    shade(coat.cream, 0.8),
+                );
             };
             leg(vec2(-7.0, -10.0 - bob), gait + PI, coat.dark);
             leg(vec2(8.0, -10.0 - bob), gait, coat.dark);
             x.ell(0.0, -13.0 - bob, 13.5, 7.2, coat.light, coat.dark);
-            x.ell(4.0, -10.5 - bob, 7.0, 3.5, mix(coat.base, coat.cream, 0.5), coat.cream);
+            x.ell(
+                4.0,
+                -10.5 - bob,
+                7.0,
+                3.5,
+                mix(coat.base, coat.cream, 0.5),
+                coat.cream,
+            );
             for i in 0..4 {
                 let xx = -9.0 + i as f32 * 4.5;
-                x.stroke(&[vec2(xx, -19.5 - bob), vec2(xx + 1.0, -15.5 - bob)], 1.1, alpha(coat.stripe, 0.65));
+                x.stroke(
+                    &[vec2(xx, -19.5 - bob), vec2(xx + 1.0, -15.5 - bob)],
+                    1.1,
+                    alpha(coat.stripe, 0.65),
+                );
             }
             leg(vec2(-5.0, -9.5 - bob), gait, coat.base);
             leg(vec2(10.0, -9.5 - bob), gait + PI, coat.base);
-            let rim: Vec<Vec2> = (0..=8).map(|i| {
-                let a = PI * 1.1 + i as f32 / 8.0 * 0.9;
-                vec2(a.cos() * 13.2, -13.0 - bob + a.sin() * 7.0)
-            }).collect();
+            let rim: Vec<Vec2> = (0..=8)
+                .map(|i| {
+                    let a = PI * 1.1 + i as f32 / 8.0 * 0.9;
+                    vec2(a.cos() * 13.2, -13.0 - bob + a.sin() * 7.0)
+                })
+                .collect();
             x.stroke(&rim, 1.0, alpha(c::LAVENDER_RIM, 0.5));
             let h = vec2(15.0, -21.0 - bob);
             head(&x, h, coat, t, open, content, twitch);
@@ -361,7 +496,12 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
             let flick = ((t * 0.8).sin() * 4.0).sin();
             tail(
                 &x,
-                [vec2(-11.0, -4.0), vec2(-17.0, 0.0), vec2(-20.0, -2.0), vec2(-23.0 + flick, -6.0 - flick.max(0.0) * 2.0)],
+                [
+                    vec2(-11.0, -4.0),
+                    vec2(-17.0, 0.0),
+                    vec2(-20.0, -2.0),
+                    vec2(-23.0 + flick, -6.0 - flick.max(0.0) * 2.0),
+                ],
                 2.6,
                 1.8,
                 coat,
@@ -371,7 +511,11 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
             x.ell(-2.0, -8.0, 12.5, 8.0, coat.light, coat.dark);
             for i in 0..3 {
                 let xx = -9.0 + i as f32 * 4.5;
-                x.stroke(&[vec2(xx, -15.0), vec2(xx + 1.0, -11.5)], 1.1, alpha(coat.stripe, 0.6));
+                x.stroke(
+                    &[vec2(xx, -15.0), vec2(xx + 1.0, -11.5)],
+                    1.1,
+                    alpha(coat.stripe, 0.6),
+                );
             }
             x.cap(vec2(6.0, -6.0), vec2(9.0, -1.2), 2.1, coat.base);
             x.ell(9.6, -1.0, 2.6, 1.5, coat.cream, shade(coat.cream, 0.9));
@@ -386,7 +530,12 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
             // tail wraps around the front
             tail(
                 &x,
-                [vec2(-12.0, -3.0), vec2(-14.0, 2.0), vec2(4.0, 3.5), vec2(13.0, 0.0)],
+                [
+                    vec2(-12.0, -3.0),
+                    vec2(-14.0, 2.0),
+                    vec2(4.0, 3.5),
+                    vec2(13.0, 0.0),
+                ],
                 2.8,
                 2.0,
                 coat,
@@ -395,12 +544,18 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
             x.ell(-1.0, -7.0 * b, 14.5, 7.5 * b, coat.light, coat.dark);
             for i in 0..4 {
                 let xx = -10.0 + i as f32 * 4.5;
-                x.stroke(&[vec2(xx, -13.0 * b), vec2(xx + 1.0, -9.5 * b)], 1.1, alpha(coat.stripe, 0.6));
+                x.stroke(
+                    &[vec2(xx, -13.0 * b), vec2(xx + 1.0, -9.5 * b)],
+                    1.1,
+                    alpha(coat.stripe, 0.6),
+                );
             }
-            let rim: Vec<Vec2> = (0..=8).map(|i| {
-                let a = PI * 1.05 + i as f32 / 8.0 * 1.0;
-                vec2(-1.0 + a.cos() * 14.2, -7.0 * b + a.sin() * 7.2 * b)
-            }).collect();
+            let rim: Vec<Vec2> = (0..=8)
+                .map(|i| {
+                    let a = PI * 1.05 + i as f32 / 8.0 * 1.0;
+                    vec2(-1.0 + a.cos() * 14.2, -7.0 * b + a.sin() * 7.2 * b)
+                })
+                .collect();
             x.stroke(&rim, 1.0, alpha(c::LAVENDER_RIM, 0.5));
             // front paws tucked under the chin
             x.ell(9.0, -2.2, 3.2, 1.7, coat.cream, shade(coat.cream, 0.9));
@@ -413,7 +568,16 @@ pub fn draw_cat_ex(feet: Vec2, look: &CatLook, pose: CatPose, t: f32, affection:
                 let zs = 1.4 + ph * 1.2;
                 let a = (ph * (1.0 - ph) * 4.0).clamp(0.0, 1.0) * 0.8;
                 let col = alpha(c::INDIGO_SOFT, a);
-                x.stroke(&[zp + vec2(-zs, -zs), zp + vec2(zs, -zs), zp + vec2(-zs, zs), zp + vec2(zs, zs)], 0.7, col);
+                x.stroke(
+                    &[
+                        zp + vec2(-zs, -zs),
+                        zp + vec2(zs, -zs),
+                        zp + vec2(-zs, zs),
+                        zp + vec2(zs, zs),
+                    ],
+                    0.7,
+                    col,
+                );
             }
             h
         }
