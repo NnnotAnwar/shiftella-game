@@ -1,8 +1,8 @@
-//! Персонажи в виде 3/4 спереди, портреты для диалогов, эмоции и выделение.
+//! People in a 3/4 front view, dialogue portraits, emotes and selection.
 //!
-//! Фигура строится из мягких градиентных форм без контура. Рост ≈ 1.3 тайла
-//! при `height = 1.0`. Объём даёт лавандовый «rim light» сверху-слева
-//! (свет из окон) — силуэт читается и без чёрной обводки.
+//! A figure is built from soft gradient shapes without outlines. Height ≈ 1.3 tiles
+//! at `height = 1.0`. Volume comes from a lavender "rim light" from the top-left
+//! (light from the windows) — the silhouette reads without a black outline.
 
 use std::f32::consts::PI;
 
@@ -17,7 +17,7 @@ const SHOE: Color = Color::new(0.16, 0.13, 0.2, 1.0);
 const EYE: Color = Color::new(0.17, 0.13, 0.22, 1.0);
 const BLUSH: Color = Color::new(0.94, 0.45, 0.52, 0.3);
 
-// ───────────────────────── тон ─────────────────────────
+// ───────────────────────── tone ─────────────────────────
 
 fn tone_color(tone: Tone, col: Color) -> Color {
     match tone {
@@ -35,7 +35,7 @@ fn tone_color(tone: Tone, col: Color) -> Color {
     }
 }
 
-/// Копия внешности с применённым тоном (сепия воспоминания, блёклость 3:33).
+/// A copy of the look with the tone applied (memory sepia, the faded 3:33 guest).
 fn toned(l: &PersonLook) -> PersonLook {
     let f = |col| tone_color(l.tone, col);
     PersonLook {
@@ -48,7 +48,7 @@ fn toned(l: &PersonLook) -> PersonLook {
     }
 }
 
-/// Цвет фартука и значка (тоже подчиняются тону).
+/// Apron and badge colour (they follow the tone too).
 fn apron_colors(l: &PersonLook) -> (Color, Color) {
     (
         tone_color(l.tone, c::INDIGO_600),
@@ -56,10 +56,10 @@ fn apron_colors(l: &PersonLook) -> (Color, Color) {
     )
 }
 
-// ───────────────────────── голова ─────────────────────────
+// ───────────────────────── head ─────────────────────────
 
-/// Голова: центр и радиус в пикселях. Внутри смещения в «юнитах» u = r/14,
-/// ось y вниз, x зеркалится по `s` (для профиля: +1 смотрит вправо).
+/// The head: centre and radius in pixels. Offsets inside are in "units" u = r/14,
+/// y axis down, x mirrored by `s` (for a profile: +1 looks right).
 struct Head<'a> {
     c: Vec2,
     u: f32,
@@ -80,7 +80,7 @@ impl Head<'_> {
         let p = self.p(x, y);
         ellipse_v(p.x, p.y, rx * self.u, ry * self.u, top, bottom);
     }
-    /// Прямоугольник в юнитах (x0 — левый край до зеркалирования).
+    /// A rect in units (x0 = left edge before mirroring).
     fn rr(&self, x0: f32, y0: f32, w: f32, h: f32, r: f32, top: Color, bottom: Color) {
         let a = self.p(x0, y0);
         let b = self.p(x0 + w, y0 + h);
@@ -103,7 +103,7 @@ impl Head<'_> {
         draw_line(a.x, a.y, b.x, b.y, w * self.u, col);
     }
     fn arc(&self, x: f32, y: f32, rx: f32, ry: f32, a0: f32, a1: f32, w: f32, col: Color) {
-        // зеркалим дугу: углы отражаются относительно вертикали
+        // mirror the arc: angles reflect about the vertical
         let (a0, a1) = if self.s < 0.0 {
             (PI - a1, PI - a0)
         } else {
@@ -127,10 +127,10 @@ impl Head<'_> {
         shade(self.l.hair, 0.82)
     }
 
-    /// Купол волос: верх окружности, срезанный горизонталью `cut` (выпуклая фигура).
+    /// Hair dome: the top of a circle cut by the horizontal `cut` (a convex shape).
     fn dome(&self, cx: f32, cy: f32, r: f32, cut: f32, top: Color, bottom: Color) {
         let sin0 = ((cut - cy) / r).clamp(-0.99, 0.99);
-        let a0 = sin0.asin(); // угол среза справа (y вниз)
+        let a0 = sin0.asin(); // cut angle on the right (y down)
         let a_left = PI - a0;
         let a_right = 2.0 * PI + a0;
         let mut pts = [Vec2::ZERO; 26];
@@ -141,8 +141,8 @@ impl Head<'_> {
         poly_v(&pts, top, bottom);
     }
 
-    /// Купол с естественной линией роста волос: по бокам ниже (`cut_side`),
-    /// посередине выше (`cut_mid`). Звёздная фигура — веер из точки над линией.
+    /// A dome with a natural hairline: lower at the sides (`cut_side`),
+    /// higher in the middle (`cut_mid`). A star shape — a fan from a point above the line.
     fn dome_arched(&self, cy: f32, r: f32, cut_side: f32, cut_mid: f32, top: Color, bottom: Color) {
         let sin0 = ((cut_side - cy) / r).clamp(-0.99, 0.99);
         let a0 = sin0.asin();
@@ -164,7 +164,7 @@ impl Head<'_> {
         super::draw::fan_pub(center, &pts, y0, y1, top, bottom);
     }
 
-    /// Слой волос ЗА головой (объём, пучок, хвост сбоку).
+    /// The hair layer BEHIND the head (volume, a bun, a side ponytail).
     fn hair_back(&self) {
         let (t, b) = (self.hair_top(), self.hair_bot());
         let l = self.l;
@@ -207,11 +207,11 @@ impl Head<'_> {
 
     fn head_shape(&self) {
         let l = self.l;
-        // rim light сверху-слева: светлый серп за головой
+        // rim light from the top-left: a light crescent behind the head
         let rim = mix(l.skin, c::LAVENDER_RIM, 0.55);
         let pr = self.c + vec2(-0.9, -1.1) * self.u;
         ellipse(pr.x, pr.y, 14.0 * self.u, 13.8 * self.u, rim);
-        // уши
+        // ears
         match self.facing {
             Facing::Down => {
                 self.ell(-13.4, 2.0, 2.6, 3.4, shade(l.skin, 0.92));
@@ -231,7 +231,7 @@ impl Head<'_> {
             tint_light(l.skin, 0.08),
             shade(l.skin, 0.88),
         );
-        // мягкая тень под подбородком/щеками
+        // a soft shadow under the chin / cheeks
         self.ell(0.0, 10.5, 9.0, 2.6, alpha(shade(l.skin, 0.75), 0.25));
     }
 
@@ -242,24 +242,24 @@ impl Head<'_> {
         let mouth_col = mix(Color::from_hex(0x8a3d4f), skin_d, 0.25);
         let brow_col = mix(shade(l.hair, 0.8), skin_d, 0.25);
 
-        // румянец
+        // blush
         let blush_a = match expr {
             Expression::Smile | Expression::Laugh => 0.45,
             Expression::Tired | Expression::Sad => 0.16,
             _ => 0.28,
         };
         let blush = alpha(BLUSH, blush_a);
-        // борода/щетина — до рта
+        // beard / stubble — before the mouth
         match l.facial_hair {
             FacialHair::Stubble => {
                 let x = if side { 4.0 } else { 0.0 };
-                // лёгкая щетина: только подбородок и линия челюсти
+                // light stubble: only the chin and the jaw line
                 self.ell(x, 9.4, 8.4, 3.8, alpha(shade(l.hair, 0.8), 0.14));
                 self.ell(x, 10.6, 6.0, 2.6, alpha(shade(l.hair, 0.8), 0.1));
             }
             FacialHair::Beard => {
                 let x = if side { 3.0 } else { 0.0 };
-                // аккуратная борода по линии челюсти
+                // a neat beard along the jaw line
                 self.ell_v(x, 9.4, 9.4, 4.4, l.hair, shade(l.hair, 0.8));
                 self.ell(x, 6.4, 7.5, 2.2, alpha(l.hair, 0.55));
             }
@@ -283,7 +283,7 @@ impl Head<'_> {
             }
             let closed = blink > 0.5;
             if expr == Expression::Laugh || (expr == Expression::Smile && closed) {
-                // глаза-дуги ^ ^
+                // arc eyes ^ ^
                 self.arc(ex, ey + 1.2, 2.3, 2.0, PI * 1.1, PI * 1.9, 1.1, EYE);
                 continue;
             }
@@ -295,7 +295,7 @@ impl Head<'_> {
             self.ell(ex + g.x, ey + g.y, rx, ry, EYE);
             self.ell(ex + g.x - 0.6, ey + g.y - 0.9, 0.75, 0.75, WHITE);
             if l.tired && expr != Expression::Tired {
-                // чуть уставшие глаза: лёгкое веко сверху и мягкие тени снизу
+                // slightly tired eyes: a light upper lid and soft shadows below
                 self.rr(
                     ex - 2.4,
                     ey - 3.1,
@@ -317,7 +317,7 @@ impl Head<'_> {
                 );
             }
             if expr == Expression::Tired {
-                // тяжёлые веки + мешки
+                // heavy lids + bags
                 self.rr(
                     ex - 2.6,
                     ey - 3.2,
@@ -359,7 +359,7 @@ impl Head<'_> {
             }
         }
 
-        // брови
+        // eyebrows
         for &ex in eyes {
             let sx = ex.signum();
             let (inner, outer) = match expr {
@@ -376,7 +376,7 @@ impl Head<'_> {
             }
         }
 
-        // румянец
+        // blush
         if side {
             self.ell(6.0, 5.6, 2.3, 1.4, blush);
         } else {
@@ -384,7 +384,7 @@ impl Head<'_> {
             self.ell(8.2, 5.4, 2.4, 1.4, blush);
         }
 
-        // нос
+        // nose
         if side {
             self.ell(13.4, 3.4, 1.8, 1.6, shade(l.skin, 0.97));
             self.ell(13.0, 4.4, 1.0, 0.5, alpha(skin_d, 0.25));
@@ -392,7 +392,7 @@ impl Head<'_> {
             self.ell(0.0, 4.2, 1.0, 0.6, alpha(skin_d, 0.3));
         }
 
-        // рот
+        // mouth
         let mx = if side { 9.2 } else { 0.0 };
         match expr {
             Expression::Neutral => {
@@ -421,7 +421,7 @@ impl Head<'_> {
         }
     }
 
-    /// Волосы ПОВЕРХ головы (купол, чёлка, боковые пряди).
+    /// Hair OVER the head (dome, fringe, side locks).
     fn hair_front(&self) {
         let l = self.l;
         let (t, b) = (self.hair_top(), self.hair_bot());
@@ -445,7 +445,7 @@ impl Head<'_> {
         };
 
         if up {
-            // со спины волосы закрывают почти всю голову
+            // from behind the hair covers almost the whole head
             self.ell_v(0.0, -1.0, 15.0, 14.6, t, b);
             match l.hair_style {
                 HairStyle::Bob => self.rr(-15.8, -4.0, 31.6, 15.0, 7.0, b, shade(b, 0.92)),
@@ -470,7 +470,7 @@ impl Head<'_> {
         }
 
         if side {
-            // купол + масса сзади, лоб и лицо открыты
+            // dome + mass at the back, forehead and face open
             let cut = if buzz { -5.5 } else { -4.4 };
             self.dome(-0.5, -0.8, if buzz { 14.6 } else { 15.3 }, cut, t, b);
             let back_r = match l.hair_style {
@@ -484,7 +484,7 @@ impl Head<'_> {
                 HairStyle::Bob => self.rr(-14.0, 2.0, 15.0, 10.0, 5.0, b, shade(b, 0.9)),
                 HairStyle::Side | HairStyle::Short => self.ell_v(6.0, -5.4, 6.5, 3.2, t, b),
                 HairStyle::Curly => {
-                    // кудри только сверху и на затылке — профиль лица открыт
+                    // curls only on top and at the back — the face in profile stays open
                     for i in 0..7 {
                         let a = PI * (0.55 + i as f32 * 0.14);
                         self.ell_v(a.cos() * 11.0 - 3.0, a.sin() * 11.0 - 1.0, 5.2, 5.2, t, b);
@@ -492,7 +492,7 @@ impl Head<'_> {
                 }
                 _ => {}
             }
-            // ухо поверх коротких волос
+            // the ear over short hair
             if !matches!(l.hair_style, HairStyle::Long | HairStyle::Bob) {
                 self.ell(-0.5, 2.0, 2.4, 3.2, shade(l.skin, 0.9));
                 self.ell(-0.3, 2.0, 1.1, 1.8, shade(l.skin, 0.8));
@@ -500,7 +500,7 @@ impl Head<'_> {
             return;
         }
 
-        // лицом к камере
+        // facing the camera
         match l.hair_style {
             HairStyle::Buzz => self.dome_arched(-0.6, 14.7, -3.5, -7.5, t, b),
             HairStyle::Short => {
@@ -524,7 +524,7 @@ impl Head<'_> {
             }
             HairStyle::Long => {
                 self.dome_arched(-0.8, 15.6, -2.5, -7.0, t, b);
-                // пробор посередине
+                // centre parting
                 self.line(0.0, -14.5, 0.0, -9.0, 0.6, alpha(shade(b, 0.7), 0.6));
                 self.rr(-16.0, -6.0, 5.0, 24.0, 2.5, b, shade(b, 0.88));
                 self.rr(11.0, -6.0, 5.0, 24.0, 2.5, b, shade(b, 0.88));
@@ -647,9 +647,9 @@ impl Head<'_> {
     }
 }
 
-// ───────────────────────── тело ─────────────────────────
+// ───────────────────────── body ─────────────────────────
 
-/// Скелет фигуры: смещения в юнитах от ступней, ось y ВВЕРХ.
+/// The figure's skeleton: offsets in units from the feet, y axis UP.
 struct Rig {
     o: Vec2,
     k: f32,
@@ -660,7 +660,7 @@ impl Rig {
     fn p(&self, x: f32, y: f32) -> Vec2 {
         self.o + vec2(x * self.s, -y) * self.k
     }
-    /// Прямоугольник: `x0` — левый край (до зеркала), `y_top` — верх (вверх положительно).
+    /// A rect: `x0` = left edge (before mirroring), `y_top` = top (up is positive).
     fn rr(&self, x0: f32, y_top: f32, w: f32, h: f32, r: f32, top: Color, bottom: Color) {
         let a = self.p(x0, y_top);
         let b = self.p(x0 + w, y_top - h);
@@ -683,26 +683,26 @@ impl Rig {
     }
 }
 
-/// Фаза моргания 0 (открыты) … 1 (закрыты).
+/// Blink phase 0 (open) … 1 (closed).
 fn blink_amount(t: f32, phase: f32) -> f32 {
     let period = 3.3 + phase * 1.9;
     let x = (t + phase * 11.0).rem_euclid(period);
     if x < 0.13 { 1.0 } else { 0.0 }
 }
 
-/// Где держать «ступни» сидящего на стуле (`chair_origin` — левый верх тайла стула),
-/// чтобы y-сортировка с этим стулом была верной. `facing` — куда смотрит стул/гость.
+/// Where to put the "feet" of someone sitting on a chair (`chair_origin` = top-left of the chair tile),
+/// so y-sorting with that chair is right. `facing` — where the chair / guest looks.
 pub fn sit_anchor(chair_origin: Vec2, facing: Facing) -> Vec2 {
     let c = chair_origin + vec2(TILE / 2.0, TILE / 2.0);
     match facing {
         Facing::Down => c + vec2(0.0, 0.28 * TILE),
         Facing::Up => c + vec2(0.0, 0.0),
-        // тело над центром сиденья, ноги вытянуты вперёд (к столу)
+        // body over the middle of the seat, legs stretched forward (to the table)
         Facing::Left | Facing::Right => c + vec2(0.0, 0.25 * TILE),
     }
 }
 
-/// Ключ y-сортировки персонажа. Для сидящих учтён стул (см. `sit_anchor`).
+/// A person's y sort key. For sitters the chair is taken into account (see `sit_anchor`).
 pub fn person_sort_key(pose: &PersonPose) -> f32 {
     match (pose.pose, pose.facing) {
         (Pose::Sit, Facing::Up) => pose.feet.y - 0.3 * TILE,
@@ -711,7 +711,7 @@ pub fn person_sort_key(pose: &PersonPose) -> f32 {
     }
 }
 
-/// Точка над головой для `draw_emote` (мировые пиксели).
+/// The point above the head for `draw_emote` (world pixels).
 pub fn emote_anchor(look: &PersonLook, pose: &PersonPose) -> Vec2 {
     let k = look.height;
     let top = match (pose.pose, pose.facing) {
@@ -722,12 +722,12 @@ pub fn emote_anchor(look: &PersonLook, pose: &PersonPose) -> Vec2 {
     pose.feet - vec2(0.0, top * k)
 }
 
-/// Нарисовать персонажа (нейтрально-приветливое лицо).
+/// Draw a person (a neutral, friendly face).
 pub fn draw_person(look: &PersonLook, pose: &PersonPose) {
     draw_person_ex(look, pose, Expression::Neutral);
 }
 
-/// Персонаж с выбранным выражением лица (для катсцен).
+/// A person with a chosen facial expression (for cutscenes).
 pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
     let l = toned(look);
     if l.bot {
@@ -753,8 +753,8 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
     let breath = ((t + l.phase * 7.0) * 2.1).sin() * 0.55;
     let sitting = pose.pose == Pose::Sit;
 
-    // Сидя лицом к нам бёдра идут к камере: таз выше ступней на высоту
-    // сиденья + глубину бедра (косая проекция), колени — ниже таза.
+    // Sitting towards us the thighs point at the camera: the hips are above the feet by the
+    // seat height + the thigh depth (oblique projection), the knees below the hips.
     let hip_y = match (sitting, pose.facing) {
         (true, Facing::Up) => 18.0,
         (true, Facing::Down) => 30.0,
@@ -765,7 +765,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
     let head_y = sh_y + 15.0 + breath * 0.3;
     let head_x = if side && l.elder { 1.5 } else { 0.0 };
 
-    // тень
+    // shadow
     let sp = pose.feet;
     let (srx, sry) = if sitting { (17.0, 6.0) } else { (14.0, 5.0) };
     soft_shadow(sp.x, sp.y - 1.0, srx * r.k, sry * r.k, 0.38);
@@ -783,7 +783,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         l: &l,
     };
 
-    // ── длинные волосы за спиной (лицом к нам / профиль)
+    // ── long hair behind the back (facing us / profile)
     if !up && l.hair_style == HairStyle::Long {
         let hp = r.p(head_x - if side { 4.0 } else { 0.0 }, head_y);
         let w = if side { 22.0 } else { 30.0 };
@@ -798,20 +798,20 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         );
     }
 
-    // ── руки: позиции кистей
+    // ── arms: hand positions
     let walk_sw = if moving { ph.sin() } else { 0.0 };
     let work = pose.pose == Pose::Work;
     let carry = pose.pose == Pose::Carry;
     let wk = (t * 6.0 + l.phase * 5.0).sin();
     let wk2 = (t * 6.0 + l.phase * 5.0).cos();
 
-    // поднос (за телом, если спиной)
+    // tray (behind the body when seen from behind)
     let tray_y = hip_y + 12.0;
     if carry && up {
         draw_tray(r.p(0.0, tray_y + 3.0), r.k, t, 15.0);
     }
 
-    // дальняя рука в профиль / руки за телом со спины при работе
+    // the far arm in profile / arms behind the body from behind while working
     let sleeve_long = !matches!(l.top_style, TopStyle::Tee | TopStyle::Scrubs);
     let arm = |a: Vec2, h: Vec2, dark: f32| {
         let mid = a + (h - a) * 0.55;
@@ -842,12 +842,12 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         arm(vec2(12.0, sh_y - 2.0), vec2(8.0, hip_y + 12.0), 0.9);
     }
 
-    // ── ноги
+    // ── legs
     let leg_c = l.bottom;
     let leg_d = shade(l.bottom, 0.78);
     if sitting {
         if side {
-            // бедро горизонтально вперёд, голень вниз
+            // thigh horizontal forward, shin down
             let hip = vec2(-1.0, hip_y - 2.0);
             let knee = vec2(12.0, hip_y - 3.0);
             let foot = vec2(13.0, 2.5);
@@ -911,7 +911,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         }
     }
 
-    // ── капюшон за шеей
+    // ── hood behind the neck
     if l.top_style == TopStyle::Hoodie && !up {
         let p = r.p(if side { -6.0 } else { 0.0 }, sh_y + 1.0);
         ellipse_v(
@@ -924,7 +924,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         );
     }
 
-    // ── туловище
+    // ── torso
     let tw = if side { 17.0 } else { 25.0 };
     let tx0 = if side { -8.0 } else { -12.5 };
     let coat_ext = if l.top_style == TopStyle::Coat && !sitting {
@@ -946,7 +946,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         rim_top,
     );
     r.rr(tx0, t_top, tw, t_h, 7.0, top_t, top_b);
-    // пояс/низ
+    // waist / bottom
     if !side && coat_ext == 0.0 {
         r.rr(
             tx0 + 1.0,
@@ -959,7 +959,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         );
     }
 
-    // детали фасона (лицом к камере)
+    // details of the cut (facing the camera)
     if !up && !side {
         match l.top_style {
             TopStyle::Shirt => {
@@ -1089,10 +1089,10 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         }
     }
 
-    // ── фартук персонала
+    // ── staff apron
     if l.apron {
         if up {
-            // лямки крест-накрест и бант на пояснице
+            // crossed straps and a bow at the back
             r.cap(vec2(-8.0, sh_y), vec2(6.0, hip_y + 6.0), 1.2, apron_a);
             r.cap(vec2(8.0, sh_y), vec2(-6.0, hip_y + 6.0), 1.2, apron_a);
             r.rr(tx0, hip_y + 6.0, tw, 2.4, 1.0, apron_a, apron_b);
@@ -1115,7 +1115,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
             if !side {
                 r.cap(vec2(-8.0, a_top), vec2(-10.5, sh_y), 1.1, apron_a);
                 r.cap(vec2(8.0, a_top), vec2(10.5, sh_y), 1.1, apron_a);
-                // значок Shiftella
+                // Shiftella badge
                 let b = r.p(-5.0, a_top - 4.0);
                 glow(b.x, b.y, 3.2 * r.k, alpha(c::INDIGO_SOFT, 0.5));
                 rrect(
@@ -1127,7 +1127,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
                     c::INDIGO_SOFT,
                 );
                 ellipse(b.x, b.y, 0.7 * r.k, 0.7 * r.k, WHITE);
-                // кармашек
+                // little pocket
                 r.rr(
                     -4.5,
                     hip_y + 2.0,
@@ -1143,7 +1143,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         }
     }
 
-    // ── шарф
+    // ── scarf
     if l.accessory == Accessory::Scarf {
         let a = l.accent;
         let (x0, w) = if side { (-7.0, 15.0) } else { (-9.5, 19.0) };
@@ -1162,7 +1162,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         }
     }
 
-    // ── поднос перед собой
+    // ── tray held in front
     if carry && !up {
         let tp = if side {
             r.p(13.0, tray_y + 1.0)
@@ -1172,10 +1172,10 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         draw_tray(tp, r.k, t, if side { 10.0 } else { 13.0 });
     }
 
-    // ── бёдра сидящего лицом к нам: идут к камере поверх низа туловища
+    // ── thighs of a sitter facing us: towards the camera, over the bottom of the torso
     if sitting && pose.facing == Facing::Down {
         for x in [-5.2_f32, 5.2] {
-            // тень под коленом, затем бедро: верх освещён (горизонтальная поверхность)
+            // a shadow under the knee, then the thigh: its top lit (a horizontal surface)
             r.ell(
                 x * 1.05,
                 15.5,
@@ -1200,7 +1200,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         }
     }
 
-    // ── ближние руки
+    // ── near arms
     if !side && !(up && (carry || work)) {
         for (x, sgn) in [(-12.5_f32, 1.0_f32), (12.5, -1.0)] {
             let a = vec2(x, sh_y - 2.0);
@@ -1212,7 +1212,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
                 let w2 = if sx < 0.0 { wk2 } else { -wk2 };
                 vec2(sx * 6.5 + w * 3.0, hip_y + 7.0 + w2 * 1.5)
             } else if sitting {
-                // руки на коленях
+                // hands on the knees
                 vec2(sx * 7.5, hip_y - 6.0)
             } else {
                 vec2(sx * 14.0, hip_y + 1.0 + walk_sw * sgn * 2.0)
@@ -1233,7 +1233,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
         arm(a, h, 1.0);
     }
 
-    // ── шея и голова
+    // ── neck and head
     let np = r.p(head_x, sh_y + 4.0);
     rrect_v(
         np.x - 3.6 * r.k,
@@ -1257,7 +1257,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
     head.accessory();
 }
 
-/// Поднос с чашкой (и паром) — у официанта в руках.
+/// A tray with a cup (and steam) in a waiter's hands.
 fn draw_tray(p: Vec2, k: f32, t: f32, rx: f32) {
     soft_shadow(p.x, p.y + 3.0 * k, rx * k, 3.0 * k, 0.25);
     ellipse_v(
@@ -1272,11 +1272,11 @@ fn draw_tray(p: Vec2, k: f32, t: f32, rx: f32) {
     draw_cup(p + vec2(-2.0 * k, -k), k * 0.9, t, true);
 }
 
-/// Чашка на поверхности (`p` — точка донышка), опционально с паром.
+/// A cup on a surface (`p` = the bottom point), optionally steaming.
 pub fn draw_cup(p: Vec2, k: f32, t: f32, steaming: bool) {
     let w = 6.0 * k;
     let h = 5.0 * k;
-    // ручка
+    // handle
     draw_circle_lines(
         p.x + w * 0.62,
         p.y - h * 0.55,
@@ -1306,13 +1306,13 @@ pub fn draw_cup(p: Vec2, k: f32, t: f32, steaming: bool) {
     }
 }
 
-/// Пар: несколько волнистых струек, поднимаются и тают. Без состояния.
+/// Steam: a few wavy wisps rising and fading. Stateless.
 pub fn draw_steam(base: Vec2, t: f32, strength: f32) {
     let seed = (base.x * 13.0 + base.y * 7.0) as i32 as u32;
     for i in 0..3 {
         let life = 1.8;
         let off = i as f32 / 3.0 * life + hash01(seed + i) * 0.3;
-        let a = ((t + off) % life) / life; // 0..1 возраст
+        let a = ((t + off) % life) / life; // 0..1 age
         let rise = a * 16.0 * strength.max(0.3) * 1.6;
         let wob =
             ((t * 2.3 + i as f32 * 2.1).sin() * 2.2 + (a * 6.0).sin() * 1.2) * strength.max(0.5);
@@ -1324,12 +1324,12 @@ pub fn draw_steam(base: Vec2, t: f32, strength: f32) {
     }
 }
 
-// ───────────────────────── бот ─────────────────────────
+// ───────────────────────── bot ─────────────────────────
 
 fn bot_face(c0: Vec2, u: f32, expr: Expression, t: f32, phase: f32) {
     let body_t = tint_light(c::INDIGO, 0.15);
     let body_b = c::INDIGO_600;
-    // антенна
+    // antenna
     let tip = c0 + vec2(0.0, -17.0 * u + (t * 3.0).sin() * 0.6 * u);
     draw_line(
         c0.x,
@@ -1347,7 +1347,7 @@ fn bot_face(c0: Vec2, u: f32, expr: Expression, t: f32, phase: f32) {
         2.0 * u,
         tint_light(c::INDIGO_SOFT, 0.4),
     );
-    // ушки-динамики
+    // speaker ears
     ellipse_v(
         c0.x - 13.0 * u,
         c0.y,
@@ -1382,7 +1382,7 @@ fn bot_face(c0: Vec2, u: f32, expr: Expression, t: f32, phase: f32) {
         body_t,
         body_b,
     );
-    // экран-лицо
+    // screen face
     rrect_v(
         c0.x - 9.0 * u,
         c0.y - 7.0 * u,
@@ -1455,7 +1455,7 @@ fn bot_face(c0: Vec2, u: f32, expr: Expression, t: f32, phase: f32) {
         ),
         _ => arc(m, 2.0 * u, 1.2 * u, PI * 0.2, PI * 0.8, 0.9 * u, eye),
     }
-    // щёчки
+    // cheeks
     ellipse(
         c0.x - 8.0 * u,
         c0.y + 3.0 * u,
@@ -1470,7 +1470,7 @@ fn bot_face(c0: Vec2, u: f32, expr: Expression, t: f32, phase: f32) {
         1.0 * u,
         alpha(BLUSH, 0.5),
     );
-    // блик
+    // highlight
     rrect(
         c0.x - 10.0 * u,
         c0.y - 10.0 * u,
@@ -1496,10 +1496,10 @@ fn draw_bot_world(l: &PersonLook, pose: &PersonPose) {
     bot_face(c0, k * 0.9, Expression::Smile, pose.t, l.phase);
 }
 
-// ───────────────────────── портрет ─────────────────────────
+// ───────────────────────── portrait ─────────────────────────
 
-/// Портрет (голова + плечи) для диалогов. `rect` — в текущей камере (обычно UI),
-/// фон прозрачный: рамку рисует UI. Дыхание и моргание от `t`.
+/// A portrait (head + shoulders) for dialogues. `rect` is in the current camera (usually UI),
+/// transparent background: the UI draws the frame. Breathing and blinking follow `t`.
 pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f32) {
     let l = toned(look);
     let breath = ((t + l.phase * 7.0) * 1.9).sin();
@@ -1518,7 +1518,7 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
     let sh_top = rect.y + hh * 0.72 + breath * 0.01 * hh;
     let bottom = rect.y + hh;
 
-    // длинные волосы за плечами
+    // long hair behind the shoulders
     if l.hair_style == HairStyle::Long {
         rrect_v(
             head_c.x - 16.0 * u,
@@ -1531,10 +1531,10 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
         );
     }
 
-    // плечи (бюст) c rim light справа-сверху
+    // shoulders (bust) with rim light from the top-right
     let bw = 3.7 * r;
     let rim_top = mix(l.top, c::LAVENDER_RIM, 0.5);
-    // плечи: скруглён только верх, низ ровно обрезан краем портрета
+    // shoulders: only the top is rounded, the bottom is cut straight by the portrait edge
     let rad = r * 0.9;
     let (ct, cb) = (tint_light(l.top, 0.06), shade(l.top, 0.72));
     rrect_top(
@@ -1557,7 +1557,7 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
             shade(l.top, 0.6),
         );
     }
-    // шея
+    // neck
     rrect_v(
         cx - 4.2 * u,
         head_c.y + 8.0 * u,
@@ -1567,7 +1567,7 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
         shade(l.skin, 0.78),
         shade(l.skin, 0.86),
     );
-    // вырез / воротник
+    // neckline / collar
     let neck_y = sh_top + 0.5 * u;
     match l.top_style {
         TopStyle::Shirt => {
@@ -1648,7 +1648,7 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
     if l.accessory == Accessory::ShiftellaLogo {
         draw_shiftella_logo(vec2(cx - 9.0 * u, sh_top + 11.0 * u), 5.5 * u);
     }
-    // фартук
+    // apron
     if l.apron {
         let (aa, ab) = apron_colors(&l);
         let top = sh_top + 9.0 * u;
@@ -1707,7 +1707,7 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
         l: &l,
     };
     head.hair_back();
-    // rim light справа-сверху для портрета
+    // rim light from the top-right for the portrait
     let pr = head_c + vec2(1.0, -1.0) * u;
     ellipse(
         pr.x,
@@ -1727,10 +1727,10 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
     head.accessory();
 }
 
-// ───────────────────────── Shiftella-логотип и ноутбук ─────────────────────────
+// ───────────────────────── Shiftella logo and laptop ─────────────────────────
 
-/// Логотип Shiftella: индиговый скруглённый квадрат с белой «S»-волной.
-/// `c` — центр, `size` — сторона. Для нашивки на худи, стикера на ноутбуке, вывесок.
+/// The Shiftella logo: an indigo rounded square with a white "S".
+/// `c` = centre, `size` = side. For the hoodie patch, the laptop sticker, signs.
 pub fn draw_shiftella_logo(c0: Vec2, size: f32) {
     let h = size / 2.0;
     glow(c0.x, c0.y, size * 1.1, alpha(c::INDIGO_GLOW, 0.35));
@@ -1769,7 +1769,7 @@ pub fn draw_shiftella_logo(c0: Vec2, size: f32) {
     );
 }
 
-/// Нейтральный стикер: кремовый полумесяц на тёмном кружке (радиус `r`).
+/// A neutral sticker: a cream crescent on a dark disc (radius `r`).
 fn draw_moon_sticker(c0: Vec2, r: f32) {
     ellipse(c0.x, c0.y, r, r, Color::from_hex(0x2a2550));
     ellipse(c0.x, c0.y, r * 0.7, r * 0.7, c::CREAM);
@@ -1782,9 +1782,9 @@ fn draw_moon_sticker(c0: Vec2, r: f32) {
     );
 }
 
-/// Ноутбук на столе. `p` — точка на поверхности стола под центром ноутбука (мировые px),
-/// `user_facing` — куда смотрит владелец (экран повёрнут к нему). Со спины крышки виден
-/// маленький стикер-луна, с лицевой — светящийся экран. Для света добавьте `Light::phone(p)`.
+/// A laptop on a table. `p` — the point on the table top under the laptop's centre (world px),
+/// `user_facing` — where its owner looks (the screen faces them). From behind the lid shows
+/// a small moon sticker, from the front a glowing screen. For light add `Light::phone(p)`.
 pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
     let shell = Color::from_hex(0x3a3d52);
     let shell_l = Color::from_hex(0x5a5f7a);
@@ -1792,11 +1792,11 @@ pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
     soft_shadow(p.x + 1.0, p.y + 1.0, 13.0, 5.0, 0.35);
     match user_facing {
         Facing::Up | Facing::Down => {
-            // база
+            // base
             rrect_v(p.x - 12.0, p.y - 4.0, 24.0, 7.0, 2.0, shell_l, shell);
             let (lx, ly, lw, lh) = (p.x - 11.0, p.y - 20.0, 22.0, 16.0);
             if user_facing == Facing::Up {
-                // владелец к нам спиной → видим экран
+                // owner has their back to us → we see the screen
                 rrect_v(lx, ly, lw, lh, 2.0, shell, shade(shell, 0.8));
                 rrect_v(
                     lx + 1.5,
@@ -1820,15 +1820,15 @@ pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
                 }
                 glow(p.x, ly + lh / 2.0, 18.0, alpha(c::INDIGO_GLOW, 0.35));
             } else {
-                // владелец лицом к нам → крышка спиной, на ней стикер
+                // owner faces us → the back of the lid with its sticker
                 rrect_v(lx, ly, lw, lh, 2.0, shell_l, shell);
                 draw_moon_sticker(vec2(p.x + 4.0, ly + lh / 2.0 - 2.0), 4.0);
                 glow(p.x, p.y - 2.0, 14.0, alpha(c::INDIGO_GLOW, 0.25));
             }
         }
         Facing::Left | Facing::Right => {
-            // в профиль: база и наклонная крышка, экран смотрит на владельца
-            // петля и крышка — на дальней от владельца стороне
+            // in profile: the base and the tilted lid, the screen faces its owner
+            // hinge and lid on the side away from the owner
             let s = if user_facing == Facing::Right {
                 1.0
             } else {
@@ -1837,7 +1837,7 @@ pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
             rrect_v(p.x - 11.0, p.y - 4.0, 22.0, 6.0, 2.0, shell_l, shell);
             let hinge = vec2(p.x + s * 9.0, p.y - 3.0);
             let top = hinge + vec2(s * 4.0, -16.0);
-            // свет экрана на базу и в сторону владельца
+            // screen light on the base and towards the owner
             glow(
                 p.x - s * 4.0,
                 p.y - 8.0,
@@ -1867,17 +1867,17 @@ pub fn draw_laptop(p: Vec2, user_facing: Facing, t: f32) {
     }
 }
 
-// ───────────────────────── эмоции и выделение ─────────────────────────
+// ───────────────────────── emotes and selection ─────────────────────────
 
-/// Пузырь-эмоция над головой. `anchor` — см. `emote_anchor`.
+/// An emote bubble over the head. `anchor` — see `emote_anchor`.
 pub fn draw_emote(anchor: Vec2, emote: Emote) {
     draw_emote_ex(anchor, emote, 1.0, 0.0);
 }
 
-/// Эмоция с анимацией появления: `age` — секунд с момента показа, `t` — общее время.
+/// An emote with a pop-in animation: `age` — seconds since shown, `t` — global time.
 pub fn draw_emote_ex(anchor: Vec2, emote: Emote, age: f32, t: f32) {
     let a = (age / 0.28).clamp(0.0, 1.0);
-    // easeOutBack — «выпрыгивает»
+    // easeOutBack — it "pops"
     let c1 = 1.70158;
     let pop = 1.0 + (c1 + 1.0) * (a - 1.0).powi(3) + c1 * (a - 1.0).powi(2);
     let k = pop.max(0.0);
@@ -1889,7 +1889,7 @@ pub fn draw_emote_ex(anchor: Vec2, emote: Emote, age: f32, t: f32) {
     let (w, h) = (22.0 * k, 19.0 * k);
     soft_shadow(c0.x, c0.y + 3.0 * k, 14.0 * k, 11.0 * k, 0.35);
     let bg = Color::from_hex(0xf6f3ff);
-    // хвостик
+    // tail
     poly(
         &[
             c0 + vec2(-3.5 * k, h * 0.4),
@@ -1964,7 +1964,7 @@ pub fn draw_emote_ex(anchor: Vec2, emote: Emote, age: f32, t: f32) {
             let col = Color::from_hex(0xe04a5f);
             for (sx, sy) in [(-1.0_f32, -1.0_f32), (1.0, -1.0), (-1.0, 1.0), (1.0, 1.0)] {
                 let p = c0 + vec2(sx * 2.6, sy * 2.6) * u;
-                // уголки «вены» выгнуты наружу
+                // the corners of the "vein" bend outwards
                 let a0 = (sy).atan2(sx) + PI - 0.9;
                 arc(
                     p + vec2(sx, sy) * 2.4 * u,
@@ -2087,8 +2087,8 @@ pub fn draw_emote_ex(anchor: Vec2, emote: Emote, age: f32, t: f32) {
     }
 }
 
-/// Кольцо выделения на полу. Рисуйте ПОД персонажем: в очереди с ключом
-/// `person_sort_key(pose) - 0.01` (или до `flush`, если персонаж — на открытом полу).
+/// A selection ring on the floor. Draw it UNDER the person: in the queue with the key
+/// `person_sort_key(pose) - 0.01` (or before `flush` if the person stands on open floor).
 pub fn draw_selection(feet: Vec2) {
     let t = get_time() as f32;
     let (rx, ry) = (24.0, 10.0);
@@ -2115,9 +2115,9 @@ pub fn draw_selection(feet: Vec2) {
     }
 }
 
-/// Мягкий «прожектор» на актёра в катсцене: свечение пола + световой столб.
-/// Рисуйте под персонажем (как `draw_selection`); для света ночью добавьте
-/// `Light::actor_spot(feet)` в `Lighting`.
+/// A soft cutscene "spotlight" on an actor: a floor glow + a column of light.
+/// Draw it under the person (like `draw_selection`); for light at night add
+/// `Light::actor_spot(feet)` to `Lighting`.
 pub fn draw_actor_highlight(feet: Vec2, t: f32) {
     let pulse = 0.85 + (t * 1.6).sin() * 0.15;
     radial(
@@ -2128,7 +2128,7 @@ pub fn draw_actor_highlight(feet: Vec2, t: f32) {
         alpha(c::LAVENDER_RIM, 0.38 * pulse),
         alpha(c::LAVENDER_RIM, 0.0),
     );
-    // столб света сверху (очень прозрачный)
+    // a column of light from above (very translucent)
     quad(
         [
             feet + vec2(-18.0, -110.0),

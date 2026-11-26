@@ -1,12 +1,12 @@
-//! Игровые часы. Кафе работает с 22:00 до 06:00.
+//! The game clock. The café is open from 22:00 to 06:00.
 //!
-//! Время считается в «тиках» симуляции: 10 тиков = 1 игровая минута.
-//! При скорости ×1 один тик происходит каждые 0.1 секунды,
-//! значит 1 игровая минута = 1 реальная секунда, а вся ночь ≈ 8 минут.
+//! Time is counted in simulation "ticks": 10 ticks = 1 game minute.
+//! At ×1 speed a tick happens every 0.1 seconds,
+//! so 1 game minute = 1 real second and the whole night ≈ 8 minutes.
 
 pub const TICKS_PER_MINUTE: u32 = 10;
 pub const OPEN_AT_MINUTES: u32 = 22 * 60; // 22:00
-pub const NIGHT_MINUTES: u32 = 8 * 60; // до 06:00
+pub const NIGHT_MINUTES: u32 = 8 * 60; // until 06:00
 
 #[derive(Debug, Clone, Default)]
 pub struct Clock {
@@ -18,12 +18,12 @@ impl Clock {
         Self { ticks: 0 }
     }
 
-    /// Один шаг симуляции.
+    /// One simulation step.
     pub fn advance(&mut self) {
         self.ticks += 1;
     }
 
-    /// Только что началась новая минута? (Удобно, чтобы делать что-то раз в минуту.)
+    /// Did a new minute just begin? (Handy for doing something once a minute.)
     pub fn is_minute_start(&self) -> bool {
         self.ticks.is_multiple_of(TICKS_PER_MINUTE)
     }
@@ -32,19 +32,19 @@ impl Clock {
         self.ticks / TICKS_PER_MINUTE
     }
 
-    /// Текущее время суток: (часы, минуты).
+    /// Current time of day: (hours, minutes).
     pub fn hour_minute(&self) -> (u32, u32) {
         let total = (OPEN_AT_MINUTES + self.minutes_since_open()) % (24 * 60);
         (total / 60, total % 60)
     }
 
-    /// Строка вида "03:33".
+    /// A string like "03:33".
     pub fn label(&self) -> String {
         let (h, m) = self.hour_minute();
         format!("{h:02}:{m:02}")
     }
 
-    /// Сколько ночи прошло: от 0.0 до 1.0.
+    /// How much of the night has passed: 0.0 to 1.0.
     pub fn progress(&self) -> f32 {
         (self.minutes_since_open() as f32 / NIGHT_MINUTES as f32).min(1.0)
     }

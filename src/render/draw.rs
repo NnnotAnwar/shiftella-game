@@ -1,8 +1,8 @@
-//! Низкоуровневые «кисти» рендера: градиентные фигуры через `draw_mesh`,
-//! мягкие тени и свечения, работа с цветом, детерминированный шум.
+//! Low-level render "brushes": gradient shapes via `draw_mesh`,
+//! soft shadows and glows, colour helpers, deterministic noise.
 //!
-//! Все фигуры выпуклые и рисуются веером треугольников из центра, поэтому
-//! полупрозрачный цвет ложится ровно (без двойного наложения).
+//! Every shape is convex and drawn as a triangle fan from its centre, so
+//! a translucent colour lies evenly (no double blending).
 
 use std::cell::RefCell;
 use std::f32::consts::TAU;
@@ -10,9 +10,9 @@ use std::f32::consts::TAU;
 use macroquad::models::{Mesh, Vertex, draw_mesh};
 use macroquad::prelude::*;
 
-// ───────────────────────── цвет ─────────────────────────
+// ───────────────────────── colour ─────────────────────────
 
-/// Линейное смешивание двух цветов (включая альфу).
+/// Linear blend of two colours (alpha included).
 pub fn mix(a: Color, b: Color, t: f32) -> Color {
     let t = t.clamp(0.0, 1.0);
     Color::new(
@@ -23,7 +23,7 @@ pub fn mix(a: Color, b: Color, t: f32) -> Color {
     )
 }
 
-/// Умножить яркость (альфа не меняется).
+/// Multiply the brightness (alpha unchanged).
 pub fn shade(c: Color, k: f32) -> Color {
     Color::new(
         (c.r * k).min(1.0),
@@ -33,25 +33,25 @@ pub fn shade(c: Color, k: f32) -> Color {
     )
 }
 
-/// Тот же цвет с другой альфой.
+/// The same colour with another alpha.
 pub fn alpha(c: Color, a: f32) -> Color {
     Color { a, ..c }
 }
 
-/// Осветлить к белому на `t`.
+/// Lighten towards white by `t`.
 pub fn tint_light(c: Color, t: f32) -> Color {
     mix(c, Color::new(1.0, 1.0, 1.0, c.a), t)
 }
 
-/// Обесцветить на `t` (0 — как было, 1 — серый).
+/// Desaturate by `t` (0 = as is, 1 = grey).
 pub fn desaturate(c: Color, t: f32) -> Color {
     let l = c.r * 0.3 + c.g * 0.59 + c.b * 0.11;
     mix(c, Color::new(l, l, l, c.a), t)
 }
 
-// ───────────────────────── шум ─────────────────────────
+// ───────────────────────── noise ─────────────────────────
 
-/// Быстрый целочисленный хеш (вариант splitmix/murmur финализатора).
+/// Fast integer hash (a splitmix / murmur finaliser variant).
 pub fn hash(mut x: u32) -> u32 {
     x ^= x >> 16;
     x = x.wrapping_mul(0x7feb_352d);
@@ -61,17 +61,17 @@ pub fn hash(mut x: u32) -> u32 {
     x
 }
 
-/// Хеш → число 0..1.
+/// Hash → a number 0..1.
 pub fn hash01(x: u32) -> f32 {
     (hash(x) & 0x00ff_ffff) as f32 / 16_777_215.0
 }
 
-/// Хеш двух чисел (например, координат тайла) → 0..1.
+/// Hash of two numbers (e.g. tile coordinates) → 0..1.
 pub fn hash2(x: i32, y: i32) -> f32 {
     hash01((x as u32).wrapping_mul(73_856_093) ^ (y as u32).wrapping_mul(19_349_663))
 }
 
-/// Гладкий одномерный шум 0..1 (value noise со smoothstep).
+/// Smooth 1-D noise 0..1 (value noise with smoothstep).
 pub fn noise1(x: f32, seed: u32) -> f32 {
     let i = x.floor();
     let f = x - i;
@@ -81,7 +81,7 @@ pub fn noise1(x: f32, seed: u32) -> f32 {
     a + (b - a) * s
 }
 
-// ─────────────────────── меш-кисти ───────────────────────
+// ─────────────────────── mesh brushes ───────────────────────
 
 thread_local! {
     static SCRATCH: RefCell<Mesh> = RefCell::new(Mesh {
@@ -96,7 +96,7 @@ fn vtx(p: Vec2, c: Color) -> Vertex {
     Vertex::new(p.x, p.y, 0.0, 0.0, 0.0, c)
 }
 
-/// Веер треугольников: центр `center` + контур `rim`, цвет каждой точки — `color_at`.
+/// Triangle fan: centre `center` + outline `rim`, each point coloured by `color_at`.
 fn fan(center: Vec2, rim: &[Vec2], color_at: impl Fn(Vec2, bool) -> Color) {
     if rim.len() < 3 {
         return;
@@ -119,7 +119,7 @@ fn fan(center: Vec2, rim: &[Vec2], color_at: impl Fn(Vec2, bool) -> Color) {
     });
 }
 
-/// Веер с вертикальным градиентом для звёздных (не обязательно выпуклых) фигур.
+/// Fan with a vertical gradient for star-shaped (not necessarily convex) shapes.
 pub fn fan_pub(center: Vec2, rim: &[Vec2], y0: f32, y1: f32, top: Color, bottom: Color) {
     fan(center, rim, vgrad(y0, y1, top, bottom));
 }
@@ -164,18 +164,18 @@ fn segs_for(r: f32) -> usize {
     ((r * 0.9) as usize).clamp(14, 40)
 }
 
-/// Вертикальный градиент по y: `top` на `y0`, `bottom` на `y1`.
+/// Vertical gradient over y: `top` at `y0`, `bottom` at `y1`.
 fn vgrad(y0: f32, y1: f32, top: Color, bottom: Color) -> impl Fn(Vec2, bool) -> Color {
     let span = (y1 - y0).max(0.001);
     move |p: Vec2, _| mix(top, bottom, (p.y - y0) / span)
 }
 
-/// Скруглённый прямоугольник одним цветом.
+/// Rounded rectangle in one colour.
 pub fn rrect(x: f32, y: f32, w: f32, h: f32, r: f32, c: Color) {
     rrect_v(x, y, w, h, r, c, c);
 }
 
-/// Скруглённый прямоугольник с вертикальным градиентом.
+/// Rounded rectangle with a vertical gradient.
 pub fn rrect_v(x: f32, y: f32, w: f32, h: f32, r: f32, top: Color, bottom: Color) {
     if w <= 0.0 || h <= 0.0 {
         return;
@@ -190,7 +190,7 @@ pub fn rrect_v(x: f32, y: f32, w: f32, h: f32, r: f32, top: Color, bottom: Color
     });
 }
 
-/// Прямоугольник со скруглёнными только ВЕРХНИМИ углами (плечи бюста, вывески).
+/// Rectangle with only the TOP corners rounded (bust shoulders, signs).
 pub fn rrect_top(x: f32, y: f32, w: f32, h: f32, r: f32, top: Color, bottom: Color) {
     if w <= 0.0 || h <= 0.0 {
         return;
@@ -216,7 +216,7 @@ pub fn rrect_top(x: f32, y: f32, w: f32, h: f32, r: f32, top: Color, bottom: Col
     });
 }
 
-/// Скруглённый прямоугольник с горизонтальным градиентом (лево → право).
+/// Rounded rectangle with a horizontal gradient (left → right).
 pub fn rrect_h(x: f32, y: f32, w: f32, h: f32, r: f32, left: Color, right: Color) {
     if w <= 0.0 || h <= 0.0 {
         return;
@@ -230,12 +230,12 @@ pub fn rrect_h(x: f32, y: f32, w: f32, h: f32, r: f32, left: Color, right: Color
     });
 }
 
-/// Эллипс одним цветом.
+/// Ellipse in one colour.
 pub fn ellipse(cx: f32, cy: f32, rx: f32, ry: f32, c: Color) {
     ellipse_v(cx, cy, rx, ry, c, c);
 }
 
-/// Эллипс с вертикальным градиентом.
+/// Ellipse with a vertical gradient.
 pub fn ellipse_v(cx: f32, cy: f32, rx: f32, ry: f32, top: Color, bottom: Color) {
     if rx <= 0.0 || ry <= 0.0 {
         return;
@@ -246,8 +246,8 @@ pub fn ellipse_v(cx: f32, cy: f32, rx: f32, ry: f32, top: Color, bottom: Color) 
     });
 }
 
-/// Радиальный градиент: `inner` в центре → `outer` по краю эллипса.
-/// Три кольца со smoothstep-спадом — выглядит как мягкое пятно, а не конус.
+/// Radial gradient: `inner` in the centre → `outer` at the ellipse's edge.
+/// Three rings with a smoothstep falloff — looks like a soft pool, not a cone.
 pub fn radial(cx: f32, cy: f32, rx: f32, ry: f32, inner: Color, outer: Color) {
     if rx <= 0.0 || ry <= 0.0 {
         return;
@@ -260,7 +260,7 @@ pub fn radial(cx: f32, cy: f32, rx: f32, ry: f32, inner: Color, outer: Color) {
         m.indices.clear();
         m.vertices.push(vtx(vec2(cx, cy), inner));
         for &k in &rings[1..] {
-            // smoothstep(1→0): мягкий спад к краю
+            // smoothstep(1→0): a soft falloff to the edge
             let s = 1.0 - k;
             let w = s * s * (3.0 - 2.0 * s);
             let col = mix(outer, inner, w);
@@ -287,12 +287,12 @@ pub fn radial(cx: f32, cy: f32, rx: f32, ry: f32, inner: Color, outer: Color) {
     });
 }
 
-/// Мягкое свечение заданного цвета (центр — `c`, край — прозрачный).
+/// A soft glow of the given colour (centre `c`, transparent edge).
 pub fn glow(cx: f32, cy: f32, r: f32, c: Color) {
     radial(cx, cy, r, r, c, alpha(c, 0.0));
 }
 
-/// Мягкая тень-эллипс на полу.
+/// A soft elliptical shadow on the floor.
 pub fn soft_shadow(cx: f32, cy: f32, rx: f32, ry: f32, strength: f32) {
     radial(
         cx,
@@ -304,7 +304,7 @@ pub fn soft_shadow(cx: f32, cy: f32, rx: f32, ry: f32, strength: f32) {
     );
 }
 
-/// Четырёхугольник с цветом в каждой вершине (по часовой или против).
+/// A quad with a colour per vertex (clockwise or counter-clockwise).
 pub fn quad(p: [Vec2; 4], c: [Color; 4]) {
     SCRATCH.with(|m| {
         let mut m = m.borrow_mut();
@@ -318,7 +318,7 @@ pub fn quad(p: [Vec2; 4], c: [Color; 4]) {
     });
 }
 
-/// Прямоугольник с вертикальным градиентом (без скруглений, дёшево).
+/// Rectangle with a vertical gradient (no rounding, cheap).
 pub fn rect_v(x: f32, y: f32, w: f32, h: f32, top: Color, bottom: Color) {
     quad(
         [
@@ -331,7 +331,7 @@ pub fn rect_v(x: f32, y: f32, w: f32, h: f32, top: Color, bottom: Color) {
     );
 }
 
-/// Прямоугольник с горизонтальным градиентом.
+/// Rectangle with a horizontal gradient.
 pub fn rect_h(x: f32, y: f32, w: f32, h: f32, left: Color, right: Color) {
     quad(
         [
@@ -344,7 +344,7 @@ pub fn rect_h(x: f32, y: f32, w: f32, h: f32, left: Color, right: Color) {
     );
 }
 
-/// «Капсула» — отрезок с круглыми концами (руки, ноги, ручки).
+/// A "capsule" — a segment with round ends (arms, legs, handles).
 pub fn capsule(a: Vec2, b: Vec2, r: f32, c: Color) {
     let d = b - a;
     let len = d.length();
@@ -353,7 +353,7 @@ pub fn capsule(a: Vec2, b: Vec2, r: f32, c: Color) {
         return;
     }
     let n = vec2(-d.y, d.x) / len * r;
-    // Рисуем одной выпуклой фигурой, чтобы прозрачность не двоилась.
+    // Drawn as one convex shape so the transparency doesn't double.
     with_points(|pts| {
         let ang = n.y.atan2(n.x);
         const HALF: usize = 8;
@@ -369,7 +369,7 @@ pub fn capsule(a: Vec2, b: Vec2, r: f32, c: Color) {
     });
 }
 
-/// Выпуклый многоугольник одним цветом.
+/// Convex polygon in one colour.
 pub fn poly(points: &[Vec2], c: Color) {
     if points.len() < 3 {
         return;
@@ -378,7 +378,7 @@ pub fn poly(points: &[Vec2], c: Color) {
     fan(center, points, |_, _| c);
 }
 
-/// Выпуклый многоугольник с вертикальным градиентом.
+/// Convex polygon with a vertical gradient.
 pub fn poly_v(points: &[Vec2], top: Color, bottom: Color) {
     if points.len() < 3 {
         return;
@@ -392,7 +392,7 @@ pub fn poly_v(points: &[Vec2], top: Color, bottom: Color) {
     fan(center, points, vgrad(y0, y1, top, bottom));
 }
 
-/// Дуга-штрих (для улыбок, бровей, колец выделения).
+/// An arc stroke (smiles, eyebrows, selection rings).
 pub fn arc(c: Vec2, rx: f32, ry: f32, a0: f32, a1: f32, thick: f32, col: Color) {
     let steps = (((a1 - a0).abs() * rx.max(ry) / 3.0) as usize).clamp(4, 40);
     let mut prev = c + vec2(a0.cos() * rx, a0.sin() * ry);
@@ -404,7 +404,7 @@ pub fn arc(c: Vec2, rx: f32, ry: f32, a0: f32, a1: f32, thick: f32, col: Color) 
     }
 }
 
-/// Мягкая линия: широкий полупрозрачный штрих + тонкое ядро (свечение неона).
+/// A soft line: a wide translucent stroke + a thin core (neon glow).
 pub fn glow_line(a: Vec2, b: Vec2, thick: f32, c: Color) {
     draw_line(a.x, a.y, b.x, b.y, thick * 3.0, alpha(c, c.a * 0.18));
     draw_line(a.x, a.y, b.x, b.y, thick * 1.8, alpha(c, c.a * 0.35));

@@ -1,15 +1,15 @@
-//! Карта кафе: сетка тайлов, вид сверху.
+//! The café map: a tile grid, seen from above.
 //!
-//! Карта задаётся текстом — каждый символ это тайл (см. `Tile::from_char`).
-//! Так её легко менять руками, а позже — грузить из файла.
-//! Координаты мира — в «мировых пикселях», один тайл = `TILE`.
+//! The map is written as text — every character is a tile (see `Tile::from_char`).
+//! That keeps it easy to edit by hand, and later to load from a file.
+//! World coordinates are "world pixels"; one tile = `TILE`.
 
 use macroquad::prelude::*;
 
 use crate::palette as pal;
 use crate::shapes::{object, rounded_rect, soft_light};
 
-/// Размер тайла в мировых пикселях (под текстуры 64×64, на Retina — 128×128).
+/// Tile size in world pixels (for 64×64 textures, 128×128 on Retina).
 pub const TILE: f32 = 64.0;
 
 pub const CAFE_LAYOUT: &str = "\
@@ -61,7 +61,7 @@ impl Tile {
         }
     }
 
-    /// Можно ли по этому тайлу ходить. Пригодится для поиска пути.
+    /// Can this tile be walked on? Used by path finding.
     pub fn walkable(self) -> bool {
         matches!(self, Tile::Floor | Tile::Door | Tile::Chair)
     }
@@ -89,8 +89,8 @@ pub struct Map {
 }
 
 impl Map {
-    /// Строит карту из текста. Падает, если строки разной длины
-    /// или встретился неизвестный символ — лучше узнать сразу.
+    /// Builds the map from text. Panics when rows differ in length
+    /// or an unknown character appears — better to find out right away.
     pub fn from_layout(layout: &str) -> Map {
         let rows: Vec<&str> = layout.lines().collect();
         let height = rows.len();
@@ -135,12 +135,12 @@ impl Map {
         }
     }
 
-    /// Размер карты в мировых пикселях.
+    /// Map size in world pixels.
     pub fn size_px(&self) -> Vec2 {
         vec2(self.width as f32 * TILE, self.height as f32 * TILE)
     }
 
-    /// Какой тайл под точкой мира `point`.
+    /// Which tile is under the world point `point`.
     pub fn tile_at(&self, point: Vec2) -> Option<(usize, usize)> {
         if point.x < 0.0 || point.y < 0.0 {
             return None;
@@ -150,8 +150,8 @@ impl Map {
         self.get(x, y).map(|_| (x, y))
     }
 
-    /// Рисуем слоями: пол → предметы → свет. Так тени и свет
-    /// ложатся поверх соседних тайлов, а не обрезаются.
+    /// Drawn in layers: floor → objects → light, so shadows and light
+    /// fall over neighbouring tiles instead of being cut off.
     pub fn draw(&self) {
         self.for_each(|x, y, tile| draw_ground(tile, x, y));
         self.for_each(|x, y, tile| draw_object(tile, x, y));
@@ -172,7 +172,7 @@ impl Map {
     }
 }
 
-/// Нижний слой: пол, стены, окна, дверь.
+/// Bottom layer: floor, walls, windows, door.
 fn draw_ground(tile: Tile, x: f32, y: f32) {
     match tile {
         Tile::Wall => {
@@ -206,7 +206,7 @@ fn draw_ground(tile: Tile, x: f32, y: f32) {
     }
 }
 
-/// Деревянный пол: доски по 32 мировых пикселя.
+/// Wooden floor: planks of 32 world pixels.
 fn draw_floor(x: f32, y: f32) {
     let row = (y / TILE) as usize;
     let color = if row.is_multiple_of(2) {
@@ -221,7 +221,7 @@ fn draw_floor(x: f32, y: f32) {
     }
 }
 
-/// Верхний слой: мебель и техника с тенями.
+/// Top layer: furniture and appliances with shadows.
 fn draw_object(tile: Tile, x: f32, y: f32) {
     match tile {
         Tile::Counter => {

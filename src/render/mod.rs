@@ -1,58 +1,58 @@
-//! Рисование мира «violet dollhouse»: персонажи, мебель, пол/стены, улица,
-//! ночной свет и атмосфера. Владелец модуля: агент render.
+//! Drawing the "violet dollhouse" world: people, furniture, floors/walls, the street,
+//! night light and atmosphere. Module owner: the render agent.
 //!
-//! Пол и ковры — вид сверху; мебель, стены и люди — мягкий вид 3/4
-//! (видна передняя грань и верх, есть высота, y-сортировка). Без чёрных контуров:
-//! объём — градиентами, лавандовым rim light из окон и тёплыми пятнами ламп.
+//! Floors and rugs are seen from above; furniture, walls and people in a gentle 3/4 view
+//! (front face and top visible, with height, y-sorted). No black outlines:
+//! volume comes from gradients, lavender rim light from the windows and warm lamp pools.
 //!
-//! # Координаты
-//! Мировые пиксели, тайл = [`crate::map::TILE`] (64). Проекция косая:
-//! точка пола (x, y) на высоте z рисуется в (x, y − z). Ключ сортировки
-//! объекта — y его «ног» / нижнего края следа на полу.
-//! - `draw_floor` / `draw_wall` принимают **координаты тайла** (столбец, строка) как `Vec2`.
-//! - `draw_furniture` принимает **мировые пиксели** левого верхнего угла следа.
-//! - `PersonPose::feet` — мировые пиксели точки между ступнями.
+//! # Coordinates
+//! World pixels, tile = [`crate::map::TILE`] (64). Oblique projection:
+//! a floor point (x, y) at height z is drawn at (x, y − z). An object's sort key
+//! is the y of its "feet" / the bottom edge of its footprint on the floor.
+//! - `draw_floor` / `draw_wall` take **tile coordinates** (column, row) as a `Vec2`.
+//! - `draw_furniture` takes the **world pixels** of the footprint's top-left corner.
+//! - `PersonPose::feet` — world pixels of the point between the feet.
 //!
-//! # Публичное API
-//! - Люди: [`PersonLook`] (+ `random(seed, staff)`, `preset(id)`), [`Facing`], [`Pose`],
-//!   [`PersonPose`], [`draw_person`] / [`draw_person_ex`] (с [`Expression`]),
+//! # Public API
+//! - People: [`PersonLook`] (+ `random(seed, staff)`, `preset(id)`), [`Facing`], [`Pose`],
+//!   [`PersonPose`], [`draw_person`] / [`draw_person_ex`] (with an [`Expression`]),
 //!   [`draw_emote`] / [`draw_emote_ex`] ([`Emote`]), [`emote_anchor`], [`draw_selection`],
 //!   [`draw_actor_highlight`], [`draw_laptop`], [`draw_shiftella_logo`], [`sit_anchor`], [`person_sort_key`], [`draw_cup`], [`draw_steam`].
-//! - Портреты для диалогов: [`draw_portrait`]`(look, expression, rect, t)` — в текущей
-//!   (UI) камере, фон прозрачный. Пресеты: [`PersonLook::PRESETS`].
-//! - Мебель: [`draw_furniture`]`(id, tile_origin_px, (w,h), &FurnitureState)` для всех
-//!   [`FURNITURE_IDS`]; неизвестный id → заглушка. [`furniture_sort_key`],
-//!   [`furniture_lights`] (свет ламп/экранов, добавлять в `Lighting`).
-//!   `FurnitureState { active, dirty, t, facing }` (`..Default::default()`); у стульев
-//!   `facing` — куда смотрит сидящий, у столов `active` — горит свеча.
-//! - Пол/стены: [`draw_floor`]`("floor_wood"|"floor_tile"|"floor_carpet"|"pavement", tile)`,
+//! - Dialogue portraits: [`draw_portrait`]`(look, expression, rect, t)` — in the current
+//!   (UI) camera, transparent background. Presets: [`PersonLook::PRESETS`].
+//! - Furniture: [`draw_furniture`]`(id, tile_origin_px, (w,h), &FurnitureState)` for every
+//!   [`FURNITURE_IDS`]; an unknown id → a placeholder. [`furniture_sort_key`],
+//!   [`furniture_lights`] (lamp / screen lights to add to `Lighting`).
+//!   `FurnitureState { active, dirty, t, facing }` (`..Default::default()`); for chairs
+//!   `facing` is where the sitter looks, for tables `active` = a candle is lit.
+//! - Floors / walls: [`draw_floor`]`("floor_wood"|"floor_tile"|"floor_carpet"|"pavement", tile)`,
 //!   [`draw_wall`]`(tile, WallMask::compute(..), WallKind)`, [`window_glass_rect`],
-//!   [`StaticLayer`] — кэш статики в render target.
-//! - Улица: [`draw_outside`]`(rect, t)`, [`draw_train`], [`outside_lights`],
+//!   [`StaticLayer`] — a render-target cache of the static parts.
+//! - Street: [`draw_outside`]`(rect, t)`, [`draw_train`], [`outside_lights`],
 //!   [`draw_holo_sign`], [`Weather`] (`draw_rain`, `draw_window_rain`).
-//! - Глубина: [`RenderQueue`] — `push_*` с ключом, затем `flush()`.
-//! - Свет: [`Lighting`] — `begin(&cam, ambient)`, `add_light(Light)`, `add_window_light`,
+//! - Depth: [`RenderQueue`] — `push_*` with a key, then `flush()`.
+//! - Light: [`Lighting`] — `begin(&cam, ambient)`, `add_light(Light)`, `add_window_light`,
 //!   `train_sweep(progress)`, `apply()`; [`ambient_for`]`(night_progress)`, [`ambient_blackout`].
 //!
-//! # Порядок кадра
+//! # Frame order
 //! ```ignore
-//! // один раз (и при изменении карты): кэш пола и высоких стен
+//! // once (and when the map changes): cache of the floor and the tall walls
 //! statics.build(world_rect, 2.0, || { draw_floor(..); draw_wall(..); });
 //! lighting.set_windows(glass_rects);
-//! // каждый кадр
+//! // every frame
 //! let cam = world_camera.to_camera2d();
 //! set_camera(&cam);
 //! clear_background(colors::NIGHT_0);
 //! draw_outside(street_rect, t);  draw_train(street_rect, p, t);  weather.draw_rain(street_rect, t);
 //! statics.draw();
 //! for g in glass_rects { weather.draw_window_rain(g, t) }
-//! let mut q = RenderQueue::new();  // мебель, низкие стены, люди, кольца выделения
+//! let mut q = RenderQueue::new();  // furniture, low walls, people, selection rings
 //! q.flush();
 //! lighting.begin(&cam, ambient_for(night_progress));
 //! lighting.add_window_light(1.0); lighting.train_sweep(p);
 //! for l in furniture_lights(..) / outside_lights(..) { lighting.add_light(l) }
-//! lighting.apply();              // после него снова активна `cam`
-//! draw_emote_ex(..);             // эмоции поверх, не затемняются
+//! lighting.apply();              // `cam` is active again afterwards
+//! draw_emote_ex(..);             // emotes on top, not darkened
 //! ```
 
 #![allow(clippy::too_many_arguments)]

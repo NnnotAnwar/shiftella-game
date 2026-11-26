@@ -1,5 +1,5 @@
-//! Очередь отрисовки с y-сортировкой: мебель, стены и люди перемешиваются
-//! правильно — кто ниже на экране (ближе к камере), тот рисуется позже.
+//! Draw queue with y-sorting: furniture, walls and people interleave
+//! correctly — whoever is lower on screen (closer to the camera) is drawn later.
 
 use macroquad::prelude::*;
 
@@ -16,8 +16,8 @@ enum Cmd<'a> {
     Custom(Box<dyn FnOnce() + 'a>),
 }
 
-/// Накопить команды за кадр, затем `flush()` — отсортировать по ключу и нарисовать.
-/// При равных ключах сохраняется порядок добавления.
+/// Collect the frame's commands, then `flush()` — sort by key and draw.
+/// Equal keys keep their insertion order.
 #[derive(Default)]
 pub struct RenderQueue<'a> {
     items: Vec<(f32, u32, Cmd<'a>)>,
@@ -37,7 +37,7 @@ impl<'a> RenderQueue<'a> {
         self.seq += 1;
     }
 
-    /// Персонаж (ключ — `person_sort_key`).
+    /// A person (key: `person_sort_key`).
     pub fn push_person(&mut self, look: &'a PersonLook, pose: PersonPose) {
         self.push_person_ex(look, pose, Expression::Neutral);
     }
@@ -46,12 +46,12 @@ impl<'a> RenderQueue<'a> {
         self.push(person_sort_key(&pose), Cmd::Person(look, pose, expr));
     }
 
-    /// Кольцо выделения под персонажем.
+    /// Selection ring under a person.
     pub fn push_selection(&mut self, pose: &PersonPose) {
         self.push(person_sort_key(pose) - 0.01, Cmd::Selection(pose.feet));
     }
 
-    /// Предмет мебели (ключ — `furniture_sort_key`).
+    /// A furniture piece (key: `furniture_sort_key`).
     pub fn push_furniture(
         &mut self,
         sprite: &'a str,
@@ -63,12 +63,12 @@ impl<'a> RenderQueue<'a> {
         self.push(key, Cmd::Furniture(sprite, tile_origin, size, state));
     }
 
-    /// Стена (обычно только низкие фасадные — высокие лучше держать в `StaticLayer`).
+    /// A wall (usually only the low front ones — keep tall walls in `StaticLayer`).
     pub fn push_wall(&mut self, tile: Vec2, mask: WallMask, kind: WallKind) {
         self.push(wall_sort_key(tile), Cmd::Wall(tile, mask, kind));
     }
 
-    /// Любая отрисовка со своим ключом (мировой y «ног» объекта).
+    /// Any drawing with its own key (world y of the object's "feet").
     pub fn push_custom(&mut self, key: f32, f: impl FnOnce() + 'a) {
         self.push(key, Cmd::Custom(Box::new(f)));
     }
@@ -81,14 +81,14 @@ impl<'a> RenderQueue<'a> {
         self.items.is_empty()
     }
 
-    /// Порядок индексов (в порядке добавления), в котором будут нарисованы команды.
+    /// Indices (in insertion order) in the order the commands will be drawn.
     pub fn order(&self) -> Vec<u32> {
         let mut keys: Vec<(f32, u32)> = self.items.iter().map(|(k, s, _)| (*k, *s)).collect();
         keys.sort_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
         keys.into_iter().map(|(_, s)| s).collect()
     }
 
-    /// Отсортировать и нарисовать всё, очередь опустеет.
+    /// Sort and draw everything; the queue ends up empty.
     pub fn flush(&mut self) {
         self.items
             .sort_by(|a, b| a.0.total_cmp(&b.0).then(a.1.cmp(&b.1)));
@@ -132,7 +132,7 @@ mod tests {
     fn person_behind_table_draws_first() {
         let look = PersonLook::random(1, false);
         let mut q = RenderQueue::new();
-        // стол в строке 3 (низ следа = 4 * 64), человек стоит выше (в строке 2)
+        // a table in row 3 (bottom of its footprint = 4 * 64), a person stands above it (row 2)
         q.push_furniture(
             "table_round_2",
             vec2(0.0, 192.0),
@@ -148,7 +148,7 @@ mod tests {
                 t: 0.0,
             },
         );
-        // ковёр под всем, добавлен последним
+        // a rug under everything, added last
         q.push_furniture("rug", vec2(0.0, 0.0), (3, 2), FurnitureState::default());
         assert_eq!(q.order(), vec![2, 1, 0]);
     }

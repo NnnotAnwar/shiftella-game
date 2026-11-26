@@ -1,19 +1,19 @@
-//! Простые «красивые» фигуры, которых нет в macroquad:
-//! скруглённый прямоугольник, тень, мягкий свет лампы.
-//! Пока это заглушки вместо нарисованных спрайтов.
+//! Simple "pretty" shapes macroquad doesn't have:
+//! a rounded rectangle, a shadow, a soft lamp light.
+//! For now these stand in for drawn sprites.
 
 use macroquad::prelude::*;
 
-/// Скруглённый прямоугольник. Рисуется веером треугольников —
-/// они не перекрываются, поэтому полупрозрачный цвет ложится ровно.
+/// Rounded rectangle, drawn as a fan of triangles —
+/// they don't overlap, so a translucent colour lies evenly.
 pub fn rounded_rect(x: f32, y: f32, w: f32, h: f32, radius: f32, color: Color) {
     let r = radius.min(w / 2.0).min(h / 2.0);
     const STEPS: usize = 6;
     let corners = [
-        (vec2(x + w - r, y + r), -90.0_f32), // правый верхний
-        (vec2(x + w - r, y + h - r), 0.0),   // правый нижний
-        (vec2(x + r, y + h - r), 90.0),      // левый нижний
-        (vec2(x + r, y + r), 180.0),         // левый верхний
+        (vec2(x + w - r, y + r), -90.0_f32), // top right
+        (vec2(x + w - r, y + h - r), 0.0),   // bottom right
+        (vec2(x + r, y + h - r), 90.0),      // bottom left
+        (vec2(x + r, y + r), 180.0),         // top left
     ];
 
     let mut points = Vec::with_capacity(4 * (STEPS + 1));
@@ -31,7 +31,7 @@ pub fn rounded_rect(x: f32, y: f32, w: f32, h: f32, radius: f32, color: Color) {
     }
 }
 
-/// Мягкая тень под предметом: чуть ниже и прозрачная.
+/// A soft shadow under an object: a little lower and translucent.
 pub fn shadow(x: f32, y: f32, w: f32, h: f32, radius: f32) {
     rounded_rect(
         x + 2.0,
@@ -43,13 +43,13 @@ pub fn shadow(x: f32, y: f32, w: f32, h: f32, radius: f32) {
     );
 }
 
-/// Предмет с тенью.
+/// An object with its shadow.
 pub fn object(x: f32, y: f32, w: f32, h: f32, radius: f32, color: Color) {
     shadow(x, y, w, h, radius);
     rounded_rect(x, y, w, h, radius, color);
 }
 
-/// Тёплое пятно света: несколько прозрачных кругов друг на друге.
+/// A warm pool of light: several translucent circles on top of each other.
 pub fn soft_light(center: Vec2, radius: f32, color: Color) {
     const RINGS: usize = 6;
     for i in 0..RINGS {
