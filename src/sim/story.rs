@@ -1,5 +1,5 @@
 //! Story director: night beats, cutscene triggers & queue, regulars' visits and arcs,
-//! Lída's notes, payments, endings; weather rolls; talk & ambient lines.
+//! Lida's notes, payments, endings; weather rolls; talk & ambient lines.
 
 use super::guests;
 use super::logic;

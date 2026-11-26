@@ -1,8 +1,8 @@
-// Story mode: 30 nights at «U Výhybky», Mlhov nad Šeřavou, autumn 2039.
+// Story mode: 30 nights at Café Nocturne next to Praha-Holešovice station, autumn 2039.
 // Night keys: story.night.NN.title / .hint. Beat times "HH:MM"; before 22:00 = day phase.
 // Big moments are cutscenes (cutscenes.ron, triggered by night/time/arc/flag); beats are the small,
 // non-blocking things: bubbles, hints, scripted events, notes, payments, train boards, bot messages.
-// Player lines are written gender-neutral in all languages (the player is Lída's grandchild).
+// Player lines are written gender-neutral in all languages (the player is Lida's grandchild).
 #![enable(implicit_some)]
 (
     nights_total: 30,

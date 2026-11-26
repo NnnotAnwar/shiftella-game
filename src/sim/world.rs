@@ -14,7 +14,13 @@ pub const SAVE_VERSION: u32 = 1;
 pub const TICKS_PER_MINUTE: u32 = 10;
 pub const NIGHT_MINUTES: u32 = 480;
 pub const NIGHT_TICKS: u32 = NIGHT_MINUTES * TICKS_PER_MINUTE;
-/// Story Mlhov's institutions (guest pools besides the always-present ones).
+/// Story café name (proper noun, never translated; the sign's subtitle "kavárna u nádraží"
+/// is UI text).
+pub const STORY_CAFE: &str = "Café Nocturne";
+/// Story setting: the café is next to this station in Prague.
+pub const STORY_TOWN: &str = "Praha-Holešovice";
+/// Story institutions around Praha-Holešovice (guest pools besides the always-present ones):
+/// the taxi rank by the station, the hospital (Bulovka) shift change, the college campus.
 pub const STORY_INSTITUTIONS: &[&str] = &["taxi_rank", "hospital", "college"];
 /// Story nightly utilities (the story's "rent" is the debt payments).
 pub const STORY_UTILITIES: i64 = 350;
@@ -519,6 +525,10 @@ pub struct AppState {
     pub draft: BTreeMap<u32, [Shift; 7]>,
     pub published: BTreeMap<u32, [Shift; 7]>,
     pub draft_dirty: bool,
+    /// The player edited the rozpis by hand (`SetShift`); until then the app keeps the
+    /// default rozpis current (`Command::AutoSchedule` hands it back to the app).
+    #[serde(default)]
+    pub manual_rozpis: bool,
     pub week: u32,
     pub swaps: Vec<SwapRequest>,
     pub time_off: Vec<TimeOffRequest>,
@@ -636,6 +646,12 @@ pub enum UndoOp {
         old: Shift,
         was_dirty: bool,
     },
+    /// `Command::AutoSchedule`: the whole previous draft.
+    Draft {
+        old: BTreeMap<u32, [Shift; 7]>,
+        was_dirty: bool,
+        was_manual: bool,
+    },
     Price {
         item: String,
         old: Option<u32>,
@@ -733,14 +749,9 @@ impl World {
             phase: Phase::Day,
             night: 1,
             tick: 0,
-            cafe_name: content
-                .sandbox
-                .cafe_names
-                .first()
-                .cloned()
-                .unwrap_or_else(|| "U Výhybky".into()),
+            cafe_name: STORY_CAFE.into(),
             town: Town {
-                name: "Mlhov nad Šeřavou".into(),
+                name: STORY_TOWN.into(),
                 institutions: STORY_INSTITUTIONS.iter().map(|s| s.to_string()).collect(),
                 character: content.sandbox.default_character.clone(),
                 size: 1.0,
@@ -867,9 +878,10 @@ impl World {
         w.town.options = options;
         let (lo, hi) = sb.rent;
         let t = (w.town.size - 0.6) / 0.9;
-        w.econ.rent =
-            (lo as f32 + (hi - lo) as f32 * t * 0.6 + w.rng.range_f32(0.0, 0.2) * (hi - lo) as f32)
-                .round() as i64;
+        let rent =
+            lo as f32 + (hi - lo) as f32 * t * 0.6 + w.rng.range_f32(0.0, 0.2) * (hi - lo) as f32;
+        // readable: whole 50 Kč
+        w.econ.rent = ((rent / 50.0).round() * 50.0) as i64;
         if let Some(m) = setup.start_money {
             w.econ.money = m;
         } else {
@@ -1040,8 +1052,9 @@ impl World {
             && self.night > 1
             && (self.night - 1).is_multiple_of(d.rent_growth_every)
         {
-            self.econ.rent =
-                (self.econ.rent as f32 * (1.0 + d.rent_growth_percent / 100.0)).round() as i64;
+            // readable: whole 10 Kč
+            let grown = self.econ.rent as f32 * (1.0 + d.rent_growth_percent / 100.0);
+            self.econ.rent = ((grown / 10.0).round() * 10.0) as i64;
         }
         // Repair overnight: slowdowns end, very worn stuff is serviced a little.
         for s in self.staff.iter_mut() {

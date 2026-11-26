@@ -163,7 +163,7 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
     keys
 }
 
-/// `train.os_2141.name` style key for a train's display line ("Os 2141 Adamov → Mlhov").
+/// `train.os_2141.name` style key for a train's display line ("Os 2141 Adamov → Praha-Holešovice").
 pub fn train_key(id: &str) -> String {
     format!("train.{}.name", id.to_ascii_lowercase().replace(' ', "_"))
 }

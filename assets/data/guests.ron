@@ -1,6 +1,6 @@
 // Guest archetypes (pools). Keys: guest.<id>.name / guest.<id>.desc.
 // hour_weights: 8 values for 22,23,00,01,02,03,04,05 o'clock. weekday_mult: Mon..Sun (optional).
-// institution: sandbox town feature that enables the pool (story Mlhov has all of them).
+// institution: sandbox town feature that enables the pool (story: taxi rank, hospital, college around Praha-Holešovice).
 #![enable(implicit_some)]
 [
     (

@@ -11,15 +11,20 @@ use crate::content::{Content, MenuItem, Pays, TraitEffect};
 /// Guest walking speed, tiles per tick.
 pub const GUEST_SPEED: f32 = 0.35;
 /// Parties per opening hour at reputation 25 in a normal town (before hour weights).
-pub const BASE_PARTIES_PER_HOUR: f32 = 1.9;
+pub const BASE_PARTIES_PER_HOUR: f32 = 1.7;
 /// Waiting for food allows this many × the archetype patience.
-pub const FOOD_PATIENCE: f32 = 2.0;
+pub const FOOD_PATIENCE: f32 = 2.4;
 /// Chance (× spend_mult) that a guest orders a second thing.
 pub const SECOND_ITEM_CHANCE: f32 = 0.75;
 /// Chance (× spend_mult) of a third thing (usually dessert).
 pub const THIRD_ITEM_CHANCE: f32 = 0.2;
 /// Reputation per satisfaction point above/below 55 per guest review.
 pub const REVIEW_WEIGHT: f32 = 0.003;
+/// Regulars' trust per item served (within 8 min of the order / later) and lost when they
+/// leave unserved.
+pub const TRUST_FAST: f32 = 4.0;
+pub const TRUST_SERVED: f32 = 2.0;
+pub const TRUST_ANGRY: f32 = 2.0;
 /// No new walk-ins after this minute (05:40).
 pub const LAST_CALL: u32 = 460;
 
@@ -548,7 +553,7 @@ pub(crate) fn spawn_party(
     let side = (w.rng.next_u64() % 2) as usize;
     let start = edges[side];
     let diff = content.difficulty(w.difficulty.id());
-    let pmul = diff.map(|d| d.guest_patience_mul).unwrap_or(1.0) * patience_mul;
+    let pmul = diff.map(|d| d.guest_patience_mul).unwrap_or(1.0) * patience_mul * early_ramp(w).1;
     let patience = reg
         .map(|r| r.patience_minutes)
         .unwrap_or(arch.patience_minutes)
@@ -784,19 +789,30 @@ pub(crate) fn refresh_queue_goals(w: &mut World, content: &Content) {
     }
 }
 
-/// Story tutorial: fewer guests on the first nights.
+/// Gentle start: (arrival multiplier, patience multiplier) for the first nights.
+///
+/// Story night 1 is a solo shift (the player only), so it is a quiet, forgiving tutorial; the
+/// crowd and the impatience ramp up over nights 1–5. Cozy is softer than Classic. Sandbox
+/// starts with two people and gets a shorter ramp.
+pub(crate) fn early_ramp(w: &World) -> (f32, f32) {
+    let cozy = w.difficulty == Difficulty::Cozy;
+    let n = w.night as usize;
+    let (rate, patience): (&[f32], &[f32]) = match (w.mode, cozy) {
+        (Mode::Story, true) => (&[0.28, 0.5, 0.62, 0.74, 0.86], &[2.8, 2.0, 1.6, 1.3, 1.1]),
+        (Mode::Story, false) => (
+            &[0.28, 0.58, 0.72, 0.84, 0.94],
+            &[2.4, 1.5, 1.25, 1.1, 1.05],
+        ),
+        (Mode::Sandbox, true) => (&[0.6, 0.75, 0.9], &[1.5, 1.3, 1.15]),
+        (Mode::Sandbox, false) => (&[0.75, 0.9], &[1.2, 1.1]),
+    };
+    let at = |v: &[f32]| v.get(n.wrapping_sub(1)).copied().unwrap_or(1.0);
+    (at(rate), at(patience))
+}
+
+/// Arrival multiplier of the gentle start (see [`early_ramp`]).
 pub(crate) fn story_ramp(w: &World) -> f32 {
-    if w.mode != Mode::Story {
-        return 1.0;
-    }
-    match w.night {
-        1 => 0.45,
-        2 => 0.65,
-        3 => 0.75,
-        4 => 0.8,
-        5 => 0.9,
-        _ => 1.0,
-    }
+    early_ramp(w).0
 }
 
 fn arrival_rate(w: &World, content: &Content, hour: usize) -> f32 {
@@ -1129,15 +1145,17 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
     if let Some(r) = &reg {
         let st = w.story.regulars.entry(r.clone()).or_default();
         st.served_items.insert(menu.clone());
-        let arrived = w.parties[pi].arrived;
+        // "Served fast" counts from the order (walking in from the street and a queue the
+        // player can't see from the counter would make the regulars' streaks unreachable).
+        let since = m.saturating_sub(w.parties[pi].ordered_at.unwrap_or(w.parties[pi].arrived));
         if let Some(v) = st.visits.last_mut()
             && v.served_minutes.is_none()
         {
-            v.served_minutes = Some(m - arrived);
+            v.served_minutes = Some(since);
         }
-        let fast = m - arrived <= 6;
+        let fast = since <= 8;
         let t = w.story.trust.entry(r.clone()).or_insert(0.0);
-        *t = (*t + if fast { 3.0 } else { 1.5 }).min(100.0);
+        *t = (*t + if fast { TRUST_FAST } else { TRUST_SERVED }).min(100.0);
     }
     w.emit(SimEvent::OrderServed {
         party: pid,
@@ -1340,7 +1358,7 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, angry: bo
     if let Some(r) = reg {
         let t = w.story.trust.entry(r.id.clone()).or_insert(0.0);
         if angry {
-            *t = (*t - 3.0).max(0.0);
+            *t = (*t - TRUST_ANGRY).max(0.0);
         }
     }
     // free seats, dirty tables

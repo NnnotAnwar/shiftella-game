@@ -51,7 +51,7 @@ pub enum Condition {
     /// `counters[name] >= n` (missing counter = 0). `arc.<regular>` is the arc stage.
     CounterAtLeast(String, i32),
     CounterBelow(String, i32),
-    /// Number of Lída's notes found ≥ n.
+    /// Number of Lida's notes found ≥ n.
     NotesFoundAtLeast(u32),
     NoteFound(String),
     HasItem(String),
@@ -88,7 +88,7 @@ pub enum Condition {
     TrustAtLeast(String, f32),
     /// The window light (lamp at the front window) is on.
     WindowLightOn,
-    /// A train arrives at Mlhov within ±N minutes of now.
+    /// A train arrives at the café's station within ±N minutes of now.
     TrainNear(u32),
 
     // --- café & crew ----------------------------------------------------------------------
