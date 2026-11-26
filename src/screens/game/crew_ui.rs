@@ -350,7 +350,7 @@ fn relations_line(g: &GameScreen, loc: &Locale, s: &Staff) -> Option<String> {
         parts.push(loc.trf("crew.rel.rival", &[("name", &first_name(loc, w, id))]));
     }
     if parts.is_empty() {
-        parts.push(loc.tr_owned(if s.nights_worked < 2 {
+        parts.push(loc.tr_owned(if w.night().saturating_sub(s.hired_night) < 2 {
             "crew.rel.new"
         } else {
             "crew.rel.everyone"
