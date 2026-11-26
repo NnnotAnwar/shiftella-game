@@ -2,11 +2,14 @@
 // Times are game minutes unless a name says _s (real seconds). Tune with `sim_headless --player-bot`.
 #![enable(implicit_some)]
 (
-    // ×1: 0.15 real s per tick → a night is 12 real minutes (×2: 6, ×3: 4).
-    real_seconds_per_tick_x1: 0.15,
+    // ×1: 0.13 real s per tick → 10.4 real minutes of sim (×2: 5.2, ×3: 3.5); with the order
+    // cards and 6–14 mini-games a night at ×1 is 12–14 real minutes (T9, sim_balance).
+    real_seconds_per_tick_x1: 0.13,
     // Sim dt × this while the order card, a mini-game, the book or a moment card is open.
-    overlay_scale: (cozy: 0.1, classic: 0.35),
-    player_walk_mul: 1.4,
+    // Cozy 0.25: the room still drifts on a little, the night doesn't stretch past 14 minutes.
+    overlay_scale: (cozy: 0.25, classic: 0.35),
+    // T9: 1.5 (was 1.4) — her nights are mostly walking; it keeps act 1 rushes readable.
+    player_walk_mul: 1.5,
     player_work_mul: 1.0,
     // Helpers: (0.5 + skill × 0.1) × helper_speed.
     helper_speed: 0.85,

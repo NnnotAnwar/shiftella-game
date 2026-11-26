@@ -829,9 +829,13 @@ fn a_happy_week_is_reachable_with_the_story_crew() {
             assert_ne!(st, PrefStatus::Violated, "{id}: {:?}", pref.kind);
         }
     }
-    w.drain_events();
+    // (T9: since the auto-fill keeps the story crew's wishes, the app's own plan may already
+    // have made this week happy at the hire; then the event came then, once a week)
+    let mut ev = w.drain_events();
     w.apply(&c, Command::PublishSchedule).unwrap();
-    let ev = w.drain_events();
+    ev.extend(w.drain_events());
+    let rows = rozpis::effective(&w, &c, &w.app().published);
+    assert!(rozpis::happy(&w, &c, &rows));
     assert!(ev.contains(&SimEvent::RozpisHappy));
     assert!(
         ev.iter().any(
@@ -974,6 +978,13 @@ fn rituals_handover_notes_and_the_next_night() {
     for id in list(crate::content::world::ChecklistKind::Closing) {
         app::tick_checklist(&mut w, &c, &id, None);
     }
+    // the note is picked after 05:00, when the app has made its own suggestions (which would
+    // replace this hand-made list; how many fit depends on who is still waiting)
+    while w.minute() <= 420 {
+        w.tick(&c);
+        bot::finish_cutscenes(&mut w, &c);
+    }
+    w.drain_events();
     w.sys.tool.suggestions = vec![HandoverSuggestion {
         id: "thank_crew".into(),
         args: Vec::new(),
@@ -1431,4 +1442,36 @@ fn micro_acts_report_when_done() {
         )
     );
     assert!(ev.iter().any(|e| matches!(e, SimEvent::Mopped { .. })));
+}
+
+#[test]
+fn the_auto_fill_alone_plans_a_happy_week_for_the_story_crew() {
+    // T9 balance: Bára, Zdeněk and Kuba's wishes fit together, so one click on Auto-fill
+    // (and Publish) is enough for a happy week, with no hand edits.
+    let c = content();
+    for night in [4, 8] {
+        let mut w = crew_day(&c, night);
+        w.apply(&c, Command::AutoFillRozpis).unwrap();
+        let r = w.autofill_report().clone();
+        assert!(
+            r.broken.is_empty() && r.kept == r.total,
+            "night {night}: {r:?}"
+        );
+        for s in w.staff().iter().filter(|s| !s.owner) {
+            for (p, st) in w.pref_status(&c, s.id) {
+                assert_ne!(
+                    st,
+                    PrefStatus::Violated,
+                    "night {night}: {} {:?}",
+                    s.archetype,
+                    p.kind
+                );
+            }
+        }
+        assert!(w.coverage(&c).iter().all(|n| n.on + 1 >= n.suggested));
+        w.apply(&c, Command::PublishSchedule).unwrap();
+        let rows = super::rozpis::effective(&w, &c, &w.app().published);
+        assert!(super::rozpis::happy(&w, &c, &rows), "night {night}");
+        assert!(w.systems().rozpis.happy_week.is_some(), "night {night}");
+    }
 }

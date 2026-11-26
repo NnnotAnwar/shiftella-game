@@ -117,7 +117,7 @@ fn first_week_ramps_up_gently_on_cozy() {
 }
 
 #[test]
-fn early_ramp_is_gentler_on_cozy_and_ends_by_night_six() {
+fn early_ramp_is_gentler_on_cozy_and_ends_with_act_one() {
     let c = content();
     let mut cozy = World::new_story(&c, Difficulty::Cozy);
     let mut classic = World::new_story(&c, Difficulty::Classic);
@@ -129,7 +129,15 @@ fn early_ramp_is_gentler_on_cozy_and_ends_by_night_six() {
         assert!(rc <= rk && pc >= pk, "night {n}");
         assert!(rc < 1.0 && pc > 1.0);
     }
-    cozy.night = 6;
+    // T9: Classic is at full crowd from night 6, Cozy over act 1 (nights 1–8)
+    classic.night = 6;
+    assert_eq!(guests::early_ramp(&classic), (1.0, 1.0));
+    for n in 6..=8 {
+        cozy.night = n;
+        let (r, p) = guests::early_ramp(&cozy);
+        assert!(r < 1.0 && p >= 1.0, "night {n}");
+    }
+    cozy.night = 9;
     assert_eq!(guests::early_ramp(&cozy), (1.0, 1.0));
 }
 
@@ -172,10 +180,13 @@ fn default_rozpis_is_sensible_for_every_crew_size() {
                             | crate::content::handson::PrefKind::DayOff(_)
                     )
             });
+            // (T9: the auto-fill may give someone one night more when that keeps a colleague's
+            // late / early wish — a person on the floor for the other half)
             if limited {
-                assert!(shifts_worked(row) <= want, "{hires} hires: {row:?}");
+                assert!(shifts_worked(row) <= want + 1, "{hires} hires: {row:?}");
             } else {
-                assert_eq!(shifts_worked(row), want, "{hires} hires: {row:?}");
+                let n = shifts_worked(row);
+                assert!(n == want || n == want + 1, "{hires} hires: {row:?}");
             }
             let hours: f32 = row.iter().map(|x| x.hours()).sum();
             if hires >= 2 {
@@ -431,7 +442,8 @@ fn starting_money_and_debt_are_readable_and_fair() {
             let w = sandbox(&c, seed, d);
             assert_eq!(w.money() % 1000, 0, "sandbox money {}", w.money());
             assert_eq!(w.rent() % 50, 0, "sandbox rent {}", w.rent());
-            assert!(w.rent() >= 800 && w.rent() <= 2500);
+            let (lo, hi) = c.sandbox.rent;
+            assert!(w.rent() >= lo as i64 && w.rent() <= hi as i64);
             assert_eq!(w.staff().len(), 2, "sandbox starts with one hire");
             assert!(c.sandbox.town_names.places.contains(&w.town().name));
         }

@@ -41,6 +41,10 @@ struct Row {
     sat: f32,
     real_min: f32,
     crew: f32,
+    overlay_min: f32,
+    turned: f32,
+    wages: f32,
+    supplies: f32,
     n: f32,
 }
 
@@ -95,9 +99,17 @@ fn main() {
     let mut moments_by_night: Vec<u32> = Vec::new();
     let mut two_open_early = 0u32;
     let mut journal_ok = 0u32;
+    // T9: payments, the cat, money at the end, peaks
+    let (mut paid, mut missed) = (0u32, 0u32);
+    let mut cat_aff: Vec<i32> = Vec::new();
+    let mut money_end: Vec<i64> = Vec::new();
+    let mut lights = 0u32;
+    let mut peaks: Vec<u32> = Vec::new();
+    let mut missed_runs: Vec<String> = Vec::new();
 
     for seed in 1..=seeds {
         let seed = seed * 7919 + 13;
+        let mut missed_nights: Vec<u32> = Vec::new();
         let mut world = if mode == "sandbox" {
             World::new_sandbox(
                 &content,
@@ -236,7 +248,19 @@ fn main() {
             r.sat += s.avg_satisfaction;
             r.real_min += if no_bot { 12.0 } else { bn.real_minutes };
             r.crew += world.staff().len() as f32;
+            r.overlay_min += bn.overlay_seconds / 60.0;
+            r.turned += s.guests_turned_away as f32;
+            r.wages += s.wages as f32;
+            r.supplies += s.supplies as f32;
             r.n += 1.0;
+            peaks.push(s.todo_peak);
+            if s.payment > 0 {
+                paid += 1;
+            }
+            if s.payment_missed {
+                missed += 1;
+                missed_nights.push(s.night);
+            }
             stuck += s.stuck_resets;
             if difficulty == Difficulty::Cozy {
                 unhappy_cozy += s.guests_left_unhappy;
@@ -262,6 +286,30 @@ fn main() {
             .count() as f32;
         *t5.entry("recipes known").or_default() += world.known_recipes().count() as f32;
         *t5.entry("cat level").or_default() += world.cat_level() as f32;
+        cat_aff.push(
+            world
+                .story()
+                .counters
+                .get("cat_affection")
+                .copied()
+                .unwrap_or(0),
+        );
+        money_end.push(world.money());
+        if std::env::var("SIM_TOWN").is_ok() {
+            println!(
+                "  seed {seed}: town size {} rent {} institutions {:?} money {}",
+                world.town().size,
+                world.rent(),
+                world.town().institutions,
+                world.money()
+            );
+        }
+        if !missed_nights.is_empty() {
+            missed_runs.push(format!("{missed_nights:?}"));
+        }
+        if world.ending() == Some("light") {
+            lights += 1;
+        }
         *endings
             .entry(
                 world
@@ -382,6 +430,27 @@ fn main() {
         mb.last().copied().unwrap_or(0)
     );
     println!("T5: {}", line.join(" · "));
+    peaks.sort();
+    let pct = |v: &[u32], q: f32| {
+        v.get(((v.len() as f32 - 1.0) * q) as usize)
+            .copied()
+            .unwrap_or(0)
+    };
+    let turned: f32 = rows.iter().map(|r| r.turned).sum();
+    let overlay: f32 = rows.iter().map(|r| r.overlay_min).sum();
+    let wages: f32 = rows.iter().map(|r| r.wages).sum();
+    let supplies: f32 = rows.iter().map(|r| r.supplies).sum();
+    money_end.sort();
+    println!(
+        "T9: todo peak p50 {} p90 {} max {} · overlays {:.1} real min/night · turned away {:.1}/night · wages {:.0} supplies {:.0}/night · payments made {paid} missed {missed} · light endings {lights}/{seeds} · missed payments by run {missed_runs:?} · money at the end {money_end:?} · cat affection {cat_aff:?}",
+        pct(&peaks, 0.5),
+        pct(&peaks, 0.9),
+        peaks.last().copied().unwrap_or(0),
+        overlay / k,
+        turned / k,
+        wages / k,
+        supplies / k,
+    );
     println!("endings: {endings:?}");
     println!(
         "breaks per helper-night {:.2} · stuck resets {stuck}",

@@ -10,11 +10,12 @@ use serde::{Deserialize, Serialize};
 use crate::content::handson::{HallMood, MatchTier, MiniGameKind};
 
 /// Real seconds per sim tick at speed ×1 (handson.md §1.4): a night (4 800 ticks) lasts
-/// 12 real minutes at ×1, 6 at ×2 and 4 at ×3. The tuning value in `handson.ron`
+/// 10.4 real minutes at ×1 (12–14 with the order cards and mini-games, T9 balance), 5.2 at ×2
+/// and 3.5 at ×3. The tuning value in `handson.ron`
 /// (`real_seconds_per_tick_x1`) is the source of truth — use
 /// [`World::real_seconds_per_tick`](super::World::real_seconds_per_tick); this constant is the
 /// shipped default.
-pub const REAL_SECONDS_PER_TICK_X1: f32 = 0.15;
+pub const REAL_SECONDS_PER_TICK_X1: f32 = 0.13;
 /// Karolina's action queue holds at most this many acts (current act not included).
 pub const PLAYER_QUEUE_MAX: usize = 5;
 

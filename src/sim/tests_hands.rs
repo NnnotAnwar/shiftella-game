@@ -588,7 +588,8 @@ fn cozy_guests_forgive_and_classic_guests_leave_angry() {
 #[test]
 fn regulars_wait_on_cozy_until_their_window_ends() {
     let c = content();
-    let mut w = story_night(&c, 1, Difficulty::Cozy);
+    // (after act 1: on night 1 the gentle start's patience outlasts Mirek's whole window)
+    let mut w = story_night(&c, 9, Difficulty::Cozy);
     guests::spawn_regular(&mut w, &c, "mirek", Some(0));
     let pid = w.story.regulars["mirek"].party.unwrap();
     let p = party(&w, pid);

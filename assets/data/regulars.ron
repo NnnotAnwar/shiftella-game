@@ -69,7 +69,7 @@
         age: 0,
         base: "night_wanderer",
         first_night: 4,
-        visits: [(from: "03:33", to: "03:50")],
+        visits: [(from: "03:33", to: "04:00")],
         orders: ["lemon_tea"],
         patience_minutes: 60.0,
         pays: OldCoins,

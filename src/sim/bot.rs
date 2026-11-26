@@ -32,11 +32,14 @@ pub struct BotConfig {
     pub plain_card_seconds: f32,
     /// Nights on which one more helper is hired (story; sandbox starts with one).
     pub hire_nights: Vec<u32>,
-    /// Wishes always by hand. Else by hand for regulars and for wishes in calm moments (≤ 2
-    /// pending things, ≥ `by_hand_gap` game minutes since the last mini-game), the order card's
-    /// default deciding (Quick after 3 same-kind games); quick when it's busy.
+    /// Wishes always by hand. Else by hand for regulars and for wishes in calm moments (≤
+    /// `calm_todo` pending things, ≥ `by_hand_gap` game minutes since the last mini-game), the
+    /// order card's default deciding (Quick after 3 same-kind games or once the night had
+    /// `BY_HAND_SOFT_CAP` mini-games); quick when it's busy. T9: 4 things / 10 minutes (was
+    /// 2 / 20) — an engaged player who enjoys the mini-games, 6–14 a night.
     pub always_by_hand: bool,
     pub by_hand_gap: u32,
+    pub calm_todo: u32,
     pub seed: u64,
     /// Balance runs: no decor purchases, the tip split stays with the café, no star bonus
     /// (to compare money with runs before the T5 systems).
@@ -54,7 +57,8 @@ impl Default for BotConfig {
             plain_card_seconds: 1.0,
             hire_nights: vec![3, 5, 9],
             always_by_hand: false,
-            by_hand_gap: 20,
+            by_hand_gap: 10,
+            calm_todo: 4,
             seed: 1,
             thrifty: false,
         }
@@ -127,10 +131,35 @@ impl PlayerBot {
             .filter(|n| w.night() >= **n)
             .count()
             + usize::from(w.mode() == Mode::Sandbox);
-        if helpers < want {
-            let ids: Vec<u32> = w.candidates().iter().map(|c| c.id).collect();
-            for id in ids.into_iter().take(want - helpers) {
-                let _ = w.apply(content, Command::Hire { candidate: id });
+        for _ in helpers..want {
+            // the candidate whose hire card covers the chore nobody holds yet (dishes, then the
+            // kitchen, the bar…), like someone who just spent two nights doing everything alone
+            let held: Vec<Duty> = w
+                .staff()
+                .iter()
+                .filter(|s| !s.owner)
+                .filter_map(|s| content.staff_archetype(&s.archetype))
+                .filter_map(|a| a.default_duty)
+                .collect();
+            let rank = |c: &Candidate| {
+                content
+                    .staff_archetype(&c.staff.archetype)
+                    .and_then(|a| a.default_duty)
+                    .filter(|d| !held.contains(d))
+                    .and_then(|d| NEED_ORDER.iter().position(|x| *x == d))
+                    .unwrap_or(NEED_ORDER.len())
+            };
+            let Some(id) = w
+                .candidates()
+                .iter()
+                .enumerate()
+                .min_by_key(|(i, c)| (rank(c), *i))
+                .map(|(_, c)| c.id)
+            else {
+                break;
+            };
+            if w.apply(content, Command::Hire { candidate: id }).is_err() {
+                break;
             }
         }
         self.systems_day(w, content);
@@ -151,18 +180,10 @@ impl PlayerBot {
         // the day's events stay queued: `run_night` returns them with the night's
     }
 
-    /// Hands tonight's crew the duties in a sensible order — dishes first (it keeps the hall and
-    /// the bar going), then the plain-order chain (bar, serving, register), kitchen, floor — each
-    /// to the free helper with the best skill for it.
+    /// Hands tonight's crew the duties the way a player does: everyone keeps the duty their hire
+    /// card proposed (one click on the card), then the gaps are filled by need
+    /// ([`NEED_ORDER`]), each to the free helper with the best skill for it.
     pub fn delegate(&mut self, w: &mut World, content: &Content) {
-        const ORDER: [Duty; 6] = [
-            Duty::Dishes,
-            Duty::Bar,
-            Duty::Serving,
-            Duty::Register,
-            Duty::Kitchen,
-            Duty::Floor,
-        ];
         let wd = w.weekday() as usize;
         let night = w.night();
         let tonight: Vec<u32> = w
@@ -190,7 +211,30 @@ impl PlayerBot {
                 );
             }
         }
-        for d in ORDER {
+        // the hire card's duty first (unless a colleague tonight already holds it)
+        for &id in &tonight {
+            let Some(d) = w
+                .staff_by_id(id)
+                .and_then(|s| content.staff_archetype(&s.archetype))
+                .and_then(|a| a.default_duty)
+            else {
+                continue;
+            };
+            if !tonight.iter().any(|o| w.staff_duties(*o).contains(&d)) {
+                let _ = w.apply(
+                    content,
+                    Command::SetDuty {
+                        staff: id,
+                        duty: d,
+                        on: true,
+                    },
+                );
+            }
+        }
+        for d in NEED_ORDER {
+            if tonight.iter().any(|o| w.staff_duties(*o).contains(&d)) {
+                continue;
+            }
             let pick = tonight
                 .iter()
                 .copied()
@@ -945,13 +989,16 @@ impl PlayerBot {
         let recipe = usual.clone().or(best.map(|b| b.0))?;
         let regular = w.party_of_guest(guest).is_some_and(|p| p.regular.is_some());
         // a calm human: by hand for regulars and in calm moments, quick when it's busy
-        let calm = w.karolina_todo(content) <= 2
+        let calm = w.karolina_todo(content) <= self.cfg.calm_todo
             && self
                 .last_by_hand
                 .is_none_or(|t| w.minute().saturating_sub(t) >= self.cfg.by_hand_gap);
         let mode = if self.cfg.always_by_hand || usual.is_some() {
             BrewMode::ByHand
-        } else if regular || calm {
+        } else if regular {
+            // regulars by hand even late on a busy night (only the anti-repetition rule)
+            w.by_hand_streak_mode(content, &recipe)
+        } else if calm {
             w.default_brew_mode(content, true, &recipe)
         } else {
             BrewMode::Quick
@@ -995,6 +1042,17 @@ impl PlayerBot {
         sim
     }
 }
+
+/// The chores by how much of Karolina's night they take when nobody holds them: dishes (every
+/// table, the sink), the kitchen (the longest preps), the bar, then serving, register, floor.
+const NEED_ORDER: [Duty; 6] = [
+    Duty::Dishes,
+    Duty::Kitchen,
+    Duty::Bar,
+    Duty::Serving,
+    Duty::Register,
+    Duty::Floor,
+];
 
 fn helper_on(w: &World, d: Duty) -> bool {
     w.staff()

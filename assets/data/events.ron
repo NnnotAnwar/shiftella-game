@@ -32,10 +32,10 @@
     // ---------------------------------------------------------------- crowds
     (id: "concert_crowd", kind: Neutral, severity: 2, weight: 25.0, cooldown: 2,
      conditions: [Weekday([Fri, Sat]), TimeBetween("23:00", "00:30")],
-     effects: [GuestRush(guest: "clubbers", count: (8, 12), within: 10, patience_mul: 0.7)]),
+     effects: [GuestRush(guest: "clubbers", count: (8, 12), within: 25, patience_mul: 0.8)]),
     (id: "late_train", kind: Neutral, severity: 2, weight: 20.0, cooldown: 2,
      conditions: [TimeBetween("00:00", "03:00")],
-     effects: [GuestRush(guest: "travelers", count: (5, 8), within: 20, orders: ["topinka", "garlic_soup", "varenyky", "black_coffee"])]),
+     effects: [GuestRush(guest: "travelers", count: (5, 8), within: 30, orders: ["topinka", "garlic_soup", "varenyky", "black_coffee"])]),
     (id: "taxi_break", kind: Neutral, severity: 1, weight: 20.0, cooldown: 1,
      conditions: [TimeBetween("03:00", "04:00"), Institution("taxi_rank")],
      effects: [GuestRush(guest: "taxi_drivers", count: (4, 6), within: 10, patience_mul: 0.6, orders: ["black_coffee"]),
@@ -150,8 +150,9 @@
     (id: "holo_flicker", kind: Uncanny, severity: 1, weight: 8.0, cooldown: 3,
      conditions: [TimeBetween("01:00", "04:00")],
      effects: [GuestRate(mul: 1.1, minutes: 60)]),
+    // T9: the cat keeps visiting after it was adopted (cat_stays) — each visit is a chance to
+    // grow its friendship (moments.ron → m_station_cat) towards the naming at level 10.
     (id: "station_cat", kind: Good, severity: 1, weight: 10.0, cooldown: 1,
-     conditions: [NotFlag("cat_adopted")],
      choices: [
         (id: "feed", cost: -10, effects: [Money(-10), AddCounter("cat_fed_nights", 1), StaffMood(2.0)]),
         (id: "shoo"),
