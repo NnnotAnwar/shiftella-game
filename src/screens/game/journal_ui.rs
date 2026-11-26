@@ -43,6 +43,8 @@ pub struct Photos {
     pub develop: f32,
     /// The night the morning pick belongs to.
     pub pick_night: u32,
+    /// The morning pick's sounds already played (bit 1 the shutter, bit 2 the print coming out).
+    pub pick_sounds: u8,
 }
 
 /// A stable key for a highlight's photo.
@@ -451,6 +453,7 @@ pub fn morning_pick(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) -
         g.photos.pick_night = night;
         g.photos.pick = 0;
         g.photos.develop = 0.0;
+        g.photos.pick_sounds = 0;
     }
     let pick = g.photos.pick.min(cands.len() - 1);
     let date = night_date(content, &g.world, night);
@@ -469,6 +472,15 @@ pub fn morning_pick(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) -
     };
     if big.photo.is_some() {
         g.photos.develop = (g.photos.develop + dt / 2.0 * shake).min(1.0);
+        // the shutter as the photo appears, then the print sliding out of the camera
+        if g.photos.pick_sounds & 1 == 0 {
+            g.photos.pick_sounds |= 1;
+            cx.audio.play_sfx_vol(crate::audio::Sfx::PhotoShutter, 0.8);
+        }
+        if g.photos.develop > 0.15 && g.photos.pick_sounds & 2 == 0 {
+            g.photos.pick_sounds |= 2;
+            cx.audio.play_sfx_vol(crate::audio::Sfx::PhotoEject, 0.7);
+        }
     }
     g.anchors.push((
         "summary.polaroid",
@@ -505,6 +517,7 @@ pub fn morning_pick(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) -
             if r.clicked {
                 g.photos.pick = i;
                 g.photos.develop = 0.75;
+                cx.audio.play_sfx_vol(crate::audio::Sfx::PhotoEject, 0.5);
             }
             x += sw + 16.0;
         }

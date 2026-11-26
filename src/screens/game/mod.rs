@@ -934,6 +934,10 @@ impl GameScreen {
             // package C: a corner forms, someone thanks you for what you built
             SimEvent::CornerFormed { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.5),
             SimEvent::BuildWishFulfilled { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.6),
+            // package K: a blanket over a sleeping guest's shoulders
+            SimEvent::MomentResolved { option, .. } if option == "blanket" => {
+                audio.play_sfx_vol(Sfx::Blanket, 0.8)
+            }
             _ => {}
         }
     }
@@ -1029,6 +1033,7 @@ impl GameScreen {
             (None, None) => audio.set_music(None),
         }
         audio.set_rain(self.world.weather().is_wet());
+        self.ambience_loops(audio, night);
         // café life: an occasional footstep / coffee machine while it is busy
         if night && self.speed > 0 {
             let m = self.world.minute();
@@ -1039,6 +1044,30 @@ impl GameScreen {
                     audio.play_sfx_vol(Sfx::Footsteps, 0.6);
                 }
             }
+        }
+    }
+
+    /// The CC0 loops inside the café (package K): the soup pot simmering on the stove (one
+    /// loop however many stoves, louder while it bubbles and asks for a stir) and the storm's
+    /// wind at the window. Not while Karolina is out on the walk home or the back step.
+    fn ambience_loops(&self, audio: &mut Audio, night: bool) {
+        use crate::audio::AmbLoop;
+        if !night || self.walk.is_open() {
+            return;
+        }
+        if let Some(p) = &self.world.equipment().pot {
+            let t = self.world.minutes_since_open();
+            let level = if p.bubbling_until.is_some_and(|u| t < u) {
+                1.0
+            } else if p.stirred_until.is_some_and(|u| t < u) {
+                0.7
+            } else {
+                0.45
+            };
+            audio.want_amb(AmbLoop::Soup, level);
+        }
+        if self.world.weather() == crate::content::Weather::Storm {
+            audio.want_amb(AmbLoop::Storm, 0.55);
         }
     }
 
@@ -2047,6 +2076,9 @@ impl GameScreen {
             margin: self.hands.last_margin.clone(),
             ..Default::default()
         });
+        self.hands
+            .equip_sounds
+            .push((crate::audio::Sfx::BookOpen, 0.7));
         self.hands.tut.bump("book_opened");
     }
 }

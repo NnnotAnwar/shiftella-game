@@ -7,8 +7,9 @@
 # executable is a tiny launcher script: it cds into Contents/Resources and
 # execs the real binary.
 #
-# Note: generated audio (assets/audio) is not in git (ElevenLabs licence);
-# it is bundled only if present locally.
+# Note: generated audio (assets/audio/music, assets/audio/sfx) is not in git
+# (ElevenLabs licence); it is bundled only if present locally. The CC0 sounds
+# (assets/audio/cc0, credits in assets/audio/CREDITS.md) are always bundled.
 set -eu
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"

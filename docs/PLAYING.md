@@ -180,6 +180,14 @@ to finish the story.
   her phone — from mum, her friend Terka or Mrs Marta, grandma's old neighbour; the messages
   follow the story's acts. The café simply waits while you are out (nobody minds). No stats —
   just an exhale. *Back inside* / Esc returns; it ends by itself after half a minute.
+* **What you hear** — keys in the lock, her steps on the wet pavement, the pigeons, the tram's
+  bell and her front door on the way home; the back door's creak, rain on the awning (the storm's
+  wind on a storm night), the phone buzzing and the cat's meow and purr (when it trusts her) on
+  the back step. In the café each chore at an appliance has its own sound (the machine's hiss,
+  the purge, the knock box, the pot lid and the simmering soup, the oven's ding, the fridge, the
+  till's coins, the trash bag and the door, the lamp switch), and the recipe book rustles. These
+  are CC0 recordings (credits in `assets/audio/CREDITS.md`) and play even in a source build;
+  the Sound slider and **M** cover them.
 
 ## The recipe book (K)
 
