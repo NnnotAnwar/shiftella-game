@@ -321,6 +321,9 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
             spend_mul: 1.1,
             orders: Vec::new(),
             wish: true,
+            // the nurse Karolina met on the tram comes on her own, never held back
+            crowd: false,
+            held: 0,
         });
     }
     w.walk.tonight = Some(id);

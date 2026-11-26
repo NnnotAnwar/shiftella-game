@@ -1358,7 +1358,7 @@ pub fn build_for_regulars(w: &mut World, content: &Content) {
 }
 
 /// 0.2 package C: the back room once there's money to spare (10 000 after the price), and the
-/// cheapest piece of grandma's attic now and then (12 000 to spare) — never the money for
+/// cheapest piece of grandma's attic every fourth day (20 000 to spare) — never the money for
 /// the debt payments of the next ten nights.
 pub fn build_extras(w: &mut World, content: &Content) {
     // nice-to-haves never touch the money for the debt payments of the next ten nights
@@ -1378,13 +1378,15 @@ pub fn build_extras(w: &mut World, content: &Content) {
     }
     let attic = w.attic(content);
     let free = w.money() - due;
+    // a piece now and then (every fourth day), not one each time there's money to spare
     if w.night() >= 8
+        && w.night().is_multiple_of(4)
         && let Some(o) = attic
             .offers
             .iter()
             .filter(|o| !o.owned)
             .min_by_key(|o| (o.price, o.id.clone()))
-        && free >= o.price as i64 + 12_000
+        && free >= o.price as i64 + 20_000
     {
         let _ = w.apply(content, Command::BuyAtticPiece { id: o.id.clone() });
     }
