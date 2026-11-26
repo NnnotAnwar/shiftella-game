@@ -821,6 +821,9 @@ pub struct World {
     /// T5 systems: moments, extras, atmosphere, journal, rozpis puzzle, the app as a tool.
     #[serde(default)]
     pub(crate) sys: super::systems::SystemsState,
+    /// The walk home and the back step (design/v0.2.md F; `sim::walk`).
+    #[serde(default)]
+    pub(crate) walk: super::walk::WalkState,
     #[serde(skip)]
     pub(crate) events: Vec<SimEvent>,
     #[serde(skip)]
@@ -904,6 +907,7 @@ impl World {
             relationships: BTreeMap::new(),
             hands: HandsState::default(),
             sys: Default::default(),
+            walk: Default::default(),
             events: Vec::new(),
             paths: PathCache::default(),
         }
@@ -1399,6 +1403,7 @@ impl World {
         super::music::on_night_start(self, content);
         super::tool::on_night_start(self, content);
         super::xlogic::run_next_night(self, content);
+        super::walk::on_night_start(self, content);
         super::rozpis::on_night_start(self, content);
         super::atmos::on_night_start(self, content);
         self.emit(SimEvent::NightStarted { night: self.night });

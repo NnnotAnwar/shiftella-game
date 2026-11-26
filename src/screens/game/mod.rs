@@ -24,6 +24,7 @@ mod phone_app;
 pub mod scene;
 mod scene_fx;
 pub mod tutorial;
+pub mod walk_home;
 pub mod world_view;
 
 use std::cell::RefCell;
@@ -276,6 +277,8 @@ pub struct GameScreen {
     pub photos: journal_ui::Photos,
     /// Plain toasts on screen (newest last): their ids, a signature and when they came.
     recent_toasts: std::collections::VecDeque<(ToastId, String, f32)>,
+    /// The walk home / the back step on screen (design/v0.2.md F).
+    pub walk: walk_home::WalkUi,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -358,6 +361,7 @@ impl GameScreen {
             cam_target: None,
             photos: journal_ui::Photos::default(),
             recent_toasts: Default::default(),
+            walk: Default::default(),
         }
     }
 
@@ -424,6 +428,7 @@ impl GameScreen {
             || self.cutscene_playing()
             || self.summary.is_some()
             || self.world.phase() == Phase::Day
+            || self.walk.is_open()
     }
 
     pub fn set_speed(&mut self, s: u8) {
@@ -1193,6 +1198,10 @@ impl GameScreen {
         for e in std::mem::take(&mut self.deferred) {
             self.handle_event(content, e, Some(&loc));
         }
+        // the walk home / the back step own the screen while they play
+        if walk_home::frame(self, ui, cx, dt) {
+            return;
+        }
 
         // camera fits the café on the first frame
         if !self.cam_ready {
@@ -1395,6 +1404,7 @@ impl GameScreen {
             if self.world.phase() == Phase::Night && self.summary.is_none() {
                 extras_ui::tip_goal(self, ui, cx);
                 extras_ui::napkin(self, ui, cx);
+                walk_home::backstep_chip(self, ui, cx);
             }
             // after the HUD and the rail: the bubble keeps clear of them
             if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {
@@ -1766,6 +1776,9 @@ impl GameScreen {
         if ui.key(KeyCode::M) {
             cx.audio.toggle_mute();
         }
+        if self.walk.is_open() {
+            return;
+        }
         if self.pause.is_some() {
             if ui.esc() {
                 self.pause = None;
@@ -1776,6 +1789,7 @@ impl GameScreen {
             if ui.enter() || ui.esc() || ui.key(KeyCode::Space) {
                 journal_ui::keep_morning(self, content);
                 self.summary = None;
+                walk_home::begin(self, content, None);
             }
             return;
         }

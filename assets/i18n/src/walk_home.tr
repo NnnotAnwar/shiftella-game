@@ -1,0 +1,403 @@
+# Karolina's own small life (design/v0.2.md F): the walk home after the morning summary and the
+# break on the back step. Data: assets/data/walk_home.ron. Karolina is addressed in the second
+# person (feminine forms in cs/uk/ru). Calm, short, never melodramatic.
+
+walk.title
+cs Kudy domů?
+en Which way home?
+uk Якою дорогою додому?
+ru Какой дорогой домой?
+
+walk.place
+cs Praha-Holešovice
+en Prague-Holešovice
+uk Прага-Голешовиці
+ru Прага-Голешовице
+
+walk.usual
+cs jako vždy
+en as usual
+uk як завжди
+ru как обычно
+
+walk.skip
+cs Přeskočit
+en Skip
+uk Пропустити
+ru Пропустить
+
+walk.home
+cs Doma.
+en Home.
+uk Удома.
+ru Дома.
+
+# --- the routes: chip label, chip hover (what it gives tonight), the toast when the night starts
+
+walk.route.embankment
+cs Nábřeží
+en Embankment
+uk Набережна
+ru Набережная
+
+walk.route.embankment.hint
+cs Podél Vltavy. Čistá hlava: rychlá káva ti dnes v noci půjde o kousek líp.
+en Along the Vltava. A clear head: your quick brews come out a touch better tonight.
+uk Уздовж Влтави. Ясна голова: швидкі напої сьогодні вночі вийдуть трохи кращими.
+ru Вдоль Влтавы. Ясная голова: быстрые напитки сегодня ночью выйдут чуть лучше.
+
+walk.route.embankment.tonight
+cs Pořád v sobě máš kus řeky — rychlá káva ti dnes jde klidně od ruky.
+en There's still a bit of the river in you — the quick brews come out steady tonight.
+uk У тобі ще трохи річки — швидкі напої сьогодні виходять рівно.
+ru В тебе ещё немного реки — быстрые напитки сегодня выходят ровно.
+
+walk.route.park
+cs Stromovka
+en Stromovka
+uk Стромовка
+ru Стромовка
+
+walk.route.park.hint
+cs Přes park. Klidný sál v prvních hodinách, hosté o trochu trpělivější.
+en Through the park. A calm hall for the first hours, guests a little more patient.
+uk Через парк. Спокійна зала в перші години, гості трохи терплячіші.
+ru Через парк. Спокойный зал в первые часы, гости чуть терпеливее.
+
+walk.route.park.tonight
+cs Ještě cítíš mokrou trávu ze Stromovky. Sál začíná noc v klidu.
+en You can still smell the wet grass of Stromovka. The hall starts the night calm.
+uk Ти ще відчуваєш мокру траву Стромовки. Зала починає ніч спокійно.
+ru Ты ещё чувствуешь мокрую траву Стромовки. Зал начинает ночь спокойно.
+
+walk.route.bakery
+cs Přes pekárnu
+en Bakery
+uk Повз пекарню
+ru Мимо пекарни
+
+walk.route.bakery.hint
+cs Kolem pekárny, co otvírá v šest. Koláč na pult: první čtyři hodiny útulněji.
+en Past the bakery that opens at six. A kolač for the counter: cozier for the first four hours.
+uk Повз пекарню, що відчиняється о шостій. Колач на прилавок: перші чотири години затишніше.
+ru Мимо пекарни, что открывается в шесть. Колач на стойку: первые четыре часа уютнее.
+
+walk.route.bakery.tonight
+cs Koláč z ranní pekárny čeká na pultu. Kavárna voní máslem a povidly.
+en The kolač from the morning bakery waits on the counter. The café smells of butter and plum jam.
+uk Колач із ранкової пекарні чекає на прилавку. Кав'ярня пахне маслом і сливовим повидлом.
+ru Колач из утренней пекарни ждёт на стойке. В кафе пахнет маслом и сливовым повидлом.
+
+walk.route.tram
+cs Tramvají
+en Tram
+uk Трамваєм
+ru На трамвае
+
+walk.route.tram.hint
+cs První tramvají. Někdo, koho tam potkáš, se večer zastaví.
+en The first tram. Someone you meet there drops by tonight.
+uk Першим трамваєм. Хтось, кого ти там зустрінеш, увечері зазирне.
+ru Первым трамваем. Кто-то, кого ты там встретишь, вечером заглянет.
+
+walk.route.tram.tonight
+cs Sestřička z ranní tramvaje říkala, že se možná zastaví. Drž jí místo v teple.
+en The nurse from the morning tram said she might drop by. Keep a seat warm for her.
+uk Медсестра з ранкового трамвая казала, що, може, зазирне. Притримай їй тепле місце.
+ru Медсестра из утреннего трамвая сказала, что, может, заглянет. Придержи ей тёплое место.
+
+walk.route.tram.arrived
+cs Sestřička z tramvaje je tady — mává ode dveří.
+en The nurse from the tram is here — she waves from the door.
+uk Медсестра з трамвая тут — махає від дверей.
+ru Медсестра из трамвая здесь — машет от двери.
+
+# --- lines on the way (two per walk; season / weather variants)
+
+walk.line.embankment.1
+cs Vltava má barvu čaje s mlékem. Kolem kotvících lodí pluje labuť.
+en The Vltava is the colour of milky tea. A swan drifts past the moored boats.
+uk Влтава кольору чаю з молоком. Повз пришвартовані човни пливе лебідь.
+ru Влтава цвета чая с молоком. Мимо пришвартованных лодок плывёт лебедь.
+
+walk.line.embankment.1.rain
+cs Déšť kreslí na řece kroužky. Lodě tiše ťukají o molo.
+en Rain draws rings on the river. The boats knock softly against the pier.
+uk Дощ малює на річці кола. Човни тихо стукаються об пірс.
+ru Дождь рисует на реке круги. Лодки тихо стукаются о причал.
+
+walk.line.embankment.1.fog
+cs Na vodě leží mlha. Druhý břeh je jen řada světýlek.
+en Fog lies on the water. The far bank is just a row of lights.
+uk Над водою лежить туман. Протилежний берег — лише ряд вогників.
+ru На воде лежит туман. Дальний берег — просто ряд огоньков.
+
+walk.line.embankment.1.snow
+cs Sníh na zábradlí. Tvoje stopy jsou na nábřeží první.
+en Snow on the railings. Yours are the first footprints on the embankment.
+uk Сніг на поруччі. Твої сліди на набережній — перші.
+ru Снег на перилах. Твои следы на набережной — первые.
+
+walk.line.embankment.2
+cs Nebe nad Letnou broskvově zrůžoví. Někde zazvoní tramvaj.
+en The sky over Letná turns peach. Somewhere a tram bell rings.
+uk Небо над Летною стає персиковим. Десь дзенькає трамвай.
+ru Небо над Летной становится персиковым. Где-то звенит трамвай.
+
+walk.line.embankment.2.frost
+cs Jinovatka na lavičkách. Dech ti visí ve vzduchu jako malý mráček.
+en Frost on the benches. Your breath hangs in the air like a small cloud.
+uk Іній на лавках. Подих висить у повітрі, наче маленька хмарка.
+ru Иней на скамейках. Дыхание висит в воздухе, как маленькое облачко.
+
+walk.line.embankment.2.festive
+cs Světýlka na lodích, na jedné palubě stromeček. I řeka slaví.
+en Lights on the boats, a little tree on someone's deck. The river celebrates too.
+uk Вогники на човнах, на чиїйсь палубі ялинка. Річка теж святкує.
+ru Огоньки на лодках, на чьей-то палубе ёлочка. Река тоже празднует.
+
+walk.line.park.1
+cs Stromovka ještě spí. Jen kosi a běžec ve žluté čepici.
+en Stromovka is still asleep. Only the blackbirds and a jogger in a yellow cap.
+uk Стромовка ще спить. Тільки дрозди й бігун у жовтій шапці.
+ru Стромовка ещё спит. Только дрозды и бегун в жёлтой шапке.
+
+walk.line.park.1.rain
+cs Mokré listí na cestě a v každé louži kousek nebe.
+en Wet leaves on the path, and a piece of sky in every puddle.
+uk Мокре листя на стежці, і в кожній калюжі — шматочок неба.
+ru Мокрые листья на дорожке, и в каждой луже — кусочек неба.
+
+walk.line.park.1.frost
+cs Tráva je bílá jinovatkou a křupe pod botami.
+en The grass is white with frost and crunches under your boots.
+uk Трава біла від інею й хрумтить під черевиками.
+ru Трава белая от инея и хрустит под ботинками.
+
+walk.line.park.1.snow
+cs Park je bílý a tichý. Nějaký pes skáče sněhem a má ohromnou radost.
+en The park is white and quiet. A dog bounds through the snow, delighted.
+uk Парк білий і тихий. Якийсь пес стрибає снігом і страшенно радіє.
+ru Парк белый и тихий. Какая-то собака скачет по снегу и ужасно рада.
+
+walk.line.park.2
+cs Na lavičce u rybníka chvilka jen tak dýchat.
+en A bench by the pond, and a moment just to breathe.
+uk Лавка біля ставка — і хвилинка просто подихати.
+ru Скамейка у пруда — и минутка просто подышать.
+
+walk.line.park.2.fog
+cs Staré stromy vystupují z mlhy jeden po druhém jako opozdilí hosté.
+en The old trees step out of the fog one by one, like late guests.
+uk Старі дерева виходять із туману одне за одним, наче запізнілі гості.
+ru Старые деревья выходят из тумана одно за другим, как запоздавшие гости.
+
+walk.line.bakery.1
+cs Pekárna na rohu právě vytahuje roletu. Teplé světlo, teplý chleba.
+en The bakery on the corner is just raising its shutter. Warm light, warm bread.
+uk Пекарня на розі якраз піднімає ролети. Тепле світло, теплий хліб.
+ru Пекарня на углу как раз поднимает жалюзи. Тёплый свет, тёплый хлеб.
+
+walk.line.bakery.1.rain
+cs Déšť bubnuje na markýzu pekárny. Uvnitř to voní kváskem a kmínem.
+en Rain drums on the bakery's awning. Inside it smells of sourdough and caraway.
+uk Дощ барабанить по маркізі пекарні. Усередині пахне закваскою й кмином.
+ru Дождь барабанит по навесу пекарни. Внутри пахнет закваской и тмином.
+
+walk.line.bakery.1.festive
+cs Perníková srdce ve výloze a pekařka si brouká koledu.
+en Gingerbread hearts in the window, and the baker humming a carol.
+uk Пряникові сердечка у вітрині, і пекарка мугикає колядку.
+ru Пряничные сердечки в витрине, и пекарша напевает рождественскую песенку.
+
+walk.line.bakery.2
+cs „Pro tvoje noční sovy,“ říká pekařka a balí koláč do papíru.
+en "For your night owls," says the baker, wrapping a kolač in paper.
+uk «Для твоїх нічних сов», — каже пекарка й загортає колач у папір.
+ru «Для твоих ночных сов», — говорит пекарша и заворачивает колач в бумагу.
+
+walk.line.bakery.2.cold
+cs Papírový sáček ti celou cestu domů hřeje studené ruce.
+en The paper bag keeps your cold hands warm all the way home.
+uk Паперовий пакет гріє холодні руки всю дорогу додому.
+ru Бумажный пакет греет холодные руки всю дорогу до дома.
+
+walk.line.tram.1
+cs První tramvaj vyjíždí z rozbřesku, skoro prázdná a teple osvětlená.
+en The first tram glides out of the dawn, nearly empty and warmly lit.
+uk Перший трамвай випливає зі світанку, майже порожній і тепло освітлений.
+ru Первый трамвай выплывает из рассвета, почти пустой и тепло освещённый.
+
+walk.line.tram.1.rain
+cs Déšť na oknech tramvaje. Do zamlženého skla nakreslíš malé srdíčko.
+en Rain on the tram windows. You draw a little heart in the misted glass.
+uk Дощ на вікнах трамвая. Ти малюєш сердечко на запітнілому склі.
+ru Дождь на окнах трамвая. Ты рисуешь сердечко на запотевшем стекле.
+
+walk.line.tram.1.festive
+cs Někdo pověsil na madlo v tramvaji hvězdu z flitrů.
+en Someone has hung a tinsel star from the tram's handrail.
+uk Хтось почепив на поручень трамвая зірку з мішури.
+ru Кто-то повесил на поручень трамвая звезду из мишуры.
+
+walk.line.tram.1.snow
+cs Tramvaj prořízne čerstvým sněhem dvě tmavé čáry.
+en The tram cuts two dark lines through the fresh snow.
+uk Трамвай прорізає у свіжому снігу дві темні лінії.
+ru Трамвай прорезает в свежем снегу две тёмные линии.
+
+walk.line.tram.2
+cs Vedle tebe si sedne sestřička po noční. Povídáte si až k její zastávce.
+en A nurse after her night shift sits down beside you. You talk all the way to her stop.
+uk Поруч сідає медсестра після нічної зміни. Ви балакаєте аж до її зупинки.
+ru Рядом садится медсестра после ночной смены. Вы болтаете до самой её остановки.
+
+# --- the back step: the HUD chip, the way back in, who writes
+
+walk.backstep.chip
+cs Na chvilku ven
+en Step out back
+uk Вийти на хвилинку
+ru Выйти на минутку
+
+walk.backstep.chip_tip
+cs Nadechnout se na zadním schodu (jednou za noc). Kavárna počká — nikomu to nevadí.
+en A breath of air on the back step (once a night). The café waits — nobody minds.
+uk Подихати на задньому ґанку (раз за ніч). Кав'ярня зачекає — ніхто не проти.
+ru Подышать на заднем крыльце (раз за ночь). Кафе подождёт — никто не против.
+
+walk.backstep.back
+cs Zpátky dovnitř
+en Back inside
+uk Назад усередину
+ru Обратно внутрь
+
+walk.from.mum
+cs Máma
+en Mum
+uk Мама
+ru Мама
+
+walk.from.friend
+cs Terka
+en Terka
+uk Терка
+ru Терка
+
+walk.from.neighbour
+cs paní Marta
+en Mrs Marta
+uk пані Марта
+ru пани Марта
+
+# --- the messages (act 1: she has just taken over grandma's café)
+
+walk.msg.mum_first_week
+cs Jak první týden? Babička by byla štěstím bez sebe. A jez i něco jiného než koláče.
+en How's the first week? Grandma would be over the moon. And eat something that isn't cake.
+uk Як перший тиждень? Бабуся була б щаслива. І їж щось, окрім тістечок.
+ru Как первая неделя? Бабушка была бы счастлива. И ешь что-нибудь, кроме пирожных.
+
+walk.msg.marta_window
+cs Zase jsem večer viděla světlo v Lidině okně. Trochu jsem si poplakala — ale tak hezky.
+en I saw the light in Lida's window again tonight. I cried a little — the good kind.
+uk Знову бачила ввечері світло у вікні Ліди. Трохи поплакала — але по-доброму.
+ru Снова видела вечером свет в окне у Лиды. Немножко поплакала — но по-хорошему.
+
+walk.msg.terka_proud
+cs O půlnoci jsem šla kolem tvojí kavárny. Svítí jako lucerna. Jsem na tebe pyšná, šéfová.
+en Walked past your café at midnight. It glows like a lantern. Proud of you, boss.
+uk Опівночі проходила повз твою кав'ярню. Світиться, як ліхтарик. Пишаюся тобою, шефине.
+ru В полночь проходила мимо твоего кафе. Светится, как фонарик. Горжусь тобой, начальница.
+
+# act 2: the regulars, the café finds its feet
+
+walk.msg.mum_dad
+cs Táta tě pozdravuje. Chce přijet ochutnat tu slavnou kávu. Varuju tě: bude chtít tři cukry.
+en Dad says hi. He wants to come and try the famous coffee. Be warned: he'll want three sugars.
+uk Тато вітає. Хоче приїхати скуштувати ту знамениту каву. Попереджаю: попросить три цукри.
+ru Папа передаёт привет. Хочет приехать попробовать тот самый кофе. Предупреждаю: попросит три сахара.
+
+walk.msg.terka_visit
+cs V sobotu přijdu s knížkou a zůstanu až do vlaků. Schováš mi místo v rohu?
+en Saturday I'm coming with a book and staying till the trains. Save me the corner seat?
+uk У суботу прийду з книжкою й сидітиму до потягів. Притримаєш мені місце в куточку?
+ru В субботу приду с книжкой и останусь до поездов. Придержишь мне место в уголке?
+
+walk.msg.marta_lida_dance
+cs Víš, že tvoje babička jednou tancovala na tom pultu? Silvestr třiaosmdesát. Mámě neříkej, že to máš ode mě.
+en Did you know your grandma once danced on that counter? New Year's Eve, '83. Don't tell your mother you heard it from me.
+uk А ти знала, що твоя бабуся якось танцювала на тому прилавку? Новий рік, вісімдесят третій. Мамі не кажи, що це я розповіла.
+ru А ты знала, что твоя бабушка однажды танцевала на этой стойке? Новый год, восемьдесят третий. Маме не говори, что это я рассказала.
+
+# act 3: the offers, the doubts
+
+walk.msg.mum_whatever_you_choose
+cs Ať se s kavárnou rozhodneš jakkoli, jsme na tebe pyšní. Nemusíš to nést sama.
+en Whatever you decide about the café, we're proud of you. You don't have to carry it alone.
+uk Хоч би що ти вирішила з кав'ярнею, ми тобою пишаємося. Ти не мусиш нести це сама.
+ru Что бы ты ни решила с кафе, мы тобой гордимся. Тебе не нужно нести это одной.
+
+walk.msg.marta_geraniums
+cs Zalila jsem Lidiny muškáty na balkoně. Pořád kvetou, tvrdohlavé. Jako ty.
+en I watered Lida's geraniums on the balcony. Still blooming, the stubborn things. Like you.
+uk Полила Лідині герані на балконі. Досі цвітуть, уперті. Як ти.
+ru Полила Лидины герани на балконе. До сих пор цветут, упрямые. Как ты.
+
+walk.msg.terka_tired
+cs Do telefonu jsi zněla unaveně. Zítra se vyspi, přinesu ti polévku a nebudu chytračit.
+en You sounded tired on the phone. Sleep tomorrow — I'll bring you soup and say nothing clever.
+uk По телефону ти здавалася втомленою. Завтра виспись — я принесу суп і не мудруватиму.
+ru По телефону ты казалась уставшей. Завтра выспись — я принесу суп и не буду умничать.
+
+# act 4: winter, the last stretch
+
+walk.msg.mum_christmas
+cs Vánoce u nás, nebo přijdeme všichni do kavárny? Brácha hlasuje pro kavárnu.
+en Christmas at ours, or shall we all come to the café? Your brother votes café.
+uk Різдво в нас чи ми всі прийдемо до кав'ярні? Брат голосує за кав'ярню.
+ru Рождество у нас или мы все придём в кафе? Брат голосует за кафе.
+
+walk.msg.marta_snow
+cs První sníh na střeše nádraží. Lida vždycky říkala, že noční kavárna hřeje nejvíc, když sněží.
+en First snow on the station roof. Lida always said a night café is warmest when it snows.
+uk Перший сніг на даху вокзалу. Ліда завжди казала: нічна кав'ярня найтепліша, коли падає сніг.
+ru Первый снег на крыше вокзала. Лида всегда говорила: ночное кафе теплее всего, когда идёт снег.
+
+walk.msg.terka_light
+cs Ať se stane cokoli — nenechala jsi to světlo zhasnout. To se počítá.
+en Whatever happens next — you kept the light on. That counts for a lot.
+uk Хай там що — ти не дала світлу згаснути. Це багато важить.
+ru Что бы ни случилось дальше — ты не дала свету погаснуть. Это многое значит.
+
+# any night (and the sandbox)
+
+walk.msg.mum_eat
+cs Jedla jsi? Něco pořádného, ne croissant ve čtyři ráno.
+en Did you eat? A real meal, not a croissant at four in the morning.
+uk Ти їла? Щось нормальне, а не круасан о четвертій ранку.
+ru Ты ела? Что-нибудь нормальное, а не круассан в четыре утра.
+
+walk.msg.terka_meme
+cs Posílám ti fotku kočky v malinké pláštěnce. To je všechno. To je ta zpráva.
+en Sending you a photo of a cat in a tiny raincoat. That's it. That's the message.
+uk Надсилаю тобі фото кота в крихітному дощовику. Це все. Це і є повідомлення.
+ru Отправляю тебе фото кота в крошечном дождевике. Всё. Это и есть сообщение.
+
+walk.msg.marta_soup
+cs Nechala jsem ti u dveří hrnec polévky. Hrnec vrať, až budeš moct, nespěchá to.
+en I left a pot of soup by your door. Bring the pot back whenever, no hurry.
+uk Залишила біля твоїх дверей каструлю супу. Каструлю повернеш, коли зможеш, не поспішай.
+ru Оставила у твоей двери кастрюлю супа. Кастрюлю вернёшь, когда сможешь, не спеши.
+
+walk.msg.mum_sleep
+cs Napiš mi, až budeš doma. Já vím, já vím. Stejně napiš.
+en Text me when you're home. I know, I know. Text me anyway.
+uk Напиши, як будеш удома. Знаю, знаю. Все одно напиши.
+ru Напиши, когда будешь дома. Знаю, знаю. Всё равно напиши.
+
+walk.msg.terka_song
+cs V rádiu hrála písnička, co zní přesně jako tvoje kavárna ve tři ráno. Posílám ti ji.
+en A song on the radio sounds exactly like your café at 3 a.m. Sending it to you.
+uk По радіо грала пісня, яка звучить точнісінько як твоя кав'ярня о третій ночі. Надсилаю.
+ru По радио играла песня, которая звучит точь-в-точь как твоё кафе в три часа ночи. Отправляю.

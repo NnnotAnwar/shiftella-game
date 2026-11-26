@@ -88,9 +88,11 @@
 
 #![allow(clippy::too_many_arguments)]
 
+pub mod backstep;
 mod brand;
 pub mod cat;
 pub mod colors;
+pub mod dawn;
 pub mod draw;
 pub mod faces;
 mod festive;

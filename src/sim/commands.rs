@@ -654,6 +654,8 @@ impl World {
                 super::staff::start_break(self, i, task);
                 Ok(())
             }
+            Command::WalkHome { route } => super::walk::walk_home(self, &route),
+            Command::StepOutBack => super::walk::step_out_back(self, content),
             Command::OpenDoors => {
                 if !self.in_prep() {
                     return Err(CommandError::WrongPhase);

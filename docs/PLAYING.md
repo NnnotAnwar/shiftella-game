@@ -113,6 +113,32 @@ opening ritual.
   (drag over it to shake it faster); click one of the two small ones to keep that instead.
   The journal keeps one per night — thirty slots in the story.
 
+## Karolina's own small life: the walk home and the back step
+
+* **The walk home** — after the morning summary Karolina locks the café and walks home through
+  dawn Holešovice (about 20 seconds: the sky goes from indigo to peach, the lamps go out,
+  pigeons take off). While she locks up, a small row asks **Which way home?** — one click (or
+  **1–4**); otherwise she takes her usual way (the last one you picked) after a few seconds.
+  **Space / Enter / Esc** or *Skip* ends it at once. Each way gives the *next* night one small,
+  cozy touch (hover a chip to see it), nothing more:
+  * **Embankment** — along the Vltava (the bridge, houseboats, a swan): quick brews a touch
+    better tonight (+0.05 quality).
+  * **Stromovka** — through the park: a calm hall for the first 90 minutes and guests a little
+    more patient for the first 2½ hours (×1.08).
+  * **Bakery** — past the corner bakery opening at six: a kolač on the counter, coziness +3
+    for the first four hours.
+  * **Tram** — the first tram; you talk to a nurse after her night shift, and tonight she drops
+    by (around 22:55, with a wish).
+  The lines on the way change with the season (frost, Advent lights, the first snow with your
+  footprints) and the weather (rain and an umbrella, fog). Skipping never costs anything.
+* **A break on the back step** — at night, from 22:30 to 05:40 and not during a rush, a small
+  chip **Step out back** sits beside the atmosphere meter, once a night. Karolina sits on the
+  step with a cup: rain dripping off the awning (or snow, or stars), a night train behind the
+  fence, the station cat comes over (closer the more it trusts you), and a message arrives on
+  her phone — from mum, her friend Terka or Mrs Marta, grandma's old neighbour; the messages
+  follow the story's acts. The café simply waits while you are out (nobody minds). No stats —
+  just an exhale. *Back inside* / Esc returns; it ends by itself after half a minute.
+
 ## The recipe book (K)
 
 Drinks, food and specials you know (with grandma's notes, how often you've made them and
@@ -213,3 +239,8 @@ picture isn't needed.
 
 `SHIFTELLA_TIME=HH:MM` also takes the preparation half hour: `21:30`–`21:59` start the night
 before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`).
+
+`SHIFTELLA_SCENE=walk_home|walk_home_rain|walk_home_snow|backstep|backstep_snow` shows the walk
+home (after the night's summary) or the back step; `SHIFTELLA_ROUTE=embankment|park|bakery|tram`
+picks the way, `SHIFTELLA_T=<seconds>` jumps into the scene, `SHIFTELLA_WEATHER=rain|downpour|fog|snow|clear`
+sets the sky, `SHIFTELLA_NIGHT` the season.

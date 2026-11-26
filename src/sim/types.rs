@@ -1009,6 +1009,13 @@ pub enum Command {
     SetTutorial {
         on: bool,
     },
+    /// The walk home after the morning summary (day, once): the route's small modifier runs
+    /// when the next night starts (`sim::walk`).
+    WalkHome {
+        route: String,
+    },
+    /// A break on the back step (night, once, not in a rush): picks tonight's phone message.
+    StepOutBack,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
