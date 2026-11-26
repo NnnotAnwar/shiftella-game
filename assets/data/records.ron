@@ -1,0 +1,43 @@
+// Grandma Lida's jukebox: six real records (design/handson.md §10). Files assets/audio/music/<track>.ogg
+// (not committed). Keys: record.<id>.title/.artist, non-starters also .hint (locked sleeve) and .source
+// (unlock toast); bubbles record.<id>.liked.<regular> / .disliked.<regular>; hall_mood.<mood>.
+// seconds = one pass, measured with ffprobe (ends a Play-once pass; macroquad has no end callback).
+#![enable(implicit_some)]
+(
+    house: (calm: "mus_night_calm_loop", rush: "mus_rush_loop", quiet: "jukebox_piano_trio", quiet_volume: 0.7,
+            day: "mus_menu_theme"),
+    rules: (
+        like_minutes: 5, like_trust: 2.0, request_trust: 3.0,
+        dislike_satisfaction: -2.0, archetype_like: 2.0, archetype_dislike: -1.0,
+        crossfade_s: 2.5, needle_volume: 0.3,
+        sandbox_nights: [4, 8, 12],
+    ),
+    moods: [
+        (mood: Lively, tips_mul: 1.08, helper_speed_mul: 1.05, stay_mul: 0.95,
+         wish_mul: [(Sweet, 1.3), (Fancy, 1.3)]),
+        (mood: Calm, stay_mul: 1.1, coziness: 3.0, wish_mul: [(Mild, 1.3), (Comforting, 1.3)]),
+        (mood: Dreamy, wish_mul: [(Fancy, 1.3), (Cold, 1.3), (Fresh, 1.3)],
+         satisfaction: [(archetypes: ["students", "travelers"], value: 2.0)]),
+        (mood: Tender, coziness: 4.0, moment_weight: [("m_sleeping_guest", 2.0)],
+         patience: [(archetypes: ["insomniacs", "nurses"], value: 1.2)]),
+        (mood: Nostalgic, wish_mul: [(Comforting, 1.3)], elder_trust: (60, 1.0)),
+    ],
+    records: [
+        (id: "rec_prague_swing", mood: Lively, track: "jukebox_prague_swing", seconds: 95.03,
+         liked_by: ["mirek", "radek"], sleeve: (color: "#C9A46B", motif: Tram)),
+        (id: "rec_piano_trio", mood: Calm, track: "jukebox_piano_trio", seconds: 95.09,
+         liked_by: ["radek", "guest_anwar"], sleeve: (color: "#3D3A5C", motif: PianoKeys)),
+        (id: "rec_bossa_rain", mood: Dreamy, track: "jukebox_bossa_rain", seconds: 95.09,
+         liked_by: ["lori"], disliked_by: ["mirek"], sleeve: (color: "#5EC4B6", motif: Raindrops)),
+        (id: "rec_folk_lullaby", mood: Tender, track: "jukebox_folk_lullaby", seconds: 95.03,
+         unlock: When([Any([HiredArchetype("sound_tech"), ArcAtLeast("hana", 2), NightAtLeast(13)])]),
+         sandbox_night: 4, liked_by: ["hana", "vera"], sleeve: (color: "#E0A96D", motif: Sunflower)),
+        (id: "rec_synth_2039", mood: Dreamy, track: "jukebox_synth_2039", seconds: 95.10,
+         unlock: When([Any([Flag("filip_friends"), NightAtLeast(16)])]),
+         sandbox_night: 8, liked_by: ["filip", "guest_anwar"], disliked_by: ["vera"],
+         sleeve: (color: "#6366F1", motif: SynthGrid)),
+        (id: "rec_cafe_waltz", mood: Nostalgic, track: "jukebox_cafe_waltz", seconds: 95.03,
+         unlock: When([Any([NotesFoundAtLeast(3), NightAtLeast(20)])]),
+         sandbox_night: 12, liked_by: ["vera", "mirek", "guest_333"], sleeve: (color: "#B5475B", motif: Rose)),
+    ],
+)

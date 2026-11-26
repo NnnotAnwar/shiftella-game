@@ -1,0 +1,91 @@
+// Mini-game tuning per kind and variant (design/handson.md §2). Text keys minigame.* / latte.* live in
+// assets/i18n/src/minigame.tr (mini-game agent). Variant ids follow src/minigame Variation::from_variant_id
+// (froth: cappuccino/chocolate/raf; tea: lemon/two_sugars; latte: pattern ids; plate: dish ids); other ids
+// fall back to the defaults there until the mini-game reads these rows.
+// Recipes name their variants in recipes.ron. Guide polylines live in src/minigame (normalised 0..1).
+#![enable(implicit_some)]
+(
+    common: (skip_quality: 0.7, relaxed_tolerance_mul: 1.6, relaxed_floor: 0.5, seconds: (8.0, 20.0), toast_seconds: 1.2),
+    quality_tiers: (beautiful: 0.9, lovely: 0.7, good: 0.4),
+
+    milk_froth: [
+        (variant: "cappuccino", t_target: 62.0, tol: 4.0, foam: 0.6, foam_tol: 0.3, t_weight: 0.75,
+         seasonal_dust: true, seconds: (6.0, 10.0)),
+        (variant: "chocolate", t_target: 58.0, tol: 6.0, foam: 0.3, foam_tol: 0.3, t_weight: 0.75,
+         seasonal_dust: true, seconds: (6.0, 10.0)),
+        (variant: "raf", t_target: 60.0, tol: 4.0, foam: 0.5, foam_tol: 0.3, t_weight: 0.75,
+         tap: (id: "vanilla", window_s: 0.4, weight: 0.15), seconds: (7.0, 11.0)),
+        (variant: "encore", t_target: 58.0, tol: 6.0, foam: 0.3, foam_tol: 0.3, t_weight: 0.75,
+         tap: (id: "chili", window_s: 0.4, weight: 0.15), seconds: (7.0, 11.0)),
+        // svařák until MulledSpice ships: warm the wine, no foam to speak of
+        (variant: "svarak", t_target: 70.0, tol: 6.0, foam: 0.0, foam_tol: 0.3, t_weight: 0.9, seconds: (6.0, 10.0)),
+    ],
+
+    latte_art: (
+        samples: 48, cover_px: 12.0, stray_px: 24.0, coverage_weight: 0.6, wobble_window_s: 0.35,
+        seconds: (8.0, 14.0),
+        variants: [(variant: "flat_white"), (variant: "moon", pattern: "moon")],
+    ),
+
+    pour_over: [
+        (variant: "classic", bpm: 48.0, bloom_hold_s: 1.0, bloom_s: 2.0, rev_per_s: (0.6, 1.2),
+         beat_window_s: 0.2, weights: (0.5, 0.3, 0.2), seconds: (12.0, 18.0)),
+        (variant: "turek", bpm: 48.0, bloom_hold_s: 1.0, bloom_s: 0.0, rev_per_s: (0.6, 1.2),
+         beat_window_s: 0.2, weights: (0.5, 0.3, 0.2), stirs: 3, settle_s: 3.0, seconds: (10.0, 14.0)),
+        (variant: "night_train", bpm: 48.0, bloom_hold_s: 1.0, bloom_s: 2.0, rev_per_s: (0.6, 1.2),
+         beat_window_s: 0.2, weights: (0.5, 0.3, 0.2), dust_tap: true, seconds: (13.0, 18.0)),
+        (variant: "tonic", bpm: 40.0, bloom_hold_s: 0.0, bloom_s: 0.0, rev_per_s: (0.4, 0.9),
+         beat_window_s: 0.25, weights: (0.6, 0.4, 0.0), slow_pour: true, seconds: (10.0, 14.0)),
+    ],
+
+    tea_steep: [
+        (variant: "lemon", target: 3.0, tol: 1.5, lemon: true, lemon_px: 25.0, tea_kind: "black", seconds: (8.0, 12.0)),
+        (variant: "chai", target: 4.0, tol: 1.5, milk_hold: true, tea_kind: "black", seconds: (10.0, 14.0)),
+        (variant: "linden", target: 2.5, tol: 1.5, tea_kind: "herbal", seconds: (8.0, 12.0)),
+        (variant: "two_sugars", target: 3.0, tol: 1.5, lemon: true, lemon_px: 25.0, sugar: 2, tea_kind: "black", seconds: (9.0, 13.0)),
+        (variant: "tatra", target: 3.5, tol: 1.5, lemon: true, lemon_px: 25.0, tea_kind: "herbal", seconds: (9.0, 13.0)),
+        (variant: "uzvar", target: 3.0, tol: 1.5, tea_kind: "fruit", seconds: (8.0, 12.0)),
+    ],
+
+    plate: [
+        // dish = the PlateSet the mini-game draws today; others are picked by seed until their layouts exist
+        (variant: "topinka", dish: "topinka", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5,
+         gesture: GarlicRub, advent_twig: true, seconds: (8.0, 13.0)),
+        (variant: "chlebicek", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (9.0, 15.0)),
+        (variant: "kolac", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (8.0, 12.0)),
+        (variant: "medovnik", dish: "medovnik", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (8.0, 12.0)),
+        (variant: "varenyky", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (9.0, 14.0)),
+        (variant: "pirohy", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (9.0, 14.0)),
+        (variant: "buchty", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (8.0, 12.0)),
+        (variant: "vera_kolac", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (8.0, 12.0)),
+        // soups until SoupStir ships
+        (variant: "soup", dish: "soup", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (8.0, 12.0)),
+    ],
+
+    soup_stir: [
+        (variant: "garlic", adds: ["garlic", "croutons"], add_window_s: 0.5, seconds: (12.0, 16.0)),
+        (variant: "kulajda", adds: ["mushrooms", "dill"], add_window_s: 0.5, finish_tap: true, seconds: (14.0, 18.0)),
+        (variant: "borscht", adds: ["beetroot", "smetana"], add_window_s: 0.5, seconds: (12.0, 18.0)),
+    ],
+
+    mulled_spice: [
+        (variant: "svarak", spices: ["cinnamon", "clove", "orange", "honey_drop"],
+         tray: ["cinnamon", "clove", "star_anise", "orange", "honey_drop", "ginger"],
+         wrong_penalty: 0.15, band_s: 3.0, seconds: (12.0, 16.0)),
+    ],
+
+    latte_patterns: [
+        (id: "heart", from_night: 1),
+        (id: "tulip", from_night: 5),
+        (id: "rosetta", from_night: 10),
+        (id: "leaf", from_night: 14),
+        (id: "swan", from_night: 20),
+        // also unlocked by the frost phase and by m_first_snow
+        (id: "snowflake", when: [Any([NightAtLeast(21), Weather(Snow), SeasonPhase("frost"), SeasonPhase("first_snow")])], granted: true),
+        (id: "moon", recipe: "r_moon_latte"),
+        (id: "train", when: [Any([NightBetween(23, 23), NightBetween(30, 30)])]),
+        (id: "cat", when: [CounterAtLeast("cat_affection", 3)]),
+        (id: "note", when: [RegularPresent("lori")]),
+        (id: "heart_l", when: [ArcAtLeast("vera", 4)], tier: Should),
+    ],
+)

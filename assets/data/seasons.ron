@@ -1,0 +1,43 @@
+// Season phases (design/handson.md §11.1). Story calendar: story.ron → calendar (night 1 = Mon 7 Nov 2039).
+// Keys: season.<id>.name / season.<id>.toast (soft toast on SeasonPhaseChanged at day start).
+// visuals.garlands = garlands *allowed*; they render once flag `garlands_up` is set (m_hang_garlands).
+// Sandbox: town.season advances every 30 nights; `sandbox` maps night-of-season → phase.
+#![enable(implicit_some)]
+(
+    phases: [
+        (id: "late_autumn", story_nights: (1, 13),
+         visuals: (leaves: true, steam: 0.3),
+         wish_mul: [(Warm, 1.2)],
+         specials: ["r_chai", "r_linden_tea"]),
+        (id: "frost", story_nights: (14, 20),
+         visuals: (leaves: true, frost: 0.5, breath: true, steam: 0.5),
+         wish_mul: [(Warm, 1.4), (Cold, 0.6)], latte: ["snowflake"],
+         specials: ["r_svarak", "r_kulajda", "r_borscht"]),
+        (id: "advent", story_nights: (21, 26),
+         visuals: (frost: 0.6, breath: true, garlands: true, wreath: true, sign_star: true, steam: 0.6),
+         wish_mul: [(Warm, 1.4), (Spiced, 1.3)], latte: ["snowflake"],
+         moments: ["m_hang_garlands", "m_advent_candle"],
+         specials: ["r_svarak", "r_buchty"]),
+        (id: "first_snow", story_nights: (27, 30),
+         visuals: (frost: 0.8, breath: true, garlands: true, wreath: true, snow: true, sign_star: true, steam: 0.8),
+         wish_mul: [(Warm, 1.5)], latte: ["snowflake"],
+         moments: ["m_first_snow", "m_mikulas", "m_hang_garlands"],
+         specials: ["r_svarak", "r_buchty", "r_hot_chocolate"]),
+        // sandbox only
+        (id: "spring",
+         visuals: (petals: true, steam: 0.2),
+         wish_mul: [(Fresh, 1.2)], moment_weight: [("m_stuffy_window", 3.0)],
+         specials: ["r_lemon_tea", "r_tatra_tea"]),
+        (id: "summer",
+         visuals: (steam: 0.1),
+         wish_mul: [(Cold, 1.5), (Fresh, 1.5)], moment_weight: [("m_stuffy_window", 2.0)],
+         specials: ["r_espresso_tonic", "r_chlebicek"]),
+    ],
+    sandbox: [
+        (season: Spring, nights: (1, 30), phase: "spring"),
+        (season: Summer, nights: (1, 30), phase: "summer"),
+        (season: Autumn, nights: (1, 30), phase: "late_autumn"),
+        (season: Winter, nights: (1, 20), phase: "frost"),
+        (season: Winter, nights: (21, 30), phase: "first_snow"),
+    ],
+)

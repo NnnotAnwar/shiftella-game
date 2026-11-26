@@ -1,0 +1,42 @@
+// The polaroid journal (design/handson.md §11.4). The sim records highlights (kind + score + SceneSnap),
+// keeps the top `keep_per_night`, and the morning shows the best one developing.
+// Captions: journal.caption.<kind>; ArcBeat → journal.caption.arc.<regular>.<stage>;
+// StoryScene → journal.caption.scene.<cutscene>; MomentWarm → journal.caption.moment.<moment>.
+#![enable(implicit_some)]
+(
+    keep_per_night: 3,
+    repeat_kind_penalty: 20,
+    arc_good_bonus: 10,
+    snap_tiles: (10, 8),
+    fallback: (at: "03:00", focus_tag: "window"),
+    full_house_share: 0.9,
+    beautiful_latte_quality: 0.95,
+    cat_level_min: 4,
+    rules: [
+        (kind: Guest333, score: 90, repeat_score: 40),
+        (kind: FirstSnow, score: 85),
+        (kind: ArcBeat, score: 80),
+        (kind: Mikulas, score: 75),
+        (kind: StoryScene, score: 70),
+        (kind: GarlandsUp, score: 70),
+        (kind: CozyLikeHome, score: 60),
+        (kind: PerfectServe, score: 55, placeholders: ["name"]),
+        (kind: CatLevel, score: 55),
+        (kind: FullHouse, score: 50),
+        (kind: BeautifulLatte, score: 45, placeholders: ["pattern", "name"]),
+        (kind: MomentWarm, score: 40),
+        (kind: RecordLoved, score: 35, placeholders: ["name", "record"]),
+        (kind: RecipeDiscovered, score: 30, placeholders: ["recipe"]),
+        (kind: RozpisHappy, score: 25),
+        (kind: AnwarCameo, score: 20),
+        (kind: QuietNight, score: 10),
+    ],
+    scenes: [
+        "opening", "mirek_first", "guest333_first", "vera_recipe", "lori_platform", "hana_asleep",
+        "radek_last_shift", "lori_evening", "filip_cake", "mirek_letter", "final_night",
+    ],
+    moments: [
+        "m_blackout_candles", "m_lost_traveller", "m_sleeping_guest", "m_coffee_for_helper",
+        "m_busker", "m_tired_parent", "m_advent_candle",
+    ],
+)

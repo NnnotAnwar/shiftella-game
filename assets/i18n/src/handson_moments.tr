@@ -1,0 +1,517 @@
+# Night moments (moments.ron, design/handson.md §5, §11.1): .title (marker hover), .text (the card),
+# .opt.<option> (button), .result.<option> (the line after), .expired (when nobody came in time).
+# English placeholder texts in every language until T9 (see handson_TODO.txt).
+
+# --- m_record_request ------------------------------------------------------------------------------
+moment.m_record_request.title
+* A record request
+
+moment.m_record_request.text
+* "Karolina, have you got something a bit… you know. Like the old days?"
+
+moment.m_record_request.opt.put_on
+* Put it on
+
+moment.m_record_request.opt.later
+* Maybe later
+
+moment.m_record_request.result.put_on
+* The needle drops. Someone at the window table starts tapping along.
+
+moment.m_record_request.result.later
+* "Later, then. I'm not going anywhere."
+
+# --- m_blackout_candles -------------------------------------------------------------------------------
+moment.m_blackout_candles.title
+* The lights went out
+
+moment.m_blackout_candles.text
+* The hall goes dark. Grandma's candles are in the drawer under the till, where they always were.
+
+moment.m_blackout_candles.opt.candles
+* Light the candles
+
+moment.m_blackout_candles.opt.torch
+* The old torch will do
+
+moment.m_blackout_candles.result.candles
+* Table by table, the café comes back — smaller, warmer, gold.
+
+moment.m_blackout_candles.result.torch
+* One beam of light and a lot of patient faces.
+
+moment.m_blackout_candles.expired
+* Someone found the candles and lit them for you.
+
+# --- m_leak_bucket ---------------------------------------------------------------------------------------
+moment.m_leak_bucket.title
+* The roof is leaking
+
+moment.m_leak_bucket.text
+* Plink. Plink. A drop lands right where people walk.
+
+moment.m_leak_bucket.opt.bucket
+* Put a bucket under it
+
+moment.m_leak_bucket.opt.roofer
+* Call a roofer
+
+moment.m_leak_bucket.result.bucket
+* The plinks turn into a little tune.
+
+moment.m_leak_bucket.result.roofer
+* A roofer climbs up in the rain. The plinking stops for good.
+
+moment.m_leak_bucket.expired
+* Someone put a bucket under it.
+
+# --- m_station_cat -----------------------------------------------------------------------------------------
+moment.m_station_cat.title
+* Someone with whiskers
+
+moment.m_station_cat.text
+* The station cat sits by the door, wet and dignified, pretending not to look at you.
+
+moment.m_station_cat.opt.milk
+* A saucer of milk
+
+moment.m_station_cat.opt.ham
+* A bit of ham
+
+moment.m_station_cat.opt.scratch
+* Scratch its ears
+
+moment.m_station_cat.result.milk
+* Lap, lap, lap. A slow blink — that's a thank-you in cat.
+
+moment.m_station_cat.result.ham
+* The ham is gone before it lands. The cat stays a little longer.
+
+moment.m_station_cat.result.scratch
+* If it knows you, it leans in. If it doesn't, it leaves with great dignity.
+
+moment.m_station_cat.expired
+* Someone left a saucer by the door.
+
+# --- m_lost_traveller ----------------------------------------------------------------------------------------
+moment.m_lost_traveller.title
+* A lost traveller
+
+moment.m_lost_traveller.text
+* A traveller stands in the doorway with a suitcase and a crumpled ticket, looking for the right platform.
+
+moment.m_lost_traveller.opt.app
+* Check the Shiftella app
+
+moment.m_lost_traveller.opt.napkin_map
+* Draw a map on a napkin
+
+moment.m_lost_traveller.result.app
+* The right train, the right platform, three minutes to spare. They leave a tip and a grin.
+
+moment.m_lost_traveller.result.napkin_map
+* A napkin map with a little star on the platform. They keep it.
+
+# --- m_stuffy_window -----------------------------------------------------------------------------------------
+moment.m_stuffy_window.title
+* It's stuffy in here
+
+moment.m_stuffy_window.text
+* So many people, so much steam. The windows are crying.
+
+moment.m_stuffy_window.opt.open
+* Open the window
+
+moment.m_stuffy_window.opt.leave
+* Leave it
+
+moment.m_stuffy_window.result.open
+* Cool air and the smell of rain. Someone orders something cold.
+
+moment.m_stuffy_window.result.leave
+* Cosy, if a little sticky.
+
+# --- m_fogged_window -----------------------------------------------------------------------------------------
+moment.m_fogged_window.title
+* The glass has fogged up
+
+moment.m_fogged_window.text
+* A train is coming. You can hear it, but you can't see it through the fogged glass.
+
+moment.m_fogged_window.opt.wipe
+* Wipe the glass
+
+moment.m_fogged_window.result.wipe
+* Just in time — the train's light sweeps through the whole room.
+
+# --- m_sleeping_guest -----------------------------------------------------------------------------------------
+moment.m_sleeping_guest.title
+* Someone fell asleep
+
+moment.m_sleeping_guest.text
+* A guest has dozed off over an empty cup, head on their arm.
+
+moment.m_sleeping_guest.opt.blanket
+* Cover them with a blanket
+
+moment.m_sleeping_guest.opt.let_sleep
+* Let them sleep
+
+moment.m_sleeping_guest.opt.water
+* A glass of water, gently
+
+moment.m_sleeping_guest.result.blanket
+* Grandma's checked blanket. They don't wake, but they smile.
+
+moment.m_sleeping_guest.result.let_sleep
+* The rain does the rest.
+
+moment.m_sleeping_guest.result.water
+* They wake slowly, drink, and leave lighter than they came.
+
+# --- m_drone_wrong_address ------------------------------------------------------------------------------------
+moment.m_drone_wrong_address.title
+* A lost delivery drone
+
+moment.m_drone_wrong_address.text
+* A delivery drone taps the window, blinking "address not found". It has a small parcel.
+
+moment.m_drone_wrong_address.opt.reroute
+* Re-route it in the Shiftella app
+
+moment.m_drone_wrong_address.opt.keep
+* Keep the parcel for pickup
+
+moment.m_drone_wrong_address.result.reroute
+* It beeps twice — a thank-you, probably — and hums off over the roofs.
+
+moment.m_drone_wrong_address.result.keep
+* The parcel waits behind the counter. Someone will come for it.
+
+moment.m_drone_wrong_address.expired
+* The drone found its own way. Somebody waved it off.
+
+moment.m_drone_wrong_address.thanks
+* A message from the drone's owner: "Thanks for the re-route!" and 50 Kč.
+
+moment.m_drone_wrong_address.parcel
+* The parcel's owner came by and left a jar of butterfly pea flowers. "For the trouble."
+
+moment.m_drone_wrong_address.collected
+* The parcel's owner came by, thanked you and left a tip.
+
+# --- m_coffee_for_helper ------------------------------------------------------------------------------------------
+moment.m_coffee_for_helper.title
+* A tired helper
+
+moment.m_coffee_for_helper.text
+* Your helper is moving slower, rubbing their eyes when they think nobody sees.
+
+moment.m_coffee_for_helper.opt.coffee
+* Make them a coffee
+
+moment.m_coffee_for_helper.opt.break
+* Send them on a break
+
+moment.m_coffee_for_helper.result.coffee
+* "For me? You didn't have to." They hold the cup with both hands.
+
+moment.m_coffee_for_helper.result.break
+* Ten minutes on the back step. They come back humming.
+
+# --- m_hang_garlands -------------------------------------------------------------------------------------------------
+moment.m_hang_garlands.title
+* A box marked "Vánoce — L."
+
+moment.m_hang_garlands.text
+* Grandma's Christmas box is on the counter: garlands, tiny lights and a note — "windows first".
+
+moment.m_hang_garlands.opt.hang
+* Hang them up
+
+moment.m_hang_garlands.result.hang
+* Windows, counter, door. The café looks like it remembered something.
+
+moment.m_hang_garlands.expired
+* The crew will hang them in the morning.
+
+# --- m_leak_empty ----------------------------------------------------------------------------------------------------
+moment.m_leak_empty.title
+* The bucket is full
+
+moment.m_leak_empty.text
+* The bucket under the leak is nearly overflowing.
+
+moment.m_leak_empty.opt.empty
+* Empty it
+
+moment.m_leak_empty.result.empty
+* Emptied, back in place. The tune starts over.
+
+# --- m_busker -----------------------------------------------------------------------------------------------------------
+moment.m_busker.title
+* A busker in the rain
+
+moment.m_busker.text
+* Someone is playing under the station awning, a guitar case open, rain on the strings.
+
+moment.m_busker.opt.tea
+* Bring them a tea
+
+moment.m_busker.opt.coin
+* A coin in the case
+
+moment.m_busker.opt.ask_in
+* Ask them in to play
+
+moment.m_busker.result.tea
+* They nod a thank-you and play one more song, just for the window.
+
+moment.m_busker.result.coin
+* The coin clinks. The song goes on.
+
+moment.m_busker.result.ask_in
+* They shake off the rain and play by the stage. The hall comes alive.
+
+# --- m_first_snow ---------------------------------------------------------------------------------------------------------
+moment.m_first_snow.title
+* It's snowing
+
+moment.m_first_snow.text
+* The first snow of the year is falling past grandma's window, slow and silent.
+
+moment.m_first_snow.opt.call_all
+* Call everyone to look
+
+moment.m_first_snow.opt.candle
+* A candle in the window
+
+moment.m_first_snow.result.call_all
+* Guests, crew, even the cat — everyone at the window, saying nothing at all.
+
+moment.m_first_snow.result.candle
+* A small flame against the snow. People outside slow down to look.
+
+moment.m_first_snow.expired
+* The snow kept falling. Nobody minded.
+
+# --- m_umbrellas ------------------------------------------------------------------------------------------------------------
+moment.m_umbrellas.title
+* Wet umbrellas everywhere
+
+moment.m_umbrellas.text
+* A downpour, and every guest brings half of it in with them.
+
+moment.m_umbrellas.opt.stand
+* Put out the umbrella stand
+
+moment.m_umbrellas.opt.newspapers
+* Newspapers on the floor
+
+moment.m_umbrellas.result.stand
+* Umbrellas in a row, dripping politely.
+
+moment.m_umbrellas.result.newspapers
+* Yesterday's news, today's doormat. Vera approves.
+
+# --- m_forgotten_item ----------------------------------------------------------------------------------------------------------
+moment.m_forgotten_item.title
+* Something left behind
+
+moment.m_forgotten_item.text
+* An umbrella hangs from an empty chair. Its owner is just crossing the street.
+
+moment.m_forgotten_item.opt.run
+* Run after them
+
+moment.m_forgotten_item.opt.lost_found
+* The lost & found box
+
+moment.m_forgotten_item.result.run
+* You catch them at the crossing. They laugh, and press a coin into your hand.
+
+moment.m_forgotten_item.result.lost_found
+* Into the box. They came back for it before dawn.
+
+moment.m_forgotten_item.expired
+* It went into the lost & found box. Its owner came back for it.
+
+# --- m_dead_phone -----------------------------------------------------------------------------------------------------------------
+moment.m_dead_phone.title
+* A dead phone
+
+moment.m_dead_phone.text
+* A guest stares at a black screen. Their ticket, their map, their whole night is on it.
+
+moment.m_dead_phone.opt.charger
+* Lend the counter charger
+
+moment.m_dead_phone.opt.socket
+* Point to the socket table
+
+moment.m_dead_phone.result.charger
+* Two per cent, five per cent, saved.
+
+moment.m_dead_phone.result.socket
+* They move tables, relieved.
+
+# --- m_tired_parent ------------------------------------------------------------------------------------------------------------------
+moment.m_tired_parent.title
+* A tired parent
+
+moment.m_tired_parent.text
+* A parent off the train, a sleepy child on their lap, both too tired to order.
+
+moment.m_tired_parent.opt.warm_milk
+* Warm milk, on the house
+
+moment.m_tired_parent.opt.blanket
+* A blanket for the little one
+
+moment.m_tired_parent.result.warm_milk
+* The little one drinks half and falls asleep. The parent mouths "thank you".
+
+moment.m_tired_parent.result.blanket
+* Tucked in like a small parcel. The parent finally sits back.
+
+# --- m_delay_board ---------------------------------------------------------------------------------------------------------------------
+moment.m_delay_board.title
+* The trains are late
+
+moment.m_delay_board.text
+* The station board blinks DELAYED. A café full of people who meant to be somewhere else.
+
+moment.m_delay_board.opt.refills
+* Free refills for the waiting
+
+moment.m_delay_board.opt.board
+* Put the station board on the café screen
+
+moment.m_delay_board.result.refills
+* Nobody minds waiting quite so much.
+
+moment.m_delay_board.result.board
+* Now everyone can see the minutes tick down. Fewer anxious glances at the door.
+
+# --- m_radio_tuning ------------------------------------------------------------------------------------------------------------------------
+moment.m_radio_tuning.title
+* Grandma's radio
+
+moment.m_radio_tuning.text
+* The old radio crackles between stations. The dial is warm under your fingers.
+
+moment.m_radio_tuning.opt.jazz
+* Night jazz
+
+moment.m_radio_tuning.opt.waltz
+* An old waltz
+
+moment.m_radio_tuning.opt.static
+* Static…
+
+moment.m_radio_tuning.result.jazz
+* A piano, somewhere far away, playing just for the night shift.
+
+moment.m_radio_tuning.result.waltz
+* Grandma's waltz, thin and silver through the old speaker.
+
+moment.m_radio_tuning.result.static
+* Rain through the speaker, and for a second a voice: "…osobní vlak Rn 333, nástupiště dvě…" Then nothing.
+
+# --- m_bulb_flicker -----------------------------------------------------------------------------------------------------------------------------
+moment.m_bulb_flicker.title
+* The window lamp flickers
+
+moment.m_bulb_flicker.text
+* The light in the window stutters once, twice.
+
+moment.m_bulb_flicker.opt.spare_bulb
+* Grandma's spare bulb
+
+moment.m_bulb_flicker.result.spare_bulb
+* There's a box of spares in the drawer, labelled in her hand. She kept spares for sixty years.
+
+# --- m_parcel_lviv ---------------------------------------------------------------------------------------------------------------------------------
+moment.m_parcel_lviv.title
+* A parcel from Lviv
+
+moment.m_parcel_lviv.text
+* A parcel for Oleh, tied with string, smelling of dried pears. His mother's handwriting on top.
+
+moment.m_parcel_lviv.opt.open
+* Open it with Oleh
+
+moment.m_parcel_lviv.opt.morning
+* Save it for the morning
+
+moment.m_parcel_lviv.result.open
+* Dried fruit, beetroot, a jar of honey and a note he reads twice. "She says to feed you too."
+
+moment.m_parcel_lviv.result.morning
+* It waits on the shelf until the morning. Oleh keeps glancing at it.
+
+moment.m_parcel_lviv.expired
+* Oleh opened it in the morning and shared everything.
+
+# --- m_advent_candle --------------------------------------------------------------------------------------------------------------------------------------
+moment.m_advent_candle.title
+* The Advent wreath
+
+moment.m_advent_candle.text
+* Grandma's wreath on the counter, the next candle waiting.
+
+moment.m_advent_candle.opt.light
+* Light the candle
+
+moment.m_advent_candle.result.light
+* One more small flame. The counter glows a little warmer.
+
+# --- m_mikulas -----------------------------------------------------------------------------------------------------------------------------------------------
+moment.m_mikulas.title
+* Mikuláš, an angel and a devil
+
+moment.m_mikulas.text
+* Three students in costume burst in from the snow: "A poem for something warm?"
+
+moment.m_mikulas.opt.cocoa
+* Hot chocolate on the house
+
+moment.m_mikulas.opt.kolac
+* A koláč for each
+
+moment.m_mikulas.opt.applause
+* Just applause
+
+moment.m_mikulas.result.cocoa
+* The devil recites the poem, the angel forgets the words, Mikuláš drinks the most.
+
+moment.m_mikulas.result.kolac
+* Three koláče, three bows, one very sticky devil.
+
+moment.m_mikulas.result.applause
+* The whole café claps. The devil takes a bow.
+
+# --- m_cat_name -------------------------------------------------------------------------------------------------------------------------------------------------
+moment.m_cat_name.title
+* The cat needs a name
+
+moment.m_cat_name.text
+* The cat lives here now. Everyone agrees. It's time it had a name.
+
+moment.m_cat_name.opt.vlak
+* Vlak
+
+moment.m_cat_name.opt.kofi
+* Kofi
+
+moment.m_cat_name.opt.lidka
+* Lidka
+
+moment.m_cat_name.result.vlak
+* Vlak, like the trains it watches. It doesn't look up. That means yes.
+
+moment.m_cat_name.result.kofi
+* Kofi. It sniffs your cup as if to confirm.
+
+moment.m_cat_name.result.lidka
+* Lidka. It curls up in grandma's chair, as if it always knew.

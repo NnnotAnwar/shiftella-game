@@ -1,0 +1,401 @@
+# Hands-on UI (design/handson.md §1, §7.4): tastes, order card, ticket rail, queue, tip jar, lull chips,
+# duties, jukebox, themes, atmosphere, settings. English placeholder texts in every language until T9
+# (see handson_TODO.txt). Karolina is "you" in the UI.
+
+# --- tastes (§3.1) ------------------------------------------------------------------------------
+taste.warm
+* Warm
+
+taste.cold
+* Cold
+
+taste.sweet
+* Sweet
+
+taste.bitter
+* Bitter
+
+taste.strong
+* Strong
+
+taste.mild
+* Mild
+
+taste.comforting
+* Comforting
+
+taste.fancy
+* Fancy
+
+taste.quick
+* Quick
+
+taste.filling
+* Filling
+
+taste.spiced
+* Spiced
+
+taste.fresh
+* Fresh
+
+# --- order card -----------------------------------------------------------------------------------
+ui.order.by_hand
+* By hand
+
+ui.order.quick
+* Quick
+
+ui.order.usual
+* The usual?
+
+ui.order.hand_off
+* Hand off
+
+ui.order.book
+* Book (K)
+
+ui.order.plain
+* Plain order: {item}
+
+ui.order.art_finish
+* + art
+
+ui.order.remember
+* Remember: from the handover note
+
+ui.order.matches
+* Good matches
+
+# --- ticket rail ----------------------------------------------------------------------------------
+ui.rail.title
+* Orders
+
+ui.rail.unowned
+* Nobody's on this one
+
+ui.rail.karolina
+* You
+
+ui.rail.more
+* +{n}
+
+ui.rail.incoming
+* {name} is on the way
+
+ui.rail.to_go
+* to go
+
+ui.rail.usual
+* the usual
+
+# --- Karolina's queue -------------------------------------------------------------------------------
+ui.queue.remove
+* Remove from your queue
+
+ui.queue.do_next
+* Do this next
+
+ui.queue.full
+* Your hands are full — five things at once is plenty.
+
+# --- tip jar ----------------------------------------------------------------------------------------
+ui.tipjar.tonight
+* Tonight: {amount}
+
+ui.tipjar.lifetime
+* In the jar so far: {amount}
+
+ui.tipjar.rhythm
+* In the rhythm: tips +{percent} %
+
+ui.tipjar.goal
+* Next jar goal: {amount}
+
+ui.tipjar.count
+* Count the jar
+
+ui.tipjar.pick
+* The jar is full of kindness. Pick something for the hall.
+
+# --- lull chips ---------------------------------------------------------------------------------------
+ui.lull.speed
+* It's quiet — ×2?
+
+ui.lull.margin_note
+* Grandma's margin note
+
+ui.lull.mug
+* Make yourself a coffee
+
+ui.lull.talk
+* {name} looks like talking
+
+ui.quiet_hour.toast
+* The quiet hour.
+
+# --- duties & hiring (§1.3) -------------------------------------------------------------------------
+duty.dishes.name
+* Dishes
+
+duty.dishes.desc
+* Clears tables, washes up and puts left tips in the jar.
+
+duty.floor.name
+* Floor
+
+duty.floor.desc
+* Mops, empties buckets and does the cleaning on the checklists.
+
+duty.register.name
+* Register
+
+duty.register.desc
+* Takes plain orders and payments. Wishes and regulars stay with you.
+
+duty.bar.name
+* Bar
+
+duty.bar.desc
+* Makes plain drinks the menu way. Your recipes stay yours.
+
+duty.kitchen.name
+* Kitchen
+
+duty.kitchen.desc
+* Makes plain food the menu way. Your recipes stay yours.
+
+duty.serving.name
+* Serving
+
+duty.serving.desc
+* Carries what helpers made. You always carry your own.
+
+ui.duties.title
+* Duties
+
+ui.duties.suggest
+* Suggest
+
+ui.duties.capacity
+* {n} of {max} duties
+
+ui.duties.full
+* {name} has their hands full.
+
+ui.duties.grew
+* {name} can take one more duty now.
+
+ui.duties.hire_default
+* Starts on: {duty}
+
+ui.duties.accept
+* Sounds good
+
+ui.duties.tonight
+* Who can help tonight
+
+ui.duties.player_only
+* Only you: wishes, regulars, specials, moments and the window light.
+
+story.hint.duties
+* Helpers only do the duties you give them (P). The guests with wishes are yours.
+
+# --- moment card -------------------------------------------------------------------------------------
+ui.moment.expires
+* Won't wait forever
+
+ui.moment.free
+* Free
+
+# --- jukebox (§10) --------------------------------------------------------------------------------------
+ui.jukebox.title
+* Grandma's jukebox
+
+ui.jukebox.repeat
+* Repeat
+
+ui.jukebox.once
+* Play once
+
+ui.jukebox.locked
+* Not in the jukebox yet
+
+ui.jukebox.now_playing
+* Now playing: {title}
+
+ui.jukebox.unlocked
+* A new record for the jukebox: {title}
+
+ui.jukebox.no_power
+* No power — the jukebox is silent. The rain isn't.
+
+record.house.title
+* House playlist
+
+record.house.artist
+* Whatever suits the night
+
+hall_mood.lively
+* Lively
+
+hall_mood.calm
+* Calm
+
+hall_mood.dreamy
+* Dreamy
+
+hall_mood.tender
+* Tender
+
+hall_mood.nostalgic
+* Nostalgic
+
+# --- themes in Build (§11.2) -----------------------------------------------------------------------------
+ui.theme.tab
+* Theme
+
+ui.theme.buy
+* Buy for {price}
+
+ui.theme.apply
+* Use this theme
+
+ui.theme.day_only
+* Themes change in the day, before opening.
+
+ui.theme.owned
+* Yours
+
+ui.theme.unlocked
+* New theme for the hall: {name}
+
+# --- atmosphere meter (§11.3) --------------------------------------------------------------------------------
+atmo.title
+* Atmosphere
+
+atmo.level_up
+* Atmosphere: {level}
+
+atmo.level.1
+* Bare
+
+atmo.level.2
+* Plain
+
+atmo.level.3
+* Pleasant
+
+atmo.level.4
+* Cosy
+
+atmo.level.5
+* Like home
+
+atmo.component.light
+* Light
+
+atmo.component.beauty
+* Beauty
+
+atmo.component.comfort
+* Comfort
+
+atmo.component.clean
+* Clean
+
+atmo.component.music
+* Music
+
+atmo.component.theme
+* Theme
+
+atmo.component.touches
+* Little touches
+
+atmo.tip.light
+* The window tables are dark.
+
+atmo.tip.beauty
+* A rug or a plant would soften the hall.
+
+atmo.tip.comfort
+* The chairs are hard — maybe a sofa?
+
+atmo.tip.clean
+* Dishes are piling up.
+
+atmo.tip.music
+* Some music would help.
+
+atmo.tip.theme
+* The walls could use a little love.
+
+atmo.tip.touches
+* It needs something of its own — a cat, a garland, a few plants.
+
+# --- napkins ---------------------------------------------------------------------------------------------
+ui.napkin.title
+* Napkins
+
+ui.napkin.collected
+* {n} napkins kept
+
+ui.napkin.reward_wall
+* So many napkins — they deserve a wall of their own.
+
+ui.napkin.reward_mug
+* A new mug design, painted with napkin doodles.
+
+# --- settings ---------------------------------------------------------------------------------------------
+ui.settings.taste_hints
+* Show taste hints on wishes
+
+ui.settings.relaxed_minigames
+* Relaxed mini-games
+
+ui.settings.assist_wishes
+* Helpers may take wishes left waiting
+
+ui.settings.tutorial
+* Coach marks
+
+ui.tutorial.got_it
+* Got it
+
+# --- Karolina's own mug (§6.10) ------------------------------------------------------------------------------
+karolina.mug.1
+* The rain sounds different from behind the counter.
+
+karolina.mug.2
+* Grandma drank hers standing up. I think I get it now.
+
+karolina.mug.3
+* Five minutes. The café can hold its breath for five minutes.
+
+karolina.mug.4
+* There's a chip in this mug exactly where my thumb goes.
+
+karolina.mug.5
+* Someone's train is leaving. Mine isn't.
+
+karolina.mug.6
+* Steam on the window, steam from the cup. Fair trade.
+
+karolina.mug.7
+* I used to drink coffee to stay awake. Now it's to stay here.
+
+karolina.mug.8
+* The machine hums like it knows me now.
+
+karolina.mug.9
+* Lida, you never told me how good the third cup at four a.m. tastes.
+
+karolina.mug.10
+* Quiet hands, warm cup. That's the whole plan.
+
+karolina.mug.11
+* The holo sign flickers. I flicker back.
+
+karolina.mug.12
+* One sip for me, one for the night shift everywhere.

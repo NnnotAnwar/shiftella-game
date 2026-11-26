@@ -5,6 +5,9 @@ use std::collections::HashMap;
 use serde::Deserialize;
 
 use super::defs::{ClockTime, Job, Modes};
+use super::handson::{
+    BotHandler, ChecklistOwner, Duty, Fx, Gesture, HandoverOption, InsightDef, PayrollRules, Ritual,
+};
 use super::logic::{Condition, Effect};
 
 // ---------------------------------------------------------------------------------------------
@@ -227,9 +230,12 @@ pub struct Announcement {
     /// Template placeholders the integration fills.
     #[serde(default)]
     pub placeholders: Vec<String>,
+    /// Hands-on: real effects when posted (target = the person / item named).
+    #[serde(default)]
+    pub effects: Vec<Fx>,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, serde::Serialize)]
 pub enum ChecklistKind {
     Opening,
     Closing,
@@ -252,6 +258,30 @@ pub struct ChecklistItem {
     /// Applied at 06:00 when not ticked.
     #[serde(default)]
     pub missed: Vec<Effect>,
+    /// Hands-on: who does it (`None` = derived from `job`, see [`ChecklistItem::owner`]).
+    #[serde(default)]
+    pub owner: Option<ChecklistOwner>,
+    /// Hands-on: furniture tag the checkbox chip sits on in the world.
+    #[serde(default)]
+    pub anchor: Option<String>,
+    #[serde(default)]
+    pub gesture: Option<Gesture>,
+    /// Hands-on effects applied with `done` (once the sim runs [`Fx`]).
+    #[serde(default)]
+    pub extra_done: Vec<Fx>,
+    /// Hands-on effects applied with `missed`.
+    #[serde(default)]
+    pub extra_missed: Vec<Fx>,
+}
+
+impl ChecklistItem {
+    /// Explicit owner, else `Either(duty of job)`, else Karolina.
+    pub fn owner(&self) -> ChecklistOwner {
+        self.owner.unwrap_or(match self.job {
+            Some(job) => ChecklistOwner::Either(Duty::for_job(job)),
+            None => ChecklistOwner::Karolina,
+        })
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
@@ -275,6 +305,9 @@ pub struct BotAction {
     pub id: String,
     #[serde(default)]
     pub effects: Vec<Effect>,
+    /// Hands-on: what the button does in the world (`None` = just effects / dismiss).
+    #[serde(default)]
+    pub handler: Option<BotHandler>,
 }
 
 /// An @shiftella_bot message template: `app.bot.<id>` with `{placeholders}`.
@@ -309,6 +342,18 @@ pub struct ShiftellaApp {
     pub payroll: Vec<SummaryLine>,
     /// Handover note templates (`app.handover.<id>`).
     pub handover: Vec<SummaryLine>,
+    /// Hands-on: opening / closing rituals (`app.ritual.<list>`).
+    #[serde(default)]
+    pub rituals: Vec<Ritual>,
+    /// Hands-on: one-tap handover suggestions with next-night effects.
+    #[serde(default)]
+    pub handover_options: Vec<HandoverOption>,
+    /// Hands-on: digest insights with deep links (`app.insight.<id>`).
+    #[serde(default)]
+    pub insights: Vec<InsightDef>,
+    /// Hands-on: the weekly payroll decision.
+    #[serde(default)]
+    pub payroll_rules: Option<PayrollRules>,
 }
 
 impl ShiftellaApp {

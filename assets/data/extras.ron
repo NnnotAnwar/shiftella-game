@@ -1,0 +1,61 @@
+// Small extras (design/handson.md §6). Keys: cat.level.<n>, cat.name.<id>, thanks.<id>, ritual.<regular>,
+// karolina.mug.<n>. Napkins: after a Karolina-made serve with match ≥ 0.8 and quality ≥ 0.7 a folded
+// napkin may lie next to the tip coin (handson.ron → thanks_chance); `who` = only those regulars' napkins.
+#![enable(implicit_some)]
+(
+    cat: (
+        counter: "cat_affection",
+        max: 10,
+        levels: [
+            (level: 0),
+            (level: 2, perks: [Doormat]),
+            (level: 3, perks: [Latte("cat")]),
+            (level: 4, perks: [Inside]),
+            (level: 6, perks: [WindowSeat(satisfaction: 2.0)]),
+            (level: 8, perks: [WorksHere(staff_mood: 2.0)]),
+            (level: 10, perks: [Naming(moment: "m_cat_name")]),
+        ],
+        names: ["vlak", "kofi", "lidka"],
+    ),
+    // Lifetime tips → "Count the jar" → pick one of two (if one is owned already, the other is given).
+    tip_goals: [
+        (lifetime: 500, choices: ["fairy_lights", "lace_tablecloth"]),
+        (lifetime: 1500, choices: ["record_shelf", "cat_bed"]),
+        (lifetime: 3000, choices: ["brass_bell", "fairy_lights"]),
+        (lifetime: 6000, choices: ["lace_tablecloth", "record_shelf"]),
+        (lifetime: 10000, choices: ["cat_bed", "brass_bell"]),
+    ],
+    napkins: [
+        (id: "g01", doodle: Heart), (id: "g02"), (id: "g03", doodle: Train), (id: "g04"),
+        (id: "g05", doodle: Raindrop), (id: "g06"), (id: "g07", doodle: Cup), (id: "g08"),
+        (id: "g09", doodle: Moon), (id: "g10"), (id: "g11", doodle: Cat), (id: "g12"),
+        (id: "g13", doodle: Star), (id: "g14"), (id: "g15", doodle: Train), (id: "g16"),
+        (id: "g17"), (id: "g18", doodle: Heart), (id: "g19"), (id: "g20", doodle: Raindrop),
+        (id: "g21"), (id: "g22", doodle: Cup), (id: "g23"), (id: "g24", doodle: Moon),
+        (id: "g25"), (id: "g26", doodle: Cat), (id: "g27"), (id: "g28", doodle: Star),
+        (id: "g29"), (id: "g30", doodle: Heart),
+        (id: "mirek.1", who: ["mirek"]), (id: "mirek.2", who: ["mirek"], doodle: Train),
+        (id: "hana.1", who: ["hana"], doodle: Heart), (id: "hana.2", who: ["hana"]),
+        (id: "vera.1", who: ["vera"]), (id: "vera.2", who: ["vera"], doodle: Cup),
+        (id: "filip.1", who: ["filip"], doodle: Star),
+        (id: "radek.1", who: ["radek"], doodle: Train),
+        (id: "lori.1", who: ["lori"], doodle: Moon),
+        (id: "guest_333.1", who: ["guest_333"]),
+    ],
+    napkin_rewards: [
+        (count: 10, effects: [UnlockFurniture("napkin_wall"), Toast("ui.napkin.reward_wall")]),
+        (count: 20, effects: [SetFlag("mug_raindrop"), Toast("ui.napkin.reward_mug")]),
+        (count: 40, effects: [SetFlag("mug_heart"), Toast("ui.napkin.reward_mug")]),
+    ],
+    ritual_rules: (window_minutes: 2, trust: 2.0),
+    rituals: [
+        (regular: "mirek", response: Greet),
+        (regular: "vera", response: WipeTable),
+        (regular: "radek", response: StartByHand),
+        (regular: "hana", response: GlassOfWater),
+        (regular: "filip", response: SocketTableFree),
+        (regular: "lori", response: CoatRackNear),
+        (regular: "guest_333", response: WindowLightOn),
+    ],
+    mug_lines: 12,
+)

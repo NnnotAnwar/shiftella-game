@@ -1,0 +1,206 @@
+// Small night moments (design/handson.md §5, §11.1). Keys: moment.<id>.title/.text,
+// moment.<id>.opt.<opt>, moment.<id>.result.<opt>, moment.<id>.expired (when on_expire is set).
+// Only Karolina resolves moments: she walks to the anchor and the option applies on arrival.
+// from_event: the event fires its base effects and spawns this moment instead of its choice toast;
+// on_expire then carries that event's old default choice. "Target" effects act on the anchored agent.
+// Highlight(MomentWarm) moments need a caption in journal.ron → moments.
+#![enable(implicit_some)]
+[
+    // =========================================================================== MUST
+    (id: "m_record_request", kind: Music, anchor: Agent(RegularWantsRecord), per_night_max: 1, expires_minutes: 20,
+     options: [
+        // the like bonus becomes request_trust (records.ron) instead of like_trust
+        (id: "put_on", effects: [PlayRequestedRecord]),
+        (id: "later"),
+     ]),
+
+    (id: "m_blackout_candles", kind: Light, anchor: Counter, from_event: "power_outage", per_night_max: 2,
+     conditions: [Blackout], expires_minutes: 15,
+     options: [
+        (id: "candles", interaction: LightEachTable,
+         effects: [LightCandles, GuestSatisfaction(6.0), Highlight(MomentWarm)]),
+        (id: "torch"),
+     ],
+     on_expire: [LightCandles, GuestSatisfaction(5.0)]),
+
+    (id: "m_leak_bucket", kind: Leak, anchor: Leak, from_event: "roof_leak",
+     options: [
+        (id: "bucket", effects: [PlaceBucket, Later(minutes: 60, effects: [SpawnMoment("m_leak_empty")])]),
+        (id: "roofer", cost: -900, effects: [Money(-900), SetFlag("roof_fixed"), EmptyBucket]),
+     ],
+     on_expire: [PlaceBucket, Later(minutes: 60, effects: [SpawnMoment("m_leak_empty")])]),
+
+    (id: "m_station_cat", kind: Cat, anchor: Door, from_event: "station_cat", quiet: true,
+     options: [
+        (id: "milk", cost: -10, effects: [Money(-10), AddCounter("cat_affection", 1), AddCounter("cat_fed_nights", 1)]),
+        (id: "ham", cost: -15, effects: [Money(-15), AddCounter("cat_affection", 2), AddCounter("cat_fed_nights", 1)]),
+        (id: "scratch", effects: [If(conditions: [CounterAtLeast("cat_affection", 2)],
+                                     then: [AddCounter("cat_affection", 1)])]),
+     ],
+     on_expire: [Money(-10), AddCounter("cat_fed_nights", 1)]),
+
+    (id: "m_lost_traveller", kind: Traveller, anchor: Agent(Guest((archetypes: ["travelers"], at_door: true))),
+     conditions: [TrainNear(20)], weight: 6.0, cooldown_nights: 1,
+     options: [
+        (id: "app", interaction: TrainPicker(trains: 3),
+         effects: [Reputation(2.0), Tip(min: 40, max: 80), Highlight(MomentWarm)]),
+        (id: "napkin_map", effects: [TargetSatisfaction(8.0)]),
+     ]),
+
+    (id: "m_stuffy_window", kind: Window, anchor: Tag("window"), cooldown_nights: 1,
+     conditions: [GuestsAtLeast(8), Not(Weather(Storm)), Not(Weather(Snow))],
+     options: [
+        (id: "open", effects: [WindowOpen(30), GuestSatisfaction(4.0), WishBoost(tags: [Cold, Fresh], mul: 2.0, minutes: 30)]),
+        (id: "leave"),
+     ]),
+
+    (id: "m_fogged_window", kind: Window, anchor: Tag("window"), weight: 14.0, per_night_max: 2, expires_minutes: 4,
+     conditions: [Any([Raining, Weather(Fog)]), TrainNear(3)],
+     options: [
+        (id: "wipe", interaction: Swipe,
+         effects: [CameraHint(Window), GuestSatisfactionNear(add: 3.0, tiles: 3), LogTrain]),
+     ]),
+
+    (id: "m_sleeping_guest", kind: Guest, quiet: true, cooldown_nights: 1,
+     anchor: Agent(Guest((archetypes: ["insomniacs", "students", "nurses"], seated_minutes: 60, fed: true))),
+     // night 12: Hana falls asleep in a cutscene instead
+     conditions: [TimeBetween("01:00", "05:00"), Not(All([NightBetween(12, 12), RegularPresent("hana")]))],
+     options: [
+        (id: "blanket", effects: [TargetStay(30), TargetSatisfaction(10.0), TargetTrust(3.0),
+                                  Maybe(chance: 0.3, effects: [ThankYouNote(None)]), Highlight(MomentWarm)]),
+        (id: "let_sleep"),
+        (id: "water", effects: [TargetSatisfaction(4.0), TargetLeave]),
+     ]),
+
+    (id: "m_drone_wrong_address", kind: Drone, anchor: Tag("window"), from_event: "drone_lost", cooldown_nights: 4,
+     conditions: [TimeBetween("23:00", "04:30")],
+     options: [
+        (id: "reroute", effects: [Reputation(2.0),
+            NextNight([Maybe(chance: 0.5, effects: [Money(50), Toast("moment.m_drone_wrong_address.thanks")])])]),
+        (id: "keep", effects: [NextNight([If(conditions: [Not(IngredientUnlocked("butterfly_pea"))],
+            then: [UnlockIngredient("butterfly_pea"), Toast("moment.m_drone_wrong_address.parcel")],
+            otherwise: [Tip(min: 30, max: 60), Toast("moment.m_drone_wrong_address.collected")])])]),
+     ],
+     on_expire: [Reputation(2.0), StaffMood(2.0)]),
+
+    (id: "m_coffee_for_helper", kind: Staff, anchor: Agent(StaffLowEnergy(30.0)), per_night_max: 2,
+     options: [
+        (id: "coffee", interaction: ByHandFavourite,
+         effects: [TargetStaffMood(10.0), TargetStaffEnergy(15.0), TargetRelationship(3.0), Highlight(MomentWarm)]),
+        (id: "break", effects: [TargetStaffBreak]),
+     ]),
+
+    (id: "m_hang_garlands", kind: Season, anchor: Counter, expires_minutes: 240,
+     conditions: [NotFlag("garlands_up"), Any([SeasonPhase("advent"), SeasonPhase("first_snow")])],
+     options: [
+        (id: "hang", interaction: HangSpots(4),
+         effects: [SetFlag("garlands_up"), StaffMood(5.0), UnlockTheme("winter_lights"), Highlight(GarlandsUp)]),
+     ],
+     on_expire: [NextNight([SetFlag("garlands_up"), UnlockTheme("winter_lights")])]),
+
+    // =========================================================================== SHOULD
+    (id: "m_leak_empty", kind: Leak, tier: Should, anchor: Bucket, follow_up: true, expires_minutes: 60,
+     options: [(id: "empty", effects: [EmptyBucket])]),
+
+    (id: "m_busker", kind: Street, tier: Should, anchor: Street, cooldown_nights: 3,
+     // story: before Lori arrives (night 11), as foreshadowing
+     conditions: [Raining, TimeBetween("22:30", "01:00"), Not(RegularPresent("lori")),
+                  Any([Mode(Sandbox), NightAtMost(10)])],
+     options: [
+        (id: "tea", cost: -20, effects: [Money(-20), Reputation(1.0), StreetMusic(20), Highlight(MomentWarm)]),
+        (id: "coin", cost: -10, effects: [Money(-10)]),
+        (id: "ask_in", show_if: [HasFurnitureTag("stage")], effects: [HallMood(mood: Lively, minutes: 30)]),
+     ]),
+
+    (id: "m_first_snow", kind: Season, tier: Should, anchor: Tag("window"), max_per_game: 1, expires_minutes: 40,
+     conditions: [Weather(Snow)],
+     options: [
+        (id: "call_all", effects: [GuestSatisfaction(5.0), StaffMood(5.0), UnlockLatte("snowflake"), Highlight(FirstSnow)]),
+        (id: "candle", effects: [Coziness(add: 1.0, minutes: None), UnlockLatte("snowflake")]),
+     ],
+     on_expire: [UnlockLatte("snowflake")]),
+
+    (id: "m_umbrellas", kind: Street, tier: Should, anchor: Door, cooldown_nights: 2,
+     conditions: [Weather(Downpour)],
+     options: [
+        (id: "stand", effects: [DirtRate(mul: 0.6, minutes: None)]),
+        (id: "newspapers", effects: [DirtRate(mul: 0.8, minutes: None), Trust("vera", 1.0)]),
+     ]),
+
+    (id: "m_forgotten_item", kind: Guest, tier: Should, anchor: Tag("table"), from_event: "forgotten_item", cooldown_nights: 2,
+     options: [
+        (id: "run", within_minutes: 2, effects: [TakeItem("lost_umbrella"), Reputation(3.0), Tip(min: 100, max: 100)]),
+        (id: "lost_found", effects: [TakeItem("lost_umbrella"), Reputation(3.0)]),
+     ],
+     on_expire: [TakeItem("lost_umbrella"), Reputation(3.0)]),
+
+    (id: "m_dead_phone", kind: Guest, tier: Should, cooldown_nights: 2,
+     anchor: Agent(Guest((archetypes: ["students", "travelers"], regulars: ["filip"]))),
+     options: [
+        (id: "charger", effects: [TargetSatisfaction(6.0), TargetTrust(3.0)]),
+        (id: "socket"),
+     ]),
+
+    (id: "m_tired_parent", kind: Guest, tier: Should, cooldown_nights: 4,
+     anchor: Agent(Guest((archetypes: ["travelers"], accessory: "child"))),
+     conditions: [TrainNear(30)],
+     options: [
+        (id: "warm_milk", cost: -15, effects: [Money(-15), Reputation(2.0),
+                                               Maybe(chance: 0.5, effects: [ThankYouNote(None)]), Highlight(MomentWarm)]),
+        (id: "blanket", effects: [TargetSatisfaction(6.0)]),
+     ]),
+
+    (id: "m_delay_board", kind: Traveller, tier: Should, anchor: Furniture("menu_holo_board"), cooldown_nights: 2,
+     conditions: [Any([EventHappenedTonight("late_train"), Flag("radek_warns_trains")])],
+     options: [
+        (id: "refills", cost: -60, effects: [Money(-60), Reputation(3.0), GuestStay(20)]),
+        (id: "board", effects: [Patience(mul: 1.3, minutes: None)]),
+     ]),
+
+    (id: "m_radio_tuning", kind: Music, tier: Should, anchor: Furniture("radio"), quiet: true, cooldown_nights: 1,
+     conditions: [HasFurniture("radio"), TimeBetween("02:00", "04:00")],
+     options: [
+        (id: "jazz", effects: [RadioTrack(track: "jukebox_piano_trio", volume: 0.6, minutes: 30)]),
+        (id: "waltz", show_if: [RecordUnlocked("rec_cafe_waltz")],
+         effects: [RadioTrack(track: "jukebox_cafe_waltz", volume: 0.6, minutes: 30)]),
+        (id: "static", show_if: [NightAtLeast(15), TimeBetween("03:00", "03:33")],
+         // rain through the speaker and a faint 1979 announcement, as text (the result line)
+         effects: [TraitMood("light_sleeper", 5.0)]),
+     ]),
+
+    (id: "m_bulb_flicker", kind: Light, tier: Should, anchor: Tag("window"), quiet: true, cooldown_nights: 3,
+     conditions: [TimeBetween("03:15", "03:30"), NightAtLeast(4), WindowLightOn],
+     options: [(id: "spare_bulb")]),
+
+    (id: "m_parcel_lviv", kind: Delivery, tier: Should, anchor: Counter, max_per_game: 1, expires_minutes: 120,
+     conditions: [HiredArchetype("sound_tech"), NightAtLeast(10)],
+     options: [
+        (id: "open", effects: [UnlockIngredient("dried_fruit"), UnlockIngredient("beetroot"),
+                               ArchetypeMood(staff: "sound_tech", add: 10.0), RevealIngredient("r_uzvar")]),
+        (id: "morning", effects: [NextNight([UnlockIngredient("dried_fruit"), UnlockIngredient("beetroot"),
+                                             RevealIngredient("r_uzvar")])]),
+     ],
+     on_expire: [NextNight([UnlockIngredient("dried_fruit"), UnlockIngredient("beetroot"), RevealIngredient("r_uzvar")])]),
+
+    (id: "m_advent_candle", kind: Season, tier: Should, anchor: Counter, quiet: true,
+     conditions: [Mode(Story), Any([NightBetween(21, 21), NightBetween(28, 28)])],
+     options: [(id: "light", effects: [Coziness(add: 1.0, minutes: None), Highlight(MomentWarm)])]),
+
+    (id: "m_mikulas", kind: Season, tier: Should, anchor: Door, max_per_game: 1, expires_minutes: 45,
+     conditions: [Mode(Story), NightBetween(29, 29), TimeBetween("22:00", "23:00")],
+     options: [
+        (id: "cocoa", interaction: QuickBrews(recipe: "r_hot_chocolate", count: 3),
+         effects: [Reputation(3.0), Highlight(Mikulas)]),
+        (id: "kolac", interaction: QuickBrews(recipe: "r_kolac", count: 3), effects: [Reputation(2.0)]),
+        (id: "applause", effects: [GuestSatisfaction(2.0)]),
+     ]),
+
+    // the cat's naming moment at friendship level 10 (extras.ron → cat)
+    (id: "m_cat_name", kind: Cat, tier: Should, anchor: Tag("window_spot"), quiet: true, expires_minutes: 120,
+     conditions: [CounterAtLeast("cat_affection", 10), VarIs("cat_name", "none")],
+     options: [
+        (id: "vlak", effects: [SetVar("cat_name", "vlak"), Highlight(CatLevel)]),
+        (id: "kofi", effects: [SetVar("cat_name", "kofi"), Highlight(CatLevel)]),
+        (id: "lidka", effects: [SetVar("cat_name", "lidka"), Highlight(CatLevel)]),
+     ]),
+]

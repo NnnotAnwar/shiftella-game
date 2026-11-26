@@ -11,6 +11,7 @@
 //! Schemas and semantics: `docs/CONTENT.md`.
 
 pub mod defs;
+pub mod handson;
 pub mod logic;
 pub mod story;
 mod validate;
@@ -24,7 +25,17 @@ pub use world::*;
 use serde::de::DeserializeOwned;
 
 /// Music track ids (files `assets/audio/music/<id>.ogg`).
-pub const MUSIC_TRACKS: &[&str] = &["mus_menu_theme", "mus_night_calm_loop", "mus_rush_loop"];
+pub const MUSIC_TRACKS: &[&str] = &[
+    "mus_menu_theme",
+    "mus_night_calm_loop",
+    "mus_rush_loop",
+    "jukebox_prague_swing",
+    "jukebox_piano_trio",
+    "jukebox_bossa_rain",
+    "jukebox_folk_lullaby",
+    "jukebox_synth_2039",
+    "jukebox_cafe_waltz",
+];
 
 /// Sound ids usable in cutscenes (files in `assets/audio/sfx/`).
 pub const SFX_IDS: &[&str] = &[
@@ -58,9 +69,11 @@ pub struct Content {
     pub trains: TrainLine,
     pub difficulties: Vec<DifficultyDef>,
     pub sandbox: SandboxDef,
+    /// Hands-on content (`handson::HANDSON_FILES`).
+    pub handson: handson::HandsOn,
 }
 
-/// The data files, in load order.
+/// The data files, in load order (plus [`handson::HANDSON_FILES`]).
 pub const DATA_FILES: &[&str] = &[
     "traits.ron",
     "staff.ron",
@@ -78,7 +91,7 @@ pub const DATA_FILES: &[&str] = &[
     "sandbox.ron",
 ];
 
-fn read<T: DeserializeOwned>(dir: &str, file: &str) -> Result<T, String> {
+pub(crate) fn read<T: DeserializeOwned>(dir: &str, file: &str) -> Result<T, String> {
     let path = format!("{dir}/{file}");
     let text = std::fs::read_to_string(&path).map_err(|e| format!("{path}: {e}"))?;
     ron::from_str(&text).map_err(|e| format!("{path}: {e}"))
@@ -104,6 +117,7 @@ impl Content {
             trains: read(dir, "trains.ron")?,
             difficulties: read(dir, "difficulty.ron")?,
             sandbox: read(dir, "sandbox.ron")?,
+            handson: handson::HandsOn::load(dir)?,
         })
     }
 

@@ -169,7 +169,8 @@
      default_choice: "lost_and_found"),
     (id: "strange_order", kind: Uncanny, severity: 1, weight: 6.0, cooldown: 5, min_night: 8,
      choices: [
-        (id: "tea_two_sugars", effects: [Reputation(5.0), StaffMood(3.0)]),
+        // also teaches the recipe r_rn333_tea (recipes.ron)
+        (id: "tea_two_sugars", effects: [Reputation(5.0), StaffMood(3.0)], set_flag: "strange_tea_two_sugars"),
         (id: "black_coffee", effects: [GuestSatisfaction(-2.0)]),
         (id: "dont_know", effects: [GuestSatisfaction(2.0)]),
      ],

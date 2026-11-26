@@ -1,0 +1,74 @@
+// What guests wish for (design/handson.md §3). Key: wish.<id>; personal ids carry the regular
+// prefix (mirek.like_lida → wish.mirek.like_lida) and replace RegularDef.orders for Karolina.
+// Match: |want ∩ tags| / |want| − 0.5 if any avoid tag + 0.15 for a favourite item; exact
+// favourite recipe = 1.0. Fair wishes: the sim never picks a wish the café can't answer (< 0.3).
+// Reactions: react.<tier>.<1..n> and react.<regular>.<tier> (perfect / good / okay / not_quite).
+#![enable(implicit_some)]
+(
+    wishes: [
+        // --- anyone -----------------------------------------------------------------------------
+        (id: "long_day", want: [Warm], avoid: [Sweet]),
+        (id: "wake_me", want: [Strong, Bitter], who: ["taxi_drivers", "truckers"]),
+        (id: "hands_cold", want: [Warm, Comforting], avoid: [Cold], when: [Any([Raining, Weather(Snow)])]),
+        (id: "train_soon", want: [Quick], who: ["travelers"], when: [TrainNear(15)]),
+        (id: "earned_it", want: [Sweet]),
+        (id: "surprise_me", want: [Fancy], who: ["clubbers", "night_wanderer"]),
+        (id: "skipped_dinner", want: [Filling, Warm], who: ["shift_workers", "train_crew", "truckers"], kind: Food),
+        (id: "sleepy_not_awake", want: [Mild, Comforting], avoid: [Strong], who: ["insomniacs"]),
+        // thin until a Cold drink is known (the espresso tonic)
+        (id: "club_oven", want: [Cold, Fresh], avoid: [Warm], who: ["clubbers"],
+         weight_mods: [(when: [Not(RecipeKnown("r_espresso_tonic"))], mul: 0.5)]),
+        (id: "taste_of_home", want: [Comforting, Filling], who: ["travelers"]),
+        (id: "exam_at_eight", want: [Strong, Quick], who: ["students"]),
+        (id: "soaked", want: [Warm, Spiced], when: [Raining]),
+        (id: "not_coffee", want: [Mild], avoid: [Bitter, Strong], who: ["students", "nurses"]),
+        (id: "for_my_friend", want: [Fancy, Sweet], min_party: 2),
+        (id: "goes_with_snow", want: [Warm, Sweet, Spiced], when: [Weather(Snow)]),
+        (id: "on_the_side", want: [Quick], avoid: [Filling], kind: Food),
+        (id: "bitter_mood", want: [Bitter], avoid: [Sweet]),
+        (id: "headache", want: [Fresh, Mild], avoid: [Strong]),
+        (id: "slow_sip", want: [Warm, Mild], avoid: [Quick], who: ["insomniacs"], when: [Raining]),
+        (id: "engaged", want: [Fancy, Sweet], min_party: 2, weight: 0.3),
+        (id: "one_hand", want: [Quick], avoid: [Filling], who: ["drone_operators"]),
+        (id: "patrol", want: [Strong, Quick], who: ["patrol"]),
+        (id: "like_grandma_made", want: [Comforting, Filling], who: ["travelers", "train_crew"]),
+        (id: "childhood", want: [Sweet, Comforting], avoid: [Bitter]),
+        (id: "three_am", any: true, when: [TimeBetween("02:30", "04:00")]),
+        (id: "kind_coffee", want: [Mild, Comforting], who: ["nurses", "shift_workers"]),
+        (id: "fog_outside", want: [Warm], avoid: [Cold], when: [Weather(Fog)]),
+
+        // --- Mirek --------------------------------------------------------------------------------
+        (id: "mirek.like_lida", want: [Strong, Bitter, Warm], avoid: [Sweet], who: ["mirek"],
+         favourite: ["r_black", "r_turek"]),
+        (id: "mirek.tired_eyes", want: [Warm, Strong], who: ["mirek"], when: [ArcAtLeast("mirek", 2)]),
+        (id: "mirek.walked", want: [Warm, Comforting, Filling], who: ["mirek"],
+         when: [Any([Flag("mirek_keys_taken"), Flag("mirek_daughter_called")])]),
+        // --- Hana ---------------------------------------------------------------------------------
+        (id: "hana.twelve_minutes", want: [Warm, Quick], who: ["hana"], when: [TimeBetween("02:00", "02:30")]),
+        (id: "hana.blanket", want: [Comforting, Filling, Warm], who: ["hana"], when: [TimeBetween("05:40", "06:00")]),
+        // --- Vera ---------------------------------------------------------------------------------
+        (id: "vera.properly", want: [Mild, Warm], avoid: [Sweet], who: ["vera"],
+         favourite: ["r_lemon_tea", "r_linden_tea"], strict: true),
+        (id: "vera.lidas_kolac", want: [Sweet, Comforting], who: ["vera"], favourite: ["r_vera_kolac"]),
+        (id: "vera.she_would_make", want: [Comforting, Filling], who: ["vera"], when: [ArcAtLeast("vera", 2)],
+         favourite: ["r_kulajda"]),
+        // --- Filip --------------------------------------------------------------------------------
+        (id: "filip.cheapest", want: [Strong, Quick], avoid: [Fancy], who: ["filip"]),
+        (id: "filip.passed", want: [Fancy, Sweet], who: ["filip"], when: [ArcAtLeast("filip", 3)]),
+        // --- Radek --------------------------------------------------------------------------------
+        (id: "radek.to_go", want: [Quick, Strong], who: ["radek"]),
+        (id: "radek.last_shift", want: [Fancy, Warm], who: ["radek"], when: [NightBetween(23, 23)]),
+        (id: "radek.no_rush", want: [Mild, Warm], avoid: [Quick], who: ["radek"], when: [ArcAtLeast("radek", 3)]),
+        // --- Lori ---------------------------------------------------------------------------------
+        (id: "lori.one_song", want: [Sweet, Warm], who: ["lori"], favourite: ["r_hot_chocolate", "r_lori_encore"]),
+        (id: "lori.my_voice", want: [Warm, Mild, Sweet], avoid: [Cold], who: ["lori"], favourite: ["r_linden_tea"]),
+        // --- the 3:33 guest and the quiet guy with the laptop ---------------------------------------
+        (id: "guest_333.two_sugars", want: [Warm, Sweet, Mild], who: ["guest_333"],
+         favourite: ["r_rn333_tea"], favourite_items: ["lemon_tea"]),
+        (id: "guest_anwar.oat", want: [Warm, Mild], who: ["guest_anwar"], favourite: ["r_oat_flat_white"]),
+    ],
+    reactions: (
+        generic_per_tier: 5,
+        regulars: ["mirek", "hana", "guest_333", "vera", "filip", "radek", "lori"],
+    ),
+)

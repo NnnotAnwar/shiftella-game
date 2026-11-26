@@ -2,7 +2,8 @@
 // Night keys: story.night.NN.title / .hint. Beat times "HH:MM"; before 22:00 = day phase.
 // Big moments are cutscenes (cutscenes.ron, triggered by night/time/arc/flag); beats are the small,
 // non-blocking things: bubbles, hints, scripted events, notes, payments, train boards, bot messages.
-// Player lines are written gender-neutral in all languages (the player is Lida's grandchild).
+// The player is Karolina, Lida's granddaughter (feminine forms are fine in cs/uk).
+// calendar: night 1 = Mon 7 Nov 2039 … night 30 = Tue 6 Dec 2039 (weekdays below are validated against it).
 #![enable(implicit_some)]
 (
     nights_total: 30,
@@ -28,14 +29,15 @@
             (at: "23:20", what: Hint("story.hint.payment")),
             (at: "05:50", what: Hint("story.hint.morning")),
         ]),
+        // nights 1–2: Karolina works alone; the first helper is hired on night 3 (handson.md §0.2)
         (night: 2, act: 1, weekday: Tue, beats: [
-            (at: "21:30", what: Hint("story.hint.hire")),
-            (at: "21:45", what: Hint("story.hint.schedule")),
             (at: "22:05", what: Note("note_01")),
-            (at: "23:30", what: Hint("story.hint.priorities")),
         ]),
         (night: 3, act: 1, weekday: Wed, weather: Rain, beats: [
+            (at: "21:30", what: Hint("story.hint.hire")),
+            (at: "21:45", what: Hint("story.hint.schedule")),
             (at: "22:00", what: Event("rain")),
+            (at: "23:30", what: Hint("story.hint.duties")),
             (at: "01:50", what: Hint("story.hint.regulars")),
             (at: "04:00", what: Hint("story.hint.build")),
         ]),
@@ -208,13 +210,26 @@
         "radek_warns_trains", "vera_friends", "coins_refused",
         "franchise_met", "landlord_grumbling", "final_payment_missed",
         "roof_fixed", "cat_adopted",
+        // hands-on
+        "garlands_up", "strange_tea_two_sugars", "reward_decor", "mug_raindrop", "mug_heart",
     ],
     vars: [
         (id: "letter", default: "hidden",
          values: ["hidden", "confessed", "with_player", "with_mirek", "burned", "persuaded", "delivered", "delivered_by_mirek"]),
         (id: "offer", default: "none", values: ["none", "pending", "accepted", "rejected"]),
         (id: "answer_333", default: "none", values: ["none", "yes", "unsure", "gone"]),
+        (id: "cat_name", default: "none", values: ["none", "vlak", "kofi", "lidka"]),
     ],
-    counters: ["missed_payments", "payments_made", "cat_fed_nights", "coins_collected", "filip_kicked_out"],
+    counters: ["missed_payments", "payments_made", "cat_fed_nights", "coins_collected", "filip_kicked_out", "cat_affection"],
     items: ["cafe_keys", "old_coin", "rn333_ticket", "letter", "recipe_book", "timetable_1979", "lost_umbrella"],
+    calendar: (
+        start: (year: 2039, month: 11, day: 7),
+        days: [
+            (id: "advent_1", night: 21),
+            (id: "first_snow", night: 27),
+            (id: "advent_2", night: 28),
+            (id: "mikulas", night: 29),
+            (id: "last_night", night: 30),
+        ],
+    ),
 )

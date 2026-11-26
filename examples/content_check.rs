@@ -24,6 +24,7 @@ fn main() {
         }
     };
     println!("content: {}", content.summary());
+    println!("hands-on: {}", content.handson.summary());
     for lang in Lang::ALL {
         println!(
             "i18n {} ({}): {} keys · debt {} · {}",
