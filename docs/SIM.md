@@ -283,3 +283,144 @@ are overlays (sim slowed by `overlay_scale`); by hand for regulars and calm mome
 busy; regulars first; delegates tonight's crew (dishes, bar, serving, register, kitchen, floor).
 `nights` → `BotNight { minigames, same_kind_max, overlay_seconds, real_minutes, max_rail, … }`.
 Results (6 seeds, nights 1–10, q 0.75, 3 s): see the T4 report / `sim_balance` output.
+
+## 10. Sim systems (T5: design/handson.md §4–§6, §11–§13)
+
+All state lives in `World.sys: SystemsState` (`world.systems()`), every field `#[serde(default)]`
+(save version stays 2; older v2 saves get it on the first tick / command / `rebuild_caches`).
+New `PlayerAct` variants were **not** added (the screens match it exhaustively): a moment's option
+and a night experiment are a `PlayerAct::GoTo { tile }` with the work kept in
+`world.walk_jobs()` (`WalkJob { tile, kind: WalkKind::Moment { id, option } | Experiment { .. } }`,
+`WalkKind::id()` for the queue icon).
+
+### 10.1 `Cond` / `Fx` everywhere (`sim::xlogic`)
+Every `XCondition` is evaluated (`MomentResolvedEver`, `CozinessAtLeast`, `SharedShifts`,
+`NapkinsAtLeast`, `ThemeOwned` now real) and every `XEffect` runs: `Later` (dropped at 06:00) and
+`NextNight` are stored with their `XTarget` (party / staff / tile / furniture / moment / regular /
+item / record / train minute); core effects inside `Fx` run through `logic::run`. Users: moments,
+napkin rewards, checklist `extra_done/extra_missed`, rituals, handover notes, announcements
+(`thank_you {name}`, `new_item {item}`, `swap_board`), tutorial `on_show`. `ArcStage.when: Vec<Cond>`
+(content, additive) is checked with `conditions` — Mirek / Hana stage 1 take `WishMatchStreak`,
+Vera stage 3 `ServedRecipe("r_kulajda")`.
+
+### 10.2 Recipes & experiments
+`Command::Experiment { ingredients }` (alias `TryExperiment`): 2–3 unlocked jars. Day = at once;
+night = Karolina walks to the counter and works `experiment_minutes`. Cost `experiment_cost` of
+supplies (free on Cozy nights ≤ `experiment_free_until_night`). Result `SimEvent::ExperimentDone {
+result: ExperimentResult::Known | Discovered | Gated { key } | Close { key, family } | Nothing {
+key, cat } }` (keys `experiment.*`, `family` = `ingredient.family.<id>`); a discovery also sends
+`RecipeLearned { source: "experiment" }` and a `RecipeDiscovered` polaroid. Fair hints: recipes
+needing a jar that isn't on the shelf never steer a "close" hint. Every `margin_note_every` failed
+tries → `MarginNote { recipe, ingredient }` on the silhouette with the most revealed so far (all
+jars on the shelf). Queries `pantry()`, `revealed_ingredients(&c, r)`, `knowledge().tried`,
+`experiment_cost(&c)`, `margin_note_target(&c)`.
+
+### 10.3 Moments
+Director each minute (22:10–05:30): budget per act (`moments_per_night`, rolled at night start),
+gap `moment_gap_minutes`, conditions, agent / furniture anchors, `per_night_max`, `max_per_game`,
+`cooldown_nights`; the season phase's `moments` × 6, `moment_weight`s, hall mood weights, quiet
+hour (`quiet` × 3, others × 0.3). Story nights 1–3: never two open; later ≤ 2. Events named by a
+moment's `from_event` spawn it instead of their choice toast (nights 1–3 it waits ≤ 20 min, then
+its `on_expire` applies). The lull director tries a moment after a regular's Talk (up to the
+night's cap). `SimEvent::MomentAvailable { id, anchor: MomentPos { tile, furniture, agent } }` →
+`Command::ResolveMoment { id, option }` (options now: `moment_options(&c, id)`; `show_if`,
+`within_minutes`) → Karolina walks (the card closes; `ActiveMoment.resolving`), works by the
+interaction (hang spots, quick brews, light each table…) → `MomentResolved`. Expiry →
+`on_expire` + toast `moment.<id>.expired` + `MomentExpired`; an agent who left → `MomentExpired`.
+Bot buttons can spawn moments (`ApplyMoment`), effects too (`SpawnMoment`, e.g. `m_leak_empty`).
+Queries `active_moments()`, `walk_jobs()`.
+
+### 10.4 Extras
+* **Cat**: counter `cat_affection` (clamped 0–10) → `CatLevel { level }` + toast `cat.level.<n>`,
+  perks (latte `cat` at 3, inside at 4, window seat +2 satisfaction near it, crew mood +2 a night
+  at 8, the naming moment `m_cat_name` at 10 → var `cat_name`). `station_cat(&c) -> CatView { tile,
+  perch: doormat|radiator|window_seat|follows, level, name }`.
+* **Napkins**: Karolina-made serve with match ≥ 0.8, quality ≥ 0.7 → `thanks_chance` → the party
+  leaves `TipCoin.napkin` (personal ones for regulars first); collected with the coin →
+  `ThankYouNote { id }`; rewards at 10/20/40. `napkins()`.
+* **Tip jar**: lifetime tips past a goal → `TipGoalReached { goal, choices }` →
+  `Command::PickTipGoal { choice }` (`UnlockFurniture`; if one is owned the other is given).
+* **Specials**: `Command::SetSpecials { recipes }` (≤ 2 known; match +0.1; ticks `menu_board`).
+* **Quiet hour**: T4's mods + quiet moments preferred.
+
+### 10.5 Coziness, seasons, themes
+`coziness() -> Coziness { value 0–100, level 1–5, parts [7] (CozyComponent::ALL order),
+weakest }`, recomputed each minute: light (hall seats under a lit lamp, candles in a blackout,
+window light +2), beauty (hall Σ + theme lamp perk + fixed tables), comfort, clean (dirt, dishes),
+music (house 6, record 10, blackout 0), theme (+ accent pieces), touches (cat ≥ 4, garlands in
+season, ≥ 4 plants, napkin wall), hall mood bonus, `Coziness` effects. Level change at night →
+`CozinessLevel`; the first "Like home" → polaroid. Effects (replacing the old beauty / dirt / music
+/ comfort ambience; a small seat-comfort term stays): satisfaction once served `(coz − 35) × 0.25`
+(decor.ron, tuned so grandma's default hall ≈ +7 like before), patience × `0.9 + coz/250`, stay ×
+`0.9 + coz/500`, tips × `0.96 + coz/1250`. **Seasons**: `season_phase(&c) -> PhaseDef` (story
+calendar / sandbox `town.season` × night of season), `SeasonPhaseChanged { id }` + toast at day
+start, its latte patterns; `garlands_up(&c)` (flag × phase). **Themes**: `theme(&c)`,
+`themes_unlocked()`, `theme_owned(&c, id)`; `Unlock::When` / `sandbox_night` → `ThemeUnlocked {
+id, owned }` (price 0 = owned); `Command::BuyTheme { id }`, `Command::SetTheme { id }` (Day only,
+undoable) → `ThemeChanged`; perks `BeautyPerLamp`, `RegularTrustOnEnter` (once a night),
+`ArchetypeSatisfaction`, `MissedBy` (`theme_missed_line(&c, regular)`). `lattes()`.
+
+### 10.6 The journal
+Highlights (`journal.ron` scores, −`repeat_kind_penalty` for a kind kept last night, the 3:33
+guest / Anwar repeat scores, arc-good bonus) are captured with a `SceneSnapData` (origin, size,
+row-major `tiles`, `props` with sprite ids, `actors` with `LookRef` / pose / `SnapExpression` /
+emote, served `cups` with recipe, cat, night progress, weather, rain, season, theme, garlands,
+snow, blackout, window light, coziness, train, seed, focus, zoom — ≈ 2–5 KB) → map 1:1 onto the
+render's `SceneSnap`. Sources: arc beats (`arc.<regular>.<stage>`), key cutscenes, moments'
+`Highlight` effects, perfect serves for regulars, beautiful lattes, full house, cat levels,
+like-home, recipe discovered, rozpis happy, Guest333 / Anwar, the 03:00 fallback (always one).
+Top 3 per night (`tonight_highlights()`, `HighlightCaptured { kind, score }`); at 06:00
+`PolaroidsReady { night, count }` and `pending_polaroids()`; `Command::PickPolaroid { index }`
+(else the best is kept at the next night start) → `journal() -> [JournalEntry { night, date,
+highlight }]`, `JournalUpdated`.
+
+### 10.7 The rozpis puzzle
+Prefs: story people from `staff.ron`, generated people from traits (`pref_rules`, deterministic by
+seed + id), life events as one-week prefs. `prefs(id)`, `pref_status(&c, id)` (on the draft, approved
+leave counted as Off), `wellbeing(id)`, `week_fairness()`, `coverage(&c) -> [CoverageNight {
+suggested, on, cups }; 7]`, `RozpisScored` on every draft change. Auto-fill (`AutoSchedule` =
+`AutoFillRozpis`, also what the app plans while not edited by hand): T4's base rozpis, then a local
+search moving days off / dropping a night for a Need / adding one back for coverage (cost: 100 − wb
++ soft distance to each pref + coverage), then shift kinds by `ShiftPref` (a Need always; a Wish
+when a colleague with the same main job covers the other half); `autofill_report()` for
+`rozpis.autofill_result`. Published week: mood baseline, shift-start energy, late / sick chance ×,
+`PrefViolated` (Need → mood −8), `WorksWith` relationship / +5 % speed, shared shifts; a happy week
+(all prefs, coverage ≥ suggested − 1) → `RozpisHappy` + bot + polaroid + crew mood +3 all week.
+Requests: Need broken tonight → 50 % swap request with a fitting colleague (day start); toil ≥ 8 h
+→ náhradní volno request; life events (`barista_exam` time off, `cashier_daughter` "Can I go at
+2?" — `early_leave_requests()`, `Command::AnswerEarlyLeave`, bot `early_leave`). Answers: approve
+wb +10 / relationship +5 (partner −3), decline mood −6 (Need: 25 % late), 3 declines in 14 nights →
+`looks_tired`; unanswered at night start → `manage_alone`, mood −3. `RequestCreated`,
+`RequestAnswered`, `request_meta(id)`.
+
+### 10.8 The app as a tool
+Checklists: helpers do `Either(duty)` items of their duty; `extra_done` / `extra_missed` run
+(Opening at 22:31, Closing at 06:00); rituals → `RitualComplete { list }` + toast + effects (closing
+→ tomorrow's opening work × 0.5). `handover_note` ticked prefills the two best suggestions;
+`handover_suggestions(&c)` (from 05:00) → `Command::PickHandover { picks }` → next night
+`HandoverApplied { ids }` with the subject (low item, worn machine, a regular's "remember" mark,
+helpers ready before the rush train, crew mood, a fixed table). Bot handlers: `CoverSelf`,
+`CoverOther` (duty moved until they arrive), `CallIn` (an Off helper without a Need comes +60 min),
+`ReserveSeat`, `RemindBefore` (`Reminder` event), `OrderDrone` (needs a dock), `MenuOff`,
+`ApplyMoment`, `Camera` (`CameraHint`), `Open` (`OpenApp`); a button that can't act returns an error
+and the message stays open. New bot messages: `regular_tonight` / `regular_to_go` (day), `low_stock`,
+`weather_alert`, `cat_waiting`, `rozpis_happy`, `looks_tired`, `manage_alone`, `early_leave`.
+`NightSummary.insights` (≤ 4 `Insight { key, args, link }`). Payroll: `SetTipSplit`, `PayBonus`,
+`GrantToil`, `SendPayroll { week }` → `PayrollSent { week, total, tips_to_crew }` (auto one day
+later); `tip_split(&c)`, `payroll_sent(week)`.
+
+### 10.9 Integration requests (T7)
+`TutorialShown { id }` / `SetTutorial { on }` (story `At(time)` steps run their `on_show` by
+themselves: Mirek at 22:04 on night 1, the 22:20 rush, the fogged window) → `TutorialEffects`;
+`TableCleared { table, dishes, by }`, `Washed { dishes }`, `Mopped { tile }`;
+`PlayerBrewStart { guest, recipe, mode }` + `PlayerBrewQuality { guest, quality }` (she brews while
+the mini-game runs and holds the cup — `BrewAwaitsQuality` — until the quality arrives, ≤ 200
+ticks, then the skip quality); `TryExperiment`; Karolina waits for a guest to sit down at the
+counter, not by the empty chair. Singular guest names: `guest.<archetype>.one`.
+
+### 10.10 Player-bot & numbers (T5)
+The bot also resolves moments (urgent ones first), experiments (following margin notes), keeps a
+polaroid, counts the jar, buys / switches themes, auto-fills on Mondays, answers requests and bot
+buttons, ticks checklists nobody else does, picks specials, books payroll (`thrifty` keeps money
+comparable). `sim_balance` prints a T5 line (moments per night, two-open check, journal
+completeness, per-system counts). `--thrifty` for money comparisons.

@@ -3,7 +3,12 @@
 use serde::{Deserialize, Serialize};
 
 use super::hands::{BrewMode, LullHint, OrderKind, PlayerAct};
-use crate::content::handson::{Duty, HallMood, MatchTier};
+use super::systems::{Insight, MomentPos};
+use crate::content::handson::logic::CameraTarget;
+use crate::content::handson::{
+    AppLink, Duty, HallMood, HighlightKind, MatchTier, PrefKind, RequestKind, TipSplit,
+};
+use crate::content::world::ChecklistKind;
 use crate::content::{Job, Weather};
 
 /// Serde helpers for content enums that only derive `Deserialize`.
@@ -256,6 +261,37 @@ pub struct NightSummary {
     /// Helpers' credits for the digest: (name, duty id, tasks).
     #[serde(default)]
     pub helper_credits: Vec<(String, String, u32)>,
+    // --- T5 ---------------------------------------------------------------------------------
+    /// At most 4 digest insights with deep links (handson.md §13.6).
+    #[serde(default)]
+    pub insights: Vec<Insight>,
+    /// Moments that appeared / were resolved tonight.
+    #[serde(default)]
+    pub moments: u32,
+    #[serde(default)]
+    pub moments_resolved: u32,
+    /// Mean coziness tonight and the meter level of that mean.
+    #[serde(default)]
+    pub coziness_avg: f32,
+    #[serde(default)]
+    pub experiments: u32,
+    #[serde(default)]
+    pub napkins: u32,
+}
+
+/// What an experiment in the pantry gave (handson.md §4.4); keys from `experiment.*`.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub enum ExperimentResult {
+    /// "You know this one: {recipe}." (`experiment.known`)
+    Known { recipe: String },
+    /// "Discovered!" (`experiment.discovered`) — also `RecipeLearned { source: "experiment" }`.
+    Discovered { recipe: String },
+    /// A story-gated recipe: its `gated_hint` key.
+    Gated { recipe: String, key: String },
+    /// "So close…" (`experiment.close.swap/.extra/.missing`); `family` = `ingredient.family.<id>`.
+    Close { key: String, family: Option<String> },
+    /// "It's… drinkable." (`experiment.nothing.<n>`); `cat` = the cat sniffs it.
+    Nothing { key: String, cat: bool },
 }
 
 /// Everything the sim tells audio / UI / cutscenes. Drain with `World::drain_events`.
@@ -530,6 +566,162 @@ pub enum SimEvent {
     QuietHour {
         on: bool,
     },
+    // --- T5: moments, recipes, extras -----------------------------------------------------------
+    /// A moment's glowing marker appears (`moment.<id>.title`).
+    MomentAvailable {
+        id: String,
+        anchor: MomentPos,
+    },
+    /// It faded (`on_expire` applied; toast `moment.<id>.expired` when it had effects).
+    MomentExpired {
+        id: String,
+    },
+    /// Karolina arrived and the option applied (`moment.<id>.result.<option>`).
+    MomentResolved {
+        id: String,
+        option: String,
+    },
+    ExperimentDone {
+        result: ExperimentResult,
+    },
+    /// Grandma's margin note revealed an ingredient on a silhouette (`book.margin_note`).
+    MarginNote {
+        recipe: String,
+        ingredient: String,
+    },
+    LatteUnlocked {
+        id: String,
+    },
+    /// The station cat's friendship reached a level (`cat.level.<n>`).
+    CatLevel {
+        level: u32,
+    },
+    /// A thank-you napkin was collected (`thanks.<id>`).
+    ThankYouNote {
+        id: String,
+    },
+    /// A lifetime tip-jar goal: "Count the jar" → `Command::PickTipGoal`.
+    TipGoalReached {
+        goal: u32,
+        choices: Vec<String>,
+    },
+    // --- T5: atmosphere ---------------------------------------------------------------------
+    /// The coziness meter changed level (1..=5, `atmo.level.<n>`).
+    CozinessLevel {
+        level: u32,
+    },
+    /// Day start of a new season phase (`season.<id>.toast`).
+    SeasonPhaseChanged {
+        id: String,
+    },
+    /// A theme can be bought (`owned` = it was given for free).
+    ThemeUnlocked {
+        id: String,
+        owned: bool,
+    },
+    ThemeChanged {
+        id: String,
+    },
+    /// Ease the camera somewhere (moment / bot button); `tile` = the anchor when known.
+    CameraHint {
+        target: CameraTarget,
+        tile: Option<(i32, i32)>,
+    },
+    /// The radio plays a track for a while (not the jukebox).
+    RadioTrack {
+        track: String,
+        volume: f32,
+        minutes: u32,
+    },
+    StreetMusic {
+        minutes: u32,
+    },
+    WindowOpened {
+        minutes: u32,
+    },
+    TrainLogged {
+        train: String,
+    },
+    // --- T5: journal --------------------------------------------------------------------------
+    /// A polaroid candidate (a tiny white flash in the HUD corner).
+    HighlightCaptured {
+        kind: HighlightKind,
+        score: u32,
+    },
+    /// The morning's candidates are ready (`World::pending_polaroids`).
+    PolaroidsReady {
+        night: u32,
+        count: u32,
+    },
+    JournalUpdated {
+        night: u32,
+    },
+    // --- T5: rozpis & the app ---------------------------------------------------------------
+    /// The draft changed: wellbeing per person, the week's fairness.
+    RozpisScored {
+        wellbeing: Vec<(u32, f32)>,
+        fairness: f32,
+    },
+    /// Night start: a preference is broken tonight.
+    PrefViolated {
+        staff: u32,
+        pref: PrefKind,
+    },
+    /// Every Need and Wish honoured, coverage fine (`app.bot.rozpis_happy`).
+    RozpisHappy,
+    RequestCreated {
+        id: u32,
+        kind: RequestKind,
+        staff: u32,
+    },
+    RequestAnswered {
+        id: u32,
+        approved: bool,
+    },
+    /// "The café is ready." / "Closed properly." (`app.ritual.<list>`).
+    RitualComplete {
+        list: ChecklistKind,
+    },
+    /// Last night's handover notes acted (`app.handover.option.<id>`).
+    HandoverApplied {
+        ids: Vec<String>,
+    },
+    PayrollSent {
+        week: u32,
+        total: i64,
+        tips_to_crew: i64,
+    },
+    /// A bot button deep-links into the app.
+    OpenApp {
+        link: AppLink,
+    },
+    /// A soft reminder chip (`RemindBefore`).
+    Reminder {
+        key: String,
+        args: Vec<(String, String)>,
+    },
+    /// Karolina's micro-acts finished (for coach marks and little sounds).
+    TableCleared {
+        table: u32,
+        dishes: u32,
+        by: u32,
+    },
+    Washed {
+        dishes: u32,
+    },
+    Mopped {
+        tile: (i32, i32),
+    },
+    /// A brew started with `PlayerBrewStart` is ready to be handed over but still waits for its
+    /// mini-game quality (`PlayerBrewQuality`).
+    BrewAwaitsQuality {
+        guest: u32,
+        item: u32,
+    },
+    /// A tutorial step's `on_show` effects ran (`tutorial.ron`).
+    TutorialEffects {
+        id: String,
+    },
 }
 
 /// Every player action.
@@ -722,6 +914,91 @@ pub enum Command {
     },
     /// Accessibility: helpers may hand off wishes left unclaimed for a while.
     SetAssistWishes {
+        on: bool,
+    },
+    // --- T5 -------------------------------------------------------------------------------------
+    /// Pick an option on a moment's card: Karolina walks to the anchor, the option applies on
+    /// arrival (the card closes at once). Errors `UnknownId`, `Invalid` (hidden / too late).
+    ResolveMoment {
+        id: String,
+        option: String,
+    },
+    /// Try 2–3 unlocked pantry ingredients (Day: at once; Night: Karolina spends
+    /// `experiment_minutes` at the counter). Result: `SimEvent::ExperimentDone`.
+    Experiment {
+        ingredients: Vec<String>,
+    },
+    /// "Count the jar": keep one of the two decor pieces of the pending goal.
+    PickTipGoal {
+        choice: String,
+    },
+    /// Tonight's two specials on the chalkboard (known recipes; match +0.1).
+    SetSpecials {
+        recipes: Vec<String>,
+    },
+    /// Buy an unlocked decor theme once (Build → Theme).
+    BuyTheme {
+        id: String,
+    },
+    /// Switch to an owned theme (Day only; undoable).
+    SetTheme {
+        id: String,
+    },
+    /// Keep one of the morning's polaroid candidates (index into `pending_polaroids`).
+    PickPolaroid {
+        index: usize,
+    },
+    /// Same as `AutoSchedule` (handson.md naming): the pref-aware auto-fill.
+    AutoFillRozpis,
+    AnswerEarlyLeave {
+        id: u32,
+        approve: bool,
+    },
+    /// Up to 2 handover notes for tomorrow (ids from `World::handover_suggestions`).
+    PickHandover {
+        picks: Vec<String>,
+    },
+    /// The payroll screen's tip split (remembered).
+    SetTipSplit {
+        split: TipSplit,
+    },
+    /// Star of the week (200 Kč, mood +10).
+    PayBonus {
+        staff: u32,
+    },
+    /// Grant owed náhradní volno as a night off next week.
+    GrantToil {
+        staff: u32,
+        weekday: u8,
+    },
+    /// Book the week (confirms the tip split and bonus). Auto at the next day start.
+    SendPayroll {
+        week: u32,
+    },
+    /// Same as `Experiment` (the book's pantry "Try").
+    TryExperiment {
+        ingredients: Vec<String>,
+    },
+    /// Start a brew while the mini-game plays: Karolina walks to the station and works; the
+    /// quality follows with `PlayerBrewQuality` (she waits at the station with the cup until
+    /// it arrives; after a while the skip quality applies). `PlayerBrew` stays the shortcut.
+    PlayerBrewStart {
+        guest: u32,
+        recipe: String,
+        mode: BrewMode,
+    },
+    /// The mini-game's quality (0–1) for the guest's brew started with `PlayerBrewStart`.
+    PlayerBrewQuality {
+        guest: u32,
+        quality: f32,
+    },
+    /// The UI showed a tutorial step: its `on_show` effects run once (steps with an
+    /// `At(time)` trigger run by themselves in story mode while the tutorial is on).
+    TutorialShown {
+        id: String,
+    },
+    /// The tutorial setting (default on): off = no scripted `on_show` effects.
+    SetTutorial {
         on: bool,
     },
 }

@@ -41,7 +41,9 @@
         touches: [(CatLevel(4), 2.0), (GarlandsInSeason, 2.0), (Plants(4), 1.0), (Furniture("napkin_wall"), 1.0)],
         mood_bonus: [(Calm, 3.0), (Tender, 4.0)],
         effects: (
-            satisfaction_center: 50.0, satisfaction_per: 0.12,
+            // tuned with the player-bot (T5): grandma's default hall (≈ 62) gives ≈ +7 like the
+            // old ambience terms did; a dirty / dark hall can cost ≈ 8, a lovely one adds ≈ 16
+            satisfaction_center: 35.0, satisfaction_per: 0.25,
             patience: (base: 0.9, div: 250.0),
             stay: (base: 0.9, div: 500.0),
             tips: (base: 0.96, div: 1250.0),

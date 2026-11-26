@@ -78,6 +78,13 @@ pub(crate) fn wait_rate(w: &World, content: &Content, pi: usize) -> f32 {
             }
         }
     }
+    // moment effects (the station board on the café screen)
+    let now = w.minute();
+    for (mul, until) in &w.sys.fx.patience {
+        if *mul > 0.0 && until.is_none_or(|u| u > now) {
+            rate /= mul;
+        }
+    }
     rate
 }
 
@@ -100,6 +107,7 @@ pub(crate) fn note_arrival(w: &mut World, content: &Content) {
         let until = m + r.minutes;
         if w.hands.rush.until.is_none() {
             w.hands.tally.rushes += 1;
+            w.sys.tool.rush_at.get_or_insert(m);
             w.emit(SimEvent::RushStarted);
         }
         w.hands.rush.until = Some(w.hands.rush.until.map_or(until, |u| u.max(until)));
@@ -272,8 +280,8 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
 }
 
 /// §1.6: after `lull_minutes` idle (15 in the quiet hour) suggest the first that applies:
-/// a regular's Talk → (moments & recipe nudges arrive with T5) → a walk-in → rain mud by the
-/// door → the ×2 chip.
+/// a regular's Talk → a night moment (within the night's maximum) → a walk-in → rain mud by
+/// the door → the ×2 chip.
 fn lull_director(w: &mut World, content: &Content, quiet: bool) {
     let t = &content.handson.tuning;
     let m = w.minute();
@@ -306,6 +314,9 @@ fn lull_director(w: &mut World, content: &Content, quiet: bool) {
         .find(|&g| super::story::talk_available(w, content, g).is_some());
     let hint = if let Some(guest) = talk {
         LullHint::Talk { guest }
+    } else if super::moments::lull_spawn(w, content).is_some() {
+        // a small moment appears: its marker is the suggestion
+        return;
     } else if walk_in(w, content) {
         LullHint::WalkIn
     } else if w.weather.is_wet() && w.dirt < 0.2 && !duty_on_floor(w, Duty::Floor) {

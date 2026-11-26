@@ -31,7 +31,7 @@ pub(crate) fn recipe_available(w: &World, content: &Content, r: &RecipeDef) -> b
             .is_some_and(|m| super::guests::item_orderable(w, content, m))
 }
 
-fn learn(w: &mut World, recipe: &str, source: String) {
+pub(crate) fn learn(w: &mut World, recipe: &str, source: String) {
     if known(w, recipe) {
         return;
     }
@@ -178,10 +178,17 @@ pub(crate) fn matches_for(w: &World, content: &Content, wish: &WishDef) -> Vec<(
         .recipes
         .iter()
         .filter(|r| kind_ok(content, wish.kind, r) && recipe_available(w, content, r))
-        .map(|r| (r.id.clone(), match_score(wish, r, MatchContext::default())))
+        .map(|r| (r.id.clone(), match_score(wish, r, match_ctx(w, &r.id))))
         .collect();
     v.sort_by(|a, b| b.1.total_cmp(&a.1));
     v
+}
+
+/// Tonight's specials board gives its recipes a little extra match (§6.8).
+pub(crate) fn match_ctx(w: &World, recipe: &str) -> MatchContext {
+    MatchContext {
+        on_specials_board: w.sys.extras.specials.iter().any(|r| r == recipe),
+    }
 }
 
 fn best_match(w: &World, content: &Content, wish: &WishDef) -> f32 {
@@ -228,6 +235,13 @@ fn wish_weight(w: &World, content: &Content, wish: &WishDef) -> f32 {
         super::pacing::season_phase(w, content).and_then(|id| content.handson.seasons.phase(id))
     {
         tag_mul(&p.wish_mul);
+    }
+    // moment boosts (the open window: Cold / Fresh wishes)
+    let now = w.minute();
+    for (tags, mul, until) in &w.sys.fx.wish_boosts {
+        if until.is_none_or(|u| u > now) && wish.want.iter().any(|t| tags.contains(t)) {
+            weight *= mul;
+        }
     }
     weight.max(0.0)
 }
@@ -421,10 +435,29 @@ pub(crate) fn on_served(w: &mut World, content: &Content, ii: usize, pi: usize, 
                 s.satisfaction_match * credit + s.satisfaction_quality * q
             };
             factor = (s.tip_base + s.tip_span * credit * (0.5 + 0.5 * q)) * rhythm;
+            let shown = if item.wish { m } else { 1.0 };
+            super::moments::napkin_on_serve(w, content, pi, shown, q);
+            if item.wish {
+                let wish = w.parties[pi].order_kind.wish().map(str::to_string);
+                super::tool::note_wish(w, content, wish.as_deref(), &recipe, regular.as_deref(), m);
+            }
+            super::tool::serve_highlights(
+                w,
+                content,
+                regular.as_deref(),
+                &recipe,
+                shown,
+                q,
+                mode == BrewMode::ByHand,
+                item.guest,
+            );
             if let Some(r) = &regular {
+                // a handover note asked to remember them
+                let remembered = w.sys.fx.remember.remove(r).unwrap_or(0.0);
                 let add = s.trust_base
                     + if item.wish { s.trust_match * m } else { 0.0 }
-                    + s.trust_quality * q;
+                    + s.trust_quality * q
+                    + remembered;
                 let tr = w.story.trust.entry(r.clone()).or_insert(0.0);
                 *tr = (*tr + add).min(100.0);
                 let st = w.story.regulars.entry(r.clone()).or_default();

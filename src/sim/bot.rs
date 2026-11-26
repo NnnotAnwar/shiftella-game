@@ -3,7 +3,12 @@
 //! wishes by hand (quality from a configurable distribution; the mini-game and the order card
 //! slow the sim by the overlay scale), quick-brews plain tickets nobody else holds, carries,
 //! collects tips, clears, washes (hold), mops (swipe), talks to regulars, puts records on,
-//! hires by plan and delegates sensibly. It only uses the public `World` API, like the UI.
+//! hires by plan and delegates sensibly. T5: it answers night moments, experiments in the
+//! pantry (following grandma's margin notes, like someone without a wiki), keeps a polaroid
+//! each morning, counts the tip jar, buys and switches decor themes, plans the rozpis with
+//! the auto-fill, answers requests and bot buttons, ticks the checklists, picks the
+//! specials, and books the weekly payroll with a tip split. It only uses the public `World`
+//! API, like the UI.
 
 use super::hands::*;
 use super::rng::Rng;
@@ -33,6 +38,9 @@ pub struct BotConfig {
     pub always_by_hand: bool,
     pub by_hand_gap: u32,
     pub seed: u64,
+    /// Balance runs: no decor purchases, the tip split stays with the café, no star bonus
+    /// (to compare money with runs before the T5 systems).
+    pub thrifty: bool,
 }
 
 impl Default for BotConfig {
@@ -48,6 +56,7 @@ impl Default for BotConfig {
             always_by_hand: false,
             by_hand_gap: 20,
             seed: 1,
+            thrifty: false,
         }
     }
 }
@@ -67,6 +76,10 @@ pub struct BotNight {
     pub max_rail: usize,
     /// Real length of the night at ×1 (minutes): normal ticks × tick length + overlays.
     pub real_minutes: f32,
+    /// T5: moments resolved, experiments tried, bot buttons pressed.
+    pub moments: u32,
+    pub experiments: u32,
+    pub buttons: u32,
 }
 
 pub struct PlayerBot {
@@ -120,6 +133,7 @@ impl PlayerBot {
                 let _ = w.apply(content, Command::Hire { candidate: id });
             }
         }
+        self.systems_day(w, content);
         let _ = w.apply(content, Command::PublishSchedule);
         self.delegate(w, content);
         // tonight's opening record: a starter, by the night
@@ -134,7 +148,7 @@ impl PlayerBot {
                 },
             );
         }
-        let _ = w.drain_events();
+        // the day's events stay queued: `run_night` returns them with the night's
     }
 
     /// Hands tonight's crew the duties in a sensible order — dishes first (it keeps the hall and
@@ -264,6 +278,9 @@ impl PlayerBot {
     fn decide(&mut self, w: &mut World, content: &Content) -> Option<u32> {
         let m = w.minute();
         w.karolina()?;
+        if let Some(t) = self.systems_night(w, content) {
+            return Some(t);
+        }
         // rituals
         if (1..30).contains(&m)
             && w.app()
@@ -542,6 +559,378 @@ impl PlayerBot {
             && w.apply(content, Command::Talk { guest: g }).is_ok()
         {
             return Some(0);
+        }
+        // a quiet minute: the moments on the map, then the pantry
+        if queued <= 1
+            && let Some(t) = self.moment(w, content)
+        {
+            return Some(t);
+        }
+        if queued == 0
+            && w.karolina_todo(content) == 0
+            && self.cur.experiments == 0
+            && let Some(set) = self.experiment_set(w, content)
+            && w.apply(content, Command::Experiment { ingredients: set })
+                .is_ok()
+        {
+            self.cur.experiments += 1;
+            return Some(self.overlay(w, content, 6.0));
+        }
+        None
+    }
+
+    // -----------------------------------------------------------------------------------------
+    // T5: moments, pantry, the app, the journal
+    // -----------------------------------------------------------------------------------------
+
+    /// The Day phase's small decisions (a minute of planning).
+    fn systems_day(&mut self, w: &mut World, content: &Content) {
+        // the morning polaroid: mostly the best one, sometimes the second
+        if let Some((_, list)) = w.pending_polaroids() {
+            let i = if list.len() > 1 && self.rng.chance(0.25) {
+                1
+            } else {
+                0
+            };
+            let _ = w.apply(content, Command::PickPolaroid { index: i });
+        }
+        // the tip jar
+        if let Some((_, choices)) = w.tip_goal_pending(content)
+            && let Some(c) = choices.first().cloned()
+        {
+            let _ = w.apply(content, Command::PickTipGoal { choice: c });
+        }
+        // requests: approve most, decline some (a person has a life, and so does the café)
+        let swaps: Vec<u32> = w
+            .app()
+            .swaps
+            .iter()
+            .filter(|s| s.status == RequestStatus::Pending)
+            .map(|s| s.id)
+            .collect();
+        for id in swaps {
+            let approve = self.rng.chance(0.8);
+            let _ = w.apply(content, Command::AnswerSwap { id, approve });
+        }
+        let offs: Vec<u32> = w
+            .app()
+            .time_off
+            .iter()
+            .filter(|s| s.status == RequestStatus::Pending)
+            .map(|s| s.id)
+            .collect();
+        for id in offs {
+            let _ = w.apply(content, Command::AnswerTimeOff { id, approve: true });
+        }
+        let early: Vec<u32> = w
+            .early_leave_requests()
+            .iter()
+            .filter(|s| s.status == RequestStatus::Pending)
+            .map(|s| s.id)
+            .collect();
+        for id in early {
+            let _ = w.apply(content, Command::AnswerEarlyLeave { id, approve: true });
+        }
+        self.buttons(w, content);
+        // payroll: a split per week (half, then all to the crew, then the café…), a star
+        let weeks: Vec<u32> = w
+            .app()
+            .payroll
+            .iter()
+            .map(|p| p.week)
+            .filter(|wk| !w.payroll_sent(*wk))
+            .collect();
+        for week in weeks {
+            use crate::content::handson::TipSplit;
+            let split = if self.cfg.thrifty {
+                TipSplit::Cafe
+            } else {
+                [TipSplit::Half, TipSplit::Crew, TipSplit::Cafe][week as usize % 3]
+            };
+            let _ = w.apply(content, Command::SetTipSplit { split });
+            if !self.cfg.thrifty
+                && let Some(star) = w
+                    .staff()
+                    .iter()
+                    .filter(|s| !s.owner)
+                    .max_by_key(|s| (s.nights_worked, s.id))
+                    .map(|s| s.id)
+            {
+                let _ = w.apply(content, Command::PayBonus { staff: star });
+            }
+            let _ = w.apply(content, Command::SendPayroll { week });
+        }
+        // owed náhradní volno becomes a night off next week
+        if let Some(s) = w
+            .staff()
+            .iter()
+            .find(|s| !s.owner && s.toil_hours >= 8.0)
+            .map(|s| s.id)
+        {
+            let wd = (w.weekday() as u8 + 3) % 7;
+            let _ = w.apply(
+                content,
+                Command::GrantToil {
+                    staff: s,
+                    weekday: wd,
+                },
+            );
+        }
+        // decor: buy an unlocked theme with money to spare; the season's own when it's there
+        let unlocked: Vec<String> = w.themes_unlocked().iter().cloned().collect();
+        for id in &unlocked {
+            let price = content
+                .handson
+                .theme(id)
+                .map(|t| t.price as i64)
+                .unwrap_or(0);
+            if !self.cfg.thrifty && !w.theme_owned(content, id) && w.money() > price + 9000 {
+                let _ = w.apply(content, Command::BuyTheme { id: id.clone() });
+            }
+        }
+        let want = if w.theme_owned(content, "winter_lights") && w.garlands_up(content) {
+            Some("winter_lights".to_string())
+        } else if w.weekday() == crate::content::Weekday::Mon {
+            unlocked
+                .iter()
+                .filter(|t| w.theme_owned(content, t))
+                .nth(w.night() as usize / 7 % unlocked.len().max(1))
+                .cloned()
+        } else {
+            None
+        };
+        if let Some(t) = want
+            && w.theme(content) != t
+        {
+            let _ = w.apply(content, Command::SetTheme { id: t });
+        }
+        // the rozpis: auto-fill on Mondays (the app plans the rest)
+        if w.weekday() == crate::content::Weekday::Mon {
+            let _ = w.apply(content, Command::AutoFillRozpis);
+        }
+        // the specials board: the season's suggestions she knows
+        let specials: Vec<String> = w
+            .season_phase(content)
+            .map(|p| {
+                p.specials
+                    .iter()
+                    .filter(|r| w.known_recipes().any(|k| k == r.as_str()))
+                    .take(2)
+                    .cloned()
+                    .collect()
+            })
+            .unwrap_or_default();
+        let _ = w.apply(content, Command::SetSpecials { recipes: specials });
+        // the pantry by day (one try, more on the free early nights)
+        let tries = if w.experiment_cost(content) == 0 {
+            2
+        } else {
+            1
+        };
+        for _ in 0..tries {
+            if let Some(set) = self.experiment_set(w, content) {
+                let _ = w.apply(content, Command::Experiment { ingredients: set });
+            }
+        }
+    }
+
+    /// Press a button on unanswered bot messages that have one (the first that isn't a
+    /// decline; requests are answered in their own screens).
+    fn buttons(&mut self, w: &mut World, content: &Content) -> bool {
+        let msgs: Vec<(u32, String)> = w
+            .app()
+            .inbox
+            .iter()
+            .filter(|m| m.answered.is_none() && m.request.is_none() && m.night + 1 >= w.night())
+            .map(|m| (m.id, m.template.clone()))
+            .collect();
+        let mut any = false;
+        for (id, template) in msgs {
+            let Some(t) = content.app.bot_template(&template) else {
+                continue;
+            };
+            let mut acts: Vec<String> = t
+                .actions
+                .iter()
+                .filter(|a| a.id != "decline")
+                .map(|a| a.id.clone())
+                .collect();
+            // the bot tries the button that acts first, then a plain one
+            acts.sort_by_key(|a| {
+                t.actions
+                    .iter()
+                    .find(|x| &x.id == a)
+                    .map(|x| x.handler.is_none())
+                    .unwrap_or(true)
+            });
+            for a in acts {
+                if w.apply(content, Command::BotAction { msg: id, action: a })
+                    .is_ok()
+                {
+                    self.cur.buttons += 1;
+                    any = true;
+                    break;
+                }
+            }
+        }
+        any
+    }
+
+    /// Night: rituals and checklists, bot buttons, the handover.
+    fn systems_night(&mut self, w: &mut World, content: &Content) -> Option<u32> {
+        let m = w.minute();
+        let queued = w.player().queue.len() + usize::from(w.player().current.is_some());
+        if self.buttons(w, content) {
+            return Some(self.overlay(w, content, 2.0));
+        }
+        // a moment about to fade comes first (they are short and never come back tonight)
+        // (a glowing marker is one click: a calm player takes it when her hands are free-ish)
+        let urgent = w
+            .active_moments()
+            .iter()
+            .any(|a| a.resolving.is_none() && m > a.spawned && (a.expires <= m + 8 || queued <= 1));
+        if urgent
+            && queued <= 3
+            && let Some(t) = self.moment(w, content)
+        {
+            return Some(t);
+        }
+        if queued >= 3 {
+            return None;
+        }
+        // opening / closing items nobody else will do
+        let window = if m < 25 {
+            Some(crate::content::world::ChecklistKind::Opening)
+        } else if m >= 430 {
+            Some(crate::content::world::ChecklistKind::Closing)
+        } else {
+            None
+        };
+        if let Some(list) = window {
+            let open: Vec<String> = content
+                .app
+                .checklists
+                .iter()
+                .filter(|c| c.list == list)
+                .filter(|c| {
+                    w.app()
+                        .checklist
+                        .iter()
+                        .any(|s| s.id == c.id && !s.done && s.claim.is_none())
+                })
+                .filter(|c| match c.owner() {
+                    crate::content::handson::ChecklistOwner::Karolina => {
+                        !matches!(c.id.as_str(), "light_off_at_six" | "handover_note") || m >= 466
+                    }
+                    crate::content::handson::ChecklistOwner::Either(d) => !helper_on(w, d),
+                })
+                .map(|c| c.id.clone())
+                .collect();
+            for id in open {
+                if id == "menu_board" {
+                    let s = w.specials().to_vec();
+                    if w.apply(content, Command::SetSpecials { recipes: s })
+                        .is_ok()
+                    {
+                        return Some(0);
+                    }
+                    continue;
+                }
+                if w.apply(content, Command::TickChecklist { id }).is_ok() {
+                    return Some(0);
+                }
+            }
+        }
+        None
+    }
+
+    /// Resolve a moment on the map (its card is a short overlay): the first option, the
+    /// warmer one for the cat.
+    fn moment(&mut self, w: &mut World, content: &Content) -> Option<u32> {
+        let open: Vec<String> = w
+            .active_moments()
+            .iter()
+            .filter(|a| a.resolving.is_none() && w.minute() > a.spawned)
+            .map(|a| a.id.clone())
+            .collect();
+        for id in open {
+            let opts = w.moment_options(content, &id);
+            let pick = opts
+                .iter()
+                .find(|o| matches!(o.as_str(), "ham" | "hang" | "blanket" | "candles" | "app"))
+                .or(opts.first())
+                .cloned();
+            if let Some(option) = pick
+                && w.apply(
+                    content,
+                    Command::ResolveMoment {
+                        id: id.clone(),
+                        option,
+                    },
+                )
+                .is_ok()
+            {
+                self.cur.moments += 1;
+                return Some(self.overlay(w, content, self.cfg.card_seconds));
+            }
+        }
+        None
+    }
+
+    /// A set of jars to try, the way a curious player would: what grandma's margin notes
+    /// revealed plus a guess, never the same set twice.
+    fn experiment_set(&mut self, w: &World, content: &Content) -> Option<Vec<String>> {
+        let jars: Vec<String> = w.pantry().iter().cloned().collect();
+        if jars.len() < 2 {
+            return None;
+        }
+        let target = w.margin_note_target(content);
+        let mut base: Vec<String> = target
+            .as_ref()
+            .map(|r| w.revealed_ingredients(content, r))
+            .unwrap_or_default();
+        base.retain(|i| jars.contains(i));
+        base.truncate(3);
+        let tried = |set: &[String]| {
+            let mut key = set.to_vec();
+            key.sort();
+            w.knowledge().tried.contains(&key.join("+"))
+        };
+        // grandma's notes say all but one jar: go through the shelf for the last one
+        let need = target
+            .as_ref()
+            .and_then(|r| content.handson.recipe(r))
+            .map(|r| r.ingredients.len())
+            .unwrap_or(0);
+        if need >= 2 && base.len() == need && !tried(&base) {
+            return Some(base);
+        }
+        if need >= 2 && base.len() + 1 == need {
+            for j in &jars {
+                if base.contains(j) {
+                    continue;
+                }
+                let mut set = base.clone();
+                set.push(j.clone());
+                if !tried(&set) {
+                    return Some(set);
+                }
+            }
+        }
+        for _ in 0..12 {
+            let mut set = base.clone();
+            let n = 2 + self.rng.index(2);
+            while set.len() < n {
+                let j = jars[self.rng.index(jars.len())].clone();
+                if !set.contains(&j) {
+                    set.push(j);
+                }
+            }
+            let mut key = set.clone();
+            key.sort();
+            if !w.knowledge().tried.contains(&key.join("+")) {
+                return Some(set);
+            }
         }
         None
     }

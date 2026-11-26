@@ -313,6 +313,10 @@ pub(crate) fn fire(w: &mut World, content: &Content, id: &str, mut ctx: EffectCt
     if e.kind == EventKind::Bad {
         super::staff::one_shot_mood(w, content, &crate::content::Situation::BadEvent);
     }
+    // a night moment replaces the choice toast (its default lives in `on_expire`)
+    if !e.choices.is_empty() && super::moments::on_event(w, content, &e.id) {
+        return;
+    }
     if !e.choices.is_empty() {
         w.narrator.pending.retain(|p| p.event != e.id);
         w.narrator.pending.push(PendingChoice {

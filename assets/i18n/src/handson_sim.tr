@@ -1,0 +1,63 @@
+# Sim systems (design/handson.md §4–§6, §11–§13, T5): keys the sim emits that no data file names.
+# English in every language until T9 (add these to handson_TODO.txt's list when translating).
+
+ui.guest.forgiven
+* I'll come back tomorrow.
+
+app.bot.early_leave
+* {name}: can I go at {time} tonight? My daughter is ill.
+
+app.bot.early_leave.action.approve
+* Of course
+
+app.bot.early_leave.action.decline
+* Please stay
+
+app.bot.low_stock.drone_arrived
+* The drone dropped off the order.
+
+app.bot.regular_to_go.reminder
+* {name} passes at {time} — to go, fast.
+
+app.checklist.check_stock.out
+* We're out of something — it's off the menu for a while.
+
+app.payroll.star_card
+* A thank-you card for the star of the week.
+
+# Singular guest names for order cards / tickets (`guest.<archetype>.one`; `.name` stays the group).
+guest.travelers.one
+* Traveller
+
+guest.taxi_drivers.one
+* Taxi driver
+
+guest.nurses.one
+* Nurse
+
+guest.students.one
+* Student
+
+guest.insomniacs.one
+* Night owl
+
+guest.train_crew.one
+* Train conductor
+
+guest.drone_operators.one
+* Drone operator
+
+guest.shift_workers.one
+* Shift worker
+
+guest.clubbers.one
+* Concertgoer
+
+guest.patrol.one
+* Patrol officer
+
+guest.truckers.one
+* Trucker
+
+guest.night_wanderer.one
+* Night wanderer

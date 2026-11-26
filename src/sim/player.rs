@@ -12,7 +12,7 @@ use super::staff::{self, STAFF_SPEED, WORK_SPEED};
 use super::types::*;
 use super::world::*;
 use crate::content::Content;
-use crate::content::handson::{MatchContext, match_score};
+use crate::content::handson::match_score;
 
 /// Work ticks (at speed 1) of her quick acts.
 const TAKE_ORDER_WORK: f32 = 8.0;
@@ -271,6 +271,23 @@ fn release_act(w: &mut World, content: &Content, act: &PlayerAct, stage: u8, cou
                 c.claim = None;
             }
         }
+        PlayerAct::GoTo { tile } => {
+            // a queued moment / experiment walk was dropped
+            if stage == 0
+                && let Some(i) = w.sys.moments.walks.iter().position(|j| j.tile == *tile)
+            {
+                let j = w.sys.moments.walks.remove(i);
+                if let super::systems::WalkKind::Moment { id, .. } = &j.kind {
+                    super::moments::release(w, id);
+                }
+            }
+            if stage > 0
+                && let Some(j) = w.sys.moments.walk_now.take()
+                && let super::systems::WalkKind::Moment { id, .. } = &j.kind
+            {
+                super::moments::release(w, id);
+            }
+        }
         _ => {}
     }
 }
@@ -351,7 +368,8 @@ fn brew_quality(w: &World, content: &Content, recipe: &str, mode: BrewMode, q: f
             }
         }
         BrewMode::Quick => {
-            if w.hands
+            let base = if w
+                .hands
                 .knowledge
                 .recipes
                 .get(recipe)
@@ -360,7 +378,18 @@ fn brew_quality(w: &World, content: &Content, recipe: &str, mode: BrewMode, q: f
                 t.practised_quick_quality
             } else {
                 t.quick_quality
-            }
+            };
+            // the warmed-up machine (opening checklist)
+            let m = w.minute();
+            let add: f32 = w
+                .sys
+                .fx
+                .quick_quality
+                .iter()
+                .filter(|(_, u)| u.is_none_or(|u| u > m))
+                .map(|(a, _)| a)
+                .sum();
+            (base + add).clamp(0.0, 1.0)
         }
     }
 }
@@ -416,7 +445,7 @@ pub(crate) fn brew(
         let m = content
             .handson
             .wish(&wish)
-            .map(|wd| match_score(wd, r, MatchContext::default()))
+            .map(|wd| match_score(wd, r, orders::match_ctx(w, &r.id)))
             .unwrap_or(0.6);
         let iid = w.alloc_id();
         w.econ.supplies -= (mi.cost + r.cost_add) as i64;
@@ -724,6 +753,9 @@ pub(crate) fn wash_progress(w: &mut World, sink: u32, seconds: f32) -> Result<()
     let n = (p.wash_bank.floor() as u32).min(w.sink_dishes);
     p.wash_bank -= n as f32;
     w.sink_dishes -= n;
+    if n > 0 {
+        w.emit(SimEvent::Washed { dishes: n });
+    }
     if let Some(c) = w.hands.player.current.as_mut() {
         c.waited = 0;
     }
@@ -779,6 +811,23 @@ pub(crate) fn reset(w: &mut World) {
     w.hands.player.rhythm = 0;
     w.hands.player.last_serve_minute = None;
     w.hands.player.wash_bank = 0.0;
+    w.sys.moments.walks.clear();
+    w.sys.moments.walk_now = None;
+}
+
+/// Queues a walk with work at its end (a moment's option, a night experiment).
+pub(crate) fn queue_walk(
+    w: &mut World,
+    content: &Content,
+    tile: (i32, i32),
+    kind: super::systems::WalkKind,
+) -> Result<(), CommandError> {
+    queue(w, content, PlayerAct::GoTo { tile }, false)?;
+    w.sys
+        .moments
+        .walks
+        .push(super::systems::WalkJob { tile, kind });
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -835,10 +884,18 @@ fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal
             {
                 return at(staff::station_access(w, content, r));
             }
+            let seated = p
+                .leader()
+                .is_some_and(|l| w.guests.iter().any(|g| g.id == l && g.pose == Pose::Sit));
             let seat = p.leader().and_then(|l| staff::guest_seat_tile(w, l));
             match seat {
-                Some(s) => at(staff::stand_next_to(w, s, here)),
-                // still walking in: wait for them to sit down
+                Some(s) if seated => at(staff::stand_next_to(w, s, here)),
+                // still walking in: wait at the counter, not by an empty chair
+                Some(_) => Goal::At(staff::checklist_tile(
+                    w,
+                    content,
+                    crate::content::Job::Register,
+                )),
                 None => Goal::Wait,
             }
         }
@@ -1116,6 +1173,30 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                         })
                         .map(|i| (i.id, i.menu.clone()))
                     else {
+                        // a by-hand brew started early waits for its mini-game's quality
+                        if let Some(&(wid, since)) =
+                            w.sys.brew_waiting.iter().find(|(i, _)| tray.contains(i))
+                        {
+                            w.staff[idx].pose = Pose::Work;
+                            if w.tick.saturating_sub(since) < BREW_QUALITY_PATIENCE {
+                                if cur.waited == 0 {
+                                    let guest = w
+                                        .items
+                                        .iter()
+                                        .find(|i| i.id == wid)
+                                        .map(|i| i.guest)
+                                        .unwrap_or(0);
+                                    w.emit(SimEvent::BrewAwaitsQuality { guest, item: wid });
+                                }
+                                if let Some(c) = w.hands.player.current.as_mut() {
+                                    c.waited += 1;
+                                }
+                                return;
+                            }
+                            // the mini-game was closed: the skip quality
+                            let q = content.handson.minigames.common.skip_quality;
+                            set_brew_quality(w, wid, q);
+                        }
                         // all made: release the station, carry the tray over
                         if let Some(st) = cur.target
                             && let Some(f) = w.furniture.iter_mut().find(|f| f.uid == st)
@@ -1225,7 +1306,12 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                         f.dirt = 0.0;
                         f.claim = None;
                     }
-                    collect_tips_on(w, table, Some(me));
+                    collect_tips_on(w, content, table, Some(me));
+                    w.emit(SimEvent::TableCleared {
+                        table,
+                        dishes: n,
+                        by: me,
+                    });
                     let sink = w
                         .furniture
                         .iter()
@@ -1289,6 +1375,9 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                 w.staff[idx].pose = Pose::Work;
                 if work_tick(w, work_speed(w, content, None)) {
                     w.dirt = (w.dirt - MOP_AMOUNT).max(0.0);
+                    if let PlayerAct::Mop { tile } = cur.act {
+                        w.emit(SimEvent::Mopped { tile });
+                    }
                     finish(w);
                 }
             }
@@ -1297,13 +1386,17 @@ fn step(w: &mut World, content: &Content, idx: usize) {
             0 => set_work(w, 1, TIP_WORK),
             _ => {
                 if work_tick(w, 1.0) {
-                    collect_tips_on(w, table, Some(me));
+                    collect_tips_on(w, content, table, Some(me));
                     finish(w);
                 }
             }
         },
         PlayerAct::Checklist { id } => match cur.stage {
-            0 => set_work(w, 1, CHECKLIST_WORK),
+            0 => set_work(
+                w,
+                1,
+                CHECKLIST_WORK * super::tool::checklist_speed(w, content, &id),
+            ),
             _ => {
                 w.staff[idx].pose = Pose::Work;
                 if work_tick(w, 1.0) {
@@ -1324,8 +1417,100 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                 }
             }
         },
-        PlayerAct::GoTo { .. } => finish(w),
+        PlayerAct::GoTo { tile } => match cur.stage {
+            0 => {
+                // a moment's option or a night experiment waits at the end of this walk
+                let pos = w.sys.moments.walks.iter().position(|j| j.tile == tile);
+                let Some(pos) = pos else {
+                    return finish(w);
+                };
+                let job = w.sys.moments.walks.remove(pos);
+                let work = match &job.kind {
+                    super::systems::WalkKind::Moment { id, option } => {
+                        if !w.sys.moments.active.iter().any(|a| &a.id == id) {
+                            return finish(w);
+                        }
+                        super::moments::option_work(content, id, option, w)
+                    }
+                    super::systems::WalkKind::Experiment { .. } => {
+                        content.handson.tuning.experiment_minutes.max(1) as f32
+                            * TICKS_PER_MINUTE as f32
+                    }
+                };
+                w.sys.moments.walk_now = Some(job);
+                set_work(w, 1, work);
+            }
+            _ => {
+                w.staff[idx].pose = Pose::Work;
+                if work_tick(w, 1.0) {
+                    match w.sys.moments.walk_now.take().map(|j| j.kind) {
+                        Some(super::systems::WalkKind::Moment { id, option }) => {
+                            super::moments::arrive(w, content, &id, &option);
+                        }
+                        Some(super::systems::WalkKind::Experiment { ingredients })
+                            if super::knowledge::validate(w, content, &ingredients).is_ok() =>
+                        {
+                            super::knowledge::run(w, content, &ingredients);
+                        }
+                        _ => {}
+                    }
+                    finish(w);
+                }
+            }
+        },
     }
+}
+
+/// Ticks Karolina holds a finished by-hand cup waiting for `PlayerBrewQuality` (the
+/// mini-game overlay slows the sim, so this is a long real wait).
+const BREW_QUALITY_PATIENCE: u32 = 200;
+
+/// Sets the quality of a brew started early (`PlayerBrewStart`).
+fn set_brew_quality(w: &mut World, item: u32, q: f32) {
+    w.sys.brew_waiting.retain(|(i, _)| *i != item);
+    if let Some(it) = w.items.iter_mut().find(|i| i.id == item)
+        && let ItemOrigin::Player { quality, .. } = &mut it.origin
+    {
+        *quality = q.clamp(0.0, 1.0);
+    }
+}
+
+/// `Command::PlayerBrewStart`: brew now, the quality later.
+pub(crate) fn brew_start(
+    w: &mut World,
+    content: &Content,
+    guest: u32,
+    recipe: &str,
+    mode: BrewMode,
+) -> Result<(), CommandError> {
+    let q = content.handson.minigames.common.skip_quality;
+    brew(w, content, guest, recipe, q, mode)?;
+    if mode == BrewMode::ByHand
+        && let Some(PlayerAct::Brew { item, .. }) = w.hands.player.queue.back()
+    {
+        let item = *item;
+        let tick = w.tick;
+        w.sys.brew_waiting.push((item, tick));
+    }
+    Ok(())
+}
+
+/// `Command::PlayerBrewQuality`.
+pub(crate) fn brew_quality_in(w: &mut World, guest: u32, quality: f32) -> Result<(), CommandError> {
+    if !quality.is_finite() {
+        return Err(CommandError::Invalid("quality".into()));
+    }
+    let pi = party_of(w, guest).ok_or_else(|| CommandError::UnknownId(guest.to_string()))?;
+    let party = w.parties[pi].id;
+    let item = w
+        .sys
+        .brew_waiting
+        .iter()
+        .map(|(i, _)| *i)
+        .find(|i| w.items.iter().any(|x| x.id == *i && x.party == party))
+        .ok_or_else(|| CommandError::Invalid("no brew waits for a quality".into()))?;
+    set_brew_quality(w, item, quality);
+    Ok(())
 }
 
 /// Works one tick; true when the stage's work is done.
@@ -1355,12 +1540,21 @@ fn wait_a_tick(w: &mut World, content: &Content, limit: u32) {
 // ---------------------------------------------------------------------------------------------
 
 /// Books coins into the jar (`by` = who picked them up; `None` = the night end).
-pub(crate) fn collect_coins(w: &mut World, coins: Vec<TipCoin>, by: Option<u32>) {
+pub(crate) fn collect_coins(
+    w: &mut World,
+    content: &Content,
+    coins: Vec<TipCoin>,
+    by: Option<u32>,
+) {
     if coins.is_empty() {
         return;
     }
     let mut total = 0;
+    let mut napkins = Vec::new();
     for c in coins {
+        if let Some(n) = c.napkin.clone() {
+            napkins.push(n);
+        }
         total += c.amount;
         w.econ.money += c.amount;
         w.tonight.tips += c.amount;
@@ -1373,9 +1567,13 @@ pub(crate) fn collect_coins(w: &mut World, coins: Vec<TipCoin>, by: Option<u32>)
     w.hands.tips_lifetime += total;
     w.hands.tally.tips_collected += total;
     w.emit(SimEvent::TipCollected { amount: total, by });
+    for n in napkins {
+        super::moments::collect_napkin(w, content, &n);
+    }
+    super::moments::check_tip_goals(w, content);
 }
 
-pub(crate) fn collect_tips_on(w: &mut World, table: u32, by: Option<u32>) {
+pub(crate) fn collect_tips_on(w: &mut World, content: &Content, table: u32, by: Option<u32>) {
     let mut coins = Vec::new();
     w.hands.tips.retain(|t| {
         if t.table == table {
@@ -1385,11 +1583,11 @@ pub(crate) fn collect_tips_on(w: &mut World, table: u32, by: Option<u32>) {
             true
         }
     });
-    collect_coins(w, coins, by);
+    collect_coins(w, content, coins, by);
 }
 
 /// 06:00: nothing is ever lost.
-pub(crate) fn collect_all_tips(w: &mut World) {
+pub(crate) fn collect_all_tips(w: &mut World, content: &Content) {
     let coins = std::mem::take(&mut w.hands.tips);
-    collect_coins(w, coins, None);
+    collect_coins(w, content, coins, None);
 }

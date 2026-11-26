@@ -294,6 +294,9 @@ pub struct Party {
     /// Archetype music like / dislike applied this visit.
     #[serde(default)]
     pub archetype_music_done: bool,
+    /// A thank-you napkin they will leave with the tip (`thanks.<id>`).
+    #[serde(default)]
+    pub napkin: Option<String>,
 }
 
 impl Party {
@@ -742,6 +745,10 @@ pub enum UndoOp {
         uid: u32,
         old: bool,
     },
+    /// `Command::SetTheme`: the previous theme.
+    Theme {
+        old: String,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -799,6 +806,9 @@ pub struct World {
     /// Hands-on state: Karolina, knowledge, the jukebox, tips, rush, tallies (save v2).
     #[serde(default)]
     pub(crate) hands: HandsState,
+    /// T5 systems: moments, extras, atmosphere, journal, rozpis puzzle, the app as a tool.
+    #[serde(default)]
+    pub(crate) sys: super::systems::SystemsState,
     #[serde(skip)]
     pub(crate) events: Vec<SimEvent>,
     #[serde(skip)]
@@ -880,6 +890,7 @@ impl World {
             satisfaction_n: 0,
             relationships: BTreeMap::new(),
             hands: HandsState::default(),
+            sys: Default::default(),
             events: Vec::new(),
             paths: PathCache::default(),
         }
@@ -999,6 +1010,7 @@ impl World {
     /// tick / command / `rebuild_caches`): starter & menu recipes, the starter pantry and
     /// records, default duties for helpers without any.
     pub(crate) fn ensure_hands(&mut self, content: &Content) {
+        self.ensure_sys(content);
         if self.hands.ready {
             return;
         }
@@ -1024,6 +1036,31 @@ impl World {
                 super::duties::sync_priorities(&mut c.staff);
             }
         }
+    }
+
+    /// T5 state from content, once (new games; older saves on their first tick / command).
+    pub(crate) fn ensure_sys(&mut self, content: &Content) {
+        if self.sys.ready {
+            return;
+        }
+        self.sys.ready = true;
+        self.sys.fx.checklist_speed = [1.0, 1.0];
+        self.story
+            .vars
+            .entry("cat_name".into())
+            .or_insert_with(|| "none".into());
+        if let Some(d) = content.handson.decor.default_theme() {
+            if self.sys.atmos.theme.is_empty() {
+                self.sys.atmos.theme = d.id.clone();
+            }
+            self.sys.atmos.owned.insert(d.id.clone());
+            self.sys.atmos.unlocked.insert(d.id.clone());
+        }
+        let cat = &content.handson.extras.cat;
+        let aff = self.story.counters.get(&cat.counter).copied().unwrap_or(0);
+        self.sys.extras.cat_level = cat.level_at(aff.min(cat.max));
+        super::rozpis::sync_prefs(self, content);
+        self.sys.atmos.coziness = super::atmos::compute(self, content);
     }
 
     pub(crate) fn alloc_id(&mut self) -> u32 {
@@ -1204,7 +1241,11 @@ impl World {
         self.place_jukebox(content);
         super::orders::check_learning(self, content);
         super::music::check_unlocks(self, content);
+        super::atmos::on_day_start(self, content);
         super::app::on_day_start(self, content);
+        super::rozpis::on_day_start(self, content);
+        super::tool::on_day_start(self, content);
+        super::rozpis::score(self, content);
         super::story::on_day_start(self, content);
         self.emit(SimEvent::DayStarted { night: self.night });
     }
@@ -1276,12 +1317,19 @@ impl World {
         h.lull = LullState::default();
         h.hall_mood = HallMoodState::default();
         let left = std::mem::take(&mut h.tips);
-        super::player::collect_coins(self, left, None);
+        super::player::collect_coins(self, content, left, None);
+        self.sys.fx.tonight_reset();
+        super::journal::on_night_start(self, content);
+        super::moments::on_night_start(self, content);
         super::economy::restock(self, content);
         super::story::roll_weather(self, content);
         super::app::on_night_start(self, content);
         super::staff::on_night_start(self, content);
         super::music::on_night_start(self, content);
+        super::tool::on_night_start(self, content);
+        super::xlogic::run_next_night(self, content);
+        super::rozpis::on_night_start(self, content);
+        super::atmos::on_night_start(self, content);
         self.emit(SimEvent::NightStarted { night: self.night });
         super::story::on_night_start(self, content);
     }
@@ -1387,6 +1435,13 @@ impl World {
         }
         super::orders::assist_wishes(self, content);
         super::pacing::on_minute(self, content);
+        super::xlogic::run_later(self, content);
+        super::moments::on_minute(self, content);
+        super::moments::naming_nudge(self, content);
+        super::atmos::on_minute(self, content);
+        super::journal::on_minute(self, content);
+        super::tool::on_minute(self, content);
+        super::rozpis::on_minute(self, content);
         let q = self.queue_len() as u32;
         self.tonight.max_queue = self.tonight.max_queue.max(q);
     }
@@ -1395,8 +1450,14 @@ impl World {
         self.tick = NIGHT_TICKS;
         // Everybody still inside pays and leaves; uncollected tips go into the jar.
         super::guests::close_up(self, content);
-        super::player::collect_all_tips(self);
+        super::player::collect_all_tips(self, content);
         super::player::reset(self);
+        super::moments::on_night_end(self, content);
+        super::tool::on_night_end(self, content);
+        super::rozpis::on_night_end(self);
+        super::journal::on_night_end(self, content);
+        self.tonight.insights = super::tool::insights(self, content);
+        self.tonight.coziness_avg = super::atmos::night_avg(self);
         for s in self.staff.iter_mut() {
             if !s.owner && s.minutes_worked > 0 {
                 s.nights_worked += 1;

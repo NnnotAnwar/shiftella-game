@@ -21,7 +21,9 @@
         stages: [
             (stage: 0, nights: (1, 30), lines: ["regular.mirek.line.0a", "regular.mirek.line.0b"]),
             (stage: 1, nights: (2, 30),
-             conditions: [ServedFastStreak(regular: "mirek", minutes: 10, visits: 3)],
+             // fast service or Karolina's well-matched coffees, three visits in a row
+             when: [Any([ServedFastStreak(regular: "mirek", minutes: 10, visits: 3),
+                         WishMatchStreak(regular: "mirek", min: 0.7, visits: 3)])],
              lines: ["regular.mirek.line.1a"]),
             (stage: 2, nights: (8, 30), conditions: [NightAtLeast(8)],
              lines: ["regular.mirek.line.2a"]),
@@ -50,7 +52,8 @@
         stages: [
             (stage: 0, nights: (3, 30), lines: ["regular.hana.line.0a", "regular.hana.line.0b"]),
             (stage: 1, nights: (4, 30),
-             conditions: [ServedFastStreak(regular: "hana", minutes: 9, visits: 3)],
+             when: [Any([ServedFastStreak(regular: "hana", minutes: 9, visits: 3),
+                         WishMatchStreak(regular: "hana", min: 0.7, visits: 3)])],
              lines: ["regular.hana.line.1a"]),
             (stage: 2, nights: (12, 30), conditions: [NightAtLeast(12)],
              lines: ["regular.hana.line.2a"]),
@@ -109,7 +112,8 @@
              lines: ["regular.vera.line.2a"],
              effects: [FindNote("note_05"), SetFlag("recipe_kulajda"), UnlockMenu("grandma_kulajda"), GiveItem("recipe_book")]),
             (stage: 3, nights: (15, 30),
-             conditions: [Any([ServedItem(regular: "vera", item: "grandma_kulajda"), NightAtLeast(22)])],
+             when: [Any([ServedRecipe(regular: "vera", recipe: "r_kulajda"),
+                         ServedItem(regular: "vera", item: "grandma_kulajda"), NightAtLeast(22)])],
              lines: ["regular.vera.line.3a"]),
             (stage: 4, nights: (27, 30), conditions: [NightAtLeast(27), NotesFoundAtLeast(6)],
              lines: ["regular.vera.line.4a"],

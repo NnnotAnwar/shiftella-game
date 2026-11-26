@@ -560,26 +560,25 @@ fn choice_events_wait_and_default() {
     w.start_night(&c);
     finish_cutscenes(&mut w, &c);
     w.drain_events();
-    w.debug_fire_event(&c, "station_cat");
+    w.debug_fire_event(&c, "staff_birthday");
     let ev = w.drain_events();
     assert!(
         ev.iter()
-            .any(|e| matches!(e, SimEvent::ChoiceNeeded { id, .. } if id == "station_cat"))
+            .any(|e| matches!(e, SimEvent::ChoiceNeeded { id, .. } if id == "staff_birthday"))
     );
     assert_eq!(w.pending_choices().len(), 1);
     let money = w.money();
     w.apply(
         &c,
         Command::AnswerEvent {
-            event: "station_cat".into(),
-            choice: "feed".into(),
+            event: "staff_birthday".into(),
+            choice: "cake".into(),
         },
     )
     .unwrap();
-    assert_eq!(w.money(), money - 10);
-    assert_eq!(w.story().counters.get("cat_fed_nights"), Some(&1));
+    assert_eq!(w.money(), money - 150);
     assert!(w.pending_choices().is_empty());
-    w.debug_fire_event(&c, "drone_lost");
+    w.debug_fire_event(&c, "coffee_machine");
     for _ in 0..(narrator::CHOICE_MINUTES + 2) * TICKS_PER_MINUTE {
         w.tick(&c);
     }
@@ -587,8 +586,16 @@ fn choice_events_wait_and_default() {
     assert!(
         ev.iter()
             .any(|e| matches!(e, SimEvent::ChoiceResolved { id, choice }
-        if id == "drone_lost" && choice == "return_it"))
+        if id == "coffee_machine" && choice == "fix_ourselves"))
     );
+    // an event a night moment replaces spawns the moment instead of the toast
+    w.debug_fire_event(&c, "station_cat");
+    let ev = w.drain_events();
+    assert!(
+        !ev.iter()
+            .any(|e| matches!(e, SimEvent::ChoiceNeeded { .. }))
+    );
+    assert!(w.active_moments().iter().any(|m| m.id == "m_station_cat"));
 }
 
 #[test]

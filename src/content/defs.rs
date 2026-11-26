@@ -955,6 +955,10 @@ pub struct ArcStage {
     pub nights: (u32, u32),
     #[serde(default)]
     pub conditions: Vec<Condition>,
+    /// Hands-on conditions (`Cond`: core or extension, e.g. `WishMatchStreak`,
+    /// `ServedRecipe`); all of `conditions` and `when` must hold.
+    #[serde(default)]
+    pub when: Vec<super::handson::Cond>,
     #[serde(default)]
     pub lines: Vec<String>,
     #[serde(default)]

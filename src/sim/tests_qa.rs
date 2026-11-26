@@ -161,7 +161,22 @@ fn default_rozpis_is_sensible_for_every_crew_size() {
         };
         for s in w.staff().iter().filter(|s| !s.owner) {
             let row = &app.published[&s.id];
-            assert_eq!(shifts_worked(row), want, "{hires} hires: {row:?}");
+            // a Need ("not two nights in a row", "three nights a week") may take a night off
+            let limited = w.prefs(s.id).iter().any(|p| {
+                p.strength == crate::content::handson::Strength::Need
+                    && matches!(
+                        p.kind,
+                        crate::content::handson::PrefKind::NoBackToBack
+                            | crate::content::handson::PrefKind::MaxNights(_)
+                            | crate::content::handson::PrefKind::WeekendOff
+                            | crate::content::handson::PrefKind::DayOff(_)
+                    )
+            });
+            if limited {
+                assert!(shifts_worked(row) <= want, "{hires} hires: {row:?}");
+            } else {
+                assert_eq!(shifts_worked(row), want, "{hires} hires: {row:?}");
+            }
             let hours: f32 = row.iter().map(|x| x.hours()).sum();
             if hires >= 2 {
                 assert!(hours <= 40.0, "{hires} hires: {hours} h");

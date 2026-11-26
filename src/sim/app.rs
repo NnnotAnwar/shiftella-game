@@ -31,14 +31,38 @@ pub(crate) fn bot_with(
     ctx: &EffectCtx,
     extra: Vec<(String, String)>,
 ) {
+    bot_full(w, content, template, ctx, extra, None);
+}
+
+/// A bot message about a request the sim already created (rozpis prefs, life events).
+pub(crate) fn bot_request(
+    w: &mut World,
+    content: &Content,
+    template: &str,
+    ctx: &EffectCtx,
+    request: u32,
+    extra: Vec<(String, String)>,
+) {
+    bot_full(w, content, template, ctx, extra, Some(request));
+}
+
+fn bot_full(
+    w: &mut World,
+    content: &Content,
+    template: &str,
+    ctx: &EffectCtx,
+    extra: Vec<(String, String)>,
+    preset: Option<u32>,
+) {
     let Some(t) = content.app.bot_template(template) else {
         return;
     };
     let id = w.alloc_id();
-    let mut request = None;
+    let mut request = preset;
     let mut subject = ctx.staff;
     // requests created by the message
     match t.kind {
+        _ if preset.is_some() => {}
         BotKind::SwapRequest => {
             let ids: Vec<u32> = w.staff.iter().filter(|s| !s.owner).map(|s| s.id).collect();
             if ids.len() >= 2 {
@@ -56,6 +80,11 @@ pub(crate) fn bot_with(
                 });
                 request = Some(rid);
                 subject = Some(a);
+                w.emit(SimEvent::RequestCreated {
+                    id: rid,
+                    kind: crate::content::handson::RequestKind::Swap,
+                    staff: a,
+                });
             }
         }
         BotKind::TimeOffRequest => {
@@ -86,6 +115,15 @@ pub(crate) fn bot_with(
                 });
                 request = Some(rid);
                 subject = Some(a);
+                w.emit(SimEvent::RequestCreated {
+                    id: rid,
+                    kind: if toil {
+                        crate::content::handson::RequestKind::Toil
+                    } else {
+                        crate::content::handson::RequestKind::TimeOff
+                    },
+                    staff: a,
+                });
             }
         }
         _ => {}
@@ -179,6 +217,12 @@ pub(crate) fn bot_action(
         .iter()
         .find(|a| a.id == action)
         .ok_or_else(|| CommandError::UnknownId(action.to_string()))?;
+    let handler = a.handler.clone();
+    if let Some(h) = &handler {
+        // a button that can't act now leaves the message open
+        let msg_copy = w.app.inbox[i].clone();
+        super::tool::handle(w, content, &msg_copy, h)?;
+    }
     w.app.inbox[i].answered = Some(action.to_string());
     let request = w.app.inbox[i].request;
     let mut ctx = EffectCtx::default();
@@ -189,13 +233,19 @@ pub(crate) fn bot_action(
         &a.effects,
         &mut ctx,
     );
-    if let Some(r) = request {
+    if let Some(r) = request
+        && matches!(action, "approve" | "decline")
+    {
         let approve = action == "approve";
         if w.app.swaps.iter().any(|s| s.id == r) {
             answer_swap(w, r, approve)?;
+            answered(w, content, r, approve);
         } else if w.app.time_off.iter().any(|x| x.id == r) {
             answer_time_off(w, r, approve)?;
             crew_changed(w, content);
+            answered(w, content, r, approve);
+        } else if w.sys.rozpis.early_leave.iter().any(|x| x.id == r) {
+            super::rozpis::answer_early_leave(w, content, r, approve)?;
         }
     }
     if action == "get_well" {
@@ -211,6 +261,12 @@ pub(crate) fn bot_action(
         }
     }
     Ok(())
+}
+
+/// The rozpis side of an answered swap / time-off request (§13.3).
+pub(crate) fn answered(w: &mut World, content: &Content, id: u32, approve: bool) {
+    let partner = w.app.swaps.iter().find(|s| s.id == id).map(|s| s.to);
+    super::rozpis::on_answer(w, content, id, approve, partner);
 }
 
 pub(crate) fn answer_swap(w: &mut World, id: u32, approve: bool) -> Result<(), CommandError> {
@@ -329,6 +385,7 @@ pub(crate) fn tick_checklist(w: &mut World, content: &Content, id: &str, by: Opt
         s.mood = (s.mood + 0.5).min(100.0);
     }
     w.emit(SimEvent::ChecklistTicked { id: id.to_string() });
+    super::tool::on_checklist_done(w, content, id);
 }
 
 pub(crate) fn on_day_start(w: &mut World, content: &Content) {
@@ -619,7 +676,7 @@ pub fn digest_lines(summary: &NightSummary) -> Vec<(String, Vec<(String, String)
 pub const ROZPIS_MAX_FULL_HIRES: usize = 2;
 
 /// Weekday of a night (story nights carry their own weekday).
-fn weekday_of_night(w: &World, content: &Content, night: u32) -> usize {
+pub(crate) fn weekday_of_night(w: &World, content: &Content, night: u32) -> usize {
     match w.mode {
         Mode::Story => content
             .story
@@ -631,7 +688,7 @@ fn weekday_of_night(w: &World, content: &Content, night: u32) -> usize {
 }
 
 /// How busy each weekday is (sum of the town's guest pools × weekday multipliers).
-fn weekday_demand(w: &World, content: &Content) -> [f32; 7] {
+pub(crate) fn weekday_demand(w: &World, content: &Content) -> [f32; 7] {
     let mut d = [0.0f32; 7];
     for g in &content.guests {
         if g.institution
@@ -664,6 +721,11 @@ fn weekday_demand(w: &World, content: &Content) -> [f32; 7] {
 /// * More than [`ROZPIS_MAX_FULL_HIRES`] hires on one night: the extra people get split
 ///   shifts, alternating 22–02 and 02–06.
 pub(crate) fn default_rozpis(w: &World, content: &Content) -> BTreeMap<u32, [Shift; 7]> {
+    super::rozpis::autofill(w, content, base_rozpis(w, content)).0
+}
+
+/// The coverage plan before preferences (counts, coverage, split shifts).
+pub(crate) fn base_rozpis(w: &World, content: &Content) -> BTreeMap<u32, [Shift; 7]> {
     let mut out: BTreeMap<u32, [Shift; 7]> = BTreeMap::new();
     let hires: Vec<&Staff> = w.staff.iter().filter(|s| !s.owner).collect();
     for s in w.staff.iter().filter(|s| s.owner) {
@@ -773,13 +835,16 @@ pub(crate) fn default_rozpis(w: &World, content: &Content) -> BTreeMap<u32, [Shi
 /// After manual edits only rows for new people are added (their default row, published too so
 /// they can start tonight) and rows of people who left are dropped.
 pub(crate) fn crew_changed(w: &mut World, content: &Content) {
+    super::rozpis::sync_prefs(w, content);
     let def = default_rozpis(w, content);
     if !w.app.manual_rozpis {
         if w.app.published != def || w.app.draft != def {
             w.app.draft = def.clone();
             w.app.published = def;
             w.app.draft_dirty = false;
+            super::rozpis::on_published(w, content);
         }
+        super::rozpis::score(w, content);
         return;
     }
     for sched in [&mut w.app.draft, &mut w.app.published] {

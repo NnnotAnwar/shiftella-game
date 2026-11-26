@@ -327,6 +327,16 @@ pub(crate) fn queue_cutscene(w: &mut World, content: &Content, id: &str) {
     w.story.played.insert(id.to_string());
     w.story.queue.push_back(id.to_string());
     start_next(w);
+    if content.handson.journal.scenes.iter().any(|s| s == id) {
+        super::journal::capture(
+            w,
+            content,
+            crate::content::handson::HighlightKind::StoryScene,
+            Some(id),
+            Vec::new(),
+            None,
+        );
+    }
 }
 
 fn start_next(w: &mut World) {
@@ -551,7 +561,9 @@ fn arc_checks(w: &mut World, content: &Content) {
             continue;
         }
         let mut ctx = EffectCtx::default();
-        if logic::all(w, content, &next.conditions, &mut ctx) {
+        if logic::all(w, content, &next.conditions, &mut ctx)
+            && super::xlogic::holds(w, content, &next.when)
+        {
             advance_arc(w, content, &r.id);
         }
     }
@@ -574,6 +586,26 @@ pub(crate) fn advance_arc(w: &mut World, content: &Content, regular: &str) {
         regular: regular.to_string(),
         stage: stage as u32,
     });
+    if stage >= 1 && r.look_preset.is_none() {
+        let sub = format!("{regular}.{stage}");
+        let tile = w
+            .story
+            .regulars
+            .get(regular)
+            .and_then(|s| s.party)
+            .and_then(|p| w.parties.iter().find(|x| x.id == p))
+            .and_then(|p| p.leader())
+            .and_then(|l| w.guests.iter().find(|g| g.id == l))
+            .map(|g| g.tile());
+        super::journal::capture(
+            w,
+            content,
+            crate::content::handson::HighlightKind::ArcBeat,
+            Some(&sub),
+            Vec::new(),
+            tile,
+        );
+    }
     if let Some(s) = r.stage(stage as u32) {
         let mut ctx = EffectCtx::default();
         logic::run(
