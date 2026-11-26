@@ -17,6 +17,14 @@ pub const SAVE_VERSION: u32 = 2;
 pub const TICKS_PER_MINUTE: u32 = 10;
 pub const NIGHT_MINUTES: u32 = 480;
 pub const NIGHT_TICKS: u32 = NIGHT_MINUTES * TICKS_PER_MINUTE;
+/// The quiet half hour before the doors open (21:30–22:00): Karolina and the early crew get
+/// the café ready, no guests come in. The night clock (`minute()`, `tick_count()`) stands at
+/// 0 meanwhile; `minutes_since_open()` / `clock()` show the real 21:30→22:00 time.
+pub const PREP_MINUTES: u32 = 30;
+pub const PREP_TICKS: u32 = PREP_MINUTES * TICKS_PER_MINUTE;
+/// Helpers on tonight's rozpis who start at 22:00 walk in during the preparation from this
+/// many prep minutes (21:38) on, a couple of minutes apart (all in by ~21:45).
+pub const PREP_CREW_ARRIVES: u32 = 8;
 /// Story café name (proper noun, never translated; the sign's subtitle "kavárna u nádraží"
 /// is UI text).
 pub const STORY_CAFE: &str = "Café Nocturne";
@@ -762,6 +770,10 @@ pub struct World {
     pub(crate) night: u32,
     /// Ticks since 22:00 of the current night.
     pub(crate) tick: u32,
+    /// Ticks left in the preparation half hour (21:30–22:00) before the doors open; 0 = the
+    /// doors are open (and in the day). Older saves have none (doors open).
+    #[serde(default)]
+    pub(crate) prep_left: u32,
     pub(crate) cafe_name: String,
     pub(crate) town: Town,
     /// 0 = Mon.
@@ -840,6 +852,7 @@ impl World {
             phase: Phase::Day,
             night: 1,
             tick: 0,
+            prep_left: 0,
             cafe_name: STORY_CAFE.into(),
             town: Town {
                 name: STORY_TOWN.into(),
@@ -1166,9 +1179,61 @@ impl World {
     pub fn clock(&self) -> ClockTime {
         if self.phase == Phase::Day {
             ClockTime::new(21, 0)
+        } else if self.in_prep() {
+            ClockTime::new(21, 30 + self.prep_minute() as u16)
         } else {
             ClockTime::from_minutes_since_open(self.minute().min(NIGHT_MINUTES))
         }
+    }
+
+    /// Minutes since 22:00, negative before the doors open: −30 at 21:30 (the start of the
+    /// preparation), 0 at 22:00, 480 at 06:00. The day phase reads −60 (21:00).
+    pub fn minutes_since_open(&self) -> i32 {
+        if self.phase == Phase::Day {
+            -60
+        } else if self.in_prep() {
+            self.prep_minute() as i32 - PREP_MINUTES as i32
+        } else {
+            self.minute() as i32
+        }
+    }
+
+    /// The quiet half hour before the doors open (21:30–22:00): no guests yet.
+    pub fn in_prep(&self) -> bool {
+        self.phase == Phase::Night && self.prep_left > 0
+    }
+
+    /// Night and the doors are open (22:00 on).
+    pub fn doors_open(&self) -> bool {
+        self.phase == Phase::Night && self.prep_left == 0
+    }
+
+    /// Ticks left before the doors open (0 = open).
+    pub fn prep_left_ticks(&self) -> u32 {
+        self.prep_left
+    }
+
+    /// Whole minutes of the preparation gone (0 at 21:30 … 29 at 21:59).
+    pub fn prep_minute(&self) -> u32 {
+        PREP_TICKS.saturating_sub(self.prep_left) / TICKS_PER_MINUTE
+    }
+
+    /// 0–1 through the preparation (1 once the doors are open).
+    pub fn prep_progress(&self) -> f32 {
+        if self.in_prep() {
+            1.0 - self.prep_left as f32 / PREP_TICKS as f32
+        } else {
+            1.0
+        }
+    }
+
+    /// 0–1 through the whole evening shown on the HUD bar: 21:30 → 06:00.
+    pub fn evening_progress(&self) -> f32 {
+        if self.phase == Phase::Day {
+            return 0.0;
+        }
+        let gone = PREP_TICKS.saturating_sub(self.prep_left) + self.tick.min(NIGHT_TICKS);
+        gone as f32 / (PREP_TICKS + NIGHT_TICKS) as f32
     }
 
     /// `"03:33"`.
@@ -1198,6 +1263,7 @@ impl World {
     pub(crate) fn begin_day(&mut self, content: &Content) {
         self.phase = Phase::Day;
         self.tick = 0;
+        self.prep_left = 0;
         self.undo.clear();
         // last night's beat indices must not block today's day beats (e.g. night 17's 21:59
         // franchise offer shares index 0 with night 16's first beat)
@@ -1260,6 +1326,8 @@ impl World {
         }
         self.phase = Phase::Night;
         self.tick = 0;
+        // the night begins at 21:30 with the doors closed (the preparation half hour)
+        self.prep_left = PREP_TICKS;
         self.undo.clear();
         self.tonight = NightSummary {
             night: self.night,
@@ -1344,6 +1412,10 @@ impl World {
         }
         self.ensure_hands(content);
         self.grid.ensure_masks(&self.furniture, content);
+        if self.prep_left > 0 {
+            self.prep_tick(content);
+            return;
+        }
         if self.tick.is_multiple_of(TICKS_PER_MINUTE) {
             self.on_minute(content);
             if self.is_paused() {
@@ -1370,6 +1442,70 @@ impl World {
         if self.tick >= NIGHT_TICKS {
             self.end_night(content);
         }
+    }
+
+    /// One tick of the preparation half hour (21:30–22:00). The night clock stands at 22:00
+    /// meanwhile, so only the quiet systems run: Karolina's queue, the early crew walking in
+    /// and doing their checklist items, the tutorial's clock steps, trains passing outside.
+    /// No guests, rushes, regulars, moments, story beats, narrator events or wages — those
+    /// all start at 22:00 as before. The last prep tick opens the doors.
+    fn prep_tick(&mut self, content: &Content) {
+        let gone = PREP_TICKS - self.prep_left;
+        if gone.is_multiple_of(TICKS_PER_MINUTE) {
+            self.on_prep_minute(content);
+            if self.is_paused() {
+                return;
+            }
+        }
+        self.prep_left -= 1;
+        super::staff::tick_staff(self, content);
+        // emotes count down by themselves (their `until` is in night ticks, which stand still)
+        for s in self.staff.iter_mut() {
+            if let Some((_, until)) = &mut s.emote {
+                if *until <= self.tick + 1 {
+                    s.emote = None;
+                } else {
+                    *until -= 1;
+                }
+            }
+        }
+        if self.prep_left == 0 {
+            self.open_doors(content);
+        }
+    }
+
+    /// Tests: plays the preparation half hour through (the crew walks in, nothing else
+    /// happens), then the doors are open at 22:00. Stops early (and opens the doors) if a
+    /// cutscene holds the clock.
+    #[cfg(test)]
+    pub(crate) fn skip_prep(&mut self, content: &Content) {
+        let mut guard = 0;
+        while self.in_prep() && !self.is_paused() && guard < PREP_TICKS * 2 {
+            self.tick(content);
+            guard += 1;
+        }
+        if self.in_prep() {
+            self.open_doors(content);
+        }
+    }
+
+    fn on_prep_minute(&mut self, content: &Content) {
+        let m = self.minutes_since_open();
+        super::tool::tutorial_at(self, content, m);
+        super::prep_trains(self, content, m);
+    }
+
+    /// 22:00: the door sign flips to "Open" and guests may come (`SimEvent::DoorsOpened`).
+    /// Also `Command::OpenDoors` ("Open the doors now") during the preparation.
+    pub(crate) fn open_doors(&mut self, _content: &Content) {
+        if self.phase != Phase::Night {
+            return;
+        }
+        let early = self.prep_left;
+        self.prep_left = 0;
+        self.emit(SimEvent::DoorsOpened {
+            early_minutes: early.div_ceil(TICKS_PER_MINUTE),
+        });
     }
 
     /// Runs whole ticks until the night is over or a cutscene/choice pauses it (headless helper).

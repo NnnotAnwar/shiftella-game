@@ -268,7 +268,8 @@ fn train_view(
         .trains
         .trains
         .iter()
-        .filter(|t| t.announce_if.is_empty())
+        // (a train before 22:00 passes during the preparation, not tonight's service)
+        .filter(|t| t.announce_if.is_empty() && t.arrives.minutes_since_open() >= 0)
         .map(|t| {
             let m = t.arrives.minutes_since_open();
             ((m - now as i32).rem_euclid(480), t)

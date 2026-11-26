@@ -22,6 +22,7 @@ pub fn world_to_ui(g: &GameScreen, ui: &Ui, p: Vec2) -> Vec2 {
 
 pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     clock_card(g, ui, cx);
+    doors_chip(g, ui, cx);
     ticker(g, ui, cx);
     resources(g, ui, cx);
     dock(g, ui, cx);
@@ -46,11 +47,8 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         18.0,
         if day { t.amber } else { t.indigo_300 },
     );
-    let clock = if day {
-        "21:30".to_string()
-    } else {
-        wv::clock_of_minute(w.minute())
-    };
+    // 21:00 in the day, 21:30→22:00 in the preparation half hour, then the night clock
+    let clock = w.clock_label();
     let cw = ui.fonts.draw(&clock, r.x + 42.0, r.y + 34.0, &t.clock());
     let wd = loc.tr_owned(&weekday_short(w.weekday()));
     let sub = loc.trf(
@@ -94,15 +92,22 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             speed_click = Some(idx as u8);
         }
     }
-    // night progress with train markers
+    // the evening's progress, 21:30 → 06:00: the preparation half hour (lavender, doors
+    // closed), the door tick at 22:00, train markers, dawn
     let bar = Rect::new(r.x + 14.0, r.bottom() - 14.0, r.w - 28.0, 5.0);
-    let prog = if day { 0.0 } else { w.night_progress() };
+    let span = (sim::PREP_MINUTES + sim::NIGHT_MINUTES) as f32;
+    let at = |m: i32| bar.x + bar.w * (m + sim::PREP_MINUTES as i32) as f32 / span;
+    let prog = w.evening_progress();
     fill_rrect(bar, 2.5, Color::new(1.0, 1.0, 1.0, 0.08));
+    let prep = Rect::new(bar.x, bar.y, at(0) - bar.x, bar.h);
+    fill_rrect(prep, 2.5, with_a(t.indigo_300, 0.14));
     let fb = Rect::new(bar.x, bar.y, bar.w * prog, bar.h);
     if prog > 0.0 {
         fill_rrect(fb, 2.5, Paint::horizontal(bar, t.violet, t.indigo_300));
     }
-    let dawn = Rect::new(bar.x + bar.w * 0.875, bar.y, bar.w * 0.125, bar.h);
+    let door_x = at(0);
+    draw::vline(door_x, bar.y - 2.0, bar.bottom() + 2.0, with_a(WHITE, 0.45));
+    let dawn = Rect::new(at(420), bar.y, bar.right() - at(420), bar.h);
     fill_rrect(
         dawn,
         2.5,
@@ -110,10 +115,10 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     );
     for tr in &cx.content.trains.trains {
         let m = tr.arrives.minutes_since_open();
-        if !(0..480).contains(&m) {
+        if !(-(sim::PREP_MINUTES as i32)..480).contains(&m) {
             continue;
         }
-        let x = bar.x + bar.w * m as f32 / 480.0;
+        let x = at(m);
         draw::fill_convex(
             &[
                 vec2(x - 3.0, bar.y - 6.0),
@@ -130,6 +135,40 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     }
     if let Some(s) = speed_click {
         g.set_speed(s);
+    }
+}
+
+/// Before the doors open (21:30–22:00): a small chip beside the atmosphere meter —
+/// "Doors at 22:00" and a one-click "Open now" (the clock jumps to 22:00).
+fn doors_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
+    if !g.world.in_prep() || g.world.playing_cutscene().is_some() {
+        return;
+    }
+    let t = ui.theme.clone();
+    let loc = cx.loc;
+    let label = loc.tr("prep.hud.open_now");
+    let note = loc.tr("prep.hud.doors_at");
+    let b = Button::new(label)
+        .ghost()
+        .icon(Icon::Door)
+        .tooltip(loc.tr("prep.hud.open_now_tip"));
+    let bw = ui.button_width(&b);
+    let st = t.small().color(t.text_dim);
+    let nw = ui.fonts.measure(note, &st);
+    let size = crate::ui::handson::ATMO_SIZE;
+    let r = Rect::new(
+        12.0 + size.x + 8.0,
+        12.0 + 64.0 + 6.0,
+        nw + bw + 22.0,
+        size.y,
+    );
+    g.anchors.push(("hud.open_doors", r));
+    ui.glass(r, &Glass::hud().radius(8.0));
+    ui.fonts
+        .draw(note, r.x + 12.0, ui.fonts.baseline_in(r, &st), &st);
+    let br = Rect::new(r.right() - bw - 4.0, r.y + 4.0, bw, r.h - 8.0);
+    if ui.button("open_doors", br, &b).clicked {
+        let _ = g.command(cx.content, sim::Command::OpenDoors);
     }
 }
 

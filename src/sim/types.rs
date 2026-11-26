@@ -303,6 +303,11 @@ pub enum SimEvent {
     NightStarted {
         night: u32,
     },
+    /// 22:00: the preparation half hour is over, the door sign flips to "Open" and guests may
+    /// come in. `early_minutes` > 0 when the player opened early (`Command::OpenDoors`).
+    DoorsOpened {
+        early_minutes: u32,
+    },
     NightEnded {
         summary: Box<NightSummary>,
     },
@@ -852,6 +857,9 @@ pub enum Command {
     },
     /// Day → Night (same as `World::start_night`).
     StartNight,
+    /// "Open the doors now": ends the preparation half hour early (only before 22:00; the
+    /// clock jumps to 22:00, everything keyed to 22:00 happens then).
+    OpenDoors,
     // --- hands-on: Karolina behind the counter --------------------------------------------------
     /// Karolina walks over and takes the order (`guest` = any member or the party id). The
     /// party is claimed at once; error `InUse` if a helper already took it.

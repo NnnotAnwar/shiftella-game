@@ -5,7 +5,9 @@
 #![enable(implicit_some)]
 [
     // ------------------------------------------------------------------ night 1 (solo, rain)
-    (id: "light_window", night: 1, trigger: At("22:00"), anchor: Tag("window"), voice: Lida,
+    // 21:30–22:00 is the preparation half hour (doors closed): the window, the machine and the
+    // opening list come first, before Mirek's visit at 22:04
+    (id: "light_window", night: 1, trigger: At("21:30"), anchor: Tag("window"), voice: Lida,
      done_when: Event(WindowLightOn)),
     (id: "machine", night: 1, trigger: After("light_window"), anchor: Tag("station:coffee"),
      done_when: Event(MachineWarmed)),

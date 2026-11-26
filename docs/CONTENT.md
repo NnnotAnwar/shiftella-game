@@ -56,6 +56,8 @@ in T9. Every key has real text in all four; `*` lines are only for names and sym
 **Hands-on text** lives in `assets/i18n/src/handson_*.tr` (`core`, `wishes`, `recipes`, `moments`,
 `world`, `app`, `ui`, `sim`). `minigame.*` and `latte.*` keys belong to the
 mini-game agent (`minigame.tr`) — never define them elsewhere (duplicate keys break the build).
+The preparation half hour (21:30–22:00: the door sign, the "Open now" chip, the 21:30 / 22:00
+toasts, the `Nex 9047` freight) lives in `prep.tr` (`prep.*`).
 
 ### Key naming
 
@@ -101,7 +103,7 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | story.ron | `StoryDef` | 30 nights, payments, 10 notes, **2 endings** + the optional "Answer" extra, declared flags/vars/counters/items |
 | cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 36 cutscenes (34 story + 2 Anwar talks), 7 cast members, named map spots |
 | shiftella.ron | `ShiftellaApp` | announcements, checklists, bot templates, digest / payroll / handover lines |
-| trains.ron | `TrainLine` | stations Adamov → … → Praha-Holešovice (home), 5 night trains incl. `Rn 333` |
+| trains.ron | `TrainLine` | stations Adamov → … → Praha-Holešovice (home), 5 night trains incl. `Rn 333` + the `Nex 9047` freight at 21:47 (a train before 22:00 only passes by in the preparation half hour, nobody gets off) |
 | difficulty.ron | `Vec<DifficultyDef>` | `cozy` (default), `classic` |
 | sandbox.ron | `SandboxDef` | 5 night characters, town-name parts + stoplist, institutions, café names, options |
 | handson.ron | `HandsonTuning` | hands-on tuning: tick length, overlay scale, helper speed/quality, wish chance, wait clock, rush/rhythm, serve formulas, lull, moment budget, experiments, capacity, quiet hour, rozpis puzzle (§10.1) |
@@ -308,7 +310,8 @@ anchored to, or the subject of a handover note / announcement):
 
 ### 10.1 Tuning (`handson.ron` → `HandsonTuning`)
 
-`real_seconds_per_tick_x1` (0.15 → 12-minute nights), `overlay_scale { cozy, classic }`,
+`real_seconds_per_tick_x1` (0.15 → 12-minute nights), `prep_tick_scale` (0.7: ticks of the
+21:30–22:00 preparation half hour run at this share of a tick), `overlay_scale { cozy, classic }`,
 `player_walk_mul`, `player_work_mul`, `helper_speed`, `helper_quality { base, per_skill, max }`
 (`at(skill)`), `quick_quality`, `practised_quick_quality`, `practised_after` (+ `practised_min_quality`),
 `by_hand_work_share`, `by_hand_streak_max`, `match_tiers { perfect, good, okay }`,
@@ -436,7 +439,8 @@ UI keys: `journal.title/.empty/.keep/.shake/.night/.date {day} {month} {year}/.m
 `TutorialStep { id, night, trigger: At(time) | Event(TutEvent) | RegularArrives(r) | After(step),
 anchor: Guest(First | Regular(r)) | Widget(id) | Tag | Furniture | Moment | Free, done_when:
 Event(TutEvent) | GotIt { seconds }, optional, voice: Karolina | Lida, on_show: Vec<Fx> }` — key
-`tutorial.<id>`. `After` fires when the named step is done or dismissed (an optional one also after a
+`tutorial.<id>`. `At` times 21:30–21:59 fall in the night's preparation half hour (doors closed),
+earlier ones in the day phase. `After` fires when the named step is done or dismissed (an optional one also after a
 few unanswered seconds). `TUTORIAL_WIDGETS` is the list of UI anchor ids the UI must expose.
 `TutEvent` is the list of sim events / UI actions steps wait for.
 

@@ -1,0 +1,63 @@
+# The preparation half hour before the doors open (21:30–22:00): the HUD chip, the door sign,
+# the toasts at 21:30 and 22:00, the freight train that passes meanwhile.
+# Karolina is addressed in the second person (feminine forms in cs/uk/ru).
+
+prep.toast.start.title
+cs Otevíráme ve 22:00
+en Doors open at 22:00
+uk Відчиняємо о 22:00
+ru Открываемся в 22:00
+
+prep.toast.start.body
+cs Půl hodiny do prvních hostů. Rozsviť okno, nahřej kávovar, pusť desku — seznam na otevření je v Shiftelle (T).
+en Half an hour before the first guests. Light the window, warm up the machine, put on a record — the opening list is in Shiftella (T).
+uk Пів години до перших гостей. Засвіти вікно, нагрій кавоварку, постав платівку — список на відкриття в Shiftella (T).
+ru Полчаса до первых гостей. Зажги окно, разогрей кофемашину, поставь пластинку — список на открытие в Shiftella (T).
+
+prep.toast.doors_open.title
+cs Otevřeno
+en Doors open
+uk Відчинено
+ru Открыто
+
+prep.toast.doors_open.body
+cs Cedulka na dveřích se otočila — první hosté už jsou na cestě.
+en The sign on the door turns to Open — the first guests are on their way.
+uk Табличка на дверях перевернулася — перші гості вже в дорозі.
+ru Табличка на двери перевернулась — первые гости уже в пути.
+
+prep.hud.doors_at
+cs Otevřeno od 22:00
+en Doors at 22:00
+uk Відчинено з 22:00
+ru Открыто с 22:00
+
+prep.hud.open_now
+cs Otevřít hned
+en Open now
+uk Відчинити
+ru Открыть
+
+prep.hud.open_now_tip
+cs Připravená? Otevřít dveře hned — hodiny skočí na 22:00.
+en Ready? Open the doors now — the clock jumps to 22:00.
+uk Готова? Відчинити двері зараз — годинник перескочить на 22:00.
+ru Готова? Открыть двери сейчас — часы перескочат на 22:00.
+
+prep.sign.closed
+cs ZAVŘENO
+en CLOSED
+uk ЗАЧИНЕНО
+ru ЗАКРЫТО
+
+prep.sign.open
+cs OTEVŘENO
+en OPEN
+uk ВІДЧИНЕНО
+ru ОТКРЫТО
+
+train.nex_9047.name
+cs Nex 9047 — samořízený nákladní
+en Nex 9047 — self-driving freight
+uk Nex 9047 — безпілотний вантажний
+ru Nex 9047 — беспилотный грузовой

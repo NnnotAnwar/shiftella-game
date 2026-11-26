@@ -516,3 +516,82 @@ fn manual_slots_continue_and_a_finished_story() {
     assert!(matches!(exit, Some(GameExit::Credits { .. })), "{exit:?}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// Night 1's first coach marks (the window, the machine, the opening list) belong to the
+/// preparation half hour: they can show from 21:30, well before Mirek at 22:04.
+#[test]
+fn night_one_tutorial_starts_in_the_preparation_half_hour() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", false);
+    g.finish_cutscene_now(&c, &loc);
+    g.start_tutorial();
+    g.start_night(&c);
+    while g.cutscene_playing() || g.world.playing_cutscene().is_some() {
+        g.finish_cutscene_now(&c, &loc);
+    }
+    assert!(g.world.in_prep());
+    assert_eq!(g.world.clock_label(), "21:30");
+    assert!(super::coach::trigger(&g, &c, "light_window"));
+    let mark = |g: &mut GameScreen, id: &str| {
+        if let Some(p) = &mut g.extra.tutorial {
+            p.coach_done.push(id.to_string());
+        }
+    };
+    // she lights the window; the machine step follows, then the opening list
+    g.command(
+        &c,
+        Command::TickChecklist {
+            id: "light_window".into(),
+        },
+    )
+    .unwrap();
+    mark(&mut g, "light_window");
+    assert!(super::coach::trigger(&g, &c, "machine"));
+    mark(&mut g, "machine");
+    assert!(super::coach::trigger(&g, &c, "checklist_open"));
+    // a few real seconds later it's still before the doors open (and before 21:35)
+    g.play_headless(&c, &loc, 4.0, &|_| false);
+    assert!(g.world.in_prep());
+    assert!(
+        g.world.minutes_since_open() <= -25,
+        "{}",
+        g.world.clock_label()
+    );
+    // Mirek isn't there yet; he comes at 22:04 as before
+    assert!(
+        !g.world
+            .parties()
+            .iter()
+            .any(|p| p.regular.as_deref() == Some("mirek"))
+    );
+}
+
+/// The HUD bar spans 21:30 → 06:00 and the door chip works ("Open now" → 22:00).
+#[test]
+fn open_the_doors_from_the_hud_and_the_door_toast() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.start_night(&c);
+    while g.cutscene_playing() || g.world.playing_cutscene().is_some() {
+        g.finish_cutscene_now(&c, &loc);
+    }
+    assert!(g.world.in_prep());
+    g.command(&c, Command::OpenDoors).unwrap();
+    g.drain_and_handle(&c, Some(&loc));
+    assert!(g.world.doors_open());
+    assert_eq!(g.world.clock_label(), "22:00");
+    assert!(g.scene.doors_opened_at.is_some(), "the door sign flips");
+    assert!(
+        g.ticker
+            .iter()
+            .any(|t| t.text == loc.tr("prep.toast.doors_open.title")),
+        "ticker: doors open"
+    );
+    let p = g.world.evening_progress();
+    let want = sim::PREP_MINUTES as f32 / (sim::PREP_MINUTES + sim::NIGHT_MINUTES) as f32;
+    assert!((p - want).abs() < 1e-4, "{p}");
+}

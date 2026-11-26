@@ -144,19 +144,22 @@ pub(crate) fn tutorial_show(w: &mut World, content: &Content, id: &str, asked: b
 
 /// Story nights: steps triggered at a clock time run their `on_show` then.
 fn tutorial_minute(w: &mut World, content: &Content) {
+    let m = w.minute() as i32;
+    tutorial_at(w, content, m);
+}
+
+/// …at `m` minutes since 22:00 (negative in the preparation half hour, 21:30 = −30).
+pub(crate) fn tutorial_at(w: &mut World, content: &Content, m: i32) {
     if w.mode != Mode::Story || w.sys.tutorial_off {
         return;
     }
-    let m = w.minute();
     let due: Vec<String> = content
         .handson
         .tutorial
         .iter()
         .filter(|s| s.night == w.night && !s.on_show.is_empty())
         .filter(|s| match &s.trigger {
-            crate::content::handson::TutTrigger::At(t) => {
-                t.minutes_since_open() >= 0 && t.minutes_since_open() as u32 == m
-            }
+            crate::content::handson::TutTrigger::At(t) => t.minutes_since_open() == m,
             _ => false,
         })
         .map(|s| s.id.clone())

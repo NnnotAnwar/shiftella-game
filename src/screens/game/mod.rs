@@ -623,7 +623,7 @@ impl GameScreen {
 
     fn push_ticker(&mut self, icon: Icon, text: String) {
         let time = if self.world.phase() == Phase::Night {
-            wv::clock_of_minute(self.world.minute())
+            self.world.clock_label()
         } else {
             String::new()
         };
@@ -670,6 +670,19 @@ impl GameScreen {
                     &[("night".into(), night.to_string())],
                 );
                 self.push_ticker(Icon::Moon, t);
+                // 21:30: the doors stay closed for a quiet half hour
+                if self.world.in_prep() {
+                    let title = tr("prep.toast.start.title", &[]);
+                    let body = tr("prep.toast.start.body", &[]);
+                    self.toast(ToastKind::Info, Icon::Door, title, Some(body));
+                }
+            }
+            SimEvent::DoorsOpened { .. } => {
+                self.scene.doors_opened_at = Some(self.time);
+                let title = tr("prep.toast.doors_open.title", &[]);
+                let body = tr("prep.toast.doors_open.body", &[]);
+                self.push_ticker(Icon::Door, title.clone());
+                self.toast(ToastKind::Success, Icon::Door, title, Some(body));
             }
             SimEvent::NightEnded { summary } => {
                 self.summary_pending = Some(*summary);
@@ -863,6 +876,7 @@ impl GameScreen {
             SimEvent::OrderServed { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.7),
             SimEvent::DishBroken { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 1.0),
             SimEvent::TrainPassing { .. } => audio.play_sfx(Sfx::TrainPass),
+            SimEvent::DoorsOpened { .. } => audio.play_sfx_vol(Sfx::DoorBell, 0.9),
             SimEvent::Blackout { on: true } => audio.play_sfx(Sfx::PowerOutage),
             SimEvent::ChoiceNeeded { .. } | SimEvent::EventStarted { .. } => {
                 audio.play_sfx_vol(Sfx::EventAlert, 0.8)
@@ -904,7 +918,7 @@ impl GameScreen {
         let _ = content;
         let w = &self.world;
         let clock = if w.phase() == Phase::Night {
-            wv::clock_of_minute(w.minute())
+            w.clock_label()
         } else {
             "day".into()
         };
@@ -986,7 +1000,7 @@ impl GameScreen {
         content: &Rc<Content>,
         loc: &Locale,
         night: u32,
-        minute: Option<u32>,
+        minute: Option<i32>,
         hire: bool,
     ) {
         let mut guard = 0;
@@ -1013,7 +1027,11 @@ impl GameScreen {
         if let Some(m) = minute {
             self.world.start_night(content);
             let mut g = 0;
-            while self.world.phase() == Phase::Night && self.world.minute() < m && g < 20_000 {
+            // (minutes since 22:00: negative = the preparation half hour)
+            while self.world.phase() == Phase::Night
+                && self.world.minutes_since_open() < m
+                && g < 20_000
+            {
                 if let Some(id) = self.world.playing_cutscene().map(str::to_string) {
                     let _ = self.world.apply(
                         content,
