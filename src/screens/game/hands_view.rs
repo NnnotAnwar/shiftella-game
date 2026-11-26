@@ -39,6 +39,10 @@ pub enum Target {
     Moment(usize),
     /// An open opening / closing ritual item on this piece (index into `content.app.checklists`).
     Checklist(usize),
+    /// An appliance with something to do now (v0.2): the machine, the stove, the oven…
+    Equip(u32),
+    /// A lamp: on / off.
+    Lamp(u32),
 }
 
 /// Checklist items Karolina can do by hand in the world right now: (index into
@@ -160,6 +164,10 @@ pub fn target(
         Some(Pick::Agent(AgentRef::Staff(id))) => return Some(Target::Staff(id)),
         _ => {}
     }
+    // pendant lamps hang high over the tables: their shades are a target of their own
+    if let Some(uid) = lamp_shade_at(g, content, m) {
+        return Some(Target::Lamp(uid));
+    }
     let tile = ((m.x / TILE).floor() as i32, (m.y / TILE).floor() as i32);
     if night && g.world.dirt_spots().contains(&tile) {
         return Some(Target::Dirt(tile));
@@ -187,9 +195,25 @@ pub fn target(
                 return Some(Target::Table(uid));
             }
         }
-        // a ritual item on this piece (warm up the machine, count the float…)
+        // an appliance with something to do (warm up, the soup pot, the cake, the till…)
+        if night && g.world.equipment_action(content, uid).is_some() {
+            return Some(Target::Equip(uid));
+        }
+        // a ritual item on this piece (count the float, the fridge check…)
         if let Some((i, _)) = open_rituals(g, content).into_iter().find(|r| r.1 == uid) {
             return Some(Target::Checklist(i));
+        }
+        // the fridge opens the pantry; a floor lamp toggles
+        match g.world.equipment_kind(content, uid) {
+            Some(sim::EquipKind::Fridge) if night => return Some(Target::Equip(uid)),
+            Some(sim::EquipKind::Lamp)
+                if !(night
+                    && super::hands::is_window_lamp(&g.world, content, uid)
+                    && (!g.world.window_light_on(content) || super::hands::lights_off_due(g))) =>
+            {
+                return Some(Target::Lamp(uid));
+            }
+            _ => {}
         }
     }
     let closing = night && super::hands::lights_off_due(g);
@@ -205,6 +229,110 @@ pub fn target(
         return Some(Target::Window);
     }
     None
+}
+
+/// The render looks of every appliance (world px origin, size, look).
+pub fn appliance_looks(
+    w: &sim::World,
+    content: &Content,
+) -> Vec<(Vec2, (u8, u8), render::ApplianceLook)> {
+    use render::{ApplianceKind as K, CakeLook, PotLook};
+    let slices = content.handson.tuning.equipment.cake.slices;
+    let mut out = Vec::new();
+    for v in w.equipment_views(content) {
+        let Some(p) = w.furniture_by_uid(v.uid) else {
+            continue;
+        };
+        let Some(def) = content.furniture_def(&p.def) else {
+            continue;
+        };
+        let kind = match v.kind {
+            sim::EquipKind::Machine => K::Machine,
+            sim::EquipKind::Stove => K::Stove,
+            sim::EquipKind::Oven => K::Oven,
+            sim::EquipKind::Fridge => K::Fridge,
+            sim::EquipKind::Register => K::Register,
+            sim::EquipKind::Trash => K::Trash,
+            sim::EquipKind::Lamp => continue,
+        };
+        let (sw, sh) = sim::grid::rotated_size(def, p.rot);
+        let mut look = render::ApplianceLook::new(kind);
+        look.warm = v.warm;
+        look.working = v.working.map(|(_, k)| k);
+        look.worn = v.worn;
+        look.tray = v.tray;
+        look.pot = match v.pot {
+            sim::PotView::None => PotLook::None,
+            sim::PotView::Warm => PotLook::Warm,
+            sim::PotView::Bubbling => PotLook::Bubbling,
+            sim::PotView::Stirred => PotLook::Stirred,
+        };
+        look.cake = match v.cake {
+            sim::CakeView::None => CakeLook::None,
+            sim::CakeView::Baking(k) => CakeLook::Baking(k),
+            sim::CakeView::Ready => CakeLook::Ready,
+            sim::CakeView::Out(n) => CakeLook::Out {
+                left: n,
+                of: slices.max(n),
+            },
+        };
+        look.milk_out = v.milk_out;
+        look.counted = v.counted;
+        look.bag = v.bag;
+        out.push((
+            vec2(p.x as f32, p.y as f32) * TILE,
+            (sw as u8, sh as u8),
+            look,
+        ));
+    }
+    out
+}
+
+/// The cue chip of a chore (`None` = the ritual chip or nothing marks it).
+fn cue_glyph(a: sim::EquipAction) -> Option<render::EquipGlyph> {
+    use render::EquipGlyph as G;
+    use sim::EquipAction as A;
+    Some(match a {
+        A::Service => G::Puff,
+        A::SoupOn | A::Stir => G::Pot,
+        A::Bake | A::TakeOut => G::Cake,
+        A::Milk => G::Milk,
+        A::CountTill => G::Coins,
+        A::Trash => G::Bag,
+        // a tray ahead: only while a train is due (see `draw_world`)
+        A::PullTray => G::Cup,
+        // the warm-up / clean-up have the ritual chip
+        A::WarmUp | A::CleanUp => return None,
+    })
+}
+
+/// Where a lamp's shade glows (world px): pendants hang ~1.5 tiles over their tile.
+pub fn lamp_shade(g: &GameScreen, content: &Content, uid: u32) -> Option<Vec2> {
+    let p = g.world.furniture_by_uid(uid)?;
+    let d = content.furniture_def(&p.def)?;
+    if !d.has_tag("light") || d.has_tag("music") {
+        return None;
+    }
+    let c = vec2(p.x as f32 + 0.5, p.y as f32 + 0.5) * TILE;
+    Some(match d.sprite.as_str() {
+        "pendant_lamp" => c - vec2(0.0, 90.0),
+        "floor_lamp" => c - vec2(0.0, 84.0),
+        _ => c - vec2(0.0, 30.0),
+    })
+}
+
+/// A pendant lamp's shade under the mouse (they share their tile with a table).
+fn lamp_shade_at(g: &GameScreen, content: &Content, m: Vec2) -> Option<u32> {
+    g.world
+        .furniture()
+        .iter()
+        .filter(|p| {
+            content
+                .furniture_def(&p.def)
+                .is_some_and(|d| d.sprite == "pendant_lamp" && d.has_tag("light"))
+        })
+        .find(|p| lamp_shade(g, content, p.uid).is_some_and(|c| c.distance(m) < 15.0))
+        .map(|p| p.uid)
 }
 
 /// Draws the hands-on pieces over the lit café (the world camera is active).
@@ -240,9 +368,14 @@ pub fn draw_world(
                 .map(|p| vec2(p.x as f32 + 0.5, p.y as f32 + 0.75) * TILE)
         };
         match h {
-            Target::Sink(u) | Target::Table(u) | Target::Jukebox(u) => {
+            Target::Sink(u) | Target::Table(u) | Target::Jukebox(u) | Target::Equip(u) => {
                 if let Some(c) = at(u) {
                     ring(c, 30.0);
+                }
+            }
+            Target::Lamp(u) => {
+                if let Some(c) = lamp_shade(g, content, u) {
+                    draw_circle_lines(c.x, c.y, 13.0, 1.4, Color::new(1.0, 0.85, 0.55, 0.7));
                 }
             }
             Target::Dirt(tile) => ring(vec2(tile.0 as f32 + 0.5, tile.1 as f32 + 0.5) * TILE, 26.0),
@@ -396,6 +529,93 @@ pub fn draw_world(
         let ink = Color::new(0.75, 0.8, 1.0, 0.85);
         draw_line(c.x - 4.0 * s, c.y, c.x - 1.0 * s, c.y + 3.5 * s, 2.0 * s, ink);
         draw_line(c.x - 1.0 * s, c.y + 3.5 * s, c.x + 4.5 * s, c.y - 3.5 * s, 2.0 * s, ink);
+    }
+    // appliances that offer something: a small amber chip (the ritual chip marks the rest)
+    let rituals: Vec<u32> = open_rituals(g, content).iter().map(|r| r.1).collect();
+    let working = g.world.player().current.as_ref().and_then(|c| match c.act {
+        sim::PlayerAct::Use { uid, action } if c.stage >= 1 => Some((uid, action, c.progress())),
+        _ => None,
+    });
+    let m = g.world.minutes_since_open();
+    let train_soon = content.trains.trains.iter().any(|tr| {
+        let at = tr.arrives.minutes_since_open();
+        (0..480).contains(&at) && (m..m + 10).contains(&at)
+    });
+    for v in g.world.equipment_views(content) {
+        let Some(a) = v.action else {
+            continue;
+        };
+        let Some(glyph) = cue_glyph(a) else {
+            continue;
+        };
+        if a == sim::EquipAction::PullTray && !train_soon {
+            continue;
+        }
+        if rituals.contains(&v.uid) || working.is_some_and(|w| w.0 == v.uid) {
+            continue;
+        }
+        let Some(p) = g.world.furniture_by_uid(v.uid) else {
+            continue;
+        };
+        let (sw, _) = content
+            .furniture_def(&p.def)
+            .map(|d| sim::grid::rotated_size(d, p.rot))
+            .unwrap_or((1, 1));
+        let c = vec2(p.x as f32 + sw as f32 * 0.5, p.y as f32 - 0.5) * TILE;
+        let urgent = matches!(
+            a,
+            sim::EquipAction::Stir | sim::EquipAction::TakeOut | sim::EquipAction::Service
+        );
+        render::draw_equip_cue(c, glyph, t, hover == Some(Target::Equip(v.uid)), urgent);
+    }
+    // a chore in progress at an appliance: its ring (a hold chore fills faster held)
+    if let Some((uid, action, progress)) = working
+        && let Some(p) = g.world.furniture_by_uid(uid)
+    {
+        let c = vec2(p.x as f32 + 0.5, p.y as f32 - 0.55) * TILE;
+        let held = g.hands.equip_hold.is_some_and(|h| h.sink == uid);
+        render::draw_work_ring(c, progress, action.hold(), held, t);
+    }
+    // the hover label: what a click does here (compact, one line)
+    if let Some(h) = hover {
+        let label = match h {
+            Target::Equip(u) => Some(match g.world.equipment_action(content, u) {
+                Some(a) if a.hold() => format!(
+                    "{} · {}",
+                    loc.tr_owned(&format!("equip.act.{}", a.id())),
+                    loc.tr_owned("equip.hold")
+                ),
+                Some(a) => loc.tr_owned(&format!("equip.act.{}", a.id())),
+                None => loc.tr_owned("equip.act.pantry"),
+            })
+            .zip(
+                g.world
+                    .furniture_by_uid(u)
+                    .map(|p| vec2(p.x as f32 + 0.5, p.y as f32 - 0.95) * TILE),
+            ),
+            Target::Lamp(u) => g.world.furniture_by_uid(u).and_then(|p| {
+                let key = if p.on {
+                    "equip.act.lamp_off"
+                } else {
+                    "equip.act.lamp_on"
+                };
+                lamp_shade(g, content, u).map(|c| (loc.tr_owned(key), c - vec2(0.0, 20.0)))
+            }),
+            _ => None,
+        };
+        if let Some((text, at)) = label {
+            let w = render::world_text_width(&text, 9.0) + 10.0;
+            let r = Rect::new(at.x - w / 2.0, at.y - 8.0, w, 14.0);
+            crate::ui::draw::fill_rrect(r, 4.0, Color::new(0.08, 0.07, 0.17, 0.88));
+            crate::ui::draw::stroke_rrect(r, 4.0, 1.0, Color::new(1.0, 0.8, 0.5, 0.55));
+            render::world_text(
+                &text,
+                vec2(at.x, r.y + 10.5),
+                9.0,
+                Color::new(0.97, 0.94, 1.0, 1.0),
+                true,
+            );
+        }
     }
     // tip coins and their glints
     for c in &g.hands.coins {

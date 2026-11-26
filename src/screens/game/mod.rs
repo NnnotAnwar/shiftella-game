@@ -1632,9 +1632,13 @@ impl GameScreen {
                 && is_key_down(KeyCode::E);
             let auto_hold = self.hands.autoplay.is_some();
             self.wash_input(content, mouse_hold || key_hold || auto_hold, dt);
+            // hold chores at an appliance (warm up, purge, clean): the same hold
+            let equip_hold = down && self.hands.press_equip.is_some() && !self.automation;
+            self.equip_input(content, equip_hold || key_hold || auto_hold, dt);
         }
         if !down {
             self.hands.press_sink = None;
+            self.hands.press_equip = None;
         }
         // a mop swipe across a dirt blot
         if let Some(mut sw) = self.hands.swipe {
@@ -1722,6 +1726,15 @@ impl GameScreen {
             }
             Some(Target::Window) => {
                 self.intent(content, Intent::Window);
+                return;
+            }
+            Some(Target::Equip(uid)) => {
+                self.hands.press_equip = Some(uid);
+                self.intent(content, Intent::Equip { uid, front });
+                return;
+            }
+            Some(Target::Lamp(uid)) => {
+                self.intent(content, Intent::Lamp { uid });
                 return;
             }
             Some(Target::Checklist(i)) => {
@@ -1895,6 +1908,8 @@ impl GameScreen {
                 .current
                 .as_ref()
                 .is_some_and(|c| matches!(c.act, sim::PlayerAct::Wash { .. }) && c.stage == 1);
+            // (and at a hold chore at an appliance)
+            let at_sink = at_sink || self.at_hold_chore();
             if ui.key(KeyCode::E) && !at_sink {
                 self.intent(content, Intent::Chore { front });
             }

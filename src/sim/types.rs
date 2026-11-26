@@ -762,6 +762,29 @@ pub enum SimEvent {
         price: i64,
         tiles: Vec<(i32, i32)>,
     },
+    // --- v0.2 equipment (`sim::equipment`) ------------------------------------------------------
+    /// An appliance chore is done (`by` = Karolina's id by hand, a helper's id, or `None`).
+    EquipmentUsed {
+        uid: u32,
+        action: super::equipment::EquipAction,
+        by: Option<u32>,
+    },
+    /// An appliance wants a little attention (the pot bubbles, the oven dings, a worn
+    /// machine sputters) — a sound and a glint, never a must.
+    EquipmentCue {
+        uid: u32,
+        cue: super::equipment::EquipCue,
+    },
+    /// "Count the till" at closing: tonight's numbers for the little count card.
+    TillCounted {
+        revenue: i64,
+        guests: u32,
+        tips: i64,
+    },
+    /// Karolina took the trash out; `cat` = the station cat was waiting by the bins.
+    TrashOut {
+        cat: bool,
+    },
 }
 
 /// Every player action.
@@ -1058,6 +1081,18 @@ pub enum Command {
     /// Reopen grandma's back room (Day only, once; `attic.ron` → `back_room`). Errors
     /// `NotUnlocked` (too early), `NotEnoughMoney`, `AlreadyPlaced`, `WrongPhase`.
     OpenBackRoom,
+    // --- v0.2 equipment (`sim::equipment`) ------------------------------------------------------
+    /// Karolina does an appliance chore (queued: she walks there and works). Errors
+    /// `Invalid` when that chore isn't available now (`World::equipment_action`), `QueueFull`.
+    UseEquipment {
+        uid: u32,
+        action: super::equipment::EquipAction,
+    },
+    /// The player holds the mouse / **E** on a hold chore she is doing (warm up, purge, clean
+    /// the group head): `seconds` real seconds of holding speed it up.
+    EquipmentHold {
+        seconds: f32,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

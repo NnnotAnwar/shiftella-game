@@ -596,6 +596,12 @@ impl WorldScene {
         for (sprite, origin, size, st) in &pieces {
             q.push_furniture(sprite, *origin, *size, *st);
         }
+        // the appliances' evening (v0.2): the warm lamp, the pot, the cake, the milk, the bag
+        for (o, size, look) in super::hands_view::appliance_looks(world, content) {
+            q.push_custom(crate::render::appliance_sort_key(o, size), move || {
+                crate::render::draw_appliance_state(o, size, &look, t)
+            });
+        }
         for (pos, m, k) in &self.low_walls {
             q.push_wall(*pos, *m, *k);
         }

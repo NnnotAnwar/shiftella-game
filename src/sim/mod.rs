@@ -18,6 +18,7 @@ mod commands;
 mod corners;
 mod duties;
 mod economy;
+mod equipment;
 pub mod grid;
 mod guests;
 mod hands;
@@ -49,6 +50,8 @@ mod tests_build_ux;
 #[cfg(test)]
 mod tests_build;
 #[cfg(test)]
+mod tests_equipment;
+#[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
 mod tests_prep;
@@ -66,6 +69,9 @@ pub use backroom::{BACK_COLS, BackRoomView};
 pub use build_content::{BackRoomState, BuildState, WishProgress};
 pub use build_wishes::{BuildRequest, BuildRequestStatus, BuildWho, BuildWish};
 pub use corners::CornerView;
+pub use equipment::{
+    Cake, CakeView, EquipAction, EquipCue, EquipKind, EquipState, EquipView, Pot, PotView,
+};
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;

@@ -601,6 +601,98 @@ fn open_the_doors_from_the_hud_and_the_door_toast() {
     assert!((p - want).abs() < 1e-4, "{p}");
 }
 
+/// v0.2 appliances: after the window, **E** reaches the appliances; a click on one queues
+/// its chore; the hold speeds a hold chore; a lamp click toggles it; the fridge with nothing
+/// to do opens the pantry.
+#[test]
+fn appliances_by_click_and_by_e() {
+    let c = content();
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.start_night(&c);
+    assert!(g.world.in_prep());
+    assert_eq!(g.next_chore(&c), Some(hands::Intent::Window));
+    assert!(g.intent(&c, hands::Intent::Chore { front: false }));
+    // then the nearest appliance with something on offer
+    let Some(hands::Intent::Equip { uid, .. }) = g.next_chore(&c) else {
+        panic!("E should reach an appliance: {:?}", g.next_chore(&c));
+    };
+    assert!(g.world.equipment_action(&c, uid).is_some());
+    // a click on the machine: warm it up (a hold chore)
+    let machine = g
+        .world
+        .furniture()
+        .iter()
+        .find(|p| g.world.equipment_kind(&c, p.uid) == Some(sim::EquipKind::Machine))
+        .map(|p| p.uid)
+        .unwrap();
+    assert!(g.intent(
+        &c,
+        hands::Intent::Equip {
+            uid: machine,
+            front: true
+        }
+    ));
+    assert!(hands::karolina_acts(&g.world).iter().any(|a| matches!(
+        a,
+        sim::PlayerAct::Use {
+            action: sim::EquipAction::WarmUp,
+            ..
+        }
+    )));
+    // she walks there; holding (mouse / E) finishes it quickly
+    let mut guard = 0;
+    while !g.at_hold_chore() && guard < 2000 {
+        g.world.tick(&c);
+        guard += 1;
+    }
+    assert!(g.at_hold_chore(), "she reached the machine");
+    for _ in 0..20 {
+        g.equip_input(&c, true, 0.1);
+        g.world.tick(&c);
+    }
+    g.equip_input(&c, false, 0.0);
+    let ev = g.world.drain_events();
+    assert!(ev.iter().any(|e| matches!(
+        e,
+        sim::SimEvent::EquipmentUsed {
+            action: sim::EquipAction::WarmUp,
+            ..
+        }
+    )));
+    // a pendant lamp toggles
+    let lamp = g
+        .world
+        .furniture()
+        .iter()
+        .find(|p| p.def == "pendant_lamp")
+        .map(|p| (p.uid, p.on))
+        .unwrap();
+    assert!(g.intent(&c, hands::Intent::Lamp { uid: lamp.0 }));
+    assert_eq!(g.world.furniture_by_uid(lamp.0).unwrap().on, !lamp.1);
+    // the fridge: the milk first, afterwards the pantry
+    let fridge = g
+        .world
+        .furniture()
+        .iter()
+        .find(|p| g.world.equipment_kind(&c, p.uid) == Some(sim::EquipKind::Fridge))
+        .map(|p| p.uid)
+        .unwrap();
+    g.world.hands.equip.milk_done = true;
+    for x in g.world.app.checklist.iter_mut() {
+        if x.id == "check_stock" {
+            x.done = true;
+        }
+    }
+    assert_eq!(g.world.equipment_action(&c, fridge), None);
+    assert!(g.intent(
+        &c,
+        hands::Intent::Equip {
+            uid: fridge,
+            front: false
+        }
+    ));
+    assert!(g.hands.book.is_some(), "the pantry opened");
+}
 /// 0.1.1 bug: during the preparation half hour the night tick stands still, so the drawn
 /// people froze on the spot while they walked and worked, then jumped at 22:00.
 #[test]
@@ -635,3 +727,4 @@ fn people_are_drawn_walking_during_the_preparation_half_hour() {
     assert!(g.world.in_prep(), "still the preparation");
     assert!(moved > 0.5 * crate::map::TILE, "drawn Karolina walked {moved} px");
 }
+

@@ -126,6 +126,11 @@ pub enum PlayerAct {
     /// Just walk somewhere. (A moment's option and a night experiment are a `GoTo` too: the
     /// sim keeps what to do on arrival in `World::walk_jobs`.)
     GoTo { tile: (i32, i32) },
+    /// An appliance chore (v0.2, `sim::equipment`): walk to the piece and do it.
+    Use {
+        uid: u32,
+        action: super::equipment::EquipAction,
+    },
 }
 
 impl PlayerAct {
@@ -142,6 +147,7 @@ impl PlayerAct {
             PlayerAct::Checklist { .. } => "checklist",
             PlayerAct::PlayRecord { .. } => "record",
             PlayerAct::GoTo { .. } => "go_to",
+            PlayerAct::Use { .. } => "use",
         }
     }
 }
@@ -364,6 +370,8 @@ pub struct HandsState {
     pub assist_wishes: bool,
     /// A version 1 save: grandma's jukebox still has to be put in its place (next Day).
     pub place_jukebox: bool,
+    /// Tonight's appliances (v0.2): the warm machine, the soup pot, the cake, the tray…
+    pub equip: super::equipment::EquipState,
 }
 
 /// Who holds a ticket on the rail.

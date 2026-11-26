@@ -24,6 +24,7 @@ pub const STEPS: &[(&str, u32, bool)] = &[
     // night 1 (solo, rain)
     ("light_window", 1, false),
     ("machine", 1, false),
+    ("equipment", 1, false),
     ("checklist_open", 1, false),
     ("greet", 1, false),
     ("take_order", 1, false),
@@ -60,6 +61,7 @@ pub const STEPS: &[(&str, u32, bool)] = &[
 pub const NIGHT1: &[&str] = &[
     "light_window",
     "machine",
+    "equipment",
     "checklist_open",
     "greet",
     "take_order",
@@ -188,6 +190,13 @@ pub(super) fn trigger(g: &GameScreen, content: &crate::content::Content, id: &st
     match id {
         "light_window" => night && !g.world.window_light_on(content),
         "machine" => after("light_window") && night && checklist_open(g, "coffee_warmup"),
+        // v0.2: the rest of the kitchen has small jobs too (the soup pot, the milk)
+        "equipment" => {
+            after("machine")
+                && night
+                && !busy
+                && furniture_with(g, content, "station:stove").is_some()
+        }
         // the opening list as a whole: the rest of the ritual lives in the Shiftella app
         "checklist_open" => after("machine") && night && !busy,
         // the closing list, before the handover note at 05:45
@@ -256,6 +265,7 @@ fn finished(
                     .any(|c| c.id == "light_window" && c.claim.is_some())
         }
         "machine" => !checklist_open(g, "coffee_warmup"),
+        "equipment" => age > 10.0 || more("equip_done"),
         "checklist_open" => age > 10.0 || g.panel == Some(Panel::App),
         "checklist_close" => {
             age > 12.0 || g.panel == Some(Panel::App) || g.world.phase() != Phase::Night
@@ -354,6 +364,9 @@ fn target(
         }
         "machine" => {
             furniture_with(g, content, "station:coffee").and_then(|u| furniture_rect(g, ui, u, 0.6))
+        }
+        "equipment" => {
+            furniture_with(g, content, "station:stove").and_then(|u| furniture_rect(g, ui, u, 0.5))
         }
         "greet" | "take_order" => {
             let (leader, _) = mirek(g)?;

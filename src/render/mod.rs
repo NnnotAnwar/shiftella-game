@@ -92,6 +92,7 @@ mod brand;
 pub mod cat;
 pub mod colors;
 pub mod draw;
+mod equipment;
 pub mod faces;
 mod festive;
 mod furniture;
@@ -108,6 +109,10 @@ mod theme;
 mod tiles;
 
 pub use brand::{draw_brand_mark, init as init_brand};
+pub use equipment::{
+    ApplianceKind, ApplianceLook, CakeLook, EquipGlyph, PotLook, appliance_sort_key,
+    draw_appliance_state, draw_equip_cue, draw_work_ring,
+};
 pub use festive::{
     GarlandSpan, GarlandStyle, Garlands, advent_wreath_lights, bow, draw_advent_wreath,
     draw_tip_jar,

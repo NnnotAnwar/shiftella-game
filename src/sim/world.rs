@@ -1411,6 +1411,7 @@ impl World {
         super::rozpis::on_night_start(self, content);
         super::atmos::on_night_start(self, content);
         super::build_content::on_night_start(self, content);
+        super::equipment::on_night_start(self);
         self.emit(SimEvent::NightStarted { night: self.night });
         super::story::on_night_start(self, content);
     }
@@ -1503,6 +1504,7 @@ impl World {
         let m = self.minutes_since_open();
         super::tool::tutorial_at(self, content, m);
         super::prep_trains(self, content, m);
+        super::equipment::on_minute(self, content);
     }
 
     /// 22:00: the door sign flips to "Open" and guests may come (`SimEvent::DoorsOpened`).
@@ -1592,6 +1594,7 @@ impl World {
         super::build_content::on_minute(self, content);
         super::tool::on_minute(self, content);
         super::rozpis::on_minute(self, content);
+        super::equipment::on_minute(self, content);
         let q = self.queue_len() as u32;
         self.tonight.max_queue = self.tonight.max_queue.max(q);
     }

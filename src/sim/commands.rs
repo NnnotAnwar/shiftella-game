@@ -733,6 +733,13 @@ impl World {
                 self.sys.tutorial_off = !on;
                 Ok(())
             }
+            Command::UseEquipment { uid, action } => super::player::queue(
+                self,
+                content,
+                super::hands::PlayerAct::Use { uid, action },
+                false,
+            ),
+            Command::EquipmentHold { seconds } => super::equipment::hold(self, content, seconds),
             Command::Experiment { ingredients } => {
                 super::knowledge::validate(self, content, &ingredients)?;
                 if self.phase == Phase::Day {

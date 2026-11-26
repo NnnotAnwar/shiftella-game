@@ -62,6 +62,13 @@ pub enum Intent {
     Chore { front: bool },
     /// **G**: wave at the newest guest who just came in.
     Greet,
+    /// Clicked an appliance (v0.2): whatever it offers now (warm up, a pot of soup, the
+    /// cake out, count the till…); the fridge with nothing to do opens the pantry.
+    Equip { uid: u32, front: bool },
+    /// Clicked a lamp: on / off (the window lamp's opening item goes through `Window`).
+    Lamp { uid: u32 },
+    /// Held the mouse / **E** for `seconds` at a hold chore she is doing.
+    EquipHold { seconds: f32 },
 }
 
 /// An open order card.
@@ -244,6 +251,12 @@ pub struct Hands {
     /// and in all — the night-length check (`game_autoplay`).
     pub overlay_real: f32,
     pub night_real: f32,
+    /// v0.2 equipment: sounds from appliance events, played by the next frame.
+    pub equip_sounds: Vec<(crate::audio::Sfx, f32)>,
+    /// The mouse went down on this appliance (a hold chore keeps going while it stays down).
+    pub press_equip: Option<u32>,
+    /// Hold-chore bookkeeping (like the sink).
+    pub equip_hold: Option<WashHold>,
 }
 
 impl Hands {
@@ -375,6 +388,20 @@ pub fn queue_icon(content: &Content, w: &World, act: &PlayerAct) -> QueueIcon {
                 None => QueueIcon::Walk,
             }
         }
+        PlayerAct::Use { action, .. } => equip_icon(*action),
+    }
+}
+
+/// The queue chip of an appliance chore.
+pub fn equip_icon(action: sim::EquipAction) -> QueueIcon {
+    use sim::EquipAction as A;
+    match action {
+        A::WarmUp | A::PullTray | A::Service | A::CleanUp => QueueIcon::Brew(CupGlyph::Espresso),
+        A::SoupOn | A::Stir => QueueIcon::Brew(CupGlyph::Soup),
+        A::Bake | A::TakeOut => QueueIcon::Brew(CupGlyph::Pastry),
+        A::Milk => QueueIcon::Brew(CupGlyph::Latte),
+        A::CountTill => QueueIcon::CollectTip,
+        A::Trash => QueueIcon::Clear,
     }
 }
 
@@ -455,6 +482,27 @@ pub fn lights_off_due(g: &GameScreen) -> bool {
             .any(|c| c.id == "light_off_at_six" && !c.done && c.claim.is_none())
 }
 
+/// A lamp beside a window (the light in the window — same rule as the sim's).
+pub fn is_window_lamp(w: &World, content: &Content, uid: u32) -> bool {
+    let Some(p) = w.furniture_by_uid(uid) else {
+        return false;
+    };
+    let Some(def) = content.furniture_def(&p.def) else {
+        return false;
+    };
+    sim::grid::footprint(def, p.x, p.y, p.rot)
+        .iter()
+        .any(|&(x, y)| {
+            (-1..=1).any(|dy| {
+                (-1..=1).any(|dx| {
+                    w.grid()
+                        .tile(x + dx, y + dy)
+                        .is_some_and(|t| t.kind == sim::TileKind::Window)
+                })
+            })
+        })
+}
+
 /// Is this act already in her hands (current or queued)?
 fn in_hands(w: &World, act: &PlayerAct) -> bool {
     karolina_acts(w).iter().any(|a| a == act)
@@ -512,7 +560,8 @@ impl GameScreen {
 
     /// Does what the player asked. Returns whether anything happened.
     pub fn intent(&mut self, content: &Content, i: Intent) -> bool {
-        if self.world.phase() != Phase::Night && !matches!(i, Intent::Jukebox) {
+        if self.world.phase() != Phase::Night && !matches!(i, Intent::Jukebox | Intent::Lamp { .. })
+        {
             return false;
         }
         match i {
@@ -630,12 +679,42 @@ impl GameScreen {
                         Intent::Tip { table, .. } => Intent::Tip { table, front },
                         Intent::Sink { sink, .. } => Intent::Sink { sink, front },
                         Intent::Mop { tile, .. } => Intent::Mop { tile, front },
+                        Intent::Equip { uid, .. } => Intent::Equip { uid, front },
                         other => other,
                     };
                     self.intent(content, i)
                 }
                 None => false,
             },
+            Intent::Equip { uid, front } => self.equip_intent(content, uid, front),
+            Intent::Lamp { uid } => {
+                // the window lamp keeps its rituals (the light first, off at six)
+                let ritual = self.world.phase() == Phase::Night
+                    && is_window_lamp(&self.world, content, uid)
+                    && (lights_off_due(self)
+                        || self
+                            .world
+                            .app()
+                            .checklist
+                            .iter()
+                            .any(|c| c.id == "light_window" && !c.done && c.claim.is_none()));
+                if ritual {
+                    return self.intent(content, Intent::Window);
+                }
+                let Some(p) = self.world.furniture_by_uid(uid) else {
+                    return false;
+                };
+                let on = !p.on;
+                let ok = self.hand(content, Command::SetFurnitureOn { uid, on });
+                if ok {
+                    self.hands
+                        .equip_sounds
+                        .push((crate::audio::Sfx::UiClick, 0.45));
+                    self.hands.tut.bump("lamp_toggled");
+                }
+                ok
+            }
+            Intent::EquipHold { seconds } => self.hand(content, Command::EquipmentHold { seconds }),
             Intent::Greet => {
                 let newest = self
                     .world
@@ -782,7 +861,99 @@ impl GameScreen {
             .checklist
             .iter()
             .any(|c| c.id == "light_window" && !c.done && c.claim.is_none());
-        (window_open && !w.window_light_on(content)).then_some(Intent::Window)
+        if window_open && !w.window_light_on(content) {
+            return Some(Intent::Window);
+        }
+        // the appliances: whatever one offers now (a tray ahead is a choice, not a chore)
+        for v in w.equipment_views(content) {
+            let Some(a) = v.action else {
+                continue;
+            };
+            if a == sim::EquipAction::PullTray {
+                continue;
+            }
+            if let Some(p) = w.furniture_by_uid(v.uid) {
+                let at = vec2(p.x as f32 + 0.5, p.y as f32 + 0.5) * TILE;
+                consider(
+                    &mut best,
+                    dist(at),
+                    Intent::Equip {
+                        uid: v.uid,
+                        front: false,
+                    },
+                );
+            }
+        }
+        best.map(|b| b.1)
+    }
+
+    /// A click on an appliance: what it offers now, or the pantry at the fridge.
+    fn equip_intent(&mut self, content: &Content, uid: u32, front: bool) -> bool {
+        match self.world.equipment_action(content, uid) {
+            Some(action) => {
+                let ok = self.queue(content, PlayerAct::Use { uid, action }, front);
+                if ok {
+                    self.hands.tut.bump("equip_used");
+                    self.hands
+                        .equip_sounds
+                        .push((crate::audio::Sfx::UiClick, 0.3));
+                }
+                ok
+            }
+            None => {
+                let fridge =
+                    self.world.equipment_kind(content, uid) == Some(sim::EquipKind::Fridge);
+                if fridge && self.hands.book.is_none() {
+                    self.open_book(None);
+                    return true;
+                }
+                false
+            }
+        }
+    }
+
+    /// Hold chores (warm up, purge, clean the group head): `holding` = the mouse on the
+    /// appliance or **E** is down now. Like the sink: the held seconds go to the sim.
+    pub fn equip_input(&mut self, content: &Content, holding: bool, dt: f32) {
+        let at = self
+            .world
+            .player()
+            .current
+            .as_ref()
+            .and_then(|c| match c.act {
+                PlayerAct::Use { uid, action } if action.hold() && c.stage == 1 => Some(uid),
+                _ => None,
+            });
+        match (at, holding) {
+            (Some(uid), true) => {
+                let h = self.hands.equip_hold.get_or_insert(WashHold {
+                    sink: uid,
+                    ..Default::default()
+                });
+                h.sink = uid;
+                h.held += dt;
+                h.unsent += dt;
+                if h.unsent >= WASH_SEND_EVERY {
+                    let s = std::mem::take(&mut h.unsent);
+                    self.intent(content, Intent::EquipHold { seconds: s });
+                }
+            }
+            _ => {
+                if let Some(h) = self.hands.equip_hold.take()
+                    && h.unsent > 0.0
+                    && at == Some(h.sink)
+                {
+                    self.intent(content, Intent::EquipHold { seconds: h.unsent });
+                }
+            }
+        }
+    }
+
+    /// She is standing at a hold chore (E holds instead of picking the next chore).
+    pub fn at_hold_chore(&self) -> bool {
+        self.world.player().current.as_ref().is_some_and(|c| {
+            matches!(c.act, PlayerAct::Use { action, .. } if action.hold()) && c.stage == 1
+        })
     }
 
     // ───────────────────────── order card ─────────────────────────
@@ -1043,6 +1214,8 @@ impl GameScreen {
                 self.hands.coins.clear();
                 self.hands.incoming.clear();
                 self.hands.record_play = None;
+                self.hands.equip_hold = None;
+                self.hands.press_equip = None;
             }
             SimEvent::NightEnded { .. } => {
                 self.hands.moment = None;
@@ -1290,6 +1463,72 @@ impl GameScreen {
                     );
                 }
             }
+            SimEvent::EquipmentUsed { .. }
+            | SimEvent::EquipmentCue { .. }
+            | SimEvent::TillCounted { .. }
+            | SimEvent::TrashOut { .. } => self.equip_event(content, e),
+            _ => {}
+        }
+    }
+
+    /// Appliance events (v0.2): the sound, a small float over the piece, the till's count.
+    fn equip_event(&mut self, content: &Content, e: &SimEvent) {
+        use crate::audio::Sfx;
+        use sim::{EquipAction as A, EquipCue};
+        let top = |w: &World, uid: u32| {
+            w.furniture_by_uid(uid)
+                .map(|p| vec2(p.x as f32 + 0.5, p.y as f32 - 0.35) * TILE)
+        };
+        match e {
+            SimEvent::EquipmentUsed { uid, action, by } => {
+                let mine = by.is_some() && *by == self.world.karolina().map(|k| k.id);
+                let sound = match action {
+                    A::WarmUp | A::PullTray | A::Service | A::CleanUp => (Sfx::CoffeeMachine, 0.5),
+                    A::CountTill => (Sfx::CashRegister, 0.5),
+                    A::Trash => (Sfx::DoorBell, 0.25),
+                    _ => (Sfx::CupSaucer, 0.45),
+                };
+                if mine {
+                    self.hands.equip_sounds.push(sound);
+                    self.hands.tut.bump("equip_done");
+                    if let Some(at) = top(&self.world, *uid) {
+                        self.hands.floats.push(Float {
+                            at,
+                            text: format!("equip.done.{}", action.id()),
+                            born: self.time,
+                            args: Vec::new(),
+                        });
+                    }
+                }
+                let _ = content;
+            }
+            SimEvent::EquipmentCue { cue, .. } => {
+                let sound = match cue {
+                    EquipCue::Ding => (Sfx::DoorBell, 0.3),
+                    EquipCue::Bubbling => (Sfx::CupSaucer, 0.2),
+                    EquipCue::Sputter => (Sfx::CoffeeMachine, 0.25),
+                };
+                self.hands.equip_sounds.push(sound);
+            }
+            SimEvent::TillCounted {
+                revenue,
+                guests,
+                tips,
+            } => {
+                self.toast_key(
+                    ToastKind::Success,
+                    Icon::Money,
+                    "equip.till.counted",
+                    &[
+                        ("revenue", format!("money:{revenue}")),
+                        ("guests", guests.to_string()),
+                        ("tips", format!("money:{tips}")),
+                    ],
+                );
+            }
+            SimEvent::TrashOut { cat: true } => {
+                self.toast_key(ToastKind::Info, Icon::Heart, "equip.trash.cat", &[]);
+            }
             _ => {}
         }
     }
@@ -1311,7 +1550,7 @@ impl GameScreen {
     /// Per frame (logic): tip coins follow the sim, play-once records end, finished acts
     /// make their sound. Returns the sounds to play.
     pub fn hands_frame(&mut self, content: &Content, dt: f32) -> Vec<(crate::audio::Sfx, f32)> {
-        let mut sounds = Vec::new();
+        let mut sounds = std::mem::take(&mut self.hands.equip_sounds);
         let now = self.time;
         // coins
         let jar = jar_pos(&self.world, content);
@@ -1744,6 +1983,147 @@ impl GameScreen {
             t += dt;
         }
         self.hands.autoplay = before;
+    }
+}
+
+impl GameScreen {
+    /// Screenshots (`SHIFTELLA_SCENE=equipment`, `SHIFTELLA_EQUIP=prep|night|worn|closing`):
+    /// plays the appliances to a moment worth a picture, through the same commands a player
+    /// sends. Night must already be running at the wanted minute (`fast_forward`).
+    pub fn stage_equipment(
+        &mut self,
+        content: &std::rc::Rc<Content>,
+        loc: &crate::settings::Locale,
+        variant: &str,
+    ) {
+        use sim::{CakeView, EquipAction as A, EquipKind as K, PotView};
+        let find = |g: &GameScreen, kind: K| {
+            g.world
+                .furniture()
+                .iter()
+                .find(|p| g.world.equipment_kind(content, p.uid) == Some(kind))
+                .map(|p| p.uid)
+        };
+        let clear = |g: &mut GameScreen| {
+            for _ in 0..8 {
+                let _ = g.world.apply(content, Command::PlayerCancel);
+                let _ = g.world.apply(content, Command::PlayerUnqueue { index: 0 });
+            }
+        };
+        let run = |g: &mut GameScreen, max: u32, stop: &dyn Fn(&GameScreen) -> bool| {
+            for _ in 0..max {
+                if stop(g) || g.world.phase() != Phase::Night {
+                    break;
+                }
+                g.world.tick(content);
+                g.time += 0.1;
+                for e in g.world.drain_events() {
+                    if !matches!(e, SimEvent::PlayCutscene(_)) {
+                        g.handle_event(content, e, Some(loc));
+                    }
+                }
+                while let Some(id) = g.world.playing_cutscene().map(str::to_string) {
+                    let _ = g.world.apply(
+                        content,
+                        Command::CutsceneFinished {
+                            id,
+                            choices: Vec::new(),
+                        },
+                    );
+                }
+            }
+        };
+        let idle = |g: &GameScreen| {
+            g.world.player().current.is_none() && g.world.player().queue.is_empty()
+        };
+        let using = |g: &GameScreen, a: A| {
+            g.world.player().current.as_ref().is_some_and(|c| {
+                matches!(c.act, PlayerAct::Use { action, .. } if action == a)
+                    && c.stage >= 1
+                    && c.progress() > 0.35
+            })
+        };
+        let view = |g: &GameScreen, kind: K| {
+            find(g, kind).and_then(|u| {
+                g.world
+                    .equipment_views(content)
+                    .into_iter()
+                    .find(|v| v.uid == u)
+            })
+        };
+        let queue = |g: &mut GameScreen, kind: K, a: A| -> bool {
+            find(g, kind).is_some_and(|uid| {
+                g.world.equipment_action(content, uid) == Some(a)
+                    && g.world
+                        .apply(content, Command::UseEquipment { uid, action: a })
+                        .is_ok()
+            })
+        };
+        clear(self);
+        match variant {
+            "night" => {
+                queue(self, K::Stove, A::SoupOn);
+                queue(self, K::Oven, A::Bake);
+                queue(self, K::Machine, A::PullTray);
+                run(self, 3000, &idle);
+                run(self, 3000, &|g| {
+                    view(g, K::Stove).is_none_or(|v| v.pot == PotView::Bubbling)
+                        && view(g, K::Oven).is_none_or(|v| v.cake == CakeView::Ready)
+                });
+                if self.world.equipment().tray == 0 {
+                    clear(self);
+                    queue(self, K::Machine, A::PullTray);
+                    run(self, 600, &idle);
+                }
+            }
+            "worn" => {
+                self.world.debug_set_wear(content, "station:coffee", 0.72);
+                run(self, 40, &|_| false);
+                clear(self);
+                if queue(self, K::Machine, A::Service) {
+                    run(self, 900, &|g| using(g, A::Service) || idle(g));
+                }
+            }
+            "closing" => {
+                if queue(self, K::Register, A::CountTill) {
+                    run(self, 900, &idle);
+                }
+                if queue(self, K::Trash, A::Trash) {
+                    run(self, 1500, &|g| {
+                        idle(g)
+                            || g.world
+                                .player()
+                                .current
+                                .as_ref()
+                                .is_some_and(|c| c.stage >= 3)
+                    });
+                }
+            }
+            _ => {
+                queue(self, K::Stove, A::SoupOn);
+                queue(self, K::Fridge, A::Milk);
+                queue(self, K::Oven, A::Bake);
+                let warm = queue(self, K::Machine, A::WarmUp);
+                run(self, 900, &|g| {
+                    if warm {
+                        using(g, A::WarmUp) || idle(g)
+                    } else {
+                        idle(g)
+                    }
+                });
+            }
+        }
+        // the hold ring shows "held" for a calm shot
+        if let Some(c) = self.world.player().current.as_ref()
+            && let PlayerAct::Use { uid, action } = c.act
+            && action.hold()
+        {
+            self.hands.equip_hold = Some(WashHold {
+                sink: uid,
+                held: 0.5,
+                unsent: 0.0,
+            });
+        }
     }
 }
 

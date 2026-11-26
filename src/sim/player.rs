@@ -187,8 +187,8 @@ fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerA
                 return Err(CommandError::OutOfBounds);
             }
         }
+        PlayerAct::Use { uid, action } => super::equipment::claim(w, content, *uid, *action)?,
     }
-    let _ = content;
     Ok(act)
 }
 
@@ -271,6 +271,7 @@ fn release_act(w: &mut World, content: &Content, act: &PlayerAct, stage: u8, cou
                 c.claim = None;
             }
         }
+        PlayerAct::Use { action, .. } => super::equipment::release(w, *action),
         PlayerAct::GoTo { tile } => {
             // a queued moment / experiment walk was dropped
             if stage == 0
@@ -435,7 +436,11 @@ pub(crate) fn brew(
     } else {
         1.0
     };
-    let full = mi.prep_minutes * TICKS_PER_MINUTE as f32;
+    let mut full = mi.prep_minutes * TICKS_PER_MINUTE as f32;
+    if for_wish {
+        // the pot on the stove, the cake out of the oven, the milk out (v0.2 equipment)
+        full *= super::equipment::item_prep_mul(w, content, &r.base_item, false);
+    }
     let iid = if for_wish {
         let wish = w.parties[pi]
             .order_kind
@@ -927,6 +932,7 @@ fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal
         PlayerAct::PlayRecord { .. } => {
             at(super::music::jukebox(w).and_then(|j| staff::station_access(w, content, j)))
         }
+        PlayerAct::Use { uid, .. } => at(super::equipment::goal(w, content, *uid)),
     }
 }
 
@@ -1419,6 +1425,7 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                 }
             }
         },
+        PlayerAct::Use { uid, action } => use_step(w, content, idx, &cur, uid, action),
         PlayerAct::GoTo { tile } => match cur.stage {
             0 => {
                 // a moment's option or a night experiment waits at the end of this walk
@@ -1460,6 +1467,60 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                 }
             }
         },
+    }
+}
+
+/// One tick of an appliance chore (`sim::equipment`): work at the piece (a hold chore goes
+/// faster while the player holds, `Command::EquipmentHold`); the trash run then carries the
+/// bag out of the door and works there a moment.
+fn use_step(
+    w: &mut World,
+    content: &Content,
+    idx: usize,
+    cur: &ActiveAct,
+    uid: u32,
+    action: super::equipment::EquipAction,
+) {
+    use super::equipment::{self as eq, EquipAction};
+    let me = w.staff[idx].id;
+    match cur.stage {
+        0 => set_work(w, 1, eq::work_ticks(content, action)),
+        1 => {
+            w.staff[idx].pose = Pose::Work;
+            if let Some(p) = w.furniture_by_uid(uid) {
+                let here = w.staff[idx].tile();
+                let d = (p.x - here.0, p.y - here.1);
+                w.staff[idx].facing = Facing::from_delta(d.0 as f32, d.1 as f32);
+            }
+            if !work_tick(w, work_speed(w, content, None)) {
+                return;
+            }
+            // (a helper may have done it meanwhile, the pot stopped bubbling…: then nothing)
+            if !eq::possible(w, content, uid, action) {
+                eq::release(w, action);
+                return finish(w);
+            }
+            if action == EquipAction::Trash
+                && let Some(t) = eq::outside_spot(w)
+            {
+                set_work(w, 2, 0.0);
+                if w.staff[idx].tile() == t || staff::go(w, idx, t) {
+                    return;
+                }
+            }
+            eq::complete(w, content, uid, action, Some(me));
+            finish(w);
+        }
+        2 => set_work(w, 3, eq::trash_ticks(content)),
+        _ => {
+            w.staff[idx].pose = Pose::Idle;
+            if work_tick(w, 1.0) {
+                if eq::possible(w, content, uid, action) {
+                    eq::complete(w, content, uid, action, Some(me));
+                }
+                finish(w);
+            }
+        }
     }
 }
 
