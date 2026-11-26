@@ -531,6 +531,20 @@ impl WorldScene {
             };
             pieces.push((sprite, origin, (v.size.0 as u8, v.size.1 as u8), st));
         }
+        // the bar's own pendant lamps: a warm row over the counter (part of the café, not
+        // buildable furniture), lit whenever the power is on
+        if let Some((x0, x1, front)) = counter {
+            let row = ((front + 8.0) / TILE).floor() - 1.0;
+            for x in bar_pendant_columns(x0, x1) {
+                let origin = vec2(x, row * TILE);
+                let st = FurnitureState {
+                    active: !blackout && lamp_k("pendant_lamp", origin) > 0.5,
+                    t,
+                    ..Default::default()
+                };
+                pieces.push(("pendant_lamp".to_string(), origin, (1, 1), st));
+            }
+        }
         // people (in a cutscene: the frozen night minus the ones the scene plays itself)
         let mut looks = Vec::with_capacity(self.people.len());
         let all_people = std::mem::take(&mut self.people);
@@ -747,11 +761,35 @@ impl WorldScene {
         } else {
             Vec::new()
         };
+        let room = self.cafe_px();
         let lighting = self.lighting.as_mut().expect("created above");
         lighting.coziness = if cs.is_some() { 0.6 } else { vis.coziness };
         lighting.begin(cam, ambient);
         lighting.set_time(t);
         lighting.add_window_light(if blackout { 0.55 } else { 0.35 + 0.65 * level });
+        if !blackout {
+            // a soft warm fill over the whole interior: the café reads as a lit room against
+            // the night street, the corners are dim but never murky
+            let fill = alpha(INTERIOR_FILL, interior_fill_strength(ambient) * level);
+            lighting.add_quad(
+                [vec2(0.0, 0.0), vec2(room.x, 0.0), room, vec2(0.0, room.y)],
+                [fill; 4],
+            );
+            // the back of the bar: a warm wash over the work area behind the counter
+            if let Some((x0, x1, front)) = counter {
+                let depth = (room.y - front).max(TILE);
+                let mut x = x0 + TILE;
+                while x < x1 {
+                    lighting.add_light(Light::new(
+                        vec2(x, front + depth * 0.45),
+                        2.6 * TILE,
+                        pal::AMBER,
+                        0.24 * interior_fill_strength(ambient) / INTERIOR_FILL_STRENGTH * level,
+                    ));
+                    x += 2.5 * TILE;
+                }
+            }
+        }
         lighting.train_sweep(train_p);
         for (i, (sprite, origin, size, st)) in pieces.iter().enumerate() {
             let k = lamp_k(sprite, *origin);
@@ -954,5 +992,55 @@ fn draw_dirt_blot(c: Vec2, seed: i32) {
     // two footprints of whoever walked through
     for (dx, dy) in [(4.0, -6.0), (12.0, -2.0)] {
         draw_ellipse(c.x + dx + j(3) * 4.0, c.y + dy, 2.6, 1.6, 0.0, col);
+    }
+}
+
+/// Warm interior fill colour and its strength (alpha into the light map, × the power level).
+const INTERIOR_FILL: Color = Color::new(1.0, 0.86, 0.74, 1.0);
+const INTERIOR_FILL_STRENGTH: f32 = 0.34;
+
+/// The fill follows the night: strongest in the deep indigo hours, gentle at dusk and dawn
+/// (when the ambient is already light), so early evening never looks washed out.
+fn interior_fill_strength(ambient: Color) -> f32 {
+    let lum = 0.3 * ambient.r + 0.59 * ambient.g + 0.11 * ambient.b;
+    let dark = ((0.6 - lum) / 0.32).clamp(0.3, 1.0);
+    INTERIOR_FILL_STRENGTH * dark
+}
+
+/// Tile-aligned x positions (world px) for the bar's pendant lamps: one every ~2.5 tiles,
+/// inset from the counter's ends.
+fn bar_pendant_columns(x0: f32, x1: f32) -> Vec<f32> {
+    let tiles = ((x1 - x0) / TILE).round() as i32;
+    if tiles < 2 {
+        return vec![x0];
+    }
+    let n = ((tiles as f32 / 2.5).round() as i32).clamp(1, 6);
+    (0..n)
+        .map(|i| {
+            let f = (i as f32 + 0.5) / n as f32;
+            x0 + (f * tiles as f32).floor() * TILE
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod bar_light_tests {
+    use super::*;
+
+    #[test]
+    fn bar_pendants_are_spread_over_the_counter_and_stay_on_it() {
+        let cols = bar_pendant_columns(10.0 * TILE, 21.0 * TILE);
+        assert!(cols.len() >= 3 && cols.len() <= 6, "{cols:?}");
+        assert!(cols.windows(2).all(|w| w[1] - w[0] >= 2.0 * TILE), "{cols:?}");
+        assert!(cols.iter().all(|x| *x >= 10.0 * TILE && *x < 21.0 * TILE));
+        assert_eq!(bar_pendant_columns(4.0 * TILE, 5.0 * TILE), vec![4.0 * TILE]);
+    }
+
+    #[test]
+    fn the_interior_fill_is_stronger_in_the_deep_night_than_at_dusk() {
+        let dusk = interior_fill_strength(ambient_for(0.0));
+        let deep = interior_fill_strength(ambient_for(0.55));
+        assert!(deep > dusk * 1.5, "dusk {dusk}, deep {deep}");
+        assert!(deep <= INTERIOR_FILL_STRENGTH && dusk > 0.0);
     }
 }
