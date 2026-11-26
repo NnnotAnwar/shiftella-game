@@ -166,7 +166,7 @@ pub enum Sfx {
     Blanket,
     /// One chalk stroke on a board. Not played yet: no UI writes on the menu board (the
     /// specials are set by `Command::SetSpecials`, the signature drink is package I) — play it
-    /// there with `audio.play_sfx_vol(Sfx::Chalk, 0.7)`.
+    /// (played when the signature drink is chalked on the board).
     Chalk,
     /// A polaroid's shutter (the morning pick; ready for photo mode).
     PhotoShutter,

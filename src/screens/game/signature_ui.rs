@@ -604,7 +604,8 @@ fn card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         };
         match g.command(content, cmd) {
             Ok(()) => {
-                ui.sound(crate::ui::UiSound::Click);
+                // the name goes up on the board in chalk
+                cx.audio.play_sfx_vol(crate::audio::Sfx::Chalk, 0.7);
                 g.sig.back_to_book = false;
                 g.close_signature();
             }

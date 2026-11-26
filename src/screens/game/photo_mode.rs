@@ -13,7 +13,7 @@ use crate::map::TILE;
 use crate::ui::draw::{fill_rrect, line, stroke_rrect, with_a};
 use crate::ui::handson::PolaroidView;
 use crate::ui::{
-    Align, Glass, Icon, IconButton, RectExt, TextStyle, ToastKind, Ui, UiSound, Weight,
+    Align, Glass, Icon, IconButton, RectExt, TextStyle, ToastKind, Ui, Weight,
 };
 use sim::{NightPhoto, Phase, signature};
 
@@ -311,10 +311,9 @@ pub fn frame_ui(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
                 },
             ) {
                 Ok(()) => {
-                    // SFX: the instant camera's shutter + the print sliding out (sounds
-                    // package K); the UI click stands in until then
-                    ui.sound(UiSound::Click);
-                    cx.audio.play_sfx(crate::audio::Sfx::UiClick);
+                    // the instant camera's shutter and the print sliding out
+                    cx.audio.play_sfx(crate::audio::Sfx::PhotoShutter);
+                    cx.audio.play_sfx_vol(crate::audio::Sfx::PhotoEject, 0.8);
                     g.photo.flash = Some(g.time);
                     g.photo.print = Some(Print {
                         index: g.world.photos().len().saturating_sub(1),
