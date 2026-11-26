@@ -52,6 +52,7 @@ use macroquad::prelude::*;
 use crate::audio::{Audio, Sfx, Track};
 use crate::camera::WorldCamera;
 use crate::content::Content;
+use crate::profile;
 use crate::cutscene::{CutscenePlayer, CutsceneStatus};
 use crate::save::{SaveFile, SaveMeta, SaveStore, SessionExtra, Slot};
 use crate::settings::{Locale, Settings};
@@ -1281,16 +1282,20 @@ impl GameScreen {
         }
         let loc = cx.loc;
         // faces for avatars: baked before anything of this frame is drawn
+        let p_faces = profile::span(profile::Sec::Faces);
         self.register_faces(ui, &loc);
         hands_ui::faces(self, ui, content, &loc);
         build::faces(self, ui, content, &loc);
+        drop(p_faces);
         for e in std::mem::take(&mut self.deferred) {
             self.handle_event(content, e, Some(&loc));
         }
         // the walk home / the back step own the screen while they play
+        let p_walk = profile::span(profile::Sec::Walk);
         if walk_home::frame(self, ui, cx, dt) {
             return;
         }
+        drop(p_walk);
 
         // camera fits the café on the first frame
         if !self.cam_ready {
@@ -1301,6 +1306,7 @@ impl GameScreen {
         }
 
         // 1. cutscene or sim
+        let p_sim = profile::span(profile::Sec::Sim);
         self.relaxed = cx.settings.relaxed_minigames;
         let mut finished = None;
         if self.player.is_playing() {
@@ -1356,6 +1362,9 @@ impl GameScreen {
             }
         }
         self.drain_and_handle(content, Some(&loc));
+        drop(p_sim);
+        profile::count(profile::Counter::Ticks, ticks_run as u64);
+        let p_hands = profile::span(profile::Sec::Hands);
         if !self.player.is_playing() {
             for (sfx, vol) in self.hands_frame(content, dt) {
                 cx.audio.play_sfx_vol(sfx, vol);
@@ -1367,6 +1376,8 @@ impl GameScreen {
         }
         self.autosave_if_due(content, cx.store);
         self.update_audio(content, cx.audio);
+        drop(p_hands);
+        let p_refresh = profile::span(profile::Sec::Refresh);
         let anim_dt = if self.frozen() && !self.cutscene_playing() {
             dt * 0.35
         } else if self.overlay_open() {
@@ -1383,9 +1394,11 @@ impl GameScreen {
         // little icons over heads and on furniture stay readable when zoomed out
         crate::render::set_world_icon_scale(crate::render::icon_scale_for_zoom(self.cam.zoom));
         self.scene.refresh(&self.world, self.time, alpha);
+        drop(p_refresh);
 
         let t_sim = std::time::Instant::now();
         // 2. world
+        let p_world = profile::span(profile::Sec::World);
         if self.player.is_playing() {
             // story scenes play on the live café (its furniture, lamps, weather, people)
             self.scene
@@ -1452,6 +1465,7 @@ impl GameScreen {
             };
             self.scene
                 .draw(&self.world, content, &cam, t, sel, hov, &mut extra);
+            let _p_overlay = profile::span(profile::Sec::Overlay);
             let target = if wants_mouse || self.pause.is_some() || self.panel == Some(Panel::Build)
             {
                 None
@@ -1491,9 +1505,14 @@ impl GameScreen {
             }
         }
 
+        drop(p_world);
         let t_world = std::time::Instant::now();
         // 3. UI (photos for polaroids render first: they use their own camera)
-        journal_ui::prepare(self);
+        let _p_ui = profile::span(profile::Sec::Ui);
+        {
+            let _p = profile::span(profile::Sec::Photos);
+            journal_ui::prepare(self);
+        }
         ui.set_camera();
         self.anchors.clear();
         if self.player.is_playing() {

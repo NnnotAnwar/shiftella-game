@@ -1409,6 +1409,12 @@ impl RenderingBackend for GlContext {
             .bind_buffer(gl_target, buffer.gl_buf, buffer.index_type);
         unsafe { glBufferSubData(gl_target, 0, size as _, data.ptr as _) };
         self.cache.restore_buffer_binding(gl_target);
+        // [shiftella patch] profiler counters
+        crate::stats::add(&crate::stats::BUFFER_UPDATES, 1);
+        crate::stats::add(&crate::stats::BUFFER_BYTES, size as u64);
+        if matches!(buffer.buffer_type, BufferType::VertexBuffer) && data.element_size > 0 {
+            crate::stats::add(&crate::stats::VERTICES, (size / data.element_size) as u64);
+        }
     }
 
     /// Size of buffer in bytes
@@ -1734,6 +1740,7 @@ impl RenderingBackend for GlContext {
     }
 
     fn draw(&self, base_element: i32, num_elements: i32, num_instances: i32) {
+        crate::stats::add(&crate::stats::DRAW_CALLS, 1); // [shiftella patch]
         assert!(
             self.cache.cur_pipeline.is_some(),
             "Drawing without any binded pipeline"

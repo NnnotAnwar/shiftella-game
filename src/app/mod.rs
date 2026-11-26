@@ -900,6 +900,8 @@ pub async fn run() {
     // the crash log next to the saves (after SHIFTELLA_SAVES is final)
     crate::crashlog::init();
     crate::crashlog::info("startup");
+    crate::profile::init();
+    let boot_clock = std::time::Instant::now();
 
     // ── boot ──
     clear_background(crate::render::colors::NIGHT_0);
@@ -999,6 +1001,12 @@ pub async fn run() {
         None => app.menu(None),
     };
     crate::crashlog::info("boot done");
+    if crate::profile::on() {
+        eprintln!(
+            "profile: boot {:.0} ms (fonts, i18n, content, audio, first scene)",
+            boot_clock.elapsed().as_secs_f64() * 1000.0
+        );
+    }
     log_scene(&app);
     crate::crashlog::test_panic_if_asked();
 
@@ -1017,6 +1025,7 @@ pub async fn run() {
             (now - last_frame).as_secs_f32() * 1000.0,
         );
         last_frame = now;
+        let p_frame = crate::profile::span(crate::profile::Sec::Frame);
         if is_key_pressed(KeyCode::F3) {
             debug.on = !debug.on;
         }
@@ -1095,6 +1104,7 @@ pub async fn run() {
             crate::crashlog::info("quit");
             break;
         }
+        drop(p_frame);
         frame += 1;
         // SHIFTELLA_SHOT_EVERY=n: a numbered screenshot every n frames on the way (smoke runs)
         if let Some(path) = &shot
@@ -1119,6 +1129,7 @@ pub async fn run() {
             }
             img.export_png(path);
             println!("saved {path}");
+            crate::profile::frame_end(&profile_label(&app));
             if debug.on {
                 let (fps, avg, max) = debug.stats();
                 let t = times.unwrap_or_default();
@@ -1129,9 +1140,41 @@ pub async fn run() {
             }
             break;
         }
-        next_frame().await;
+        {
+            let _p = crate::profile::span(crate::profile::Sec::Present);
+            next_frame().await;
+        }
+        if crate::profile::on() {
+            crate::profile::frame_end(&profile_label(&app));
+        }
     }
+    crate::profile::finish();
     let _ = app.loc();
+}
+
+/// A short label of what is on screen for the profiler's CSV (`SHIFTELLA_PROFILE`).
+fn profile_label(app: &App) -> String {
+    match &app.screen {
+        Screen::Menu(_) => "menu".into(),
+        Screen::Credits(_) => "credits".into(),
+        Screen::Game(g) => {
+            let w = &g.world;
+            let what = if g.cutscene_playing() {
+                "cutscene".to_string()
+            } else if g.walk.is_open() {
+                "walk".to_string()
+            } else if g.summary.is_some() {
+                "summary".to_string()
+            } else if let Some(p) = g.panel {
+                format!("{p:?}").to_lowercase()
+            } else if w.phase() == sim::Phase::Day {
+                "day".to_string()
+            } else {
+                "night".to_string()
+            };
+            format!("n{} {what} x{}", w.night(), g.speed)
+        }
+    }
 }
 
 #[cfg(test)]

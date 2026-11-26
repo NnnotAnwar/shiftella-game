@@ -240,6 +240,7 @@ impl SnapRenderer {
     /// edges, e.g. 720×540 for a 360×270 photo). Leaves the default camera active.
     pub fn render(&mut self, snap: &SceneSnap, w: u32, h: u32) -> RenderTarget {
         let rt = render_target(w.max(8), h.max(6));
+        crate::profile::count(crate::profile::Counter::RenderTargets, 1);
         rt.texture.set_filter(FilterMode::Linear);
         self.draw_scene_snap(snap, &rt);
         rt

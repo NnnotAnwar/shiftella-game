@@ -378,6 +378,7 @@ impl Lighting {
         let h = ((sh * self.resolution) as u32).max(1);
         if self.rt.is_none() || self.rt_size != (w, h) {
             let rt = render_target(w, h);
+            crate::profile::count(crate::profile::Counter::RenderTargets, 1);
             rt.texture.set_filter(FilterMode::Linear);
             self.rt = Some(rt);
             self.rt_size = (w, h);

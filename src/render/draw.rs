@@ -115,6 +115,7 @@ fn fan(center: Vec2, rim: &[Vec2], color_at: impl Fn(Vec2, bool) -> Color) {
             m.indices.push(1 + i);
             m.indices.push(1 + (i + 1) % n);
         }
+        crate::profile::count(crate::profile::Counter::BrushVerts, m.vertices.len() as u64);
         draw_mesh(&m);
     });
 }
@@ -283,6 +284,7 @@ pub fn radial(cx: f32, cy: f32, rx: f32, ry: f32, inner: Color, outer: Color) {
                     .extend_from_slice(&[a0 + i, b0 + i, b0 + j, a0 + i, b0 + j, a0 + j]);
             }
         }
+        crate::profile::count(crate::profile::Counter::BrushVerts, m.vertices.len() as u64);
         draw_mesh(&m);
     });
 }
@@ -314,6 +316,7 @@ pub fn quad(p: [Vec2; 4], c: [Color; 4]) {
             m.vertices.push(vtx(p[i], c[i]));
         }
         m.indices.extend_from_slice(&[0, 1, 2, 0, 2, 3]);
+        crate::profile::count(crate::profile::Counter::BrushVerts, m.vertices.len() as u64);
         draw_mesh(&m);
     });
 }
