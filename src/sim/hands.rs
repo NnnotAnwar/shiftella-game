@@ -349,6 +349,8 @@ pub struct HandsState {
     pub tally: HandsTally,
     /// Accessibility `assist_wishes`: helpers may hand off wishes after a while.
     pub assist_wishes: bool,
+    /// A version 1 save: grandma's jukebox still has to be put in its place (next Day).
+    pub place_jukebox: bool,
 }
 
 /// Who holds a ticket on the rail.

@@ -273,12 +273,6 @@ fn release_act(w: &mut World, content: &Content, act: &PlayerAct, stage: u8, cou
         }
         _ => {}
     }
-    // a station she was holding
-    for f in w.furniture.iter_mut() {
-        if f.user == Some(me) {
-            f.user = None;
-        }
-    }
 }
 
 /// Gives a claimed plain item back to the rail (progress is kept).
@@ -670,6 +664,14 @@ fn finish(w: &mut World) {
 fn drop_current(w: &mut World, content: &Content) {
     if let Some(cur) = w.hands.player.current.take() {
         release_act(w, content, &cur.act, cur.stage, cur.count);
+        // the station she was holding
+        let me = me(w);
+        if let Some(st) = cur.target
+            && let Some(f) = w.furniture.iter_mut().find(|f| f.uid == st)
+            && f.user == Some(me)
+        {
+            f.user = None;
+        }
     }
     if let Some(i) = karolina_idx(w) {
         w.staff[i].path.clear();
@@ -1045,13 +1047,18 @@ fn step(w: &mut World, content: &Content, idx: usize) {
             }
             match cur.stage {
                 0 => {
-                    // waiting for them to sit down, or arrived
+                    // at a table she waits for them to sit down
+                    let seated = p.state == PartyState::Queue
+                        || p.leader().is_some_and(|l| {
+                            w.guests.iter().any(|g| g.id == l && g.pose == Pose::Sit)
+                        });
                     match first_goal(w, content, idx, &cur.act) {
                         Goal::At(t) if t != here => {
                             if !staff::go(w, idx, t) {
                                 drop_current(w, content);
                             }
                         }
+                        Goal::At(_) if !seated => wait_a_tick(w, content, STATION_PATIENCE),
                         Goal::At(_) => set_work(w, 1, TAKE_ORDER_WORK),
                         Goal::Wait => wait_a_tick(w, content, STATION_PATIENCE),
                         Goal::Fail => drop_current(w, content),

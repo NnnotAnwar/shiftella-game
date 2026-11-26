@@ -986,6 +986,15 @@ impl World {
         w
     }
 
+    /// A version 1 café gets grandma's jukebox where the default layout has it (Day only:
+    /// nobody walks through that tile).
+    fn place_jukebox(&mut self, content: &Content) {
+        if std::mem::take(&mut self.hands.place_jukebox) && super::music::jukebox(self).is_none() {
+            let (x, y) = JUKEBOX_TILE;
+            super::commands::place_free(self, content, "jukebox", x, y, 1);
+        }
+    }
+
     /// Hands-on state from content, once (new games; saves of version 1 on their first
     /// tick / command / `rebuild_caches`): starter & menu recipes, the starter pantry and
     /// records, default duties for helpers without any.
@@ -996,11 +1005,10 @@ impl World {
         self.hands.ready = true;
         super::orders::init_knowledge(self, content);
         super::music::init(self, content);
-        // an old save's café gets grandma's jukebox where the default layout has it
-        if super::music::jukebox(self).is_none() && self.phase == Phase::Day {
-            let (x, y) = JUKEBOX_TILE;
-            super::commands::place_free(self, content, "jukebox", x, y, 1);
+        if self.phase == Phase::Day {
+            self.place_jukebox(content);
         }
+
         for s in self.staff.iter_mut() {
             if s.owner {
                 s.duties.clear();
@@ -1193,6 +1201,7 @@ impl World {
         }
         super::staff::refresh_candidates(self, content);
         super::player::reset(self);
+        self.place_jukebox(content);
         super::orders::check_learning(self, content);
         super::music::check_unlocks(self, content);
         super::app::on_day_start(self, content);
@@ -1521,7 +1530,10 @@ impl World {
     }
 
     fn migrate_v1(&mut self) {
-        self.hands = HandsState::default();
+        self.hands = HandsState {
+            place_jukebox: true,
+            ..Default::default()
+        };
         for i in 0..self.staff.len() {
             if self.staff[i].owner {
                 // the old job loop may have left her mid-task

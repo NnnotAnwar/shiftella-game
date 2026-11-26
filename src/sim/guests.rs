@@ -701,7 +701,12 @@ pub(crate) fn spawn_party(
     w.tonight.guests_arrived += size;
     match seats_pick {
         None => {
-            // Looks in, walks on.
+            // Looks in, walks on (the wish wasn't used).
+            if let Some(wish) = party.order_kind.wish()
+                && let Some(n) = w.hands.wish_uses.get_mut(wish)
+            {
+                *n = n.saturating_sub(1);
+            }
             party.state = PartyState::Leaving;
             w.tonight.guests_turned_away += size;
             if !party.wishes.is_empty() {
