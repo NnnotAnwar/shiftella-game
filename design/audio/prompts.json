@@ -27,6 +27,60 @@
       "force_instrumental": true,
       "normalize": "music",
       "model_id": "music_v2_5"
+    },
+    {
+      "id": "jukebox_prague_swing",
+      "out": "assets/audio/music/jukebox_prague_swing.ogg",
+      "prompt": "Gentle 1930s-style Central European café swing played on an old jukebox: clarinet melody, upright bass, brushed snare, soft rhythm guitar, a touch of vinyl crackle. Nostalgic, smiling, unhurried, around 110 BPM. Instrumental only, no vocals. Steady energy, no intro build-up and no fade-out, so it loops seamlessly. Mixed softly, warm and intimate, sitting behind café ambience and rain.",
+      "length_ms": 95000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
+    },
+    {
+      "id": "jukebox_piano_trio",
+      "out": "assets/audio/music/jukebox_piano_trio.ogg",
+      "prompt": "Late-night jazz piano trio ballad: tender piano voicings, walking upright bass, brushes on snare, a smoky after-hours bar mood at 3 a.m. Slow, around 66 BPM. Instrumental only, no vocals. Steady energy, no intro build-up and no fade-out, so it loops seamlessly. Mixed softly, warm and intimate, sitting behind café ambience and rain.",
+      "length_ms": 95000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
+    },
+    {
+      "id": "jukebox_bossa_rain",
+      "out": "assets/audio/music/jukebox_bossa_rain.ogg",
+      "prompt": "Soft bossa nova for a rainy night: nylon-string guitar, light shaker and rim clicks, warm bass, a breathy flute melody. Calm and gently swaying, around 92 BPM. Instrumental only, no vocals. Steady energy, no intro build-up and no fade-out, so it loops seamlessly. Mixed softly, warm and intimate, sitting behind café ambience and rain.",
+      "length_ms": 95000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
+    },
+    {
+      "id": "jukebox_folk_lullaby",
+      "out": "assets/audio/music/jukebox_folk_lullaby.ogg",
+      "prompt": "Slow Eastern European folk lullaby, instrumental: plucked bandura-like strings and cimbalom, a soft accordion drone, a hint of violin. Tender, homesick, comforting, around 70 BPM. Instrumental only, no vocals. Steady energy, no intro build-up and no fade-out, so it loops seamlessly. Mixed softly, warm and intimate, sitting behind café ambience and rain.",
+      "length_ms": 95000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
+    },
+    {
+      "id": "jukebox_synth_2039",
+      "out": "assets/audio/music/jukebox_synth_2039.ogg",
+      "prompt": "Warm near-future ambient synthwave for a quiet night train city in 2039: soft analog pads, slow arpeggios, a gentle electric piano, subtle tape warmth. Dreamy and hopeful, around 80 BPM. Instrumental only, no vocals. Steady energy, no intro build-up and no fade-out, so it loops seamlessly. Mixed softly, warm and intimate, sitting behind café ambience and rain.",
+      "length_ms": 95000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
+    },
+    {
+      "id": "jukebox_cafe_waltz",
+      "out": "assets/audio/music/jukebox_cafe_waltz.ogg",
+      "prompt": "Slow café waltz in 3/4: accordion lead, pizzicato strings, soft upright bass, a little celesta. Romantic and a little melancholic, like an old station café at closing time. Instrumental only, no vocals. Steady energy, no intro build-up and no fade-out, so it loops seamlessly. Mixed softly, warm and intimate, sitting behind café ambience and rain.",
+      "length_ms": 95000,
+      "force_instrumental": true,
+      "normalize": "music",
+      "model_id": "music_v2_5"
     }
   ],
   "sfx": [
