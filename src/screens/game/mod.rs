@@ -138,6 +138,15 @@ fn night_duration(kind: ToastKind) -> f32 {
     }
 }
 
+/// Upper-cases the first letter (any script: Latin, Cyrillic…), keeps the rest.
+fn capitalize_first(s: &str) -> String {
+    let mut chars = s.chars();
+    match chars.next() {
+        Some(c) => c.to_uppercase().chain(chars).collect(),
+        None => String::new(),
+    }
+}
+
 /// A long line becomes a short title + the rest as the body (titles are one line).
 fn split_title(ui: &Ui, text: &str) -> (String, Option<String>) {
     let st = ui.theme.strong();
@@ -148,7 +157,8 @@ fn split_title(ui: &Ui, text: &str) -> (String, Option<String>) {
     for sep in [". ", " — ", ": ", "! ", "? "] {
         if let Some(i) = text.find(sep) {
             let head = text[..i + sep.trim_end().len()].trim().to_string();
-            let rest = text[i + sep.len()..].trim().to_string();
+            // "… waiting — say hello" → the body starts its own sentence: "Say hello"
+            let rest = capitalize_first(text[i + sep.len()..].trim());
             if !rest.is_empty() && ui.fonts.measure(&head, &st) <= room {
                 return (
                     head.trim_end_matches(['—', ':']).trim().to_string(),
@@ -1954,3 +1964,18 @@ fn is_flow_event(e: &SimEvent) -> bool {
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod capitalize_tests {
+    use super::capitalize_first;
+
+    #[test]
+    fn toast_body_starts_with_a_capital_in_every_language() {
+        assert_eq!(capitalize_first("say hello, take the order"), "Say hello, take the order");
+        assert_eq!(capitalize_first("pozdrav, vezmi objednávku"), "Pozdrav, vezmi objednávku");
+        assert_eq!(capitalize_first("привітайся"), "Привітайся");
+        assert_eq!(capitalize_first("поздоровайся"), "Поздоровайся");
+        assert_eq!(capitalize_first("Already"), "Already");
+        assert_eq!(capitalize_first(""), "");
+    }
+}
