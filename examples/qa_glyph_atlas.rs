@@ -10,6 +10,7 @@ use shiftella_game::ui::handson::common::draw_handwritten_block;
 use shiftella_game::ui::*;
 
 fn conf() -> Conf {
+    shiftella_game::platform::hide_for_automation();
     Conf {
         window_title: "Shiftella — glyph atlas".to_owned(),
         window_width: 1280,

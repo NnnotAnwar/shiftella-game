@@ -23,6 +23,7 @@ use shiftella_game::ui::draw::{Paint, fill_rrect};
 use shiftella_game::ui::*;
 
 fn conf() -> Conf {
+    shiftella_game::platform::hide_for_automation();
     Conf {
         window_title: "Shiftella — mini-games".to_owned(),
         window_width: 1100,

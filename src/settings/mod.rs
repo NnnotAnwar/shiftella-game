@@ -261,6 +261,10 @@ impl Settings {
 
     /// Applies the window-related options (fullscreen) to the macroquad window.
     pub fn apply_window(&self) {
+        // an invisible automation run never goes fullscreen (crate::platform)
+        if crate::platform::automation_hidden() {
+            return;
+        }
         macroquad::window::set_fullscreen(self.fullscreen);
     }
 }
