@@ -13,6 +13,8 @@ use crate::content::{
 pub const STAFF_SPEED: f32 = 0.5;
 /// Items a server carries on one tray.
 pub const TRAY: usize = 4;
+/// Global work-speed multiplier (balance knob: a 2–3 person night should keep up).
+pub const WORK_SPEED: f32 = 1.2;
 
 // ---------------------------------------------------------------------------------------------
 // Generation
@@ -20,6 +22,10 @@ pub const TRAY: usize = 4;
 
 pub(crate) fn town_name(rng: &mut Rng, sb: &SandboxDef) -> String {
     let t = &sb.town_names;
+    // real places with a Czech note (Praha-Smíchov, Brno, Vienna, Kraków …)
+    if let Some(p) = rng.pick(&t.places) {
+        return p.clone();
+    }
     for _ in 0..20 {
         let root = rng.pick(&t.roots).cloned().unwrap_or_else(|| "Ml".into());
         let suffix = rng
@@ -46,7 +52,7 @@ pub(crate) fn town_name(rng: &mut Rng, sb: &SandboxDef) -> String {
         }
         return name;
     }
-    "Mlžná Lhota".into()
+    super::world::STORY_TOWN.into()
 }
 
 fn blank_staff(id: u32) -> Staff {
@@ -308,7 +314,7 @@ fn when_ok(w: &World, idx: usize, when: &Option<Situation>) -> bool {
 /// Work speed multiplier for a job (skill, traits, needs, events).
 pub(crate) fn work_speed(w: &World, content: &Content, idx: usize, job: Job) -> f32 {
     let s = &w.staff[idx];
-    let mut v = 0.5 + s.skill(job, w.night) * 0.1;
+    let mut v = (0.5 + s.skill(job, w.night) * 0.1) * WORK_SPEED;
     for e in effects_of(content, s) {
         if let TraitEffect::Speed { job: j, mul, when } = e
             && j.is_none_or(|j| j == job)
@@ -1196,13 +1202,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
         let idle = matches!(w.staff[idx].task, None | Some(Task::Idle { .. }));
         if idle && (w.tick + idx as u32).is_multiple_of(2) {
             if let Some(b) = wants_break(w, content, idx) {
-                abandon(w, idx);
-                let t = break_tile(w, idx);
-                w.staff[idx].task = Some(b);
-                w.staff[idx].breaks_tonight += 1;
-                go(w, idx, t);
-                let id = w.staff[idx].id;
-                w.emit(SimEvent::StaffBreak { staff: id });
+                start_break(w, idx, b);
             } else if let Some(wk) = find_work(w, content, idx) {
                 w.staff[idx].task = None;
                 let me = w.staff[idx].id;
@@ -1222,10 +1222,58 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
     }
 }
 
+/// Minutes on a full shift after which a person takes their (one) regular break.
+pub const BREAK_AFTER_MINUTES: u32 = 210;
+/// …and when it can't wait any longer, even with a short queue.
+pub const BREAK_LATEST_MINUTES: u32 = 330;
+/// Regular break length, game minutes (+5 when they eat).
+pub const BREAK_MINUTES: f32 = 20.0;
+
+/// Sends someone on a break (auto or `Command::SendOnBreak`). Emits `StaffBreak`.
+pub(crate) fn start_break(w: &mut World, idx: usize, task: Task) {
+    abandon(w, idx);
+    let t = break_tile(w, idx);
+    w.staff[idx].task = Some(task);
+    w.staff[idx].breaks_tonight += 1;
+    go(w, idx, t);
+    let id = w.staff[idx].id;
+    w.emit(SimEvent::StaffBreak { staff: id });
+}
+
+/// A break task of the usual length for this person (traits `BreakLength`; eating adds 5 min).
+pub(crate) fn break_task(w: &World, content: &Content, idx: usize, base: f32) -> Task {
+    let s = &w.staff[idx];
+    let mut len = base;
+    for e in effects_of(content, s) {
+        if let TraitEffect::BreakLength(x) = e {
+            len *= x;
+        }
+    }
+    let eat = s.hunger < 70.0;
+    if eat {
+        len += 5.0;
+    }
+    Task::Break {
+        until: w.minute() + len.round() as u32,
+        eat,
+    }
+}
+
+/// Auto breaks: everyone on a full shift takes one regular break around the middle of the
+/// shift when the floor is calm (never leaving the café unattended), plus extra rest
+/// whenever they're really tired or hungry. At most ⅓ of the crew rests at once.
 fn wants_break(w: &World, content: &Content, idx: usize) -> Option<Task> {
     let s = &w.staff[idx];
     let m = w.minute();
-    if !(s.energy < 32.0 || s.hunger < 28.0) || m > 460 {
+    if m > 460 {
+        return None;
+    }
+    let tired = s.energy < 32.0 || s.hunger < 28.0;
+    let shift_len = s.shift.span().map(|(a, b)| b - a).unwrap_or(0);
+    let start = s.shift.span().map(|(a, _)| a).unwrap_or(0);
+    let on_shift = m.saturating_sub(start + s.late_minutes);
+    let due = shift_len >= 360 && s.breaks_tonight == 0 && on_shift >= BREAK_AFTER_MINUTES;
+    if !tired && !due {
         return None;
     }
     for e in effects_of(content, s) {
@@ -1243,20 +1291,20 @@ fn wants_break(w: &World, content: &Content, idx: usize) -> Option<Task> {
     if on.len() > 1 && on_break >= on.len().div_ceil(3) {
         return None;
     }
-    let mut len = 15.0;
-    for e in effects_of(content, s) {
-        if let TraitEffect::BreakLength(x) = e {
-            len *= x;
+    if !tired {
+        // a regular break needs someone else on the floor and a calm moment
+        let others = on.len() - on_break - 1;
+        let calm = w.queue_len() <= 1 || on_shift >= BREAK_LATEST_MINUTES;
+        if others == 0 || !calm {
+            return None;
         }
     }
-    let eat = s.hunger < 55.0;
-    if eat {
-        len += 5.0;
-    }
-    Some(Task::Break {
-        until: m + len as u32,
-        eat,
-    })
+    Some(break_task(
+        w,
+        content,
+        idx,
+        if tired { 15.0 } else { BREAK_MINUTES },
+    ))
 }
 
 fn step_staff(w: &mut World, content: &Content, idx: usize) {
@@ -1308,9 +1356,10 @@ fn step_staff(w: &mut World, content: &Content, idx: usize) {
             w.staff[idx].pose = Pose::Idle;
             if w.minute() >= until {
                 if eat {
-                    w.econ.supplies -= 15;
+                    w.econ.supplies = (w.econ.supplies - 15).max(0);
                 }
                 w.staff[idx].task = None;
+                w.emit(SimEvent::StaffBreakEnded { staff: me });
             } else if w.tick.is_multiple_of(TICKS_PER_MINUTE) {
                 let s = &mut w.staff[idx];
                 s.energy = (s.energy + 2.2).min(100.0);
@@ -1393,7 +1442,8 @@ fn learn(w: &mut World, idx: usize, job: Job) {
 }
 
 fn mishap(w: &mut World, content: &Content, idx: usize) {
-    let mut chance = 0.003;
+    // per finished task; ~1 broken cup every other night without clumsy people
+    let mut chance = 0.002;
     let mut mul = 1.0;
     for i in 0..w.staff[idx].traits.len() {
         let t = w.staff[idx].traits[i].clone();
@@ -1411,6 +1461,10 @@ fn mishap(w: &mut World, content: &Content, idx: usize) {
     }
     if w.difficulty == Difficulty::Cozy {
         chance *= 0.6;
+    }
+    // at most a couple of broken cups a night (each one is a toast)
+    if w.tonight.dishes_broken >= 2 {
+        return;
     }
     if w.rng.chance(chance * mul) {
         let id = w.staff[idx].id;

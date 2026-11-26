@@ -1,4 +1,4 @@
-//! Story mode: 30 nights, Lída's notes, the two endings, story state declarations and cutscenes.
+//! Story mode: 30 nights, Lida's notes, the two endings, story state declarations and cutscenes.
 
 use std::collections::HashMap;
 
@@ -18,7 +18,7 @@ pub enum BeatKind {
     Line { speaker: String, text_key: String },
     /// Fire a (usually `Scripted`) event.
     Event(String),
-    /// Lída's note is found (shows the note card).
+    /// Lida's note is found (shows the note card).
     Note(String),
     /// The night's payment is collected now (amount from `StoryDef::payments`).
     PaymentDue,
@@ -82,7 +82,7 @@ pub struct PaymentDef {
     pub is_final: bool,
 }
 
-/// One of Lída's ten notes: `note.<id>.text` (the note itself) and `note.<id>.where`
+/// One of Lida's ten notes: `note.<id>.text` (the note itself) and `note.<id>.where`
 /// (where it was found). Found when `found_when` holds (checked each game minute and at
 /// night end) or via `Effect::FindNote` / `Beat::Note`.
 #[derive(Debug, Clone, Deserialize)]

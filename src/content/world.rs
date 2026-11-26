@@ -182,7 +182,7 @@ pub struct TrainDef {
     pub kind: TrainKind,
     pub from: String,
     pub to: String,
-    /// Arrival at Mlhov.
+    /// Arrival at the café's station (Praha-Holešovice).
     pub arrives: ClockTime,
     /// Passengers who come to the café (inclusive range).
     pub guests: (u32, u32),
@@ -197,7 +197,7 @@ pub struct TrainDef {
 pub struct TrainLine {
     /// In line order.
     pub stations: Vec<Station>,
-    /// Mlhov's station id.
+    /// The café's station id (`holesovice`).
     pub home: String,
     pub trains: Vec<TrainDef>,
     /// Announcement template keys (placeholders `{train}`, `{from}`, `{to}`, `{time}`, `{platform}`).
@@ -402,6 +402,10 @@ pub struct TownNameParts {
     pub river_chance: f32,
     /// Real town names that must not be generated.
     pub stoplist: Vec<String>,
+    /// Real places (cities / city districts) a sandbox town is picked from. When non-empty
+    /// the prefix/root/suffix generator is not used.
+    #[serde(default)]
+    pub places: Vec<String>,
 }
 
 /// `sandbox.institution.<id>` — enables guest pools.

@@ -36,7 +36,7 @@
             age: (40, 64),
             wage: 1350,
             hire_from_night: 2,
-            name_pools: ["cs", "sk", "uk"],
+            name_pools: ["cs", "sk", "uk", "intl"],
             look: (
                 body: "broad", height: 1.0,
                 skin: ["#E8C4A8"], hair: ["grey_short"], hair_colors: ["#B9B4C4"],
@@ -76,7 +76,7 @@
             age: (28, 50),
             wage: 1200,
             hire_from_night: 8,
-            name_pools: ["cs", "sk", "uk"],
+            name_pools: ["cs", "sk", "uk", "intl"],
             look: (
                 body: "average", height: 0.97,
                 skin: ["#F0CDB4"], hair: ["bun"], hair_colors: ["#2E2226"],
@@ -146,31 +146,32 @@
         ),
     ],
     name_pools: [
+        // An international mix with a Czech note; mostly names that need few diacritics.
         (
             id: "cs",
-            female_first: ["Tereza", "Eliška", "Anna", "Adéla", "Klára", "Barbora", "Kristýna", "Veronika", "Lucie", "Markéta", "Jitka", "Zuzana", "Natálie", "Rozálie", "Ema", "Hana"],
-            male_first: ["Jakub", "Tomáš", "Ondřej", "Matěj", "Vojtěch", "Lukáš", "Petr", "Jiří", "Martin", "Filip", "David", "Šimon", "Vít", "Radim", "Kryštof", "Josef"],
-            male_last: ["Novák", "Svoboda", "Dvořák", "Černý", "Procházka", "Kučera", "Veselý", "Horák", "Němec", "Pokorný", "Marek", "Pospíšil", "Hájek", "Jelínek", "Král", "Růžička"],
-            female_last: ["Nováková", "Svobodová", "Dvořáková", "Černá", "Procházková", "Kučerová", "Veselá", "Horáková", "Němcová", "Pokorná", "Marková", "Pospíšilová", "Hájková", "Jelínková", "Králová", "Růžičková"],
+            female_first: ["Tereza", "Anna", "Lucie", "Barbora", "Veronika", "Zuzana", "Ema", "Hana", "Klara", "Eva", "Petra", "Monika"],
+            male_first: ["Jakub", "Tomas", "Ondra", "Matej", "Lukas", "Petr", "Martin", "Filip", "David", "Adam", "Jan", "Josef"],
+            male_last: ["Svoboda", "Marek", "Holub", "Kadlec", "Urban", "Fiala", "Zeman", "Toman", "Hora", "Mach", "Vlk", "Kopal"],
+            female_last: ["Svobodova", "Markova", "Holubova", "Kadlecova", "Urbanova", "Fialova", "Zemanova", "Tomanova", "Horova", "Machova", "Vlkova", "Kopalova"],
         ),
         (
             id: "sk",
-            female_first: ["Zuzana", "Katarína", "Lucia", "Michaela", "Simona", "Dominika", "Petra", "Ivana", "Natália", "Timea", "Lenka", "Nina"],
-            male_first: ["Marek", "Peter", "Juraj", "Matúš", "Martin", "Lukáš", "Tomáš", "Michal", "Samuel", "Adam", "Ľubomír", "Dávid"],
-            male_last: ["Horváth", "Kováč", "Varga", "Tóth", "Baláž", "Molnár", "Szabó", "Lukáč", "Oravec", "Kollár", "Šimko", "Hudák"],
-            female_last: ["Horváthová", "Kováčová", "Vargová", "Tóthová", "Balážová", "Molnárová", "Szabová", "Lukáčová", "Oravcová", "Kollárová", "Šimková", "Hudáková"],
+            female_first: ["Zuzana", "Lucia", "Michaela", "Simona", "Dominika", "Petra", "Ivana", "Natalia", "Timea", "Lenka", "Nina", "Sona"],
+            male_first: ["Marek", "Peter", "Juraj", "Matus", "Martin", "Michal", "Samuel", "Adam", "Dusan", "Viktor", "Patrik", "Boris"],
+            male_last: ["Horvath", "Kovac", "Varga", "Toth", "Balaz", "Molnar", "Szabo", "Oravec", "Kollar", "Hudak", "Bielik", "Sokol"],
+            female_last: ["Horvathova", "Kovacova", "Vargova", "Tothova", "Balazova", "Molnarova", "Szabova", "Oravcova", "Kollarova", "Hudakova", "Bielikova", "Sokolova"],
         ),
         (
             id: "uk",
-            female_first: ["Oksana", "Olena", "Iryna", "Nataliia", "Kateryna", "Sofiia", "Yuliia", "Daryna", "Anastasiia", "Mariia", "Khrystyna", "Solomiia"],
+            female_first: ["Oksana", "Olena", "Iryna", "Natalia", "Kateryna", "Sofia", "Yulia", "Daryna", "Anastasia", "Maria", "Khrystyna", "Solomia"],
             male_first: ["Oleh", "Andrii", "Taras", "Dmytro", "Mykola", "Bohdan", "Yaroslav", "Ivan", "Serhii", "Maksym", "Ostap", "Vasyl"],
             male_last: ["Melnyk", "Shevchenko", "Bondarenko", "Kovalenko", "Tkachenko", "Kravchenko", "Oliinyk", "Lysenko", "Moroz", "Savchuk", "Hnatiuk", "Rudenko"],
         ),
         (
             id: "intl",
-            female_first: ["Linh", "Mai", "Agnieszka", "Lena", "Maya", "Sara", "Aylin", "Noor", "Clara", "Ines"],
-            male_first: ["Minh", "Duc", "Piotr", "Jonas", "Mateo", "Karim", "Arjun", "Emil", "Leon", "Tariq"],
-            male_last: ["Nguyen", "Tran", "Pham", "Kowalski", "Weber", "Silva", "Novaković", "Haddad", "Lindqvist", "Okafor"],
+            female_first: ["Linh", "Mai", "Agnieszka", "Lena", "Maya", "Sara", "Aylin", "Noor", "Clara", "Ines", "Sofie", "Giulia", "Hanna", "Elif", "Marta", "Freya"],
+            male_first: ["Minh", "Duc", "Piotr", "Jonas", "Mateo", "Karim", "Arjun", "Emil", "Leon", "Tariq", "Luca", "Nikolai", "Felix", "Milan", "Oskar", "Teo"],
+            male_last: ["Nguyen", "Tran", "Kowalski", "Weber", "Silva", "Novak", "Haddad", "Lindqvist", "Okafor", "Rossi", "Bauer", "Jansen", "Moreau", "Petrov", "Nowak", "Hansen"],
         ),
     ],
 )
