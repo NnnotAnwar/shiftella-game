@@ -357,6 +357,9 @@ pub enum RozpisAction {
 pub struct RozpisState {
     paint: Option<ShiftCell>,
     last: Option<(usize, usize)>,
+    /// Keyboard cursor (row, day), shown once an arrow key was used.
+    pub cursor: (usize, usize),
+    keyboard: bool,
     /// Set by the caller to flash violated chips for a second.
     pub flash_until: f64,
 }
@@ -525,6 +528,9 @@ pub fn rozpis_board(
             if row.conflicts[di] {
                 fill_circle(vec2(cell.right() - 3.0, cell.y + 3.0), 3.2, t.amber);
             }
+            if st.keyboard && st.cursor == (ri, di) {
+                stroke_rrect(cell.grow(2.0), 8.0, 1.5, t.indigo_300);
+            }
             ui.tooltip(
                 &resp,
                 if row.locked {
@@ -575,6 +581,59 @@ pub fn rozpis_board(
         wellbeing_ring(ui, rc, 34.0, row.wellbeing);
     }
     ui.end_scroll(sa);
+
+    // keyboard: arrows move, Space / Enter next shift, Shift+Space back, Backspace off
+    let n = v.rows.len();
+    if n > 0 {
+        let (mut cr, mut cd) = st.cursor;
+        let mut moved = false;
+        if ui.key_repeat(KeyCode::Up) {
+            cr = (cr + n - 1) % n;
+            moved = true;
+        }
+        if ui.key_repeat(KeyCode::Down) {
+            cr = (cr + 1) % n;
+            moved = true;
+        }
+        if ui.key_repeat(KeyCode::Left) {
+            cd = (cd + 6) % 7;
+            moved = true;
+        }
+        if ui.key_repeat(KeyCode::Right) {
+            cd = (cd + 1) % 7;
+            moved = true;
+        }
+        if moved {
+            st.keyboard = true;
+            st.cursor = (cr.min(n - 1), cd);
+            let (r0, _) = st.cursor;
+            ui.scroll_to(&sa, r0 as f32 * (ROW_H + 4.0), ROW_H);
+        }
+        let (r0, d0) = (st.cursor.0.min(n - 1), st.cursor.1);
+        let row = &v.rows[r0];
+        let cell = row.cells[d0];
+        if st.keyboard && !row.locked && cell != ShiftCell::Leave {
+            let back = ui.shift();
+            if ui.take_key(KeyCode::Space) || ui.enter() {
+                ui.sound(UiSound::Toggle);
+                action = Some(RozpisAction::SetCell {
+                    row: r0,
+                    day: d0,
+                    shift: cell.next(back),
+                });
+            }
+            if ui.take_key(KeyCode::Backspace) {
+                action = Some(RozpisAction::SetCell {
+                    row: r0,
+                    day: d0,
+                    shift: ShiftCell::Off,
+                });
+            }
+        }
+        if ui.mouse_pressed() {
+            st.keyboard = false;
+        }
+    }
 
     // coverage footer: dots (suggested hollow, on filled) + cups
     let cov = Rect::new(r.x, view.bottom() + 8.0, r.w, 36.0);

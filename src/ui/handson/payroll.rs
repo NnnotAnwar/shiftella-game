@@ -2,6 +2,7 @@
 //! the crew's hours, wages and tips; the tip split (All to the café · Half · All to the
 //! crew) with real numbers; a star of the week; náhradní volno rows with "grant a night
 //! off"; and last night's digest insights with deep links (§13.6). Never failable.
+//! Keyboard: **1–3** tip split, **Enter** send, **Esc** close.
 
 use macroquad::prelude::*;
 
@@ -427,6 +428,18 @@ pub fn payroll_screen(
         )
         .clicked
     {
+        action = Some(PayrollAction::Send);
+    }
+    // keyboard: 1–3 pick the tip split, Enter sends
+    for (i, kc) in [KeyCode::Key1, KeyCode::Key2, KeyCode::Key3]
+        .iter()
+        .enumerate()
+    {
+        if ui.take_key(*kc) && v.split != TipSplit::ALL[i] {
+            action = Some(PayrollAction::SetSplit(TipSplit::ALL[i]));
+        }
+    }
+    if !v.sent && ui.enter() {
         action = Some(PayrollAction::Send);
     }
     if ui.esc() {

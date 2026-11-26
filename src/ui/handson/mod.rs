@@ -16,14 +16,26 @@
 //! | Atmosphere meter | [`atmosphere_meter`] | [`AtmosphereView`] |
 //! | Rozpis puzzle | [`rozpis_board`], [`pref_chip`], [`wellbeing_ring`], [`fairness_badge`] | [`RozpisView`] → [`RozpisAction`] |
 //! | Payroll | [`payroll_screen`] | [`PayrollView`] → [`PayrollAction`] |
-//! | Journal | [`journal`], [`polaroid`] | [`JournalView`] / [`PolaroidView`] → [`JournalAction`] |
+//! | Journal | [`journal()`], [`polaroid`] | [`JournalView`] / [`PolaroidView`] → [`JournalAction`] |
 //! | Coach mark | [`coach_mark`] | [`CoachMark`] → [`CoachAction`] |
 //!
 //! Shared: [`TasteTag`] (12 tastes with icons and colours), [`Duty`], [`Dish`] /
 //! [`draw_dish`] (procedural cups, bowls, plates), [`with_transform`] (rotated / slanted
 //! drawing), [`draw_handwritten`] (faux-italic captions).
 //!
-//! See `examples/ui_handson_demo` for every widget on mock data.
+//! ## Integration notes
+//! * Call each widget once per frame while it is open; keep its `*State` struct in the
+//!   screen. Widgets consume their own hotkeys (`take_key`), so run game hotkeys after them.
+//! * World-anchored cards (order, moment) take the anchor in UI units and an `avoid` list
+//!   (rail, HUD blocks, other open cards: [`ticket_rail_rect`], [`moment_card_rect`],
+//!   `OrderOut::rect`); they never leave the screen.
+//! * Faces: avatars use `Ui::register_face(name, look)` by display name.
+//! * Polaroid photos: pass the scene-snapshot render target's texture with `flip_y: true`.
+//! * Map content enums 1:1: `content::Taste` → [`TasteTag`], duties → [`Duty`],
+//!   record sleeve motif → [`SleeveMotif`], rozpis shifts → [`ShiftCell`].
+//!
+//! See `examples/ui_handson_demo` for every widget on mock data
+//! (`SHIFTELLA_PAGE=hud|order|rail|moment|duties|records|book|pantry|atmosphere|rozpis|payroll|journal|polaroid|coach`).
 
 pub mod atmosphere;
 pub mod book;

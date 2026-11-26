@@ -796,14 +796,36 @@ pub fn place_near(screen: Rect, at: Vec2, size: Vec2, gap: f32, avoid: &[Rect]) 
     };
     let cy = at.y - size.y * 0.45;
     let cx = at.x - size.x / 2.0;
-    let candidates = [
-        Rect::new(at.x + gap, cy, size.x, size.y),
-        Rect::new(at.x - gap - size.x, cy, size.x, size.y),
-        Rect::new(cx, at.y - gap - size.y, size.x, size.y),
-        Rect::new(cx, at.y + gap, size.x, size.y),
-    ];
+    // beside the anchor (vertically centred, or slid just past each avoided block) …
+    let mut ys = vec![cy];
+    let mut xs = vec![cx];
+    for a in avoid {
+        ys.push(a.bottom() + 8.0);
+        ys.push(a.y - 8.0 - size.y);
+        xs.push(a.right() + 8.0);
+        xs.push(a.x - 8.0 - size.x);
+    }
+    let mut candidates: Vec<(Rect, f32)> = Vec::new();
+    for (k, y) in ys.iter().enumerate() {
+        let slide = if k == 0 { 0.0 } else { 1.0 };
+        candidates.push((Rect::new(at.x + gap, *y, size.x, size.y), slide));
+        candidates.push((
+            Rect::new(at.x - gap - size.x, *y, size.x, size.y),
+            slide + 0.5,
+        ));
+    }
+    // … or above / below it
+    for (k, x) in xs.iter().enumerate() {
+        let slide = if k == 0 { 1.0 } else { 2.0 };
+        candidates.push((Rect::new(*x, at.y - gap - size.y, size.x, size.y), slide));
+        candidates.push((Rect::new(*x, at.y + gap, size.x, size.y), slide + 0.5));
+    }
     let covered = |r: &Rect| -> f32 {
-        let anchor = if r.contains(at) { size.x * size.y } else { 0.0 };
+        let anchor = if r.grow(4.0).contains(at) {
+            size.x * size.y
+        } else {
+            0.0
+        };
         anchor
             + avoid
                 .iter()
@@ -813,13 +835,13 @@ pub fn place_near(screen: Rect, at: Vec2, size: Vec2, gap: f32, avoid: &[Rect]) 
                 })
                 .sum::<f32>()
     };
-    // prefer candidates that fit without clamping; then the least covering one
-    let mut best = clamp(candidates[0]);
+    // least overlap first; then the least clamping, then the nicest side
+    let mut best = clamp(candidates[0].0);
     let mut best_score = f32::MAX;
-    for (i, c) in candidates.iter().enumerate() {
+    for (c, pref) in &candidates {
         let cl = clamp(*c);
         let moved = (cl.x - c.x).abs() + (cl.y - c.y).abs();
-        let score = covered(&cl) + moved * 40.0 + i as f32;
+        let score = covered(&cl) * 4.0 + moved * 3.0 + pref * 10.0;
         if score < best_score {
             best_score = score;
             best = cl;

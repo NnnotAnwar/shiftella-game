@@ -50,6 +50,8 @@
 //! * **Layout** — [`layout`]: `anchored(Anchor)`, [`RectExt`] (`inset split_left split_top
 //!   centered …`), `row column weighted_row grid grid_cell`, [`Flow`] cursor.
 //! * **Icons** — [`Icon`] (78 glyphs, `Icon::ALL`), [`draw_icon`].
+//! * **Hands-on widgets** — [`handson`]: order card, ticket rail, moment card, duties board,
+//!   record picker, recipe book, atmosphere meter, rozpis puzzle, payroll, journal, coach marks.
 //!
 //! ## Example
 //! ```ignore
@@ -60,7 +62,7 @@
 //! if ui.icon_button("pause", f.next(28.0), Icon::Pause, &IconButton::ghost().tooltip("Pauza · Space")).clicked {
 //!     game.toggle_pause();
 //! }
-//! if ui.button("start", r, &Button::new("Začít noc").primary().icon(Icon::Play).shortcut("Enter")).clicked { … }
+//! if ui.button("start", r, &Button::new("Začít noc").primary().icon(Icon::Play).shortcut("Enter")).clicked { /* … */ }
 //! ```
 
 pub mod context;
