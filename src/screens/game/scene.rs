@@ -7,6 +7,7 @@ use std::collections::HashMap;
 
 use macroquad::prelude::*;
 
+use super::scene_fx::{self as fx, Visuals};
 use super::world_view::{self as wv, sim};
 use crate::camera::WorldCamera;
 use crate::content::Content;
@@ -58,6 +59,22 @@ pub struct WorldScene {
     pub served: HashMap<u32, (CupGlyph, Option<LatteArt>)>,
     /// Dirt blots being mopped: tile → `t` when the mop went over it (a little shine).
     pub shine: Vec<((i32, i32), f32)>,
+    /// Tonight's season / theme / garlands (read from the sim each frame).
+    pub vis: Visuals,
+    /// Garlands over the back windows and along the counter, fairy lights (winter theme).
+    garlands: Option<(crate::render::Garlands, crate::render::Garlands)>,
+    fairy: Option<crate::render::Garlands>,
+    /// Moment markers drawn last frame (id, marker): the screen hit-tests their orbs.
+    pub markers: Vec<(String, MomentMarker)>,
+    marker_born: HashMap<String, f32>,
+    /// The moment marker under the mouse (it grows a little).
+    pub hover_moment: Option<String>,
+    /// The coziness meter is hovered: its weakest part (index into `CozyComponent::ALL`).
+    pub cozy_hint: Option<usize>,
+    /// `t` when the blackout candles were lit (they light up table by table).
+    candles_since: Option<f32>,
+    /// Real seconds per game minute at ×1 (marker fade).
+    pub sec_per_minute: f32,
 }
 
 impl Default for WorldScene {
@@ -92,6 +109,15 @@ impl WorldScene {
             tracks: HashMap::new(),
             served: HashMap::new(),
             shine: Vec::new(),
+            vis: Visuals::default(),
+            garlands: None,
+            fairy: None,
+            markers: Vec::new(),
+            marker_born: HashMap::new(),
+            hover_moment: None,
+            cozy_hint: None,
+            candles_since: None,
+            sec_per_minute: 1.5,
         }
     }
 
@@ -174,17 +200,20 @@ impl WorldScene {
         }
     }
 
-    fn statics_key(world: &World) -> u64 {
+    fn statics_key(world: &World, vis: &Visuals) -> u64 {
         let g = world.grid();
         let mut h: u64 = 0xcbf2_9ce4_8422_2325 ^ (g.width as u64) << 32 ^ g.height as u64;
+        h ^= vis.static_key();
         for t in &g.tiles {
             h = (h ^ (t.kind as u64 * 7 + t.floor as u64 + 1)).wrapping_mul(0x0100_0000_01b3);
         }
         h
     }
 
-    fn rebuild_statics(&mut self, world: &World) {
+    fn rebuild_statics(&mut self, world: &World, content: &Content) {
         let g = world.grid();
+        let vis = self.vis;
+        let look = vis.look;
         self.size = (g.width, g.height);
         let w = g.width;
         self.street = Rect::new(
@@ -214,6 +243,8 @@ impl WorldScene {
         );
         let mut low = Vec::new();
         let statics = self.statics.get_or_insert_with(StaticLayer::new);
+        // the hall wears the theme; the bar and the kitchen (tiles) keep the base look
+        set_decor(vis.style);
         statics.build(rect, 2.0, || {
             for y in 0..g.height {
                 for x in 0..g.width {
@@ -221,7 +252,19 @@ impl WorldScene {
                     let p = vec2(x as f32, y as f32);
                     match t.kind {
                         sim::TileKind::Wall | sim::TileKind::Window => {}
-                        _ => draw_floor(t.floor.id(), p),
+                        _ => {
+                            let kind = t.floor.id();
+                            if kind == "floor_tile" {
+                                with_decor(ThemeStyle::DEFAULT, || draw_floor(kind, p));
+                            } else {
+                                draw_floor(kind, p);
+                            }
+                            draw_floor_season(kind, p, &look);
+                            // the doorstep: a wet leaf, slushy footprints
+                            if tile(x, y + 1).is_some_and(|b| b.kind == sim::TileKind::Door) {
+                                draw_doorstep_season(p, &look);
+                            }
+                        }
                     }
                 }
             }
@@ -250,6 +293,8 @@ impl WorldScene {
         if let Some(l) = &mut self.lighting {
             l.set_windows(self.glass.clone());
         }
+        self.garlands = Some(fx::garlands(&self.glass, fx::counter_span(world, content)));
+        self.fairy = Some(fx::fairy_lights(g.width));
     }
 
     /// Refreshes cached people views (call once per frame before drawing / picking).
@@ -347,9 +392,14 @@ impl WorldScene {
         if self.lighting.is_none() {
             self.lighting = Some(Lighting::new());
         }
-        let key = Self::statics_key(world);
+        self.vis = fx::visuals(world, content);
+        let vis = self.vis;
+        let look = vis.look;
+        let counter = fx::counter_span(world, content);
+        let ckey = counter.map_or(0, |c| (c.0 as u64) << 40 ^ (c.1 as u64) << 20 ^ c.2 as u64);
+        let key = Self::statics_key(world, &vis) ^ ckey;
         if key != self.statics_key || !self.statics.as_ref().is_some_and(|s| s.is_built()) {
-            self.rebuild_statics(world);
+            self.rebuild_statics(world, content);
             self.statics_key = key;
             if let Some(l) = &mut self.lighting {
                 l.set_windows(self.glass.clone());
@@ -375,6 +425,7 @@ impl WorldScene {
             Some(p) if is_lamp_sprite(sprite) => p.scene.lamp_at(origin),
             _ => 1.0,
         };
+        set_decor(vis.style);
         set_camera(cam);
         clear_background(pal::NIGHT_0);
         let ms = vec2(self.size.0 as f32, self.size.1 as f32) * TILE;
@@ -391,18 +442,31 @@ impl WorldScene {
             None => self.train.unwrap_or(-1.0),
         };
         draw_outside(self.street, t);
+        draw_outside_season(self.street, &look, t);
         draw_train(self.street, train_p, t);
-        draw_holo_sign(
-            vec2(21.0 * TILE, self.street.y + self.street.h - 0.35 * TILE),
-            world.cafe_name(),
-            t,
-        );
+        let sign = vec2(21.0 * TILE, self.street.y + self.street.h - 0.35 * TILE);
+        draw_holo_sign(sign, world.cafe_name(), t);
+        draw_sign_season(sign, world.cafe_name(), &look, t);
         weather.draw_rain(self.street, t);
+        Snowfall::from_look(&look).draw(self.street, t);
+        draw_falling_leaves(self.street, look.leaves * 0.7, 0.25 + weather.wind, t);
         if let Some(st) = &self.statics {
             st.draw();
         }
         for g in &self.glass {
             weather.draw_window_rain(*g, t);
+            draw_window_season(*g, &look, t);
+        }
+        if vis.fairy
+            && let Some(f) = &self.fairy
+        {
+            f.draw(1.0, t);
+        }
+        // grandma's garlands over the windows (right after the static walls)
+        if look.festive > 0.01
+            && let Some((win, _)) = &self.garlands
+        {
+            win.draw(vis.garlands, t);
         }
         // dirt blots on the hall floor (mop them with a swipe), and the shine where she mopped
         if cs.is_none() {
@@ -436,6 +500,7 @@ impl WorldScene {
             2.0 * TILE,
         );
         weather.draw_rain(walk, t + 3.1);
+        Snowfall::from_look(&look).draw(walk, t + 1.7);
 
         // furniture
         let placed = world.furniture();
@@ -587,6 +652,62 @@ impl WorldScene {
                 draw_tip_jar(at, fill, rhythm, t)
             });
         }
+        // the season on the counter: the spruce garland, the Advent wreath, grandma's box
+        if let Some((x0, x1, front)) = counter {
+            if look.festive > 0.01
+                && let Some((_, cg)) = &self.garlands
+            {
+                let cg = cg.clone();
+                let p = vis.garlands;
+                q.push_custom(front + 8.0 + 0.6, move || cg.draw(p, t));
+            }
+            if let Some(lit) = vis.wreath {
+                let at = vec2(x0 + (x1 - x0) * 0.28, front - 52.0);
+                q.push_custom(front + 8.0 + 0.7, move || draw_advent_wreath(at, lit, t));
+            }
+            let boxed = cs.is_none()
+                && world
+                    .active_moments()
+                    .iter()
+                    .any(|m| m.id == "m_hang_garlands")
+                && vis.garlands < 0.05;
+            if boxed {
+                let o = vec2(x0 + (x1 - x0) * 0.45, front - TILE);
+                let st = FurnitureState {
+                    active: true,
+                    t,
+                    ..Default::default()
+                };
+                q.push_custom(front + 8.0 + 0.8, move || {
+                    draw_furniture("garland_box", o, (1, 1), &st)
+                });
+            }
+        }
+        // the station cat
+        if cs.is_none()
+            && let Some((feet, pose, aff)) = fx::cat_at(world, content, people, t)
+        {
+            q.push_custom(feet.y, move || fx::draw_the_cat(feet, pose, t, aff));
+        }
+        // blackout candles: lit table by table once Karolina lights them
+        let candles: Vec<(Vec2, f32)> = if world.candles_lit() {
+            let since = *self.candles_since.get_or_insert(t);
+            pieces
+                .iter()
+                .filter_map(|(sprite, origin, size, _)| table_candle_anchor(sprite, *origin, *size))
+                .enumerate()
+                .map(|(i, a)| (a, t - since - i as f32 * 0.45))
+                .collect()
+        } else {
+            self.candles_since = None;
+            Vec::new()
+        };
+        for (a, age) in &candles {
+            let (a, age) = (*a, *age);
+            if age > 0.0 {
+                q.push_custom(a.y + 70.0, move || draw_candle_lighting(a, age, t));
+            }
+        }
         extra(&mut q);
         q.flush();
 
@@ -602,7 +723,22 @@ impl WorldScene {
             };
             mix(ambient_blackout(), ambient_for(p), level)
         };
+        // moment markers (world anchors; drawn after the light, their glow goes in it)
+        self.markers = if cs.is_none() && world.phase() == sim::Phase::Night {
+            fx::moment_markers(
+                world,
+                content,
+                people,
+                &mut self.marker_born,
+                self.hover_moment.as_deref(),
+                t,
+                self.sec_per_minute,
+            )
+        } else {
+            Vec::new()
+        };
         let lighting = self.lighting.as_mut().expect("created above");
+        lighting.coziness = if cs.is_some() { 0.6 } else { vis.coziness };
         lighting.begin(cam, ambient);
         lighting.set_time(t);
         lighting.add_window_light(if blackout { 0.55 } else { 0.35 + 0.65 * level });
@@ -630,6 +766,38 @@ impl WorldScene {
                 )
                 .flicker(0.1),
             );
+        }
+        if look.festive > 0.01
+            && let Some((win, cg)) = &self.garlands
+        {
+            for l in win
+                .lights(vis.garlands)
+                .into_iter()
+                .chain(cg.lights(vis.garlands))
+            {
+                lighting.add_light(l);
+            }
+        }
+        if vis.fairy
+            && let Some(f) = &self.fairy
+        {
+            for l in f.lights(1.0) {
+                lighting.add_light(l);
+            }
+        }
+        if let (Some(lit), Some((x0, x1, front))) = (vis.wreath, counter) {
+            let at = vec2(x0 + (x1 - x0) * 0.28, front - 52.0);
+            for l in advent_wreath_lights(at, lit) {
+                lighting.add_light(l);
+            }
+        }
+        for (a, age) in &candles {
+            if *age > 0.0 {
+                lighting.add_light(candle_lighting_light(*a, *age));
+            }
+        }
+        for (_, m) in &self.markers {
+            lighting.add_light(moment_marker_light(m, t));
         }
         for (v, pose) in people.iter().zip(&poses) {
             if blackout && v.pose == sim::Pose::Sit {
@@ -668,11 +836,49 @@ impl WorldScene {
             }
         }
         lighting.apply();
+        lighting.draw_dust_motes(t);
+        if look.festive > 0.01
+            && let Some((win, cg)) = &self.garlands
+        {
+            win.draw_glow(vis.garlands, t);
+            cg.draw_glow(vis.garlands, t);
+        }
+        if vis.fairy
+            && let Some(f) = &self.fairy
+        {
+            f.draw_glow(1.0, t);
+        }
+        // breath puffs for people out on the cold pavement
+        if look.breath > 0.01 {
+            let street_y = self.indoor_rows() as f32 * TILE;
+            for ((v, lk), pose) in people.iter().zip(&looks).zip(&poses) {
+                if v.feet.1 > street_y {
+                    draw_breath(lk, pose, t, look.breath);
+                }
+            }
+        }
+        draw_falling_leaves(
+            Rect::new(
+                -TILE,
+                self.indoor_rows() as f32 * TILE - 0.4 * TILE,
+                ms.x + 2.0 * TILE,
+                2.4 * TILE,
+            ),
+            look.leaves * 0.6,
+            0.2,
+            t + 4.0,
+        );
 
         // hover ring + emotes on top of the light (not in cutscenes)
         if cs.is_some() {
             self.people = all_people;
             return;
+        }
+        if let Some(w) = self.cozy_hint {
+            fx::draw_cozy_hints(world, content, w, t);
+        }
+        for (_, m) in &self.markers {
+            draw_moment_marker(m, t);
         }
         for ((v, look), pose) in people.iter().zip(&looks).zip(&poses) {
             if Some(v.agent) == hovered && Some(v.agent) != selected {

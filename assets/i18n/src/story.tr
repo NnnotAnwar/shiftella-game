@@ -387,10 +387,10 @@ uk Остання ніч. 30 000 Kč о шостій. О 3:33 хай вікно 
 # --- tutorial & story hints (toasts) ---
 
 story.hint.first_order
-cs Klikni na hosta u pultu a pak na kávovar. Personál zatím jsi ty.
-en Click the guest at the counter, then the coffee machine. For now, the staff is you.
-sk Klikni na hosťa pri pulte a potom na kávovar. Personál si zatiaľ ty.
-uk Клацни на гостя біля стійки, а потім на кавоварку. Поки що персонал — це ти.
+cs Host s vykřičníkem čeká — pozdrav, vezmi objednávku a připrav ji sama. Personál jsi zatím ty.
+en A guest with a ! is waiting — say hello, take the order and make it yourself. For now, the staff is you.
+sk Hosť s výkričníkom čaká — pozdrav, vezmi objednávku a priprav ju sama. Personál si zatiaľ ty.
+uk Гість зі знаком оклику чекає — привітайся, прийми замовлення й приготуй сама. Поки що персонал — це ти.
 
 story.hint.payment
 cs Dluh 90 000 Kč splácíš v nocích 7, 14, 21, 28 a 30. Přehled najdeš v aplikaci Shiftella.

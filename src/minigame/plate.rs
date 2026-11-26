@@ -125,6 +125,34 @@ impl Plate {
                         C + vec2(4.0, -46.0),
                     ],
                 ),
+                PlateSet::GarlicSoup => (
+                    vec![
+                        (PieceKind::Croutons, C + vec2(-16.0, 4.0)),
+                        (PieceKind::Cheese, C + vec2(28.0, -20.0)),
+                        (PieceKind::Garlic, C + vec2(26.0, 30.0)),
+                        (PieceKind::Croutons, C + vec2(-36.0, -30.0)),
+                    ],
+                    GarnishKind::DillFlecks,
+                    vec![
+                        C + vec2(-50.0, 10.0),
+                        C + vec2(-24.0, 42.0),
+                        C + vec2(6.0, -46.0),
+                    ],
+                ),
+                PlateSet::Borscht => (
+                    vec![
+                        (PieceKind::Swirl, C + vec2(-10.0, 4.0)),
+                        (PieceKind::Dill, C + vec2(30.0, -20.0)),
+                        (PieceKind::Garlic, C + vec2(30.0, 30.0)),
+                        (PieceKind::Croutons, C + vec2(-38.0, -28.0)),
+                    ],
+                    GarnishKind::DillFlecks,
+                    vec![
+                        C + vec2(-48.0, 14.0),
+                        C + vec2(-20.0, 44.0),
+                        C + vec2(8.0, -46.0),
+                    ],
+                ),
                 PlateSet::Topinka => (
                     vec![
                         (PieceKind::Toast, C + vec2(-8.0, 6.0)),
@@ -503,7 +531,7 @@ impl Plate {
             Paint::diagonal(sq(WELL_R), hex(0xcfc4e2), hex(0xf6f2fb)),
         );
         stroke_circle(c, PLATE_R - 11.0, 1.4, with_alpha(hex(0x8b7fb8), 0.35));
-        if self.set == PlateSet::Soup {
+        if self.set.is_soup() {
             rd::soft_shadow(c.x + 5.0, c.y + 7.0, 78.0, 74.0, 0.35);
             fill_circle(
                 c,
@@ -515,7 +543,25 @@ impl Plate {
                 65.0,
                 Paint::diagonal(sq(65.0), hex(0xbfb4d4), hex(0xece6f5)),
             );
-            rd::radial(c.x, c.y, 60.0, 60.0, hex(0xf1e4b8), hex(0xd8c48a));
+            // the broth: creamy kulajda, golden česnečka, beetroot-red borscht
+            let (b0, b1, fleck) = match self.set {
+                PlateSet::GarlicSoup => (
+                    hex(0xf3d98a),
+                    hex(0xd6a94a),
+                    Color::new(0.86, 0.62, 0.22, 0.45),
+                ),
+                PlateSet::Borscht => (
+                    hex(0xc43a4c),
+                    hex(0x8e1f33),
+                    Color::new(0.62, 0.12, 0.2, 0.5),
+                ),
+                _ => (
+                    hex(0xf1e4b8),
+                    hex(0xd8c48a),
+                    Color::new(0.85, 0.7, 0.36, 0.45),
+                ),
+            };
+            rd::radial(c.x, c.y, 60.0, 60.0, b0, b1);
             for i in 0..26u32 {
                 let a = rd::hash01(i * 7 + 2) * std::f32::consts::TAU;
                 let r = rd::hash01(i * 13 + 5).sqrt() * 52.0;
@@ -523,7 +569,7 @@ impl Plate {
                 let col = if i % 4 == 0 {
                     Color::new(0.98, 0.95, 0.85, 0.9)
                 } else {
-                    Color::new(0.85, 0.7, 0.36, 0.45)
+                    fleck
                 };
                 fill_circle(p, 1.0 + rd::hash01(i) * 1.4, col);
             }

@@ -84,6 +84,9 @@ pub struct MgOpen {
     pub usual: bool,
     /// Title and prompts were set in the player's language (the first drawn frame).
     pub named: bool,
+    /// `PlayerBrewStart` went through: Karolina is already at the station; the quality
+    /// follows with `PlayerBrewQuality` when the game ends.
+    pub started: bool,
 }
 
 /// The recipe book (K): `pick_for` = opened from an order card (pick mode).
@@ -92,8 +95,22 @@ pub struct BookOpen {
     pub pick_for: Option<u32>,
     pub mode: UiBrew,
     pub state: BookState,
-    /// A short line after Try (experiments arrive with T8).
-    pub note: Option<String>,
+    /// The last line on the pantry page (an experiment's result, "not for this guest").
+    pub note: Option<BookNote>,
+    /// Lida's latest margin note (the silhouette it revealed).
+    pub margin: Option<String>,
+    /// The napkins page beside the book is open.
+    pub napkins: bool,
+}
+
+/// A line on the book's pantry page: an i18n key + args (`@key` values), its kind and the
+/// recipe it is about.
+#[derive(Debug, Clone, PartialEq)]
+pub struct BookNote {
+    pub kind: crate::ui::handson::ExperimentKind,
+    pub key: String,
+    pub args: Vec<(String, String)>,
+    pub recipe: Option<String>,
 }
 
 /// A floating label in the world (tips, the match tier of a serve).
@@ -160,6 +177,8 @@ impl TutTally {
 #[derive(Default)]
 pub struct Hands {
     pub order: Option<OrderOpen>,
+    /// An open night-moment card (`moments_ui`).
+    pub moment: Option<super::moments_ui::MomentOpen>,
     pub minigame: Option<MgOpen>,
     pub book: Option<BookOpen>,
     /// The record picker is open.
@@ -200,12 +219,38 @@ pub struct Hands {
     pub press_sink: Option<u32>,
     /// Right button pressed at this screen point (a click cancels, a drag pans).
     pub right_press: Option<Vec2>,
+    /// A thank-you napkin just collected: (id, `GameScreen::time`).
+    pub napkin: Option<(String, f32)>,
+    /// The coziness level last announced tonight (level-up toasts only go up).
+    pub atmo_level: u32,
+    /// The "Count the jar" card is open.
+    pub jar_open: bool,
+    /// `GameScreen::time` of the last polaroid candidate (the HUD flash).
+    pub flash_at: f32,
+    /// Recipes discovered since the book was last opened on them (the amber dot).
+    pub new_recipes: std::collections::BTreeSet<String>,
+    /// The last experiment result (and Lida's last margin note) while the book was closed.
+    pub last_experiment: Option<BookNote>,
+    pub last_margin: Option<String>,
+    /// The autoplayer's day: the sim's player-bot plans it (hire, rozpis, payroll, themes).
+    pub day_bot: Option<sim::bot::PlayerBot>,
+    /// Real seconds the autoplayer has looked at the day / the morning summary.
+    pub day_wait: f32,
+    /// The autoplayer tried tonight's experiment.
+    pub tried_tonight: bool,
+    /// Real seconds tonight with an overlay open (card, mini-game, book, moment, the phone)
+    /// and in all — the night-length check (`game_autoplay`).
+    pub overlay_real: f32,
+    pub night_real: f32,
 }
 
 impl Hands {
     /// Order card, mini-game or the book is open (the sim slows down).
     pub fn overlay(&self) -> bool {
-        self.order.is_some() || self.minigame.is_some() || self.book.is_some()
+        self.order.is_some()
+            || self.minigame.is_some()
+            || self.book.is_some()
+            || self.moment.is_some()
     }
 }
 
@@ -259,7 +304,17 @@ pub fn playable(recipe: &RecipeDef, seed: u64) -> (MiniGameKind, String) {
             MiniGameKind::Plate
         }
     };
-    // the main game picks one of its variants by seed; a fallback uses its own variant
+    // the main game picks one of its variants by seed; a fallback uses its own variant —
+    // except the soups, which plate their own bowl (česnečka, kulajda, borscht)
+    if recipe.minigame == ContentGame::SoupStir && kind == MiniGameKind::Plate {
+        let v = recipe
+            .variants
+            .first()
+            .map(String::as_str)
+            .unwrap_or("soup");
+        let set = crate::minigame::PlateSet::from_id(v).unwrap_or(crate::minigame::PlateSet::Soup);
+        return (kind, set.id().to_string());
+    }
     let variant = if kind_matches(recipe.minigame, kind) && !recipe.variants.is_empty() {
         recipe.variants[(seed % recipe.variants.len() as u64) as usize].clone()
     } else {
@@ -301,7 +356,23 @@ pub fn queue_icon(content: &Content, w: &World, act: &PlayerAct) -> QueueIcon {
         PlayerAct::CollectTip { .. } => QueueIcon::CollectTip,
         PlayerAct::Checklist { .. } => QueueIcon::Light,
         PlayerAct::PlayRecord { .. } => QueueIcon::Moment(crate::render::MomentMarkerKind::Jukebox),
-        PlayerAct::GoTo { .. } => QueueIcon::Walk,
+        PlayerAct::GoTo { tile } => {
+            // a moment's option or a night experiment waits at the end of the walk
+            let m = &w.systems().moments;
+            match m
+                .walk_now
+                .iter()
+                .chain(m.walks.iter())
+                .find(|j| j.tile == *tile)
+                .map(|j| &j.kind)
+            {
+                Some(sim::WalkKind::Moment { id, .. }) => {
+                    QueueIcon::Moment(crate::render::MomentMarkerKind::for_moment(id))
+                }
+                Some(sim::WalkKind::Experiment { .. }) => QueueIcon::Brew(CupGlyph::Special),
+                None => QueueIcon::Walk,
+            }
+        }
     }
 }
 
@@ -372,6 +443,16 @@ fn greetable(content: &Content, w: &World, p: &Party) -> bool {
         && w.minute().saturating_sub(p.arrived) <= content.handson.tuning.greeting.window_minutes
 }
 
+/// The closing ritual's last item is due: the light in the window goes off at six.
+pub fn lights_off_due(g: &GameScreen) -> bool {
+    g.world.minute() >= 466
+        && g.world
+            .app()
+            .checklist
+            .iter()
+            .any(|c| c.id == "light_off_at_six" && !c.done && c.claim.is_none())
+}
+
 /// Is this act already in her hands (current or queued)?
 fn in_hands(w: &World, act: &PlayerAct) -> bool {
     karolina_acts(w).iter().any(|a| a == act)
@@ -409,7 +490,7 @@ impl GameScreen {
 
     /// A command from the hands-on loop: a full queue says so gently, other refusals stay
     /// quiet (the click simply did nothing).
-    fn hand(&mut self, content: &Content, cmd: Command) -> bool {
+    pub fn hand(&mut self, content: &Content, cmd: Command) -> bool {
         match self.world.apply(content, cmd) {
             Ok(()) => true,
             Err(sim::CommandError::QueueFull) => {
@@ -497,6 +578,15 @@ impl GameScreen {
                 ok
             }
             Intent::Window => {
+                // at closing (from 05:46) the window lamp goes off — the last ritual
+                if lights_off_due(self) {
+                    return self.hand(
+                        content,
+                        Command::TickChecklist {
+                            id: "light_off_at_six".into(),
+                        },
+                    );
+                }
                 if self.world.window_light_on(content) {
                     return false;
                 }
@@ -850,12 +940,34 @@ impl GameScreen {
             .regular(regular.as_deref())
             .practised(practised);
         let game = MiniGame::start(kind, params).with_text(MiniGameText::default());
+        // she walks to the station and works while the mini-game plays (the cup waits
+        // there for its quality)
+        let target = if usual {
+            self.world
+                .party_of_guest(guest)
+                .and_then(|p| p.leader())
+                .unwrap_or(guest)
+        } else {
+            guest
+        };
+        let started = self
+            .world
+            .apply(
+                content,
+                Command::PlayerBrewStart {
+                    guest: target,
+                    recipe: recipe.to_string(),
+                    mode: BrewMode::ByHand,
+                },
+            )
+            .is_ok();
         self.hands.minigame = Some(MgOpen {
             game,
-            guest,
+            guest: target,
             recipe: recipe.to_string(),
             usual,
             named: false,
+            started,
         });
         self.hands.wash = None;
     }
@@ -871,6 +983,19 @@ impl GameScreen {
             self.latte_for.insert(mg.guest, shape.id().to_string());
         }
         self.hands.tut.bump("minigame_done");
+        if mg.started {
+            // the brew is on its way; a late quality (she already served) is simply dropped
+            let _ = self.world.apply(
+                content,
+                Command::PlayerBrewQuality {
+                    guest: mg.guest,
+                    quality,
+                },
+            );
+            self.follow_up(mg.guest);
+            self.next_card(content);
+            return;
+        }
         let ok = if mg.usual {
             self.hand(
                 content,
@@ -903,14 +1028,20 @@ impl GameScreen {
 
     /// Hands-on events (called from `handle_event`).
     pub fn hands_event(&mut self, content: &Content, e: &SimEvent) {
+        self.moment_event(content, e);
         match e {
             SimEvent::NightStarted { .. } => {
+                self.hands.tried_tonight = false;
+                self.hands.overlay_real = 0.0;
+                self.hands.night_real = 0.0;
+                self.hands.atmo_level = self.world.coziness().level;
                 self.hands.tut = TutTally::default();
                 self.hands.coins.clear();
                 self.hands.incoming.clear();
                 self.hands.record_play = None;
             }
             SimEvent::NightEnded { .. } => {
+                self.hands.moment = None;
                 self.hands.order = None;
                 self.hands.minigame = None;
                 self.hands.book = None;
@@ -1076,6 +1207,73 @@ impl GameScreen {
                         "book.learned",
                         &[("recipe", format!("@{}", def.name_key()))],
                     );
+                }
+            }
+            SimEvent::ExperimentDone { result } => {
+                use crate::ui::handson::ExperimentKind as K;
+                let (kind, key, args, recipe): (K, String, Vec<(String, String)>, Option<String>) =
+                    match result {
+                        sim::ExperimentResult::Known { recipe } => (
+                            K::Known,
+                            "experiment.known".into(),
+                            vec![("recipe".into(), format!("@recipe.{recipe}.name"))],
+                            Some(recipe.clone()),
+                        ),
+                        sim::ExperimentResult::Discovered { recipe } => {
+                            self.hands.new_recipes.insert(recipe.clone());
+                            self.hands.tut.bump("recipe_discovered");
+                            (
+                                K::Discovered,
+                                "experiment.discovered".into(),
+                                vec![("recipe".into(), format!("@recipe.{recipe}.name"))],
+                                Some(recipe.clone()),
+                            )
+                        }
+                        sim::ExperimentResult::Gated { recipe, key } => {
+                            (K::Gated, key.clone(), Vec::new(), Some(recipe.clone()))
+                        }
+                        sim::ExperimentResult::Close { key, family } => (
+                            K::Close,
+                            key.clone(),
+                            family
+                                .iter()
+                                .map(|f| ("family".to_string(), format!("@{f}")))
+                                .collect(),
+                            None,
+                        ),
+                        sim::ExperimentResult::Nothing { key, cat } => {
+                            let mut a = Vec::new();
+                            if *cat {
+                                a.push(("cat".to_string(), "@experiment.cat_sniffs".to_string()));
+                            }
+                            (K::Nothing, key.clone(), a, None)
+                        }
+                    };
+                self.hands.tut.bump("experiment_done");
+                let note = BookNote {
+                    kind,
+                    key,
+                    args,
+                    recipe,
+                };
+                match self.hands.book.as_mut() {
+                    Some(b) => b.note = Some(note),
+                    None => {
+                        // a night experiment: she tried it at the counter while the book was shut
+                        self.notices.push(Notice::Key {
+                            kind: ToastKind::Info,
+                            icon: Icon::Flask,
+                            key: note.key.clone(),
+                            args: note.args.clone(),
+                        });
+                        self.hands.last_experiment = Some(note);
+                    }
+                }
+            }
+            SimEvent::MarginNote { recipe, .. } => {
+                self.hands.last_margin = Some(recipe.clone());
+                if let Some(b) = self.hands.book.as_mut() {
+                    b.margin = Some(recipe.clone());
                 }
             }
             SimEvent::PractisedRecipe { recipe } => {
@@ -1277,6 +1475,17 @@ impl GameScreen {
         if self.hands.book.is_some() {
             self.hands.book = None;
         }
+        if let Some(m) = self.hands.moment.clone() {
+            let opts = self.world.moment_options(content, &m.id);
+            match opts.first() {
+                Some(o) => {
+                    let o = o.clone();
+                    self.moment_option(content, &m.id, &o);
+                }
+                None => self.hands.moment = None,
+            }
+            return Some("moment");
+        }
         // standing at the sink: the frame holds the button
         if self
             .world
@@ -1287,12 +1496,102 @@ impl GameScreen {
         {
             return Some("wash");
         }
+        // closing time: the handover note and the light at six go first in her hands
+        if self.world.minute() >= 466 {
+            for id in ["handover_note", "light_off_at_six"] {
+                let open = self
+                    .world
+                    .app()
+                    .checklist
+                    .iter()
+                    .any(|c| c.id == id && !c.done && c.claim.is_none());
+                if open && self.queue(content, PlayerAct::Checklist { id: id.to_string() }, true) {
+                    return Some("closing");
+                }
+            }
+        }
         // light the window first, like grandma said
-        if self.world.minute() < 30 && self.intent(content, Intent::Window) {
+        if self.world.minute() < 420 && self.intent(content, Intent::Window) {
             return Some("window");
+        }
+        // a record for the opening ritual
+        if self.world.minute() < 30
+            && self
+                .world
+                .app()
+                .checklist
+                .iter()
+                .any(|c| c.id == "record_on" && !c.done && c.claim.is_none())
+            && self.hand(
+                content,
+                Command::TickChecklist {
+                    id: "record_on".into(),
+                },
+            )
+        {
+            return Some("record");
         }
         if self.intent(content, Intent::Greet) {
             return Some("greet");
+        }
+        // a moment on the map: answer it (they are hers alone)
+        if self.hands.moment.is_none()
+            && self.world.player().queue.len() < 3
+            && self.autoplay_moment(content)
+        {
+            return Some("moment");
+        }
+        // the rituals: warm up the machine, count the float, cash up…
+        if self.world.player().queue.len() < 2
+            && let Some((i, _)) = super::hands_view::open_rituals(self, content)
+                .first()
+                .copied()
+            && let Some(id) = content.app.checklists.get(i).map(|c| c.id.clone())
+            && self.hand(content, Command::TickChecklist { id })
+        {
+            return Some("ritual");
+        }
+        // closing: two notes for tomorrow
+        if self.world.minute() >= 7 * 60 + 30 && self.world.handover_picks().is_empty() {
+            let picks: Vec<String> = self
+                .world
+                .handover_suggestions(content)
+                .iter()
+                .take(2)
+                .map(|s| s.id.clone())
+                .collect();
+            if !picks.is_empty() && self.hand(content, Command::PickHandover { picks }) {
+                return Some("handover");
+            }
+        }
+        // a lull: one experiment a night (grandma's margin notes first)
+        if !self.hands.tried_tonight
+            && self.world.player().queue.is_empty()
+            && self.world.player().current.is_none()
+            && self.world.minute() > 60
+        {
+            self.hands.tried_tonight = true;
+            let target = self.world.margin_note_target(content);
+            let mut ings: Vec<String> = target
+                .map(|r| self.world.revealed_ingredients(content, &r))
+                .unwrap_or_default();
+            let pantry: Vec<String> = self.world.pantry().iter().cloned().collect();
+            let mut k = self.world.night() as usize;
+            while ings.len() < 2 && !pantry.is_empty() {
+                let c = pantry[k % pantry.len()].clone();
+                if !ings.contains(&c) {
+                    ings.push(c);
+                }
+                k += 7;
+                if k > 400 {
+                    break;
+                }
+            }
+            ings.retain(|i| pantry.contains(i));
+            ings.truncate(3);
+            if ings.len() >= 2 && self.hand(content, Command::TryExperiment { ingredients: ings }) {
+                return Some("experiment");
+            }
         }
         if self.world.player().queue.len() >= 2 {
             return None;
@@ -1349,6 +1648,40 @@ impl GameScreen {
 }
 
 impl GameScreen {
+    /// The autoplayer's morning and day: keep the polaroid, let the sim's player-bot plan
+    /// the day (hire on nights 3/5/9, the rozpis, payroll, themes), then open the café.
+    pub fn autoplay_day(&mut self, content: &std::rc::Rc<Content>, dt: f32, wait: f32) {
+        if self.hands.autoplay.is_none()
+            || self.world.phase() != Phase::Day
+            || self.cutscene_playing()
+            || self.world.playing_cutscene().is_some()
+            || self.world.ending().is_some()
+        {
+            self.hands.day_wait = 0.0;
+            return;
+        }
+        self.hands.day_wait += dt;
+        if self.hands.day_wait < wait {
+            return;
+        }
+        self.hands.day_wait = 0.0;
+        if self.summary.is_some() {
+            super::journal_ui::keep_morning(self, content);
+            self.summary = None;
+            return;
+        }
+        let seed = self.world.seed();
+        let bot = self.hands.day_bot.get_or_insert_with(|| {
+            sim::bot::PlayerBot::new(sim::bot::BotConfig {
+                seed,
+                ..Default::default()
+            })
+        });
+        bot.day(&mut self.world, content);
+        self.drain_and_handle(content, None);
+        self.start_night(content);
+    }
+
     /// Plays the current night without a window through the autoplayer (scenes, tests):
     /// the sim, the intents, the mini-games with their scripted input and hold-to-wash, at
     /// `dt` real seconds a step, until `stop` says so, the morning comes or `max_s` passes.
@@ -1370,6 +1703,10 @@ impl GameScreen {
                 self.finish_cutscene_now(content, loc);
             }
             self.time += dt;
+            self.hands.night_real += dt;
+            if self.overlay_open() {
+                self.hands.overlay_real += dt;
+            }
             self.advance(content, dt, Some(loc));
             let _ = self.hands_frame(content, dt);
             self.autoplay_step(content, dt);
