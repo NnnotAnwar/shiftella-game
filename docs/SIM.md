@@ -85,6 +85,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | Karolina: `PlayerTakeOrder`, `PlayerBrew`, `PlayerUsual`, `PlayerHandOff`, `PlayerCancel`, `PlayerQueue`, `PlayerUnqueue`, `PlayerWashProgress`, `PlayerGreet` | §9.1 |
 | `PlayRecord { id, repeat }`, `RecordFinished { id }`, `SetAssistWishes { on }` | §9.6; accessibility hand-off |
 | `UseEquipment { uid, action }`, `EquipmentHold { seconds }` | v0.2 appliances (§11): a queued chore at a piece; holding speeds a hold chore |
+| `AnswerStory { guest, answer }`, `StormBlankets`, `StormSoup` | v0.2 H: a stranger's little story, the storm night's chores (§12) |
 
 `world.undo(&content)` reverts the last reversible command (furniture place/move/rotate/remove,
 floors, lamps, duties, draft shifts, prices, menu). The stack clears at phase changes.
@@ -681,6 +682,75 @@ night still reaches «Light in the Window» — `tests_walk.rs`).
   `from.name_key()`).
 * UI: `src/screens/game/walk_home.rs` (flow, chips, captions, the message card), art
   `src/render/dawn.rs` (the dawn strip) and `src/render/backstep.rs`.
+## 12. Little stories of strangers and the storm night (design/v0.2.md H, `sim::stories`, `sim::storm`)
+
+Data `assets/data/stories.ron` (compiled in with `include_str!`, parsed once:
+`stories::data()`); text `assets/i18n/src/night_stories.tr`. State `World.stories:
+StoriesState` (`#[serde(default)]`, every field defaulted — older saves load with nothing told
+and no storm; `world.stories()`). **No draws from the world RNG**: every roll uses
+`stories::roll(w, salt)` (seed + night + salt), so a player who never answers — and the
+player-bot, which never does — plays the same night (tested: `noticing_and_fading_never_touch_the_world_rng`).
+
+### 12.1 Stories
+* **Director** (`stories::on_minute`, each night minute before the trains and guests): a
+  budget at night start (`per_night` weights for 0 / 1 / 2 — about 0.8 a night, so the 22
+  vignettes last the story; story night 1 has none), from `from_minute` to `until_minute`,
+  `gap_minutes` apart, one open at a time, never in a rush or while `karolina_todo > 4`.
+  Candidates: a party leader with a persona (never a regular), seated, settled
+  `settled_minutes`, not about to leave, not a moment's target, no story yet tonight; the
+  vignette's filters (`archetypes`, `female`, `elder`, `party` size, `from` / `until`, `wet`),
+  not told in this game (the sandbox starts the pool over once all were told).
+  `SimEvent::StoryNoticed { guest, story }`. A story nobody answered fades after
+  `expires_minutes` or when the guest leaves (`StoryFaded`).
+* **Answering:** `Command::AnswerStory { guest, answer }` (`WrongPhase`, `Invalid` — no story /
+  she's on her way, `UnknownId`, `QueueFull`) queues `PlayerAct::GoTo` with
+  `WalkKind::Story { guest, answer }` next to the guest; on arrival (work `answer.work` or
+  `work` ticks) the answer's `effects` (`Fx`) run with `XTarget { party, tile }`
+  (`TargetSatisfaction`, `Tip`, `TargetStay`, `HallMood`, `Coziness`, `ThankYouNote`,
+  `GuestSatisfactionNear`, `Reputation`…), the guest gets a Sparkle / Smile emote,
+  `SimEvent::StoryAnswered { guest, story, answer, good }`, and `names::introduce` (they tell
+  her their name: `GuestIntroduced`). A **good** answer also adds a polaroid candidate
+  (`HighlightKind::MomentWarm`, score `journal_score`, caption `journal.caption.story.<id>`
+  with `name = persona:<Latin>|<uk>|<ru>` — `stories::persona_arg`; the journal UI picks the
+  language). Cancelling her act releases the card.
+* Queries: `stories_active()`, `story_of(guest)`, `story_def(id)`, `stories()` (told,
+  tonight's answers, `warm_ever`); `debug_story(id, guest)` for tests / shots.
+
+### 12.2 The storm night
+* **When:** `storm.story_nights` (night 29 — Mon 5 Dec, Mikuláš eve: after the first snow, not
+  a payment night, no franchise beat) or, in the sandbox, a night ≥ `sandbox_from_night` with
+  Snow weather, `sandbox_chance` (derived roll), at most every `sandbox_gap` nights. Decided at
+  night start (`storm::on_night_start`, after the weather roll — the weather becomes Snow,
+  `WeatherChanged` + `StormForecast`).
+* **`cancel_at` (00:50):** `StormCancelled { stranded }` + bot `storm_cancel`
+  (`shiftella.ron`). From then on `World::storm_line_closed()`: `trains_tick` returns at once
+  (no `TrainPassing`, no passengers), random walk-ins stop (`guests::on_minute`), pending
+  spawns hurry in within 6 minutes and anything else (lull walk-ins, event rushes, spawns past
+  `platform_minutes`) is dropped. Regulars still come (`spawn_regular` is untouched). Every
+  non-regular party inside is **stranded** till `stay_until` (05:40): no `leave_by`, an
+  eating party's `stay_left` ≥ the minutes left (+ `id % 6` so they go out a few minutes
+  apart), a waiting party's patience floor 30 %.
+* **Chores:** `Command::StormBlankets` (Karolina walks to the register's access tile) and
+  `Command::StormSoup` (the stove's access tile, else the kitchen's) — `WalkKind::Storm { act }`
+  with `work + per_guest × stranded` ticks; on arrival every stranded party gets
+  `satisfaction`, the chore's `effects` run (coziness), `StormCared { act, guests }`;
+  blankets fill `storm().blanketed` (the screens draw a plaid on each seated one), soup fills
+  `fed`, sets their `holding` to the menu's soup and puts the big pot on (bubbling).
+  `Invalid` before the cancellation, when done / already queued, or with nobody stranded.
+* **`talk_at` (03:00):** speakers = seated stranded strangers (leaders first, left to right);
+  with ≥ `talk_min` the biggest talk that fits (an unheard one first) →
+  `StormTalk { talk, speakers }` (lines `storm.talk.<talk>.<n>`, `who` = speaker index or
+  Karolina, `{a} {b} {c}` = names). Their personas become known. A polaroid
+  (`HighlightKind::StoryScene`, `journal.caption.storm`, `polaroid_score` 92, no repeat-kind
+  penalty) is captured either way.
+* **06:00:** `StormMorning { cared }`; `morning` effects (reputation +2) only when she did a
+  chore. No flags, no money, no story counters: both endings are untouched (the full-story bot
+  tests run through night 29 — a quiet night, ~30 guests instead of ~60).
+* Queries: `storm()` (`StormState`), `storm_line_closed()`, `storm_stranded()`,
+  `storm_can(&c, act)`, `storm_talk_def(id)`; `debug_storm()` for tests.
+* UI: `src/screens/game/stories_ui.rs` (marker, card, Snowed-in card, blankets in the y-sorted
+  queue, the talk overlay — the café is held while it plays, `GameScreen::frozen`). Tests:
+  `src/sim/tests_stories.rs`.
 
 ## 12. The café's own drink and photo mode (design/v0.2.md I, `sim::signature`)
 

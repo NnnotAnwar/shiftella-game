@@ -32,6 +32,7 @@ mod photo_mode;
 pub mod scene;
 mod scene_fx;
 pub mod signature_ui;
+mod stories_ui;
 pub mod tutorial;
 pub mod walk_home;
 pub mod world_view;
@@ -40,6 +41,7 @@ pub mod world_view;
 pub use build::{Drag as BuildDrag, THEME_TAB as BUILD_THEME_TAB};
 pub use build_content_ui::scene_setup as build_content_scene;
 pub use signature_ui::scene as signature_photo_scene;
+pub use stories_ui::scene_setup as stories_scene;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -299,6 +301,8 @@ pub struct GameScreen {
     pub sig: signature_ui::SigUi,
     /// Photo mode: the viewfinder and the developing print (design/v0.2.md I.6).
     pub photo: photo_mode::PhotoMode,
+    /// Little stories of strangers, the storm card and its 03:00 talk (design/v0.2.md H).
+    pub stories: stories_ui::StoriesUi,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -384,6 +388,7 @@ impl GameScreen {
             walk: Default::default(),
             sig: Default::default(),
             photo: Default::default(),
+            stories: Default::default(),
         }
     }
 
@@ -452,6 +457,7 @@ impl GameScreen {
             || self.world.phase() == Phase::Day
             || self.walk.is_open()
             || self.photo.is_open()
+            || self.stories.talk_open()
     }
 
     pub fn set_speed(&mut self, s: u8) {
@@ -699,6 +705,7 @@ impl GameScreen {
         self.build_content_event(content, &e, loc);
         self.names_event(&e, loc);
         self.signature_event(&e, loc);
+        self.stories_event(&e, loc);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;
@@ -938,6 +945,14 @@ impl GameScreen {
             SimEvent::MomentResolved { option, .. } if option == "blanket" => {
                 audio.play_sfx_vol(Sfx::Blanket, 0.8)
             }
+            // 0.2 H: stories and the storm
+            SimEvent::StoryNoticed { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.25),
+            SimEvent::StoryAnswered { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.55),
+            SimEvent::StormCancelled { .. } => audio.play_sfx_vol(Sfx::EventAlert, 0.6),
+            SimEvent::StormCared { act, .. } => match act {
+                sim::StormAct::Blankets => audio.play_sfx_vol(Sfx::Blanket, 0.8),
+                sim::StormAct::Soup => audio.play_sfx_vol(Sfx::PotLid, 0.7),
+            },
             _ => {}
         }
     }
@@ -1068,6 +1083,12 @@ impl GameScreen {
         }
         if self.world.weather() == crate::content::Weather::Storm {
             audio.want_amb(AmbLoop::Storm, 0.55);
+        }
+        // the storm night: the wind round the café, a little louder once the line is closed
+        let storm = self.world.storm();
+        if storm.tonight {
+            let level = if storm.cancelled_at.is_some() { 0.6 } else { 0.4 };
+            audio.want_amb(AmbLoop::Storm, level);
         }
     }
 
@@ -1422,10 +1443,12 @@ impl GameScreen {
             let ghost = build::ghost(self, content, mouse_world, wants_mouse);
             let t = self.time;
             let (sel, hov) = (self.selected, self.hovered);
+            let blankets = stories_ui::blankets(self);
             let mut extra = |q: &mut crate::render::RenderQueue| {
                 if let Some(g) = &ghost {
                     g.push(q, t);
                 }
+                stories_ui::push_blankets(q, &blankets, t);
             };
             self.scene
                 .draw(&self.world, content, &cam, t, sel, hov, &mut extra);
@@ -1441,10 +1464,16 @@ impl GameScreen {
                 }
                 _ => None,
             };
+            self.stories.hover = match target {
+                Some(hands_view::Target::Story(g)) => Some(g),
+                _ => None,
+            };
             self.scene.sec_per_minute = self.world.real_seconds_per_tick(content) * 10.0;
             if !self.photo.is_open() {
                 hands_view::draw_world(self, content, &loc, target, mouse_world);
             }
+            hands_view::draw_world(self, content, &loc, target, mouse_world);
+            stories_ui::draw_world(self);
             if self.panel == Some(Panel::Build) {
                 build::draw_world_overlay(self, content, ghost.as_ref());
             }
@@ -1472,6 +1501,8 @@ impl GameScreen {
         } else if self.photo.is_open() {
             // the viewfinder: only the café and the camera, no HUD
             photo_mode::frame_ui(self, ui, cx, dt);
+        } else if stories_ui::talk_ui(self, ui, cx, dt) {
+            // the storm's 03:00 talk holds the café (letterbox, dialogue)
         } else {
             signature_ui::board(self, ui, cx);
             hud::draw(self, ui, cx);
@@ -1488,6 +1519,7 @@ impl GameScreen {
                 extras_ui::napkin(self, ui, cx);
                 walk_home::backstep_chip(self, ui, cx);
                 photo_mode::button(self, ui, cx);
+                stories_ui::draw(self, ui, cx);
             }
             // after the HUD and the rail: the bubble keeps clear of them
             if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {
@@ -1531,7 +1563,7 @@ impl GameScreen {
             .unwrap_or_default();
         cx.audio.set_loops(loops.steam, loops.trickle);
         // toasts wait while a scene or a mini-game is on screen (the cup has her attention)
-        if !self.player.is_playing() && self.hands.minigame.is_none() {
+        if !self.player.is_playing() && self.hands.minigame.is_none() && !self.stories.talk_open() {
             self.flush_notices(ui, &loc);
             // the build panel sits over the dock: toasts rise above it
             let inset = if self.panel == Some(Panel::Build) {
@@ -1698,8 +1730,11 @@ impl GameScreen {
         use hands::Intent;
         use hands_view::Target;
         let night = self.world.phase() == Phase::Night;
-        let blocked =
-            ui.wants_mouse() || self.pause.is_some() || self.summary.is_some() || self.automation;
+        let blocked = ui.wants_mouse()
+            || self.pause.is_some()
+            || self.summary.is_some()
+            || self.automation
+            || self.stories.talk_open();
         let down = is_mouse_button_down(MouseButton::Left);
         // hold-to-wash: the mouse went down on the sink, or E is held (keyboard play)
         if night {
@@ -1830,6 +1865,10 @@ impl GameScreen {
                 }
                 return;
             }
+            Some(Target::Story(guest)) => {
+                self.open_story(guest);
+                return;
+            }
             _ => {}
         }
         match pick {
@@ -1883,7 +1922,7 @@ impl GameScreen {
         if ui.key(KeyCode::M) {
             cx.audio.toggle_mute();
         }
-        if self.walk.is_open() {
+        if self.walk.is_open() || stories_ui::talk_hotkeys(self, ui) {
             return;
         }
         if self.pause.is_some() {
@@ -1913,6 +1952,8 @@ impl GameScreen {
                 self.hands.book = None;
             } else if self.hands.moment.is_some() {
                 self.hands.moment = None;
+            } else if self.stories.card.is_some() {
+                self.stories.card = None;
             } else if self.hands.records_open {
                 self.hands.records_open = false;
             } else if self.hands.order.is_some() {

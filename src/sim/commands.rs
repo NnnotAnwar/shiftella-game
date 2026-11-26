@@ -680,6 +680,15 @@ impl World {
             Command::TakePhoto { focus, width } => {
                 super::signature::take_photo(self, content, focus, width)
             }
+            Command::AnswerStory { guest, answer } => {
+                super::stories::answer(self, content, guest, &answer)
+            }
+            Command::StormBlankets => {
+                super::storm::command(self, content, super::storm::StormAct::Blankets)
+            }
+            Command::StormSoup => {
+                super::storm::command(self, content, super::storm::StormAct::Soup)
+            }
             Command::OpenDoors => {
                 if !self.in_prep() {
                     return Err(CommandError::WrongPhase);

@@ -385,6 +385,15 @@ pub fn queue_icon(content: &Content, w: &World, act: &PlayerAct) -> QueueIcon {
                     QueueIcon::Moment(crate::render::MomentMarkerKind::for_moment(id))
                 }
                 Some(sim::WalkKind::Experiment { .. }) => QueueIcon::Brew(CupGlyph::Special),
+                Some(sim::WalkKind::Story { .. }) => {
+                    QueueIcon::Moment(crate::render::MomentMarkerKind::Star)
+                }
+                Some(sim::WalkKind::Storm { act }) if act == "soup" => {
+                    QueueIcon::Moment(crate::render::MomentMarkerKind::Coffee)
+                }
+                Some(sim::WalkKind::Storm { .. }) => {
+                    QueueIcon::Moment(crate::render::MomentMarkerKind::Blanket)
+                }
                 None => QueueIcon::Walk,
             }
         }

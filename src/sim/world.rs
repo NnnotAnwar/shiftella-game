@@ -837,6 +837,9 @@ pub struct World {
     /// The café's own drink and the night's extra photos (design/v0.2.md I; `sim::signature`).
     #[serde(default)]
     pub(crate) sig: super::signature::SigState,
+    /// Little stories of strangers and the storm night (design/v0.2.md H; `sim::stories`).
+    #[serde(default)]
+    pub(crate) stories: super::stories::StoriesState,
     #[serde(skip)]
     pub(crate) events: Vec<SimEvent>,
     #[serde(skip)]
@@ -923,6 +926,7 @@ impl World {
             build: Default::default(),
             walk: Default::default(),
             sig: Default::default(),
+            stories: Default::default(),
             events: Vec::new(),
             paths: PathCache::default(),
         }
@@ -1429,6 +1433,7 @@ impl World {
         super::atmos::on_night_start(self, content);
         super::build_content::on_night_start(self, content);
         super::equipment::on_night_start(self);
+        super::stories::on_night_start(self, content);
         self.emit(SimEvent::NightStarted { night: self.night });
         super::story::on_night_start(self, content);
     }
@@ -1593,6 +1598,7 @@ impl World {
             return;
         }
         super::narrator::on_minute(self, content);
+        super::stories::on_minute(self, content);
         super::trains_tick(self, content);
         super::guests::on_minute(self, content);
         super::staff::on_minute(self, content);
@@ -1623,6 +1629,7 @@ impl World {
         super::player::collect_all_tips(self, content);
         super::player::reset(self);
         super::moments::on_night_end(self, content);
+        super::stories::on_night_end(self, content);
         super::tool::on_night_end(self, content);
         super::rozpis::on_night_end(self);
         super::build_content::on_night_end(self, content);

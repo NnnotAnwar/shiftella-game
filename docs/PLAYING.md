@@ -189,6 +189,33 @@ to finish the story.
   are CC0 recordings (credits in `assets/audio/CREDITS.md`) and play even in a source build;
   the Sound slider and **M** cover them.
 
+## Little stories of strangers and the storm night
+
+**Little stories.** Now and then a stranger (never a regular) carries a small story: a phone
+face up waiting for a call, the last train to Děčín gone, a first pay cheque, a birthday
+alone, a nurse after a hard shift, a student before the state exam, a couple not talking, a
+cello case by the chair… A small **amber speech bubble with three dots** floats beside their
+head (moment markers are indigo orbs on the other side; it stays readable zoomed out). Click
+it: a small card shows what Karolina notices and two or three answers — a free slice of
+cake, a warm word, the charger, the window seat, a taxi through the app, a record. One click
+and she walks over. Every answer is kind; the one that fits gets a warm reaction, a small
+reward (the guest's mood, a tip in the jar, sometimes a thank-you napkin or a cozier hall), a
+line in the night log and a polaroid candidate for the morning, and they tell her their name.
+Ignoring a story is fine: it fades after a while or when they leave. At most two a night, one
+at a time, never during a rush, never the same story twice in a game (22 of them).
+
+**The storm night.** Once in the story — night 29, Mikuláš eve — a snowstorm closes the line
+(in the sandbox, now and then on a snowy winter night). It snows hard from the start; at
+00:50 the station announces that every night train is cancelled until 06:00 and
+@shiftella_bot writes. From then on no train comes and no stranger walks in (regulars still
+do — they live nearby), and everyone already inside stays till morning. A small **Snowed in**
+card under the atmosphere meter says how many stay and offers two one-click chores:
+**Blankets for all** (grandma's plaids from under the counter — you'll see everyone tucked in)
+and **A pot of soup** (the big pot on the stove, a bowl for everyone). At 03:00 the stranded
+strangers talk — a short scene with their names and faces (click / Space to go on, Esc skips).
+In the morning the night's special polaroid waits, and if you looked after them the café's
+reputation rises a little. Nothing here touches the story's ending.
+
 ## The recipe book (K)
 
 Drinks, food and specials you know (with grandma's notes, how often you've made them and
@@ -454,3 +481,9 @@ closing (the till counted, the trash run). `SHIFTELLA_ZOOM=2` follows Karolina c
 home (after the night's summary) or the back step; `SHIFTELLA_ROUTE=embankment|park|bakery|tram`
 picks the way, `SHIFTELLA_T=<seconds>` jumps into the scene, `SHIFTELLA_WEATHER=rain|downpour|fog|snow|clear`
 sets the sky, `SHIFTELLA_NIGHT` the season.
+`SHIFTELLA_SCENE=story_marker|story_card` plays story night 8 (or `SHIFTELLA_NIGHT`) to
+`SHIFTELLA_TIME` (default 23:00) until a stranger carries a story (if none came within 30 min,
+`SHIFTELLA_STORY=<id>` — default `call` — is put on a seated stranger) and shows the marker /
+its card. `SHIFTELLA_SCENE=storm` plays night 29 to 01:20 with the blankets and the soup asked
+for (the Snowed-in card, the toasts); `storm_talk` to the 03:00 talk, `SHIFTELLA_LINE=n` its
+line (0 = the narration).

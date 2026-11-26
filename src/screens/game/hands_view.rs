@@ -43,6 +43,8 @@ pub enum Target {
     Equip(u32),
     /// A lamp: on / off.
     Lamp(u32),
+    /// A stranger's little story bubble (the guest; `stories_ui`).
+    Story(u32),
 }
 
 /// Checklist items Karolina can do by hand in the world right now: (index into
@@ -151,6 +153,10 @@ pub fn target(
             if c.coin.collected.is_none() && c.coin.position(g.time).distance(m) < 11.0 {
                 return Some(Target::Coin(c.table));
             }
+        }
+        // a stranger's story bubble (beside the head)
+        if let Some(guest) = super::stories_ui::hit(g, m) {
+            return Some(Target::Story(guest));
         }
         // moment markers float over everything else in the room
         for (i, (_, mk)) in g.scene.markers.iter().enumerate() {
