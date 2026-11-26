@@ -314,3 +314,38 @@ fn the_bot_finishes_the_opening_ritual_in_the_preparation() {
     }
     assert_eq!(opened, 6, "every night is ready by 22:30");
 }
+
+/// Night 1: Mirek is the first guest at 22:04, his "so the light's on again" scene plays as he
+/// walks in, and he doesn't walk in a second time at 23:00 (owner bug report, 0.1.1).
+#[test]
+fn mirek_comes_in_once_on_night_one_and_his_scene_plays_as_he_arrives() {
+    let c = content();
+    for tutorial_off in [true, false] {
+        let mut w = World::new_story(&c, Difficulty::Cozy);
+        w.sys.tutorial_off = tutorial_off;
+        bot::finish_cutscenes(&mut w, &c);
+        w.start_night(&c);
+        bot::finish_cutscenes(&mut w, &c);
+        w.drain_events();
+        let mut mirek_parties = std::collections::BTreeSet::new();
+        let mut scene_at = None;
+        let mut guard = 0;
+        while w.minutes_since_open() < 180 && guard < 200_000 {
+            w.tick(&c);
+            if w.playing_cutscene() == Some("mirek_first") && scene_at.is_none() {
+                scene_at = Some(w.minutes_since_open());
+            }
+            bot::finish_cutscenes(&mut w, &c);
+            w.drain_events();
+            for p in w.parties.iter().filter(|p| p.regular.as_deref() == Some("mirek")) {
+                mirek_parties.insert(p.id);
+            }
+            guard += 1;
+        }
+        let at = scene_at.unwrap_or_else(|| panic!("mirek_first never played (tutorial_off {tutorial_off})"));
+        // with the tutorial he is the first guest at 22:04, without it he comes at 23:00
+        let when = if tutorial_off { 59..=61 } else { 3..=6 };
+        assert!(when.contains(&at), "scene at {at} (tutorial_off {tutorial_off})");
+        assert_eq!(mirek_parties.len(), 1, "Mirek came in {} times by 01:00", mirek_parties.len());
+    }
+}

@@ -228,6 +228,10 @@ fn keyboard_intents_reach_the_sim() {
         g.advance(&c, 0.05, Some(&loc));
         guard += 1;
     }
+    // Mirek's first scene plays as he walks in; the rail works once it's over
+    if g.cutscene_playing() {
+        g.finish_cutscene_now(&c, &loc);
+    }
     let t = g.world.ticket_rail(&c)[0].clone();
     g.act_on_rail(&c);
     let claimed = g
@@ -236,7 +240,7 @@ fn keyboard_intents_reach_the_sim() {
         .iter()
         .find(|p| p.id == t.party)
         .is_some_and(|p| p.order_claim.is_some());
-    assert!(claimed, "Enter on the rail sent Karolina to take the order");
+    assert!(claimed, "Enter on the rail sent Karolina to take the order: {t:?}");
 }
 
 // ───────────────────────── T8: the world's systems on screen ─────────────────────────
@@ -391,8 +395,9 @@ fn three_autoplayed_nights_touch_the_systems() {
         assert_eq!(
             g.world.systems().tool.rituals,
             [true, true],
-            "night {}: opening and closing",
-            g.world.night()
+            "night {}: opening and closing; open items {:?}",
+            g.world.night(),
+            g.world.app().checklist.iter().filter(|c| !c.done).map(|c| c.id.clone()).collect::<Vec<_>>()
         );
     }
     g.autoplay_day(&c, 1.0, 0.0);
