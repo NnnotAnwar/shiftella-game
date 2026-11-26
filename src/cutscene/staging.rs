@@ -58,6 +58,10 @@ pub enum Stage {
     LightsCascade {
         seconds: f32,
     },
+    /// Lamps switch off one by one, the window lamp last (blocks) — the endings.
+    LightsOut {
+        seconds: f32,
+    },
     /// The Shiftella app slides up with a bot message (text key); waits for a click.
     Phone {
         message_key: String,
@@ -79,8 +83,24 @@ fn is_text(step: &CutsceneStep, key: &str) -> bool {
 pub fn expand(id: &str, steps: &[CutsceneStep], top: bool) -> Vec<Op> {
     match id {
         "opening" => opening(steps, top),
+        // closing time: the lamps go out one by one before the last fade / the last train
+        "ending_light" => after_text(steps, "scene.ending_light.17", 2.6, 0.6),
+        "ending_last_train" => after_text(steps, "scene.ending_last_train.15", 3.6, 0.9),
         _ => steps.iter().cloned().map(Op::Step).collect(),
     }
+}
+
+/// The steps as they are, with the lamps going out after the line `key`.
+fn after_text(steps: &[CutsceneStep], key: &str, seconds: f32, pause: f32) -> Vec<Op> {
+    let mut out = Vec::new();
+    for step in steps {
+        out.push(Op::Step(step.clone()));
+        if is_text(step, key) {
+            out.push(Op::Stage(Stage::LightsOut { seconds }));
+            out.push(Op::Stage(Stage::Pause(pause)));
+        }
+    }
+    out
 }
 
 fn opening(steps: &[CutsceneStep], top: bool) -> Vec<Op> {

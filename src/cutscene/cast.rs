@@ -82,6 +82,10 @@ impl Cast {
                     apply_look(&mut l, look);
                     l.apron = false;
                 }
+                // Karolina keeps her ponytail even if the cast data still says "short"
+                if matches!(l.hair_style, HairStyle::Short | HairStyle::Buzz) {
+                    l.hair_style = HairStyle::Ponytail;
+                }
                 l
             }
             _ => {

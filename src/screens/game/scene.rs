@@ -356,7 +356,15 @@ impl WorldScene {
             weather = Weather::default();
         }
         // stage lights: 1 = the café as the sim has it, 0 = dark and closed
-        let level = cs.map_or(1.0, |p| p.scene.light_level());
+        let level = cs.map_or(1.0, |p| {
+            let l = p.scene.light_level();
+            // closing time in the endings: dawn already greys the room, it never goes black
+            if p.current_id().starts_with("ending") {
+                0.3 + 0.7 * l
+            } else {
+                l
+            }
+        });
         let lamp_k = |sprite: &str, origin: Vec2| match cs {
             Some(p) if is_lamp_sprite(sprite) => p.scene.lamp_at(origin),
             _ => 1.0,

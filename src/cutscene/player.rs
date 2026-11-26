@@ -1004,6 +1004,10 @@ impl CutscenePlayer {
                 self.scene.lights_cascade(seconds);
                 self.active = Some(Active::Lights);
             }
+            Stage::LightsOut { seconds } => {
+                self.scene.lights_out(seconds);
+                self.active = Some(Active::Lights);
+            }
             Stage::Phone { message_key } => {
                 self.card_appear = 0.0;
                 self.audio.push(AudioRequest::Sfx {
@@ -1061,6 +1065,7 @@ impl CutscenePlayer {
                     self.active = None;
                 }
                 Op::Stage(Stage::LightsCascade { .. }) => self.scene.set_lights(true),
+                Op::Stage(Stage::LightsOut { .. }) => self.scene.set_lights(false),
                 Op::Stage(Stage::Phone { .. } | Stage::Pause(_) | Stage::TrainArrive) => {}
                 Op::Stage(s) => {
                     self.begin_stage(s);

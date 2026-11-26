@@ -508,10 +508,11 @@ impl PersonLook {
                 bot: false,
                 tired: false,
             },
+            // Karolina, Lida's granddaughter: chestnut ponytail, cream sweater
             "player" => PersonLook {
                 skin: hex(0xe3ad88),
                 hair: hex(0x5b3b2a),
-                hair_style: HairStyle::Side,
+                hair_style: HairStyle::Ponytail,
                 top: hex(0xe8dcc6),
                 top_style: TopStyle::Sweater,
                 bottom: hex(0x34406b),

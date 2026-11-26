@@ -82,6 +82,8 @@ pub struct CafeScene {
     lights_target: f32,
     /// Cascade progress 0..1 (`None` = lamps follow `lights_target` directly).
     cascade: Option<(f32, f32)>,
+    /// The cascade switches lamps off (farthest first, the window lamp last).
+    cascade_off: bool,
     /// GPU resources, created on the first draw (keeps the logic usable without a window).
     statics: Option<StaticLayer>,
     low_walls: Vec<(Vec2, WallMask, WallKind)>,
@@ -144,6 +146,7 @@ impl CafeScene {
             lamp_order,
             lights_target: 1.0,
             cascade: None,
+            cascade_off: false,
             map,
             furniture,
             statics: None,
@@ -163,6 +166,7 @@ impl CafeScene {
     pub fn set_lights(&mut self, on: bool) {
         self.lights_target = if on { 1.0 } else { 0.0 };
         self.cascade = None;
+        self.cascade_off = false;
         for (i, l) in self.lamp.iter_mut().enumerate() {
             if self.lamp_order[i].is_some() {
                 *l = self.lights_target;
@@ -174,6 +178,14 @@ impl CafeScene {
     pub fn lights_cascade(&mut self, seconds: f32) {
         self.lights_target = 1.0;
         self.cascade = Some((0.0, seconds.max(0.1)));
+        self.cascade_off = false;
+    }
+
+    /// Switch the lamps off one by one over `seconds` (the window lamp last) — closing time.
+    pub fn lights_out(&mut self, seconds: f32) {
+        self.lights_target = 0.0;
+        self.cascade = Some((0.0, seconds.max(0.1)));
+        self.cascade_off = true;
     }
 
     /// Brightness 0..1 of a lamp standing at `origin` (world px). Lets the live café follow
@@ -187,7 +199,11 @@ impl CafeScene {
                 } else {
                     0.18 + 0.82 * (d / self.cascade_max_d).min(1.0)
                 };
-                ((p - at) * dur / 0.35).clamp(0.0, 1.0)
+                if self.cascade_off {
+                    1.0 - ((p - (1.0 - at)) * dur / 0.35).clamp(0.0, 1.0)
+                } else {
+                    ((p - at) * dur / 0.35).clamp(0.0, 1.0)
+                }
             }
             None => self.light_level(),
         }
@@ -210,7 +226,29 @@ impl CafeScene {
     }
 
     pub fn update(&mut self, dt: f32) {
-        if let Some((p, dur)) = &mut self.cascade {
+        if let Some((p, dur)) = &mut self.cascade
+            && self.cascade_off
+        {
+            *p += dt / *dur;
+            let p = *p;
+            for (i, l) in self.lamp.iter_mut().enumerate() {
+                if let Some(at) = self.lamp_order[i]
+                    && p >= 1.0 - at
+                {
+                    *l = (*l - dt / 0.35).max(0.0);
+                }
+            }
+            let order = &self.lamp_order;
+            let dark = self
+                .lamp
+                .iter()
+                .enumerate()
+                .all(|(i, l)| order[i].is_none() || *l <= 0.0);
+            if p >= 1.0 && dark {
+                self.cascade = None;
+                self.cascade_off = false;
+            }
+        } else if let Some((p, dur)) = &mut self.cascade {
             *p += dt / *dur;
             let p = *p;
             for (i, l) in self.lamp.iter_mut().enumerate() {
