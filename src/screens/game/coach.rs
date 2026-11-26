@@ -24,6 +24,7 @@ pub const STEPS: &[(&str, u32, bool)] = &[
     // night 1 (solo, rain)
     ("light_window", 1, false),
     ("machine", 1, false),
+    ("checklist_open", 1, false),
     ("greet", 1, false),
     ("take_order", 1, false),
     ("pick_recipe", 1, false),
@@ -33,6 +34,7 @@ pub const STEPS: &[(&str, u32, bool)] = &[
     ("clear_table", 1, false),
     ("moment", 1, false),
     ("speed", 1, false),
+    ("checklist_close", 1, false),
     ("closing", 1, false),
     ("journal", 1, false),
     // day 2 and night 2
@@ -54,10 +56,11 @@ pub const STEPS: &[(&str, u32, bool)] = &[
     ("garlands", 21, false),
 ];
 
-/// The steps the night-1 count shows ("TUTORIAL · 3/13").
+/// The steps the night-1 count shows ("TUTORIAL · 3/15").
 pub const NIGHT1: &[&str] = &[
     "light_window",
     "machine",
+    "checklist_open",
     "greet",
     "take_order",
     "pick_recipe",
@@ -67,6 +70,7 @@ pub const NIGHT1: &[&str] = &[
     "clear_table",
     "moment",
     "speed",
+    "checklist_close",
     "closing",
     "journal",
 ];
@@ -184,6 +188,10 @@ fn trigger(g: &GameScreen, content: &crate::content::Content, id: &str) -> bool 
     match id {
         "light_window" => night && !g.world.window_light_on(content),
         "machine" => after("light_window") && night && checklist_open(g, "coffee_warmup"),
+        // the opening list as a whole: the rest of the ritual lives in the Shiftella app
+        "checklist_open" => after("machine") && night && !busy,
+        // the closing list, before the handover note at 05:45
+        "checklist_close" => !busy && night && g.world.minute() >= 440,
         "greet" => night && mirek(g).is_some_and(|(_, p)| !p.greeted),
         "take_order" => after("greet") && night && mirek(g).is_some(),
         "pick_recipe" => after("take_order") && g.hands.order.is_some(),
@@ -248,6 +256,10 @@ fn finished(
                     .any(|c| c.id == "light_window" && c.claim.is_some())
         }
         "machine" => !checklist_open(g, "coffee_warmup"),
+        "checklist_open" => age > 10.0 || g.panel == Some(Panel::App),
+        "checklist_close" => {
+            age > 12.0 || g.panel == Some(Panel::App) || g.world.phase() != Phase::Night
+        }
         // optional: a few seconds unanswered is fine too
         "greet" => more("greeted") || mirek(g).is_none_or(|(_, p)| p.greeted) || age > 9.0,
         "take_order" => {
@@ -367,6 +379,9 @@ fn target(
         "garlands" => marker_rect(g, ui, "m_hang_garlands"),
         "speed" => anchor(g, "hud.lull"),
         "closing" => anchor(g, "app.handover").or_else(|| anchor(g, "dock.app")),
+        "checklist_open" | "checklist_close" => {
+            anchor(g, "app.checklist").or_else(|| anchor(g, "dock.app"))
+        }
         "journal" => anchor(g, "summary.polaroid"),
         "book" => anchor(g, "dock.book"),
         "experiment" => anchor(g, "book"),

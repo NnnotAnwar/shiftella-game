@@ -1757,6 +1757,8 @@
     "tutorial.build.body": "Stavba (B): vyber kus, klikni do kavárny. R otočí, X bourá, Ctrl+Z vrátí. Lampy, rostliny a koberec hosty potěší.",
     "tutorial.build.title": "Zútulni sál (nepovinné)",
     "tutorial.cat": "Nádražní kocour. Hlídá tyhle dveře déle než já.",
+    "tutorial.checklist_close": "Čas pořádně zavřít: nádobí, kávovar, pokladna, lednice (T). Po poctivém zavření je zítřejší otevření dvakrát rychlejší.",
+    "tutorial.checklist_open": "Zbytek otevíracích rituálů mám v Shiftelle (T) — fajfky na lampě, lednici, pokladně. Všechno do 22:30 a kavárna je připravená.",
     "tutorial.clear_table": "Šálky samy ke dřezu nedojdou.",
     "tutorial.closing": "Vzkaz pro zítřejší já, a v šest zhasnout.",
     "tutorial.crew.body": "Otevři Personál (C). Dole jsou uchazeči — baristka nebo barista se hodí hned první noc. Jedno kliknutí na Najmout.",
