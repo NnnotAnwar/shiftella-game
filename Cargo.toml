@@ -8,7 +8,7 @@ macroquad = { version = "0.4", features = ["audio"] }
 ron = "0.10"
 serde = { version = "1.0.229", features = ["derive"] }
 
-# Зависимости (macroquad, декодер звука) собираем с оптимизацией даже в dev-режиме:
-# иначе загрузка музыки и FPS в `cargo run` заметно медленнее. Наш код остаётся быстрым в сборке.
+# Build dependencies (macroquad, the audio decoder) optimized even in the dev profile:
+# otherwise music loading and FPS in `cargo run` are much slower. Our own crate still builds fast.
 [profile.dev.package."*"]
 opt-level = 3
