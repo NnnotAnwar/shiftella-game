@@ -1631,3 +1631,9 @@ Extra acceptance for the new sections:
 * Every night produces exactly one kept polaroid; the 30 journal entries re-render after load.
 * Auto-fill keeps every Need when coverage allows; a happy week is reachable with the story crew.
 * Every checklist item, request answer and bot button has a visible effect within the same or next night.
+
+## 16. Integration notes collected by the lead
+- Polaroid captions must wrap/shrink inside the frame (one caption overflowed the right border in the T3 demo).
+- Render `SnapActor` takes a render `PersonLook`: map the sim's `LookRef` (seed / preset) to it.
+- Content must give each recipe a `CupGlyph` family and map `Taste` → render `TasteIcon`.
+- T6 (UI widgets) runs on mock data; T7 wires them. Mini-games: disable WASD camera while one is open.
