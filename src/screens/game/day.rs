@@ -10,7 +10,10 @@ use crate::ui::{Align, Button, Glass, Icon, RectExt, Ui, draw_icon};
 use sim::Mode;
 
 pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
-    if g.panel == Some(super::Panel::App) || g.panel == Some(super::Panel::Priorities) {
+    if matches!(
+        g.panel,
+        Some(super::Panel::App | super::Panel::Priorities | super::Panel::Build)
+    ) {
         // keep the screen clear for the big panels; the Start button lives in the dock row
         start_button_only(g, ui, cx);
         return;

@@ -560,7 +560,14 @@ impl MainMenu {
             let on = self.lang_sel == i;
             let hk = ui.ease_value(id.with("on"), if on { 1.0 } else { 0.0 }, 0.07);
             let r = r.translate(vec2(0.0, -hk * 4.0));
-            ui.glass(r, &Glass::card().solid().radius(14.0));
+            // raised, opaque glass: the lit sign behind must not show through the text
+            ui.glass(
+                r,
+                &Glass::card()
+                    .solid()
+                    .radius(14.0)
+                    .elevation(crate::ui::Elevation::Low),
+            );
             if hk > 0.01 {
                 crate::ui::draw::push_alpha(hk);
                 crate::ui::draw::glow_circle(r.center(), cw * 0.75, with_a(th.indigo, 0.16));
@@ -872,9 +879,15 @@ impl MainMenu {
             Some(Icon::Moon),
         );
         let cdesc = loc.tr_owned(&format!("sandbox.character.{cid}.desc"));
-        let cd = ui.fonts.ellipsize(&cdesc, cw, &hs).to_string();
-        ui.fonts.draw(&cd, cx, y + 46.0, &hs);
-        y += 62.0;
+        // two lines at most (long in cs / uk), never cut mid-sentence on one line
+        let used = ui.fonts.draw_wrapped(
+            &cdesc,
+            Rect::new(cx, y + 34.0, cw, 32.0),
+            &hs,
+            Align::Left,
+            Some(2),
+        );
+        y += 48.0 + used.max(hs.line_h());
 
         // start money
         label(ui, y, loc.tr("ui.sandbox.start_money"));
