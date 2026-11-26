@@ -1,5 +1,6 @@
 // Guest archetypes (pools). Keys: guest.<id>.name / guest.<id>.desc.
 // hour_weights: 8 values for 22,23,00,01,02,03,04,05 o'clock. weekday_mult: Mon..Sun (optional).
+// music_likes / music_dislikes: jukebox records (records.ron); weather_mult: arrival × per weather (SHOULD).
 // institution: sandbox town feature that enables the pool (story: taxi rank, hospital, college around Praha-Holešovice).
 #![enable(implicit_some)]
 [
@@ -9,6 +10,7 @@
         favourites: ["black_coffee", "topinka", "cappuccino", "chlebicek", "kolac"],
         patience_minutes: 12.0, spend_mult: 1.0, tip_chance: 0.2,
         group: (1, 3), stay_minutes: (15, 40),
+        music_likes: ["rec_bossa_rain"], weather_mult: [(Downpour, 1.3), (Rain, 1.3)],
         look: (body: "average", hair: ["short", "long", "bob", "beanie"], hair_colors: ["#2E2226", "#7A4A2E", "#C9A46B", "#B9B4C4"],
                outfit: "raincoat", outfit_colors: ["#3D3A5C", "#5B4B8A", "#2F4858", "#6B4E3D"], accessories: ["suitcase", "umbrella"]),
     ),
@@ -19,6 +21,7 @@
         patience_minutes: 5.0, spend_mult: 0.9, tip_chance: 0.4,
         group: (1, 2), stay_minutes: (5, 15),
         institution: "taxi_rank",
+        music_likes: ["rec_prague_swing"], weather_mult: [(Rain, 1.2), (Fog, 0.8)],
         look: (body: "broad", hair: ["short", "bald", "cap"], hair_colors: ["#2E2226", "#B9B4C4"],
                outfit: "jacket", outfit_colors: ["#2B2A3A", "#4A3B2E"], accessories: ["cap"]),
     ),
@@ -29,6 +32,7 @@
         patience_minutes: 6.0, spend_mult: 1.0, tip_chance: 0.3,
         group: (1, 3), stay_minutes: (10, 25), review_mult: 1.5,
         institution: "hospital",
+        music_likes: ["rec_folk_lullaby"],
         look: (body: "average", hair: ["bun", "ponytail", "short"], hair_colors: ["#2E2226", "#7A4A2E", "#C9A46B"],
                outfit: "scrubs", outfit_colors: ["#5EC4B6", "#7C9CE0", "#A78BFA"], accessories: []),
     ),
@@ -39,6 +43,7 @@
         patience_minutes: 20.0, spend_mult: 0.6, tip_chance: 0.1,
         group: (1, 4), stay_minutes: (60, 180),
         institution: "college",
+        music_likes: ["rec_bossa_rain", "rec_synth_2039"], weather_mult: [(Rain, 0.9)],
         look: (body: "slim", hair: ["curly", "bob", "long", "beanie", "buzz"], hair_colors: ["#2E2226", "#C9B8E8", "#7A4A2E", "#E0A96D"],
                outfit: "hoodie", outfit_colors: ["#6366F1", "#7C3AED", "#2F4858", "#8A5A44"], accessories: ["laptop", "headphones"]),
     ),
@@ -48,6 +53,7 @@
         favourites: ["lemon_tea", "kolac", "medovnik", "chai"],
         patience_minutes: 18.0, spend_mult: 0.7, tip_chance: 0.3,
         group: (1, 1), stay_minutes: (40, 120),
+        music_likes: ["rec_piano_trio", "rec_folk_lullaby", "rec_cafe_waltz"], weather_mult: [(Fog, 1.4), (Rain, 1.2)],
         look: (body: "average", hair: ["grey_short", "bun", "bald", "short"], hair_colors: ["#B9B4C4", "#8E8899", "#5A4A40"],
                outfit: "cardigan", outfit_colors: ["#5B4B8A", "#6B5B4E", "#3D3A5C"], accessories: ["crossword", "glasses", "scarf"]),
     ),
@@ -67,6 +73,7 @@
         patience_minutes: 9.0, spend_mult: 1.1, tip_chance: 0.3,
         group: (1, 2), stay_minutes: (15, 45), uses_shiftella: true,
         institution: "drone_hub",
+        music_likes: ["rec_synth_2039"], weather_mult: [(Storm, 0.6), (Fog, 0.8)],
         look: (body: "slim", hair: ["buzz", "bob", "ponytail"], hair_colors: ["#2E2226", "#A5B4FC", "#7A4A2E"],
                outfit: "jacket", outfit_colors: ["#2E3A59", "#4F46E5", "#3A3A3A"], accessories: ["drone_controller", "headphones"]),
     ),
@@ -88,6 +95,7 @@
         patience_minutes: 7.0, spend_mult: 1.3, tip_chance: 0.25,
         group: (2, 6), stay_minutes: (20, 50),
         institution: "culture_house",
+        music_likes: ["rec_prague_swing"], music_dislikes: ["rec_folk_lullaby"], weather_mult: [(Downpour, 0.6), (Rain, 0.8), (Snow, 0.7)],
         look: (body: "slim", hair: ["long", "curly", "bob", "buzz"], hair_colors: ["#C9B8E8", "#E86A92", "#2E2226", "#F2D16B"],
                outfit: "jacket", outfit_colors: ["#7C3AED", "#A78BFA", "#1B1A2E"], accessories: ["headphones"]),
     ),
@@ -117,6 +125,7 @@
         favourites: ["lemon_tea", "hot_chocolate"],
         patience_minutes: 60.0, spend_mult: 1.0, tip_chance: 0.6,
         group: (1, 1), stay_minutes: (30, 90),
+        music_likes: ["rec_piano_trio"], weather_mult: [(Fog, 1.4), (Downpour, 1.3)],
         look: (body: "slim", hair: ["long", "grey_short"], hair_colors: ["#C9B8E8", "#B9B4C4"],
                outfit: "coat", outfit_colors: ["#3D3A5C", "#5B5670"], accessories: ["umbrella"]),
     ),

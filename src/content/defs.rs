@@ -7,7 +7,7 @@
 use std::cmp::Ordering;
 use std::fmt;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use super::logic::{Condition, Effect};
 
@@ -16,7 +16,7 @@ use super::logic::{Condition, Effect};
 // ---------------------------------------------------------------------------------------------
 
 /// A kind of work. Skills use the same five values (see [`Skill`]).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord, Deserialize, Serialize)]
 pub enum Job {
     Bar,
     Kitchen,
@@ -99,8 +99,8 @@ impl Need {
 /// Ordering follows the *night*: the "game day" starts at 12:00, so
 /// `21:50 < 22:00 < 23:59 < 00:00 < 03:33 < 06:00`. Times before 22:00 belong to the
 /// day-planning phase that precedes the night.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
-#[serde(try_from = "String")]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
+#[serde(try_from = "String", into = "String")]
 pub struct ClockTime {
     /// Minute of the day, 0..1440.
     pub minute_of_day: u16,
@@ -175,6 +175,12 @@ impl TryFrom<String> for ClockTime {
     }
 }
 
+impl From<ClockTime> for String {
+    fn from(t: ClockTime) -> String {
+        t.to_string()
+    }
+}
+
 impl PartialOrd for ClockTime {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.cmp(other))
@@ -193,7 +199,7 @@ impl fmt::Display for ClockTime {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum Weather {
     Clear,
     Rain,
@@ -230,7 +236,7 @@ impl Weather {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum Season {
     Spring,
     Summer,
@@ -238,7 +244,7 @@ pub enum Season {
     Winter,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum Weekday {
     Mon,
     Tue,
@@ -286,7 +292,7 @@ impl Weekday {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize, Serialize)]
 pub enum GameMode {
     Story,
     Sandbox,
@@ -566,6 +572,12 @@ pub struct StaffArchetype {
     /// Name pools the generator draws from (ids of [`NamePool`]).
     pub name_pools: Vec<String>,
     pub look: Look,
+    /// Hands-on: the duty the hire card proposes (one click accepts it).
+    #[serde(default)]
+    pub default_duty: Option<super::handson::Duty>,
+    /// Hands-on: the story person's rozpis preferences (1–3; quotes are i18n keys).
+    #[serde(default)]
+    pub prefs: Vec<super::handson::Pref>,
 }
 
 fn default_spread() -> f32 {
@@ -611,7 +623,7 @@ pub struct StaffFile {
 // Menu
 // ---------------------------------------------------------------------------------------------
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub enum MenuCategory {
     Drink,
     Food,
@@ -703,6 +715,15 @@ pub struct GuestArchetype {
     #[serde(default = "one_f")]
     pub review_mult: f32,
     pub look: Look,
+    /// Hands-on: jukebox record ids they like (+satisfaction while playing).
+    #[serde(default)]
+    pub music_likes: Vec<String>,
+    /// Hands-on: record ids they dislike (−satisfaction, gentle).
+    #[serde(default)]
+    pub music_dislikes: Vec<String>,
+    /// Hands-on (SHOULD): arrival multiplier per weather (missing = 1.0).
+    #[serde(default)]
+    pub weather_mult: Vec<(Weather, f32)>,
 }
 
 fn one_f() -> f32 {
@@ -719,6 +740,14 @@ impl GuestArchetype {
     /// Arrival weight for an opening hour index (see [`ClockTime::open_hour_index`]).
     pub fn weight_at(&self, hour_index: usize) -> f32 {
         self.hour_weights.get(hour_index).copied().unwrap_or(0.0)
+    }
+    /// Arrival multiplier for a weather (1.0 when not listed).
+    pub fn weather_mul(&self, weather: Weather) -> f32 {
+        self.weather_mult
+            .iter()
+            .find(|(w, _)| *w == weather)
+            .map(|(_, m)| *m)
+            .unwrap_or(1.0)
     }
 }
 
@@ -865,6 +894,13 @@ pub struct FurnitureDef {
     /// Wear per night of use, 0–1 (appliances; `coffee_machine` event when > 0.5).
     #[serde(default)]
     pub wear_per_night: f32,
+    /// Stops working during a power outage (the jukebox).
+    #[serde(default)]
+    pub needs_power: bool,
+    /// Render variant hint for pieces that reuse a contract sprite (`fairy_lights` on a
+    /// `pendant_lamp`); the render draws `sprite` when it doesn't know the skin.
+    #[serde(default)]
+    pub skin: Option<String>,
 }
 
 impl FurnitureDef {

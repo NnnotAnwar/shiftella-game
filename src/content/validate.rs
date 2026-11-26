@@ -11,6 +11,9 @@ use super::world::EventTrigger;
 use super::{Content, MUSIC_TRACKS, SFX_IDS};
 use crate::i18n::{I18n, Lang, placeholders};
 
+#[path = "validate_handson.rs"]
+mod hands;
+
 /// UI keys the content module itself relies on (units, enums).
 fn builtin_keys() -> Vec<String> {
     let mut keys: Vec<String> = Job::ALL
@@ -158,6 +161,7 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
             _ => {}
         });
     }
+    keys.extend(hands::required_keys(c));
     let mut seen = HashSet::new();
     keys.retain(|k| seen.insert(k.clone()));
     keys
@@ -434,7 +438,7 @@ pub(super) fn validate(c: &Content, i18n: &I18n) -> Vec<String> {
             ));
         }
         for t in &f.tags {
-            if !ix.tags.contains(t.as_str()) {
+            if !ix.tags.contains(t.as_str()) && !t.starts_with("theme:") {
                 out.push(format!("{ctx}: unknown tag `{t}`"));
             }
         }
@@ -853,6 +857,9 @@ pub(super) fn validate(c: &Content, i18n: &I18n) -> Vec<String> {
             c.sandbox.default_character
         ));
     }
+
+    // --- hands-on -------------------------------------------------------------------------
+    hands::validate(c, i18n, &ix, &mut out);
 
     // --- i18n -----------------------------------------------------------------------------
     for key in required_keys(c) {

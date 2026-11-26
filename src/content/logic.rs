@@ -10,12 +10,12 @@
 //! * `items: HashSet<String>` — story items (declared in `story.ron` → `items`).
 //! * `notes_found: HashSet<String>`.
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use super::defs::{ClockTime, GameMode, Job, Season, Weather, Weekday};
 
 /// A predicate over game state. A list `Vec<Condition>` means **all** must hold (empty = true).
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub enum Condition {
     // --- calendar & clock -----------------------------------------------------------------
     /// Night number ≥ n (story: 1..=30; sandbox: nights played).
@@ -142,7 +142,7 @@ pub enum Condition {
 }
 
 /// Something that happens. Durations in **game minutes**; `None` = until the end of the night.
-#[derive(Debug, Clone, PartialEq, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub enum Effect {
     // --- money & reputation --------------------------------------------------------------
     /// Add (or subtract) CZK.

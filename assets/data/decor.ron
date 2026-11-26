@@ -1,0 +1,53 @@
+// Decor themes for the hall and the coziness formula (design/handson.md §11.2–11.3).
+// Keys: theme.<id>.name/.desc, atmo.component.<c>, atmo.tip.<c>, atmo.level.<1..5>.
+// A theme is bought once in Build → Theme and switched for free in the Day phase only.
+// Accent pieces carry the furniture tag `theme:<id>`; a matching piece adds coziness (accent_bonus, max accent_max).
+#![enable(implicit_some)]
+(
+    themes: [
+        (id: "grandma_original", default: true, price: 0, coziness: 6.0, wall_pattern: RoseStripe,
+         tints: (wall: "#E7CFC4", wall_trim: "#8A5A44", floor: "#B07A4F", textile: "#F3E7DA", lampshade: "#F6D49A", lamp_warmth: 0.2),
+         perks: [MissedBy(regular: "vera", key: "theme.grandma_original.missed", until_night: 14)]),
+        (id: "art_nouveau", price: 6000, coziness: 5.0, wall_pattern: SecessionMosaic,
+         unlock: When([Any([ReputationAtLeast(50.0), TipsLifetimeAtLeast(3000)])]), sandbox_night: 12,
+         tints: (wall: "#B9C4A7", wall_trim: "#B08D3C", floor: "#6E4B32", textile: "#7C8C5E", lampshade: "#E8C77A", lamp_warmth: 0.15),
+         accent_tag: "theme:art_nouveau", perks: [BeautyPerLamp(1.0)]),
+        (id: "station_retro", price: 4000, coziness: 4.0, wall_pattern: Wainscot,
+         unlock: When([Any([HasItem("timetable_1979"), NightAtLeast(18)])]), sandbox_night: 8,
+         tints: (wall: "#E9E1C8", wall_trim: "#2F5D4A", floor: "#8A6A4A", textile: "#2F5D4A", lampshade: "#F3E7C9", lamp_warmth: 0.1),
+         accent_tag: "theme:station_retro",
+         perks: [RegularTrustOnEnter(regulars: ["radek", "mirek"], add: 1.0)]),
+        (id: "nocturne_2039", price: 5000, coziness: 4.0, wall_pattern: HoloLines,
+         unlock: When([ArcAtLeast("filip", 3)]), sandbox_night: 10,
+         tints: (wall: "#2A2547", wall_trim: "#6366F1", floor: "#3A3350", textile: "#7C3AED", lampshade: "#A5B4FC", lamp_warmth: -0.1),
+         accent_tag: "theme:nocturne_2039",
+         perks: [ArchetypeSatisfaction(archetypes: ["students", "drone_operators"], add: 2.0)]),
+        // seasonal: unlocked by hanging grandma's garlands (m_hang_garlands)
+        (id: "winter_lights", price: 0, coziness: 2.0, coziness_in: [("advent", 8.0), ("first_snow", 8.0)],
+         wall_pattern: GarlandSwag, unlock: Granted,
+         tints: (wall: "#EFE4D2", wall_trim: "#A8323E", floor: "#9A6B45", textile: "#B5475B", lampshade: "#FFE3A3", lamp_warmth: 0.25)),
+    ],
+    coziness: (
+        weights: [(Light, 20.0), (Beauty, 20.0), (Comfort, 15.0), (Clean, 20.0), (Music, 10.0), (Theme, 10.0), (Touches, 5.0)],
+        window_light_bonus: 2.0,
+        beauty_per_tile: 0.35,
+        comfort_div: 6.0,
+        dishes_penalty: 0.05,
+        music: (off: 0.0, house: 6.0, record: 10.0),
+        theme_div: 10.0,
+        accent_bonus: 1.0,
+        accent_max: 2.0,
+        // points out of the Touches weight
+        touches: [(CatLevel(4), 2.0), (GarlandsInSeason, 2.0), (Plants(4), 1.0), (Furniture("napkin_wall"), 1.0)],
+        mood_bonus: [(Calm, 3.0), (Tender, 4.0)],
+        effects: (
+            satisfaction_center: 50.0, satisfaction_per: 0.12,
+            patience: (base: 0.9, div: 250.0),
+            stay: (base: 0.9, div: 500.0),
+            tips: (base: 0.96, div: 1250.0),
+        ),
+        // Bare < 20 · Plain < 40 · Pleasant < 60 · Cosy < 80 · Like home
+        levels: [20.0, 40.0, 60.0, 80.0],
+        every_minutes: 1,
+    ),
+)

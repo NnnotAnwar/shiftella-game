@@ -1,0 +1,657 @@
+# The café over time (design/handson.md §6, §10, §11): jukebox records, seasons and the story
+# calendar, decor themes, reward furniture, the station cat, polaroid journal captions, napkins,
+# regulars' rituals. English placeholder texts in every language until T9 (see handson_TODO.txt).
+
+# --- records (§10.2) -------------------------------------------------------------------------------
+record.rec_prague_swing.title
+* Holešovice Swing, 1938
+
+record.rec_prague_swing.artist
+* The Tram Twelve Band — clarinet & brushes
+
+record.rec_piano_trio.title
+* Last Tram Trio
+
+record.rec_piano_trio.artist
+* Vltava Night Trio
+
+record.rec_bossa_rain.title
+* Bossa for a Rainy Platform
+
+record.rec_bossa_rain.artist
+* Lina Morais & friends
+
+record.rec_folk_lullaby.title
+* Kolyskova — Carpathian Lullabies
+
+record.rec_folk_lullaby.artist
+* bandura, cimbalom & accordion
+
+record.rec_folk_lullaby.hint
+* Someone from far away might bring one.
+
+record.rec_folk_lullaby.source
+* Oleh brought it from Lviv: "My grandmother's. It should play somewhere."
+
+record.rec_synth_2039.title
+* Holešovice 2039
+
+record.rec_synth_2039.artist
+* SLEEPER CAR
+
+record.rec_synth_2039.hint
+* A record that hasn't been made yet.
+
+record.rec_synth_2039.source
+* Filip cut it himself, in his room, at four in the morning.
+
+record.rec_cafe_waltz.title
+* Lida's Waltz
+
+record.rec_cafe_waltz.artist
+* a handwritten label: "Pro J."
+
+record.rec_cafe_waltz.hint
+* Grandma kept one record apart.
+
+record.rec_cafe_waltz.source
+* Found in an empty sleeve in the storeroom. The label says "Pro J." in grandma's hand.
+
+record.rec_prague_swing.liked.mirek
+* Ha! We danced to this at the depot party. 1987, I think.
+
+record.rec_prague_swing.liked.radek
+* Swing! The trams used to run on this rhythm.
+
+record.rec_piano_trio.liked.radek
+* Now that's music for a dispatcher. Everything on time.
+
+record.rec_piano_trio.liked.guest_anwar
+* …this one's nice to work to.
+
+record.rec_bossa_rain.liked.lori
+* Oh, that chord. Turn it up a little, would you?
+
+record.rec_bossa_rain.disliked.mirek
+* Too much samba for a Czech night, eh?
+
+record.rec_folk_lullaby.liked.hana
+* My mum sang that. I'd forgotten.
+
+record.rec_folk_lullaby.liked.vera
+* Hm. Lida used to hum this one. Badly.
+
+record.rec_synth_2039.liked.filip
+* Wait — is that my track? In here? I'm going to cry.
+
+record.rec_synth_2039.liked.guest_anwar
+* That's a good loop.
+
+record.rec_synth_2039.disliked.vera
+* That's not music, that's a fridge.
+
+record.rec_cafe_waltz.liked.vera
+* She played this every New Year's Eve. Every single one.
+
+record.rec_cafe_waltz.liked.mirek
+* …I haven't heard that in a long time, Karolina.
+
+record.rec_cafe_waltz.liked.guest_333
+* He hums along, very quietly.
+
+# --- seasons (§11.1) ------------------------------------------------------------------------------------
+season.late_autumn.name
+* Late autumn
+
+season.late_autumn.toast
+* Wet leaves on the doorstep. Autumn has settled in.
+
+season.frost.name
+* Frost
+
+season.frost.toast
+* Frost in the window corners this morning.
+
+season.advent.name
+* Advent
+
+season.advent.toast
+* Advent. Grandma would be getting out the box by now.
+
+season.first_snow.name
+* First snow
+
+season.first_snow.toast
+* Snow on the roofs of Holešovice.
+
+season.spring.name
+* Spring
+
+season.spring.toast
+* Spring rain, and petals stuck to the window.
+
+season.summer.name
+* Summer
+
+season.summer.toast
+* Warm nights. The windows stay open.
+
+# --- the story calendar (story.ron → calendar) ---------------------------------------------------------
+calendar.advent_1
+* First Sunday of Advent
+
+calendar.first_snow
+* The first snow
+
+calendar.advent_2
+* Second Sunday of Advent
+
+calendar.mikulas
+* St Nicholas' Eve
+
+calendar.last_night
+* The thirtieth night
+
+# --- decor themes (§11.2) ------------------------------------------------------------------------------
+theme.grandma_original.name
+* Grandma's original
+
+theme.grandma_original.desc
+* Faded rose-stripe wallpaper, honey-coloured wood, lace and amber lamps. Exactly as Lida left it.
+
+theme.grandma_original.missed
+* Lida's wallpaper… you changed it. Well. It's your café now.
+
+theme.art_nouveau.name
+* Prague Art Nouveau
+
+theme.art_nouveau.desc
+* A sage-and-gold mosaic band, brass lamps and curved trims, like an old Secession café.
+
+theme.station_retro.name
+* Station Retro
+
+theme.station_retro.desc
+* Cream and bottle-green paint, enamel signs and a timetable board — the 1979 railway buffet.
+
+theme.nocturne_2039.name
+* Nocturne 2039
+
+theme.nocturne_2039.desc
+* Indigo holo accents, warm LED strips and a touch of Shiftella violet.
+
+theme.winter_lights.name
+* Winter Lights
+
+theme.winter_lights.desc
+* White-gold fairy lights, red ribbons and spruce. Cosiest in Advent.
+
+# --- reward decor and theme accents ---------------------------------------------------------------------
+furniture.fairy_lights.name
+* Fairy lights
+
+furniture.fairy_lights.desc
+* A string of tiny warm lights. Paid for by a jar of tips.
+
+furniture.lace_tablecloth.name
+* Table with grandma's lace
+
+furniture.lace_tablecloth.desc
+* A small table under one of Lida's lace tablecloths.
+
+furniture.record_shelf.name
+* Record shelf
+
+furniture.record_shelf.desc
+* A shelf for sleeves and stories. Music lovers linger by it.
+
+furniture.cat_bed.name
+* Cat bed
+
+furniture.cat_bed.desc
+* A round cushion by the radiator. Someone will claim it.
+
+furniture.brass_bell.name
+* Brass espresso bell
+
+furniture.brass_bell.desc
+* Ding. The sound of a coffee being ready, since 1979.
+
+furniture.napkin_wall.name
+* Napkin wall
+
+furniture.napkin_wall.desc
+* Thank-you napkins pinned in a frame. Every one a small night.
+
+furniture.lamp_brass.name
+* Brass pendant lamp
+
+furniture.lamp_brass.desc
+* Curved brass and warm glass, in the Art Nouveau style.
+
+furniture.mosaic_rug.name
+* Mosaic rug
+
+furniture.mosaic_rug.desc
+* A rug with a sage-and-gold Secession pattern.
+
+furniture.enamel_sign.name
+* Enamel station sign
+
+furniture.enamel_sign.desc
+* "Bufet" in white on bottle green. Rescued from an old platform.
+
+furniture.led_strip.name
+* LED strip lamp
+
+furniture.led_strip.desc
+* A slim column of warm indigo light.
+
+# --- the station cat (§6.2) -------------------------------------------------------------------------------
+cat.level.0
+* A stranger at the door
+
+cat.level.2
+* The cat sits on the doormat now.
+
+cat.level.3
+* The cat watches the milk jug. Maybe a cat face in the foam?
+
+cat.level.4
+* The cat came inside and fell asleep under the radiator.
+
+cat.level.6
+* The cat has its own spot on the window seat.
+
+cat.level.8
+* The cat follows you around. It works here now.
+
+cat.level.10
+* The cat is family.
+
+cat.level_up
+* The station cat: {level}
+
+cat.name.vlak
+* Vlak
+
+cat.name.kofi
+* Kofi
+
+cat.name.lidka
+* Lidka
+
+# --- polaroid journal (§11.4) --------------------------------------------------------------------------------
+journal.title
+* Journal
+
+journal.empty
+* night {night}
+
+journal.keep
+* Keep this one
+
+journal.shake
+* Shake it a little
+
+journal.night
+* Night {night}
+
+journal.date
+* {day} {month} {year}
+
+journal.month.1
+* Jan
+
+journal.month.2
+* Feb
+
+journal.month.3
+* Mar
+
+journal.month.4
+* Apr
+
+journal.month.5
+* May
+
+journal.month.6
+* Jun
+
+journal.month.7
+* Jul
+
+journal.month.8
+* Aug
+
+journal.month.9
+* Sep
+
+journal.month.10
+* Oct
+
+journal.month.11
+* Nov
+
+journal.month.12
+* Dec
+
+journal.caption.guest_333
+* 3:33. The clock stopped, and he was there again.
+
+journal.caption.first_snow
+* The first snow, through grandma's window.
+
+journal.caption.mikulas
+* An angel, a devil and three hot chocolates.
+
+journal.caption.garlands_up
+* Grandma's garlands, up again.
+
+journal.caption.like_home
+* It felt like home tonight.
+
+journal.caption.perfect_serve
+* {name} said it was exactly right.
+
+journal.caption.cat_level
+* The cat stayed. I think it lives here now.
+
+journal.caption.full_house
+* Every chair taken. Grandma would have loved it.
+
+journal.caption.beautiful_latte
+* A {pattern} for {name}.
+
+journal.caption.record_loved
+* {name} hummed along to {record}.
+
+journal.caption.recipe_discovered
+* My own recipe: {recipe}.
+
+journal.caption.rozpis_happy
+* Everyone got the nights they wanted.
+
+journal.caption.anwar
+* A quiet guy with a laptop. Nice smile.
+
+journal.caption.quiet_night
+* A quiet night. Rain on the window.
+
+journal.caption.arc.mirek.1
+* Mirek let me pour his coffee. Like he used to let her.
+
+journal.caption.arc.mirek.2
+* Mirek squinting at the menu board. "It's the letters, not my eyes."
+
+journal.caption.arc.mirek.3
+* Mirek came on foot tonight. He looked younger for it.
+
+journal.caption.arc.mirek.4
+* Twenty grams, and a whole life. Mirek finally told me.
+
+journal.caption.arc.mirek.5
+* Mirek, deciding. I didn't rush him.
+
+journal.caption.arc.hana.1
+* Hana laughed tonight: a baby girl called Lida.
+
+journal.caption.arc.hana.2
+* Hana asleep by the window. I let her be.
+
+journal.caption.arc.hana.3
+* Hana and her letter from Dresden.
+
+journal.caption.arc.hana.4
+* Hana decided. She looked lighter.
+
+journal.caption.arc.guest_333.1
+* Coins from 1979 on the saucer.
+
+journal.caption.arc.guest_333.2
+* "Still lit." He looked at the window, not at me.
+
+journal.caption.arc.guest_333.3
+* "I left once." The tea went cold in his hands.
+
+journal.caption.arc.guest_333.4
+* The last 3:33. The clocks started again.
+
+journal.caption.arc.vera.1
+* Vera and her crossword, recruiting the whole café.
+
+journal.caption.arc.vera.2
+* Vera inspected the table. It passed.
+
+journal.caption.arc.vera.3
+* Vera and grandma's kulajda. She closed her eyes on the first spoon.
+
+journal.caption.arc.vera.4
+* Vera's friends took over the corner. Loudly.
+
+journal.caption.arc.filip.1
+* Filip brought half his year to the socket table.
+
+journal.caption.arc.filip.2
+* Filip, very quiet, over a cold coffee.
+
+journal.caption.arc.filip.3
+* Filip before the resit. Fingers crossed, all of us.
+
+journal.caption.arc.filip.4
+* Filip got a B. The café cheered.
+
+journal.caption.arc.radek.1
+* Radek's warning came by text: the express is late. We were ready.
+
+journal.caption.arc.radek.2
+* Radek's last shift. He sat down for once.
+
+journal.caption.arc.radek.3
+* Radek and the snowdrifts of '85.
+
+journal.caption.arc.lori.1
+* Lori came in from the platform, guitar and all.
+
+journal.caption.arc.lori.2
+* Lori on the little stage. Almost a real one.
+
+journal.caption.arc.lori.3
+* Lori's Friday. The whole street listened.
+
+journal.caption.scene.opening
+* The first night. The keys were still cold.
+
+journal.caption.scene.mirek_first
+* Mirek, the very first regular.
+
+journal.caption.scene.guest333_first
+* 3:33. A man in an old coat ordered tea.
+
+journal.caption.scene.vera_recipe
+* Vera dictated, I wrote it down: kulajda.
+
+journal.caption.scene.lori_platform
+* Lori playing in the rain on platform two.
+
+journal.caption.scene.hana_asleep
+* Hana, finally asleep. The soup could wait.
+
+journal.caption.scene.radek_last_shift
+* The last whistle of Radek's career.
+
+journal.caption.scene.lori_evening
+* Lori's evening. Every chair, every window.
+
+journal.caption.scene.filip_cake
+* A cake for Filip, with one wonky candle.
+
+journal.caption.scene.mirek_letter
+* Mirek and the letter, at last.
+
+journal.caption.scene.final_night
+* The thirtieth night.
+
+journal.caption.moment.m_blackout_candles
+* The power went out. The candles didn't.
+
+journal.caption.moment.m_lost_traveller
+* A lost traveller, found. With three minutes to spare.
+
+journal.caption.moment.m_sleeping_guest
+* Someone asleep under grandma's blanket.
+
+journal.caption.moment.m_coffee_for_helper
+* A coffee for the crew, for once.
+
+journal.caption.moment.m_busker
+* A song under the awning, a tea in the rain.
+
+journal.caption.moment.m_tired_parent
+* Warm milk, and a little one asleep.
+
+journal.caption.moment.m_advent_candle
+* One more candle on the wreath.
+
+# --- regulars' rituals (§6.3, SHOULD) ----------------------------------------------------------------------
+ritual.mirek
+* Mirek taps the counter twice.
+
+ritual.vera
+* Vera straightens the sugar bowl.
+
+ritual.radek
+* Radek checks his watch at the door.
+
+ritual.hana
+* Hana rubs her eyes.
+
+ritual.filip
+* Filip looks for a socket.
+
+ritual.lori
+* Lori shakes the rain off her raincoat.
+
+ritual.guest_333
+* The 3:33 guest looks at the window.
+
+# --- thank-you napkins (§6.1, SHOULD) ------------------------------------------------------------------------
+thanks.g01
+* Thank you for the warm hands.
+
+thanks.g02
+* Best coffee between here and Adamov.
+
+thanks.g03
+* Caught my train! Thanks to you.
+
+thanks.g04
+* I came in sad. I'm leaving less sad.
+
+thanks.g05
+* The rain was nicer from your window.
+
+thanks.g06
+* You remembered I take it without sugar. Nobody remembers.
+
+thanks.g07
+* Same time tomorrow?
+
+thanks.g08
+* For the soup. And the quiet.
+
+thanks.g09
+* A good night after a bad day.
+
+thanks.g10
+* My shift was twelve hours. This made it eleven.
+
+thanks.g11
+* Say hi to the cat!
+
+thanks.g12
+* Thank you for not asking. And for the koláč.
+
+thanks.g13
+* Five stars. Six if the Wi-Fi worked.
+
+thanks.g14
+* I proposed here tonight. She said yes!
+
+thanks.g15
+* Next stop: home. Thank you for this one.
+
+thanks.g16
+* The best thing I tasted this year was at 3 a.m.
+
+thanks.g17
+* Drew this while waiting. Keep it.
+
+thanks.g18
+* You make strangers feel like regulars.
+
+thanks.g19
+* I'll tell my grandmother about your tea.
+
+thanks.g20
+* Stayed dry, stayed warm, stayed longer than I meant to.
+
+thanks.g21
+* The music was perfect. Who picks it?
+
+thanks.g22
+* That cup was exactly the right size of hug.
+
+thanks.g23
+* Night drivers' union says thanks.
+
+thanks.g24
+* The moon was out. So was your lamp.
+
+thanks.g25
+* A tip, and a secret: this is my favourite place.
+
+thanks.g26
+* The cat stole my napkin. This is the second one.
+
+thanks.g27
+* From the night ward, with tired love.
+
+thanks.g28
+* I'll be back when the snow comes.
+
+thanks.g29
+* Thank you for the window light. It helps, you know.
+
+thanks.g30
+* Stay open. Please.
+
+thanks.mirek.1
+* For the coffee. And for not asking. — M.
+
+thanks.mirek.2
+* She'd be proud. Don't make a fuss. — M.
+
+thanks.hana.1
+* You saved my night shift. Again. — H.
+
+thanks.hana.2
+* Twelve minutes of peace. Thank you. — H.
+
+thanks.vera.1
+* Acceptable. Very acceptable. — V. S.
+
+thanks.vera.2
+* The tea was proper. Tell nobody I said so. — V.
+
+thanks.filip.1
+* Passed! Partly your coffee's fault. — F.
+
+thanks.radek.1
+* The trains ran on time tonight. So did you. — R.
+
+thanks.lori.1
+* For the warm song you didn't know you sang. — L.
+
+thanks.guest_333.1
+* Děkuji.

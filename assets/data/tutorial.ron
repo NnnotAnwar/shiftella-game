@@ -1,0 +1,58 @@
+// Coach marks for nights 1–4 (+ two later one-offs), design/handson.md §8. Key: tutorial.<id>.
+// Never block input, never pause the clock; "Got it" dismisses; the whole tutorial is a setting.
+// Texts are Karolina's thoughts (voice: Karolina) or Lida's notes in amber italics (voice: Lida);
+// none starts with "Click". Widget ids: content::handson::TUTORIAL_WIDGETS (UI contract).
+#![enable(implicit_some)]
+[
+    // ------------------------------------------------------------------ night 1 (solo, rain)
+    (id: "light_window", night: 1, trigger: At("22:00"), anchor: Tag("window"), voice: Lida,
+     done_when: Event(WindowLightOn)),
+    (id: "machine", night: 1, trigger: After("light_window"), anchor: Tag("station:coffee"),
+     done_when: Event(MachineWarmed)),
+    // Mirek's scripted early visit
+    (id: "greet", night: 1, trigger: At("22:04"), anchor: Guest(Regular("mirek")), optional: true,
+     on_show: [SpawnRegular("mirek")], done_when: Event(Greeted)),
+    (id: "take_order", night: 1, trigger: After("greet"), anchor: Guest(Regular("mirek")),
+     done_when: Event(PlayerOrderTaken)),
+    (id: "pick_recipe", night: 1, trigger: After("take_order"), anchor: Widget("order.chip.0"),
+     done_when: Event(BrewChosen)),
+    (id: "pour_over", night: 1, trigger: After("pick_recipe"), anchor: Widget("minigame"),
+     done_when: Event(PlayerServed)),
+    (id: "quick_brew", night: 1, trigger: At("22:20"), anchor: Widget("order.mode"),
+     on_show: [GuestRush(guest: "travelers", count: (1, 1), within: 2, orders: ["cappuccino"])],
+     done_when: Event(QuickBrewChosen)),
+    (id: "tip_coin", night: 1, trigger: Event(TipLeft), anchor: Tag("table"), done_when: Event(TipCollected)),
+    (id: "clear_table", night: 1, trigger: After("tip_coin"), anchor: Tag("table"), done_when: Event(TableCleared)),
+    // the Os 2141 passes at 22:47
+    (id: "moment", night: 1, trigger: At("22:46"), anchor: Moment("m_fogged_window"),
+     on_show: [SpawnMoment("m_fogged_window")], done_when: Event(MomentResolved)),
+    (id: "speed", night: 1, trigger: Event(LullChip), anchor: Widget("hud.lull"), optional: true,
+     done_when: GotIt(seconds: 8.0)),
+    (id: "closing", night: 1, trigger: At("05:45"), anchor: Widget("app.handover"), done_when: Event(HandoverWritten)),
+    (id: "journal", night: 1, trigger: Event(PolaroidShown), anchor: Widget("summary.polaroid"),
+     done_when: GotIt(seconds: 10.0)),
+
+    // ------------------------------------------------------------------ night 2 (solo)
+    (id: "book", night: 2, trigger: At("21:00"), anchor: Widget("book"), voice: Lida, done_when: Event(BookOpened)),
+    (id: "experiment", night: 2, trigger: After("book"), anchor: Widget("book.pantry"), done_when: Event(RecipeDiscovered)),
+    (id: "jukebox", night: 2, trigger: At("22:10"), anchor: Furniture("jukebox"), done_when: Event(RecordChanged)),
+    (id: "wash", night: 2, trigger: Event(DishesStacked), anchor: Tag("sink"), done_when: Event(Washed)),
+    (id: "mop", night: 2, trigger: Event(DirtBlot), anchor: Free, done_when: Event(Mopped)),
+
+    // ------------------------------------------------------------------ night 3 (the first helper)
+    (id: "duties", night: 3, trigger: Event(HireCardShown), anchor: Widget("hire.card"), done_when: Event(DutySet)),
+    (id: "rozpis", night: 3, trigger: After("duties"), anchor: Widget("rozpis.prefs"), done_when: Event(SchedulePublished)),
+    (id: "rail", night: 3, trigger: Event(UnownedTicket), anchor: Widget("rail"), done_when: GotIt(seconds: 8.0)),
+    (id: "cat", night: 3, trigger: Event(CatArrived), anchor: Moment("m_station_cat"), done_when: Event(MomentResolved)),
+
+    // ------------------------------------------------------------------ night 4
+    (id: "usual", night: 4, trigger: Event(UsualOffered), anchor: Widget("order.usual"), done_when: Event(UsualChosen)),
+    (id: "atmosphere", night: 4, trigger: Event(AtmosphereLevel), anchor: Widget("hud.atmosphere"),
+     done_when: GotIt(seconds: 8.0)),
+
+    // ------------------------------------------------------------------ later one-offs
+    (id: "fairness", night: 8, trigger: Event(WellbeingShown), anchor: Widget("rozpis.wellbeing"),
+     done_when: GotIt(seconds: 10.0)),
+    (id: "garlands", night: 21, trigger: Event(GarlandsBox), anchor: Moment("m_hang_garlands"), voice: Lida,
+     done_when: Event(MomentResolved)),
+]

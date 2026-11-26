@@ -1,0 +1,436 @@
+# The Shiftella app as a real tool, the rozpis puzzle and the coach marks (design/handson.md §8, §12, §13).
+# English placeholder texts in every language until T9 (see handson_TODO.txt).
+
+# --- bot messages and buttons (§13.4) --------------------------------------------------------------
+app.bot.late_alert.action.ask_other
+* Ask someone to cover
+
+app.bot.sick_call.action.call_in
+* Ask someone to come in
+
+app.bot.sick_call.action.manage
+* We'll manage
+
+app.bot.payment_reminder.action.open_money
+* Open money & payroll
+
+app.bot.train_delay.action.get_ready
+* Get ready
+
+app.bot.train_delay.action.noted
+* Noted
+
+app.bot.regular_tonight
+* {name} usually comes around {time}. Their seat is free.
+
+app.bot.regular_tonight.action.reserve
+* Reserve the seat
+
+app.bot.regular_tonight.action.noted
+* Noted
+
+app.bot.regular_to_go
+* {name} passes at {time} — to go, fast.
+
+app.bot.regular_to_go.action.remind
+* Remind me 5 minutes before
+
+app.bot.regular_to_go.action.noted
+* Noted
+
+app.bot.low_stock
+* {item} is running low — {n} left.
+
+app.bot.low_stock.action.drone
+* Order by drone
+
+app.bot.low_stock.action.menu_off
+* Take it off tonight's menu
+
+app.bot.weather_alert
+* Downpour from {time} — more guests, wet floors.
+
+app.bot.weather_alert.action.umbrellas
+* Put out the umbrella stand
+
+app.bot.weather_alert.action.noted
+* Noted
+
+app.bot.cat_waiting
+* Someone with whiskers is at the door.
+
+app.bot.cat_waiting.action.look
+* Look
+
+app.bot.rozpis_happy
+* Everyone's happy with this week's rozpis.
+
+app.bot.rozpis_happy.action.thanks
+* Thanks!
+
+app.bot.looks_tired
+* {name} looks tired lately. Maybe go easy on the requests?
+
+app.bot.looks_tired.action.noted
+* Noted
+
+app.bot.manage_alone
+* {name}: "I'll manage."
+
+# --- checklists & rituals (§13.1) --------------------------------------------------------------------
+app.checklist.record_on
+* Put a record on
+
+app.ritual.opening
+* The café is ready.
+
+app.ritual.closing
+* Closed properly.
+
+# --- digest: helpers' credit and insights (§13.6) ------------------------------------------------------
+app.digest.helper_dishes
+* {name} washed {n} cups
+
+app.digest.helper_floor
+* {name} mopped {n} times
+
+app.digest.helper_register
+* {name} took {n} orders
+
+app.digest.helper_bar
+* {name} made {n} drinks
+
+app.digest.helper_kitchen
+* {name} cooked {n} plates
+
+app.digest.helper_serving
+* {name} carried {n} trays
+
+app.insight.busiest_hour
+* The busiest hour was {time}. Next {weekday} will probably be similar.
+
+app.insight.wishes
+* {n} wishes tonight, {perfect} of them perfect.
+
+app.insight.wish_loved
+* {name} loved the {recipe}.
+
+app.insight.unmet_taste
+* {n} guests wanted something {taste} — maybe something new in the pantry?
+
+app.insight.coziness
+* The hall was {level}; the weakest part: {weakest}.
+
+app.insight.helpers
+* {summary}
+
+app.insight.tips
+* Tips tonight: {tips}. Best rhythm: {streak} in a row.
+
+app.insight.trust
+* {name} trusts the café a little more.
+
+# --- handover suggestions (§13.5) -----------------------------------------------------------------------
+app.handover.option.low_stock
+* {item} is low.
+
+app.handover.option.machine_odd
+* The coffee machine sounded odd.
+
+app.handover.option.regular_tired
+* {name} seemed tired.
+
+app.handover.option.busy_after_train
+* Busy after the {time} train.
+
+app.handover.option.thank_crew
+* Great night — thank the crew.
+
+app.handover.option.table_wobbles
+* The window table wobbles.
+
+# --- payroll decision (§13.7) -----------------------------------------------------------------------------
+app.payroll.split.title
+* This week's tips
+
+app.payroll.split.cafe
+* All to the café
+
+app.payroll.split.half
+* Half to the crew
+
+app.payroll.split.crew
+* All to the crew
+
+app.payroll.star
+* Star of the week: {name} (+{amount})
+
+app.payroll.toil_row
+* {name}: {hours} h owed
+
+app.payroll.grant
+* Grant a night off next week
+
+app.payroll.send
+* Send to the accountant
+
+app.payroll.sent
+* Sent: {total}, of which tips to the crew {tips}.
+
+app.payroll.auto_sent
+* Last week's payroll went to the accountant on its own. All in order.
+
+# --- requests (§13.3) --------------------------------------------------------------------------------------
+app.request.barista_exam
+* {name}: "I've got an exam on {day}. Could I have that night off?"
+
+app.request.cashier_daughter
+* {name}: "My daughter's ill. Could I go at {time}?"
+
+app.request.early_leave
+* {name}: "Could I go at {time}?"
+
+app.request.manage
+* {name}: "I'll manage."
+
+app.request.tired
+* {name} looks tired.
+
+# --- the rozpis puzzle (§12) ----------------------------------------------------------------------------------
+rozpis.autofill
+* Auto-fill
+
+rozpis.autofill_result
+* Auto-fill kept {kept} of {total} wishes.
+
+rozpis.autofill_missed
+* {name}'s "{pref}" didn't fit {day}.
+
+rozpis.clear
+* Clear
+
+rozpis.coverage
+* {suggested} suggested, {on} on
+
+rozpis.busier
+* You'll be busier — more hands-on work.
+
+rozpis.tonight
+* Tonight
+
+rozpis.honoured
+* Honoured
+
+rozpis.violated
+* Not this week
+
+rozpis.need
+* Needs it
+
+rozpis.wish
+* Would like it
+
+rozpis.wellbeing
+* Wellbeing {n}
+
+rozpis.shift.early
+* Early
+
+rozpis.shift.late
+* Late
+
+rozpis.shift.full
+* Full
+
+rozpis.ring.happy
+* Happy
+
+rozpis.ring.fine
+* Fine
+
+rozpis.ring.tired
+* Tired
+
+rozpis.ring.stretched
+* Stretched
+
+rozpis.week.1
+* Rain, but cosy
+
+rozpis.week.2
+* Cloudy
+
+rozpis.week.3
+* Mostly sunny
+
+rozpis.week.4
+* Sunny
+
+pref.kind.day_off
+* {day} off
+
+pref.kind.shift_pref
+* {shift} shifts
+
+pref.kind.weekend_off
+* Weekend off
+
+pref.kind.no_back_to_back
+* Not two in a row
+
+pref.kind.max_nights
+* At most {n} nights
+
+pref.kind.min_nights
+* At least {n} nights
+
+pref.kind.works_with
+* Likes working with {name}
+
+pref.kind.avoid_with
+* Not with {name} this week
+
+pref.quote.day_off
+* Could I have that day off? Every week, if possible.
+
+pref.quote.early
+* Early shift, please — I'm useless after three.
+
+pref.quote.late
+* Night owl — late shift, please.
+
+pref.quote.max_nights
+* A few nights a week is plenty for me.
+
+pref.quote.min_nights
+* I need the hours.
+
+pref.quote.weekend_off
+* Weekends are for my family.
+
+pref.quote.no_back_to_back
+* Not two nights in a row, please.
+
+pref.quote.partner
+* If we could work the same nights…
+
+staff.barista.pref.late
+* Late shifts, please. I'm a different person after midnight.
+
+staff.barista.pref.sunday
+* Sunday lunch with my parents. They think I'm still at uni.
+
+staff.barista.pref.exam
+* Exam on Friday. I can't miss it.
+
+staff.cook.pref.back
+* Not two nights in a row. My back.
+
+staff.cook.pref.full
+* Full nights. Half a night is half a soup.
+
+staff.porter.pref.cook
+* Mr Holub lets me watch him bake.
+
+staff.cashier.pref.early
+* Home by half past two — my daughter wakes at night.
+
+staff.cashier.pref.hours
+* Four nights at least. I need the hours.
+
+staff.sound_tech.pref.thursday
+* Thursday's band rehearsal — and the video call home.
+
+staff.sound_tech.pref.late
+* Late, please. I sound better after midnight. So does the coffee.
+
+staff.quiet_one.pref.tuesday
+* Lectures on Tuesdays.
+
+staff.quiet_one.pref.weekend
+* Not weekends, if possible. Crowds.
+
+staff.server.pref.bara
+* With Bára, if I can. She makes the nights go fast.
+
+staff.server.pref.max
+* Five nights, no more. I've got a life to visit.
+
+# --- coach marks (§8): Karolina's thoughts, or Lida's notes in amber italics ---------------------------------
+tutorial.light_window
+* The light in the window first, Karolinko. Always first.
+
+tutorial.machine
+* The old machine needs a minute to wake up. Hold it until it hums.
+
+tutorial.greet
+* That's Mirek. Grandma's oldest regular. A wave wouldn't hurt.
+
+tutorial.take_order
+* He's waiting for me. Let's see what he'd like.
+
+tutorial.pick_recipe
+* "Black, the way Lida poured it." I think I know which one.
+
+tutorial.pour_over
+* Slow circles, in time with the rain. And if it goes wrong — skip, it'll still be good.
+
+tutorial.quick_brew
+* A plain order. I can let the machine work and do something else.
+
+tutorial.tip_coin
+* Something glints on Mirek's table. He left a coin after all.
+
+tutorial.clear_table
+* Cups won't carry themselves to the sink.
+
+tutorial.moment
+* Something's glowing by the window…
+
+tutorial.speed
+* It's quiet. I could let the clock run a little faster.
+
+tutorial.closing
+* A note for tomorrow's me, then lights off at six.
+
+tutorial.journal
+* Grandma kept a box of photos behind the till. I'll keep one too. (J)
+
+tutorial.book
+* Grandma's recipes are all in here — and a card for linden tea, in her handwriting. (K)
+
+tutorial.experiment
+* Linden and honey, her card says. Into the pantry slots, then Try.
+
+tutorial.jukebox
+* Grandma's records. Three still play.
+
+tutorial.wash
+* The cups are stacking up. Hold, and they'll wash.
+
+tutorial.mop
+* Muddy footprints by the door. One good swipe.
+
+tutorial.duties
+* Kuba takes the dishes. I take the guests.
+
+tutorial.rozpis
+* He wants to work with the cook. Noted.
+
+tutorial.rail
+* A ticket with an empty ring — nobody has it. That one's mine.
+
+tutorial.cat
+* The station cat. It's been watching this door longer than I have.
+
+tutorial.usual
+* Mirek trusts me now. "The usual?" — one tap.
+
+tutorial.atmosphere
+* It feels warmer in here when the lamps are on.
+
+tutorial.fairness
+* The rings show how everyone feels about the week. Nobody needs to be stretched.
+
+tutorial.garlands
+* Windows first, then the counter, then the door. Like every year, Karolinko.

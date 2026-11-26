@@ -1,6 +1,8 @@
 // Hireable staff archetypes and name pools.
 // Keys: staff.<id>.role / .bio / .likes / .dislikes. Wage = CZK per night (8 h).
 // In Story mode the archetype *is* the story person (story_name). Names are never translated.
+// Hands-on: default_duty = the duty the hire card proposes; prefs = the rozpis puzzle chips
+// (quotes: staff.<id>.pref.<n>). The first helpers (barista, cook, porter) come from night 3.
 #![enable(implicit_some)]
 (
     archetypes: [
@@ -15,7 +17,9 @@
             gender: Female,
             age: (19, 27),
             wage: 1100,
-            hire_from_night: 2,
+            hire_from_night: 3,
+            default_duty: Bar,
+            prefs: [(kind: ShiftPref(Late), strength: Wish, quote: "staff.barista.pref.late"), (kind: DayOff(Sun), strength: Wish, quote: "staff.barista.pref.sunday")],
             name_pools: ["cs", "sk", "intl"],
             look: (
                 body: "slim", height: 0.95,
@@ -35,7 +39,9 @@
             gender: Male,
             age: (40, 64),
             wage: 1350,
-            hire_from_night: 2,
+            hire_from_night: 3,
+            default_duty: Kitchen,
+            prefs: [(kind: NoBackToBack, strength: Need, quote: "staff.cook.pref.back"), (kind: ShiftPref(Full), strength: Wish, quote: "staff.cook.pref.full")],
             name_pools: ["cs", "sk", "uk", "intl"],
             look: (
                 body: "broad", height: 1.0,
@@ -55,7 +61,9 @@
             gender: Male,
             age: (20, 35),
             wage: 950,
-            hire_from_night: 2,
+            hire_from_night: 3,
+            default_duty: Dishes,
+            prefs: [(kind: WorksWith("cook"), strength: Wish, quote: "staff.porter.pref.cook")],
             name_pools: ["cs", "sk", "intl"],
             look: (
                 body: "broad", height: 1.12,
@@ -76,6 +84,8 @@
             age: (28, 50),
             wage: 1200,
             hire_from_night: 8,
+            default_duty: Register,
+            prefs: [(kind: ShiftPref(Early), strength: Need, quote: "staff.cashier.pref.early"), (kind: MinNights(4), strength: Wish, quote: "staff.cashier.pref.hours")],
             name_pools: ["cs", "sk", "uk", "intl"],
             look: (
                 body: "average", height: 0.97,
@@ -96,6 +106,8 @@
             age: (24, 45),
             wage: 1100,
             hire_from_night: 8,
+            default_duty: Bar,
+            prefs: [(kind: DayOff(Thu), strength: Wish, quote: "staff.sound_tech.pref.thursday"), (kind: ShiftPref(Late), strength: Wish, quote: "staff.sound_tech.pref.late")],
             name_pools: ["uk", "cs", "intl"],
             look: (
                 body: "slim", height: 1.05,
@@ -116,6 +128,8 @@
             age: (18, 25),
             wage: 950,
             hire_from_night: 8,
+            default_duty: Floor,
+            prefs: [(kind: DayOff(Tue), strength: Need, quote: "staff.quiet_one.pref.tuesday"), (kind: WeekendOff, strength: Wish, quote: "staff.quiet_one.pref.weekend")],
             name_pools: ["cs", "sk", "uk", "intl"],
             look: (
                 body: "small", height: 0.9,
@@ -136,6 +150,8 @@
             age: (19, 35),
             wage: 1050,
             hire_from_night: 8,
+            default_duty: Serving,
+            prefs: [(kind: WorksWith("barista"), strength: Wish, quote: "staff.server.pref.bara"), (kind: MaxNights(5), strength: Wish, quote: "staff.server.pref.max")],
             name_pools: ["sk", "cs", "intl"],
             look: (
                 body: "slim", height: 1.0,

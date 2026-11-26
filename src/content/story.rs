@@ -153,6 +153,100 @@ pub struct StoryDef {
     pub counters: Vec<String>,
     /// Declared story items (`item.<id>.name` / `.desc`).
     pub items: Vec<String>,
+    /// The story calendar (dates of the 30 nights, named days).
+    #[serde(default)]
+    pub calendar: Option<StoryCalendar>,
+}
+
+/// A calendar date.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, serde::Serialize)]
+pub struct Date {
+    pub year: i32,
+    pub month: u32,
+    pub day: u32,
+}
+
+impl Date {
+    fn is_leap(year: i32) -> bool {
+        (year % 4 == 0 && year % 100 != 0) || year % 400 == 0
+    }
+
+    fn days_in_month(year: i32, month: u32) -> u32 {
+        match month {
+            2 if Date::is_leap(year) => 29,
+            2 => 28,
+            4 | 6 | 9 | 11 => 30,
+            _ => 31,
+        }
+    }
+
+    /// The date `days` later.
+    pub fn plus_days(self, days: u32) -> Date {
+        let mut d = self;
+        for _ in 0..days {
+            d.day += 1;
+            if d.day > Date::days_in_month(d.year, d.month) {
+                d.day = 1;
+                d.month += 1;
+                if d.month > 12 {
+                    d.month = 1;
+                    d.year += 1;
+                }
+            }
+        }
+        d
+    }
+
+    /// Weekday (Zeller-style, Monday first).
+    pub fn weekday(self) -> Weekday {
+        let (mut y, mut m) = (self.year, self.month as i32);
+        if m < 3 {
+            m += 12;
+            y -= 1;
+        }
+        let k = y % 100;
+        let j = y / 100;
+        let h = (self.day as i32 + 13 * (m + 1) / 5 + k + k / 4 + j / 4 + 5 * j) % 7;
+        // h: 0 = Saturday … 6 = Friday → Monday-first index.
+        Weekday::ALL[((h + 5) % 7) as usize]
+    }
+
+    pub fn is_valid(self) -> bool {
+        (1..=12).contains(&self.month)
+            && self.day >= 1
+            && self.day <= Date::days_in_month(self.year, self.month)
+    }
+}
+
+/// A named day of the story (`calendar.<id>`), shown on the day card and polaroids.
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct CalendarDay {
+    pub id: String,
+    pub night: u32,
+}
+
+/// Night 1's date and the named days. Night n = `start + (n − 1)` days; the night's weekday
+/// in `nights` must match (validated).
+#[derive(Debug, Clone, PartialEq, Deserialize)]
+pub struct StoryCalendar {
+    pub start: Date,
+    #[serde(default)]
+    pub days: Vec<CalendarDay>,
+}
+
+impl StoryCalendar {
+    pub fn date_of_night(&self, night: u32) -> Date {
+        self.start.plus_days(night.saturating_sub(1))
+    }
+
+    /// Named days falling on a night.
+    pub fn days_on(&self, night: u32) -> impl Iterator<Item = &CalendarDay> {
+        self.days.iter().filter(move |d| d.night == night)
+    }
+
+    pub fn day_key(day: &CalendarDay) -> String {
+        format!("calendar.{}", day.id)
+    }
 }
 
 impl StoryDef {

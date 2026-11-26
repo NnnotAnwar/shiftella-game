@@ -33,12 +33,27 @@
     (id: "floor_lamp", sprite: "floor_lamp", category: Decor, size: (1, 1), price: 600, tags: ["light", "decor"], beauty: 1.0, light_radius: 3.0),
     (id: "pendant_lamp", sprite: "pendant_lamp", category: Decor, size: (1, 1), price: 750, tags: ["light", "decor"], beauty: 1.0, walkable: true, light_radius: 2.5),
     (id: "bookshelf", sprite: "bookshelf", category: Decor, size: (1, 1), price: 2100, tags: ["decor", "comfort"], comfort: 1.0, beauty: 3.0),
-    (id: "jukebox", sprite: "jukebox", category: Decor, size: (1, 1), price: 5600, tags: ["music", "decor", "light"], beauty: 3.0, light_radius: 1.0, unlock_night: 6),
+    // Grandma Lida's jukebox: in the default café from night 1 (unlock_night only matters if removed).
+    (id: "jukebox", sprite: "jukebox", category: Decor, size: (1, 1), price: 5600, tags: ["music", "grandma", "decor", "light"], beauty: 3.0, light_radius: 1.0, unlock_night: 6, unique: true, needs_power: true),
     (id: "radio", sprite: "radio", category: Decor, size: (1, 1), price: 1200, tags: ["music", "grandma"], beauty: 2.0, unique: true, unlock_night: 8),
     (id: "rug", sprite: "rug", category: Decor, size: (2, 2), price: 1400, tags: ["decor"], comfort: 1.0, beauty: 2.0, walkable: true),
     (id: "stage_corner", sprite: "rug", category: Decor, size: (2, 2), price: 3500, tags: ["stage", "decor"], beauty: 2.0, walkable: true, unique: true, unlock_flag: "lori_invited"),
     (id: "coat_rack", sprite: "coat_rack", category: Decor, size: (1, 1), price: 650, tags: ["coats", "decor"], comfort: 1.0),
     (id: "grandma_photo", sprite: "grandma_photo", category: Decor, size: (1, 1), price: 0, tags: ["grandma", "decor"], beauty: 4.0, unique: true),
+    // --- hands-on rewards (tip-jar goals, napkins) and theme accents ---
+    // Hidden behind the never-set flag `reward_decor`: they appear only via UnlockFurniture
+    // (tip-jar goals, napkin rewards; the sim unlocks a theme's accents when the theme is bought).
+    // `skin` = render variant on a contract sprite (the render falls back to `sprite`).
+    (id: "fairy_lights", sprite: "pendant_lamp", skin: "fairy_lights", category: Decor, size: (1, 1), price: 400, tags: ["light", "decor"], beauty: 3.0, walkable: true, light_radius: 2.0, unlock_flag: "reward_decor"),
+    (id: "lace_tablecloth", sprite: "table_round_2", skin: "lace_tablecloth", category: Furniture, size: (1, 1), price: 1400, tags: ["table", "grandma"], beauty: 3.0, unlock_flag: "reward_decor"),
+    (id: "record_shelf", sprite: "bookshelf", skin: "record_shelf", category: Decor, size: (1, 1), price: 1800, tags: ["music", "decor"], beauty: 3.0, comfort: 1.0, unlock_flag: "reward_decor"),
+    (id: "cat_bed", sprite: "rug", skin: "cat_bed", category: Decor, size: (1, 1), price: 500, tags: ["decor", "comfort"], beauty: 2.0, walkable: true, unique: true, unlock_flag: "reward_decor"),
+    (id: "brass_bell", sprite: "grandma_photo", skin: "brass_bell", category: Decor, size: (1, 1), price: 900, tags: ["decor"], beauty: 3.0, unique: true, unlock_flag: "reward_decor"),
+    (id: "napkin_wall", sprite: "grandma_photo", skin: "napkin_wall", category: Decor, size: (1, 1), price: 0, tags: ["decor", "grandma"], beauty: 2.0, unique: true, unlock_flag: "reward_decor"),
+    (id: "lamp_brass", sprite: "pendant_lamp", skin: "lamp_brass", category: Decor, size: (1, 1), price: 1100, tags: ["light", "decor", "theme:art_nouveau"], beauty: 2.0, walkable: true, light_radius: 2.5, unlock_flag: "reward_decor"),
+    (id: "mosaic_rug", sprite: "rug", skin: "mosaic_rug", category: Decor, size: (2, 2), price: 1800, tags: ["decor", "theme:art_nouveau"], comfort: 1.0, beauty: 3.0, walkable: true, unlock_flag: "reward_decor"),
+    (id: "enamel_sign", sprite: "menu_holo_board", skin: "enamel_sign", category: Decor, size: (2, 1), price: 900, tags: ["decor", "theme:station_retro"], beauty: 3.0, unlock_flag: "reward_decor"),
+    (id: "led_strip", sprite: "floor_lamp", skin: "led_strip", category: Decor, size: (1, 1), price: 800, tags: ["light", "decor", "theme:nocturne_2039"], beauty: 2.0, light_radius: 2.5, unlock_flag: "reward_decor"),
     // --- floors (price per tile) ---
     (id: "floor_wood", sprite: "floor_wood", category: Floors, size: (1, 1), price: 120, tags: ["floor"], beauty: 0.3, walkable: true),
     (id: "floor_tile", sprite: "floor_tile", category: Floors, size: (1, 1), price: 90, tags: ["floor"], walkable: true),

@@ -1,0 +1,536 @@
+# Recipes, the pantry, the recipe book and experiments (recipes.ron, design/handson.md §4).
+# .lore = Lida's handwritten line in the book (amber italics). .teach = the bubble when someone shows you.
+# English placeholder texts in every language until T9 (see handson_TODO.txt).
+
+# --- recipes: starters ---------------------------------------------------------------------------
+recipe.r_black.name
+* Black, like Lida made it
+
+recipe.r_black.desc
+* A slow pour-over, nothing added. Honest coffee for honest hours.
+
+recipe.r_black.lore
+* Pour slowly. Nobody who comes at night is in a hurry, even when they say they are.
+
+recipe.r_cappuccino.name
+* Cappuccino
+
+recipe.r_cappuccino.desc
+* Espresso under a soft cap of milk foam.
+
+recipe.r_cappuccino.lore
+* Milk sings when it's ready. Listen, don't look.
+
+recipe.r_lemon_tea.name
+* Tea with lemon
+
+recipe.r_lemon_tea.desc
+* Black tea, a slice of lemon, steeped just long enough.
+
+recipe.r_lemon_tea.lore
+* Lift the bag before it turns bitter. People are the same.
+
+recipe.r_topinka.name
+* Topinka
+
+recipe.r_topinka.desc
+* Fried bread rubbed with garlic, the taxi-rank breakfast.
+
+recipe.r_topinka.lore
+* Two rubs of garlic for drivers, three for anyone who looks sad.
+
+recipe.r_garlic_soup.name
+* Česnečka
+
+recipe.r_garlic_soup.desc
+* Garlic soup with potato and croutons. It fixes most things.
+
+recipe.r_garlic_soup.lore
+* Česnečka cures colds, hangovers and small heartbreaks. Big ones need kulajda.
+
+recipe.r_chlebicek.name
+* Chlebíček
+
+recipe.r_chlebicek.desc
+* An open sandwich with potato salad, ham and a slice of egg.
+
+recipe.r_chlebicek.lore
+* Make it pretty. A chlebíček is a small party on a plate.
+
+# --- recipes: grandma's cards ------------------------------------------------------------------------
+recipe.r_kolac.name
+* Koláč
+
+recipe.r_kolac.desc
+* A round little cake with tvaroh and plum jam.
+
+recipe.r_kolac.lore
+* Jam in the middle, crumble on top, and always one more than you think you'll need.
+
+recipe.r_oat_flat_white.name
+* Oat flat white
+
+recipe.r_oat_flat_white.desc
+* Velvety oat milk over a double espresso, with a little art on top.
+
+recipe.r_oat_flat_white.lore
+* The young ones like it with oats. Fine. Draw them a heart and they'll come back.
+
+recipe.r_medovnik.name
+* Medovník
+
+recipe.r_medovnik.desc
+* Layered honey cake with cream, served cold.
+
+recipe.r_medovnik.lore
+* Honey cake needs a night to rest. So do we.
+
+recipe.r_chai.name
+* Chai
+
+recipe.r_chai.desc
+* Black tea with warm milk and spice.
+
+recipe.r_chai.lore
+* Cinnamon and clove, a pinch of each, and milk only when the tea is dark.
+
+recipe.r_hot_chocolate.name
+* Hot chocolate
+
+recipe.r_hot_chocolate.desc
+* Thick cocoa with steamed milk.
+
+recipe.r_hot_chocolate.lore
+* For anyone who's cold, or eight, or both.
+
+recipe.r_varenyky.name
+* Varenyky with potato & mushroom
+
+recipe.r_varenyky.desc
+* Dumplings with potato and mushroom, smetana and crispy onion.
+
+recipe.r_varenyky.lore
+* A traveller from Lviv taught me these, one snowy night. Pinch the edges like you mean it.
+
+recipe.r_pirohy.name
+* Bryndzové pirohy
+
+recipe.r_pirohy.desc
+* Potato pockets with sheep's cheese and a little bacon.
+
+recipe.r_pirohy.lore
+* For the Slovak drivers. They stop missing home for exactly one plate.
+
+recipe.r_night_train.name
+* Night Train
+
+recipe.r_night_train.desc
+* A strong pour-over with cocoa and spice — the café's own.
+
+recipe.r_night_train.lore
+* Strong enough for the last train, soft enough for the first one.
+
+recipe.r_svarak.name
+* Svařák
+
+recipe.r_svarak.desc
+* Mulled red wine with spice and a little sugar. Never boiled.
+
+recipe.r_svarak.lore
+* Warm it, never boil it. Wine that boils has given up.
+
+# --- recipes: story and the people who teach ---------------------------------------------------------
+recipe.r_kulajda.name
+* Grandma's kulajda
+
+recipe.r_kulajda.desc
+* Creamy mushroom and dill soup with potato — Lida's own.
+
+recipe.r_kulajda.lore
+* Dill at the very end. And don't tell Vera how much cream.
+
+recipe.r_turek.name
+* Turek, taxi-rank style
+
+recipe.r_turek.desc
+* Coffee boiled in the cup with sugar, grounds left to settle.
+
+recipe.r_turek.lore
+* Mirek's. Let it settle. He always did.
+
+recipe.r_turek.teach
+* Stir three times, then hands off. Let the grounds sit down, like a tired driver.
+
+recipe.r_vera_kolac.name
+* Vera's poppy-seed koláč, warmed
+
+recipe.r_vera_kolac.desc
+* Poppy seed and tvaroh, warmed through, the way Vera insists.
+
+recipe.r_vera_kolac.lore
+* Vera's is better. Never tell her I wrote that.
+
+recipe.r_vera_kolac.teach
+* Warm it, child. A cold koláč is a sad koláč. Poppy seed first, then the tvaroh.
+
+recipe.r_rn333_tea.name
+* Tea, two sugars
+
+recipe.r_rn333_tea.desc
+* Black tea with lemon and exactly two sugars.
+
+recipe.r_rn333_tea.lore
+* Two sugars. He always took two.
+
+recipe.r_lori_encore.name
+* Lori's encore
+
+recipe.r_lori_encore.desc
+* Hot chocolate with a pinch of chili.
+
+recipe.r_lori_encore.lore
+* A pinch of fire for the singer. Not a spoon. A pinch.
+
+recipe.r_lori_encore.teach
+* Just a pinch of chili, love. It warms the voice from the inside.
+
+recipe.r_linden_tea.name
+* Linden tea with honey
+
+recipe.r_linden_tea.desc
+* Lime-blossom tea, golden and gentle, with honey.
+
+recipe.r_linden_tea.lore
+* Linden for sleep and for singers. Honey, always honey.
+
+recipe.r_moon_latte.name
+* Moonlight latte
+
+recipe.r_moon_latte.desc
+* Oat milk turned dusk-blue with butterfly pea, a crescent on top.
+
+recipe.r_moon_latte.lore
+* Not mine, this one. Yours. Write it down so someone finds it one day.
+
+# --- SHOULD: the crew's recipes --------------------------------------------------------------------------
+recipe.r_raf.name
+* Raf coffee (Kyiv-style)
+
+recipe.r_raf.desc
+* Espresso whisked with cream and vanilla into something like a cloud.
+
+recipe.r_raf.lore
+* Oleh's. Sweet, soft, and a little homesick.
+
+recipe.r_raf.teach
+* In Kyiv we steam the coffee with the cream. Watch for the vanilla drop — there!
+
+recipe.r_borscht.name
+* Borscht with smetana
+
+recipe.r_borscht.desc
+* Beetroot soup, deep ruby, with a spoon of smetana.
+
+recipe.r_borscht.lore
+* The colour is the whole secret. Beetroot in on time, or it goes brown and sulks.
+
+recipe.r_borscht.teach
+* My mother's borscht. Beetroot goes in at the right moment — I'll tell you when.
+
+recipe.r_buchty.name
+* Kuba's buchty with povidla
+
+recipe.r_buchty.desc
+* Soft baked buns filled with plum povidla, sugar on top.
+
+recipe.r_buchty.lore
+* The boy has been baking secretly. Let him think nobody noticed.
+
+recipe.r_buchty.teach
+* Mr Holub showed me. Don't tell him I'm showing you — he'll get all proud.
+
+recipe.r_tatra_tea.name
+* Tatra herb tea
+
+recipe.r_tatra_tea.desc
+* Mountain herbs, honey and lemon, like a hut in the Tatras.
+
+recipe.r_tatra_tea.lore
+* Natália's. It smells like a mountain after rain.
+
+recipe.r_tatra_tea.teach
+* My granny picked these above Ždiar. Honey first, lemon at the end.
+
+recipe.r_espresso_tonic.name
+* Platform espresso tonic
+
+recipe.r_espresso_tonic.desc
+* Espresso poured slowly over tonic and ice. Bitter, bright, cold.
+
+recipe.r_espresso_tonic.lore
+* Filip calls it exam fuel. I call it a cold drink with opinions.
+
+recipe.r_espresso_tonic.teach
+* Pour it slowly over the ice, or it fizzes everywhere. Trust me. I've been there.
+
+recipe.r_uzvar.name
+* Uzvar
+
+recipe.r_uzvar.desc
+* A warm drink of dried fruit and honey, like Christmas in Lviv.
+
+recipe.r_uzvar.lore
+* From the parcel. Dried pears and plums and someone's love, all in one pot.
+
+# --- ingredients ------------------------------------------------------------------------------------------
+ingredient.espresso.name
+* Espresso
+
+ingredient.milk.name
+* Milk
+
+ingredient.oat_milk.name
+* Oat milk
+
+ingredient.cream.name
+* Cream
+
+ingredient.black_tea.name
+* Black tea
+
+ingredient.linden.name
+* Linden blossom
+
+ingredient.mountain_herbs.name
+* Mountain herbs
+
+ingredient.lemon.name
+* Lemon
+
+ingredient.honey.name
+* Honey
+
+ingredient.sugar.name
+* Sugar
+
+ingredient.spice.name
+* Cinnamon & clove
+
+ingredient.chili.name
+* Chili
+
+ingredient.cocoa.name
+* Cocoa
+
+ingredient.vanilla.name
+* Vanilla
+
+ingredient.dried_fruit.name
+* Dried fruit
+
+ingredient.ice.name
+* Ice
+
+ingredient.tonic.name
+* Tonic
+
+ingredient.butterfly_pea.name
+* Butterfly pea
+
+ingredient.red_wine.name
+* Red wine
+
+ingredient.bread.name
+* Bread
+
+ingredient.garlic.name
+* Garlic
+
+ingredient.potato.name
+* Potato
+
+ingredient.mushroom.name
+* Mushrooms
+
+ingredient.beetroot.name
+* Beetroot
+
+ingredient.tvaroh.name
+* Tvaroh
+
+ingredient.bryndza.name
+* Bryndza
+
+ingredient.poppy_seed.name
+* Poppy seed
+
+ingredient.plum_jam.name
+* Plum jam
+
+# families, used inside hints ("it wants something {family}")
+ingredient.family.coffee
+* roasted
+
+ingredient.family.milk
+* milky
+
+ingredient.family.tea
+* leafy
+
+ingredient.family.sweet
+* sweet
+
+ingredient.family.spice
+* spicy
+
+ingredient.family.fruit
+* fruity
+
+ingredient.family.cold
+* cold
+
+ingredient.family.savoury
+* savoury
+
+ingredient.family.dough
+* doughy
+
+# --- the recipe book (K) ----------------------------------------------------------------------------------
+book.title
+* Recipe book
+
+book.tab.drinks
+* Drinks
+
+book.tab.food
+* Food
+
+book.tab.specials
+* Specials
+
+book.tab.pantry
+* Pantry
+
+book.tab.napkins
+* Napkins
+
+book.tab.trains
+* Trains
+
+book.served
+* Served {n}×
+
+book.best
+* Best: {quality}
+
+book.practised
+* Practised
+
+book.unknown
+* Not found yet
+
+book.ingredients
+* Ingredients
+
+book.patterns
+* Latte art
+
+book.try
+* Try
+
+book.cost
+* Costs {amount} of supplies
+
+book.free
+* Free tonight
+
+book.pick
+* Make this one
+
+book.card_found
+* Found in the drawer: grandma's card for {recipe}.
+
+book.learned
+* New in the book: {recipe}
+
+book.margin_note
+* Lida's margin note: …{ingredient}.
+
+book.locked_jar
+* Not on the shelf yet
+
+book.ingredient_unlocked
+* New on the shelf: {ingredient}
+
+book.hint.taxi_rank
+* Someone at the taxi rank might know.
+
+book.hint.vera
+* Ask Vera. She'll pretend not to want to tell you.
+
+book.hint.lori
+* Something a singer would drink.
+
+book.hint.oleh
+* Oleh keeps humming about home cooking.
+
+book.hint.kuba
+* Kuba smells of fresh dough lately.
+
+book.hint.natalia
+* Natália talks about her granny's mountain hut.
+
+book.hint.filip
+* A student with an exam might have a trick.
+
+book.hint.guest_333
+* The quiet guest at 3:33 always orders the same.
+
+book.hint.grandma_card
+* Grandma left a card for this one.
+
+book.hint.pantry
+* Try the pantry. Something blue, perhaps.
+
+book.hint.lviv_parcel
+* Something that might arrive in a parcel from Lviv.
+
+book.gated.r_kulajda
+* Vera would know the rest of this one.
+
+# --- experiments ---------------------------------------------------------------------------------------------
+experiment.known
+* You know this one: {recipe}.
+
+experiment.discovered
+* Discovered! {recipe}
+
+experiment.close.swap
+* So close — swap the {family} one.
+
+experiment.close.extra
+* Almost — one thing too many.
+
+experiment.close.missing
+* Almost — it wants something {family}.
+
+experiment.cat_sniffs
+* The cat sniffs it, thinks about it, and walks away.
+
+experiment.nothing.1
+* It's… drinkable. Kuba drank it anyway.
+
+experiment.nothing.2
+* Interesting. In the way a puddle is interesting.
+
+experiment.nothing.3
+* That's a flavour. Not a good one, but a flavour.
+
+experiment.nothing.4
+* Grandma would have said "brave". Grandma was being kind.
+
+experiment.nothing.5
+* Into the sink it goes. Nobody saw.
+
+experiment.nothing.6
+* Not a recipe yet. Maybe a story for later.

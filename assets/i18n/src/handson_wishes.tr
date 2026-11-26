@@ -1,0 +1,282 @@
+# Wishes (wishes.ron) and reactions to a served item (design/handson.md §3.4–3.5).
+# English placeholder texts in every language until T9 (see handson_TODO.txt).
+
+# --- generic wishes ------------------------------------------------------------------------------
+wish.long_day
+* Something warm, not too sweet — long day.
+
+wish.wake_me
+* Something strong. I've still got four hours of driving.
+
+wish.hands_cold
+* Anything warm to hold. My hands are frozen.
+
+wish.train_soon
+* Whatever's fastest — my train's in ten minutes.
+
+wish.earned_it
+* Something sweet. I've earned it.
+
+wish.surprise_me
+* Surprise me. Something I'd never order.
+
+wish.skipped_dinner
+* Something filling. I skipped dinner. And lunch.
+
+wish.sleepy_not_awake
+* Something gentle. I'm trying to get sleepy, not awake.
+
+wish.club_oven
+* Something cold — the club was an oven.
+
+wish.taste_of_home
+* Something that tastes like home. Anyone's home.
+
+wish.exam_at_eight
+* Fuel. I've got an exam at eight.
+
+wish.soaked
+* Something with spice — I'm soaked to the bone.
+
+wish.not_coffee
+* Anything but coffee. I've had six.
+
+wish.for_my_friend
+* Something pretty — it's my friend's birthday.
+
+wish.goes_with_snow
+* Something that goes with snow.
+
+wish.on_the_side
+* Just a little something on the side.
+
+wish.bitter_mood
+* Bitter. Like my mood. No sugar.
+
+wish.headache
+* Something fresh, please. I've got a headache.
+
+wish.slow_sip
+* Something to sip slowly while the rain does its thing.
+
+wish.engaged
+* We just got engaged! Something special!
+
+wish.one_hand
+* Something I can drink with one hand — I'm flying a drone with the other.
+
+wish.patrol
+* Strong, to go. Quiet night so far — let's keep it that way.
+
+wish.like_grandma_made
+* Something like my grandmother made? She was from Lviv.
+
+wish.childhood
+* Something from when I was a kid.
+
+wish.three_am
+* It's three in the morning. I don't know what I want.
+
+wish.kind_coffee
+* Wake me up gently — coffee, but kind.
+
+wish.fog_outside
+* Something warm. You can't see the station through this fog.
+
+# --- personal wishes --------------------------------------------------------------------------------
+wish.mirek.like_lida
+* Black, Karolina. The way Lida poured it.
+
+wish.mirek.tired_eyes
+* Something for tired eyes, eh? Not that mine are tired.
+
+wish.mirek.walked
+* I walked here tonight. Something to warm an old man.
+
+wish.hana.twelve_minutes
+* I've got twelve minutes. Something hot and fast.
+
+wish.hana.blanket
+* Shift's over, Karolina. Something that feels like a blanket.
+
+wish.vera.properly
+* Tea. Properly made, mind you — no bag-dunking.
+
+wish.vera.lidas_kolac
+* Your grandmother's koláč was better, Karolina. Show me yours.
+
+wish.vera.she_would_make
+* Make me something Lida would have made.
+
+wish.filip.cheapest
+* The cheapest coffee that still counts as coffee?
+
+wish.filip.passed
+* I passed! Something fancy — my treat.
+
+wish.radek.to_go
+* To go. The 01:12 won't dispatch itself.
+
+wish.radek.last_shift
+* Last shift, Karolina. Make it a good one.
+
+wish.radek.no_rush
+* No rush tonight. Something slow.
+
+wish.lori.one_song
+* One hot chocolate, paid in one song?
+
+wish.lori.my_voice
+* Something for my voice. Honey, maybe?
+
+wish.guest_333.two_sugars
+* Tea. With lemon. Two sugars.
+
+wish.guest_anwar.oat
+* An oat flat white, please. And maybe the Wi-Fi password.
+
+# --- generic reactions ---------------------------------------------------------------------------------
+react.perfect.1
+* Oh. That's exactly it.
+
+react.perfect.2
+* How did you know?
+
+react.perfect.3
+* I'm coming back tomorrow just for this.
+
+react.perfect.4
+* That's the one. Thank you.
+
+react.perfect.5
+* You read my mind. Or my face.
+
+react.good.1
+* Mm. Lovely.
+
+react.good.2
+* That hits the spot.
+
+react.good.3
+* Thank you, really.
+
+react.good.4
+* Oh, that's nice. Warm all the way down.
+
+react.good.5
+* Just what the night needed.
+
+react.okay.1
+* Nice, thanks.
+
+react.okay.2
+* Not what I pictured, but nice.
+
+react.okay.3
+* Warm. Good.
+
+react.okay.4
+* That'll do me fine.
+
+react.okay.5
+* Thanks — it's good.
+
+react.not_quite.1
+* Not quite it — but thank you for trying.
+
+react.not_quite.2
+* Hm. Different. I like that you tried.
+
+react.not_quite.3
+* Not what I meant, but it's warm. That counts.
+
+react.not_quite.4
+* Funny — I'd never have picked this. Thanks.
+
+react.not_quite.5
+* It's fine, honestly. You've got your hands full.
+
+# --- regulars' reactions ---------------------------------------------------------------------------------
+react.mirek.perfect
+* …Almost like hers, Karolina. Almost.
+
+react.mirek.good
+* Good. Strong enough to keep a taxi awake.
+
+react.mirek.okay
+* It's coffee. I've had worse. From robots.
+
+react.mirek.not_quite
+* Hm. Lida would've laughed. Drinkable, though.
+
+react.hana.perfect
+* Oh, that's exactly it. You saved my night.
+
+react.hana.good
+* Hot and quick. You're a hero.
+
+react.hana.okay
+* Thanks — that'll get me to the next round.
+
+react.hana.not_quite
+* Not quite, but it's warm. That's what counts at three.
+
+react.guest_333.perfect
+* …
+
+react.guest_333.good
+* …
+
+react.guest_333.okay
+* …
+
+react.guest_333.not_quite
+* …
+
+react.vera.perfect
+* Well. Lida would have grumbled, but she'd have drunk it.
+
+react.vera.good
+* Properly done. I'll allow it.
+
+react.vera.okay
+* Acceptable. Your grandmother had steadier hands.
+
+react.vera.not_quite
+* Hm. We'll keep practising, you and I.
+
+react.filip.perfect
+* Okay, this is unreal. I'm writing my thesis about it.
+
+react.filip.good
+* That's good. Like, actually good.
+
+react.filip.okay
+* Thanks! Caffeine is caffeine.
+
+react.filip.not_quite
+* Interesting… I'll drink it anyway, I'm a student.
+
+react.radek.perfect
+* Ha. Right on time, and just right.
+
+react.radek.good
+* Good one. The trains will run better for it.
+
+react.radek.okay
+* Does the job. Like a timetable.
+
+react.radek.not_quite
+* Not my usual, but I won't report you.
+
+react.lori.perfect
+* Oh, I could sing about this one.
+
+react.lori.good
+* Mm. My voice thanks you.
+
+react.lori.okay
+* That's sweet of you. Thank you.
+
+react.lori.not_quite
+* Not quite my key — but lovely of you to try.
