@@ -253,37 +253,26 @@ pub fn panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     for c in BuildCategory::ALL {
         labels.push(Tab::new(loc.tr(cat_key(c))));
     }
-    // demolish / undo on the right of the tab row
-    let (tabs_r, tools) = tabs_r.split_left(tabs_r.w - 220.0, 8.0);
+    // demolish / undo on the right of the tab row, sized to their labels
+    let demolish = Button::new(loc.tr("ui.build.demolish"))
+        .icon(Icon::Close)
+        .shortcut("X")
+        .selected(g.ui_state.build.demolish);
+    let undo = Button::new(loc.tr("ui.common.undo"))
+        .ghost()
+        .icon(Icon::Undo)
+        .disabled(!g.world.can_undo())
+        .tooltip("Ctrl+Z");
+    let (dw, uw) = (ui.button_width(&demolish), ui.button_width(&undo));
+    let (tools, tabs_r) = tabs_r.split_right(dw + uw + 6.0, 10.0);
     ui.tabs("build_tabs", tabs_r, &labels, &mut g.ui_state.build.tab);
-    let (a, b) = tools.split_left(tools.w / 2.0 - 3.0, 6.0);
-    if ui
-        .button(
-            "demolish",
-            a,
-            &Button::new(loc.tr("ui.build.demolish"))
-                .icon(Icon::Close)
-                .shortcut("X")
-                .selected(g.ui_state.build.demolish),
-        )
-        .clicked
-    {
+    let (a, b) = tools.split_left(dw, 6.0);
+    if ui.button("demolish", a, &demolish).clicked {
         let st = &mut g.ui_state.build;
         st.demolish = !st.demolish;
         st.selected = None;
     }
-    if ui
-        .button(
-            "undo",
-            b,
-            &Button::new(loc.tr("ui.common.undo"))
-                .ghost()
-                .icon(Icon::Undo)
-                .disabled(!g.world.can_undo())
-                .tooltip("Ctrl+Z"),
-        )
-        .clicked
-    {
+    if ui.button("undo", b, &undo).clicked {
         let _ = g.world.undo(content);
         g.drain_and_handle(content, None);
     }
