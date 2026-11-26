@@ -7,6 +7,7 @@
 //!     [--player-bot [quality] [react_seconds]] [--no-bot]
 //! SIM_PLAN=3,5,9   # nights on which the bot hires one more helper (default 3,5,9; Classic 3,8,15)
 //! SIM_VISITS=1     # print each regular's last visits (night:served minutes) and trust
+//! SIM_CHARACTER=chaotic  # sandbox storyteller (calm | balanced | chaotic …, sandbox.ron)
 //! ```
 //! `--player-bot` is the default; `--no-bot` = nobody behind the counter (Karolina steps back).
 //! `--inattentive`: the bot leaves every story choice on its default and builds nothing for
@@ -119,6 +120,7 @@ fn main() {
                 SandboxSetup {
                     seed,
                     difficulty,
+                    character: std::env::var("SIM_CHARACTER").ok(),
                     ..Default::default()
                 },
             )

@@ -13,8 +13,9 @@
 //!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
 //!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
 //!   the enlarged polaroid, `SHIFTELLA_AUTOFILL=1` auto-fills the rozpis first)
-//! * `SHIFTELLA_AUTOPLAY=1|keys` — Karolina plays the night by herself through the same
-//!   intents as the mouse and keyboard (`keys`: mini-games by keyboard);
+//! * `SHIFTELLA_AUTOPLAY=1|keys|skip` — Karolina plays the night by herself through the same
+//!   intents as the mouse and keyboard (`keys`: mini-games by keyboard, `skip`: every
+//!   mini-game skipped);
 //!   `SHIFTELLA_SPEED=1|2|3` — the starting speed;
 //!   `SHIFTELLA_SHOT_EVERY=n` — also save `<shot>_<frame>.png` every n frames;
 //!   `SHIFTELLA_SKIP_SCENES=1` — story scenes finish at once
@@ -242,6 +243,7 @@ impl App {
             g.hands.autoplay = Some(game::hands::Autoplay {
                 cooldown: 0.5,
                 keyboard: a == "keys",
+                skip_minigames: a == "skip",
             });
         }
         g.hands.skip_scenes = env("SHIFTELLA_SKIP_SCENES").is_some();
