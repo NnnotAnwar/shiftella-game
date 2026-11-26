@@ -57,6 +57,7 @@
 
 #![allow(clippy::too_many_arguments)]
 
+pub mod cat;
 pub mod colors;
 pub mod draw;
 mod furniture;

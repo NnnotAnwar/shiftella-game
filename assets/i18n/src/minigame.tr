@@ -1,0 +1,259 @@
+# Brewing mini-games (src/minigame): header labels, hints, results, variations.
+
+minigame.kind.milk_froth
+cs Napěnění mléka
+en Milk froth
+sk Napenenie mlieka
+uk Спінювання молока
+
+minigame.kind.latte_art
+cs Latte art
+en Latte art
+sk Latte art
+uk Лате-арт
+
+minigame.kind.pour_over
+cs Pour-over
+en Pour-over
+sk Pour-over
+uk Пуровер
+
+minigame.kind.tea_steep
+cs Louhování čaje
+en Steeping tea
+sk Lúhovanie čaju
+uk Заварювання чаю
+
+minigame.kind.plate
+cs Servírování
+en Plating
+sk Servírovanie
+uk Подача
+
+minigame.hint.froth
+cs Podržte pro napěnění — pusťte, až pěna dosáhne záře
+en Hold to froth — let go when the foam reaches the glow
+sk Podržte na napenenie — pustite, keď pena dosiahne žiaru
+uk Утримуйте, щоб спінити, — відпустіть, коли піна дійде до сяйва
+
+minigame.hint.froth_release
+cs Pusťte!
+en Release!
+sk Pustite!
+uk Відпускайте!
+
+minigame.hint.latte
+cs Táhněte po hrnku a lijte mléko · šipky + mezerník také fungují
+en Drag across the cup to pour the milk · arrows + Space work too
+sk Ťahajte po šálke a lejte mlieko · šípky + medzerník fungujú tiež
+uk Ведіть по чашці, щоб наливати молоко · стрілки + пробіл теж працюють
+
+minigame.hint.latte_serve
+cs Líbí se vám? Podávejte — nebo ještě dolijte
+en Happy with it? Serve — or pour a little more
+sk Páči sa vám? Podávajte — alebo ešte dolejte
+uk Подобається? Подавайте — або додайте ще трохи
+
+minigame.hint.pour
+cs Podržte a lijte v pomalých kruzích za světýlkem
+en Hold and pour in slow circles with the little light
+sk Podržte a lejte v pomalých kruhoch za svetielkom
+uk Утримуйте й лийте повільними колами за вогником
+
+minigame.hint.pour_keep
+cs Zpátky ke kroužku — pomalu a klidně
+en Back to the ring — slow and calm
+sk Späť ku krúžku — pomaly a pokojne
+uk Назад до кільця — повільно й спокійно
+
+minigame.hint.tea
+cs Vytáhněte sáček, až barva sedí se vzorkem
+en Lift the tea bag when the colour matches the swatch
+sk Vytiahnite vrecúško, keď farba sedí so vzorkou
+uk Підніміть пакетик, коли колір збігатиметься зі зразком
+
+minigame.hint.tea_ready
+cs Vypadá to akorát — vytáhněte sáček
+en Looks just right — lift the bag
+sk Vyzerá to akurát — vytiahnite vrecúško
+uk Саме те — піднімайте пакетик
+
+minigame.hint.plate
+cs Přetáhněte ozdoby na talíř
+en Drag the garnish onto the plate
+sk Pretiahnite ozdoby na tanier
+uk Перетягніть прикраси на тарілку
+
+minigame.hint.plate_serve
+cs Krásné. Můžete podávat
+en Lovely. Ready to serve
+sk Krásne. Môžete podávať
+uk Гарно. Можна подавати
+
+minigame.key.space
+cs Mezerník
+en Space
+sk Medzerník
+uk Пробіл
+
+minigame.skip
+cs Přeskočit
+en Skip
+sk Preskočiť
+uk Пропустити
+
+minigame.serve
+cs Podávat
+en Serve
+sk Podávať
+uk Подати
+
+minigame.target
+cs Cíl
+en Target
+sk Cieľ
+uk Мета
+
+minigame.milk
+cs Mléko
+en Milk
+sk Mlieko
+uk Молоко
+
+minigame.water
+cs Voda
+en Water
+sk Voda
+uk Вода
+
+minigame.result.cosy
+cs Útulné
+en Cosy
+sk Útulné
+uk Затишно
+
+minigame.result.nice
+cs Pěkné
+en Nice
+sk Pekné
+uk Непогано
+
+minigame.result.lovely
+cs Moc hezké!
+en Lovely!
+sk Veľmi pekné!
+uk Чудово!
+
+minigame.result.perfect
+cs Dokonalé!
+en Perfect!
+sk Dokonalé!
+uk Досконало!
+
+minigame.touch.title
+cs Přání štamgasta
+en Regular's touch
+sk Želanie štamgasta
+uk Побажання постійного гостя
+
+minigame.touch.extra_foam
+cs Víc pěny
+en Extra foam
+sk Viac peny
+uk Більше піни
+
+minigame.touch.light_foam
+cs Méně pěny
+en Light foam
+sk Menej peny
+uk Менше піни
+
+minigame.touch.strong
+cs Silnější
+en Stronger
+sk Silnejší
+uk Міцніше
+
+minigame.touch.mild
+cs Jemnější
+en Milder
+sk Jemnejší
+uk М'якше
+
+minigame.touch.cinnamon
+cs Se skořicí
+en With cinnamon
+sk So škoricou
+uk З корицею
+
+minigame.touch.honey
+cs S medem
+en With honey
+sk S medom
+uk З медом
+
+minigame.shape.heart
+cs Srdce
+en Heart
+sk Srdce
+uk Серце
+
+minigame.shape.rosetta
+cs Rozeta
+en Rosetta
+sk Rozeta
+uk Розета
+
+minigame.shape.tulip
+cs Tulipán
+en Tulip
+sk Tulipán
+uk Тюльпан
+
+minigame.shape.moon
+cs Půlměsíc
+en Crescent moon
+sk Polmesiac
+uk Півмісяць
+
+minigame.shape.train
+cs Vláček
+en Little train
+sk Vláčik
+uk Потяг
+
+minigame.tea.black
+cs Černý čaj
+en Black tea
+sk Čierny čaj
+uk Чорний чай
+
+minigame.tea.green
+cs Zelený čaj
+en Green tea
+sk Zelený čaj
+uk Зелений чай
+
+minigame.tea.herbal
+cs Heřmánek
+en Chamomile
+sk Harmanček
+uk Ромашка
+
+minigame.tea.fruit
+cs Ovocný čaj
+en Fruit tea
+sk Ovocný čaj
+uk Фруктовий чай
+
+minigame.plate.medovnik
+cs Medovník
+en Honey cake
+sk Medovník
+uk Медовик
+
+minigame.plate.soup
+cs Kulajda
+en Dill soup
+sk Kulajda
+uk Суп кулайда
