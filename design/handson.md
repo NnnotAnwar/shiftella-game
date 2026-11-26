@@ -1645,3 +1645,5 @@ Extra acceptance for the new sections:
 - (T7) Duties widget header still shows "P" instead of "H".
 - (T7) Event toasts (e.g. Lost drone) stay on screen a long time and stack over the night view — shorter lifetime / collapse.
 - (T7) Night 1 at ×1 takes ~15 real minutes with overlays (target 12–14).
+- (T9 i18n) Intermittent: ru journal handwritten captions sometimes render as black boxes (glyph cache?) — investigate in T10.
+- (T9 i18n) `content::tests::audio_ids_exist_on_disk` fails where audio isn't present — must skip gracefully once audio leaves git.
