@@ -31,10 +31,10 @@ sk Hmla od rieky
 uk Туман із річки
 
 event.fog.text
-cs Od Šeřavy stoupá mléko. Okno kavárny je vidět. Nic jiného.
-en Milk rises off the Šeřava. You can see the café window. Nothing else.
-sk Od Šeřavy stúpa mlieko. Okno kaviarne je vidieť. Nič iné.
-uk Від Šeřava підіймається молоко. Видно вікно кав'ярні. І більше нічого.
+cs Od Vltavy stoupá mléko. Okno kavárny je vidět. Nic jiného.
+en Milk rises off the Vltava. You can see the café window. Nothing else.
+sk Od Vltavy stúpa mlieko. Okno kaviarne je vidieť. Nič iné.
+uk Від Влтави підіймається молоко. Видно вікно кав'ярні. І більше нічого.
 
 event.storm.title
 cs Bouřka
@@ -565,10 +565,10 @@ sk Blikajúci nápis
 uk Блимає вивіска
 
 event.holo_flicker.text
-cs Holo nápis nad dveřmi chvíli ukazuje „U VÝHYBKY", chvíli „ČEKÁME". Kolemjdoucí se zastavují.
-en The holo sign over the door flickers between "U VÝHYBKY" and "WE'RE WAITING". Passers-by stop to look.
-sk Holo nápis nad dverami chvíľu ukazuje „U VÝHYBKY", chvíľu „ČAKÁME". Okoloidúci sa zastavujú.
-uk Голографічна вивіска над дверима блимає то «U VÝHYBKY», то «МИ ЧЕКАЄМО». Перехожі зупиняються.
+cs Holo nápis nad dveřmi chvíli ukazuje „CAFÉ NOCTURNE“, chvíli „ČEKÁME“. Kolemjdoucí se zastavují.
+en The holo sign over the door flickers between "CAFÉ NOCTURNE" and "WE'RE WAITING". Passers-by stop to look.
+sk Holo nápis nad dverami chvíľu ukazuje „CAFÉ NOCTURNE“, chvíľu „ČAKÁME“. Okoloidúci sa zastavujú.
+uk Голографічна вивіска над дверима блимає то «CAFÉ NOCTURNE», то «МИ ЧЕКАЄМО». Перехожі зупиняються.
 
 event.station_cat.title
 cs Nádražní kocour
@@ -661,9 +661,9 @@ sk Zvláštna objednávka
 uk Дивне замовлення
 
 event.strange_order.text
-cs „Dejte mi to, co pila Lída."
-en "Give me what Lída used to drink."
-sk „Dajte mi to, čo pila Lída."
+cs „Dejte mi to, co pila Lida."
+en "Give me what Lida used to drink."
+sk „Dajte mi to, čo pila Lida."
 uk «Дайте мені те, що пила Ліда».
 
 event.strange_order.choice.tea_two_sugars
@@ -727,10 +727,10 @@ sk Mirkov taxík skončil v zábradlí. Nikomu sa nič vážne nestalo. Mirek u�
 uk Міркове таксі врізалося в огорожу. Ніхто серйозно не постраждав. Мірек більше не прийде.
 
 event.storm_blackout.title
-cs Celé město ve tmě
-en The whole town in the dark
-sk Celé mesto v tme
-uk Усе місто в темряві
+cs Celá čtvrť ve tmě
+en The whole district in the dark
+sk Celá štvrť v tme
+uk Увесь район у темряві
 
 event.storm_blackout.text
 cs Svítí jen tvoje okno. Kdo nespí, jde za ním.

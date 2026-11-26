@@ -86,11 +86,19 @@ const HOVER_TAU: f32 = 0.045;
 pub struct Ui {
     pub fonts: Fonts,
     pub theme: Theme,
+    /// Faces for avatars by display name (the game registers its people; see
+    /// [`Ui::register_face`]). Names without a face show initials.
+    pub(crate) faces: std::collections::HashMap<String, crate::render::PersonLook>,
     user_scale: f32,
     screen: Vec2,
     time: f64,
     dt: f32,
     frame: u64,
+    /// `SHIFTELLA_LAYOUT_DEBUG=1`: widgets / text outside their container are outlined in
+    /// red and logged once.
+    layout_debug: bool,
+    layout_issues: Vec<(Rect, String)>,
+    layout_logged: std::collections::HashSet<String>,
     // input (UI units)
     mouse: Vec2,
     mouse_prev: Vec2,
@@ -133,9 +141,15 @@ pub struct Ui {
 
 impl Ui {
     pub fn new(fonts: Fonts) -> Ui {
+        let layout_debug = std::env::var("SHIFTELLA_LAYOUT_DEBUG").is_ok_and(|v| v != "0");
+        super::text::LAYOUT_DEBUG.store(layout_debug, std::sync::atomic::Ordering::Relaxed);
         Ui {
             fonts,
             theme: Theme::SHIFTELLA,
+            faces: std::collections::HashMap::new(),
+            layout_debug,
+            layout_issues: Vec::new(),
+            layout_logged: std::collections::HashSet::new(),
             user_scale: 1.0,
             screen: vec2(1280.0, 720.0),
             time: 0.0,
@@ -204,6 +218,21 @@ impl Ui {
     }
     pub fn dt(&self) -> f32 {
         self.dt
+    }
+    /// Avatars of `name` show this person's face instead of initials. Call at the start of a
+    /// frame, before drawing: a new face is rendered into a small texture right away.
+    pub fn register_face(&mut self, name: &str, look: crate::render::PersonLook) {
+        if self.faces.get(name) != Some(&look) {
+            self.faces.insert(name.to_string(), look);
+        }
+        if crate::render::faces::prepare(name, &look) {
+            set_default_camera();
+        }
+    }
+
+    /// Frames since the Ui was created (detects "not drawn last frame").
+    pub fn frame_count(&self) -> u64 {
+        self.frame
     }
     /// Converts a UI-unit point to window logical points (what macroquad's default camera uses).
     pub fn to_screen_points(&self, p: Vec2) -> Vec2 {
@@ -308,6 +337,16 @@ impl Ui {
     pub fn end_frame(&mut self) {
         self.clip.clear();
         set_scissor(None);
+        if self.layout_debug {
+            self.layout_issues.extend(super::text::take_overflows());
+            for (r, what) in std::mem::take(&mut self.layout_issues) {
+                super::draw::stroke_rrect(r, 0.0, 1.5, Color::new(1.0, 0.2, 0.3, 0.9));
+                let key = format!("{what} @ {:.0},{:.0} {:.0}x{:.0}", r.x, r.y, r.w, r.h);
+                if self.layout_logged.insert(key.clone()) {
+                    eprintln!("layout: {key}");
+                }
+            }
+        }
         self.draw_popup();
         self.draw_tooltip();
 
@@ -377,10 +416,18 @@ impl Ui {
         self.focus.is_some()
     }
 
-    fn blocked(&self, p: Vec2) -> bool {
+    /// Is `p` covered by a higher layer? A region with the widget's own rect (its glass /
+    /// card background, often declared right after `interact`) never blocks the widget.
+    fn blocked(&self, p: Vec2, own: Rect) -> bool {
+        let same = |a: &Rect| {
+            (a.x - own.x).abs() < 1.0
+                && (a.y - own.y).abs() < 1.0
+                && (a.w - own.w).abs() < 1.0
+                && (a.h - own.h).abs() < 1.0
+        };
         self.prev_regions
             .iter()
-            .any(|(r, z)| *z > self.z && r.contains(p))
+            .any(|(r, z)| *z > self.z && r.contains(p) && !same(r))
     }
 
     /// Intersect with the current clip and enable the GPU scissor.
@@ -400,10 +447,43 @@ impl Ui {
         self.clip.last().copied()
     }
 
+    /// Layout debug: a widget sticking out of the screen, or partly out of the panel it is
+    /// drawn on (the last region that overlaps it), outside any scroll clip.
+    fn check_layout(&mut self, r: Rect) {
+        let s = self.screen();
+        if r.w <= 0.5 || r.h <= 0.5 {
+            return;
+        }
+        let inside = |a: &Rect, b: &Rect| {
+            b.x >= a.x - 0.5
+                && b.y >= a.y - 0.5
+                && b.right() <= a.right() + 0.5
+                && b.bottom() <= a.bottom() + 0.5
+        };
+        if self.clip.last().is_some() {
+            // scroll areas clip their rows; overflow there is by design
+            return;
+        }
+        if !inside(&s, &r) && r != s {
+            self.layout_issues.push((r, "widget off screen".into()));
+            return;
+        }
+        if let Some((p, _)) = self
+            .regions
+            .iter()
+            .rev()
+            .find(|(p, _)| *p != r && *p != s && p.overlaps(&r))
+            && !inside(p, &r)
+        {
+            self.layout_issues
+                .push((r, "widget outside its panel".into()));
+        }
+    }
+
     /// Is the mouse over `r`, not blocked by a higher layer and inside the clip?
     pub fn hovering(&self, r: Rect) -> bool {
         let m = self.mouse;
-        r.contains(m) && !self.blocked(m) && self.clip.last().is_none_or(|c| c.contains(m))
+        r.contains(m) && !self.blocked(m, r) && self.clip.last().is_none_or(|c| c.contains(m))
     }
 
     // --- animation ---------------------------------------------------------
@@ -431,6 +511,9 @@ impl Ui {
     }
 
     pub(crate) fn interact_with(&mut self, id: Id, r: Rect, enabled: bool) -> Response {
+        if self.layout_debug {
+            self.check_layout(r);
+        }
         let over = enabled && self.hovering(r);
         let free = self.active.is_none() || self.active == Some(id);
         let hovered = over && free;

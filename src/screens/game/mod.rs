@@ -13,6 +13,7 @@ mod panels;
 mod pause;
 mod phone_app;
 pub mod scene;
+pub mod tutorial;
 pub mod world_view;
 
 use std::cell::RefCell;
@@ -64,6 +65,8 @@ pub enum Panel {
     App,
     Build,
     Log,
+    /// "How to play" reference (F1).
+    Help,
 }
 
 /// A line in the top ticker / log.
@@ -143,6 +146,20 @@ pub struct GameScreen {
     clock_stop: f32,
     /// Last game minute a footstep / coffee ambience sound was considered.
     last_ambience_minute: u32,
+    /// Timings of the last frame (debug overlay).
+    pub times: FrameTimes,
+    /// Screen rects of HUD pieces this frame, by name (tutorial arrows point at them).
+    pub anchors: Vec<(&'static str, Rect)>,
+}
+
+/// CPU time of the last frame's parts (the F3 debug overlay).
+#[derive(Debug, Clone, Copy, Default)]
+pub struct FrameTimes {
+    pub sim_ms: f32,
+    pub world_ms: f32,
+    pub ui_ms: f32,
+    /// Sim ticks run this frame.
+    pub ticks: u32,
 }
 
 /// Panel-local state that survives frames.
@@ -154,6 +171,8 @@ pub struct UiState {
     pub build: build::BuildState,
     pub handover_text: String,
     pub log_filter: usize,
+    /// Whom the board's thank-you note is for (index into the crew).
+    pub thank_pick: usize,
 }
 
 impl GameScreen {
@@ -199,6 +218,8 @@ impl GameScreen {
             last_ambience_minute: u32::MAX,
             deferred: Vec::new(),
             clock_stop: 0.0,
+            times: FrameTimes::default(),
+            anchors: Vec::new(),
             automation: std::env::var("SHIFTELLA_SHOT").is_ok(),
         }
     }
@@ -211,6 +232,7 @@ impl GameScreen {
         if skip_opening {
             g.extra.opening_seen = Some(Vec::new());
         } else if let Some(def) = content.cutscene("opening") {
+            g.stage_player();
             g.player.start(def);
             g.intro = true;
         }
@@ -253,11 +275,17 @@ impl GameScreen {
         self.player.is_playing()
     }
 
+    /// Cutscene text is on screen: the app ducks the music under it.
+    pub fn dialogue_on_screen(&self) -> bool {
+        self.player.text_on_screen()
+    }
+
     /// Clock frozen for the player (overlays, cutscenes, pause).
     pub fn frozen(&self) -> bool {
         self.speed == 0
             || self.pause.is_some()
             || self.cutscene_playing()
+            || self.tutorial_holds_clock()
             || self.summary.is_some()
             || self.world.phase() == Phase::Day
     }
@@ -339,6 +367,59 @@ impl GameScreen {
         }
     }
 
+    /// Avatars show faces: staff, candidates, Karolina and the bot, by their display names.
+    fn register_faces(&mut self, ui: &mut Ui, loc: &Locale) {
+        let staff_look = |s: &sim::Staff| sim::LookRef {
+            seed: s.look_seed,
+            staff: !s.owner,
+            preset: s.owner.then(|| "player".to_string()),
+            source: s.archetype.clone(),
+        };
+        let people: Vec<(String, sim::LookRef)> = self
+            .world
+            .staff()
+            .iter()
+            .chain(self.world.candidates().iter().map(|c| &c.staff))
+            .map(|s| (wv::staff_name(loc, s), staff_look(s)))
+            .collect();
+        for (name, l) in people {
+            let look = self.scene.look(&l);
+            ui.register_face(&name, look);
+        }
+        let player = crate::render::PersonLook::preset("player");
+        ui.register_face(loc.tr("cast.player.name"), player);
+        ui.register_face(
+            "@shiftella_bot",
+            crate::render::PersonLook::preset("shiftella_bot"),
+        );
+    }
+
+    /// Hands the live café to the cutscene player: walkability for actor paths (around the
+    /// player's own furniture) and where tonight's people already are.
+    fn stage_player(&mut self) {
+        use crate::map::{Map, Tile};
+        let g = self.world.grid();
+        let map = Map::from_fn(g.width.max(0) as usize, g.height.max(0) as usize, |x, y| {
+            let (x, y) = (x as i32, y as i32);
+            match g.tile(x, y).map(|t| t.kind) {
+                Some(sim::TileKind::Wall) => Tile::Wall,
+                Some(sim::TileKind::Window) => Tile::Window,
+                Some(sim::TileKind::Door) => Tile::Door,
+                _ if g.walkable(x, y) => Tile::Floor,
+                _ => Tile::Table,
+            }
+        });
+        self.player.set_nav_map(Some(map));
+        let live: Vec<(String, Vec2)> = self
+            .world
+            .staff_views()
+            .into_iter()
+            .chain(self.world.guest_views())
+            .map(|v| (v.look.source.clone(), vec2(v.feet.0, v.feet.1)))
+            .collect();
+        self.player.set_live_cast(live);
+    }
+
     fn start_cutscene(&mut self, content: &Rc<Content>, id: &str) {
         // the opening was shown before Day 1: hand its choices straight to the sim
         if id == "opening"
@@ -364,6 +445,7 @@ impl GameScreen {
             return;
         };
         *self.snapshot.borrow_mut() = Some(self.world.clone());
+        self.stage_player();
         self.player.start(def);
         self.intro = false;
         self.bubble = None;
@@ -592,6 +674,11 @@ impl GameScreen {
                 let t = tr("ui.ticker.staff_sick", &[("name".into(), n)]);
                 self.push_ticker(Icon::Warning, t.clone());
                 self.toast(ToastKind::Warning, Icon::Crew, t, None);
+            }
+            SimEvent::StaffBreakEnded { staff } => {
+                let n = staff_name(&self.world, staff);
+                let t = tr("ui.ticker.break_ended", &[("name".into(), n)]);
+                self.push_ticker(Icon::Cup, t);
             }
             SimEvent::StaffWalkedOut { staff } => {
                 let n = staff_name(&self.world, staff);
@@ -865,6 +952,7 @@ impl GameScreen {
     pub fn play_scene(&mut self, content: &Rc<Content>, id: &str) {
         if let Some(def) = content.cutscene(id) {
             *self.snapshot.borrow_mut() = Some(self.world.clone());
+            self.stage_player();
             self.player.start(def);
             self.intro = true;
         }
@@ -917,12 +1005,16 @@ impl GameScreen {
     /// One frame: logic, world, HUD and panels. Call between `ui.begin_frame()` and
     /// `ui.end_frame()`; then call [`GameScreen::hotkeys`].
     pub fn frame(&mut self, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
+        let t_start = std::time::Instant::now();
+        let mut ticks_run = 0u32;
         let content = cx.content;
         // 3:33 — everything holds its breath
         if self.clock_stop <= 0.0 {
             self.time += dt;
         }
         let loc = cx.loc;
+        // faces for avatars: baked before anything of this frame is drawn
+        self.register_faces(ui, &loc);
         for e in std::mem::take(&mut self.deferred) {
             self.handle_event(content, e, Some(&loc));
         }
@@ -965,6 +1057,7 @@ impl GameScreen {
                 self.acc -= TICK_SECONDS;
                 self.world.tick(content);
                 guard += 1;
+                ticks_run += 1;
                 let evs = self.world.drain_events();
                 for e in &evs {
                     Self::event_audio(cx.audio, e);
@@ -994,9 +1087,12 @@ impl GameScreen {
         };
         self.scene.refresh(&self.world, self.time, alpha);
 
+        let t_sim = std::time::Instant::now();
         // 2. world
         if self.player.is_playing() {
-            self.player.draw_world();
+            // story scenes play on the live café (its furniture, lamps, weather, people)
+            self.scene
+                .draw_cutscene(&self.world, content, self.time, &self.player);
         } else {
             let wants_mouse = ui.wants_mouse();
             if !wants_mouse && self.pause.is_none() && !self.automation {
@@ -1031,8 +1127,10 @@ impl GameScreen {
             self.world_click(ui, content, pick, mouse_world, ghost.as_ref(), &loc);
         }
 
+        let t_world = std::time::Instant::now();
         // 3. UI
         ui.set_camera();
+        self.anchors.clear();
         if self.player.is_playing() {
             self.player.draw_ui(ui, &loc);
         } else {
@@ -1046,11 +1144,14 @@ impl GameScreen {
                 Some(Panel::Log) => panels::log(self, ui, cx),
                 Some(Panel::App) => phone_app::draw(self, ui, cx),
                 Some(Panel::Build) => build::panel(self, ui, cx),
+                Some(Panel::Help) => tutorial::help(self, ui, cx),
                 None => {}
             }
             if self.world.phase() == Phase::Day && self.summary.is_none() {
                 day::planning(self, ui, cx);
             }
+            self.tutorial_update(cx);
+            tutorial::draw(self, ui, cx);
             if self.summary.is_some() {
                 day::summary(self, ui, cx);
             }
@@ -1062,10 +1163,25 @@ impl GameScreen {
         if !self.player.is_playing() {
             self.flush_notices(ui, &loc);
             ui.set_toast_bottom_inset(56.0);
+            // by day the planning panel owns the right column: toasts stay beside it
+            let right = self
+                .anchors
+                .iter()
+                .find(|a| a.0 == "day.panel")
+                .map_or(0.0, |a| ui.screen().w - a.1.x);
+            ui.set_toast_right_inset(right);
             for ev in ui.draw_toasts(ToastAnchor::BottomRight) {
                 self.toast_clicked(content, ev.toast, ev.tag);
             }
         }
+        let ms = |a: std::time::Instant, b: std::time::Instant| (b - a).as_secs_f32() * 1000.0;
+        let t_end = std::time::Instant::now();
+        self.times = FrameTimes {
+            sim_ms: ms(t_start, t_sim),
+            world_ms: ms(t_sim, t_world),
+            ui_ms: ms(t_world, t_end),
+            ticks: ticks_run,
+        };
     }
 
     fn flush_notices(&mut self, ui: &mut Ui, loc: &Locale) {
@@ -1240,6 +1356,9 @@ impl GameScreen {
         }
         if ui.key(KeyCode::L) {
             toggle(&mut self.panel, Panel::Log);
+        }
+        if ui.key(KeyCode::F1) {
+            toggle(&mut self.panel, Panel::Help);
         }
         if ui.key(KeyCode::Space) {
             self.toggle_pause();

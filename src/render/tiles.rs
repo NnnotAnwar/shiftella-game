@@ -1,9 +1,9 @@
-//! Пол (вид сверху), стены (вид 3/4 с высотой) и кэш статичного слоя.
+//! Floors (seen from above), walls (3/4 view with height) and the static-layer cache.
 //!
-//! Стена — «разрез кукольного домика»: верх (cap) рисуется над тайлом,
-//! сдвинутый вверх на высоту стены, под ним — передняя грань.
-//! Стена, за которой (к югу) комната, — высокая, с окнами и панелями.
-//! Стена, перед которой (к северу) комната, — низкий срез, чтобы не закрывать зал.
+//! A wall is a "dollhouse cut": its top (cap) is drawn over the tile,
+//! shifted up by the wall height, with the front face below it.
+//! A wall with the room behind it (to the south) is tall, with windows and panels.
+//! A wall with the room in front of it (to the north) is a low cut so it doesn't hide the hall.
 
 use macroquad::miniquad::{BlendFactor, BlendState, BlendValue, Equation, PipelineParams};
 use macroquad::prelude::*;
@@ -12,14 +12,14 @@ use super::colors as c;
 use super::draw::*;
 use crate::map::TILE;
 
-/// Высота обычной стены (мировые пиксели).
+/// Height of a normal wall (world pixels).
 pub const WALL_H: f32 = 1.5 * TILE;
-/// Высота низкого «среза» фасадной стены.
+/// Height of the low "cut" of a front wall.
 pub const LOW_WALL_H: f32 = 0.3 * TILE;
-/// Высота панелей-вагонки внизу стены.
+/// Height of the wainscot panels at the bottom of the wall.
 const WAINSCOT_H: f32 = 0.42 * TILE;
 
-/// Вид стены.
+/// Kind of wall.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum WallKind {
     #[default]
@@ -28,8 +28,8 @@ pub enum WallKind {
     Door,
 }
 
-/// Соседи стены: какие из 4 соседей — тоже стены (стена/окно/дверь)
-/// и где пол комнаты (с юга — видим её внутреннюю грань, с севера — она фасадная).
+/// A wall's neighbours: which of the 4 neighbours are walls too (wall/window/door)
+/// and where the room floor is (to the south we see its inner face, to the north it is a front).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Hash)]
 pub struct WallMask(pub u8);
 
@@ -38,13 +38,13 @@ impl WallMask {
     pub const E: u8 = 2;
     pub const S: u8 = 4;
     pub const W: u8 = 8;
-    /// К северу — пол комнаты.
+    /// Room floor to the north.
     pub const FLOOR_N: u8 = 16;
-    /// К югу — пол комнаты.
+    /// Room floor to the south.
     pub const FLOOR_S: u8 = 32;
 
-    /// Посчитать маску для тайла (x, y). `is_wall` — стена/окно/дверь,
-    /// `is_floor` — проходимый пол комнаты (включая мебель на полу).
+    /// Compute the mask for tile (x, y). `is_wall` — wall/window/door,
+    /// `is_floor` — walkable room floor (furniture on the floor included).
     pub fn compute(
         x: i32,
         y: i32,
@@ -77,7 +77,7 @@ impl WallMask {
         self.0 & bit != 0
     }
 
-    /// Низкий срез: фасад перед залом или нижний конец боковой стены.
+    /// Low cut: a front wall before the hall, or the bottom end of a side wall.
     pub fn is_low(self) -> bool {
         if self.has(Self::FLOOR_S) {
             return false;
@@ -85,18 +85,18 @@ impl WallMask {
         self.has(Self::FLOOR_N) || (self.has(Self::N) && !self.has(Self::S))
     }
 
-    /// Высота стены в мировых пикселях.
+    /// Wall height in world pixels.
     pub fn height(self) -> f32 {
         if self.is_low() { LOW_WALL_H } else { WALL_H }
     }
 }
 
-/// Мировые пиксели левого верхнего угла тайла.
+/// World pixels of the tile's top-left corner.
 pub fn tile_px(tile: Vec2) -> Vec2 {
     tile * TILE
 }
 
-/// Прямоугольник стекла окна на стене `tile` (для дождя на стекле и света).
+/// The window-pane rect on wall `tile` (for rain on the glass and light).
 pub fn window_glass_rect(tile: Vec2) -> Rect {
     let p = tile_px(tile);
     let face_top = p.y + TILE - WALL_H;
@@ -105,15 +105,15 @@ pub fn window_glass_rect(tile: Vec2) -> Rect {
     Rect::new(p.x + 5.0, top, TILE - 10.0, bottom - top)
 }
 
-/// Ключ y-сортировки стены (для низких стен в общей очереди).
+/// A wall's y sort key (for low walls in the shared queue).
 pub fn wall_sort_key(tile: Vec2) -> f32 {
     (tile.y + 1.0) * TILE
 }
 
-// ───────────────────────── пол ─────────────────────────
+// ───────────────────────── floor ─────────────────────────
 
-/// Пол тайла `tile` (координаты тайла: столбец, строка). `kind`:
-/// `floor_wood` | `floor_tile` | `floor_carpet` | `pavement` (другое → дерево).
+/// The floor of tile `tile` (tile coordinates: column, row). `kind`:
+/// `floor_wood` | `floor_tile` | `floor_carpet` | `pavement` (anything else → wood).
 pub fn draw_floor(kind: &str, tile: Vec2) {
     let p = tile_px(tile);
     let (tx, ty) = (tile.x as i32, tile.y as i32);
@@ -167,7 +167,7 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
                     alpha(Color::from_hex(0x4b428c), 0.7),
                 );
             }
-            // узор-ромбик в центре каждого второго тайла
+            // a small diamond in the middle of every other tile
             if (tx + ty) % 2 == 0 {
                 let cpt = p + vec2(TILE / 2.0, TILE / 2.0);
                 let s = 7.0;
@@ -183,13 +183,13 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
             }
         }
         _ => {
-            // дерево: 4 доски на тайл, швы со сдвигом
+            // wood: 4 planks per tile, staggered seams
             let ph = TILE / 4.0;
             let tones = [0x83594a, 0x7a5243, 0x8c6150, 0x734c3e, 0x7f5647];
             for row in 0..4 {
                 let gy = ty * 4 + row;
                 let y = p.y + row as f32 * ph;
-                // длина доски — 3 тайла, сдвиг по строкам
+                // a plank is 3 tiles long, shifted per row
                 let offset = (hash01(gy as u32 * 7 + 3) * 3.0 * TILE).floor();
                 let board_len = 3.0 * TILE;
                 let local = (p.x + offset).rem_euclid(board_len);
@@ -207,7 +207,7 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
                     let tone = tones[(hash((gy * 31 + board_id * 17) as u32) % 5) as usize];
                     let base = Color::from_hex(tone);
                     rect_v(x0, y, x1 - x0, ph, tint_light(base, 0.04), shade(base, 0.9));
-                    // волокна
+                    // grain
                     for g in 0..2 {
                         let gy2 = y + 4.0 + g as f32 * 6.0 + hash2(gy, board_id + g) * 3.0;
                         draw_line(x0, gy2, x1, gy2, 0.7, alpha(shade(base, 0.75), 0.35));
@@ -244,8 +244,8 @@ pub fn draw_floor(kind: &str, tile: Vec2) {
     }
 }
 
-/// Мокрая уличная брусчатка (как в `draw_outside`): камни со сдвигом рядов,
-/// блики, иногда лужица с отражением фонаря. Статична — годится для кэша.
+/// Wet street cobbles (as in `draw_outside`): stones in staggered rows,
+/// highlights, now and then a puddle reflecting a streetlamp. Static — fine for the cache.
 fn draw_pavement(p: Vec2, tx: i32, ty: i32) {
     draw_rectangle(p.x, p.y, TILE, TILE, Color::from_hex(0x2e2842));
     let (sw, sh) = (16.0, 11.2);
@@ -287,7 +287,7 @@ fn draw_pavement(p: Vec2, tx: i32, ty: i32) {
             k += 1;
         }
     }
-    // лужа примерно на каждом четвёртом тайле
+    // a puddle on roughly every fourth tile
     if hash2(tx * 3 + 1, ty * 7 + 5) > 0.74 {
         let cx = p.x + TILE * (0.3 + hash2(tx, ty + 9) * 0.4);
         let cy = p.y + TILE * (0.35 + hash2(tx + 4, ty) * 0.3);
@@ -312,10 +312,10 @@ fn draw_pavement(p: Vec2, tx: i32, ty: i32) {
     }
 }
 
-// ───────────────────────── стены ─────────────────────────
+// ───────────────────────── walls ─────────────────────────
 
-/// Стена на тайле `tile` (столбец, строка). Высота — по маске (см. `WallMask::is_low`).
-/// Рисуйте стены по строкам сверху вниз (или через очередь с `wall_sort_key`).
+/// The wall on tile `tile` (column, row). Its height comes from the mask (see `WallMask::is_low`).
+/// Draw walls row by row from top to bottom (or through the queue with `wall_sort_key`).
 pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
     let p = tile_px(tile);
     let m = neighbours;
@@ -325,9 +325,9 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
     let face_top = y + TILE - h;
     let face_bot = y + TILE;
 
-    // ── передняя грань
+    // ── front face
     if m.has(WallMask::FLOOR_S) {
-        // внутренняя стена зала: штукатурка + панели
+        // inner wall of the hall: plaster + panels
         rect_v(
             x,
             face_top,
@@ -336,7 +336,7 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
             c::WALL_PLASTER_TOP,
             c::WALL_PLASTER_BOTTOM,
         );
-        // лёгкая фактура штукатурки
+        // a light plaster texture
         for k in 0..3 {
             let hx = hash2(tile.x as i32 * 3 + k, tile.y as i32);
             ellipse(
@@ -361,7 +361,7 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
                 shade(c::WAINSCOT_BOTTOM, 1.05),
             );
         }
-        // молдинг и плинтус
+        // moulding and skirting
         rect_v(
             x,
             wy - 2.0,
@@ -378,7 +378,7 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
             shade(c::WAINSCOT_BOTTOM, 0.8),
             shade(c::WAINSCOT_BOTTOM, 0.6),
         );
-        // AO у потолка (под верхом стены)
+        // AO under the ceiling (below the top of the wall)
         rect_v(
             x,
             face_top,
@@ -413,7 +413,7 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
             WallKind::Plain => {}
         }
     } else if !low || !m.has(WallMask::FLOOR_N) || kind != WallKind::Door {
-        // наружная/торцевая грань — темнее, кирпичная кладка
+        // outer / end face — darker, brickwork
         let top = Color::from_hex(0x4a3c6e);
         let bot = Color::from_hex(0x2e2546);
         rect_v(x, face_top, TILE, h, top, bot);
@@ -452,10 +452,10 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
         );
     }
 
-    // ── верх (срез стены)
+    // ── top (the cut of the wall)
     let cap_y = y - h;
     if low && kind == WallKind::Door {
-        // проём двери в низком фасаде: латунный порог и тёплый свет с крыльца
+        // door opening in the low front: a brass threshold and warm light from the porch
         rect_v(
             x,
             y + TILE - 12.0,
@@ -516,7 +516,7 @@ pub fn draw_wall(tile: Vec2, neighbours: WallMask, kind: WallKind) {
 fn draw_window(tile: Vec2) {
     let g = window_glass_rect(tile);
     let frame = Color::from_hex(0xd9cdf2);
-    // рама
+    // frame
     rrect_v(
         g.x - 4.0,
         g.y - 4.0,
@@ -526,7 +526,7 @@ fn draw_window(tile: Vec2) {
         frame,
         shade(frame, 0.75),
     );
-    // стекло: ночь снаружи, огоньки города в боке
+    // glass: the night outside, city lights in the bokeh
     rect_v(
         g.x,
         g.y,
@@ -547,7 +547,7 @@ fn draw_window(tile: Vec2) {
             alpha(col, 0.35),
         );
     }
-    // отражение-блик
+    // reflection highlight
     quad(
         [
             vec2(g.x + 6.0, g.y),
@@ -562,7 +562,7 @@ fn draw_window(tile: Vec2) {
             alpha(WHITE, 0.0),
         ],
     );
-    // переплёт
+    // glazing bars
     let mx = g.x + g.w / 2.0;
     draw_line(mx, g.y, mx, g.y + g.h, 2.5, frame);
     draw_line(
@@ -573,7 +573,7 @@ fn draw_window(tile: Vec2) {
         2.0,
         frame,
     );
-    // подоконник
+    // sill
     rrect_v(
         g.x - 7.0,
         g.y + g.h + 3.0,
@@ -585,7 +585,7 @@ fn draw_window(tile: Vec2) {
     );
 }
 
-// ───────────────────────── кэш ─────────────────────────
+// ───────────────────────── cache ─────────────────────────
 
 const VERTEX: &str = r#"#version 100
 attribute vec3 position;
@@ -609,8 +609,8 @@ void main() {
     gl_FragColor = color * texture2D(Texture, uv);
 }"#;
 
-/// Кэш статичных слоёв (пол, высокие стены) в render target. Перестраивайте
-/// при изменении карты (`build`), рисуйте каждый кадр (`draw`) камерой мира.
+/// A cache of the static layers (floor, tall walls) in a render target. Rebuild it
+/// when the map changes (`build`), draw it every frame (`draw`) with the world camera.
 pub struct StaticLayer {
     rt: Option<RenderTarget>,
     rect: Rect,
@@ -625,7 +625,7 @@ impl Default for StaticLayer {
 
 impl StaticLayer {
     pub fn new() -> StaticLayer {
-        // Правильное «over» для альфы: иначе полупрозрачные тени делали бы дыры в кэше.
+        // A proper alpha "over": otherwise translucent shadows would punch holes into the cache.
         let mat = load_material(
             ShaderSource::Glsl {
                 vertex: VERTEX,
@@ -656,9 +656,9 @@ impl StaticLayer {
         }
     }
 
-    /// Перерисовать кэш: всё, что нарисует `draw` в мировых координатах внутри
-    /// `world_rect`, попадёт в текстуру с плотностью `scale` пикселей на мировой пиксель.
-    /// После вызова активна камера по умолчанию — поставьте свою камеру снова.
+    /// Redraw the cache: everything `draw` paints in world coordinates inside
+    /// `world_rect` lands in the texture at `scale` pixels per world pixel.
+    /// Afterwards the default camera is active — set your own camera again.
     pub fn build(&mut self, world_rect: Rect, scale: f32, draw: impl FnOnce()) {
         let max = 8192.0;
         let scale = scale.min(max / world_rect.w).min(max / world_rect.h);
@@ -681,7 +681,7 @@ impl StaticLayer {
         self.rt.is_some()
     }
 
-    /// Нарисовать кэш (текущая камера — камера мира).
+    /// Draw the cache (the current camera is the world camera).
     pub fn draw(&self) {
         if let Some(rt) = &self.rt {
             draw_texture_ex(
@@ -691,7 +691,7 @@ impl StaticLayer {
                 WHITE,
                 DrawTextureParams {
                     dest_size: Some(self.rect.size()),
-                    // from_display_rect пишет в RT «вверх ногами» относительно мира
+                    // from_display_rect writes into the RT "upside down" relative to the world
                     flip_y: true,
                     ..Default::default()
                 },
@@ -735,9 +735,9 @@ mod tests {
         let m = mask(2, 3);
         assert!(m.has(WallMask::FLOOR_N));
         assert!(m.is_low());
-        // нижний угол боковой стены — тоже низкий
+        // the bottom corner of a side wall is low too
         assert!(mask(0, 3).is_low());
-        // а боковая стена над ним — высокая
+        // and the side wall above it is tall
         assert!(!mask(0, 2).is_low());
         assert!(mask(0, 2).has(WallMask::N) && mask(0, 2).has(WallMask::S));
     }

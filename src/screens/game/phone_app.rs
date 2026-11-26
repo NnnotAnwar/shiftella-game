@@ -38,6 +38,7 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         size.x,
         size.y,
     );
+    g.anchors.push(("panel", r));
     ui.region(r);
     let labels: Vec<(Icon, &str)> = TABS.iter().map(|(i, k)| (*i, loc.tr(k))).collect();
     let time = if g.world.phase() == Phase::Night {
@@ -143,12 +144,16 @@ fn schedule(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
         loc.tr("ui.app.schedule_title"),
         loc.trf("ui.app.week", &[("n", &app.week.to_string())])
     );
-    ui.fonts.draw(
+    let title_w = ui.fonts.measure(&title, &t.h1());
+    ui.fonts.draw_in(
         &title,
-        head.x + 2.0,
-        ui.fonts.baseline_in(head, &t.h1()),
+        Rect::new(head.x + 2.0, head.y, head.w * 0.55, head.h),
         &t.h1(),
+        Align::Left,
     );
+    // the controls on the right take what is left next to the title; the less important
+    // ones (mode chip, auto-fill label) give way first
+    let room = head.w - title_w.min(head.w * 0.55) - 16.0;
     let mut fr = Flow::row_rev(head, 6.0);
     let b = Button::new(loc.tr("ui.app.publish"))
         .primary()
@@ -169,14 +174,73 @@ fn schedule(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             Err(e) => super::panels::command_error(g, &loc, &e),
         }
     }
+    // hand the rozpis back to the app (undoable with Ctrl+Z / the toast)
+    let auto = Button::new(loc.tr("ui.app.autofill"))
+        .ghost()
+        .icon(Icon::Sparkle)
+        .tooltip(loc.tr("ui.app.autofill_tip"));
+    let (chip_txt, _, _) = if app.draft_dirty {
+        (loc.tr("ui.app.draft"), Tone::Warn, Icon::Note)
+    } else {
+        (loc.tr("ui.app.is_published"), Tone::Ok, Icon::Check)
+    };
+    let mode_txt = if app.manual_rozpis {
+        loc.tr("ui.app.mode_manual")
+    } else {
+        loc.tr("ui.app.mode_auto")
+    };
+    let full = w
+        + ui.button_width(&auto)
+        + ui.chip_width(chip_txt, true)
+        + ui.chip_width(mode_txt, false)
+        + 18.0;
+    let compact_auto = full > room;
+    let show_mode = full - ui.button_width(&auto) + 30.0 <= room;
+    let clicked_auto = if compact_auto {
+        ui.icon_button(
+            "autofill",
+            fr.next(28.0),
+            Icon::Sparkle,
+            &crate::ui::IconButton::ghost().tooltip(loc.tr("ui.app.autofill_tip")),
+        )
+        .clicked
+    } else {
+        let aw = ui.button_width(&auto);
+        ui.button("autofill", fr.next(aw).inset_xy(0.0, 1.0), &auto)
+            .clicked
+    };
+    if clicked_auto {
+        match g.command(content, Command::AutoSchedule) {
+            Ok(()) => g.toast(
+                crate::ui::ToastKind::Info,
+                Icon::Sparkle,
+                loc.tr_owned("ui.app.autofilled"),
+                Some(loc.tr_owned("ui.app.autofilled_body")),
+            ),
+            Err(e) => super::panels::command_error(g, &loc, &e),
+        }
+    }
+    let (mode, mode_tone) = if app.manual_rozpis {
+        (loc.tr("ui.app.mode_manual"), Tone::Neutral)
+    } else {
+        (loc.tr("ui.app.mode_auto"), Tone::Accent)
+    };
+    if show_mode {
+        let mw = ui.chip_width(mode, false);
+        let mr = fr.next(mw);
+        ui.chip(vec2(mr.x, mr.center_y() - 11.0), mode, mode_tone, None);
+    }
     let (chip, tone, icon) = if app.draft_dirty {
         (loc.tr("ui.app.draft"), Tone::Warn, Icon::Note)
     } else {
         (loc.tr("ui.app.is_published"), Tone::Ok, Icon::Check)
     };
     let cw = ui.chip_width(chip, true);
-    let cr = fr.next(cw);
-    ui.chip(vec2(cr.x, cr.center_y() - 11.0), chip, tone, Some(icon));
+    // the state chip only when it fits beside the title (the Publish button shows it too)
+    if w + 28.0 + cw + 18.0 <= room {
+        let cr = fr.next(cw);
+        ui.chip(vec2(cr.x, cr.center_y() - 11.0), chip, tone, Some(icon));
+    }
 
     let staff: Vec<sim::Staff> = g.world.staff().to_vec();
     let name_w = 150.0;
@@ -279,12 +343,13 @@ fn schedule(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
                         Color::new(1.0, 1.0, 1.0, 0.04),
                     ),
                 );
-                ui.fonts.draw_in(
-                    shift_label(*s),
-                    cell,
-                    &TextStyle::new(11.0, Weight::SemiBold, WHITE).tabular(),
-                    Align::Center,
-                );
+                // shrink the label to fit narrow cells (large UI scale) instead of "22-…"
+                let mut st = TextStyle::new(11.0, Weight::SemiBold, WHITE).tabular();
+                let lw = ui.fonts.measure(shift_label(*s), &st);
+                if lw > cell.w - 4.0 {
+                    st = st.size((11.0 * (cell.w - 4.0) / lw).max(7.5));
+                }
+                ui.fonts.draw_in(shift_label(*s), cell, &st, Align::Center);
             } else if leave {
                 fill_rrect(cell, 6.0, with_a(t.amber, 0.12));
                 ui.fonts.draw_in(
@@ -567,7 +632,55 @@ fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     let (left, right) = r.split_left(r.w * 0.56, 12.0);
     // announcements
     ui.section(left.with_h(24.0), loc.tr("ui.app.tab.announcements"));
-    let list = Rect::new(left.x, left.y + 28.0, left.w, left.h - 28.0);
+    // post a thank-you to someone on the crew (lifts everyone's mood a little)
+    let crew: Vec<(u32, String)> = g
+        .world
+        .staff()
+        .iter()
+        .filter(|s| !s.owner)
+        .map(|s| (s.id, wv::staff_name(&loc, s)))
+        .collect();
+    let post_h = if crew.is_empty() { 0.0 } else { 36.0 };
+    if !crew.is_empty() {
+        let i = g.ui_state.thank_pick % crew.len();
+        let first = crew[i]
+            .1
+            .split(' ')
+            .next()
+            .unwrap_or(&crew[i].1)
+            .to_string();
+        let pr = Rect::new(left.x, left.bottom() - 28.0, left.w - 10.0, 28.0);
+        let label = loc.trf("ui.app.thank_post", &[("name", &first)]);
+        let b = Button::new(&label).secondary().icon(Icon::Megaphone);
+        let (next_r, br) = pr.split_right(28.0, 6.0);
+        if ui
+            .icon_button(
+                "thank_next",
+                next_r,
+                Icon::Swap,
+                &crate::ui::IconButton::ghost().tooltip(loc.tr("ui.app.thank_next")),
+            )
+            .clicked
+        {
+            g.ui_state.thank_pick = (i + 1) % crew.len();
+        }
+        if ui.button("thank_post", br, &b).clicked {
+            let cmd = Command::PostAnnouncement {
+                id: "thank_you".into(),
+                args: vec![("name".into(), first.clone())],
+            };
+            match g.command(content, cmd) {
+                Ok(()) => g.toast(
+                    crate::ui::ToastKind::Success,
+                    Icon::Megaphone,
+                    loc.tr_owned("ui.app.posted"),
+                    None,
+                ),
+                Err(e) => super::panels::command_error(g, &loc, &e),
+            }
+        }
+    }
+    let list = Rect::new(left.x, left.y + 28.0, left.w, left.h - 28.0 - post_h);
     if app.announcements.is_empty() {
         empty(ui, list, &loc);
     } else {
@@ -695,11 +808,28 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     let content = cx.content;
     let states = g.world.app().checklist.clone();
     let night = g.world.phase() == Phase::Night;
-    let mut y = r.y;
-    for kind in [
+    let kinds = [
         crate::content::ChecklistKind::Opening,
         crate::content::ChecklistKind::Closing,
-    ] {
+    ];
+    let count = |k| {
+        content
+            .app
+            .checklists
+            .iter()
+            .filter(|c| c.list == k)
+            .count()
+    };
+    let hint_h = if night { 0.0 } else { 24.0 };
+    // the lists scroll inside the tablet; the day hint stays fixed below them
+    let view = Rect::new(r.x, r.y, r.w, r.h - hint_h);
+    let content_h: f32 = kinds
+        .iter()
+        .map(|k| 30.0 + count(*k) as f32 * 30.0 + 8.0)
+        .sum();
+    let sa = ui.begin_scroll("checklists", view, content_h);
+    let mut y = sa.top();
+    for kind in kinds {
         let items: Vec<_> = content
             .app
             .checklists
@@ -725,17 +855,22 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
                 ]
             )
         );
-        ui.section(Rect::new(r.x, y, r.w, 26.0), &title);
+        if sa.visible(y, 26.0) {
+            ui.section(Rect::new(r.x, y, r.w - 12.0, 26.0), &title);
+        }
         y += 30.0;
         for it in items {
+            let rr = Rect::new(r.x, y, r.w - 16.0, 28.0);
+            y += 30.0;
+            if !sa.visible(rr.y, rr.h) {
+                continue;
+            }
             let st = states.iter().find(|s| s.id == it.id);
             let mut checked = st.is_some_and(|s| s.done);
             let who = st
                 .and_then(|s| s.by)
                 .and_then(|id| g.world.staff_by_id(id))
                 .map(|s| wv::staff_name(&loc, s));
-            let rr = Rect::new(r.x, y, r.w - 8.0, 28.0);
-            y += 30.0;
             let label = loc.tr_owned(&format!("app.checklist.{}", it.id));
             let was = checked;
             ui.check_item(
@@ -747,7 +882,10 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             );
             if checked && !was {
                 if night {
-                    let _ = g.command(content, Command::TickChecklist { id: it.id.clone() });
+                    if let Err(e) = g.command(content, Command::TickChecklist { id: it.id.clone() })
+                    {
+                        super::panels::command_error(g, &loc, &e);
+                    }
                 } else {
                     g.toast(
                         crate::ui::ToastKind::Info,
@@ -760,6 +898,7 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
         }
         y += 8.0;
     }
+    ui.end_scroll(sa);
     if !night {
         ui.fonts.draw_in(
             loc.tr("ui.app.checklist_hint"),

@@ -1,5 +1,5 @@
-//! Цвета игры в одном месте. Когда будет готов style guide от дизайнера,
-//! меняем значения здесь — и вся игра перекрасится.
+//! All game colours in one place. When the designer's style guide is ready,
+//! change the values here and the whole game is recoloured.
 
 use macroquad::prelude::Color;
 
@@ -12,7 +12,7 @@ pub const TEXT_DIM: Color = Color::from_hex(0x9690b5);
 pub const NEON: Color = Color::from_hex(0xff4fa3);
 pub const WARM: Color = Color::from_hex(0xffc46b);
 
-// Мир
+// World
 pub const FLOOR_A: Color = Color::from_hex(0x4a3a33);
 pub const FLOOR_B: Color = Color::from_hex(0x45362f);
 pub const FLOOR_LINE: Color = Color::new(0.0, 0.0, 0.0, 0.12);

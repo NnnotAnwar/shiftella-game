@@ -1,4 +1,4 @@
-//! Live background of the main menu: café «U Výhybky» seen from the rainy street at night.
+//! Live background of the main menu: Café Nocturne seen from the rainy street at night.
 //! Wet cobbles with puddle reflections, warm windows with guests inside, the flickering holo
 //! sign (one letter is cracked), a delivery drone, and every ~40 s a night train on the
 //! embankment behind the houses with its light sweeping the street. Slow camera drift.
@@ -225,7 +225,7 @@ impl Backdrop {
             x += w + 4.0;
             i += 1;
         }
-        // church tower of Mlhov with a lit clock
+        // a church tower over Holešovice with a lit clock
         let tx = 358.0;
         rect_v(
             tx - 26.0,
@@ -457,7 +457,7 @@ impl Backdrop {
                 );
             }
         }
-        // the little station on the viaduct: canopy + MLHOV board
+        // the little station on the viaduct: canopy + HOLEŠOVICE board
         rect_v(
             -20.0,
             DECK - 54.0,
@@ -472,15 +472,15 @@ impl Backdrop {
             draw_circle(px + 55.0, DECK - 43.0, 3.0, alpha(WHITE, 0.85));
         }
         rrect(
-            128.0,
+            108.0,
             DECK - 38.0,
-            84.0,
+            124.0,
             20.0,
             4.0,
             Color::from_hex(0x2b3a8c),
         );
         self.text(
-            "MLHOV",
+            "HOLEŠOVICE",
             vec2(170.0, DECK - 23.0),
             13.0,
             alpha(WHITE, 0.9),
@@ -1147,7 +1147,7 @@ impl Backdrop {
 
     fn holo_sign(&self, t: f32, k: f32) {
         let fl = crate::render::holo_flicker(t, 11);
-        let r = Rect::new(780.0, 504.0, 300.0, 42.0);
+        let r = Rect::new(756.0, 498.0, 348.0, 54.0);
         let c = r.center();
         glow(c.x, c.y, 260.0, alpha(pal::INDIGO_GLOW, 0.22 * fl));
         rrect_v(
@@ -1162,7 +1162,7 @@ impl Backdrop {
         let edge = alpha(pal::INDIGO_SOFT, 0.95 * fl);
         draw_rectangle_lines(r.x, r.y, r.w, r.h, 1.5, edge);
         // cup icon
-        let ic = vec2(r.x + 26.0, c.y + 5.0);
+        let ic = vec2(r.x + 26.0, c.y + 1.0);
         rrect(
             ic.x - 8.0,
             ic.y - 10.0,
@@ -1178,28 +1178,29 @@ impl Backdrop {
             1.6,
             alpha(pal::AMBER, 0.95 * fl),
         );
-        // letters, the «Ý» is cracked and stutters
-        let text = "U VÝHYBKY";
-        let size = 22.0;
+        // letters; one is cracked and stutters now and then (never long enough to vanish)
+        let text = "CAFÉ NOCTURNE";
+        let size = 21.0;
         if let Some(font) = &self.font {
             let fs = (size * k).round().max(1.0) as u16;
             let sc = size / fs as f32;
-            let total = measure_text(text, Some(font), fs, sc).width + 2.0 * 7.0;
+            let gaps = (text.chars().count() - 1) as f32 * 2.0;
+            let total = measure_text(text, Some(font), fs, sc).width + gaps;
             let mut x = c.x + 14.0 - total / 2.0;
             for (i, ch) in text.chars().enumerate() {
                 let s = ch.to_string();
                 let adv = measure_text(&s, Some(font), fs, sc).width;
-                let broken = i == 3;
+                let broken = i == 6;
                 let a = if broken {
                     let h = hash((t * 9.0) as u32);
-                    if h % 7 < 2 { 0.15 } else { 0.85 * fl }
+                    if h % 11 < 2 { 0.5 * fl } else { 0.9 * fl }
                 } else {
                     fl
                 };
                 draw_text_ex(
                     &s,
                     x,
-                    c.y + 8.0,
+                    c.y + 4.0,
                     TextParams {
                         font: Some(font),
                         font_size: fs,
@@ -1209,6 +1210,29 @@ impl Backdrop {
                     },
                 );
                 x += adv + 2.0;
+            }
+            // the small Czech subtitle under the name
+            let sub = "kavárna u nádraží";
+            let size = 10.5;
+            let fs = (size * k).round().max(1.0) as u16;
+            let sc = size / fs as f32;
+            let w = measure_text(sub, Some(font), fs, sc).width + 1.5 * sub.chars().count() as f32;
+            let mut x = c.x + 14.0 - w / 2.0;
+            for ch in sub.chars() {
+                let s = ch.to_string();
+                draw_text_ex(
+                    &s,
+                    x,
+                    c.y + 19.0,
+                    TextParams {
+                        font: Some(font),
+                        font_size: fs,
+                        font_scale: sc,
+                        color: alpha(Color::from_hex(0xc7c9ff), 0.85 * fl),
+                        ..Default::default()
+                    },
+                );
+                x += measure_text(&s, Some(font), fs, sc).width + 1.5;
             }
         }
         let scan = (t * 0.8).fract();

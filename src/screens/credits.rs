@@ -84,7 +84,7 @@ impl Credits {
         v.push(Line::Gap(36.0));
         v.push(Line::Heading(loc.tr_owned("ui.credits.places_title")));
         v.push(Line::Text(
-            "Adamov · Beroun · Cheb · Děčín · Ejpovice · Frýdlant · Mlhov nad Šeřavou".into(),
+            "Adamov · Beroun · Cheb · Děčín · Ejpovice · Frýdlant · Praha-Holešovice".into(),
         ));
         v.push(Line::Gap(60.0));
         v.push(Line::Text(loc.tr_owned("ui.ending.credits_thanks")));
@@ -128,7 +128,11 @@ impl Credits {
                     Line::Wordmark => {
                         let size = 40.0;
                         let w = wordmark_width(ui, size);
-                        draw_wordmark(ui, cx - w / 2.0, y + 40.0, size, self.t);
+                        let mark = 44.0;
+                        let total = mark + 12.0 + w;
+                        let x0 = cx - total / 2.0;
+                        crate::render::draw_brand_mark(vec2(x0 + mark / 2.0, y + 26.0), mark, 0.8);
+                        draw_wordmark(ui, x0 + mark + 12.0, y + 40.0, size, self.t);
                     }
                     Line::Title(txt) => {
                         ui.fonts

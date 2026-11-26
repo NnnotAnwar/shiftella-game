@@ -154,6 +154,8 @@ pub(crate) struct ToastState {
     next: u64,
     /// Extra distance from the bottom edge (e.g. above the build panel).
     pub bottom_inset: f32,
+    /// Extra distance from the right edge (e.g. left of the day planning panel).
+    pub right_inset: f32,
 }
 
 const WIDTH: f32 = 320.0;
@@ -197,9 +199,40 @@ impl Ui {
         }
     }
 
+    /// Keep the stack left of a side panel (`v` = its width from the right screen edge).
+    pub fn set_toast_right_inset(&mut self, v: f32) {
+        self.toasts.right_inset = v.max(0.0);
+    }
+
     /// Lift the bottom-anchored stack (e.g. while the build panel is open).
     pub fn set_toast_bottom_inset(&mut self, v: f32) {
         self.toasts.bottom_inset = v;
+    }
+
+    /// Action buttons laid out in rows that fit the text column (`(index, width)` per row).
+    fn action_rows(&self, t: &Toast) -> Vec<Vec<(usize, f32)>> {
+        let tw = WIDTH - 52.0 - 14.0;
+        let mut rows: Vec<Vec<(usize, f32)>> = Vec::new();
+        let mut x = 0.0;
+        for (k, a) in t.actions.iter().enumerate() {
+            let b = if a.primary {
+                Button::new(&a.label).primary()
+            } else {
+                Button::new(&a.label).secondary()
+            };
+            let w = self.button_width(&b).min(tw);
+            match rows.last_mut() {
+                Some(row) if x + w <= tw => {
+                    row.push((k, w));
+                    x += w + 6.0;
+                }
+                _ => {
+                    rows.push(vec![(k, w)]);
+                    x = w + 6.0;
+                }
+            }
+        }
+        rows
     }
 
     fn toast_height(&self, t: &Toast) -> f32 {
@@ -211,9 +244,7 @@ impl Ui {
         });
         let text_h = 18.0 + body_lines as f32 * 16.0;
         let mut h = 12.0 + text_h.max(28.0) + 12.0;
-        if !t.actions.is_empty() {
-            h += 30.0;
-        }
+        h += self.action_rows(t).len() as f32 * 30.0;
         h
     }
 
@@ -259,7 +290,7 @@ impl Ui {
         }
         let x_base = match anchor {
             ToastAnchor::BottomCenter => (screen.w - WIDTH) / 2.0,
-            _ => screen.w - WIDTH - margin,
+            _ => screen.w - WIDTH - margin - self.toasts.right_inset,
         };
         for i in 0..n {
             let h = heights[i];
@@ -353,23 +384,25 @@ impl Ui {
                 self.toasts.live[i].leave.get_or_insert(0.0);
             }
         }
-        if !toast.actions.is_empty() {
+        // buttons wrap onto more rows instead of running out of the toast
+        let rows = self.action_rows(&toast);
+        let mut by = (y + 6.0).max(r.bottom() - 12.0 - rows.len() as f32 * 30.0 + 6.0);
+        for row in rows {
             let mut x = tx;
-            let by = (y + 6.0).max(r.bottom() - 12.0 - 24.0);
-            for (k, a) in toast.actions.iter().enumerate() {
-                let mut b = Button::new(&a.label);
-                b = if a.primary {
-                    b.primary()
+            for (k, w) in row {
+                let a = &toast.actions[k];
+                let b = if a.primary {
+                    Button::new(&a.label).primary()
                 } else {
-                    b.secondary()
+                    Button::new(&a.label).secondary()
                 };
-                let w = self.button_width(&b);
                 let br = Rect::new(x, by, w, 24.0);
                 if self.button(("act", k), br, &b).clicked {
                     result = Some(a.tag);
                 }
                 x += w + 6.0;
             }
+            by += 30.0;
         }
         // auto-dismiss timer
         if !toast.sticky {

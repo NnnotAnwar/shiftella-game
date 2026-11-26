@@ -1,15 +1,15 @@
-//! Ночное освещение: карта света в render target и «2× multiply» поверх мира.
+//! Night lighting: a light map in a render target, laid over the world as a "2× multiply".
 //!
-//! Как это работает:
-//! 1. `begin` запоминает камеру мира и общий цвет темноты (`ambient`).
-//! 2. `add_light` / `add_quad` копят источники (без обращений к GPU).
-//! 3. `apply` рисует карту света (полразрешения) = ambient/2 + Σ свет (аддитивно),
-//!    затем кладёт её на экран смешиванием `src·dst + dst·src` = 2·мир·свет.
-//!    Значит, 0.5 в карте = мир как есть, меньше — темнее, больше — пересвет
-//!    (тёплые пятна ламп реально «светятся», а не просто «меньше темноты»).
-//! 4. Мягкое аддитивное свечение (bloom-лайт) у ярких ламп поверх.
+//! How it works:
+//! 1. `begin` remembers the world camera and the overall darkness colour (`ambient`).
+//! 2. `add_light` / `add_quad` collect sources (no GPU calls).
+//! 3. `apply` draws the light map (half resolution) = ambient/2 + Σ lights (additive),
+//!    then lays it on the screen with the blend `src·dst + dst·src` = 2·world·light.
+//!    So 0.5 in the map = the world as is, less = darker, more = overexposed
+//!    (warm lamp pools really "glow" instead of just being "less dark").
+//! 4. A soft additive glow (bloom-lite) around bright lamps on top.
 //!
-//! Работает на macOS GL (GLSL 100, как штатные шейдеры macroquad).
+//! Works on macOS GL (GLSL 100, like macroquad's own shaders).
 
 use macroquad::miniquad::{BlendFactor, BlendState, BlendValue, Equation, PipelineParams};
 use macroquad::prelude::*;
@@ -18,15 +18,15 @@ use super::colors as c;
 use super::draw::{alpha, glow, hash01, mix, noise1, radial};
 use crate::map::TILE;
 
-/// Точечный источник света (пятно на полу/стене) в мировых пикселях.
+/// A point light (a pool on the floor / wall) in world pixels.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Light {
     pub pos: Vec2,
     pub radius: f32,
     pub color: Color,
-    /// 1.0 в центре ≈ +100 % яркости мира поверх темноты.
+    /// 1.0 in the centre ≈ +100 % of the world's brightness over the darkness.
     pub intensity: f32,
-    /// Амплитуда мерцания 0..1 (свеча ~0.12, лампа ~0.03).
+    /// Flicker amplitude 0..1 (candle ~0.12, lamp ~0.03).
     pub flicker: f32,
 }
 
@@ -46,23 +46,23 @@ impl Light {
             ..self
         }
     }
-    /// Свечение экрана телефона (для блэкаута).
+    /// The glow of a phone screen (for the blackout).
     pub fn phone(pos: Vec2) -> Light {
         Light::new(pos, 0.9 * TILE, c::INDIGO_SOFT, 0.45).flicker(0.05)
     }
-    /// Свеча на столе (для блэкаута).
+    /// A candle on a table (for the blackout).
     pub fn candle(pos: Vec2) -> Light {
         Light::new(pos, 1.5 * TILE, c::AMBER_DEEP, 0.6).flicker(0.12)
     }
-    /// Мягкий лавандовый «прожектор» на актёра катсцены.
+    /// A soft lavender "spotlight" on a cutscene actor.
     pub fn actor_spot(feet: Vec2) -> Light {
         Light::new(feet - vec2(0.0, 30.0), 1.8 * TILE, c::LAVENDER_RIM, 0.55)
     }
 }
 
-/// Темнота в зависимости от хода ночи: 0.0 — 22:00 (фиолетовые сумерки),
-/// ~0.55 — 3:00 (самая глубокая индиго-ночь), 1.0 — 6:00 (синий предрассвет).
-/// Значение — множитель яркости мира (1,1,1 = без затемнения).
+/// Darkness by night progress: 0.0 — 22:00 (violet dusk),
+/// ~0.55 — 3:00 (the deepest indigo night), 1.0 — 6:00 (blue pre-dawn).
+/// The value multiplies the world's brightness (1,1,1 = no darkening).
 pub fn ambient_for(night_progress: f32) -> Color {
     let p = night_progress.clamp(0.0, 1.0);
     let dusk = Color::new(0.56, 0.44, 0.78, 1.0);
@@ -80,7 +80,7 @@ pub fn ambient_for(night_progress: f32) -> Color {
     }
 }
 
-/// Темнота блэкаута: светят только свечи и телефоны.
+/// Blackout darkness: only candles and phones give light.
 pub fn ambient_blackout() -> Color {
     Color::new(0.13, 0.12, 0.25, 1.0)
 }
@@ -99,7 +99,7 @@ void main() {
     color = color0 / 255.0;
 }"#;
 
-/// Аддитивный свет: цвет × альфа складывается с картой.
+/// Additive light: colour × alpha is added to the map.
 const FRAG_ADD: &str = r#"#version 100
 precision mediump float;
 varying lowp vec2 uv;
@@ -110,7 +110,7 @@ void main() {
     gl_FragColor = vec4(c.rgb * c.a, c.a);
 }"#;
 
-/// Наложение карты света: выдаём её цвет (+дизеринг от полос), блендинг делает 2·src·dst.
+/// Laying the light map on: output its colour (+ dithering against banding); the blend does 2·src·dst.
 const FRAG_MUL: &str = r#"#version 100
 precision mediump float;
 varying lowp vec2 uv;
@@ -123,7 +123,7 @@ void main() {
     gl_FragColor = vec4(l, 1.0);
 }"#;
 
-/// `Camera2D` не `Clone` — копируем вручную (render target не нужен).
+/// `Camera2D` isn't `Clone` — copy it by hand (no render target needed).
 fn copy_cam(v: &Camera2D) -> Camera2D {
     Camera2D {
         target: v.target,
@@ -135,14 +135,14 @@ fn copy_cam(v: &Camera2D) -> Camera2D {
     }
 }
 
-/// Произвольная световая фигура (окно, луч поезда).
+/// Any light shape (a window, a train's beam).
 #[derive(Debug, Clone, Copy)]
 struct LightQuad {
     p: [Vec2; 4],
     c: [Color; 4],
 }
 
-/// Система освещения. Создайте один раз (`Lighting::new()`), дальше каждый кадр:
+/// The lighting system. Create it once (`Lighting::new()`), then every frame:
 /// `begin` → `add_light`… → `apply`.
 pub struct Lighting {
     rt: Option<RenderTarget>,
@@ -155,9 +155,9 @@ pub struct Lighting {
     ambient: Color,
     view: Option<Camera2D>,
     time: f32,
-    /// Разрешение карты света относительно экрана (0.5 — вдвое меньше, мягко и быстро).
+    /// Light map resolution relative to the screen (0.5 = half, soft and fast).
     pub resolution: f32,
-    /// Мягкое аддитивное свечение ярких источников поверх (0 — выключить).
+    /// A soft additive glow of bright sources on top (0 = off).
     pub bloom: f32,
 }
 
@@ -231,8 +231,8 @@ impl Lighting {
         }
     }
 
-    /// Начать кадр. `view` — камера, которой рисуется мир на экран
-    /// (`WorldCamera::to_camera2d()`), `ambient` — из `ambient_for` / `ambient_blackout`.
+    /// Start a frame. `view` — the camera the world is drawn to the screen with
+    /// (`WorldCamera::to_camera2d()`), `ambient` — from `ambient_for` / `ambient_blackout`.
     pub fn begin(&mut self, view: &Camera2D, ambient: Color) {
         self.view = Some(copy_cam(view));
         self.ambient = ambient;
@@ -241,7 +241,7 @@ impl Lighting {
         self.time = get_time() as f32;
     }
 
-    /// Задать время для мерцания (по умолчанию — `get_time()`); полезно для скриншотов.
+    /// Set the time used for flicker (default: `get_time()`); useful for screenshots.
     pub fn set_time(&mut self, t: f32) {
         self.time = t;
     }
@@ -250,13 +250,13 @@ impl Lighting {
         self.lights.push(light);
     }
 
-    /// Произвольный выпуклый четырёхугольник света с цветом в вершинах (альфа = сила).
+    /// Any convex light quad with a colour per vertex (alpha = strength).
     pub fn add_quad(&mut self, p: [Vec2; 4], c: [Color; 4]) {
         self.quads.push(LightQuad { p, c });
     }
 
-    /// Стёкла окон (мировые прямоугольники стекла, см. `window_glass_rect`).
-    /// Нужны для холодного света из окон и для `train_sweep`.
+    /// Window panes (world rects of the glass, see `window_glass_rect`).
+    /// Needed for the cool light from the windows and for `train_sweep`.
     pub fn set_windows(&mut self, glass: Vec<Rect>) {
         self.windows = glass;
     }
@@ -265,14 +265,14 @@ impl Lighting {
         &self.windows
     }
 
-    /// Холодный лунно-фонарный свет из окон: трапеции на пол. `strength` 0..1.
+    /// Cool moon-and-streetlamp light from the windows: trapezoids on the floor. `strength` 0..1.
     pub fn add_window_light(&mut self, strength: f32) {
         let col = Color::from_hex(0x8ea6ff);
         for i in 0..self.windows.len() {
             let g = self.windows[i];
-            let floor = g.y + g.h + 0.9 * TILE; // низ стены
+            let floor = g.y + g.h + 0.9 * TILE; // bottom of the wall
             let a = alpha(col, 0.32 * strength);
-            // само стекло светится
+            // the glass itself glows
             self.add_quad(
                 [
                     vec2(g.x, g.y),
@@ -293,8 +293,8 @@ impl Lighting {
         }
     }
 
-    /// Свет проходящего поезда: яркая полоса пробегает по окнам и по комнате.
-    /// `progress` 0..1 — от появления до ухода (вне диапазона — ничего).
+    /// Light of a passing train: a bright band runs across the windows and the room.
+    /// `progress` 0..1 — from appearing to leaving (outside the range — nothing).
     pub fn train_sweep(&mut self, progress: f32) {
         if !(0.0..=1.0).contains(&progress) || self.windows.is_empty() {
             return;
@@ -305,7 +305,7 @@ impl Lighting {
             x1 = x1.max(w.x + w.w);
         }
         let span = x1 - x0 + 6.0 * TILE;
-        // окна вагона: несколько полос подряд
+        // carriage windows: several bands in a row
         let fade = (progress * (1.0 - progress) * 4.0).clamp(0.0, 1.0).sqrt();
         let col = Color::from_hex(0xd8e0ff);
         let head = x0 - 3.0 * TILE + span * progress;
@@ -321,7 +321,7 @@ impl Lighting {
                 }
                 let k = 0.55 * fade;
                 let floor = g.y + g.h + 0.9 * TILE;
-                // полоса на стекле и вытянутое пятно на полу (сдвинуто — свет падает под углом)
+                // a band on the glass and a stretched pool on the floor (shifted — the light falls at an angle)
                 self.add_quad(
                     [
                         vec2(l, g.y),
@@ -336,8 +336,8 @@ impl Lighting {
         }
     }
 
-    /// Луч света на пол от отрезка [x0, x1] на линии `y`: расширяется и тает вниз,
-    /// края мягкие (по бокам — полосы с затуханием), `skew` — снос вправо.
+    /// A beam of light onto the floor from the segment [x0, x1] on line `y`: widens and fades downwards,
+    /// soft edges (fading bands at the sides), `skew` — drift to the right.
     fn add_soft_beam(&mut self, x0: f32, x1: f32, y: f32, len: f32, skew: f32, col: Color) {
         let z = alpha(col, 0.0);
         let feather = 0.35 * TILE;
@@ -390,15 +390,15 @@ impl Lighting {
         1.0 - l.flicker + l.flicker * 2.0 * n
     }
 
-    /// Нарисовать карту света и наложить её на уже нарисованный мир.
-    /// После вызова снова активна камера мира `view` (можно рисовать эмоции/выделение).
+    /// Draw the light map and lay it over the world already drawn.
+    /// Afterwards the world camera `view` is active again (emotes / selection can be drawn).
     pub fn apply(&mut self) {
         let Some(view) = self.view.as_ref().map(copy_cam) else {
             return;
         };
         let rt = self.ensure_rt();
-        // 1) карта света: та же камера мира, но в render target
-        //    (на этом macOS GL текстура RT и экран совпадают по Y без переворота)
+        // 1) the light map: the same world camera, but into the render target
+        //    (on this macOS GL the RT texture and the screen agree in Y, no flip)
         let light_cam = Camera2D {
             target: view.target,
             zoom: view.zoom,
@@ -432,7 +432,7 @@ impl Lighting {
         }
         gl_use_default_material();
 
-        // 2) наложение на экран: 2 × мир × свет
+        // 2) onto the screen: 2 × world × light
         set_default_camera();
         gl_use_material(&self.mul_mat);
         draw_texture_ex(
@@ -447,7 +447,7 @@ impl Lighting {
         );
         gl_use_default_material();
 
-        // 3) мягкое свечение у ярких тёплых источников
+        // 3) a soft glow around bright warm sources
         set_camera(&view);
         if self.bloom > 0.0 {
             for (i, l) in self.lights.iter().enumerate() {
@@ -478,7 +478,7 @@ mod tests {
         let dawn = lum(ambient_for(1.0));
         assert!(deep < dusk && deep < dawn);
         assert!(lum(ambient_blackout()) < deep);
-        // предрассвет синее, сумерки фиолетовее
+        // pre-dawn bluer, dusk more violet
         let d = ambient_for(1.0);
         assert!(d.b > d.r);
         let v = ambient_for(0.0);

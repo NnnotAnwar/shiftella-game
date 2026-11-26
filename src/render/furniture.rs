@@ -1,8 +1,8 @@
-//! Мебель и техника в виде 3/4: видна верхняя грань и передняя стенка.
+//! Furniture and appliances in 3/4 view: the top face and the front are visible.
 //!
-//! Проекция «косая»: точка пола (x, y) на высоте z рисуется в (x, y − z).
-//! Поэтому у предмета ключ y-сортировки — нижний край его следа на полу
-//! (`furniture_sort_key`). Все размеры — в мировых пикселях (тайл = 64).
+//! Oblique projection: a floor point (x, y) at height z is drawn at (x, y − z).
+//! So an object's y sort key is the bottom edge of its footprint on the floor
+//! (`furniture_sort_key`). All sizes are in world pixels (tile = 64).
 
 use std::f32::consts::PI;
 
@@ -15,16 +15,16 @@ use super::look::{Expression, Facing, PersonLook};
 use super::person::{draw_cup, draw_portrait, draw_steam};
 use crate::map::TILE;
 
-/// Состояние предмета в этом кадре.
+/// A piece's state this frame.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct FurnitureState {
-    /// Включено/работает (лампа горит, кофемашина варит, свеча зажжена…).
+    /// On / working (the lamp is lit, the coffee machine brews, the candle burns…).
     pub active: bool,
-    /// Грязь 0..1 (крошки на столе, посуда в мойке, полное ведро).
+    /// Dirt 0..1 (crumbs on the table, dishes in the sink, a full bucket).
     pub dirty: f32,
-    /// Время анимации, сек.
+    /// Animation time, s.
     pub t: f32,
-    /// Куда «смотрит» предмет (стул: куда смотрит сидящий). По умолчанию `Down`.
+    /// Where the piece "faces" (a chair: where the sitter looks). Default `Down`.
     pub facing: Facing,
 }
 
@@ -39,7 +39,7 @@ impl Default for FurnitureState {
     }
 }
 
-/// Все id, которые умеет рисовать `draw_furniture` (контракт с content-агентом).
+/// Every id `draw_furniture` can draw (the contract with the content data).
 pub const FURNITURE_IDS: [&str; 32] = [
     "table_round_2",
     "table_square_4",
@@ -75,11 +75,11 @@ pub const FURNITURE_IDS: [&str; 32] = [
     "bucket",
 ];
 
-/// Высота рабочей поверхности стойки/кухонных модулей.
+/// Height of the counter / kitchen units' work surface.
 pub const COUNTER_H: f32 = 30.0;
 
-/// Ключ y-сортировки предмета. Ковёр всегда под всем, подвесная лампа — над всем,
-/// фото на стене — сразу за стеной.
+/// A piece's y sort key. A rug is always under everything, a pendant lamp above everything,
+/// a photo on the wall right behind the wall.
 pub fn furniture_sort_key(sprite: &str, tile_origin: Vec2, size: (u8, u8)) -> f32 {
     let d = size.1.max(1) as f32 * TILE;
     match sprite {
@@ -90,8 +90,8 @@ pub fn furniture_sort_key(sprite: &str, tile_origin: Vec2, size: (u8, u8)) -> f3
     }
 }
 
-/// Источники света, которые даёт предмет (лампы, экраны, плита, свеча…).
-/// Добавляйте их в `Lighting` каждый кадр.
+/// Light sources a piece gives (lamps, screens, the stove, a candle…).
+/// Add them to `Lighting` every frame.
 pub fn furniture_lights(sprite: &str, o: Vec2, size: (u8, u8), st: &FurnitureState) -> Vec<Light> {
     let (w, d) = dims(size);
     let cx = o.x + w / 2.0;
@@ -174,9 +174,9 @@ fn dims(size: (u8, u8)) -> (f32, f32) {
     (size.0.max(1) as f32 * TILE, size.1.max(1) as f32 * TILE)
 }
 
-// ───────────────────────── примитивы 3/4 ─────────────────────────
+// ───────────────────────── 3/4 primitives ─────────────────────────
 
-/// Коробка: след на полу (x, y0, w, d), высота h. Рисует тень, фронт, верх, кромку.
+/// A box: footprint on the floor (x, y0, w, d), height h. Draws the shadow, front, top, edge.
 #[allow(clippy::too_many_arguments)]
 fn box3(x: f32, y0: f32, w: f32, d: f32, h: f32, top: Color, front: Color, r: f32) {
     let y1 = y0 + d;
@@ -189,7 +189,7 @@ fn box3(x: f32, y0: f32, w: f32, d: f32, h: f32, top: Color, front: Color, r: f3
     );
     rrect_v(x, y1 - h - r, w, h + r, r, front, shade(front, 0.66));
     rrect_v(x, y0 - h, w, d, r, tint_light(top, 0.05), top);
-    // светлая передняя кромка + лавандовый отблеск по заднему краю
+    // a light front edge + a lavender glint along the back edge
     draw_line(
         x + r,
         y1 - h,
@@ -208,12 +208,12 @@ fn box3(x: f32, y0: f32, w: f32, d: f32, h: f32, top: Color, front: Color, r: f3
     );
 }
 
-/// Кухонный/барный модуль высоты стойки (общий низ для техники на стойке).
+/// A kitchen / bar unit at counter height (the shared base for appliances on the counter).
 fn counter_base(o: Vec2, w: f32, d: f32, front: Color, top: Color) {
     let (x, y0) = (o.x, o.y + 6.0);
     let dd = d - 10.0;
     box3(x, y0, w, dd, COUNTER_H, top, front, 2.5);
-    // цоколь
+    // plinth
     rect_v(
         x + 2.0,
         y0 + dd - 5.0,
@@ -224,7 +224,7 @@ fn counter_base(o: Vec2, w: f32, d: f32, front: Color, top: Color) {
     );
 }
 
-/// Лист растения — выпуклая «линза» от `base` под углом `ang`.
+/// A plant leaf — a convex "lens" from `base` at angle `ang`.
 fn leaf(base: Vec2, ang: f32, len: f32, width: f32, col: Color) {
     let dir = vec2(ang.cos(), ang.sin());
     let n = vec2(-dir.y, dir.x);
@@ -277,7 +277,7 @@ fn pot(cx: f32, floor_y: f32, w: f32, h: f32) {
     );
 }
 
-/// Крошки, кольца от чашек и забытая чашка — по степени грязи.
+/// Crumbs, cup rings and a forgotten cup — by how dirty it is.
 fn mess(cx: f32, cy: f32, rx: f32, ry: f32, dirty: f32, seed: u32) {
     if dirty <= 0.05 {
         return;
@@ -305,10 +305,10 @@ fn mess(cx: f32, cy: f32, rx: f32, ry: f32, dirty: f32, seed: u32) {
     }
 }
 
-// ───────────────────────── отрисовка ─────────────────────────
+// ───────────────────────── drawing ─────────────────────────
 
-/// Нарисовать предмет. `tile_origin` — левый верх его следа в мировых пикселях,
-/// `size` — след в тайлах. Неизвестный id → аккуратная заглушка.
+/// Draw a piece. `tile_origin` — the top-left of its footprint in world pixels,
+/// `size` — the footprint in tiles. An unknown id → a neat placeholder.
 pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &FurnitureState) {
     let o = tile_origin;
     let (w, d) = dims(size);
@@ -453,7 +453,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 c::WOOD_PLUM,
                 shade(c::WOOD_PLUM, 0.6),
             );
-            // вертикальные рейки
+            // vertical slats
             let n = (w / 10.0) as i32;
             for i in 1..n {
                 let lx = x + i as f32 * w / n as f32;
@@ -466,7 +466,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                     alpha(shade(c::WOOD_PLUM, 0.6), 0.7),
                 );
             }
-            // латунная подножка
+            // brass foot rail
             draw_line(
                 x + 2.0,
                 y0 + dd - 8.0,
@@ -533,7 +533,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 Color::from_hex(0x6d74a0),
                 Color::from_hex(0x4a5180),
             );
-            // экранчик
+            // little screen
             let sc = if state.active {
                 c::INDIGO_SOFT
             } else {
@@ -543,7 +543,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             if state.active {
                 glow(cx, top - mh + 6.5, 10.0, alpha(c::INDIGO_GLOW, 0.5));
             }
-            // группы и холдеры
+            // group heads and portafilters
             for gx in [cx - mw * 0.22, cx + mw * 0.22] {
                 rrect_v(gx - 4.0, top - 14.0, 8.0, 5.0, 2.0, c::STEEL, c::STEEL_DARK);
                 draw_line(
@@ -581,7 +581,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 Color::from_hex(0x3a3550),
                 Color::from_hex(0x1f1c2e),
             );
-            // бункер с зёрнами
+            // bean hopper
             poly_v(
                 &[
                     vec2(cx - 11.0, top - 44.0),
@@ -637,7 +637,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                     draw_ellipse_lines(p.x, p.y, 6.0, 4.6, 0.0, 1.2, c::STEEL_DARK);
                 }
             }
-            // кастрюлька
+            // saucepan
             let p = vec2(o.x + w * 0.3, top_y + dd * 0.3);
             rrect_v(
                 p.x - 9.0,
@@ -660,7 +660,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             if state.active {
                 draw_steam(vec2(p.x, p.y - 14.0), t, 0.9);
             }
-            // ручки на фронте
+            // knobs on the front
             for i in 0..4 {
                 let kx = o.x + 10.0 + i as f32 * (w - 20.0) / 3.0;
                 ellipse(kx, o.y + 6.0 + dd - COUNTER_H + 6.0, 2.4, 2.4, c::GRAPHITE);
@@ -708,7 +708,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 c::STEEL_DARK,
                 shade(c::STEEL, 0.9),
             );
-            // кран
+            // tap
             let fx = cx;
             capsule(
                 vec2(fx, top_y + 6.0),
@@ -722,7 +722,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 1.6,
                 c::STEEL_LIGHT,
             );
-            // грязная посуда
+            // dirty dishes
             let plates = (state.dirty * 5.0).round() as i32;
             for i in 0..plates {
                 let p = vec2(
@@ -742,7 +742,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
         "fridge" => {
             let (x, y0) = (o.x + 6.0, o.y + 8.0);
             let (fw, fd, h) = (w - 12.0, d - 14.0, 80.0);
-            // ретро-холодильник мятного цвета — заметен на любом полу
+            // a mint retro fridge — stands out on any floor
             box3(
                 x,
                 y0,
@@ -780,7 +780,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 c::STEEL_LIGHT,
                 c::STEEL,
             );
-            // магнитики и записка
+            // magnets and a note
             rrect(
                 x + 8.0,
                 fy + 36.0,
@@ -827,7 +827,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 1.6,
                 c::STEEL_DARK,
             );
-            // наклонный экран
+            // tilted screen
             poly_v(
                 &[
                     vec2(cx - 12.0, top - 28.0),
@@ -868,7 +868,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                     alpha(WHITE, 0.5),
                 );
             }
-            // чек
+            // receipt
             rrect(cx + 15.0, top - 9.0, 6.0, 8.0, 1.0, c::CREAM);
         }
         "menu_holo_board" => draw_holo_board(o, w, d, state),
@@ -949,7 +949,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
         }
         "pendant_lamp" => {
             let ly = cy - 96.0;
-            // шнур уходит к «потолку» и тает — не перечёркивает зал
+            // the cord rises to the "ceiling" and fades — it doesn't cross out the hall
             quad(
                 [
                     vec2(cx - 0.6, ly - 46.0),
@@ -966,7 +966,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             );
             if state.active {
                 glow(cx, ly + 6.0, 40.0, alpha(c::AMBER, 0.3));
-                // мягкий конус света вниз
+                // a soft cone of light downwards
                 quad(
                     [
                         vec2(cx - 10.0, ly + 6.0),
@@ -1087,7 +1087,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             }
             draw_line(cx, cy + 6.0, cx, cy - 86.0, 3.0, c::WOOD);
             ellipse(cx, cy - 87.0, 3.2, 3.2, c::WOOD_LIGHT);
-            // пальто
+            // coat
             rrect_v(
                 cx - 12.0,
                 cy - 80.0,
@@ -1097,7 +1097,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 Color::from_hex(0x5b6f9a),
                 Color::from_hex(0x3b4a6b),
             );
-            // шарф
+            // scarf
             rrect_v(
                 cx + 1.0,
                 cy - 82.0,
@@ -1107,7 +1107,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 c::AMBER_DEEP,
                 shade(c::AMBER_DEEP, 0.7),
             );
-            // зонт, с него капает
+            // umbrella, dripping
             capsule(
                 vec2(cx + 8.0, cy - 62.0),
                 vec2(cx + 12.0, cy + 2.0),
@@ -1134,7 +1134,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
         "drone_dock" => draw_drone_dock(o, w, d, state),
         "grandma_photo" => draw_grandma_photo(o, w, t),
         "radio" => {
-            // столик + радио
+            // side table + radio
             box3(
                 o.x + 14.0,
                 o.y + 18.0,
@@ -1190,7 +1190,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
         "candle" => draw_candle(vec2(cx, cy), t, seed),
         "bucket" => draw_bucket(vec2(cx, cy + 8.0), state, seed),
         _ => {
-            // заглушка: мягкая лавандовая коробка со знаком «?»
+            // placeholder: a soft lavender box with a "?"
             let (x, y0) = (o.x + 8.0, o.y + 10.0);
             box3(
                 x,
@@ -1210,13 +1210,13 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
     }
 }
 
-/// Металлическое ведро под протечкой крыши. `p` — точка дна на полу.
-/// `active` — капает (капля падает с потолка, по воде расходится круг),
-/// `dirty` — уровень воды 0..1.
+/// A metal bucket under a roof leak. `p` — the bottom point on the floor.
+/// `active` — dripping (a drop falls from the ceiling, a ring spreads on the water),
+/// `dirty` — water level 0..1.
 fn draw_bucket(p: Vec2, st: &FurnitureState, seed: u32) {
     let (w_top, w_bot, h) = (13.0, 10.5, 20.0);
     soft_shadow(p.x + 2.0, p.y, 15.0, 5.0, 0.4);
-    // корпус-усечённый конус с вертикальным градиентом и обручами
+    // body: a truncated cone with a vertical gradient and hoops
     poly_v(
         &[
             vec2(p.x - w_top, p.y - h),
@@ -1241,7 +1241,7 @@ fn draw_bucket(p: Vec2, st: &FurnitureState, seed: u32) {
         1.2,
         alpha(WHITE, 0.35),
     );
-    // горловина и вода внутри
+    // rim and the water inside
     let rim = vec2(p.x, p.y - h);
     ellipse(rim.x, rim.y, w_top, 4.4, c::STEEL_DARK);
     let level = st.dirty.clamp(0.0, 1.0);
@@ -1262,7 +1262,7 @@ fn draw_bucket(p: Vec2, st: &FurnitureState, seed: u32) {
         0.9,
         alpha(c::LAVENDER_RIM, 0.55),
     );
-    // дужка
+    // handle
     arc(
         rim + vec2(0.0, 1.0),
         w_top + 0.5,
@@ -1275,7 +1275,7 @@ fn draw_bucket(p: Vec2, st: &FurnitureState, seed: u32) {
     if !st.active {
         return;
     }
-    // капля: падает с «потолка», у воды — круги
+    // the drop: falls from the "ceiling", rings at the water
     let period = 1.6 + hash01(seed) * 0.6;
     let a = ((st.t + hash01(seed + 1) * period) % period) / period;
     let fall = 0.55;
@@ -1317,7 +1317,7 @@ fn draw_bucket(p: Vec2, st: &FurnitureState, seed: u32) {
                 alpha(c::LAVENDER_RIM, 0.7 * (1.0 - kk) / (1.0 + i as f32)),
             );
         }
-        // брызги в первые мгновения
+        // splashes in the first moments
         if k < 0.25 {
             let up = (k / 0.25) * PI;
             for sx in [-1.0_f32, 1.0] {
@@ -1389,7 +1389,7 @@ fn draw_chair(o: Vec2, facing: Facing) {
     let wood = c::WOOD;
     let back_col = c::WOOD_DARK;
     let back_h = 24.0;
-    // спинка позади сиденья рисуется до него
+    // the backrest behind the seat is drawn before it
     let back = |x: f32, y: f32, bw: f32, bd: f32| {
         rrect_v(
             x,
@@ -1424,7 +1424,7 @@ fn draw_chair(o: Vec2, facing: Facing) {
     }
     leg(sx + 2.0, sy0 + sd, back_col);
     leg(sx + sw - 5.0, sy0 + sd, back_col);
-    // сиденье: подушка
+    // seat: the cushion
     rrect_v(
         sx,
         sy0 + sd - seat_h - 4.0,
@@ -1446,7 +1446,7 @@ fn draw_chair(o: Vec2, facing: Facing) {
     match facing {
         Facing::Up => back(sx + 1.0, sy0 + sd + 1.0, sw - 2.0, 4.0),
         Facing::Left | Facing::Right => {
-            // боковая спинка: узкая планка вдоль сиденья, поднимается над ним
+            // side backrest: a narrow slat along the seat, rising above it
             let bx = if facing == Facing::Right {
                 sx - 1.0
             } else {
@@ -1483,7 +1483,7 @@ fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u3
     let back_h = if window_seat { 0.0 } else { 34.0 };
     let arm = if window_seat { 0.0 } else { 9.0 };
     soft_shadow(x + sw / 2.0 + 3.0, y0 + sd * 0.7, sw * 0.6, sd * 0.6, 0.45);
-    // спинка
+    // backrest
     if back_h > 0.0 {
         box3(
             x,
@@ -1496,7 +1496,7 @@ fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u3
             7.0,
         );
     }
-    // база сиденья
+    // seat base
     box3(
         x,
         y0 + 8.0,
@@ -1507,7 +1507,7 @@ fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u3
         shade(fabric, 0.7),
         5.0,
     );
-    // подушки
+    // cushions
     let n = ((sw - 2.0 * arm) / 50.0).round().max(1.0) as i32;
     let cw = (sw - 2.0 * arm) / n as f32;
     for i in 0..n {
@@ -1522,7 +1522,7 @@ fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u3
             fabric,
         );
     }
-    // подлокотники
+    // armrests
     if arm > 0.0 {
         for ax in [x, x + sw - arm] {
             box3(
@@ -1537,7 +1537,7 @@ fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u3
             );
         }
     }
-    // декоративная подушка
+    // throw cushion
     let px = x + arm + 12.0 + hash01(seed) * 8.0;
     rrect_v(
         px,
@@ -1591,7 +1591,7 @@ fn draw_bookshelf(o: Vec2, w: f32, d: f32, seed: u32) {
             let bh = sh * (0.62 + hash01(seed + i * 7 + s as u32) * 0.3);
             let col = Color::from_hex(colors[(hash(seed + i * 13 + s as u32) % 8) as usize]);
             if r > 0.9 && s % 2 == 1 {
-                // маленькое растение на полке
+                // a small plant on the shelf
                 ellipse(bx + 5.0, base - 4.0, 4.5, 4.0, c::POT);
                 leaf(
                     vec2(bx + 5.0, base - 7.0),
@@ -1640,7 +1640,7 @@ fn draw_jukebox(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
     let y0 = o.y + d - jd - 10.0;
     let fy = y0 + jd;
     soft_shadow(cx + 3.0, fy - 4.0, jw * 0.65, 10.0, 0.45);
-    // корпус с аркой
+    // arched cabinet
     rrect_v(
         x,
         fy - h + 14.0,
@@ -1658,7 +1658,7 @@ fn draw_jukebox(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
         tint_light(c::WOOD_PLUM, 0.15),
         c::WOOD_PLUM,
     );
-    // светящиеся трубки
+    // glowing tubes
     let t = st.t;
     let hue = |k: f32| -> Color {
         if !st.active {
@@ -1695,7 +1695,7 @@ fn draw_jukebox(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
     if st.active {
         glow(cx, fy - h + 26.0, 30.0, alpha(c::VIOLET_SOFT, 0.35));
     }
-    // окно с пластинкой
+    // window with the record
     rrect_v(
         cx - 10.0,
         fy - h + 14.0,
@@ -1707,7 +1707,7 @@ fn draw_jukebox(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
     );
     ellipse(cx, fy - h + 22.0, 7.0, 3.0, Color::from_hex(0x111018));
     ellipse(cx, fy - h + 22.0, 2.0, 1.0, c::AMBER_DEEP);
-    // решётка динамика
+    // speaker grille
     rrect(
         cx - 11.0,
         fy - 34.0,
@@ -1761,7 +1761,7 @@ fn draw_rug(o: Vec2, w: f32, d: f32) {
         Color::from_hex(0x5a3f8f),
         Color::from_hex(0x46317a),
     );
-    // ромбы по центру
+    // diamonds along the middle
     let n = ((rw - 16.0) / 40.0).floor().max(1.0) as i32;
     let cy = y + rh / 2.0;
     for i in 0..n {
@@ -1786,7 +1786,7 @@ fn draw_rug(o: Vec2, w: f32, d: f32) {
             Color::from_hex(0x7c3aed),
         );
     }
-    // бахрома
+    // fringe
     let mut fx = x + 4.0;
     while fx < x + rw - 3.0 {
         draw_line(fx, y, fx, y - 3.5, 1.0, Color::from_hex(0xe8dcc6));
@@ -1809,7 +1809,7 @@ fn draw_holo_board(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
         shade(c::GRAPHITE, 0.7),
     );
     rect_v(cx - 1.5, fy - 40.0, 3.0, 40.0, c::STEEL, c::STEEL_DARK);
-    // проектор
+    // projector
     ellipse(cx, fy - 40.0, 6.0, 2.5, c::STEEL_DARK);
     let (bw, bh) = ((w - 10.0).min(58.0), 46.0);
     let (bx, by) = (cx - bw / 2.0, fy - 44.0 - bh);
@@ -1817,10 +1817,10 @@ fn draw_holo_board(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
         rrect(bx, by, bw, bh, 5.0, Color::new(0.2, 0.2, 0.35, 0.25));
         return;
     }
-    // мерцание: редкие провалы яркости + бегущая строка развёртки
+    // flicker: rare brightness dips + a running scan line
     let fl = holo_flicker(t, 3);
     let a = 0.62 * fl;
-    // луч проектора
+    // projector beam
     quad(
         [
             vec2(cx - 3.0, fy - 41.0),
@@ -1852,7 +1852,7 @@ fn draw_holo_board(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
     );
     let edge = alpha(c::INDIGO_SOFT, 0.9 * fl);
     draw_rectangle_lines(bx, by, bw, bh, 1.2, edge);
-    // «строки меню»: иконка чашки + полоски названий и цен
+    // "menu lines": a cup icon + bars for names and prices
     for i in 0..4 {
         let ly = by + 9.0 + i as f32 * 9.5;
         let lw = bw * (0.38 + hash01(i * 11 + 3) * 0.2);
@@ -1879,7 +1879,7 @@ fn draw_holo_board(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
     );
 }
 
-/// Мерцание голограммы 0.55..1: в основном ровно, иногда короткие «провалы».
+/// Hologram flicker 0.55..1: mostly steady, now and then a short "dip".
 pub fn holo_flicker(t: f32, seed: u32) -> f32 {
     let base = 0.92 + noise1(t * 3.0, seed) * 0.08;
     let glitch = noise1(t * 13.0, seed + 99);
@@ -1891,7 +1891,7 @@ fn draw_drone_dock(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
     let cy = o.y + d / 2.0;
     let t = st.t;
     soft_shadow(cx + 2.0, cy + 4.0, 24.0, 10.0, 0.4);
-    // площадка
+    // pad
     ellipse_v(cx, cy + 3.0, 22.0, 9.0, c::STEEL_DARK, c::GRAPHITE);
     ellipse_v(cx, cy, 22.0, 9.0, c::STEEL, c::STEEL_DARK);
     let pulse = (t * 2.0).sin() * 0.5 + 0.5;
@@ -1904,7 +1904,7 @@ fn draw_drone_dock(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
         1.4,
         alpha(c::INDIGO_GLOW, 0.5 + 0.5 * pulse),
     );
-    // зарядная стойка
+    // charging post
     rrect_v(
         cx + 18.0,
         cy - 26.0,
@@ -1926,7 +1926,7 @@ fn draw_drone_dock(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
         },
     );
     if st.active {
-        // дрон парит и садится
+        // the drone hovers and lands
         let hover = 14.0 + (t * 1.8).sin() * 3.0;
         let p = vec2(cx, cy - hover);
         soft_shadow(cx, cy, 10.0, 4.0, 0.25);
@@ -1952,7 +1952,7 @@ fn draw_drone_dock(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
             1.4,
             if blink { WHITE } else { c::ROSE },
         );
-        // посылка
+        // parcel
         rrect_v(
             p.x - 4.0,
             p.y + 3.0,
@@ -1967,7 +1967,7 @@ fn draw_drone_dock(o: Vec2, w: f32, d: f32, st: &FurnitureState) {
 
 fn draw_grandma_photo(o: Vec2, w: f32, t: f32) {
     let cx = o.x + w / 2.0;
-    // висит на стене над следом: рамка
+    // hangs on the wall above its footprint: the frame
     let (fw, fh) = (30.0, 36.0);
     let (fx, fy) = (cx - fw / 2.0, o.y - 66.0);
     rrect(
@@ -2011,7 +2011,7 @@ fn draw_grandma_photo(o: Vec2, w: f32, t: f32) {
         1.0,
         alpha(WHITE, 0.4),
     );
-    // полочка со свечой и веточкой лаванды
+    // a little shelf with a candle and a sprig of lavender
     rrect_v(
         cx - 20.0,
         fy + fh + 6.0,

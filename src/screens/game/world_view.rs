@@ -101,10 +101,10 @@ pub fn clock_of_minute(minute: u32) -> String {
     format_clock((total / 60) % 24, total % 60)
 }
 
-/// The visible name of a staff member (the owner is "You").
+/// The visible name of a staff member in lists (the owner is "Karolina (you)").
 pub fn staff_name(loc: &Locale, s: &Staff) -> String {
     if s.owner || s.name.is_empty() {
-        loc.tr_owned("cast.player.name")
+        loc.tr_owned("ui.staff.you_row")
     } else {
         s.name.clone()
     }

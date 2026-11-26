@@ -33,7 +33,7 @@ use macroquad::prelude::*;
 use crate::content::Content;
 use crate::cutscene::AudioRequest;
 use crate::i18n::{I18n, Lang, format_money};
-use crate::render::draw_shiftella_logo;
+use crate::render::draw_brand_mark;
 use crate::settings::{Locale, PANEL_SIZE, Settings, settings_panel};
 use crate::ui::draw::{Paint, fill_rrect, stroke_rrect, with_a};
 use crate::ui::{
@@ -75,7 +75,7 @@ pub struct SandboxSetup {
 }
 
 /// Turns a typed seed into a number: plain digits parse directly, anything else is hashed
-/// (FNV-1a, case-insensitive), so "MLHOV-2039" is the same town for everyone.
+/// (FNV-1a, case-insensitive), so "PRAHA-2039" is the same town for everyone.
 pub fn seed_from_text(text: &str) -> u64 {
     let t = text.trim();
     if let Ok(n) = t.parse::<u64>() {
@@ -263,7 +263,7 @@ impl MainMenu {
             .seed_roots
             .get((r % self.seed_roots.len().max(1) as u64) as usize)
             .cloned()
-            .unwrap_or_else(|| "MLHOV".into());
+            .unwrap_or_else(|| "PRAHA".into());
         format!("{}-{:04}", root.to_uppercase(), (r >> 20) % 10_000)
     }
 
@@ -316,15 +316,15 @@ impl MainMenu {
     fn title(&self, ui: &mut Ui, loc: &Locale, x: f32, y: f32, centered: bool) {
         let size = 54.0;
         let ww = wordmark_width(ui, size);
-        let logo = 42.0;
+        let logo = 54.0;
         let total = logo + 14.0 + ww;
         let x0 = if centered { x - total / 2.0 } else { x };
-        draw_shiftella_logo(vec2(x0 + logo / 2.0, y - 19.0), logo);
+        draw_brand_mark(vec2(x0 + logo / 2.0, y - 19.0), logo, 1.0);
         draw_wordmark(ui, x0 + logo + 14.0, y, size, self.backdrop.t);
         let th = ui.theme.clone();
         let sub = TextStyle::new(16.0, Weight::Medium, th.text);
         let micro = th.micro().color(with_a(th.indigo_300, 0.8)).tracking(1.4);
-        let place = "2039 · MLHOV NAD ŠEŘAVOU";
+        let place = "2039 · PRAHA-HOLEŠOVICE";
         if centered {
             ui.fonts
                 .draw_centered(loc.tr("mainmenu.subtitle"), x, y + 34.0, &sub);
@@ -560,7 +560,14 @@ impl MainMenu {
             let on = self.lang_sel == i;
             let hk = ui.ease_value(id.with("on"), if on { 1.0 } else { 0.0 }, 0.07);
             let r = r.translate(vec2(0.0, -hk * 4.0));
-            ui.glass(r, &Glass::card().solid().radius(14.0));
+            // raised, opaque glass: the lit sign behind must not show through the text
+            ui.glass(
+                r,
+                &Glass::card()
+                    .solid()
+                    .radius(14.0)
+                    .elevation(crate::ui::Elevation::Low),
+            );
             if hk > 0.01 {
                 crate::ui::draw::push_alpha(hk);
                 crate::ui::draw::glow_circle(r.center(), cw * 0.75, with_a(th.indigo, 0.16));
@@ -812,7 +819,7 @@ impl MainMenu {
             "sb_seed",
             Rect::new(cx, y, 190.0, 32.0),
             &mut self.form.seed,
-            "MLHOV-2039",
+            "PRAHA-2039",
             24,
         );
         let dice = ui.icon_button(
@@ -872,9 +879,15 @@ impl MainMenu {
             Some(Icon::Moon),
         );
         let cdesc = loc.tr_owned(&format!("sandbox.character.{cid}.desc"));
-        let cd = ui.fonts.ellipsize(&cdesc, cw, &hs).to_string();
-        ui.fonts.draw(&cd, cx, y + 46.0, &hs);
-        y += 62.0;
+        // two lines at most (long in cs / uk), never cut mid-sentence on one line
+        let used = ui.fonts.draw_wrapped(
+            &cdesc,
+            Rect::new(cx, y + 34.0, cw, 32.0),
+            &hs,
+            Align::Left,
+            Some(2),
+        );
+        y += 48.0 + used.max(hs.line_h());
 
         // start money
         label(ui, y, loc.tr("ui.sandbox.start_money"));
@@ -926,7 +939,7 @@ impl MainMenu {
                 self.cafe_names
                     .first()
                     .cloned()
-                    .unwrap_or_else(|| "U Výhybky".into())
+                    .unwrap_or_else(|| "Café Nocturne".into())
             } else {
                 self.form.cafe_name.trim().to_string()
             };
@@ -991,7 +1004,7 @@ mod tests {
     #[test]
     fn seeds_are_stable_and_case_insensitive() {
         assert_eq!(seed_from_text("2039"), 2039);
-        assert_eq!(seed_from_text("mlhov-2039"), seed_from_text("MLHOV-2039"));
-        assert_ne!(seed_from_text("MLHOV-2039"), seed_from_text("MLHOV-2040"));
+        assert_eq!(seed_from_text("praha-2039"), seed_from_text("PRAHA-2039"));
+        assert_ne!(seed_from_text("PRAHA-2039"), seed_from_text("PRAHA-2040"));
     }
 }

@@ -1,15 +1,15 @@
 # Cutscene cast names: cast.<id>.name
 
 cast.player.name
-cs Ty
-en You
-sk Ty
-uk Ти
+cs Karolina
+en Karolina
+sk Karolína
+uk Кароліна
 
 cast.grandma.name
-cs Babička Lída
-en Grandma Lída
-sk Babka Lída
+cs Babička Lida
+en Grandma Lida
+sk Babka Lida
 uk Бабуся Ліда
 
 cast.bot.name

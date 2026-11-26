@@ -2,10 +2,10 @@
 # Base vocabulary lives in ui_core.tr / ui_screens.tr (ui.menu.*, ui.settings.*, ui.cutscene.* …).
 
 mainmenu.subtitle
-cs Noční kavárna U Výhybky
-en The night café U Výhybky
-sk Nočná kaviareň U Výhybky
-uk Нічна кав'ярня «U Výhybky»
+cs Café Nocturne — noční kavárna u nádraží
+en Café Nocturne — a night café by the station
+sk Café Nocturne — nočná kaviareň pri stanici
+uk Café Nocturne — нічна кав'ярня біля вокзалу
 
 mainmenu.newgame.title
 cs Nový příběh
@@ -26,10 +26,10 @@ sk Odporúčané
 uk Рекомендовано
 
 mainmenu.newgame.start
-cs Vystoupit v Mlhově
-en Step off at Mlhov
-sk Vystúpiť v Mlhove
-uk Зійти в Млгові
+cs Vystoupit v Holešovicích
+en Step off at Holešovice
+sk Vystúpiť v Holešoviciach
+uk Зійти в Голешовицях
 
 mainmenu.sandbox.dice
 cs Hodit kostkou

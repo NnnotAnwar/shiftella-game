@@ -569,6 +569,35 @@ pub fn shadow_rrect(r: Rect, radius: f32, s: Shadow) {
 }
 
 /// Radial glow (soft circle of light) — e.g. behind a selected icon.
+/// Soft radial glow / shade squashed into an ellipse (`rx` × `ry`), solid in the middle.
+pub fn glow_ellipse(c: Vec2, rx: f32, ry: f32, color: Color) {
+    let sy = ry / rx.max(1e-3);
+    let path: Vec<Vec2> = circle_path(Vec2::ZERO, rx)
+        .into_iter()
+        .map(|p| c + vec2(p.x, p.y * sy))
+        .collect();
+    let n = path.len();
+    let mut b = Buf::new(n * 4 + 1, 0.0);
+    let ci = b.push(c, color);
+    let stops = [(0.45, 0.92), (0.75, 0.45), (1.0, 0.0)];
+    let rows: Vec<Vec<u16>> = stops
+        .iter()
+        .map(|&(t, a)| {
+            (0..n)
+                .map(|i| b.push(c + (path[i] - c) * t, with_a(color, color.a * a)))
+                .collect()
+        })
+        .collect();
+    for i in 0..n {
+        let j = (i + 1) % n;
+        b.tri(ci, rows[0][i], rows[0][j]);
+        for k in 0..rows.len() - 1 {
+            b.quad(rows[k][i], rows[k][j], rows[k + 1][i], rows[k + 1][j]);
+        }
+    }
+    b.flush(None);
+}
+
 pub fn glow_circle(c: Vec2, r: f32, color: Color) {
     let path = circle_path(c, r);
     let n = path.len();

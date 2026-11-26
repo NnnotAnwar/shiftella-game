@@ -131,6 +131,9 @@ pub struct DialogueBox {
     shown: f32,
     pause: f32,
     since_full: f32,
+    /// Entrance of a run of lines (0..1); restarts only when nothing was shown last frame.
+    appear: f32,
+    last_frame: u64,
 }
 
 impl Default for DialogueBox {
@@ -154,6 +157,8 @@ impl DialogueBox {
             shown: 0.0,
             pause: 0.0,
             since_full: 0.0,
+            appear: 0.0,
+            last_frame: u64::MAX - 1,
         }
     }
 
@@ -219,23 +224,67 @@ impl DialogueBox {
         self.skip_on || ui.ctrl()
     }
 
+    /// Entrance of the current run of lines: 0 → 1 over ~0.25 s, eased. Lines that follow
+    /// each other (box or narration) keep it at 1, so the backing never blinks between lines.
+    fn appear_step(&mut self, ui: &Ui) -> f32 {
+        let f = ui.frame_count();
+        if f != self.last_frame && f != self.last_frame.wrapping_add(1) {
+            self.appear = 0.0;
+        }
+        if f != self.last_frame {
+            self.appear = (self.appear + ui.dt() / 0.25).min(1.0);
+        }
+        self.last_frame = f;
+        ease_out(self.appear)
+    }
+
+    /// The soft dark gradient that rises behind the text from the bottom of the screen:
+    /// contrast over bright lamps or a snowy street, without hiding the scene.
+    fn backing(ui: &Ui, k: f32) {
+        let s = ui.screen();
+        let top = s.h * 0.5;
+        let r = Rect::new(0.0, top, s.w, s.h - top);
+        fill_rrect(
+            r,
+            0.0,
+            Paint::vertical(
+                r,
+                Color::new(0.027, 0.024, 0.07, 0.0),
+                Color::new(0.027, 0.024, 0.07, 0.62 * k),
+            ),
+        );
+    }
+
     /// Bottom dialogue panel. Advance with click / Space / Enter; Ctrl or Skip fast-forwards.
     pub fn dialogue_box(&mut self, ui: &mut Ui, line: &DialogueLine) -> DialogueResponse {
         self.track(line.speaker, line.text);
         let t = ui.theme.clone();
         let screen = ui.screen();
         let id = ui.id("dialogue_box");
+        let k = self.appear_step(ui);
         // click-catcher over the whole screen: cutscenes own the mouse
         ui.region(screen);
         let catcher = ui.interact(id.with("catch"), screen);
+        Self::backing(ui, k);
 
-        let w = (screen.w - 48.0).min(900.0);
-        let h = (screen.h * self.max_height_frac).clamp(118.0, 160.0);
+        let st = TextStyle::new(16.0, Weight::Regular, t.text)
+            .line_height(1.5)
+            .tracking(0.05);
+        // ~70 characters per line at most, however wide the window is
+        let w = (screen.w - 48.0).min(860.0);
+        let portrait_w = if line.portrait { 124.0 + 18.0 } else { 0.0 };
+        let text_w = w - portrait_w - 22.0 - 28.0;
+        let lines = ui.fonts.wrap(line.text, text_w, &st);
+        let text_h = lines.len().max(2) as f32 * st.line_h();
+        let h = (text_h + 30.0 + 44.0)
+            .max(if line.portrait { 148.0 } else { 120.0 })
+            .min(screen.h * 0.42);
+        let lift = (1.0 - k) * 6.0;
         let r = Rect::new(
-            (screen.w - w) / 2.0,
-            screen.h - 20.0 - self.bottom_inset - h,
-            w,
-            h,
+            ((screen.w - w) / 2.0).round(),
+            (screen.h - 20.0 - self.bottom_inset - h + lift).round(),
+            w.round(),
+            h.round(),
         );
         let mut out = DialogueResponse {
             rect: r,
@@ -247,44 +296,52 @@ impl DialogueBox {
             self.draw_log(ui, r, line.labels.history);
         }
 
-        ui.glass(r, &Glass::panel().radius(14.0));
-        // portrait slot
-        let mut text_x = r.x + 22.0;
+        draw::push_alpha(k);
+        ui.glass(r, &Glass::panel().solid().radius(16.0));
+        // portrait slot with a soft rim light
+        let mut text_x = r.x + 24.0;
         if line.portrait {
-            let s = h - 24.0;
-            let pr = Rect::new(r.x + 12.0, r.y + 12.0, s, s);
+            let s = 124.0_f32.min(h - 24.0);
+            let pr = Rect::new(r.x + 14.0, r.y + 14.0, s, s);
+            let c = line.speaker_color.unwrap_or(t.indigo);
+            shadow_rrect(
+                pr,
+                12.0,
+                draw::Shadow::new(0.0, 0.0, 18.0, 0.0, with_a(c, 0.28)),
+            );
             fill_rrect(
                 pr,
-                10.0,
+                12.0,
+                Paint::vertical(pr, with_a(c, 0.34), Color::new(0.03, 0.02, 0.09, 0.7)),
+            );
+            stroke_rrect(
+                pr,
+                12.0,
+                1.0,
                 Paint::vertical(
                     pr,
-                    with_a(t.indigo_600, 0.28),
-                    Color::new(0.03, 0.02, 0.09, 0.6),
+                    with_a(t.indigo_300, 0.55),
+                    Color::new(1.0, 1.0, 1.0, 0.04),
                 ),
             );
-            stroke_rrect(pr, 10.0, 1.0, Color::new(1.0, 1.0, 1.0, 0.10));
             out.portrait = Some(pr);
-            text_x = pr.right() + 18.0;
+            text_x = pr.right() + 20.0;
         }
         // speaker chip on the top edge
         if let Some(name) = line.speaker {
-            let st = TextStyle::new(13.0, Weight::Bold, WHITE).tracking(0.2);
-            let cw = ui.fonts.measure(name, &st) + 24.0;
+            let st = TextStyle::new(13.0, Weight::Bold, WHITE).tracking(0.3);
+            let cw = ui.fonts.measure(name, &st) + 26.0;
             let chip = Rect::new(text_x - 4.0, r.y - 13.0, cw, 26.0);
             let c = line.speaker_color.unwrap_or(t.indigo);
             shadow_rrect(
                 chip,
                 13.0,
-                draw::Shadow::new(0.0, 4.0, 14.0, 0.0, with_a(c, 0.5)),
+                draw::Shadow::new(0.0, 4.0, 14.0, 0.0, with_a(c, 0.45)),
             );
             fill_rrect(
                 chip,
                 13.0,
-                Paint::diagonal(
-                    chip,
-                    draw::mix(c, WHITE, 0.08),
-                    draw::mix(c, t.violet, 0.55),
-                ),
+                Paint::diagonal(chip, draw::mix(c, WHITE, 0.1), draw::mix(c, t.violet, 0.55)),
             );
             stroke_rrect(
                 chip,
@@ -292,13 +349,13 @@ impl DialogueBox {
                 1.0,
                 Paint::vertical(
                     chip,
-                    Color::new(1.0, 1.0, 1.0, 0.4),
+                    Color::new(1.0, 1.0, 1.0, 0.45),
                     Color::new(1.0, 1.0, 1.0, 0.05),
                 ),
             );
             ui.fonts.draw_in(name, chip, &st, Align::Center);
         }
-        // chrome buttons (top-right)
+        // chrome buttons (bottom-right)
         let skipping_now = self.wants_skip(ui);
         let by = r.bottom() - 10.0 - 24.0;
         let mut fx = r.right() - 40.0;
@@ -326,14 +383,7 @@ impl DialogueBox {
         let box_click = ui.interact(id.with("box"), r);
 
         // text
-        let st = TextStyle::new(15.0, Weight::Regular, t.text).line_height(1.5);
-        let text_r = Rect::new(
-            text_x,
-            r.y + 24.0,
-            r.right() - 28.0 - text_x,
-            h - 24.0 - 40.0,
-        );
-        let lines = ui.fonts.wrap(line.text, text_r.w, &st);
+        let text_r = Rect::new(text_x, r.y + 26.0, text_w, h - 26.0 - 40.0);
         let total = reveal_len(&lines);
         let visible = self.tick(ui, total, skipping_now);
         let max_lines = ((text_r.h / st.line_h()).floor() as usize).max(1);
@@ -358,6 +408,7 @@ impl DialogueBox {
             );
             draw::pop_alpha();
         }
+        draw::pop_alpha();
 
         // input
         let key_adv = ui.take_key(KeyCode::Space) || ui.enter();
@@ -430,38 +481,82 @@ impl DialogueBox {
         ui.end_scroll(s);
     }
 
-    /// Centred narration over a dim overlay. Same advance / skip rules as the box.
+    /// Narration: centred lines low on the screen (where the dialogue box sits) over a soft
+    /// dark vignette — no hard box, the scene stays visible, the text reads on any background.
+    /// Same advance / skip rules as the box.
     pub fn narration_box(&mut self, ui: &mut Ui, text: &str) -> DialogueResponse {
         self.track(None, text);
         let t = ui.theme.clone();
         let screen = ui.screen();
         let id = ui.id("narration_box");
+        let k = self.appear_step(ui);
         ui.region(screen);
         let catcher = ui.interact(id, screen);
-        fill_rrect(screen, 0.0, Color::new(0.027, 0.024, 0.07, 0.62));
+        Self::backing(ui, k);
         let st = TextStyle::new(17.0, Weight::Medium, t.text)
-            .line_height(1.6)
+            .line_height(1.55)
             .tracking(0.1);
-        let w = (screen.w - 96.0).min(580.0);
+        let w = (screen.w - 64.0).min(660.0);
         let lines = ui.fonts.wrap(text, w, &st);
         let total = reveal_len(&lines);
         let skipping = self.wants_skip(ui);
         let visible = self.tick(ui, total, skipping);
-        let h = lines.len() as f32 * st.line_h();
-        let r = Rect::new((screen.w - w) / 2.0, (screen.h - h) / 2.0 - 12.0, w, h);
-        // soft vignette glow behind the text
-        draw::glow_circle(
+        let text_h = lines.len().max(1) as f32 * st.line_h();
+        let lift = (1.0 - k) * 6.0;
+        // the text block's centre sits where the dialogue box's centre would be
+        let box_h = 140.0;
+        let cy = screen.h - 20.0 - self.bottom_inset - box_h / 2.0 + lift;
+        let r = Rect::new(
+            ((screen.w - w) / 2.0).round(),
+            (cy - text_h / 2.0).round(),
+            w.round(),
+            text_h.round(),
+        );
+        draw::push_alpha(k);
+        draw::glow_ellipse(
             vec2(screen.w / 2.0, r.center_y()),
-            w * 0.62,
+            w * 0.72,
+            text_h * 0.5 + 70.0,
+            Color::new(0.02, 0.016, 0.06, 0.72),
+        );
+        // a faint violet halo and hairlines frame the narration
+        draw::glow_ellipse(
+            vec2(screen.w / 2.0, r.center_y()),
+            w * 0.5,
+            text_h * 0.5 + 30.0,
             with_a(t.indigo_600, 0.10),
+        );
+        let lw = (w * 0.18).min(120.0);
+        let hc = screen.w / 2.0;
+        for (y, a) in [(r.y - 16.0, 0.45), (r.bottom() + 14.0, 0.25)] {
+            fill_rrect(
+                Rect::new(hc - lw / 2.0, y, lw, 1.0),
+                0.0,
+                Paint::horizontal(
+                    Rect::new(hc - lw / 2.0, y, lw, 1.0),
+                    with_a(t.indigo_300, 0.0),
+                    with_a(t.indigo_300, a),
+                ),
+            );
+        }
+        // a dark copy one pixel down keeps glyph edges crisp over light floors
+        let shade = st.color(Color::new(0.02, 0.016, 0.06, 0.75));
+        ui.fonts.draw_lines(
+            &lines,
+            r.translate(vec2(0.0, 1.0)),
+            &shade,
+            Align::Center,
+            None,
+            visible,
         );
         ui.fonts
             .draw_lines(&lines, r, &st, Align::Center, None, visible);
         let revealed = visible >= total;
         if revealed {
-            let blink = 0.5 + 0.5 * ((ui.time() * 3.2).sin() as f32);
+            let blink = 0.55 + 0.45 * ((ui.time() * 3.2).sin() as f32);
+            let bob = ((ui.time() * 3.2).sin() as f32) * 1.2;
             draw::push_alpha(blink);
-            let c = vec2(screen.w / 2.0, r.bottom() + 22.0);
+            let c = vec2(screen.w / 2.0, r.bottom() + 30.0 + bob);
             fill_convex(
                 &[
                     c + vec2(-5.0, -3.5),
@@ -472,6 +567,7 @@ impl DialogueBox {
             );
             draw::pop_alpha();
         }
+        draw::pop_alpha();
         let mut out = DialogueResponse {
             rect: r,
             revealed,

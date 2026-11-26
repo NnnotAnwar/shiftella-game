@@ -127,10 +127,10 @@ sk Jazyk môžeš kedykoľvek zmeniť v Nastaveniach.
 uk Мову можна змінити будь-коли в Налаштуваннях.
 
 ui.menu.subtitle
-cs Kavárna U Výhybky · 22:00–06:00
-en Café U Výhybky · 22:00–06:00
-sk Kaviareň U Výhybky · 22:00–06:00
-uk Кав'ярня U Výhybky · 22:00–06:00
+cs Café Nocturne · kavárna u nádraží · 22:00–06:00
+en Café Nocturne · the station café · 22:00–06:00
+sk Café Nocturne · kaviareň pri stanici · 22:00–06:00
+uk Café Nocturne · кав'ярня біля вокзалу · 22:00–06:00
 
 ui.menu.continue
 cs Pokračovat
@@ -151,10 +151,10 @@ sk Príbeh
 uk Історія
 
 ui.menu.new_story_hint
-cs 30 nocí U Výhybky
-en 30 nights at U Výhybky
-sk 30 nocí U Výhybky
-uk 30 ночей у U Výhybky
+cs 30 nocí v Café Nocturne
+en 30 nights at Café Nocturne
+sk 30 nocí v Café Nocturne
+uk 30 ночей у Café Nocturne
 
 ui.menu.sandbox
 cs Sandbox

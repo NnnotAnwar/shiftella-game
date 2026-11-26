@@ -1,8 +1,8 @@
-//! Улица за стенами кафе: мокрая брусчатка с лужами, фонарь, дорога,
-//! край перрона, рельсы, поезд, туман и огни города. Плюс дождь,
-//! капли на стёклах и голографическая вывеска.
+//! The street behind the café walls: wet cobbles with puddles, a streetlamp, the road,
+//! the platform edge, rails, a train, fog and city lights. Plus rain,
+//! drops on the glass and the holographic sign.
 //!
-//! Всё без состояния: картинка — функция от времени `t` (удобно для скриншотов).
+//! All stateless: the picture is a function of time `t` (handy for screenshots).
 
 use std::cell::OnceCell;
 
@@ -14,7 +14,7 @@ use super::furniture::holo_flicker;
 use super::light::Light;
 use crate::map::TILE;
 
-/// Полосы улицы снизу (у стены кафе) вверх (вдаль).
+/// Street bands from the bottom (by the café wall) upwards (into the distance).
 #[derive(Debug, Clone, Copy)]
 struct Bands {
     sidewalk: (f32, f32),
@@ -40,7 +40,7 @@ fn bands(r: Rect) -> Bands {
     }
 }
 
-/// x-координаты фонарей вдоль тротуара.
+/// x coordinates of the streetlamps along the pavement.
 fn lamp_xs(r: Rect) -> impl Iterator<Item = f32> {
     let step = 7.0 * TILE;
     let first = (r.x / step).ceil() * step + 2.5 * TILE;
@@ -49,7 +49,7 @@ fn lamp_xs(r: Rect) -> impl Iterator<Item = f32> {
         .take_while(move |x| *x < r.x + r.w)
 }
 
-/// Огни улицы для `Lighting` (фонари, их отражения).
+/// Street lights for `Lighting` (lamps, their reflections).
 pub fn outside_lights(rect_world: Rect) -> Vec<Light> {
     let b = bands(rect_world);
     let mut v = Vec::new();
@@ -63,7 +63,7 @@ pub fn outside_lights(rect_world: Rect) -> Vec<Light> {
             0.8,
         ));
     }
-    // холодные огни перрона
+    // cool platform lights
     let mut x = rect_world.x + 3.0 * TILE;
     while x < rect_world.x + rect_world.w {
         v.push(Light::new(
@@ -77,12 +77,12 @@ pub fn outside_lights(rect_world: Rect) -> Vec<Light> {
     v
 }
 
-/// Улица за кафе в прямоугольнике мира `rect_world` (низ — у задней стены кафе).
+/// The street behind the café in the world rect `rect_world` (bottom = the café's back wall).
 pub fn draw_outside(rect_world: Rect, t: f32) {
     let r = rect_world;
     let b = bands(r);
 
-    // ── даль: небо, туман, силуэты домов с окнами
+    // ── distance: sky, fog, silhouettes of houses with windows
     rect_v(
         r.x,
         b.far.0,
@@ -103,7 +103,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
             hash01(i * 5),
         );
         rect_v(x, top, w, h, col, shade(col, 0.85));
-        // крыши: иногда треугольная
+        // roofs: sometimes pointed
         if hash01(i * 7) > 0.5 {
             poly(
                 &[
@@ -114,7 +114,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
                 col,
             );
         }
-        // тёплые окна
+        // warm windows
         let cols = (w / 14.0) as i32;
         let rows = (h / 16.0) as i32;
         for cy in 0..rows {
@@ -140,7 +140,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         x += w + 6.0 + hash01(i * 11) * 20.0;
         i += 1;
     }
-    // туман
+    // fog
     rect_v(
         r.x,
         b.far.1 - 50.0,
@@ -150,7 +150,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         alpha(Color::from_hex(0x4a3f7a), 0.55),
     );
 
-    // ── рельсы
+    // ── rails
     let (ty0, ty1) = b.tracks;
     rect_v(
         r.x,
@@ -184,7 +184,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         );
     }
 
-    // ── перрон: бетон и жёлтая тактильная полоса у края
+    // ── platform: concrete and the yellow tactile strip at the edge
     let (py0, py1) = b.platform;
     rect_v(
         r.x,
@@ -203,7 +203,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         Color::from_hex(0xb8902e),
     );
     draw_line(r.x, py0 + 7.0, r.x + r.w, py0 + 7.0, 1.0, alpha(BLACK, 0.3));
-    // отражения фонарей перрона на мокром бетоне
+    // reflections of the platform lamps on wet concrete
     let mut px = r.x + 3.0 * TILE;
     while px < r.x + r.w {
         rect_v(
@@ -214,7 +214,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
             alpha(c::INDIGO_SOFT, 0.25),
             alpha(c::INDIGO_SOFT, 0.0),
         );
-        // столб перронного фонаря
+        // platform lamp post
         draw_line(
             px,
             py0 + 12.0,
@@ -234,18 +234,24 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         glow(px, py0 - 40.0, 14.0, alpha(c::INDIGO_SOFT, 0.5));
         px += 5.0 * TILE;
     }
-    // табличка станции
+    // station name board
     let sign_x = r.x + r.w * 0.62;
     rrect_v(
-        sign_x - 46.0,
+        sign_x - 78.0,
         py0 + 14.0,
-        92.0,
+        156.0,
         22.0,
         4.0,
         Color::from_hex(0x2f3b7a),
         Color::from_hex(0x232c60),
     );
-    world_text("MLHOV", vec2(sign_x, py0 + 30.0), 14.0, WHITE, true);
+    world_text(
+        "PRAHA-HOLEŠOVICE",
+        vec2(sign_x, py0 + 30.0),
+        12.0,
+        WHITE,
+        true,
+    );
     draw_line(
         sign_x - 30.0,
         py0 + 36.0,
@@ -263,7 +269,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         Color::from_hex(0x3a3550),
     );
 
-    // ── дорога: мокрый асфальт с отражениями
+    // ── road: wet asphalt with reflections
     let (sy0, sy1) = b.street;
     rect_v(
         r.x,
@@ -287,7 +293,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         dx += 70.0;
     }
     for lx in lamp_xs(r) {
-        // длинное дрожащее отражение фонаря
+        // a long trembling reflection of the lamp
         for k in 0..6 {
             let yy = sy0 + 6.0 + k as f32 * (sy1 - sy0 - 10.0) / 6.0;
             let wob = (t * 2.0 + k as f32 * 1.3).sin() * 3.0;
@@ -302,7 +308,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
             );
         }
     }
-    // бордюр
+    // kerb
     rect_v(
         r.x,
         sy1 - 4.0,
@@ -312,7 +318,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         Color::from_hex(0x4a4566),
     );
 
-    // ── тротуар: брусчатка
+    // ── pavement: cobbles
     let (wy0, wy1) = b.sidewalk;
     rect_v(
         r.x,
@@ -341,7 +347,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
                 col,
                 shade(col, 0.8),
             );
-            // мокрый блик
+            // wet highlight
             if v > 0.6 {
                 draw_line(
                     xx + 3.0,
@@ -358,7 +364,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         yy += stone * 0.7;
         row += 1;
     }
-    // лужи с отражениями и кругами от капель
+    // puddles with reflections and rings from the drops
     let mut pi = 0u32;
     let mut pxx = r.x + 40.0;
     while pxx < r.x + r.w {
@@ -373,7 +379,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
             Color::from_hex(0x1f1a38),
             Color::from_hex(0x2a2250),
         );
-        // отражение неба и фонаря
+        // reflection of the sky and the lamp
         for lx in lamp_xs(r) {
             if (lx - cx).abs() < w / 2.0 + 10.0 {
                 ellipse(lx, cy, 4.0, 7.0, alpha(c::AMBER, 0.55));
@@ -407,7 +413,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         pi += 1;
     }
 
-    // ── фонари
+    // ── streetlamps
     for lx in lamp_xs(r) {
         let base = vec2(lx, wy0 + 0.5 * TILE);
         soft_shadow(base.x + 4.0, base.y + 2.0, 12.0, 4.0, 0.4);
@@ -446,7 +452,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         );
         glow(bulb.x, bulb.y + 2.0, 26.0, alpha(c::AMBER, 0.45));
         ellipse(bulb.x, bulb.y + 1.0, 6.0, 2.0, Color::from_hex(0xfff0c8));
-        // конус света с дождём
+        // cone of light with rain
         quad(
             [
                 bulb + vec2(-5.0, 2.0),
@@ -464,7 +470,7 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
     }
 }
 
-/// Поезд на дальних путях. `progress` 0..1 — проезд справа налево; вне — ничего.
+/// A train on the far tracks. `progress` 0..1 — passing right to left; outside — nothing.
 pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
     if !(0.0..=1.0).contains(&progress) {
         return;
@@ -477,7 +483,7 @@ pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
     let bot = ty1 - 14.0;
     let h = 58.0;
     let top = bot - h;
-    // тело с обтекаемым носом слева
+    // body with a streamlined nose on the left
     rrect_v(
         x,
         top,
@@ -495,7 +501,7 @@ pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
         Color::from_hex(0x3a3f6a),
         Color::from_hex(0x23264a),
     );
-    // световая полоса индиго
+    // indigo light band
     rect_v(
         x + 20.0,
         bot - 14.0,
@@ -505,7 +511,7 @@ pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
         c::INDIGO,
     );
     glow(x + 8.0, bot - 22.0, 18.0, alpha(WHITE, 0.6));
-    // окна вагонов (тёплые), силуэты пассажиров
+    // carriage windows (warm), passengers' silhouettes
     let car = 3.5 * TILE;
     let mut cx = x + 30.0;
     let mut k = 0u32;
@@ -534,7 +540,7 @@ pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
         cx += 28.0;
         k += 1;
     }
-    // блики скорости
+    // speed glints
     for i in 0..6 {
         let yy = top + 6.0 + i as f32 * 9.0;
         let ox = ((t * 900.0 + i as f32 * 130.0) % (len + 200.0)) - 100.0;
@@ -547,7 +553,7 @@ pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
             alpha(c::LAVENDER_RIM, 0.25),
         );
     }
-    // мягкий отсвет на рельсах
+    // soft glow on the rails
     glow(
         x + len / 2.0,
         ty0 + (ty1 - ty0) * 0.7,
@@ -556,14 +562,14 @@ pub fn draw_train(rect_world: Rect, progress: f32, t: f32) {
     );
 }
 
-// ───────────────────────── дождь ─────────────────────────
+// ───────────────────────── rain ─────────────────────────
 
-/// Дождь. Без состояния: задайте силу и ветер, рисуйте с любым `t`.
+/// Rain. Stateless: set the strength and wind, draw with any `t`.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Weather {
-    /// 0 — сухо, 1 — обычный дождь, 2 — ливень.
+    /// 0 — dry, 1 — ordinary rain, 2 — downpour.
     pub intensity: f32,
-    /// Наклон струй (доля по x на единицу падения).
+    /// Slant of the streaks (x share per unit of fall).
     pub wind: f32,
 }
 
@@ -577,7 +583,7 @@ impl Default for Weather {
 }
 
 impl Weather {
-    /// Струи дождя и брызги в прямоугольнике мира (снаружи). Два слоя параллакса.
+    /// Rain streaks and splashes in a world rect (outside). Two parallax layers.
     pub fn draw_rain(&self, rect_world: Rect, t: f32) {
         if self.intensity <= 0.01 {
             return;
@@ -604,7 +610,7 @@ impl Weather {
                 draw_line(x, y, x + self.wind * len, y + len, thick, col);
             }
         }
-        // брызги на земле
+        // splashes on the ground
         let splashes = (r.w / TILE * 2.5 * self.intensity) as u32;
         for i in 0..splashes {
             let life = 0.45;
@@ -625,20 +631,20 @@ impl Weather {
         }
     }
 
-    /// Капли и стекающие струйки на стекле окна (`glass` — `window_glass_rect`).
+    /// Drops and trickles on a window pane (`glass` — `window_glass_rect`).
     pub fn draw_window_rain(&self, glass: Rect, t: f32) {
         if self.intensity <= 0.01 {
             return;
         }
         let g = glass;
         let seed = (g.x as i32 as u32).wrapping_mul(2654435761);
-        // мелкие сидячие капли
+        // small resting drops
         for i in 0..(10.0 * self.intensity) as u32 {
             let x = g.x + 2.0 + hash01(seed + i * 3) * (g.w - 4.0);
             let y = g.y + 2.0 + hash01(seed + i * 3 + 1) * (g.h - 4.0);
             ellipse(x, y, 0.9, 1.1, Color::new(0.85, 0.88, 1.0, 0.35));
         }
-        // стекающие капли: «прилип-соскользнул»
+        // running drops: "stick, then slide"
         for i in 0..(4.0 * self.intensity).ceil() as u32 {
             let speed = 14.0 + hash01(seed + i * 5) * 20.0;
             let ph = hash01(seed + i * 5 + 1) * 10.0;
@@ -659,7 +665,7 @@ impl Weather {
     }
 }
 
-// ───────────────────────── вывеска ─────────────────────────
+// ───────────────────────── sign ─────────────────────────
 
 thread_local! {
     static FONT: OnceCell<Option<Font>> = const { OnceCell::new() };
@@ -674,7 +680,7 @@ fn with_font<R>(f: impl FnOnce(Option<&Font>) -> R) -> R {
     })
 }
 
-/// Текст в мировых координатах (чёткий при любом зуме). `y` — базовая линия.
+/// Text in world coordinates (crisp at any zoom). `y` is the baseline.
 pub fn world_text(text: &str, pos: Vec2, size: f32, col: Color, centered: bool) {
     with_font(|font| {
         let (fs, scale, aspect) = camera_font_scale(size);
@@ -700,13 +706,13 @@ pub fn world_text(text: &str, pos: Vec2, size: f32, col: Color, centered: bool) 
     });
 }
 
-/// Мерцающая голографическая вывеска (центр снизу — `pos`, на стойке-проекторе).
+/// A flickering holographic sign (`pos` = bottom centre, on its projector post).
 pub fn draw_holo_sign(pos: Vec2, text: &str, t: f32) {
     let fl = holo_flicker(t, 11);
     let w = (text.chars().count() as f32 * 11.0 + 40.0).max(90.0);
     let h = 34.0;
     let (x, y) = (pos.x - w / 2.0, pos.y - 70.0 - h);
-    // стойка-проектор
+    // projector post
     soft_shadow(pos.x + 3.0, pos.y, 14.0, 5.0, 0.45);
     rect_v(
         pos.x - 2.0,
@@ -748,7 +754,7 @@ pub fn draw_holo_sign(pos: Vec2, text: &str, t: f32) {
     );
     let edge = alpha(c::INDIGO_SOFT, 0.95 * fl);
     draw_rectangle_lines(x, y, w, h, 1.5, edge);
-    // чашка-иконка
+    // cup icon
     let ic = vec2(x + 16.0, y + h / 2.0 + 4.0);
     rrect(
         ic.x - 6.0,
@@ -778,7 +784,7 @@ pub fn draw_holo_sign(pos: Vec2, text: &str, t: f32) {
         alpha(Color::from_hex(0xeef0ff), fl),
         true,
     );
-    // строка развёртки + горизонтальный «глитч»
+    // scan line + a horizontal "glitch"
     let scan = (t * 0.8).fract();
     draw_line(
         x + 2.0,

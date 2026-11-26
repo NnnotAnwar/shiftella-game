@@ -35,6 +35,7 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let t = ui.theme.clone();
     let loc = cx.loc;
     let r = anchored(ui.screen(), Anchor::TopLeft, vec2(340.0, 64.0), 12.0);
+    g.anchors.push(("hud.clock", r));
     ui.glass(r, &Glass::hud());
     let speed = g.speed;
     let w = &g.world;
@@ -138,6 +139,7 @@ fn ticker(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let s = ui.screen();
     let w = (s.w - 2.0 * 364.0).clamp(220.0, 460.0);
     let er = anchored(s, Anchor::Top, vec2(w, 32.0), 12.0);
+    g.anchors.push(("hud.ticker", er));
     // glass before interact: a region declared after `interact` blocks it next frame
     ui.glass(er, &Glass::hud().radius(8.0));
     let resp = ui.interact(ui.id("ticker"), er);
@@ -194,6 +196,7 @@ fn resources(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let loc = cx.loc;
     let w = &g.world;
     let rr = anchored(ui.screen(), Anchor::TopRight, vec2(340.0, 64.0), 12.0);
+    g.anchors.push(("hud.money", rr));
     ui.glass(rr, &Glass::hud());
     let base = rr.y + 30.0;
     draw_icon(Icon::Money, vec2(rr.x + 22.0, base - 5.0), 18.0, t.amber);
@@ -319,16 +322,24 @@ fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         (Icon::Build, "ui.toolbar.build", "B", Panel::Build),
         (Icon::Log, "ui.toolbar.log", "L", Panel::Log),
     ];
+    let anchor_names = [
+        "dock.crew",
+        "dock.priorities",
+        "dock.app",
+        "dock.build",
+        "dock.log",
+    ];
     let widths: Vec<f32> = items
         .iter()
         .map(|(ic, l, k, _)| ui.button_width(&Button::new(loc.tr(l)).ghost().icon(*ic).shortcut(k)))
         .collect();
-    let total: f32 = widths.iter().sum::<f32>() + 4.0 * (items.len() as f32) + 36.0;
+    let total: f32 = widths.iter().sum::<f32>() + 4.0 * (items.len() as f32) + 36.0 + 32.0;
     let tb = anchored(ui.screen(), Anchor::BottomLeft, vec2(total, 36.0), 12.0);
     ui.glass(tb, &Glass::hud());
     let mut fr = Flow::row(tb.inset(4.0), 4.0);
     for (i, ((ic, l, k, p), w)) in items.iter().zip(widths).enumerate() {
         let r = fr.next(w);
+        g.anchors.push((anchor_names[i], r));
         if ui
             .button(
                 ("dock", i),
@@ -346,6 +357,24 @@ fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         if *p == Panel::App && pending > 0 {
             ui.badge(vec2(r.x + 22.0, r.y + 4.0), pending);
         }
+    }
+    let help_tip = loc.tr("ui.help.tip");
+    if ui
+        .icon_button(
+            "help",
+            fr.next(28.0),
+            Icon::Info,
+            &IconButton::ghost()
+                .tooltip(help_tip)
+                .selected(g.panel == Some(Panel::Help)),
+        )
+        .clicked
+    {
+        g.panel = if g.panel == Some(Panel::Help) {
+            None
+        } else {
+            Some(Panel::Help)
+        };
     }
     let menu_tip = loc.tr("ui.hud.menu_tip");
     if ui

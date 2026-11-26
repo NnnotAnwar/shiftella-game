@@ -103,9 +103,9 @@ sk Barový pult
 uk Барна стійка
 
 furniture.bar_counter.desc
-cs Za dlaždici. Lídin byl z jednoho kusu dubu.
-en Per tile. Lída's was a single piece of oak.
-sk Za dlaždicu. Lídin bol z jedného kusa duba.
+cs Za dlaždici. Lidin byl z jednoho kusu dubu.
+en Per tile. Lida's was a single piece of oak.
+sk Za dlaždicu. Lidin bol z jedného kusa duba.
 uk За клітинку. Лідина була з цілого дуба.
 
 furniture.counter_corner.name
@@ -325,9 +325,9 @@ sk Hrá sám, keď niekto smúti.
 uk Грає сам, коли комусь сумно.
 
 furniture.radio.name
-cs Lídino rádio
-en Lída's radio
-sk Lídino rádio
+cs Lidino rádio
+en Lida's radio
+sk Lidino rádio
 uk Лідине радіо
 
 furniture.radio.desc
@@ -379,9 +379,9 @@ sk Fotka babky
 uk Бабусине фото
 
 furniture.grandma_photo.desc
-cs Lída se směje někomu mimo záběr. Nikdy neprodávat.
-en Lída laughing at someone outside the frame. Never for sale.
-sk Lída sa smeje na niekom mimo záberu. Nikdy nepredávať.
+cs Lida se směje někomu mimo záběr. Nikdy neprodávat.
+en Lida laughing at someone outside the frame. Never for sale.
+sk Lida sa smeje na niekom mimo záberu. Nikdy nepredávať.
 uk Ліда сміється до когось за кадром. Ніколи не продавати.
 
 furniture.floor_wood.name
@@ -451,7 +451,7 @@ sk Dvere
 uk Двері
 
 furniture.door.desc
-cs Se zvonkem, který Lída nikdy nedala vyměnit.
-en With the bell Lída never let anyone replace.
-sk So zvončekom, ktorý Lída nikdy nedala vymeniť.
+cs Se zvonkem, který Lida nikdy nedala vyměnit.
+en With the bell Lida never let anyone replace.
+sk So zvončekom, ktorý Lida nikdy nedala vymeniť.
 uk Із дзвіночком, який Ліда так і не дала замінити.

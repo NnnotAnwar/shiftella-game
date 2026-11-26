@@ -1,11 +1,11 @@
-//! Внешность персонажа (`PersonLook`), позы и эмоции — чистые данные без рисования.
+//! A person's look (`PersonLook`), poses and emotes — plain data, no drawing.
 //!
-//! `PersonLook::random(seed, staff)` детерминирован: один и тот же seed всегда
-//! даёт одного и того же человека (удобно для сохранений и сети).
+//! `PersonLook::random(seed, staff)` is deterministic: the same seed always
+//! gives the same person (handy for saves and the network).
 
 use macroquad::prelude::*;
 
-/// Куда смотрит персонаж (вид 3/4 спереди: `Down` — лицом к камере).
+/// Where a person faces (3/4 front view: `Down` = towards the camera).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Facing {
     #[default]
@@ -16,7 +16,7 @@ pub enum Facing {
 }
 
 impl Facing {
-    /// Направление по вектору движения (в мировых координатах, y вниз).
+    /// Direction from a movement vector (world coordinates, y down).
     pub fn from_dir(d: Vec2) -> Facing {
         if d.x.abs() > d.y.abs() {
             if d.x > 0.0 {
@@ -32,7 +32,7 @@ impl Facing {
     }
 }
 
-/// Что делает персонаж. `Carry` — идёт с подносом (ноги шагают).
+/// What a person is doing. `Carry` — walking with a tray (legs step).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Pose {
     #[default]
@@ -43,18 +43,18 @@ pub enum Pose {
     Work,
 }
 
-/// Где и как стоит персонаж в этом кадре.
+/// Where and how a person stands this frame.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PersonPose {
-    /// Точка между ступнями, мировые пиксели. Для `Sit` — см. `sit_anchor`.
+    /// Point between the feet, world pixels. For `Sit` see `sit_anchor`.
     pub feet: Vec2,
     pub facing: Facing,
     pub pose: Pose,
-    /// Время анимации в секундах (может быть общим для всех — фазы разные).
+    /// Animation time in seconds (may be shared by everyone — the phases differ).
     pub t: f32,
 }
 
-/// Значок-пузырь над головой.
+/// Speech-bubble icon over the head.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Emote {
     Coffee,
@@ -80,7 +80,7 @@ impl Emote {
     ];
 }
 
-/// Выражение лица (для портретов в диалогах; те же имена у content-агента).
+/// Facial expression (for dialogue portraits; same names as in the content data).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
 pub enum Expression {
     #[default]
@@ -104,7 +104,7 @@ impl Expression {
         Expression::Tired,
     ];
 
-    /// Разбор имени из данных (`"smile"`, `"Smile"`); неизвестное → `Neutral`.
+    /// Parses a name from data (`"smile"`, `"Smile"`); unknown → `Neutral`.
     pub fn from_name(name: &str) -> Expression {
         match name.to_ascii_lowercase().as_str() {
             "smile" => Expression::Smile,
@@ -145,7 +145,7 @@ impl HairStyle {
     ];
 }
 
-/// Фасон верха: меняет силуэт (пальто длиннее, у худи капюшон, у рубашки воротник).
+/// Cut of the top: changes the silhouette (a longer coat, a hoodie's hood, a shirt collar).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum TopStyle {
     Tee,
@@ -169,7 +169,7 @@ pub enum Accessory {
     FlatCap,
     Hat,
     Hairclip,
-    /// Маленький логотип Shiftella на груди (худи/свитер).
+    /// A small Shiftella logo on the chest (hoodie / sweater).
     ShiftellaLogo,
 }
 
@@ -181,7 +181,7 @@ pub enum FacialHair {
     Beard,
 }
 
-/// Общий тон персонажа: обычный, «воспоминание» (тёплая сепия) или «блёклый» (гость 3:33).
+/// A person's overall tone: normal, "memory" (warm sepia) or "faded" (the 3:33 guest).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Tone {
     Normal,
@@ -189,7 +189,7 @@ pub enum Tone {
     Faded,
 }
 
-/// Внешность. Все цвета — базовые (до освещения).
+/// The look. All colours are base colours (before lighting).
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct PersonLook {
     pub skin: Color,
@@ -199,21 +199,21 @@ pub struct PersonLook {
     pub top_style: TopStyle,
     pub bottom: Color,
     pub accessory: Accessory,
-    /// Цвет аксессуара (шарф, шапка, очки).
+    /// Accessory colour (scarf, hat, glasses).
     pub accent: Color,
     pub facial_hair: FacialHair,
-    /// Индиговый фартук персонала со значком Shiftella.
+    /// The staff's indigo apron with the Shiftella badge.
     pub apron: bool,
-    /// Масштаб роста, ~0.9…1.08 (1.0 ≈ 1.3 тайла).
+    /// Height scale, ~0.9…1.08 (1.0 ≈ 1.3 tiles).
     pub height: f32,
-    /// Пожилой: морщинки у глаз, чуть сутулее.
+    /// Elderly: crow's feet, slightly stooped.
     pub elder: bool,
     pub tone: Tone,
-    /// Сдвиг фазы анимаций (моргание, дыхание), 0..1 — чтобы толпа не моргала хором.
+    /// Animation phase offset (blinking, breathing), 0..1 — so a crowd doesn't blink in unison.
     pub phase: f32,
-    /// Не человек, а аватар @shiftella_bot (маленький индиговый робот).
+    /// Not a person but the @shiftella_bot avatar (a small indigo robot).
     pub bot: bool,
-    /// Чуть уставшие глаза (тени под глазами, тяжелее веки) при любом выражении.
+    /// Slightly tired eyes (shadows under the eyes, heavier lids) with any expression.
     pub tired: bool,
 }
 
@@ -236,7 +236,7 @@ const ACCENTS: [u32; 8] = [
     0xc79a3e, 0xb5603f, 0x3f8a8c, 0x7b4f8e, 0xd97a6a, 0x6366f1, 0xe8dcc6, 0x9a5a6e,
 ];
 
-/// Простой детерминированный генератор (splitmix64).
+/// A simple deterministic generator (splitmix64).
 struct Rng(u64);
 
 impl Rng {
@@ -263,8 +263,8 @@ fn hex(c: u32) -> Color {
 }
 
 impl PersonLook {
-    /// Случайная, но всегда одинаковая для `seed` внешность.
-    /// `staff` — в фартуке, светлый верх, аккуратнее причёска.
+    /// A random but, for a given `seed`, always identical look.
+    /// `staff` — in an apron, a light top, a neater haircut.
     pub fn random(seed: u64, staff: bool) -> PersonLook {
         let mut r = Rng(seed ^ 0x5eed_cafe_u64.wrapping_mul(0x1000_0001));
         r.next();
@@ -356,10 +356,10 @@ impl PersonLook {
         }
     }
 
-    /// Готовые сюжетные персонажи. Неизвестный id → детерминированный случайный гость.
+    /// The ready-made story characters. An unknown id → a deterministic random guest.
     ///
     /// Ids: `grandma_lida`, `mirek`, `hana`, `guest_333`, `vera`, `filip`, `radek`,
-    /// `lori`, `player`, `shiftella_bot`. Префикс `guest_` можно опускать/добавлять.
+    /// `lori`, `player`, `shiftella_bot`. The `guest_` prefix may be left out or added.
     pub fn preset(id: &str) -> PersonLook {
         let base = |seed: u64| PersonLook::random(seed, false);
         let id = id.strip_prefix("guest_").unwrap_or(id);
@@ -508,10 +508,11 @@ impl PersonLook {
                 bot: false,
                 tired: false,
             },
+            // Karolina, Lida's granddaughter: chestnut ponytail, cream sweater
             "player" => PersonLook {
                 skin: hex(0xe3ad88),
                 hair: hex(0x5b3b2a),
-                hair_style: HairStyle::Side,
+                hair_style: HairStyle::Ponytail,
                 top: hex(0xe8dcc6),
                 top_style: TopStyle::Sweater,
                 bottom: hex(0x34406b),
@@ -526,7 +527,7 @@ impl PersonLook {
                 bot: false,
                 tired: false,
             },
-            // Анвар — постоянный гость, разработчик приложения Shiftella (под конец 20-х)
+            // Anwar — a regular, the developer of the Shiftella app (in his late twenties)
             "anwar" => PersonLook {
                 skin: hex(0xd09872),
                 hair: hex(0x251c22),
@@ -557,7 +558,7 @@ impl PersonLook {
         }
     }
 
-    /// Все ids сюжетных пресетов.
+    /// All story preset ids.
     pub const PRESETS: [&'static str; 11] = [
         "grandma_lida",
         "mirek",

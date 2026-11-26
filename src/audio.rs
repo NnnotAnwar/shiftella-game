@@ -26,7 +26,12 @@ const SFX_BASE: f32 = 0.85;
 /// Seconds for a full crossfade.
 const FADE_SECONDS: f32 = 2.4;
 /// Music level while a dialogue line is on screen.
-const DUCK: f32 = 0.45;
+const DUCK: f32 = 0.33;
+/// Ambience (rain) under dialogue: a little lower, still clearly audible.
+const AMB_DUCK: f32 = 0.75;
+/// Seconds to duck down / to come back up (never an abrupt cut).
+const DUCK_DOWN_SECONDS: f32 = 0.4;
+const DUCK_UP_SECONDS: f32 = 0.8;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Track {
@@ -133,7 +138,10 @@ pub struct Mix {
     pub level: [f32; 3],
     /// Wanted track (`None` = silence).
     pub target: Option<Track>,
+    /// Music multiplier while dialogue / narration text is on screen (1 = none).
     pub duck: f32,
+    /// Ambience multiplier while text is on screen.
+    pub amb_duck: f32,
     pub music_volume: f32,
     pub sfx_volume: f32,
     pub muted: bool,
@@ -147,6 +155,7 @@ impl Default for Mix {
             level: [0.0; 3],
             target: None,
             duck: 1.0,
+            amb_duck: 1.0,
             music_volume: 0.7,
             sfx_volume: 0.8,
             muted: false,
@@ -169,8 +178,16 @@ impl Mix {
                 (*l - k * 1.3).max(want)
             };
         }
-        let duck_target = if ducked { DUCK } else { 1.0 };
-        self.duck += (duck_target - self.duck) * (dt * 4.0).min(1.0);
+        // linear ramps: down in DUCK_DOWN_SECONDS, back up in DUCK_UP_SECONDS
+        let ramp = |v: f32, low: f32| {
+            if ducked {
+                (v - dt * (1.0 - low) / DUCK_DOWN_SECONDS).max(low)
+            } else {
+                (v + dt * (1.0 - low) / DUCK_UP_SECONDS).min(1.0)
+            }
+        };
+        self.duck = ramp(self.duck, DUCK);
+        self.amb_duck = ramp(self.amb_duck, AMB_DUCK);
         let rain_target = if self.rain { 1.0 } else { 0.0 };
         self.rain_level = if self.rain_level < rain_target {
             (self.rain_level + dt / 1.5).min(1.0)
@@ -191,7 +208,10 @@ impl Mix {
         if self.muted {
             return 0.0;
         }
-        AMBIENCE_BASE * self.sfx_volume.max(self.music_volume * 0.6) * self.rain_level
+        AMBIENCE_BASE
+            * self.sfx_volume.max(self.music_volume * 0.6)
+            * self.rain_level
+            * self.amb_duck
     }
 
     pub fn sfx_gain(&self, s: Sfx, volume: f32) -> f32 {
@@ -432,6 +452,37 @@ mod tests {
         m.muted = true;
         assert_eq!(m.music_gain(Track::Menu), 0.0);
         assert_eq!(m.sfx_gain(Sfx::DoorBell, 1.0), 0.0);
+    }
+
+    #[test]
+    fn dialogue_ducks_music_smoothly_and_comes_back() {
+        let mut m = Mix {
+            target: Some(Track::Calm),
+            level: [0.0, 1.0, 0.0],
+            rain: true,
+            rain_level: 1.0,
+            ..Default::default()
+        };
+        let (music, rain) = (m.music_gain(Track::Calm), m.rain_gain());
+        // a fraction of a second in: on its way down, not cut
+        m.step(0.1, true);
+        let g = m.music_gain(Track::Calm);
+        assert!(g < music && g > music * 0.7, "{g} vs {music}");
+        for _ in 0..30 {
+            m.step(1.0 / 60.0, true);
+        }
+        let low = m.music_gain(Track::Calm) / music;
+        assert!((0.3..=0.35).contains(&low), "ducked to {low}");
+        let rain_low = m.rain_gain() / rain;
+        assert!(rain_low > 0.6 && rain_low < 0.9, "rain {rain_low}");
+        // back up slower than it went down
+        m.step(0.4, false);
+        assert!(m.music_gain(Track::Calm) < music * 0.8);
+        m.step(0.5, false);
+        assert!((m.music_gain(Track::Calm) - music).abs() < 1e-4);
+        // the user's volume still scales everything
+        m.music_volume = 0.0;
+        assert_eq!(m.music_gain(Track::Calm), 0.0);
     }
 
     #[test]

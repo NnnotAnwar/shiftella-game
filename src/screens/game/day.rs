@@ -10,7 +10,10 @@ use crate::ui::{Align, Button, Glass, Icon, RectExt, Ui, draw_icon};
 use sim::Mode;
 
 pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
-    if g.panel == Some(super::Panel::App) || g.panel == Some(super::Panel::Priorities) {
+    if matches!(
+        g.panel,
+        Some(super::Panel::App | super::Panel::Priorities | super::Panel::Build)
+    ) {
         // keep the screen clear for the big panels; the Start button lives in the dock row
         start_button_only(g, ui, cx);
         return;
@@ -29,6 +32,7 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let story = g.world.mode() == Mode::Story;
     let h = (s.h - 88.0 - 60.0).min(470.0);
     let pr = Rect::new(x, 88.0, w, h);
+    g.anchors.push(("day.panel", pr));
     ui.glass(pr, &Glass::panel());
     let c = pr.inset(16.0);
     let mut y = c.y;
@@ -265,6 +269,7 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         g.panel = Some(super::Panel::Build);
     }
     let sr = Rect::new(c.x, c.bottom() - 36.0, c.w, 36.0);
+    g.anchors.push(("day.start", sr));
     if ui
         .button(
             "start_night",
@@ -289,6 +294,7 @@ fn start_button_only(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         .shortcut("Enter");
     let w = ui.button_width(&b) + 12.0;
     let r = Rect::new(s.w - 12.0 - w, s.h - 12.0 - 36.0, w, 36.0);
+    g.anchors.push(("day.start", r));
     ui.glass(r.inset(-4.0), &Glass::hud());
     if ui.button("start_night_small", r, &b).clicked {
         g.start_night(cx.content);

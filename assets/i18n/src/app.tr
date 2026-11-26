@@ -20,7 +20,7 @@ uk Ласкаво просимо до команди
 
 app.announcement.welcome_crew.body
 cs Rozpis je v aplikaci, výměny taky. Kdo neví, ptá se. Kdo ví, uvaří kafe.
-en The rozpis is in the app, and so are swaps. If you don't know, ask. If you do, make coffee.
+en The schedule is in the app, and so are swaps. If you don't know, ask. If you do, make coffee.
 sk Rozpis je v aplikácii, výmeny tiež. Kto nevie, pýta sa. Kto vie, uvarí kávu.
 uk Розклад у застосунку, обмін змінами теж. Хто не знає — питає. Хто знає — варить каву.
 
@@ -194,13 +194,13 @@ uk О 6:00 вимкнути вікно
 
 app.bot.hello
 cs Ahoj, jsem @shiftella_bot. Hlídám rozpis, výměny a volno. Píchačky nedělám — lidi nejsou děrné štítky.
-en Hi, I'm @shiftella_bot. I keep the rozpis, swaps and time off in order. I don't do clock-ins — people aren't punch cards.
+en Hi, I'm @shiftella_bot. I keep the schedule, swaps and time off in order. I don't do clock-ins — people aren't punch cards.
 sk Ahoj, som @shiftella_bot. Strážim rozpis, výmeny a voľno. Píchačky nerobím — ľudia nie sú dierne štítky.
 uk Привіт, я @shiftella_bot. Стежу за розкладом, обмінами й вихідними. Відмітки приходу не роблю — люди не перфокарти.
 
 app.bot.schedule_published
 cs Rozpis na týden {week} je zveřejněný. Všichni dostali upozornění.
-en The rozpis for week {week} is published. Everyone has been notified.
+en The schedule for week {week} is published. Everyone has been notified.
 sk Rozpis na týždeň {week} je zverejnený. Všetci dostali upozornenie.
 uk Розклад на тиждень {week} опубліковано. Усі отримали сповіщення.
 
@@ -242,7 +242,7 @@ uk Відхилити
 
 app.bot.time_off_vacation
 cs {name} žádá o dovolenou: {dates}.
-en {name} is requesting holiday (dovolená): {dates}.
+en {name} is requesting holiday: {dates}.
 sk {name} žiada o dovolenku: {dates}.
 uk {name} просить відпустку: {dates}.
 
@@ -260,7 +260,7 @@ uk Відхилити
 
 app.bot.time_off_toil
 cs {name} si chce vybrat náhradní volno: {hours} h.
-en {name} wants to take time off in lieu (náhradní volno): {hours} h.
+en {name} wants to take time off in lieu: {hours} h.
 sk {name} si chce vybrať náhradné voľno: {hours} h.
 uk {name} хоче взяти відгул за переробку: {hours} год.
 

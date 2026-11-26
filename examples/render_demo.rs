@@ -1,12 +1,12 @@
-//! Демо рендера: ночное кафе из `map::CAFE_LAYOUT`, гости и персонал, дождь,
-//! поезд, свет. Камера — `WorldCamera` (WASD/стрелки, правая кнопка, колесо).
+//! Render demo: the night café from `map::CAFE_LAYOUT`, guests and staff, rain,
+//! a train, light. Camera: `WorldCamera` (WASD / arrows, right button, wheel).
 //!
-//! Переменные окружения:
-//! - `SHIFTELLA_SHOT=path.png` — отрендерить ~40 кадров, сохранить PNG и выйти;
-//! - `SHIFTELLA_ZOOM=2.5`, `SHIFTELLA_CENTER=12.5,5` (в тайлах), `SHIFTELLA_T=7.0` (время, сек);
-//! - `SHIFTELLA_NIGHT=0.55` (ход ночи 0..1), `SHIFTELLA_BLACKOUT=1`, `SHIFTELLA_TRAIN=0.5`;
-//! - `SHIFTELLA_STRESS=1` — 40+ людей и ~150 предметов (замер производительности);
-//! - `SHIFTELLA_DEMO=portraits|people|furniture` — галереи портретов, людей, мебели.
+//! Environment variables:
+//! - `SHIFTELLA_SHOT=path.png` — render ~40 frames, save a PNG and exit;
+//! - `SHIFTELLA_ZOOM=2.5`, `SHIFTELLA_CENTER=12.5,5` (in tiles), `SHIFTELLA_T=7.0` (time, s);
+//! - `SHIFTELLA_NIGHT=0.55` (night progress 0..1), `SHIFTELLA_BLACKOUT=1`, `SHIFTELLA_TRAIN=0.5`;
+//! - `SHIFTELLA_STRESS=1` — 40+ people and ~150 objects (performance check);
+//! - `SHIFTELLA_DEMO=portraits|people|furniture` — galleries of portraits, people, furniture.
 
 use std::time::Instant;
 
@@ -61,7 +61,7 @@ impl Piece {
     }
 }
 
-/// Движение персонажа в демо.
+/// A person's movement in the demo.
 enum Motion {
     Still(Vec2, Facing, Pose),
     Path(Vec<Vec2>, f32, Pose),
@@ -88,7 +88,7 @@ impl Actor {
                 t,
             },
             Motion::Path(pts, speed, pose) => {
-                // длина пути по кругу
+                // path length around the loop
                 let n = pts.len();
                 let lens: Vec<f32> = (0..n).map(|i| pts[i].distance(pts[(i + 1) % n])).collect();
                 let total: f32 = lens.iter().sum();
@@ -212,7 +212,7 @@ fn build_furniture(map: &Map, stress: bool) -> Vec<Piece> {
             }
         }
     }
-    // декор
+    // decor
     v.extend([
         Piece::at("fridge", 22.0, 13.0, (1, 1)),
         Piece::at("trash_bin", 23.0, 13.0, (1, 1)).dirty(0.7),
@@ -249,7 +249,7 @@ fn build_furniture(map: &Map, stress: bool) -> Vec<Piece> {
         v.push(Piece::at("stool", x, 9.0, (1, 1)));
     }
     if stress {
-        // добить до ~150 предметов
+        // top up to ~150 objects
         let mut i = 0;
         while v.len() < 150 {
             let x = 2.0 + (i % 26) as f32;
@@ -270,7 +270,7 @@ fn build_actors(stress: bool) -> Vec<Actor> {
     let still = |feet: Vec2, f: Facing, p: Pose| Motion::Still(feet, f, p);
     let chair = |x: f32, y: f32, f: Facing| sit_anchor(vec2(x, y) * TILE, f);
     let mut v = vec![
-        // персонал
+        // staff
         Actor {
             look: PersonLook::random(101, true),
             motion: still(
@@ -312,7 +312,7 @@ fn build_actors(stress: bool) -> Vec<Actor> {
             emote: None,
             selected: false,
         },
-        // гости за столами
+        // guests at the tables
         Actor {
             look: PersonLook::preset("mirek"),
             motion: still(chair(3.0, 2.0, Facing::Right), Facing::Right, Pose::Sit),
@@ -381,7 +381,7 @@ fn build_actors(stress: bool) -> Vec<Actor> {
             emote: Some((Emote::Angry, 3.0)),
             selected: false,
         },
-        // Анвар с ноутбуком (ноутбук рисуется отдельно, см. main)
+        // Anwar with his laptop (the laptop is drawn separately, see main)
         Actor {
             look: PersonLook::preset("anwar"),
             motion: still(chair(11.0, 8.0, Facing::Right), Facing::Right, Pose::Sit),
@@ -446,7 +446,7 @@ async fn main() {
     let actors = build_actors(stress);
     let weather = Weather::default();
 
-    // стёкла окон для дождя и света
+    // window glass for rain and light
     let mut glass = Vec::new();
     for y in 0..map.height {
         for x in 0..map.width {
@@ -458,7 +458,7 @@ async fn main() {
     let mut lighting = Lighting::new();
     lighting.set_windows(glass.clone());
 
-    // кэш пола и высоких стен
+    // cache of the floor and the tall walls
     let mut statics = StaticLayer::new();
     let static_rect = Rect::new(
         -TILE,
@@ -468,7 +468,7 @@ async fn main() {
     );
     let mut low_walls = Vec::new();
     statics.build(static_rect, 2.0, || {
-        // мокрая мостовая перед фасадом и дверью
+        // wet pavement in front of the facade and the door
         for y in map.height..map.height + 2 {
             for x in -1..=map.width as i32 {
                 draw_floor("pavement", vec2(x as f32, y as f32));
@@ -512,7 +512,7 @@ async fn main() {
     let street_lights = outside_lights(street);
 
     let screen = Rect::new(0.0, 0.0, screen_width(), screen_height());
-    // обзор: кафе + полоска улицы над задней стеной
+    // overview: the café + a strip of street above the back wall
     let mut cam = WorldCamera::fit(vec2(32.0, 21.6) * TILE, screen);
     cam.center = vec2(15.0, 5.4) * TILE;
     if let Some(z) = env_f("SHIFTELLA_ZOOM") {
@@ -539,7 +539,7 @@ async fn main() {
         let world_cam = cam.to_camera2d();
         set_camera(&world_cam);
         clear_background(pal::NIGHT_0);
-        // «сцена кукольного домика»: мягкое фиолетовое пятно под кафе
+        // "dollhouse stage": a soft violet pool under the café
         let ms = map.size_px();
         radial(
             ms.x / 2.0,
@@ -555,7 +555,7 @@ async fn main() {
         draw_train(street, train_p, t);
         draw_holo_sign(
             vec2(21.0 * TILE, street.y + street.h - 0.35 * TILE),
-            "U Výhybky",
+            "Café Nocturne",
             t,
         );
         weather.draw_rain(street, t);
@@ -593,7 +593,7 @@ async fn main() {
             states.push(st);
             q.push_furniture(p.sprite, p.origin, p.size, st);
         }
-        // ноутбук Анвара на столе (12, 8): после стола, до самого Анвара
+        // Anwar's laptop on table (12, 8): after the table, before Anwar himself
         let laptop_at = vec2(12.42, 8.5) * TILE - vec2(0.0, 24.0);
         q.push_custom(9.0 * TILE + 0.01, move || {
             draw_laptop(laptop_at, Facing::Right, t)
@@ -610,7 +610,7 @@ async fn main() {
         }
         q.flush();
 
-        // свет
+        // light
         let ambient = if blackout {
             ambient_blackout()
         } else {
@@ -626,7 +626,7 @@ async fn main() {
             }
         }
         if !blackout {
-            // лампа над дверью освещает мокрую мостовую
+            // the lamp over the door lights the wet pavement
             lighting.add_light(
                 Light::new(vec2(2.0, 16.4) * TILE, 2.6 * TILE, pal::AMBER, 0.8).flicker(0.03),
             );
@@ -656,7 +656,7 @@ async fn main() {
         }
         lighting.apply();
 
-        // эмоции поверх света
+        // emotes over the light
         for (a, pose) in actors.iter().zip(&poses) {
             if let Some((e, phase)) = a.emote {
                 let cycle = 6.0;
@@ -696,9 +696,9 @@ async fn main() {
     }
 }
 
-// ───────────────────────── галереи ─────────────────────────
+// ───────────────────────── galleries ─────────────────────────
 
-/// Камера «экран в логических точках» (для портретов, как UI).
+/// A camera in logical screen points (for portraits, like the UI).
 fn ui_camera() -> Camera2D {
     let s = screen_dpi_scale();
     let (w, h) = (screen_width() / s, screen_height() / s);
@@ -766,7 +766,7 @@ async fn portraits_demo(shot: Option<String>, t0: f32) {
                     cell - 4.0,
                     cell - 4.0,
                 );
-                // «стеклянная» рамка, как в UI
+                // a "glass" frame, like in the UI
                 draw::rrect_v(
                     r.x,
                     r.y,

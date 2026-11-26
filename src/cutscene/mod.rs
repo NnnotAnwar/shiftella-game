@@ -2,7 +2,7 @@
 //!
 //! Plays a [`crate::content::CutsceneDef`]: letterbox, fades, smooth camera moves over the café
 //! and street, actors walking along grid paths, trains (with the light sweep), glass dialogue
-//! with portraits + typewriter, narration, choices, Lída's note cards, hold-Esc-to-skip, the
+//! with portraits + typewriter, narration, choices, Lida's note cards, hold-Esc-to-skip, the
 //! history log (Log button) and auto-advance (`A`).
 //!
 //! * [`CutscenePlayer::start`] → per frame [`CutscenePlayer::update`] (returns

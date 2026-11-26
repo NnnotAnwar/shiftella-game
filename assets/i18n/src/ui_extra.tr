@@ -1,0 +1,85 @@
+# Release QA additions: the heroine's row label, breaks, Shiftella auto-fill.
+
+ui.staff.you_row
+cs Karolina (ty)
+en Karolina (you)
+sk Karolína (ty)
+uk Кароліна (ти)
+
+ui.crew.break
+cs Pauza
+en Break
+sk Prestávka
+uk Перерва
+
+ui.crew.break_tip
+cs Pošle na krátkou pauzu hned teď (kdo má hlad, i se nají).
+en Sends them on a short break right now (they eat if hungry).
+sk Pošle na krátku prestávku hneď teraz (kto je hladný, aj sa naje).
+uk Відправляє на коротку перерву просто зараз (голодні ще й поїдять).
+
+ui.crew.break_toast
+cs {name} si dává pauzu.
+en {name} is taking a break.
+sk {name} si dáva prestávku.
+uk {name} має перерву.
+
+ui.ticker.break_ended
+cs {name} je zpátky po pauze
+en {name} is back from a break
+sk {name} je späť po prestávke
+uk {name} повертається з перерви
+
+ui.app.autofill
+cs Vyplnit
+en Auto-fill
+sk Vyplniť
+uk Автозаповнення
+
+ui.app.autofill_tip
+cs Aplikace sestaví rozpis sama podle úvazků a volna. Ctrl+Z vrátí.
+en The app builds the schedule from contracts and time off. Ctrl+Z undoes it.
+sk Aplikácia zostaví rozpis sama podľa úväzkov a voľna. Ctrl+Z vráti.
+uk Застосунок сам складе розклад за ставками й відгулами. Ctrl+Z скасує.
+
+ui.app.autofilled
+cs Rozpis vyplněn
+en Schedule filled in
+sk Rozpis vyplnený
+uk Розклад заповнено
+
+ui.app.autofilled_body
+cs Zkontroluj koncept a zveřejni ho. Ctrl+Z vrátí předchozí.
+en Check the draft and publish it. Ctrl+Z brings the previous one back.
+sk Skontroluj koncept a zverejni ho. Ctrl+Z vráti predchádzajúci.
+uk Перевір чернетку й опублікуй. Ctrl+Z поверне попередню.
+
+ui.app.mode_auto
+cs Automaticky
+en Auto
+sk Automaticky
+uk Авто
+
+ui.app.mode_manual
+cs Ručně
+en Manual
+sk Ručne
+uk Вручну
+
+ui.app.thank_post
+cs Poděkovat: {name}
+en Thank {name}
+sk Poďakovať: {name}
+uk Подякувати: {name}
+
+ui.app.thank_next
+cs Jiný kolega
+en Someone else
+sk Iný kolega
+uk Хтось інший
+
+ui.app.posted
+cs Vyvěšeno na nástěnce
+en Posted on the board
+sk Vyvesené na nástenke
+uk Опубліковано на дошці

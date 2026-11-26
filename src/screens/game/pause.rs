@@ -58,7 +58,7 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let page = g.pause.as_ref().map(|p| p.page).unwrap_or_default();
     match page {
         Page::Main => {
-            let (w, h) = (300.0, 324.0);
+            let (w, h) = (300.0, 366.0);
             let pr = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0, w, h);
             ui.glass(pr, &Glass::panel().radius(14.0));
             let c = pr.inset(20.0);
@@ -68,8 +68,9 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 c.y + 18.0,
                 &t.title(),
             );
-            let items: [(&str, Icon, u8); 6] = [
+            let items: [(&str, Icon, u8); 7] = [
                 ("ui.pause.resume", Icon::Play, 0),
+                ("ui.help.title", Icon::Info, 6),
                 ("ui.pause.settings", Icon::Settings, 1),
                 ("ui.pause.save", Icon::Check, 2),
                 ("ui.pause.load", Icon::Undo, 3),
@@ -93,6 +94,10 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                         4 => {
                             autosave(g, cx);
                             g.exit = Some(GameExit::MainMenu);
+                        }
+                        6 => {
+                            g.pause = None;
+                            g.panel = Some(super::Panel::Help);
                         }
                         _ => {
                             autosave(g, cx);
@@ -120,7 +125,10 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 g.player.apply_settings(cx.settings);
                 cx.settings.apply_window();
             }
-            if resp.close {
+            if resp.replay_tutorial {
+                g.start_tutorial();
+                g.pause = None;
+            } else if resp.close {
                 set_page(g, Page::Main, cx);
             }
         }

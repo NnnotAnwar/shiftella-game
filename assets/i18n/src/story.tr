@@ -44,7 +44,7 @@ uk Перший колега
 
 story.night.02.hint
 cs Najmi někoho a sestav první rozpis.
-en Hire someone and build your first rozpis.
+en Hire someone and build your first schedule.
 sk Najmi niekoho a zostav prvý rozpis.
 uk Найми когось і склади перший розклад.
 
@@ -79,9 +79,9 @@ sk Pani s krížovkou
 uk Пані з кросвордом
 
 story.night.05.hint
-cs Po půlnoci přijde někdo, kdo Lídu znal. Ať jsou stoly čisté.
-en After midnight, someone who knew Lída will come. Keep the tables clean.
-sk Po polnoci príde niekto, kto Lídu poznal. Nech sú stoly čisté.
+cs Po půlnoci přijde někdo, kdo Lidu znal. Ať jsou stoly čisté.
+en After midnight, someone who knew Lida will come. Keep the tables clean.
+sk Po polnoci príde niekto, kto Lidu poznal. Nech sú stoly čisté.
 uk Після півночі прийде хтось, хто знав Ліду. Хай столи будуть чисті.
 
 story.night.06.title
@@ -187,9 +187,9 @@ sk Kuchárska kniha
 uk Кулінарна книга
 
 story.night.14.hint
-cs Druhá splátka. A Věra dnes něco nese.
-en The second payment. And Věra is bringing something tonight.
-sk Druhá splátka. A Věra dnes niečo nesie.
+cs Druhá splátka. A Vera dnes něco nese.
+en The second payment. And Vera is bringing something tonight.
+sk Druhá splátka. A Vera dnes niečo nesie.
 uk Другий платіж. А Віра сьогодні щось несе.
 
 story.night.15.title
@@ -343,9 +343,9 @@ sk Prvý sneh
 uk Перший сніг
 
 story.night.27.hint
-cs Sněží. Věra chce vyprávět.
-en It's snowing. Věra wants to tell a story.
-sk Sneží. Věra chce rozprávať.
+cs Sněží. Vera chce vyprávět.
+en It's snowing. Vera wants to tell a story.
+sk Sneží. Vera chce rozprávať.
 uk Іде сніг. Віра хоче розповісти історію.
 
 story.night.28.title
@@ -411,10 +411,10 @@ sk Cez deň môžeš zamestnávať. Otvor Personál (C) a vyber kandidáta.
 uk Удень можна наймати. Відкрий «Персонал» (C) і вибери кандидата.
 
 story.hint.schedule
-cs Rozpis směn najdeš v aplikaci Shiftella (T). Tahem nakresli směnu, Shift + tah je pauza.
-en The shift rozpis lives in the Shiftella app (T). Drag to draw a shift; Shift + drag adds a break.
-sk Rozpis zmien nájdeš v aplikácii Shiftella (T). Ťahom nakresli zmenu, Shift + ťah je prestávka.
-uk Розклад змін — у застосунку Shiftella (T). Протягни, щоб намалювати зміну; Shift + протягування — перерва.
+cs Rozpis směn najdeš v aplikaci Shiftella (T). Kliknutím na buňku změníš koncept, pak ho zveřejni.
+en The shift schedule lives in the Shiftella app (T). Click a cell to change the draft, then Publish.
+sk Rozpis zmien nájdeš v aplikácii Shiftella (T). Kliknutím na bunku zmeníš koncept, potom ho zverejni.
+uk Розклад змін — у застосунку Shiftella (T). Клацни клітинку, щоб змінити чернетку, потім опублікуй.
 
 story.hint.priorities
 cs V Prioritách (P) určíš, kdo co dělá přednostně. 1 je nejdůležitější.
@@ -503,9 +503,9 @@ uk Останні ночі. Кожен постійний гість прийд�
 # --- beat speech bubbles ---
 
 story.line.04_mirek
-cs Ve tři je tu vždycky divné ticho. Lída říkala, že to nic.
-en There's always a strange silence here around three. Lída said it was nothing.
-sk O tretej je tu vždy čudné ticho. Lída hovorila, že to nič.
+cs Ve tři je tu vždycky divné ticho. Lida říkala, že to nic.
+en There's always a strange silence here around three. Lida said it was nothing.
+sk O tretej je tu vždy čudné ticho. Lida hovorila, že to nič.
 uk Близько третьої тут завжди дивна тиша. Ліда казала, що то нічого.
 
 story.line.06_filip
@@ -515,9 +515,9 @@ sk Dobrý večer… je tu Wi-Fi? Alebo aspoň zásuvka?
 uk Добрий вечір… тут є Wi-Fi? Або хоча б розетка?
 
 story.line.07_cook
-cs Za Lídy se splátky taky platily v neděli. Ráno. S nadávkami.
-en In Lída's day the payments were made on Sundays too. In the morning. With swearing.
-sk Za Lídy sa splátky tiež platili v nedeľu. Ráno. S nadávkami.
+cs Za Lidy se splátky taky platily v neděli. Ráno. S nadávkami.
+en In Lida's day the payments were made on Sundays too. In the morning. With swearing.
+sk Za Lidy sa splátky tiež platili v nedeľu. Ráno. S nadávkami.
 uk За Ліди платежі теж вносили в неділю. Зранку. З лайкою.
 
 story.line.11_ema
@@ -539,9 +539,9 @@ sk Nepýtajte sa. Prosím.
 uk Не питайте. Будь ласка.
 
 story.line.22_vera
-cs Lída by byla pyšná. Neříkej jí… no, neříkej to nikomu.
-en Lída would have been proud. Don't tell her… well, don't tell anyone.
-sk Lída by bola hrdá. Nehovor jej… no, nehovor to nikomu.
+cs Lida by byla pyšná. Neříkej jí… no, neříkej to nikomu.
+en Lida would have been proud. Don't tell her… well, don't tell anyone.
+sk Lida by bola hrdá. Nehovor jej… no, nehovor to nikomu.
 uk Ліда б пишалася. Не кажи їй… ну, нікому не кажи.
 
 story.line.22_vera_sold
@@ -589,10 +589,10 @@ sk Posledný vlak
 uk Останній поїзд
 
 ending.last_train.summary
-cs U Výhybky končí. Poslední noc se štamgasty a ranní vlak do Berouna.
-en U Výhybky closes. A last night with the regulars and the morning train to Beroun.
-sk U Výhybky končí. Posledná noc so štamgastmi a ranný vlak do Berouna.
-uk U Výhybky зачиняється. Остання ніч із постійними гостями й ранковий поїзд до Beroun.
+cs Café Nocturne končí. Poslední noc se štamgasty a ranní vlak do Berouna.
+en Café Nocturne closes. A last night with the regulars and the morning train to Beroun.
+sk Café Nocturne končí. Posledná noc so štamgastmi a ranný vlak do Berouna.
+uk Café Nocturne зачиняється. Остання ніч із постійними гостями й ранковий поїзд до Beroun.
 
 ending.last_train.variant.sold
 cs Prodáno síti NONSTOP 24. Okno svítí pořád — a nikdo v něm nečeká.
@@ -607,10 +607,10 @@ sk Štamgasti ti pomohli zbaliť a prehovárali ťa otvoriť niečo svoje.
 uk Постійні гості допомогли спакуватися й умовляли відкрити щось своє.
 
 ending.last_train.variant.closed
-cs Kavárna zavřela. Mlhov není město velkých loučení.
-en The café closed. Mlhov isn't a town for big goodbyes.
-sk Kaviareň zatvorila. Mlhov nie je mesto veľkých rozlúčok.
-uk Кав'ярня зачинилася. Mlhov — не місто великих прощань.
+cs Kavárna zavřela. Holešovice v noci nejsou na velká loučení.
+en The café closed. Holešovice at night isn't a place for big goodbyes.
+sk Kaviareň zatvorila. Holešovice v noci nie sú na veľké rozlúčky.
+uk Кав'ярня зачинилася. Нічні Голешовиці — не місце для великих прощань.
 
 ending.extra.answer.title
 cs Odpověď
@@ -657,21 +657,21 @@ sk Spiatočný, 14. novembra 1979. Spiatočná polovica nepoužitá.
 uk Туди й назад, 14 листопада 1979. Зворотна половина не використана.
 
 item.letter.name
-cs Lídin dopis
-en Lída's letter
-sk Lídin list
+cs Lidin dopis
+en Lida's letter
+sk Lidin list
 uk Лідин лист
 
 item.letter.desc
-cs Zalepená obálka „Jindřichovi". Váží asi dvacet gramů.
-en A sealed envelope, "For Jindřich". It weighs about twenty grams.
-sk Zalepená obálka „Jindřichovi". Váži asi dvadsať gramov.
-uk Заклеєний конверт «Індржихові». Важить грамів двадцять.
+cs Zalepená obálka „Jindrovi". Váží asi dvacet gramů.
+en A sealed envelope, "For Jindra". It weighs about twenty grams.
+sk Zalepená obálka „Jindrovi". Váži asi dvadsať gramov.
+uk Заклеєний конверт «Їндрі». Важить грамів двадцять.
 
 item.recipe_book.name
-cs Lídina kuchařka
-en Lída's recipe book
-sk Lídina kuchárska kniha
+cs Lidina kuchařka
+en Lida's recipe book
+sk Lidina kuchárska kniha
 uk Лідина кулінарна книга
 
 item.recipe_book.desc

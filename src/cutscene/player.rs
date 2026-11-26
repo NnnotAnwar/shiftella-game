@@ -8,7 +8,7 @@ use macroquad::prelude::*;
 use crate::content::{
     ChoiceOption, Condition, Content, CutsceneDef, CutsceneLib, CutsceneStep, Effect, Focus, Place,
 };
-use crate::map::TILE;
+use crate::map::{Map, TILE};
 use crate::render::{Expression, draw_portrait};
 use crate::settings::Locale;
 use crate::ui::{DialogueBox, DialogueLabels, DialogueLine, RectExt, TextStyle, Ui, Weight};
@@ -183,6 +183,12 @@ pub struct CutscenePlayer {
     pub dialogue: DialogueBox,
     /// Lines advance on their own (settings → auto-advance; `A` toggles).
     pub auto_advance: bool,
+    /// Walkability of the live café (paths go around the player's own furniture).
+    nav: Option<Map>,
+    /// Feet of people already in the live café, by cast id (regulars, `guest_anwar` …).
+    live: HashMap<String, Vec2>,
+    /// Cast ids that left the stage during this scene (the live copy stays hidden).
+    exited: HashSet<String>,
 }
 
 /// Story-condition callback supplied by the integration.
@@ -241,6 +247,9 @@ impl CutscenePlayer {
             calls: 0,
             dialogue: DialogueBox::new(),
             auto_advance: false,
+            nav: None,
+            live: HashMap::new(),
+            exited: HashSet::new(),
         }
     }
 
@@ -261,6 +270,31 @@ impl CutscenePlayer {
         self.auto_advance = s.auto_advance;
     }
 
+    /// Walkability of the live café for actor paths (`None` = the stage's own layout).
+    pub fn set_nav_map(&mut self, map: Option<Map>) {
+        self.nav = map;
+    }
+
+    /// People already in the live café, by cast id. A scene that moves, exits or looks at one
+    /// of them starts from where they really are. Call before [`CutscenePlayer::start`].
+    pub fn set_live_cast(&mut self, cast: impl IntoIterator<Item = (String, Vec2)>) {
+        self.live = cast.into_iter().collect();
+    }
+
+    /// Cast ids the scene plays itself right now (on stage or gone through a door): the host
+    /// hides its live copies of them.
+    pub fn stage_cast(&self) -> impl Iterator<Item = &str> {
+        self.actors
+            .iter()
+            .map(|a| a.id.as_str())
+            .chain(self.exited.iter().map(String::as_str))
+    }
+
+    /// Progress 0..1 of the scene's own train (`None` = no train).
+    pub fn train_progress(&self) -> Option<f32> {
+        self.train.as_ref().map(|t| t.p)
+    }
+
     /// Starts (or restarts) a scene. The stage is reset: lights on, no actors.
     pub fn start(&mut self, def: &CutsceneDef) {
         self.id = def.id.clone();
@@ -276,6 +310,7 @@ impl CutscenePlayer {
         self.local_flags.clear();
         self.local_items.clear();
         self.actors.clear();
+        self.exited.clear();
         self.hand_light.clear();
         self.train = None;
         self.scene.train = None;
@@ -304,6 +339,20 @@ impl CutscenePlayer {
 
     pub fn is_playing(&self) -> bool {
         self.playing
+    }
+    /// Dialogue, narration, a choice, a note, the letter or the phone message is on screen
+    /// (the music ducks under it).
+    pub fn text_on_screen(&self) -> bool {
+        self.playing
+            && matches!(
+                self.active,
+                Some(
+                    Active::Text { .. }
+                        | Active::Choice { .. }
+                        | Active::Note { .. }
+                        | Active::Phone { .. }
+                )
+            )
     }
     pub fn current_id(&self) -> &str {
         &self.id
@@ -469,8 +518,13 @@ impl CutscenePlayer {
             (self.bars - bk).max(self.bars_target)
         };
         let la = if self.letter.is_some() { 1.0 } else { 0.0 };
-        self.letter_appear += (la - self.letter_appear).signum() * (dt / 0.45);
-        self.letter_appear = self.letter_appear.clamp(0.0, 1.0);
+        // move towards the target (`signum(0.0)` is 1.0, which made the card flicker)
+        let step = dt / 0.45;
+        self.letter_appear = if self.letter_appear < la {
+            (self.letter_appear + step).min(la)
+        } else {
+            (self.letter_appear - step).max(la)
+        };
         self.card_appear = (self.card_appear + dt / 0.45).min(1.0);
         let cps = self.dialogue.chars_per_sec;
         self.typed += if cps <= 0.0 { 1.0e6 } else { cps * dt };
@@ -672,7 +726,10 @@ impl CutscenePlayer {
             Focus::Overview => (OVERVIEW_CENTER, None),
             Focus::Actor(a) => match self.actors.iter().find(|x| &x.id == a) {
                 Some(x) => (x.pos - vec2(0.0, 0.4 * TILE), Some(a.clone())),
-                None => (self.cam.to_center, None),
+                None => match self.live.get(a) {
+                    Some(p) => (*p - vec2(0.0, 0.4 * TILE), None),
+                    None => (self.cam.to_center, None),
+                },
             },
         };
         let zoom = zoom.clamp(0.4, 4.0);
@@ -712,7 +769,10 @@ impl CutscenePlayer {
 
     fn walk(&mut self, id: &str, to: Vec2, exit: bool, enter: bool) {
         let exists = self.actor_mut(id).is_some();
-        if !exists || enter && !exists {
+        if !exists && let Some(at) = self.live.get(id).copied() {
+            // already in the café: start from where they sit / stand, fully visible
+            self.spawn(id, at).alpha = 1.0;
+        } else if !exists || enter && !exists {
             let start = if to.y < 0.0 {
                 vec2(self.scene.street.x + 2.0 * TILE, to.y)
             } else {
@@ -721,7 +781,7 @@ impl CutscenePlayer {
             self.spawn(id, start);
         }
         let from = self.actor_mut(id).map(|a| a.pos).unwrap_or(to);
-        let path = find_path(&self.scene.map, from, to);
+        let path = find_path(self.nav.as_ref().unwrap_or(&self.scene.map), from, to);
         if let Some(a) = self.actor_mut(id) {
             a.exit_on_arrive = exit;
             a.walk(path);
@@ -801,8 +861,9 @@ impl CutscenePlayer {
             }
             CutsceneStep::ActorExit { actor, to_tile } => {
                 let to = self.place_px(&to_tile);
-                if self.actor_mut(&actor).is_some() {
+                if self.actor_mut(&actor).is_some() || self.live.contains_key(&actor) {
                     self.walk(&actor, to, true, false);
+                    self.exited.insert(actor);
                 }
             }
             CutsceneStep::Wait { seconds } => self.active = Some(Active::Timer(seconds)),
@@ -909,7 +970,7 @@ impl CutscenePlayer {
             Stage::Walk { actor, to } => {
                 let from = self.actor_mut(&actor).map(|a| a.pos);
                 if let Some(from) = from {
-                    let path = find_path(&self.scene.map, from, to);
+                    let path = find_path(self.nav.as_ref().unwrap_or(&self.scene.map), from, to);
                     if let Some(a) = self.actor_mut(&actor) {
                         a.walk(path);
                     }
@@ -919,6 +980,7 @@ impl CutscenePlayer {
                 if let Some(a) = self.actor_mut(&actor) {
                     a.gone = true;
                 }
+                self.exited.insert(actor.clone());
                 self.actors.retain(|a| !a.gone);
             }
             Stage::HandLight { actor, on } => {
@@ -940,6 +1002,10 @@ impl CutscenePlayer {
             }
             Stage::LightsCascade { seconds } => {
                 self.scene.lights_cascade(seconds);
+                self.active = Some(Active::Lights);
+            }
+            Stage::LightsOut { seconds } => {
+                self.scene.lights_out(seconds);
                 self.active = Some(Active::Lights);
             }
             Stage::Phone { message_key } => {
@@ -999,6 +1065,7 @@ impl CutscenePlayer {
                     self.active = None;
                 }
                 Op::Stage(Stage::LightsCascade { .. }) => self.scene.set_lights(true),
+                Op::Stage(Stage::LightsOut { .. }) => self.scene.set_lights(false),
                 Op::Stage(Stage::Phone { .. } | Stage::Pause(_) | Stage::TrainArrive) => {}
                 Op::Stage(s) => {
                     self.begin_stage(s);
@@ -1156,7 +1223,7 @@ impl CutscenePlayer {
                 let pl = PhoneLabels {
                     time: "22:04",
                     title: loc.tr("ui.app.title"),
-                    subtitle: "U Výhybky · Mlhov",
+                    subtitle: "Café Nocturne · Holešovice",
                     today,
                     bot_handle: "@shiftella_bot",
                     tab_schedule: loc.tr("ui.app.tab.schedule"),
@@ -1457,6 +1524,44 @@ mod tests {
             p.drain_audio_requests()
                 .contains(&AudioRequest::Music { track: None })
         );
+    }
+
+    #[test]
+    fn overlays_never_blink_between_frames() {
+        // the letter card used to oscillate 0 → 0.04 → 0 every frame (signum(0.0) == 1.0)
+        let (mut p, i18n, content) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        p.start(content.cutscene("opening").expect("opening exists"));
+        let mut prev = p.letter_appear;
+        let mut was_open = p.letter.is_some();
+        let dt = 1.0 / 60.0;
+        for frame in 0..60 * 120 {
+            p.auto_advance = true;
+            p.step(&loc, dt, StepInput::default());
+            let open = p.letter.is_some();
+            if open == was_open {
+                // while the letter state holds, the card only moves one way
+                if open {
+                    assert!(
+                        p.letter_appear >= prev,
+                        "frame {frame}: card faded while open"
+                    );
+                } else {
+                    assert!(
+                        p.letter_appear <= prev,
+                        "frame {frame}: card flashed while closed"
+                    );
+                }
+            }
+            if !open && !was_open {
+                assert!(p.letter_appear == 0.0 || p.letter_appear < prev);
+            }
+            prev = p.letter_appear;
+            was_open = open;
+            if !p.is_playing() {
+                break;
+            }
+        }
     }
 
     #[test]
