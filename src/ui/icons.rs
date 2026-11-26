@@ -66,10 +66,35 @@ pub enum Icon {
     ChevronRight,
     Search,
     Sparkle,
+    Flame,
+    Snowflake,
+    Candy,
+    Bean,
+    Bolt,
+    Feather,
+    Gem,
+    Stopwatch,
+    Bowl,
+    Anise,
+    Leaf,
+    Tray,
+    Dishes,
+    Vinyl,
+    Repeat,
+    Book,
+    Camera,
+    Cloud,
+    CloudSun,
+    LinkBroken,
+    Forward,
+    Jar,
+    Flask,
+    Sunrise,
+    ChevronLeft,
 }
 
 impl Icon {
-    pub const ALL: [Icon; 53] = [
+    pub const ALL: [Icon; 78] = [
         Icon::Pause,
         Icon::Play,
         Icon::Fast,
@@ -123,6 +148,31 @@ impl Icon {
         Icon::ChevronRight,
         Icon::Search,
         Icon::Sparkle,
+        Icon::Flame,
+        Icon::Snowflake,
+        Icon::Candy,
+        Icon::Bean,
+        Icon::Bolt,
+        Icon::Feather,
+        Icon::Gem,
+        Icon::Stopwatch,
+        Icon::Bowl,
+        Icon::Anise,
+        Icon::Leaf,
+        Icon::Tray,
+        Icon::Dishes,
+        Icon::Vinyl,
+        Icon::Repeat,
+        Icon::Book,
+        Icon::Camera,
+        Icon::Cloud,
+        Icon::CloudSun,
+        Icon::LinkBroken,
+        Icon::Forward,
+        Icon::Jar,
+        Icon::Flask,
+        Icon::Sunrise,
+        Icon::ChevronLeft,
     ];
 
     /// Stable snake_case name (for data files / debugging).
@@ -182,6 +232,31 @@ impl Icon {
             ChevronRight => "chevron_right",
             Search => "search",
             Sparkle => "sparkle",
+            Flame => "flame",
+            Snowflake => "snowflake",
+            Candy => "candy",
+            Bean => "bean",
+            Bolt => "bolt",
+            Feather => "feather",
+            Gem => "gem",
+            Stopwatch => "stopwatch",
+            Bowl => "bowl",
+            Anise => "anise",
+            Leaf => "leaf",
+            Tray => "tray",
+            Dishes => "dishes",
+            Vinyl => "vinyl",
+            Repeat => "repeat",
+            Book => "book",
+            Camera => "camera",
+            Cloud => "cloud",
+            CloudSun => "cloud_sun",
+            LinkBroken => "link_broken",
+            Forward => "forward",
+            Jar => "jar",
+            Flask => "flask",
+            Sunrise => "sunrise",
+            ChevronLeft => "chevron_left",
         }
     }
 
@@ -641,6 +716,7 @@ pub fn draw_icon(icon: Icon, center: Vec2, size: f32, color: Color) {
         ChevronDown => pen.poly(&[(6.0, 9.0), (12.0, 15.0), (18.0, 9.0)], false),
         ChevronUp => pen.poly(&[(6.0, 15.0), (12.0, 9.0), (18.0, 15.0)], false),
         ChevronRight => pen.poly(&[(9.0, 6.0), (15.0, 12.0), (9.0, 18.0)], false),
+        ChevronLeft => pen.poly(&[(15.0, 6.0), (9.0, 12.0), (15.0, 18.0)], false),
         Search => {
             pen.circle(10.5, 10.5, 6.5);
             pen.line((15.5, 15.5), (20.5, 20.5));
@@ -660,7 +736,292 @@ pub fn draw_icon(icon: Icon, center: Vec2, size: f32, color: Color) {
                 true,
             );
         }
+        // --- hands-on update: tastes -------------------------------------------
+        Flame => {
+            pen.poly(
+                &[
+                    (12.0, 2.8),
+                    (15.6, 7.4),
+                    (18.0, 12.0),
+                    (17.6, 16.4),
+                    (15.0, 19.8),
+                    (12.0, 21.0),
+                    (9.0, 19.8),
+                    (6.4, 16.4),
+                    (6.2, 12.4),
+                    (8.0, 9.0),
+                    (9.6, 11.6),
+                    (10.4, 7.6),
+                ],
+                true,
+            );
+            pen.poly(
+                &[(12.0, 12.8), (14.2, 16.0), (13.6, 18.4), (12.0, 19.0)],
+                false,
+            );
+        }
+        Snowflake => {
+            for k in 0..3 {
+                let a = (90.0 + k as f32 * 60.0_f32).to_radians();
+                let (dx, dy) = (a.cos() * 9.0, a.sin() * 9.0);
+                pen.line((12.0 - dx, 12.0 - dy), (12.0 + dx, 12.0 + dy));
+            }
+            for k in 0..6 {
+                let a = (90.0 + k as f32 * 60.0_f32).to_radians();
+                let b = (12.0 + a.cos() * 5.8, 12.0 + a.sin() * 5.8);
+                for side in [-1.0_f32, 1.0] {
+                    let w = a + side * 0.75;
+                    pen.line(b, (b.0 + w.cos() * 2.8, b.1 + w.sin() * 2.8));
+                }
+            }
+        }
+        Candy => {
+            pen.circle(12.0, 12.0, 4.6);
+            pen.tri((7.4, 12.0), (3.0, 8.6), (3.0, 15.4));
+            pen.tri((16.6, 12.0), (21.0, 8.6), (21.0, 15.4));
+            pen.arc(12.0, 12.0, 2.0, 200.0, 290.0);
+        }
+        Bean => {
+            let a = 35.0_f32.to_radians();
+            pen.rot = Some((a.cos(), a.sin()));
+            pen.ellipse(12.0, 12.0, 5.8, 8.6);
+            pen.poly(
+                &[(12.0, 3.8), (10.6, 8.0), (13.4, 16.0), (12.0, 20.2)],
+                false,
+            );
+        }
+        Bolt => pen.poly(
+            &[
+                (13.8, 2.6),
+                (5.6, 13.4),
+                (11.6, 13.4),
+                (10.2, 21.4),
+                (18.4, 10.4),
+                (12.4, 10.4),
+            ],
+            true,
+        ),
+        Feather => {
+            pen.poly(
+                &[
+                    (19.4, 3.0),
+                    (13.0, 4.4),
+                    (8.6, 8.8),
+                    (7.0, 14.0),
+                    (7.6, 16.8),
+                ],
+                false,
+            );
+            pen.poly(
+                &[
+                    (19.4, 3.0),
+                    (18.4, 9.0),
+                    (14.6, 13.6),
+                    (10.0, 16.4),
+                    (7.6, 16.8),
+                ],
+                false,
+            );
+            pen.line((4.2, 20.0), (15.4, 8.0));
+        }
+        Gem => {
+            pen.poly(
+                &[
+                    (7.0, 4.5),
+                    (17.0, 4.5),
+                    (21.0, 9.5),
+                    (12.0, 20.5),
+                    (3.0, 9.5),
+                ],
+                true,
+            );
+            pen.line((3.4, 9.5), (20.6, 9.5));
+            pen.poly(&[(9.6, 4.8), (8.8, 9.5), (12.0, 20.0)], false);
+            pen.poly(&[(14.4, 4.8), (15.2, 9.5), (12.0, 20.0)], false);
+        }
+        Stopwatch => {
+            pen.circle(12.0, 13.6, 7.4);
+            pen.line((12.0, 13.6), (14.8, 10.4));
+            pen.line((9.6, 3.2), (14.4, 3.2));
+            pen.line((12.0, 3.2), (12.0, 6.0));
+            pen.line((18.0, 6.6), (19.6, 8.2));
+        }
+        Bowl => {
+            pen.line((3.2, 11.4), (20.8, 11.4));
+            pen.arc(12.0, 11.4, 8.8, 0.0, 180.0);
+            pen.line((9.0, 20.2), (15.0, 20.2));
+            pen.poly(&[(9.4, 8.2), (8.6, 6.2), (9.6, 4.0)], false);
+            pen.poly(&[(14.0, 8.2), (13.2, 6.2), (14.2, 4.0)], false);
+        }
+        Anise => {
+            let pts: Vec<P> = (0..16)
+                .map(|i| {
+                    let a = (-90.0 + i as f32 * 22.5_f32).to_radians();
+                    let r = if i % 2 == 0 { 9.2 } else { 3.6 };
+                    (12.0 + a.cos() * r, 12.0 + a.sin() * r)
+                })
+                .collect();
+            pen.poly(&pts, true);
+            pen.dot(12.0, 12.0, 1.3);
+        }
+        Leaf => {
+            pen.poly(
+                &[
+                    (4.6, 19.4),
+                    (4.8, 12.4),
+                    (8.4, 7.2),
+                    (13.6, 4.8),
+                    (19.6, 4.4),
+                    (19.0, 10.6),
+                    (16.2, 15.6),
+                    (11.0, 18.8),
+                ],
+                true,
+            );
+            pen.line((4.6, 19.4), (14.6, 9.4));
+        }
+        // --- duties, records, book, journal, rozpis -----------------------------
+        Tray => {
+            pen.arc(12.0, 17.0, 7.6, 180.0, 360.0);
+            pen.line((2.8, 17.4), (21.2, 17.4));
+            pen.dot(12.0, 7.9, 1.4);
+            pen.line((6.0, 20.2), (18.0, 20.2));
+        }
+        Dishes => {
+            pen.rrect(3.4, 5.6, 17.2, 3.6, 1.8);
+            pen.rrect(4.6, 10.6, 14.8, 3.6, 1.8);
+            pen.rrect(3.4, 15.6, 17.2, 3.6, 1.8);
+        }
+        Vinyl => {
+            pen.circle(12.0, 12.0, 8.8);
+            pen.circle(12.0, 12.0, 3.0);
+            pen.dot(12.0, 12.0, 0.9);
+            pen.arc(12.0, 12.0, 6.0, 200.0, 280.0);
+        }
+        Repeat => {
+            pen.arc(12.0, 12.0, 7.4, 130.0, 400.0);
+            arrowhead(&pen, (12.0, 12.0), 7.4, 400.0);
+        }
+        Book => {
+            pen.poly(
+                &[
+                    (12.0, 6.6),
+                    (8.2, 5.0),
+                    (3.4, 5.4),
+                    (3.4, 18.4),
+                    (8.2, 18.0),
+                    (12.0, 19.6),
+                ],
+                false,
+            );
+            pen.poly(
+                &[
+                    (12.0, 6.6),
+                    (15.8, 5.0),
+                    (20.6, 5.4),
+                    (20.6, 18.4),
+                    (15.8, 18.0),
+                    (12.0, 19.6),
+                ],
+                false,
+            );
+            pen.line((12.0, 6.6), (12.0, 19.6));
+        }
+        Camera => {
+            pen.rrect(3.0, 7.0, 18.0, 12.6, 2.6);
+            pen.circle(12.0, 13.2, 3.7);
+            pen.poly(&[(8.2, 7.0), (9.6, 4.6), (14.4, 4.6), (15.8, 7.0)], false);
+            pen.dot(17.4, 10.0, 0.95);
+        }
+        Cloud => pen.poly(&cloud_pts(0.0, 0.0, 1.0), true),
+        CloudSun => {
+            pen.arc(8.6, 9.0, 3.6, 120.0, 330.0);
+            for a in [165.0_f32, 210.0, 255.0, 300.0] {
+                let r = a.to_radians();
+                pen.line(
+                    (8.6 + r.cos() * 5.6, 9.0 + r.sin() * 5.6),
+                    (8.6 + r.cos() * 7.4, 9.0 + r.sin() * 7.4),
+                );
+            }
+            pen.poly(&cloud_pts(2.0, 2.4, 0.8), true);
+        }
+        LinkBroken => {
+            let k = std::f32::consts::FRAC_1_SQRT_2;
+            pen.rot = Some((k, -k));
+            pen.rrect(2.0, 9.0, 9.4, 6.0, 3.0);
+            pen.rrect(12.6, 9.0, 9.4, 6.0, 3.0);
+            pen.rot = None;
+            pen.line((14.6, 3.6), (14.0, 6.0));
+            pen.line((9.4, 18.0), (10.0, 20.4));
+        }
+        Forward => {
+            pen.poly(
+                &[
+                    (4.0, 19.0),
+                    (4.0, 15.4),
+                    (6.6, 11.6),
+                    (11.2, 10.2),
+                    (19.0, 10.2),
+                ],
+                false,
+            );
+            pen.poly(&[(15.0, 6.2), (19.0, 10.2), (15.0, 14.2)], false);
+        }
+        Jar => {
+            pen.rrect(5.6, 8.0, 12.8, 13.2, 3.2);
+            pen.rrect(7.0, 3.6, 10.0, 4.4, 1.4);
+            pen.line((9.0, 14.2), (15.0, 14.2));
+        }
+        Flask => {
+            pen.poly(
+                &[
+                    (9.6, 3.4),
+                    (9.6, 9.4),
+                    (4.6, 18.2),
+                    (5.8, 20.6),
+                    (18.2, 20.6),
+                    (19.4, 18.2),
+                    (14.4, 9.4),
+                    (14.4, 3.4),
+                ],
+                false,
+            );
+            pen.line((8.4, 3.4), (15.6, 3.4));
+            pen.line((7.2, 15.2), (16.8, 15.2));
+        }
+        Sunrise => {
+            pen.arc(12.0, 16.0, 5.0, 180.0, 360.0);
+            pen.line((2.8, 16.0), (21.2, 16.0));
+            pen.line((7.6, 19.6), (16.4, 19.6));
+            pen.line((12.0, 5.4), (12.0, 8.0));
+            pen.line((5.2, 8.6), (7.0, 10.4));
+            pen.line((18.8, 8.6), (17.0, 10.4));
+        }
     }
+}
+
+/// Arrowhead at the end of an arc (angle `deg` on a circle of radius `r` around `c`),
+/// pointing along the direction of increasing angle.
+fn arrowhead(pen: &Pen, c: P, r: f32, deg: f32) {
+    let a = deg.to_radians();
+    let tip = (c.0 + a.cos() * r, c.1 + a.sin() * r);
+    let back = vec2(a.sin(), -a.cos());
+    for side in [-0.7_f32, 0.7] {
+        let (s, co) = side.sin_cos();
+        let d = vec2(back.x * co - back.y * s, back.x * s + back.y * co) * 4.2;
+        pen.line(tip, (tip.0 + d.x, tip.1 + d.y));
+    }
+}
+
+/// Outline of a small cloud on the 24 grid, scaled by `k` around the centre and moved.
+fn cloud_pts(dx: f32, dy: f32, k: f32) -> Vec<P> {
+    let mut pts: Vec<P> = Vec::new();
+    pts.extend(Pen::arc_pts(7.6, 14.6, 4.0, 90.0, 250.0));
+    pts.extend(Pen::arc_pts(12.6, 11.4, 5.2, 205.0, 335.0));
+    pts.extend(Pen::arc_pts(17.0, 14.8, 3.8, 280.0, 450.0));
+    pts.into_iter()
+        .map(|(x, y)| (12.0 + (x - 12.0) * k + dx, 12.0 + (y - 12.0) * k + dy))
+        .collect()
 }
 
 #[cfg(test)]
