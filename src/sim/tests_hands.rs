@@ -546,8 +546,16 @@ fn cozy_guests_forgive_and_classic_guests_leave_angry() {
         ev.iter()
             .any(|e| matches!(e, SimEvent::GuestForgiven { key, .. } if key == FORGIVEN_KEY))
     );
-    // forgiven guests write no review
-    assert!(s.reputation_end >= s.reputation_start - 0.5);
+    // forgiven guests write no review: only the dark window (missed checklist, −1) and
+    // guests who found no seat cost a little
+    let walked_on = 0.05 * s.guests_turned_away as f32;
+    assert!(
+        s.reputation_end >= s.reputation_start - 1.0 - walked_on - 0.25,
+        "{} → {} ({} turned away)",
+        s.reputation_start,
+        s.reputation_end,
+        s.guests_turned_away
+    );
     let mut classic = World::new_story(&c, Difficulty::Classic);
     classic.run_night_headless(&c);
     let s = classic.last_summary().unwrap();
