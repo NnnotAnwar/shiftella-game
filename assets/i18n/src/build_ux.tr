@@ -74,6 +74,12 @@ en {name} is waiting
 uk {name} чекає
 ru {name} ждёт
 
+bux.wanted_many
+cs {name} čekají
+en {name} are waiting
+uk {name} чекають
+ru {name} ждут
+
 bux.lock.night
 cs Od noci {night}
 en From night {night}

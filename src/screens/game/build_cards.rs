@@ -39,6 +39,10 @@ pub fn wisher(g: &GameScreen, loc: &Locale, who: &str) -> (String, Option<Person
     });
     match staff {
         Some(s) => (super::world_view::staff_name(loc, s), None),
+        // a guest kind's wish ("students would like a second socket")
+        None if loc.has(&format!("guest.{who}.name")) => {
+            (loc.tr_owned(&format!("guest.{who}.name")), None)
+        }
         None => (who.to_string(), None),
     }
 }
@@ -457,7 +461,12 @@ fn draw_chips(ui: &mut Ui, t: &Theme, chips: &[Chip], r: Rect) {
 /// "Filip is waiting": a little face and the words over the top of the card.
 fn badge(g: &GameScreen, ui: &mut Ui, t: &Theme, loc: &Locale, r: Rect, who: &str) {
     let (name, _) = wisher(g, loc, who);
-    let text = loc.trf("bux.wanted", &[("name", &name)]);
+    // a guest kind ("Medics") waits in the plural
+    let many = !loc.has(&format!("regular.{who}.name"))
+        && !g.world.staff().iter().any(|s| s.id.to_string() == who)
+        && loc.has(&format!("guest.{who}.name"));
+    let key = if many { "bux.wanted_many" } else { "bux.wanted" };
+    let text = loc.trf(key, &[("name", &name)]);
     let st = t.key().size(10.5).color(t.ink);
     let tw = ui.fonts.measure(&text, &st).min(r.w - 30.0);
     let br = Rect::new(r.x + 3.0, r.y + 3.0, (tw + 26.0).min(r.w - 6.0), 17.0);

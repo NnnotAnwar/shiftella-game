@@ -1481,7 +1481,13 @@ impl GameScreen {
         // toasts wait while a scene or a mini-game is on screen (the cup has her attention)
         if !self.player.is_playing() && self.hands.minigame.is_none() {
             self.flush_notices(ui, &loc);
-            ui.set_toast_bottom_inset(56.0);
+            // the build panel sits over the dock: toasts rise above it
+            let inset = if self.panel == Some(Panel::Build) {
+                60.0 + build::PANEL_H + 8.0
+            } else {
+                56.0
+            };
+            ui.set_toast_bottom_inset(inset);
             // by day the planning panel owns the right column: toasts stay beside it
             let right = self
                 .anchors
