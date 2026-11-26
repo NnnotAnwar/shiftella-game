@@ -10,6 +10,9 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   night trains, soft holographic signs, small delivery drones over wet roofs — near-future but intimate
   and human, never cyberpunk-grim. International feel with a Czech note (renamed 2026-11-26 from the
   former fictional town "Mlhov nad Šeřavou" and café "U Výhybky").
+- **Heroine (the player): Karolina** — grandma Lida's granddaughter, the heir (uk: Кароліна). Lines may use
+  feminine grammatical forms in cs/sk/uk. In the Shiftella app her row reads "Karolina (you)" localized
+  (cs/sk "(ty)", uk "(ти)").
 - **Names:** simplified, international-friendly with a Czech note: grandma **Lida**, her fiancé **Jindra**,
   regulars Mirek, Hana, **Vera**, Filip, Radek, Lori; the 3:33 guest; Anwar (cameo). Staff/guest name pools: an
   international mix (Czech, Slovak, Ukrainian, European) with few diacritics.
