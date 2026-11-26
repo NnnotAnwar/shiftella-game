@@ -1,4 +1,4 @@
-//! Side panels: Crew (C), Priorities (P), Log (L).
+//! Side panels: Crew (C), Log (L). The duties board (H) lives in `duties.rs`.
 
 use macroquad::prelude::*;
 
@@ -7,8 +7,8 @@ use super::{Ctx, GameScreen, Panel};
 use crate::content::Job;
 use crate::i18n::format_money;
 use crate::settings::Locale;
-use crate::ui::draw::{fill_rrect, stroke_rrect, with_a};
-use crate::ui::{Align, Button, Glass, Icon, ListRow, Need, RectExt, TextStyle, Tone, Ui, Weight};
+use crate::ui::draw::fill_rrect;
+use crate::ui::{Align, Button, Glass, Icon, ListRow, Need, RectExt, Tone, Ui};
 use sim::{AgentRef, Command, Phase, Staff, World};
 
 /// The standard left panel rect.
@@ -420,148 +420,6 @@ pub fn command_error(g: &mut GameScreen, loc: &Locale, e: &str) {
         Icon::Warning,
         loc.tr_owned(key),
         None,
-    );
-}
-
-pub fn priorities(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
-    let t = ui.theme.clone();
-    let loc = cx.loc;
-    let content = cx.content;
-    let s = ui.screen();
-    let staff: Vec<Staff> = sorted_staff(&g.world, 0).into_iter().cloned().collect();
-    let name_w = 170.0;
-    let col_w = 74.0;
-    let w = name_w + col_w * 5.0 + 32.0;
-    let h = (96.0 + staff.len() as f32 * 38.0 + 54.0).min(s.h - 160.0);
-    let pr = Rect::new(((s.w - w) / 2.0).max(12.0), 92.0, w, h);
-    g.anchors.push(("panel", pr));
-    ui.glass(pr, &Glass::panel());
-    let (body, close) = ui.panel_header(pr, loc.tr("ui.priorities.title"), Some("P"), None);
-    if close {
-        g.panel = None;
-        return;
-    }
-    let inner = body.inset(12.0);
-    let hy = inner.y;
-    for (i, j) in Job::ALL.iter().enumerate() {
-        let x = inner.x + name_w + i as f32 * col_w;
-        let icon = match j {
-            Job::Bar => Icon::Coffee,
-            Job::Kitchen => Icon::ChefHat,
-            Job::Register => Icon::CashRegister,
-            Job::Cleaning => Icon::Broom,
-            Job::Serving => Icon::Cup,
-        };
-        crate::ui::draw_icon(icon, vec2(x + col_w / 2.0, hy + 8.0), 16.0, t.indigo_300);
-        ui.fonts
-            .draw_centered(loc.tr(j.name_key()), x + col_w / 2.0, hy + 30.0, &t.key());
-    }
-    let list = Rect::new(
-        inner.x,
-        hy + 40.0,
-        inner.w,
-        inner.bottom() - hy - 40.0 - 34.0,
-    );
-    let sa = ui.begin_scroll("prio_scroll", list, staff.len() as f32 * 38.0);
-    let mut y = sa.top();
-    for (ri, st) in staff.iter().enumerate() {
-        let rr = Rect::new(list.x, y, list.w - 8.0, 36.0);
-        y += 38.0;
-        if !sa.visible(rr.y, rr.h) {
-            continue;
-        }
-        if ri % 2 == 0 {
-            fill_rrect(rr, 6.0, Color::new(1.0, 1.0, 1.0, 0.025));
-        }
-        let name = wv::staff_name(&loc, st);
-        ui.avatar(vec2(rr.x + 16.0, rr.center_y()), 24.0, &name, None, false);
-        ui.fonts.draw_in(
-            &name,
-            Rect::new(rr.x + 34.0, rr.y, name_w - 40.0, rr.h),
-            &t.strong().size(12.0),
-            Align::Left,
-        );
-        for (ci, j) in Job::ALL.iter().enumerate() {
-            let cell = Rect::new(
-                rr.x + name_w + ci as f32 * col_w + 8.0,
-                rr.y + 4.0,
-                col_w - 16.0,
-                rr.h - 8.0,
-            );
-            let p = st.priorities[ci];
-            let resp = ui.interact(ui.id(("prio", st.id, ci)), cell);
-            let skill = st.skills[ci];
-            let (bg, fg) = match p {
-                1 => (t.indigo, WHITE),
-                2 => (with_a(t.indigo, 0.55), WHITE),
-                3 => (with_a(t.indigo, 0.28), t.text),
-                4 => (with_a(t.indigo, 0.14), t.text_dim),
-                _ => (Color::new(1.0, 1.0, 1.0, 0.03), t.text_disabled),
-            };
-            fill_rrect(cell, 6.0, bg);
-            if resp.hovered {
-                stroke_rrect(cell, 6.0, 1.0, t.indigo_300);
-            }
-            let txt = if p == 0 {
-                "—".to_string()
-            } else {
-                p.to_string()
-            };
-            ui.fonts.draw_in(
-                &txt,
-                cell,
-                &TextStyle::new(13.0, Weight::SemiBold, fg).tabular(),
-                Align::Center,
-            );
-            // skill dots under the number
-            let dots = (skill / 2.5).round() as i32;
-            for d in 0..dots.min(4) {
-                crate::ui::draw::fill_circle(
-                    vec2(cell.x + 8.0 + d as f32 * 5.0, cell.bottom() - 5.0),
-                    1.5,
-                    with_a(fg, 0.7),
-                );
-            }
-            ui.tooltip(
-                &resp,
-                &loc.trf("ui.priorities.cell_tip", &[("n", &format!("{skill:.0}"))]),
-            );
-            let wheel = if resp.hovered { ui.wheel().y } else { 0.0 };
-            let next = if resp.clicked || wheel > 0.0 {
-                Some(match p {
-                    0 => 4,
-                    1 => 1,
-                    n => n - 1,
-                })
-            } else if resp.right_clicked || wheel < 0.0 {
-                Some(match p {
-                    0 => 0,
-                    4 => 0,
-                    n => n + 1,
-                })
-            } else {
-                None
-            };
-            if let Some(n) = next
-                && n != p
-            {
-                let _ = g.command(
-                    content,
-                    Command::SetPriority {
-                        staff: st.id,
-                        job: *j,
-                        priority: n,
-                    },
-                );
-            }
-        }
-    }
-    ui.end_scroll(sa);
-    ui.fonts.draw_in(
-        loc.tr("ui.priorities.legend_short"),
-        Rect::new(inner.x, inner.bottom() - 24.0, inner.w, 20.0),
-        &t.small(),
-        Align::Left,
     );
 }
 
