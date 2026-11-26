@@ -2798,6 +2798,8 @@
     "ui.settings.fullscreen": "Полный экран",
     "ui.settings.language": "Язык",
     "ui.settings.mute": "Выключить звук (M)",
+    "ui.settings.open_log": "Папка с логом",
+    "ui.settings.open_log_tip": "Открывает папку с файлом shiftella.log (запись о сбоях игры). Ничего никуда не отправляется.",
     "ui.settings.pause_on_events": "Пауза при важных событиях",
     "ui.settings.relaxed_minigames": "Спокойные мини-игры",
     "ui.settings.reset": "Сбросить по умолчанию",

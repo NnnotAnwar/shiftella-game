@@ -2798,6 +2798,8 @@
     "ui.settings.fullscreen": "Celá obrazovka",
     "ui.settings.language": "Jazyk",
     "ui.settings.mute": "Ztlumit zvuk (M)",
+    "ui.settings.open_log": "Složka s logem",
+    "ui.settings.open_log_tip": "Otevře složku se souborem shiftella.log (záznam o pádech hry). Nic se nikam neposílá.",
     "ui.settings.pause_on_events": "Pauza při důležitých událostech",
     "ui.settings.relaxed_minigames": "Klidné minihry",
     "ui.settings.reset": "Obnovit výchozí",

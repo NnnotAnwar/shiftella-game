@@ -293,6 +293,39 @@ the clock crawls.
 * **Continue** in the main menu loads the most recent save.
 * Files: `~/Library/Application Support/Shiftella/saves/` (fallback `./saves/`).
 
+## The crash log
+
+* `shiftella.log` lives in the save folder (`~/Library/Application Support/Shiftella/saves/`
+  on macOS, `%APPDATA%\Shiftella\saves\` on Windows, `~/.config/shiftella/saves/`
+  elsewhere; `SHIFTELLA_SAVES` moves it with the saves). **Settings → Log folder**
+  opens it (macOS `open`, Windows Explorer, `xdg-open`); the button's tooltip shows the path.
+* It is plain text and **never sent anywhere** — attach it to a bug report if you like.
+* It keeps the last 5 runs and at most 64 KB (older runs drop off at the next start):
+  each run starts with a header (version, time in UTC, OS + version + CPU), then a few info
+  lines — startup, the language, scene changes (menu, day N, preparation, night N, a
+  cutscene, credits), save / load / settings errors, quit. Nothing per frame; a run stops
+  after 400 lines.
+* If the game crashes, the panic is written with its message, source location, thread,
+  version, OS, language, scene, the night's clock and a short backtrace:
+
+```text
+=== Shiftella 0.1.1 · 2026-11-26 19:49:37 UTC · macos 27.0 aarch64 ===
+19:49:37 +0.0s info  startup
+19:49:37 +0.2s info  boot done
+19:49:37 +0.2s info  language: ru
+19:49:37 +0.2s info  scene: night 3
+19:49:37 +0.2s PANIC ----------------------------------------
+PANIC: SHIFTELLA_TEST_PANIC: a deliberate test crash
+  at src/crashlog.rs:189:9
+  thread main · version 0.1.1 · macos 27.0 aarch64 · language ru · scene night 3 · clock 00:40
+  backtrace:
+       7: shiftella_game::crashlog::test_panic_if_asked
+       8: shiftella_game::app::run::{closure#0}
+       …
+```
+
+Times are UTC; `+12.3s` is the time since the start of that run.
+
 ## Tips
 
 * The first two nights are yours alone; the first helper can start on night 3 (crew panel).
@@ -300,7 +333,9 @@ the clock crawls.
 * The night bar runs 21:30 → 06:00: the faint first stretch is the preparation (doors
   closed), the white tick is 22:00.
 * Trains bring small rushes (the markers on the night progress bar). Quick-brew the plain
-  tickets and keep the wishes for by hand.
+  tickets and keep the wishes for by hand. On Cozy, when your hands are full, the next
+  passengers (and walk-ins) wait outside a little and then come in one party at a time — never
+  a wall of tickets; Classic keeps its rushes.
 * Pendant lamps, plants and a rug make the hall nicer; guests stay happier.
 * A paused game is a fine place to think. Event buttons still work while paused.
 * On Cozy nothing can really go wrong. Classic makes the payments matter.
@@ -353,6 +388,9 @@ the before / after polaroid picked); `SHIFTELLA_NIGHT` overrides the night.
 Character card scenes: `SHIFTELLA_SCENE=crew_karolina|crew_helper|crew_classic|crew_day|crew_hire`
 (story night 8 at 00:30 unless `SHIFTELLA_NIGHT` / `SHIFTELLA_TIME` say otherwise;
 `crew_classic` plays the story on Classic, `crew_day` opens the card in the day phase).
+`SHIFTELLA_TEST_PANIC=1` makes the game panic on purpose right after boot, to check the crash
+log (`src/crashlog.rs`) by hand; nothing is saved. `cargo test --test crashlog` checks it
+end to end (rolling runs, no per-frame lines, a caught panic).
 
 `SHIFTELLA_TIME=HH:MM` also takes the preparation half hour: `21:30`–`21:59` start the night
 before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`).

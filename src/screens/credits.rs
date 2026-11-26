@@ -108,6 +108,7 @@ impl Credits {
     pub fn frame(&mut self, ui: &mut Ui, loc: &Locale, dt: f32) -> bool {
         self.t += dt;
         self.backdrop.update(dt);
+        self.backdrop.set_lang(loc.lang);
         self.backdrop.draw();
         ui.set_camera();
         let s = ui.screen();

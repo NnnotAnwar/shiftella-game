@@ -26,6 +26,8 @@
 //!   `SHIFTELLA_SKIP_SCENES=1` — story scenes finish at once
 //! * `SHIFTELLA_LANG=cs|en|uk|ru`, `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`,
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
+//! * `SHIFTELLA_TEST_PANIC=1` — panic on purpose right after boot (checks the crash log,
+//!   [`crate::crashlog`]; nothing is saved).
 
 use std::rc::Rc;
 
@@ -285,6 +287,7 @@ impl App {
             Ok(g) => Some(self.game(g)),
             Err(e) => {
                 eprintln!("warning: can't load {slot:?}: {e}");
+                crate::crashlog::warn(&format!("can't load {slot:?}: {e}"));
                 None
             }
         }
@@ -805,6 +808,34 @@ impl App {
     }
 }
 
+/// Tells the crash log what is on screen (it writes a line only when that changes).
+fn log_scene(app: &App) {
+    crate::crashlog::set_lang(app.settings.lang());
+    let (scene, clock) = match &app.screen {
+        Screen::Menu(_) => ("menu".to_string(), None),
+        Screen::Credits(_) => ("credits".to_string(), None),
+        Screen::Game(g) => {
+            let w = &g.world;
+            let n = w.night();
+            let place = if g.cutscene_playing() {
+                format!("cutscene {} · night {n}", g.player.current_id())
+            } else if w.ending().is_some() {
+                format!("ending · night {n}")
+            } else if w.phase() == sim::Phase::Day {
+                format!("day {n}")
+            } else if w.in_prep() {
+                format!("preparation · night {n}")
+            } else {
+                format!("night {n}")
+            };
+            let clock = (w.phase() == sim::Phase::Night).then(|| w.minutes_since_open());
+            (place, clock)
+        }
+    };
+    crate::crashlog::set_scene(&scene);
+    crate::crashlog::set_clock(clock);
+}
+
 /// Opens the window's game: boot, then the state machine until Quit.
 pub async fn run() {
     let shot = env("SHIFTELLA_SHOT");
@@ -820,6 +851,9 @@ pub async fn run() {
         // SAFETY: as above.
         unsafe { std::env::set_var("SHIFTELLA_NO_AUTOSAVE", "1") };
     }
+    // the crash log next to the saves (after SHIFTELLA_SAVES is final)
+    crate::crashlog::init();
+    crate::crashlog::info("startup");
 
     // ── boot ──
     clear_background(crate::render::colors::NIGHT_0);
@@ -828,6 +862,7 @@ pub async fn run() {
         Ok(f) => f,
         Err(e) => {
             eprintln!("error: fonts: {e}");
+            crate::crashlog::error(&format!("fonts: {e}"));
             return;
         }
     };
@@ -843,6 +878,7 @@ pub async fn run() {
         Ok(i) => i,
         Err(e) => {
             eprintln!("error: i18n: {e}");
+            crate::crashlog::error(&format!("i18n: {e}"));
             return;
         }
     };
@@ -864,6 +900,7 @@ pub async fn run() {
         Ok(c) => Rc::new(c),
         Err(e) => {
             eprintln!("error: content: {e}");
+            crate::crashlog::error(&format!("content: {e}"));
             return;
         }
     };
@@ -912,6 +949,9 @@ pub async fn run() {
         }
         None => app.menu(None),
     };
+    crate::crashlog::info("boot done");
+    log_scene(&app);
+    crate::crashlog::test_panic_if_asked();
 
     let mut frame = 0u32;
     let mut route_now = Route::Menu;
@@ -931,6 +971,7 @@ pub async fn run() {
         if is_key_pressed(KeyCode::F3) {
             debug.on = !debug.on;
         }
+        log_scene(&app);
         app.ui.begin_frame();
         let dt = if shot.is_some() {
             1.0 / 60.0
@@ -999,6 +1040,7 @@ pub async fn run() {
             {
                 let _ = g.save(&app.content, &app.store, Slot::Auto);
             }
+            crate::crashlog::info("quit");
             break;
         }
         frame += 1;

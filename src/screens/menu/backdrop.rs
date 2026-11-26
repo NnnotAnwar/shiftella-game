@@ -46,6 +46,25 @@ pub struct Backdrop {
     font: Option<Font>,
     /// New glyphs of the sign are cached between batches (see `ui::text::GlyphCache`).
     glyphs: crate::ui::GlyphCache,
+    /// The game language; picks the lettering on the window ([`window_sign`]).
+    lang: crate::i18n::Lang,
+}
+
+/// The lettering on the café window: «CAFÉ · 22–06» in English, the Czech «KAVÁRNA · 22–06»
+/// for every other language (owner decision, design/v0.2.md G — the café is in Prague).
+pub fn window_sign(lang: crate::i18n::Lang) -> &'static str {
+    match lang {
+        crate::i18n::Lang::En => "CAFÉ · 22–06",
+        _ => "KAVÁRNA · 22–06",
+    }
+}
+
+/// The tag on the café door, by the same rule: «OPEN» in English, «OTEVŘENO» otherwise.
+pub fn door_sign(lang: crate::i18n::Lang) -> &'static str {
+    match lang {
+        crate::i18n::Lang::En => "OPEN",
+        _ => "OTEVŘENO",
+    }
 }
 
 impl Default for Backdrop {
@@ -70,7 +89,13 @@ impl Backdrop {
             ],
             font,
             glyphs: Default::default(),
+            lang: crate::i18n::Lang::Cs,
         }
+    }
+
+    /// The game language (call before `draw` when it may have changed).
+    pub fn set_lang(&mut self, lang: crate::i18n::Lang) {
+        self.lang = lang;
     }
 
     pub fn update(&mut self, dt: f32) {
@@ -1037,7 +1062,7 @@ impl Backdrop {
             [alpha(WHITE, 0.06); 4],
         );
         self.text(
-            "KAVÁRNA · 22–06",
+            window_sign(self.lang),
             vec2(w.x + w.w * 0.25, w.y + w.h - 12.0),
             12.0,
             alpha(Color::from_hex(0xfff0d0), 0.6),
@@ -1101,7 +1126,7 @@ impl Backdrop {
             Color::from_hex(0x9a5a40),
         );
         self.weather.draw_window_rain(g, t + 7.0);
-        // "OTEVŘENO" tag
+        // the "open" tag on the door (same language rule as the window)
         rrect(
             g.x + 8.0,
             g.y + 44.0,
@@ -1111,7 +1136,7 @@ impl Backdrop {
             alpha(pal::EMERALD, 0.85),
         );
         self.text(
-            "OTEVŘENO",
+            door_sign(self.lang),
             vec2(g.x + g.w / 2.0, g.y + 56.0),
             9.0,
             alpha(WHITE, 0.95),
@@ -1576,5 +1601,16 @@ mod tests {
         assert!(b.train().is_none());
         b.t = TRAIN_FIRST + TRAIN_EVERY + 2.0;
         assert!(b.train().is_some());
+    }
+
+    #[test]
+    fn the_window_sign_is_english_only_in_english() {
+        use crate::i18n::Lang;
+        assert_eq!(window_sign(Lang::En), "CAFÉ · 22–06");
+        assert_eq!(door_sign(Lang::En), "OPEN");
+        for lang in [Lang::Cs, Lang::Uk, Lang::Ru] {
+            assert_eq!(window_sign(lang), "KAVÁRNA · 22–06");
+            assert_eq!(door_sign(lang), "OTEVŘENO");
+        }
     }
 }

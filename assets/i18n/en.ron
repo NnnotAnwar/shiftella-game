@@ -2798,6 +2798,8 @@
     "ui.settings.fullscreen": "Fullscreen",
     "ui.settings.language": "Language",
     "ui.settings.mute": "Mute (M)",
+    "ui.settings.open_log": "Log folder",
+    "ui.settings.open_log_tip": "Opens the folder with shiftella.log (a record of crashes). Nothing is ever sent anywhere.",
     "ui.settings.pause_on_events": "Pause on important events",
     "ui.settings.relaxed_minigames": "Relaxed mini-games",
     "ui.settings.reset": "Reset to defaults",
