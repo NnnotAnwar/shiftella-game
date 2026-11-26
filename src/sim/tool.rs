@@ -1062,10 +1062,10 @@ pub(crate) fn note_wish(
     };
     let tiers = &content.handson.tuning.match_tiers;
     if m < tiers.good
-        && let Some(r) = content.handson.recipe(recipe)
+        && let Some(tags) = w.recipe_def(content, recipe).map(|r| r.tags.clone())
     {
         for tag in &wd.want {
-            if !r.tags.contains(tag) {
+            if !tags.contains(tag) {
                 *w.sys.tool.unmet.entry(*tag).or_insert(0) += 1;
             }
         }

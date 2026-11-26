@@ -671,6 +671,15 @@ impl World {
             Command::SendHome { staff } => super::crew::send_home(self, content, staff),
             Command::WalkHome { route } => super::walk::walk_home(self, &route),
             Command::StepOutBack => super::walk::step_out_back(self, content),
+            Command::ComposeSignature {
+                base,
+                jars,
+                style,
+                name,
+            } => super::signature::compose(self, content, &base, &jars, style, &name),
+            Command::TakePhoto { focus, width } => {
+                super::signature::take_photo(self, content, focus, width)
+            }
             Command::OpenDoors => {
                 if !self.in_prep() {
                     return Err(CommandError::WrongPhase);

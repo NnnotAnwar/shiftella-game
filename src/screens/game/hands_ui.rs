@@ -488,7 +488,8 @@ pub fn order_view(
         .iter()
         .enumerate()
         .filter_map(|(i, (id, _))| {
-            let r = content.handson.recipe(id)?;
+            // (the café's own drink lives in the world)
+            let r = w.recipe_def(content, id)?;
             Some(RecipeChoice {
                 name: loc.tr_owned(&r.name_key()),
                 dish: dish_of(content, id),
@@ -643,9 +644,9 @@ fn minigame(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
     // the first frame: titles and prompts in the player's language
     if let Some(mut mg) = g.hands.minigame.take() {
         if !mg.named {
-            let title = content
-                .handson
-                .recipe(&mg.recipe)
+            let title = g
+                .world
+                .recipe_def(content, &mg.recipe)
                 .map(|r| loc.tr_owned(&r.name_key()))
                 .unwrap_or_default();
             let (face, _) = guest_name(g, &loc, mg.guest);
@@ -888,7 +889,8 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let tiers = content.handson.minigames.quality_tiers;
     let mut ids = Vec::new();
     let mut recipes = Vec::new();
-    for r in &content.handson.recipes.recipes {
+    // (+ the café's own drink, on the Specials tab)
+    for r in g.world.all_recipes(content) {
         let Some(base) = content.menu_item(&r.base_item) else {
             continue;
         };

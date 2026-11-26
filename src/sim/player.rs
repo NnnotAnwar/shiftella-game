@@ -406,10 +406,12 @@ pub(crate) fn brew(
 ) -> Result<(), CommandError> {
     night_only(w)?;
     let pi = party_of(w, guest).ok_or_else(|| CommandError::UnknownId(guest.to_string()))?;
-    let r = content
-        .handson
-        .recipe(recipe)
+    // a clone: the café's own drink lives in the world (`sim::signature`)
+    let r = w
+        .recipe_def(content, recipe)
+        .cloned()
         .ok_or_else(|| CommandError::UnknownId(recipe.to_string()))?;
+    let r = &r;
     if !orders::known(w, recipe) {
         return Err(CommandError::NotUnlocked);
     }

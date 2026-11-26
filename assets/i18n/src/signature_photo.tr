@@ -1,0 +1,532 @@
+# The café's own drink and photo mode (design/v0.2.md I.5–I.6; sim::signature,
+# screens/game/signature_ui.rs, screens/game/photo_mode.rs). Karolina is "you" (feminine forms
+# in cs/uk/ru where a verb needs them). {drink} is the player's own name for the drink: lines
+# around it avoid case endings (it stays in quotes).
+
+# --- the recipe book card: compose / rework ------------------------------------------------------
+
+signature.title
+cs Náš vlastní nápoj
+en Our own drink
+uk Наш власний напій
+ru Наш фирменный напиток
+
+signature.sub
+cs Babička měla vždycky jeden svůj. Vymysli ten náš.
+en Grandma always had one of her own. Make ours.
+uk У бабусі завжди був свій. Придумай наш.
+ru У бабушки всегда был свой. Придумай наш.
+
+signature.book_button
+cs Náš nápoj
+en Our drink
+uk Наш напій
+ru Фирменный
+
+signature.book_button_hint
+cs Vlastní nápoj kavárny: základ, 2–3 přísady, způsob a jméno
+en The café's own drink: a base, 2–3 jars, a way of making it and a name
+uk Власний напій кав'ярні: основа, 2–3 інгредієнти, спосіб і назва
+ru Свой напиток кафе: основа, 2–3 ингредиента, способ и название
+
+signature.step.base
+cs Základ
+en Base
+uk Основа
+ru Основа
+
+signature.step.jars
+cs Přidej 2–3
+en Add 2–3
+uk Додай 2–3
+ru Добавь 2–3
+
+signature.step.style
+cs Jak
+en Made by
+uk Як
+ru Как
+
+signature.step.name
+cs Jméno
+en Name
+uk Назва
+ru Название
+
+signature.base.coffee
+cs Káva
+en Coffee
+uk Кава
+ru Кофе
+
+signature.base.tea
+cs Černý čaj
+en Black tea
+uk Чорний чай
+ru Чёрный чай
+
+signature.base.cocoa
+cs Kakao
+en Cocoa
+uk Какао
+ru Какао
+
+signature.base.linden
+cs Lipový čaj
+en Linden tea
+uk Липовий чай
+ru Липовый чай
+
+signature.style.pour_over
+cs Přelévaná
+en Pour-over
+uk Пуровер
+ru Пуровер
+
+signature.style.milk_froth
+cs Napěněná
+en Frothed
+uk Зі спіненим молоком
+ru С пенкой
+
+signature.style.latte_art
+cs S obrázkem
+en Latte art
+uk Латте-арт
+ru Латте-арт
+
+signature.style.tea_steep
+cs Louhovaná
+en Steeped
+uk Заварений
+ru Заваренный
+
+signature.tastes
+cs Chutná
+en Tastes
+uk Смак
+ru Вкус
+
+signature.price
+cs {price} v menu
+en {price} on the menu
+uk {price} у меню
+ru {price} в меню
+
+signature.name_hint
+cs Pojmenuj ho…
+en Name it…
+uk Назви його…
+ru Назови его…
+
+signature.ideas
+cs Nápady
+en Ideas
+uk Ідеї
+ru Идеи
+
+signature.more_ideas
+cs Další nápady
+en More ideas
+uk Ще ідеї
+ru Ещё идеи
+
+signature.chalk
+cs Napsat na tabuli
+en Chalk it on the board
+uk Написати на дошці
+ru Написать на доске
+
+signature.save
+cs Přepsat tabuli
+en Rewrite the board
+uk Переписати дошку
+ru Переписать доску
+
+signature.need_base
+cs Vyber základ.
+en Pick a base.
+uk Обери основу.
+ru Выбери основу.
+
+signature.need_jars
+cs Přidej 2–3 přísady.
+en Add 2–3 jars.
+uk Додай 2–3 інгредієнти.
+ru Добавь 2–3 ингредиента.
+
+signature.need_style
+cs Vyber, jak se dělá.
+en Pick how it's made.
+uk Обери, як його готувати.
+ru Выбери, как его готовить.
+
+signature.need_name
+cs Dej mu jméno (nejvýš 24 znaků).
+en Give it a name (up to 24 letters).
+uk Дай йому назву (до 24 літер).
+ru Дай ему название (до 24 букв).
+
+signature.one_of
+cs Jedno mléko stačí.
+en One milk is enough.
+uk Одного молока досить.
+ru Одного молока хватит.
+
+signature.not_ready
+cs Ještě není na polici
+en Not on the shelf yet
+uk Ще немає на полиці
+ru Ещё нет на полке
+
+signature.locked
+cs Znovu ho můžeš změnit {night}. noc.
+en You can change it again on night {night}.
+uk Змінити його знову можна на {night}-у ніч.
+ru Изменить его снова можно на {night}-ю ночь.
+
+signature.tweak
+cs Dnes ho ještě můžeš doladit.
+en You can still tweak it tonight.
+uk Сьогодні його ще можна підправити.
+ru Сегодня его ещё можно подправить.
+
+signature.once_a_week
+cs Nápoj kavárny se dá změnit jednou za týden.
+en The house drink can change once a week.
+uk Фірмовий напій можна змінити раз на тиждень.
+ru Фирменный напиток можно менять раз в неделю.
+
+signature.asked
+cs Na přání: {n}×
+en Asked for by name: {n}
+uk Замовили на ім'я: {n}
+ru Заказали по названию: {n}
+
+signature.composed
+cs «{drink}» je na tabuli.
+en «{drink}» is on the board.
+uk «{drink}» — на дошці.
+ru «{drink}» — на доске.
+
+signature.composed_body
+cs Hosté se po něm brzy začnou ptát.
+en Guests will soon start asking for it.
+uk Гості скоро почнуть про нього питати.
+ru Гости скоро начнут о нём спрашивать.
+
+signature.reworked
+cs Na tabuli teď stojí «{drink}».
+en The board now says «{drink}».
+uk На дошці тепер «{drink}».
+ru На доске теперь «{drink}».
+
+signature.prompt
+cs Babiččin lístek v šuplíku
+en Grandma's note in the drawer
+uk Бабусина записка в шухляді
+ru Бабушкина записка в ящике
+
+signature.prompt_body
+cs «Každá pořádná kavárna má svůj nápoj. — L.» Kniha receptů (K) → Náš nápoj.
+en «Every café worth its name has a drink of its own. — L.» Recipe book (K) → Our drink.
+uk «У кожної справжньої кав'ярні є свій напій. — Л.» Книга рецептів (K) → Наш напій.
+ru «У каждого настоящего кафе есть свой напиток. — Л.» Книга рецептов (K) → Фирменный.
+
+# the chalkboard in the café
+
+signature.board.head
+cs Specialita
+en House drink
+uk Фірмовий
+ru Фирменный
+
+# the drink as a recipe (fallbacks: the game fills in the name and the jars)
+
+recipe.r_signature.name
+cs Nápoj kavárny
+en The house drink
+uk Фірмовий напій
+ru Фирменный напиток
+
+recipe.r_signature.desc
+cs Náš vlastní nápoj.
+en Our very own.
+uk Наш власний.
+ru Наш собственный.
+
+recipe.r_signature.lore
+cs Napsaný křídou na tabuli.
+en Chalked on the board.
+uk Написаний крейдою на дошці.
+ru Написан мелом на доске.
+
+signature.desc
+cs {base} — {jars}. Náš vlastní.
+en {base} with {jars}. Our very own.
+uk {base} — {jars}. Наш власний.
+ru {base} — {jars}. Наш собственный.
+
+signature.lore
+cs Poprvé na tabuli {night}. noc. Babička by si dala dvakrát.
+en First chalked on night {night}. Grandma would have had two.
+uk Уперше на дошці на {night}-у ніч. Бабуся випила б два.
+ru Впервые на доске на {night}-ю ночь. Бабушка выпила бы два.
+
+# --- the wishes: by name (fallbacks without the name; the game fills {drink}) --------------------
+
+wish.house_special
+cs Tu specialitu z tabule, prosím.
+en The one on the board, please.
+uk Те, що на дошці, будь ласка.
+ru То, что на доске, пожалуйста.
+
+wish.mirek.house_special
+cs Dej mi tu vaši specialitu, Karolíno.
+en Let me try that house drink of yours, Karolina.
+uk Дай-но спробувати ваш фірмовий, Кароліно.
+ru Дай-ка попробовать ваш фирменный, Каролина.
+
+wish.hana.house_special
+cs To z tabule. Než mi zase zazvoní telefon.
+en The one on the board. Before my phone goes again.
+uk Те, що на дошці. Поки знову не задзвонив телефон.
+ru То, что на доске. Пока снова не зазвонил телефон.
+
+wish.vera.house_special
+cs Ukaž, co jsi vymyslela. Lída by chtěla vědět.
+en Show me what you came up with. Lida would want to know.
+uk Покажи, що ти придумала. Ліда хотіла б знати.
+ru Покажи, что ты придумала. Лида захотела бы знать.
+
+wish.filip.house_special
+cs Ten váš nápoj z tabule — jestli to není moc drahé.
+en That drink on your board — if it's not too pricey.
+uk Той ваш напій з дошки — якщо не дуже дорого.
+ru Тот ваш напиток с доски — если не очень дорого.
+
+wish.radek.house_special
+cs Specialitu domu. Dneska si ji zasloužím.
+en The house drink. I've earned it tonight.
+uk Фірмовий. Сьогодні я на нього заслужив.
+ru Фирменный. Сегодня я его заслужил.
+
+wish.lori.house_special
+cs Tu specialitu, co se o ní mluví. Na hlas.
+en The house drink everyone talks about. For the voice.
+uk Той фірмовий, про який усі говорять. Для голосу.
+ru Тот фирменный, о котором все говорят. Для голоса.
+
+signature.wish.house_special
+cs «{drink}», prosím — to z tabule.
+en «{drink}», please — the one on the board.
+uk «{drink}», будь ласка — той, що на дошці.
+ru «{drink}», пожалуйста — тот, что на доске.
+
+signature.wish.mirek
+cs Dej mi ten váš «{drink}», Karolíno. Ať vím, o čem se mluví.
+en Let me try that «{drink}» of yours, Karolina. People talk.
+uk Дай-но спробувати ваш «{drink}», Кароліно. Люди ж говорять.
+ru Дай-ка попробовать ваш «{drink}», Каролина. Люди же говорят.
+
+signature.wish.hana
+cs «{drink}». Než mi zase zazvoní telefon.
+en «{drink}». Before my phone goes again.
+uk «{drink}». Поки знову не задзвонив телефон.
+ru «{drink}». Пока снова не зазвонил телефон.
+
+signature.wish.vera
+cs Ukaž, co je ten tvůj «{drink}». Lída by chtěla vědět.
+en Show me this «{drink}» of yours. Lida would want to know.
+uk Покажи, що це за «{drink}». Ліда хотіла б знати.
+ru Покажи, что это за «{drink}». Лида захотела бы знать.
+
+signature.wish.filip
+cs Jeden «{drink}» — jestli to není moc drahé.
+en One «{drink}» — if it's not too pricey.
+uk Один «{drink}» — якщо не дуже дорого.
+ru Один «{drink}» — если не очень дорого.
+
+signature.wish.radek
+cs «{drink}». Dneska si ho zasloužím.
+en «{drink}». I've earned it tonight.
+uk «{drink}». Сьогодні я на нього заслужив.
+ru «{drink}». Сегодня я его заслужил.
+
+signature.wish.lori
+cs Ten «{drink}», co se o něm mluví. Na hlas.
+en The «{drink}» everyone talks about. For the voice.
+uk Той «{drink}», про який усі говорять. Для голосу.
+ru Тот «{drink}», о котором все говорят. Для голоса.
+
+# --- name ideas (one click takes one; ≤ 24 letters) ----------------------------------------------
+
+signature.suggest.1
+cs Holešovická noc
+en Holešovice Night
+uk Голешовицька ніч
+ru Голешовицкая ночь
+
+signature.suggest.2
+cs Lídin čaj
+en Lida's Cup
+uk Лідина чашка
+ru Лидина чашка
+
+signature.suggest.3
+cs Déšť na kolejích
+en Rain on the Tracks
+uk Дощ на коліях
+ru Дождь на рельсах
+
+signature.suggest.4
+cs Poslední tramvaj
+en Last Tram
+uk Останній трамвай
+ru Последний трамвай
+
+signature.suggest.5
+cs Teplá lampa
+en Warm Lamp
+uk Тепла лампа
+ru Тёплая лампа
+
+signature.suggest.6
+cs Babiččino tajemství
+en Grandma's Secret
+uk Бабусин секрет
+ru Бабушкин секрет
+
+signature.suggest.7
+cs Tichá hodinka
+en Quiet Hour
+uk Тиха година
+ru Тихий час
+
+signature.suggest.8
+cs Sametová mlha
+en Velvet Fog
+uk Оксамитовий туман
+ru Бархатный туман
+
+signature.suggest.9
+cs Ranní směna
+en Morning Shift
+uk Ранкова зміна
+ru Утренняя смена
+
+signature.suggest.10
+cs Nádražní kočka
+en Station Cat
+uk Вокзальний кіт
+ru Вокзальный кот
+
+signature.suggest.11
+cs Nástupiště 3
+en Platform 3
+uk Платформа 3
+ru Платформа 3
+
+signature.suggest.12
+cs Noční vlak do Chebu
+en Night Train to Cheb
+uk Нічний до Хеба
+ru Ночной до Хеба
+
+# --- photo mode -----------------------------------------------------------------------------------
+
+photo.button
+cs Fotka
+en Photo
+uk Фото
+ru Фото
+
+photo.button_hint
+cs Vyfotit kavárnu do deníku
+en Take a photo of the café for the journal
+uk Сфотографувати кав'ярню для щоденника
+ru Сфотографировать кафе для дневника
+
+photo.hint
+cs Klik — vyfotit · kolečko — blíž · tah / WASD — posunout · Esc — schovat
+en Click — take it · wheel — closer · drag / WASD — move · Esc — put it away
+uk Клік — знімок · коліщатко — ближче · тягни / WASD — зсунути · Esc — сховати
+ru Клик — снимок · колёсико — ближе · тяни / WASD — сдвинуть · Esc — убрать
+
+photo.film
+cs Film: {n} z {max}
+en Film: {n} of {max}
+uk Плівка: {n} з {max}
+ru Плёнка: {n} из {max}
+
+photo.no_film
+cs Film na dnešek došel.
+en Tonight's film is used up.
+uk Плівка на сьогодні скінчилася.
+ru Плёнка на сегодня закончилась.
+
+photo.no_film_body
+cs Zítra je nový. Nejhezčí chvíle noci se vyfotí sama.
+en There's more tomorrow. The night's best moment still gets its polaroid.
+uk Завтра буде нова. Найкраща мить ночі однаково потрапить на фото.
+ru Завтра будет новая. Лучший момент ночи всё равно попадёт на фото.
+
+photo.taken
+cs Do deníku
+en Into the journal
+uk До щоденника
+ru В дневник
+
+photo.shake
+cs Zatřes s ní
+en Give it a shake
+uk Струсни її
+ru Встряхни её
+
+photo.caption.1
+cs {time}, jen my a déšť
+en {time}, just us and the rain
+uk {time}, тільки ми й дощ
+ru {time}, только мы и дождь
+
+photo.caption.2
+cs {time} u pultu
+en {time} at the counter
+uk {time} біля стійки
+ru {time} у стойки
+
+photo.caption.3
+cs Kavárna v {time}
+en The café at {time}
+uk Кав'ярня о {time}
+ru Кафе в {time}
+
+photo.caption.4
+cs {time}, chvilka pro mě
+en {time}, a moment for me
+uk {time}, хвилинка для себе
+ru {time}, минутка для себя
+
+photo.caption.5
+cs {time} — tohle si chci pamatovat
+en {time} — I want to keep this one
+uk {time} — це хочу запам'ятати
+ru {time} — это хочу запомнить
+
+photo.caption.6
+cs {time}, lampy a hrnky
+en {time}, lamps and cups
+uk {time}, лампи й чашки
+ru {time}, лампы и чашки
+
+photo.caption.7
+cs Naše noc, {time}
+en Our night, {time}
+uk Наша ніч, {time}
+ru Наша ночь, {time}
+
+photo.caption.8
+cs {time}, ticho mezi vlaky
+en {time}, the hush between trains
+uk {time}, тиша між потягами
+ru {time}, тишина между поездами

@@ -189,6 +189,9 @@ impl PlayerBot {
             }
         }
         self.systems_day(w, content);
+        if self.cfg.attentive {
+            signature_day(w, content, self.cfg.seed);
+        }
         if self.cfg.attentive && self.cfg.build {
             build_for_regulars(w, content);
             if !self.cfg.thrifty {
@@ -1466,4 +1469,54 @@ fn spare(w: &World, content: &Content) -> i64 {
         .map(|p| p.amount.min(w.debt().max(0)))
         .unwrap_or(0);
     w.money() - due
+}
+
+/// The café's own drink (v0.2 package I): some players make one, a night or three after
+/// grandma's note, from what is on the shelf; others never bother. Decided by the seed (the
+/// bot's RNG stays untouched, so the rest of the night plays the same).
+fn signature_day(w: &mut World, content: &Content, seed: u64) {
+    if w.signature().is_some() || !w.signature_unlocked() {
+        return;
+    }
+    let h = super::rng::hash_str(&format!("signature:{seed}"));
+    if h.is_multiple_of(3) {
+        return;
+    }
+    let from = if w.mode() == Mode::Sandbox {
+        super::signature::data().sandbox_from_night
+    } else {
+        super::signature::data().from_night
+    };
+    if w.night() < from + (h / 3 % 3) as u32 {
+        return;
+    }
+    let jars: Vec<String> = w.signature_jars().iter().map(|s| s.to_string()).collect();
+    let bases: Vec<(String, Vec<crate::content::handson::MiniGameKind>)> = w
+        .signature_bases(content)
+        .into_iter()
+        .filter(|(_, ready)| *ready)
+        .map(|(b, _)| (b.id.clone(), b.styles.clone()))
+        .collect();
+    for (base, styles) in bases.iter().rev() {
+        for (i, a) in jars.iter().enumerate() {
+            for b in jars.iter().skip(i + 1) {
+                let pick = vec![a.clone(), b.clone()];
+                let style = styles[(h as usize / 9) % styles.len()];
+                if w.signature_preview(content, base, &pick, style).is_ok()
+                    && w.apply(
+                        content,
+                        Command::ComposeSignature {
+                            base: base.clone(),
+                            jars: pick,
+                            style,
+                            name: "Holešovická noc".into(),
+                        },
+                    )
+                    .is_ok()
+                {
+                    return;
+                }
+            }
+        }
+    }
 }

@@ -144,6 +144,19 @@ fn main() {
     if let Some(e) = world.ending() {
         println!("ending: {e} ({:?})", world.ending_variant());
     }
+    match world.signature() {
+        Some(d) => println!(
+            "house drink: «{}» from night {} ({} {:?}, +{} Kč) · asked for by name and served {}× · photos {}",
+            d.name,
+            d.made_night,
+            d.base,
+            d.def.tags,
+            d.def.price_add,
+            world.signature_asked_served(),
+            world.photos().len()
+        ),
+        None => println!("house drink: none"),
+    }
     println!(
         "notes {:?} · staff {} · avg tick {:.1} µs",
         world.notes_found(),

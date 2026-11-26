@@ -361,6 +361,11 @@ strict, latte, max_per_night }` — key `wish.<id>`; personal ids are `<regular>
 on_specials_board })` = §3.2; `MatchTier::of(score, &tuning.match_tiers)`. Reactions: `react.<tier>.1..5`
 and `react.<regular>.<tier>` for `reactions.regulars` (tiers `perfect/good/okay/not_quite`).
 Test guarantee: every wish has a recipe ≥ 0.6 in the full book and ≥ 0.3 among the MUST recipes.
+`r_signature` (`handson::SIGNATURE_RECIPE`) may be named in `favourite` and `RecipeKnown` although
+it isn't in `recipes.ron`: it is the café's own drink, composed in the game and kept in the world
+(v0.2 package I, `sim::signature`; data `signature.ron`, compiled in; text `signature_photo.tr`).
+The `house_special` wishes ask for it by name — their `wish.*` lines are fallbacks, the game fills
+the name into `signature.wish.<id or regular>`.
 
 ### 10.4 Moments (`moments.ron`)
 

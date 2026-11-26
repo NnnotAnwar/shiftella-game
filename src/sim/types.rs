@@ -791,6 +791,19 @@ pub enum SimEvent {
         guest: u32,
         key: String,
     },
+    // --- v0.2 package I: the house drink, photo mode (`sim::signature`) -------------------------
+    /// The café's own drink was composed (`first`) or reworked / renamed.
+    SignatureComposed {
+        name: String,
+        first: bool,
+    },
+    /// Grandma's soft prompt: the café could have its own drink (once, from `from_night`).
+    SignatureInvite,
+    /// An extra photo of the night went into the journal; `left` = film left tonight.
+    PhotoTaken {
+        night: u32,
+        left: u32,
+    },
 }
 
 /// Every player action.
@@ -1112,6 +1125,23 @@ pub enum Command {
     },
     /// A break on the back step (night, once, not in a rush): picks tonight's phone message.
     StepOutBack,
+    // --- v0.2 package I (`sim::signature`) ------------------------------------------------------
+    /// Compose (or rework / rename) the café's own drink: a base, 2–3 pantry jars, a style
+    /// and a name. Errors `NotUnlocked` (too early), `Locked` (a jar / the base isn't on the
+    /// shelf yet), `Invalid` (the rules, the name, once a week), `UnknownId`.
+    ComposeSignature {
+        base: String,
+        jars: Vec<String>,
+        style: crate::content::handson::MiniGameKind,
+        name: String,
+    },
+    /// Photo mode (night): an extra photo of the framed café for the journal. `focus` = the
+    /// frame's middle (world px), `width` = its width (world px, 4:3). Errors `WrongPhase`,
+    /// `Invalid` (no film left tonight).
+    TakePhoto {
+        focus: (f32, f32),
+        width: f32,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

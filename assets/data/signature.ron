@@ -1,0 +1,63 @@
+// The café's own drink and the night's extra photos (design/v0.2.md I.5–I.6, `sim::signature`).
+// Compiled into the game (include_str!). Keys: signature.base.<id>, signature.style.<kind id>,
+// signature.suggest.<n> (name ideas), signature.* (the card, the board, the wishes).
+//
+// The player picks a base, 2–3 known jars from `ingredient_tags` and one of the base's styles;
+// the drink's tastes are counted from the base (×2), the jars and the style, the top `max_tags`
+// win (a Cold jar drops Warm). It rides on the base's menu item (station, prep, availability)
+// at + price_add + price_per_jar × jars.
+#![enable(implicit_some)]
+(
+    from_night: 6,
+    sandbox_from_night: 4,
+    // a drink may be reworked / renamed once a week (the night it was made it can still be tweaked)
+    rework_every: 7,
+    jars: (2, 3),
+    max_tags: 4,
+    price_add: 10,
+    price_per_jar: 5,
+    cost_per_jar: 2,
+    name_max: 24,
+    suggestions: 12,
+    bases: [
+        (id: "coffee", ingredient: "espresso", base_item: "cappuccino", tags: [Warm, Strong],
+         styles: [PourOver, MilkFroth, LatteArt]),
+        (id: "tea", ingredient: "black_tea", base_item: "lemon_tea", tags: [Warm, Mild],
+         styles: [TeaSteep, MilkFroth]),
+        (id: "cocoa", ingredient: "cocoa", base_item: "hot_chocolate", tags: [Warm, Sweet, Comforting],
+         styles: [MilkFroth, LatteArt]),
+        (id: "linden", ingredient: "linden", base_item: "lemon_tea", tags: [Warm, Mild, Comforting],
+         styles: [TeaSteep]),
+    ],
+    styles: [
+        (kind: PourOver, variant: "classic", tag: Strong),
+        (kind: MilkFroth, variant: "cappuccino", tag: Comforting),
+        (kind: LatteArt, variant: "flat_white", tag: Fancy),
+        (kind: TeaSteep, variant: "chai", tag: Mild),
+    ],
+    // the jars that make sense in a cup (kitchen garlic never does)
+    ingredient_tags: [
+        ("espresso", [Strong, Bitter]),
+        ("milk", [Mild, Comforting]),
+        ("oat_milk", [Mild, Fancy]),
+        ("cream", [Comforting, Sweet]),
+        ("black_tea", [Bitter, Mild]),
+        ("linden", [Mild, Comforting]),
+        ("mountain_herbs", [Fresh, Mild]),
+        ("lemon", [Fresh]),
+        ("honey", [Sweet, Comforting]),
+        ("sugar", [Sweet]),
+        ("spice", [Spiced, Warm]),
+        ("chili", [Spiced, Strong]),
+        ("cocoa", [Sweet, Comforting]),
+        ("vanilla", [Sweet, Fancy]),
+        ("dried_fruit", [Sweet, Fresh]),
+        ("ice", [Cold, Fresh]),
+        ("tonic", [Cold, Fresh, Fancy]),
+        ("butterfly_pea", [Fancy, Fresh]),
+        ("plum_jam", [Sweet, Fancy]),
+    ],
+    // at most one milk in a cup
+    one_of_family: [Milk],
+    photo: (per_night: 3, zoom: (0.8, 1.7), pan_tiles: 4.0),
+)

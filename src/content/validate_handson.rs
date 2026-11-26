@@ -26,7 +26,14 @@ struct HIndex<'a> {
 impl<'a> HIndex<'a> {
     fn build(h: &'a HandsOn) -> HIndex<'a> {
         HIndex {
-            recipes: h.recipes.recipes.iter().map(|r| r.id.as_str()).collect(),
+            // + the café's own drink, composed in the game (`sim::signature`)
+            recipes: h
+                .recipes
+                .recipes
+                .iter()
+                .map(|r| r.id.as_str())
+                .chain(std::iter::once(crate::content::handson::SIGNATURE_RECIPE))
+                .collect(),
             ingredients: h
                 .recipes
                 .ingredients

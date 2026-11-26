@@ -834,6 +834,9 @@ pub struct World {
     /// The walk home and the back step (design/v0.2.md F; `sim::walk`).
     #[serde(default)]
     pub(crate) walk: super::walk::WalkState,
+    /// The café's own drink and the night's extra photos (design/v0.2.md I; `sim::signature`).
+    #[serde(default)]
+    pub(crate) sig: super::signature::SigState,
     #[serde(skip)]
     pub(crate) events: Vec<SimEvent>,
     #[serde(skip)]
@@ -919,6 +922,7 @@ impl World {
             sys: Default::default(),
             build: Default::default(),
             walk: Default::default(),
+            sig: Default::default(),
             events: Vec::new(),
             paths: PathCache::default(),
         }
@@ -1336,6 +1340,7 @@ impl World {
         super::rozpis::score(self, content);
         super::story::on_day_start(self, content);
         super::build_content::on_day_start(self, content);
+        super::signature::on_day_start(self, content);
         self.emit(SimEvent::DayStarted { night: self.night });
     }
 

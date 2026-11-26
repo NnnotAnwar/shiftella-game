@@ -252,6 +252,10 @@ pub fn placeholders(template: &str) -> BTreeSet<&str> {
 #[derive(Debug, Clone, Default)]
 pub struct I18n {
     tables: [HashMap<String, String>; 4],
+    /// Runtime texts that win over the tables (the café's own drink's name: `set_override`).
+    overrides: [HashMap<String, String>; 4],
+    /// What the overrides were last built from (the caller's hash; 0 = none).
+    override_stamp: u64,
 }
 
 impl I18n {
@@ -268,7 +272,41 @@ impl I18n {
 
     /// Builds from in-memory tables (tests, the source compiler).
     pub fn from_tables(tables: [HashMap<String, String>; 4]) -> I18n {
-        I18n { tables }
+        I18n {
+            tables,
+            ..Default::default()
+        }
+    }
+
+    /// A runtime text for `key` in `lang` that wins over the tables (`None` removes it).
+    /// Used for player-made names (the café's own drink); never for shipped text.
+    pub fn set_override(&mut self, lang: Lang, key: &str, value: Option<String>) {
+        let m = &mut self.overrides[lang.index()];
+        match value {
+            Some(v) => {
+                m.insert(key.to_string(), v);
+            }
+            None => {
+                m.remove(key);
+            }
+        }
+    }
+
+    /// Drops every runtime text.
+    pub fn clear_overrides(&mut self) {
+        for m in &mut self.overrides {
+            m.clear();
+        }
+        self.override_stamp = 0;
+    }
+
+    /// What the overrides were built from (the caller's hash; 0 = none).
+    pub fn override_stamp(&self) -> u64 {
+        self.override_stamp
+    }
+
+    pub fn set_override_stamp(&mut self, stamp: u64) {
+        self.override_stamp = stamp;
     }
 
     pub fn table(&self, lang: Lang) -> &HashMap<String, String> {
@@ -277,11 +315,15 @@ impl I18n {
 
     /// Exact lookup without fallback.
     pub fn get(&self, lang: Lang, key: &str) -> Option<&str> {
-        self.tables[lang.index()].get(key).map(String::as_str)
+        self.overrides[lang.index()]
+            .get(key)
+            .or_else(|| self.tables[lang.index()].get(key))
+            .map(String::as_str)
     }
 
     pub fn has(&self, lang: Lang, key: &str) -> bool {
-        self.tables[lang.index()].contains_key(key)
+        self.overrides[lang.index()].contains_key(key)
+            || self.tables[lang.index()].contains_key(key)
     }
 
     /// True when the key exists in all four languages.

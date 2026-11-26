@@ -244,6 +244,23 @@ impl Photos {
         None
     }
 
+    /// The photo of a bare snapshot (photo mode's extra photos of a night) by its own key;
+    /// queued for the next frame when it isn't rendered yet.
+    pub fn get_snap(
+        &mut self,
+        content: &Content,
+        key: u64,
+        d: &SceneSnapData,
+    ) -> Option<Texture2D> {
+        if let Some(t) = self.cache.get(&key) {
+            return Some(t.texture.clone());
+        }
+        if !self.wanted.iter().any(|w| w.0 == key) {
+            self.wanted.push((key, snap_of(content, d)));
+        }
+        None
+    }
+
     /// A before / after polaroid: the middle of each photo, side by side (before left).
     fn render_pair(&mut self, before: &SceneSnap, after: &SceneSnap) -> RenderTarget {
         let r = self.renderer.get_or_insert_with(SnapRenderer::new);
@@ -360,10 +377,37 @@ pub fn journal_panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                     develop: 1.0,
                 })
             });
+        // photo mode's extra photos of that night (package I)
+        let extras: Vec<PolaroidView> = g
+            .world
+            .photos()
+            .iter()
+            .filter(|p| p.night == *n)
+            .cloned()
+            .collect::<Vec<_>>()
+            .iter()
+            .map(|p| {
+                let photo = on_page
+                    .then(|| {
+                        g.photos
+                            .get_snap(content, super::photo_mode::photo_key(p), &p.snap)
+                    })
+                    .flatten();
+                PolaroidView {
+                    develop: 1.0,
+                    photo,
+                    flip_y: true,
+                    caption: super::photo_mode::caption(&loc, p),
+                    date: date_text(&loc, p.date),
+                    tilt: crate::render::polaroid_tilt(p.snap.seed).to_degrees(),
+                }
+            })
+            .collect();
         entries.push(JournalEntry {
             night: *n,
             title,
             polaroid: pol,
+            extras,
         });
     }
     let labels = JournalLabels {
@@ -481,7 +525,7 @@ pub fn keep_morning(g: &mut GameScreen, content: &std::rc::Rc<Content>) {
 
 /// Renders the photos the last frame asked for (before the UI camera is set).
 pub fn prepare(g: &mut GameScreen) {
-    if g.panel == Some(Panel::Journal) || g.summary.is_some() {
+    if g.panel == Some(Panel::Journal) || g.summary.is_some() || g.photo.developing() {
         g.photos.render_pending();
     }
 }

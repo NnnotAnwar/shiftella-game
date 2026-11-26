@@ -35,6 +35,7 @@ mod pacing;
 mod player;
 pub mod rng;
 mod rozpis;
+pub mod signature;
 mod staff;
 mod story;
 mod systems;
@@ -65,6 +66,8 @@ mod tests_prep;
 #[cfg(test)]
 mod tests_qa;
 #[cfg(test)]
+mod tests_signature;
+#[cfg(test)]
 mod tests_sys;
 #[cfg(test)]
 mod tests_t10;
@@ -89,6 +92,7 @@ pub use moments::CatView;
 pub use names::{Extra, Garment, Persona, StrangerLook, stranger_look};
 pub use orders::PLAIN_CREDIT;
 pub use player::{MOP_AMOUNT, WASH_PER_SECOND};
+pub use signature::{NightPhoto, SIGNATURE_RECIPE, SignatureDrink};
 pub use staff::FIRST_HIRE_NIGHT;
 pub use story::{ambient_line_for, talk_available};
 pub use systems::*;
@@ -249,9 +253,7 @@ impl World {
     }
     /// Karolina knows it and its base item can be made tonight.
     pub fn recipe_available(&self, content: &Content, recipe: &str) -> bool {
-        content
-            .handson
-            .recipe(recipe)
+        self.recipe_def(content, recipe)
             .is_some_and(|r| orders::recipe_available(self, content, r))
     }
     /// The party a guest (or party id) belongs to.

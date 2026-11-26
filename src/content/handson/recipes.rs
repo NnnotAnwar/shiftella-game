@@ -216,6 +216,10 @@ pub enum RecipeUnlock {
     Experiment,
 }
 
+/// The café's own drink (v0.2 package I): a recipe the player composes, kept in the world
+/// (`sim::signature`), never in `recipes.ron`. Wishes and conditions may name it.
+pub const SIGNATURE_RECIPE: &str = "r_signature";
+
 /// Recipe-book tab.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize, Serialize)]
 pub enum BookTab {

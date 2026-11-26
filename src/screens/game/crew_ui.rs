@@ -92,6 +92,10 @@ fn who_text(loc: &Locale, who: &sim::TaskFor) -> String {
 }
 
 fn menu_text(loc: &Locale, content: &Content, menu: &str, recipe: Option<&str>) -> String {
+    // the café's own drink: its name (filled in by the game's i18n layer)
+    if recipe == Some(crate::content::handson::SIGNATURE_RECIPE) {
+        return loc.tr_owned("recipe.r_signature.name");
+    }
     if let Some(r) = recipe.and_then(|r| content.handson.recipe(r)) {
         return loc.tr_owned(&r.name_key());
     }

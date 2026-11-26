@@ -800,6 +800,11 @@ fn journal_page(ui: &mut Ui, d: &mut Demo) {
             night: n,
             title: caps[(n as usize - 1) % caps.len()].1.clone(),
             polaroid: has.then(|| polaroid_of(d, n as usize - 1, l)),
+            extras: if n == 3 {
+                vec![polaroid_of(d, 5, l), polaroid_of(d, 6, l)]
+            } else {
+                Vec::new()
+            },
         });
     }
     let s = ui.screen();

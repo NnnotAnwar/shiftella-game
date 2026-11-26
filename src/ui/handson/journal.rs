@@ -231,6 +231,9 @@ pub struct JournalEntry {
     pub title: String,
     /// None: a dashed empty slot ("night 12").
     pub polaroid: Option<PolaroidView>,
+    /// Extra photos of that night (photo mode): small prints tucked beside the polaroid;
+    /// the enlarged view steps through them.
+    pub extras: Vec<PolaroidView>,
 }
 
 #[derive(Clone, Debug)]
@@ -259,6 +262,8 @@ pub enum JournalAction {
 pub struct JournalState {
     pub page: usize,
     pub open: Option<usize>,
+    /// In the enlarged view: which photo of the night (0 = the polaroid, then the extras).
+    pub shown: usize,
     turn: f32,
 }
 
@@ -385,6 +390,7 @@ pub fn journal(
                 if resp.clicked {
                     ui.sound(UiSound::Click);
                     clicked = Some(k);
+                    st.shown = 0;
                 }
                 ui.tooltip(&resp, &p.caption);
             }
@@ -396,6 +402,41 @@ pub fn journal(
                     &label,
                     er,
                     &TextStyle::new(12.0, Weight::Medium, with_a(cream, 0.55)),
+                    Align::Center,
+                );
+            }
+        }
+        // the night's extra photos: little prints tucked along the right edge, the newest on top
+        if !e.extras.is_empty() {
+            let tw = (pw * 0.26).clamp(24.0, 42.0);
+            let ts = polaroid_size(tw);
+            let n = e.extras.len().min(3);
+            let x = (c.x + size.x / 2.0 + 6.0).min(cell.right() - tw / 2.0 - 2.0);
+            for (i, ex) in e.extras.iter().take(n).enumerate() {
+                let y = c.y - size.y / 2.0 + ts.y / 2.0 + 4.0 + i as f32 * ts.y * 0.55;
+                let mut v = ex.clone();
+                v.tilt = 4.0 + i as f32 * 3.0 - 2.0 * v.tilt.signum();
+                v.caption = String::new();
+                v.date = String::new();
+                let resp = polaroid(ui, id.with(("extra", k, i)), vec2(x, y), tw, &v);
+                ui.tooltip(&resp, &ex.caption);
+                if resp.clicked {
+                    ui.sound(UiSound::Click);
+                    clicked = Some(k);
+                    st.shown = i + usize::from(e.polaroid.is_some());
+                }
+            }
+            if e.extras.len() > n {
+                let r = Rect::new(
+                    x - 12.0,
+                    c.y - size.y / 2.0 + 4.0 + n as f32 * ts.y * 0.55 + ts.y * 0.5,
+                    24.0,
+                    14.0,
+                );
+                ui.fonts.draw_in(
+                    &format!("+{}", e.extras.len() - n),
+                    r,
+                    &TextStyle::new(10.0, Weight::Bold, cream),
                     Align::Center,
                 );
             }
@@ -466,7 +507,13 @@ pub fn journal(
 
     // enlarged photo
     if let Some(k) = st.open {
-        if let Some(Some(p)) = v.entries.get(k).map(|e| e.polaroid.as_ref()) {
+        let views: Vec<&PolaroidView> = v
+            .entries
+            .get(k)
+            .map(|e| e.polaroid.iter().chain(e.extras.iter()).collect())
+            .unwrap_or_default();
+        st.shown = st.shown.min(views.len().saturating_sub(1));
+        if let Some(p) = views.get(st.shown).copied() {
             let a = ui.ease_value(id.with(("big", k)), 1.0, 0.08);
             fill_rrect(paper, 9.0, Color::new(0.03, 0.02, 0.07, 0.6 * a));
             ui.region(paper);
@@ -476,27 +523,66 @@ pub fn journal(
             let mut big = p.clone();
             big.tilt *= 0.4;
             draw::push_alpha(a);
-            let resp = polaroid(ui, id.with(("bigpol", k)), c, bw, &big);
+            let resp = polaroid(ui, id.with(("bigpol", k, st.shown)), c, bw, &big);
             let e = &v.entries[k];
-            let title = format!(
+            let mut title = format!(
                 "{} · {}",
                 l.night.replace("{n}", &e.night.to_string()),
                 e.title
             );
+            if views.len() > 1 {
+                title.push_str(&format!(" · {}/{}", st.shown + 1, views.len()));
+            }
+            let ty = c.y + polaroid_size(bw).y / 2.0 + 8.0;
             ui.fonts.draw_in(
                 &title,
-                Rect::new(
-                    paper.x,
-                    c.y + polaroid_size(bw).y / 2.0 + 8.0,
-                    paper.w,
-                    20.0,
-                ),
+                Rect::new(paper.x, ty, paper.w, 20.0),
                 &TextStyle::new(13.0, Weight::SemiBold, cream),
                 Align::Center,
             );
+            // more than one photo that night: arrows step through them (← → too)
+            let mut step: i32 = 0;
+            if views.len() > 1 {
+                let cy = c.y;
+                let half = bw / 2.0 + 30.0;
+                let pr = Rect::new(c.x - half - 14.0, cy - 14.0, 28.0, 28.0);
+                let nr = Rect::new(c.x + half - 14.0, cy - 14.0, 28.0, 28.0);
+                if ui
+                    .icon_button(
+                        id.with("big_prev"),
+                        pr,
+                        Icon::ChevronLeft,
+                        &IconButton::secondary().size(14.0).disabled(st.shown == 0),
+                    )
+                    .clicked
+                {
+                    step = -1;
+                }
+                if ui
+                    .icon_button(
+                        id.with("big_next"),
+                        nr,
+                        Icon::ChevronRight,
+                        &IconButton::secondary()
+                            .size(14.0)
+                            .disabled(st.shown + 1 >= views.len()),
+                    )
+                    .clicked
+                {
+                    step = 1;
+                }
+                if ui.key_repeat(KeyCode::Left) {
+                    step = -1;
+                }
+                if ui.key_repeat(KeyCode::Right) {
+                    step = 1;
+                }
+            }
             draw::pop_alpha();
             let backdrop = ui.interact(id.with("backdrop"), paper);
-            if resp.clicked || backdrop.clicked {
+            if step != 0 {
+                st.shown = (st.shown as i32 + step).clamp(0, views.len() as i32 - 1) as usize;
+            } else if resp.clicked || backdrop.clicked {
                 st.open = None;
             }
         } else {
