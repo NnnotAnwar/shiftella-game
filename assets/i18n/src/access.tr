@@ -1,0 +1,279 @@
+# 0.2 package J (access): text size, colour-blind markers, the no-money-pressure difficulty,
+# key rebinding (Settings → Controls).
+
+# --- settings tabs ---------------------------------------------------------------------------
+
+access.tab.general
+cs Obecné
+en General
+uk Загальні
+ru Общие
+
+access.tab.access
+cs Přístupnost
+en Accessibility
+uk Доступність
+ru Доступность
+
+access.tab.controls
+cs Ovládání
+en Controls
+uk Керування
+ru Управление
+
+access.section.reading
+cs Čtení
+en Reading
+uk Читання
+ru Чтение
+
+access.section.seeing
+cs Barvy
+en Colours
+uk Кольори
+ru Цвета
+
+access.section.pace
+cs Tempo
+en Pace
+uk Темп
+ru Темп
+
+access.text_size
+cs Velikost písma
+en Text size
+uk Розмір тексту
+ru Размер текста
+
+access.text_size_hint
+cs Zvětší jen písmo, ne celé rozhraní (to dělá Měřítko rozhraní).
+en Makes only the text bigger, not the whole interface (that's UI scale).
+uk Збільшує лише текст, а не весь інтерфейс (для цього є масштаб інтерфейсу).
+ru Увеличивает только текст, а не весь интерфейс (для этого есть масштаб интерфейса).
+
+access.colorblind
+cs Značky čitelné i bez barev
+en Colour-blind friendly markers
+uk Позначки, зрозумілі без кольорів
+ru Метки, понятные без цветов
+
+access.colorblind_hint
+cs Nad hosty, rituály, dýškem a skvrnami se liší i tvarem, nejen barvou.
+en Marks over guests, rituals, tips and spills differ by shape, not only by colour.
+uk Позначки над гостями, ритуалами, чайовими й плямами різняться ще й формою.
+ru Метки над гостями, ритуалами, чаевыми и пятнами различаются ещё и формой.
+
+access.relaxed_hint
+cs Bez tlaku na peníze? Při nové hře vyber obtížnost «Bez starostí»: splátky dluhu se uhradí samy, příběh běží jako na Útulně.
+en No money pressure? Pick «Carefree» when you start a new story: the debt's instalments are covered, the story plays as on Cozy.
+uk Без тиску грошей? У новій грі вибери «Безтурботно»: внески за борг покриваються самі, історія йде як на «Затишно».
+ru Без давления денег? В новой игре выбери «Беззаботно»: взносы по долгу покрываются сами, история идёт как на «Уютно».
+
+# --- controls ---------------------------------------------------------------------------------
+
+access.controls.hint
+cs Klikni na akci a stiskni novou klávesu. Esc zruší. Nápovědy ve hře se přizpůsobí.
+en Click an action, then press its new key. Esc cancels. The key hints in the game follow.
+uk Клацни дію й натисни нову клавішу. Esc скасовує. Підказки в грі зміняться самі.
+ru Нажми на действие, затем новую клавишу. Esc отменяет. Подсказки в игре изменятся сами.
+
+access.controls.press
+cs Stiskni…
+en Press…
+uk Натисни…
+ru Нажми…
+
+access.controls.reset
+cs Výchozí klávesy
+en Reset keys
+uk Типові клавіші
+ru Сбросить клавиши
+
+access.controls.conflict
+cs Stejná klávesa jako: {action}
+en Same key as: {action}
+uk Та сама клавіша, що й: {action}
+ru Та же клавиша, что и: {action}
+
+access.controls.conflicts
+cs Dvě akce mají stejnou klávesu — obě se spustí naráz.
+en Two actions share a key — both will fire at once.
+uk Дві дії мають одну клавішу — спрацюють обидві.
+ru У двух действий одна клавиша — сработают обе.
+
+access.controls.reserved
+cs {key} je obsazená: {reason}.
+en {key} is taken: {reason}.
+uk {key} зайнята: {reason}.
+ru {key} занята: {reason}.
+
+access.reserved.menu
+cs menu a potvrzení
+en menu and confirm
+uk меню й підтвердження
+ru меню и подтверждение
+
+access.reserved.camera
+cs kamera
+en the camera
+uk камера
+ru камера
+
+access.reserved.rail
+cs lišta objednávek a zrušení
+en the order rail and cancel
+uk рейка замовлень і скасування
+ru лента заказов и отмена
+
+access.reserved.build
+cs stavba (otočit, bourat)
+en build mode (rotate, remove)
+uk будівництво (поворот, знести)
+ru стройка (поворот, снести)
+
+access.reserved.other
+cs modifikátory a ladění
+en modifiers and debugging
+uk модифікатори й налагодження
+ru модификаторы и отладка
+
+# the key's name inside sentences ({key.pause} → "mezerník")
+access.keyname.Space
+cs mezerník
+en Space
+uk пробіл
+ru пробел
+
+access.action.crew
+cs Personál
+en Crew
+uk Персонал
+ru Персонал
+
+access.action.duties
+cs Povinnosti
+en Duties
+uk Обов'язки
+ru Обязанности
+
+access.action.app
+cs Shiftella
+en Shiftella
+uk Shiftella
+ru Shiftella
+
+access.action.build
+cs Stavba
+en Build
+uk Будівництво
+ru Стройка
+
+access.action.log
+cs Deník
+en Log
+uk Журнал
+ru Журнал
+
+access.action.book
+cs Kniha receptů
+en Recipe book
+uk Книга рецептів
+ru Книга рецептов
+
+access.action.journal
+cs Album fotek
+en Photo journal
+uk Фотоальбом
+ru Фотоальбом
+
+access.action.photo
+cs Fotoaparát
+en Camera
+uk Фотоапарат
+ru Фотоаппарат
+
+access.action.jukebox
+cs Jukebox
+en Jukebox
+uk Музичний автомат
+ru Музыкальный автомат
+
+access.action.moment
+cs Nejbližší chvilka
+en Nearest moment
+uk Найближча мить
+ru Ближайший момент
+
+access.action.chore
+cs Nejbližší práce
+en Nearest chore
+uk Найближча справа
+ru Ближайшее дело
+
+access.action.greet
+cs Zamávat
+en Wave
+uk Помахати
+ru Помахать
+
+access.action.pause
+cs Pauza
+en Pause
+uk Пауза
+ru Пауза
+
+access.action.speed1
+cs Rychlost ×1
+en Speed ×1
+uk Швидкість ×1
+ru Скорость ×1
+
+access.action.speed2
+cs Rychlost ×2
+en Speed ×2
+uk Швидкість ×2
+ru Скорость ×2
+
+access.action.speed3
+cs Rychlost ×3
+en Speed ×3
+uk Швидкість ×3
+ru Скорость ×3
+
+access.action.help
+cs Jak hrát
+en How to play
+uk Як грати
+ru Как играть
+
+access.action.mute
+cs Ztlumit zvuk
+en Mute
+uk Вимкнути звук
+ru Выключить звук
+
+# --- the no-money-pressure difficulty ----------------------------------------------------------
+
+difficulty.relaxed.name
+cs Bez starostí
+en Carefree
+uk Безтурботно
+ru Беззаботно
+
+difficulty.relaxed.desc
+cs Jako Útulně, ale bez tlaku na peníze: splátky dluhu se uhradí samy, žádná se nedá zmeškat.
+en Like Cozy, without money pressure: the debt's instalments are covered, none can be missed.
+uk Як «Затишно», але без тиску грошей: внески за борг покриваються самі, пропустити не можна.
+ru Как «Уютно», но без давления денег: взносы по долгу покрываются сами, пропустить нельзя.
+
+access.log.payment_covered
+cs Splátka {amount} Kč je uhrazená — bez starostí.
+en The {amount} CZK instalment is covered — carefree.
+uk Внесок {amount} Kč покрито — безтурботно.
+ru Взнос {amount} Kč покрыт — беззаботно.
+
+access.day.payment_covered
+cs Splátka {money} · noc {night} · uhradí se sama
+en Instalment {money} · night {night} · covered
+uk Внесок {money} · ніч {night} · покриється сам
+ru Взнос {money} · ночь {night} · покроется сам

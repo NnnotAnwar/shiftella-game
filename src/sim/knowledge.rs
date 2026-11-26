@@ -113,7 +113,7 @@ pub(crate) fn validate(
 /// Supplies for one try (free on Cozy early nights).
 pub(crate) fn cost(w: &World, content: &Content) -> i64 {
     let t = &content.handson.tuning;
-    if w.difficulty == Difficulty::Cozy && w.night <= t.experiment_free_until_night {
+    if w.difficulty.gentle() && w.night <= t.experiment_free_until_night {
         0
     } else {
         t.experiment_cost as i64

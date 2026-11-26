@@ -26,6 +26,8 @@
 //!   `SHIFTELLA_SKIP_SCENES=1` — story scenes finish at once
 //! * `SHIFTELLA_LANG=cs|en|uk|ru`, `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`,
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
+//! * `SHIFTELLA_DIRT=0.4` — dirt blots on the floor; `SHIFTELLA_SETTINGS_TAB=0|1|2` — the
+//!   settings scene opens on General / Accessibility / Controls (package J, access).
 //! * `SHIFTELLA_TEST_PANIC=1` — panic on purpose right after boot (checks the crash log,
 //!   [`crate::crashlog`]; nothing is saved).
 
@@ -119,6 +121,22 @@ pub struct App {
     pub ui: Ui,
     screen: Screen,
     host: SaveHost,
+    /// The key bindings the i18n key tokens were last filled with (`sync_access`).
+    keys_applied: crate::settings::keys::KeyBindings,
+}
+
+/// Text size, colour-blind markers and key bindings from the settings in force (the main
+/// menu edits its own copy): applied every frame, the i18n key tokens only on a change.
+fn sync_access(app: &mut App) {
+    let s = match &app.screen {
+        Screen::Menu(m) => &m.settings,
+        _ => &app.settings,
+    };
+    s.apply_ui(&mut app.ui);
+    if app.keys_applied != s.keys {
+        app.i18n.apply_keys(&s.keys.badges());
+        app.keys_applied = s.keys.clone();
+    }
 }
 
 /// F3 / `SHIFTELLA_FPS=1`: frame rate, frame time (avg / max over the last second),
@@ -261,6 +279,10 @@ impl App {
             });
         }
         g.hands.skip_scenes = env("SHIFTELLA_SKIP_SCENES").is_some();
+        // SHIFTELLA_DIRT=0.4: dirt blots on the hall floor (colour-blind marker shots)
+        if let Some(d) = env("SHIFTELLA_DIRT").and_then(|d| d.parse::<f32>().ok()) {
+            g.world.dirt = d.clamp(0.0, 1.0);
+        }
         if let Some(s) = env("SHIFTELLA_SPEED").and_then(|s| s.parse::<u8>().ok()) {
             g.set_speed(s);
         }
@@ -310,7 +332,13 @@ impl App {
             "language" => self.menu(Some(MenuPage::Language)),
             "newgame" => self.menu(Some(MenuPage::NewGame)),
             "sandbox_setup" => self.menu(Some(MenuPage::Sandbox)),
-            "settings" => self.menu(Some(MenuPage::Settings)),
+            "settings" => {
+                // SHIFTELLA_SETTINGS_TAB=0|1|2: General / Accessibility / Controls
+                if let Some(t) = env("SHIFTELLA_SETTINGS_TAB").and_then(|t| t.parse().ok()) {
+                    crate::settings::set_tab(t);
+                }
+                self.menu(Some(MenuPage::Settings))
+            }
             "opening" => {
                 let mut g = GameScreen::new_story(&content, "cozy", false);
                 if let Some(t) = env("SHIFTELLA_T").and_then(|t| t.parse::<f32>().ok()) {
@@ -949,6 +977,7 @@ pub async fn run() {
         ui,
         screen: Screen::Menu(Box::new(placeholder)),
         host: SaveHost { latest: None },
+        keys_applied: Default::default(),
     };
     app.screen = match env("SHIFTELLA_SCENE") {
         Some(s) => {
@@ -982,6 +1011,7 @@ pub async fn run() {
             debug.on = !debug.on;
         }
         log_scene(&app);
+        sync_access(&mut app);
         app.ui.begin_frame();
         let dt = if shot.is_some() {
             1.0 / 60.0

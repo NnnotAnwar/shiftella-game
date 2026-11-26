@@ -69,10 +69,10 @@ uk Найми першого помічника
 ru Найми первого помощника
 
 tutorial.crew.body
-cs Otevři Personál (C). Dole jsou uchazeči — baristka nebo barista se hodí hned první noc. Jedno kliknutí na Najmout.
-en Open Crew (C). Candidates are at the bottom — a barista helps from the very first night. One click on Hire.
-uk Відкрий «Персонал» (C). Унизу — кандидати: бариста стане в пригоді вже першої ночі. Один клік на «Найняти».
-ru Открой «Персонал» (C). Внизу — кандидаты: бариста пригодится уже в первую ночь. Один клик на «Нанять».
+cs Otevři Personál ({key.crew}). Dole jsou uchazeči — baristka nebo barista se hodí hned první noc. Jedno kliknutí na Najmout.
+en Open Crew ({key.crew}). Candidates are at the bottom — a barista helps from the very first night. One click on Hire.
+uk Відкрий «Персонал» ({key.crew}). Унизу — кандидати: бариста стане в пригоді вже першої ночі. Один клік на «Найняти».
+ru Открой «Персонал» ({key.crew}). Внизу — кандидаты: бариста пригодится уже в первую ночь. Один клик на «Нанять».
 
 tutorial.app.title
 cs Rozpis v aplikaci Shiftella
@@ -81,10 +81,10 @@ uk Розклад у Shiftella
 ru Расписание в Shiftella
 
 tutorial.app.body
-cs Otevři Shiftellu (T). V rozpisu klikni na buňku a změň směnu, pak Zveřejnit — noc se řídí zveřejněným rozpisem. Najdeš tam i žádosti, zprávy a nástěnka.
-en Open Shiftella (T). In the schedule, click a cell to change a shift, then Publish — the night follows the published schedule. Requests, messages and the board live there too.
-uk Відкрий Shiftella (T). У розкладі клацни клітинку, щоб змінити зміну, потім «Опублікувати» — ніч іде за опублікованим розкладом. Там же запити, повідомлення й дошка.
-ru Открой Shiftella (T). В расписании нажми на клетку, чтобы изменить смену, потом «Опубликовать» — ночь идёт по опубликованному расписанию. Там же запросы, сообщения и доска.
+cs Otevři Shiftellu ({key.app}). V rozpisu klikni na buňku a změň směnu, pak Zveřejnit — noc se řídí zveřejněným rozpisem. Najdeš tam i žádosti, zprávy a nástěnka.
+en Open Shiftella ({key.app}). In the schedule, click a cell to change a shift, then Publish — the night follows the published schedule. Requests, messages and the board live there too.
+uk Відкрий Shiftella ({key.app}). У розкладі клацни клітинку, щоб змінити зміну, потім «Опублікувати» — ніч іде за опублікованим розкладом. Там же запити, повідомлення й дошка.
+ru Открой Shiftella ({key.app}). В расписании нажми на клетку, чтобы изменить смену, потом «Опубликовать» — ночь идёт по опубликованному расписанию. Там же запросы, сообщения и доска.
 
 tutorial.priorities.title
 cs Kdo co dělá
@@ -105,10 +105,10 @@ uk Зроби зал затишнішим (за бажанням)
 ru Сделай зал уютнее (по желанию)
 
 tutorial.build.body
-cs Stavba (B): vyber kus, klikni do kavárny. R otočí, X bourá, Ctrl+Z vrátí. Lampy, rostliny a koberec hosty potěší.
-en Build (B): pick a piece, click in the café. R rotates, X demolishes, Ctrl+Z undoes. Lamps, plants and a rug make guests happier.
-uk Будівництво (B): вибери предмет і клацни в кав'ярні. R — поворот, X — знести, Ctrl+Z — скасувати. Лампи, рослини й килим тішать гостей.
-ru Стройка (B): выбери предмет и нажми в кафе. R — поворот, X — снести, Ctrl+Z — отменить. Лампы, растения и ковёр радуют гостей.
+cs Stavba ({key.build}): vyber kus, klikni do kavárny. R otočí, X bourá, Ctrl+Z vrátí. Lampy, rostliny a koberec hosty potěší.
+en Build ({key.build}): pick a piece, click in the café. R rotates, X demolishes, Ctrl+Z undoes. Lamps, plants and a rug make guests happier.
+uk Будівництво ({key.build}): вибери предмет і клацни в кав'ярні. R — поворот, X — знести, Ctrl+Z — скасувати. Лампи, рослини й килим тішать гостей.
+ru Стройка ({key.build}): выбери предмет и нажми в кафе. R — поворот, X — снести, Ctrl+Z — отменить. Лампы, растения и ковёр радуют гостей.
 
 tutorial.start.title
 cs Otevři dveře
@@ -131,10 +131,10 @@ uk Час — у твоєму темпі
 ru Время — в твоём темпе
 
 tutorial.time.body
-cs Mezerník pozastaví, 1/2/3 mění rychlost. Pruh pod hodinami ukazuje noc do 06:00, trojúhelníčky jsou vlaky — přivezou malý nával.
-en Space pauses, 1/2/3 change the speed. The bar under the clock is the night until 06:00; the little marks are trains — each brings a small rush.
-uk Пробіл — пауза, 1/2/3 — швидкість. Смуга під годинником — ніч до 06:00, трикутнички — поїзди: кожен привозить невеликий наплив.
-ru Пробел — пауза, 1/2/3 — скорость. Полоса под часами — ночь до 06:00, треугольнички — поезда: каждый привозит небольшой наплыв.
+cs {Key.pause} pozastaví, {key.speed1}/{key.speed2}/{key.speed3} mění rychlost. Pruh pod hodinami ukazuje noc do 06:00, trojúhelníčky jsou vlaky — přivezou malý nával.
+en {Key.pause} pauses, {key.speed1}/{key.speed2}/{key.speed3} change the speed. The bar under the clock is the night until 06:00; the little marks are trains — each brings a small rush.
+uk {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — швидкість. Смуга під годинником — ніч до 06:00, трикутнички — поїзди: кожен привозить невеликий наплив.
+ru {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — скорость. Полоса под часами — ночь до 06:00, треугольнички — поезда: каждый привозит небольшой наплыв.
 
 tutorial.guests.title
 cs Hosté
@@ -155,10 +155,10 @@ uk Команда працює сама
 ru Команда работает сама
 
 tutorial.staff.body
-cs Lidé berou práci podle priorit. V Personálu (C) vidíš jejich potřeby — energii, hlad, náladu. Unavení si sami dají pauzu.
-en People pick up work by their priorities. In Crew (C) you'll see their needs — energy, hunger, mood. Tired people take a break on their own.
-uk Люди беруться до роботи за пріоритетами. У «Персоналі» (C) видно їхні потреби — енергію, голод, настрій. Втомлені самі роблять перерву.
-ru Люди берутся за работу по приоритетам. В «Персонале» (C) видны их потребности — энергия, голод, настроение. Уставшие сами уходят на перерыв.
+cs Lidé berou práci podle priorit. V Personálu ({key.crew}) vidíš jejich potřeby — energii, hlad, náladu. Unavení si sami dají pauzu.
+en People pick up work by their priorities. In Crew ({key.crew}) you'll see their needs — energy, hunger, mood. Tired people take a break on their own.
+uk Люди беруться до роботи за пріоритетами. У «Персоналі» ({key.crew}) видно їхні потреби — енергію, голод, настрій. Втомлені самі роблять перерву.
+ru Люди берутся за работу по приоритетам. В «Персонале» ({key.crew}) видны их потребности — энергия, голод, настроение. Уставшие сами уходят на перерыв.
 
 tutorial.events.title
 cs Události
@@ -191,10 +191,10 @@ uk Гарної ночі
 ru Хорошей ночи
 
 tutorial.enjoy.body
-cs To je všechno. F1 nebo „?“ v liště otevře přehled Jak hrát. Ať okno svítí až do rána.
-en That's all. F1 or the "?" in the dock opens How to play. May the window stay lit until morning.
-uk Ось і все. F1 або «?» на панелі відкриє «Як грати». Хай вікно світить до ранку.
-ru Вот и всё. F1 или «?» на панели откроет «Как играть». Пусть окно светит до утра.
+cs To je všechno. {key.help} nebo „?“ v liště otevře přehled Jak hrát. Ať okno svítí až do rána.
+en That's all. {key.help} or the "?" in the dock opens How to play. May the window stay lit until morning.
+uk Ось і все. {key.help} або «?» на панелі відкриє «Як грати». Хай вікно світить до ранку.
+ru Вот и всё. {key.help} или «?» на панели откроет «Как играть». Пусть окно светит до утра.
 
 # --- How to play
 
@@ -205,10 +205,10 @@ uk Як грати
 ru Как играть
 
 ui.help.tip
-cs Jak hrát (F1)
-en How to play (F1)
-uk Як грати (F1)
-ru Как играть (F1)
+cs Jak hrát ({key.help})
+en How to play ({key.help})
+uk Як грати ({key.help})
+ru Как играть ({key.help})
 
 ui.help.rhythm.title
 cs Den a noc
@@ -223,10 +223,10 @@ uk Удень плануєш (годинник стоїть). Уночі, з 22:
 ru Днём планируешь (часы стоят). Ночью, с 22:00 до 06:00, кафе работает. Утром — итоги и автосохранение. Enter начинает ночь.
 
 ui.help.crew.title
-cs Personál (C)
-en Crew (C)
-uk Персонал (C)
-ru Персонал (C)
+cs Personál ({key.crew})
+en Crew ({key.crew})
+uk Персонал ({key.crew})
+ru Персонал ({key.crew})
 
 ui.help.crew.body
 cs Najímej uchazeče, sleduj potřeby, dovednosti a vztahy. Propustit jde jedním kliknutím — a vrátit tlačítkem Zpět.
@@ -235,10 +235,10 @@ uk Наймай кандидатів, стеж за потребами, нави
 ru Нанимай кандидатов, следи за потребностями, навыками и отношениями. Уволить — один клик, а «Отменить» всё вернёт.
 
 ui.help.app.title
-cs Shiftella (T)
-en Shiftella (T)
-uk Shiftella (T)
-ru Shiftella (T)
+cs Shiftella ({key.app})
+en Shiftella ({key.app})
+uk Shiftella ({key.app})
+ru Shiftella ({key.app})
 
 ui.help.app.body
 cs Rozpis směn (klik změní koncept, Zveřejnit ho pošle všem), žádosti o výměnu a volno, zprávy od @shiftella_bot, nástěnka, checklisty, noční přehled a podklady pro mzdy.
@@ -259,10 +259,10 @@ uk Рядки — люди, стовпці — роботи. 1 — найваж�
 ru Строки — люди, столбцы — работы. 1 — важнее всего, пусто — никогда. Клик повышает, правый клик или колёсико понижает.
 
 ui.help.build.title
-cs Stavba (B)
-en Build (B)
-uk Будівництво (B)
-ru Стройка (B)
+cs Stavba ({key.build})
+en Build ({key.build})
+uk Будівництво ({key.build})
+ru Стройка ({key.build})
 
 ui.help.build.body
 cs Vyber kus a klikni do kavárny. R otočí, X bourá, Ctrl+Z vrátí, pravé tlačítko nebo Esc zruší. Lampy, rostliny a koberce zlepší náladu.
@@ -277,10 +277,10 @@ uk Ніч і гості
 ru Ночь и гости
 
 ui.help.night.body
-cs Mezerník je pauza, 1/2/3 rychlost, WASD a kolečko kamera, Home celá kavárna. Najetím na hosta uvidíš jeho přání; štamgasti občas chtějí promluvit.
-en Space pauses, 1/2/3 set the speed, WASD and the wheel move the camera, Home shows the whole café. Hover a guest to see their wish; regulars sometimes want to talk.
-uk Пробіл — пауза, 1/2/3 — швидкість, WASD і коліщатко — камера, Home — уся кав'ярня. Наведи на гостя, щоб побачити бажання; постійні гості часом хочуть поговорити.
-ru Пробел — пауза, 1/2/3 — скорость, WASD и колёсико — камера, Home — всё кафе. Наведи на гостя, чтобы увидеть желание; постоянные гости иногда хотят поговорить.
+cs {Key.pause} je pauza, {key.speed1}/{key.speed2}/{key.speed3} rychlost, WASD a kolečko kamera, Home celá kavárna. Najetím na hosta uvidíš jeho přání; štamgasti občas chtějí promluvit.
+en {Key.pause} pauses, {key.speed1}/{key.speed2}/{key.speed3} set the speed, WASD and the wheel move the camera, Home shows the whole café. Hover a guest to see their wish; regulars sometimes want to talk.
+uk {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — швидкість, WASD і коліщатко — камера, Home — уся кав'ярня. Наведи на гостя, щоб побачити бажання; постійні гості часом хочуть поговорити.
+ru {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — скорость, WASD и колёсико — камера, Home — всё кафе. Наведи на гостя, чтобы увидеть желание; постоянные гости иногда хотят поговорить.
 
 ui.help.events.title
 cs Události a deník
@@ -289,10 +289,10 @@ uk Події та журнал
 ru События и журнал
 
 ui.help.events.body
-cs Zprávy vyskakují vpravo dole; volby počkají na pauze a po chvíli se rozhodnou samy. Deník (L) nebo klik na řádek nahoře ukáže, co se stalo.
-en News pops up bottom right; choices wait while paused and settle themselves after a while. The log (L), or a click on the line at the top, shows what happened.
-uk Новини з'являються праворуч унизу; вибір чекає на паузі й за якийсь час вирішується сам. Журнал (L) або клік по рядку вгорі покаже, що сталося.
-ru Новости появляются справа внизу; выбор ждёт на паузе и через какое-то время решается сам. Журнал (L) или клик по строке вверху покажет, что случилось.
+cs Zprávy vyskakují vpravo dole; volby počkají na pauze a po chvíli se rozhodnou samy. Deník ({key.log}) nebo klik na řádek nahoře ukáže, co se stalo.
+en News pops up bottom right; choices wait while paused and settle themselves after a while. The log ({key.log}), or a click on the line at the top, shows what happened.
+uk Новини з'являються праворуч унизу; вибір чекає на паузі й за якийсь час вирішується сам. Журнал ({key.log}) або клік по рядку вгорі покаже, що сталося.
+ru Новости появляются справа внизу; выбор ждёт на паузе и через какое-то время решается сам. Журнал ({key.log}) или клик по строке вверху покажет, что случилось.
 
 ui.help.money.title
 cs Peníze, dluh, pověst

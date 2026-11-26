@@ -228,7 +228,11 @@ pub fn recipe_book(
         &t.title(),
         Align::Left,
     );
-    ui.keycap(vec2(head.x + 32.0 + tw, head.center_y()), "K", false);
+    ui.keycap(
+        vec2(head.x + 32.0 + tw, head.center_y()),
+        &crate::settings::keys::label(crate::settings::keys::Action::Book),
+        false,
+    );
     let close = Rect::new(r.right() - 38.0, r.y + 12.0, 26.0, 26.0);
     if ui
         .icon_button(

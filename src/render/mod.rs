@@ -127,8 +127,8 @@ pub use handson::{
     CupGlyph, LatteArt, OrderMark, QUEUE_CHIP, QueueIcon, TIP_COLLECT_SECS, TIP_SPAWN_SECS,
     TasteIcon, TipCoin, draw_cup_glyph, draw_latte_art, draw_order_mark, draw_queue_chips,
     draw_queue_icon, draw_rhythm_glow, draw_served_cup, draw_taste_icon, draw_tip_coin,
-    draw_tip_float, draw_wish_bubble, heart, icon_scale_for_zoom, queue_chip_rects,
-    set_world_icon_scale, sparkle, tip_coin_light, world_icon_scale,
+    draw_tip_float, draw_wish_bubble, heart, icon_scale_for_zoom, marker_shapes, queue_chip_rects,
+    set_marker_shapes, set_world_icon_scale, sparkle, tip_coin_light, world_icon_scale,
 };
 pub use light::{CozyGrade, Light, Lighting, ambient_blackout, ambient_for};
 pub use look::{

@@ -634,7 +634,7 @@ pub fn hotkeys(g: &mut GameScreen, ui: &mut Ui) -> bool {
     if !g.sig.open {
         return false;
     }
-    if ui.esc() || ui.key(KeyCode::K) {
+    if ui.esc() || crate::settings::keys::pressed(ui, crate::settings::keys::Action::Book) {
         g.close_signature();
     }
     true

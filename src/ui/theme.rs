@@ -99,6 +99,9 @@ pub struct Theme {
     pub shadow_md: Shadow,
     pub shadow_lg: Shadow,
     pub shadow_ambient: Shadow,
+    /// Settings → Text size (1.0 / 1.15 / 1.3): multiplies every text style below, never
+    /// the panels or the UI scale (`Ui::set_text_scale`).
+    pub text_scale: f32,
 }
 
 impl Theme {
@@ -146,61 +149,73 @@ impl Theme {
         shadow_md: Shadow::new(0.0, 6.0, 18.0, 0.0, rgba(0x05040C, 0.42)),
         shadow_lg: Shadow::new(0.0, 14.0, 36.0, 2.0, rgba(0x05040C, 0.48)),
         shadow_ambient: Shadow::new(0.0, 1.0, 3.0, 0.0, rgba(0x000000, 0.35)),
+        text_scale: 1.0,
     };
 
     // --- text styles (pt @ ui_scale 1) ------------------------------------
 
     /// 52/Bold — menu logo.
     pub fn display(&self) -> TextStyle {
+        // the logo keeps its size (it is art, not reading text)
         TextStyle::new(44.0, Weight::Bold, self.text).tracking(-0.6)
     }
     /// 22/Bold tabular — HUD clock.
     pub fn clock(&self) -> TextStyle {
-        TextStyle::new(22.0, Weight::Bold, self.text).tabular()
+        TextStyle::new(22.0, Weight::Bold, self.text)
+            .tabular()
+            .scaled(self.text_scale)
     }
     /// 18/Bold — screen title.
     pub fn title(&self) -> TextStyle {
-        TextStyle::new(18.0, Weight::Bold, self.text).tracking(-0.2)
+        TextStyle::new(18.0, Weight::Bold, self.text)
+            .tracking(-0.2)
+            .scaled(self.text_scale)
     }
     /// 17/Bold — panel header.
     pub fn h1(&self) -> TextStyle {
-        TextStyle::new(16.0, Weight::Bold, self.text).tracking(-0.15)
+        TextStyle::new(16.0, Weight::Bold, self.text)
+            .tracking(-0.15)
+            .scaled(self.text_scale)
     }
     /// 15/SemiBold — card titles, names in cards.
     pub fn h2(&self) -> TextStyle {
-        TextStyle::new(14.0, Weight::SemiBold, self.text)
+        TextStyle::new(14.0, Weight::SemiBold, self.text).scaled(self.text_scale)
     }
     /// 13/Regular — body text.
     pub fn body(&self) -> TextStyle {
-        TextStyle::new(13.0, Weight::Regular, self.text)
+        TextStyle::new(13.0, Weight::Regular, self.text).scaled(self.text_scale)
     }
     /// 13/Medium.
     pub fn body_medium(&self) -> TextStyle {
-        TextStyle::new(13.0, Weight::Medium, self.text)
+        TextStyle::new(13.0, Weight::Medium, self.text).scaled(self.text_scale)
     }
     /// 13/SemiBold — buttons, toast titles, list names.
     pub fn strong(&self) -> TextStyle {
-        TextStyle::new(13.0, Weight::SemiBold, self.text)
+        TextStyle::new(13.0, Weight::SemiBold, self.text).scaled(self.text_scale)
     }
     /// 12/Regular dim — captions.
     pub fn small(&self) -> TextStyle {
-        TextStyle::new(12.0, Weight::Regular, self.text_dim)
+        TextStyle::new(12.0, Weight::Regular, self.text_dim).scaled(self.text_scale)
     }
     /// 12/Medium — chips.
     pub fn small_medium(&self) -> TextStyle {
-        TextStyle::new(12.0, Weight::Medium, self.text)
+        TextStyle::new(12.0, Weight::Medium, self.text).scaled(self.text_scale)
     }
     /// 11/Bold dim tracked — SECTION HEADERS (uppercase the string yourself).
     pub fn micro(&self) -> TextStyle {
-        TextStyle::new(11.0, Weight::Bold, self.text_disabled).tracking(0.6)
+        TextStyle::new(11.0, Weight::Bold, self.text_disabled)
+            .tracking(0.6)
+            .scaled(self.text_scale)
     }
     /// 11/SemiBold — keycaps, axis labels.
     pub fn key(&self) -> TextStyle {
-        TextStyle::new(11.0, Weight::SemiBold, self.text_dim)
+        TextStyle::new(11.0, Weight::SemiBold, self.text_dim).scaled(self.text_scale)
     }
     /// Numbers in tables / money: 13 SemiBold tabular.
     pub fn number(&self) -> TextStyle {
-        TextStyle::new(13.0, Weight::SemiBold, self.text).tabular()
+        TextStyle::new(13.0, Weight::SemiBold, self.text)
+            .tabular()
+            .scaled(self.text_scale)
     }
 
     /// Avatar palette (deterministic by name, see `avatar_color`).

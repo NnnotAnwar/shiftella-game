@@ -429,7 +429,14 @@ pub fn help(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let pr = Rect::new(x, 88.0, w, h);
     g.anchors.push(("panel", pr));
     ui.glass(pr, &Glass::panel().solid());
-    let (body, close) = ui.panel_header(pr, loc.tr("ui.help.title"), Some("F1"), None);
+    let (body, close) = ui.panel_header(
+        pr,
+        loc.tr("ui.help.title"),
+        Some(&crate::settings::keys::label(
+            crate::settings::keys::Action::Help,
+        )),
+        None,
+    );
     if close {
         g.panel = None;
     }

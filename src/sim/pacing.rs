@@ -67,7 +67,7 @@ pub(crate) fn wait_rate(w: &World, content: &Content, pi: usize) -> f32 {
     if claimed_by_karolina(w, pi) {
         rate *= t.claimed_wait_rate;
     }
-    if w.difficulty == Difficulty::Cozy && w.hands.rush.until.is_some() {
+    if w.difficulty.gentle() && w.hands.rush.until.is_some() {
         rate *= t.cozy_rush_wait_rate;
     }
     if let Some(m) = super::music::mood_effect(w, content) {

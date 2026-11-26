@@ -1079,6 +1079,19 @@ pub enum QueueIcon {
 
 thread_local! {
     static ICON_SCALE: std::cell::Cell<f32> = const { std::cell::Cell::new(1.0) };
+    static MARKER_SHAPES: std::cell::Cell<bool> = const { std::cell::Cell::new(true) };
+}
+
+/// Settings → "Colour-blind friendly markers": markers that differ by colour also get a
+/// shape (a star on a regular's ticket, a hollow box on an open ritual, a rim on tip coins,
+/// a dashed ring round a dirt blot…). Set once a frame from the settings.
+pub fn set_marker_shapes(on: bool) {
+    MARKER_SHAPES.with(|c| c.set(on));
+}
+
+/// See [`set_marker_shapes`].
+pub fn marker_shapes() -> bool {
+    MARKER_SHAPES.with(|c| c.get())
 }
 
 /// Scale for the little icons drawn in the world (queue chips over Karolina's head, the
@@ -1464,6 +1477,11 @@ pub fn draw_tip_coin(coin: &TipCoin, now: f32) {
             let breathe = 0.5 + 0.5 * (now * 2.2 + coin.seed as f32).sin();
             glow(p.x, p.y, 11.0, alpha(c::AMBER, 0.18 + 0.12 * breathe));
             draw_coin(p, 4.6, spin, now);
+            // colour-blind friendly: a light rim so a coin never melts into the warm floor
+            // or reads like a spill
+            if marker_shapes() && a >= 1.0 {
+                draw_ellipse_lines(p.x, p.y, 6.4, 5.8, 0.0, 1.1, alpha(WHITE, 0.75));
+            }
             // a glint every ~2.4 s
             let period = 2.4;
             let g = ((now + hash01(coin.seed) * period) % period) / period;

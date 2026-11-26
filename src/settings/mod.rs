@@ -15,9 +15,10 @@
 //! ```
 //! In-game the same screen is [`settings_panel`] (see `panel.rs`).
 
+pub mod keys;
 mod panel;
 
-pub use panel::{PANEL_SIZE, SettingsResponse, panel_rect, settings_panel};
+pub use panel::{PANEL_SIZE, SettingsResponse, panel_rect, set_tab, settings_panel};
 
 use std::path::{Path, PathBuf};
 
@@ -124,6 +125,39 @@ impl TextSpeed {
     }
 }
 
+/// Settings → Text size: the theme's type scale only (the UI scale stays).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub enum TextSize {
+    #[default]
+    Normal,
+    /// 115 %
+    Large,
+    /// 130 %
+    Larger,
+}
+
+impl TextSize {
+    pub const ALL: [TextSize; 3] = [TextSize::Normal, TextSize::Large, TextSize::Larger];
+
+    /// Multiplier for [`crate::ui::Ui::set_text_scale`].
+    pub fn scale(self) -> f32 {
+        match self {
+            TextSize::Normal => 1.0,
+            TextSize::Large => 1.15,
+            TextSize::Larger => 1.3,
+        }
+    }
+
+    pub fn index(self) -> usize {
+        Self::ALL.iter().position(|s| *s == self).unwrap_or(0)
+    }
+
+    /// "100 %", "115 %", "130 %".
+    pub fn label(self) -> String {
+        format!("{} %", (self.scale() * 100.0).round() as i32)
+    }
+}
+
 /// Everything the player can change. Unknown / missing fields fall back to defaults,
 /// so old files keep loading after new options appear.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -147,6 +181,13 @@ pub struct Settings {
     pub show_tutorial: bool,
     /// Relaxed mini-games (design §2.0): wider sweet spots, a quality floor, a Done button.
     pub relaxed_minigames: bool,
+    /// Settings → Text size (100 / 115 / 130 %), separate from the UI scale.
+    pub text_size: TextSize,
+    /// World markers that differ by colour also differ by shape (on by default: the extra
+    /// glyphs are small and read as part of the art).
+    pub colorblind_markers: bool,
+    /// Settings → Controls (only the changed actions are stored).
+    pub keys: keys::KeyBindings,
 }
 
 impl Default for Settings {
@@ -162,6 +203,9 @@ impl Default for Settings {
             pause_on_events: false,
             show_tutorial: true,
             relaxed_minigames: false,
+            text_size: TextSize::Normal,
+            colorblind_markers: true,
+            keys: keys::KeyBindings::default(),
         }
     }
 }
@@ -261,6 +305,17 @@ impl Settings {
         std::fs::write(path, self.to_ron()).map_err(|e| format!("{}: {e}", path.display()))
     }
 
+    /// Applies the display options that live outside the settings screen: UI scale, text
+    /// size, colour-blind markers and the key bindings (cheap: the app calls it every frame).
+    pub fn apply_ui(&self, ui: &mut crate::ui::Ui) {
+        if (ui.scale() - self.ui_scale).abs() > 0.001 {
+            ui.set_scale(self.ui_scale);
+        }
+        ui.set_text_scale(self.text_size.scale());
+        crate::render::set_marker_shapes(self.colorblind_markers);
+        keys::install(&self.keys);
+    }
+
     /// Applies the window-related options (fullscreen) to the macroquad window.
     pub fn apply_window(&self) {
         // an invisible automation run never goes fullscreen (crate::platform)
@@ -302,6 +357,13 @@ mod tests {
             pause_on_events: true,
             show_tutorial: false,
             relaxed_minigames: true,
+            text_size: TextSize::Larger,
+            colorblind_markers: false,
+            keys: {
+                let mut k = keys::KeyBindings::default();
+                k.set(keys::Action::Crew, macroquad::prelude::KeyCode::N);
+                k
+            },
         };
         let back = Settings::from_ron(&s.to_ron()).unwrap();
         assert_eq!(back, s);
@@ -339,6 +401,32 @@ mod tests {
         assert!(!s.needs_language(), "no second trip through the picker");
         let ru = Settings::from_ron("(language: Some(Ru))").unwrap();
         assert_eq!(ru.language, Some(Lang::Ru));
+    }
+
+    #[test]
+    fn old_files_get_the_access_defaults() {
+        // a settings file from before the accessibility options
+        let s = Settings::from_ron("(language: Some(Cs), ui_scale: 1.2, relaxed_minigames: true)")
+            .unwrap();
+        assert_eq!(s.text_size, TextSize::Normal);
+        assert!(s.colorblind_markers);
+        assert!(s.keys.is_default());
+        let t = Settings::from_ron(r#"(text_size: Larger, keys: {"pause": "P"})"#).unwrap();
+        assert_eq!(t.text_size.scale(), 1.3);
+        assert_eq!(
+            t.keys.key(keys::Action::Pause),
+            macroquad::prelude::KeyCode::P
+        );
+    }
+
+    #[test]
+    fn text_sizes() {
+        let scales: Vec<f32> = TextSize::ALL.iter().map(|t| t.scale()).collect();
+        assert_eq!(scales, vec![1.0, 1.15, 1.3]);
+        assert_eq!(TextSize::Large.label(), "115 %");
+        for t in TextSize::ALL {
+            assert_eq!(TextSize::ALL[t.index()], t);
+        }
     }
 
     #[test]

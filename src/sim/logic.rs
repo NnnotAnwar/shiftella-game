@@ -599,7 +599,7 @@ fn apply_one(w: &mut World, content: &Content, e: &Effect, ctx: &mut EffectCtx) 
             let mut n = w.rng.range_u32(count.0, count.1);
             let mut pmul = *patience_mul;
             let mut spread = *within;
-            if w.difficulty == Difficulty::Cozy {
+            if w.difficulty.gentle() {
                 // Cozy rushes are a busy moment, not a wall: a few fewer people, arriving over a
                 // longer stretch, and not more impatient than usual
                 n = ((n as f32) * 0.75).round().max(1.0) as u32;

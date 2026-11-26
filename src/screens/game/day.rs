@@ -138,8 +138,14 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             .filter(|p| p.night >= night)
             .min_by_key(|p| p.night)
     {
+        // Relaxed: the instalment will be covered (no money pressure)
+        let key = if g.world.difficulty() == sim::Difficulty::Relaxed {
+            "access.day.payment_covered"
+        } else {
+            "ui.hud.next_payment"
+        };
         let txt = loc.trf(
-            "ui.hud.next_payment",
+            key,
             &[
                 ("money", &format_money(loc.lang, p.amount)),
                 ("night", &p.night.to_string()),
@@ -295,7 +301,9 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             a,
             &Button::new(loc.tr("ui.toolbar.app"))
                 .icon(Icon::Calendar)
-                .shortcut("T"),
+                .shortcut(&crate::settings::keys::label(
+                    crate::settings::keys::Action::App,
+                )),
         )
         .clicked
     {
@@ -307,7 +315,9 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             b,
             &Button::new(loc.tr("ui.toolbar.build"))
                 .icon(Icon::Build)
-                .shortcut("B"),
+                .shortcut(&crate::settings::keys::label(
+                    crate::settings::keys::Action::Build,
+                )),
         )
         .clicked
     {

@@ -390,10 +390,11 @@ fn tip_jar(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     ui.tooltip(&resp, &tip);
     // "It's quiet — ×2?" (the lull director's last suggestion; never speeds up by itself)
     if g.time < g.hands.lull_until && g.speed < 2 && !g.overlay_open() {
+        let s2 = crate::settings::keys::label(crate::settings::keys::Action::Speed2);
         let b = Button::new(loc.tr("ui.lull.speed"))
             .secondary()
             .icon(Icon::Fast)
-            .shortcut("2");
+            .shortcut(&s2);
         let bw = ui.button_width(&b);
         let br = Rect::new(s.w - 12.0 - bw, r.bottom() + 6.0, bw, 28.0);
         g.anchors.push(("hud.lull", br));

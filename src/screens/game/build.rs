@@ -707,7 +707,11 @@ pub fn panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         &hs,
         Align::Left,
     );
-    let kr = ui.keycap(vec2(head.x + tw + 8.0, head.center_y()), "B", false);
+    let kr = ui.keycap(
+        vec2(head.x + tw + 8.0, head.center_y()),
+        &crate::settings::keys::label(crate::settings::keys::Action::Build),
+        false,
+    );
     let close_r = Rect::new(head.right() - 24.0, head.y + 1.0, 24.0, 24.0);
     if ui
         .icon_button(

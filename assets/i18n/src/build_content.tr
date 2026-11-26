@@ -645,10 +645,10 @@ uk безкоштовно
 ru бесплатно
 
 ui.attic.placed
-cs {item} je dole v kavárně — přetáhni ho, kam chceš (B).
-en {item} is down in the café — drag it wherever you like (B).
-uk {item} уже внизу в кав'ярні — перетягни, куди хочеш (B).
-ru {item} уже внизу в кафе — перетащи, куда хочешь (B).
+cs {item} je dole v kavárně — přetáhni ho, kam chceš ({key.build}).
+en {item} is down in the café — drag it wherever you like ({key.build}).
+uk {item} уже внизу в кав'ярні — перетягни, куди хочеш ({key.build}).
+ru {item} уже внизу в кафе — перетащи, куда хочешь ({key.build}).
 
 ui.attic.day_only
 cs Věci se snáší přes den.

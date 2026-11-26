@@ -15,7 +15,7 @@ pub(crate) fn restock(w: &mut World, _content: &Content) {
     {
         let need = target - w.econ.supplies;
         // Cozy lets you go a little into the red for food; Classic buys what it can afford.
-        let afford = if w.difficulty == Difficulty::Cozy {
+        let afford = if w.difficulty.gentle() {
             need
         } else {
             need.min(w.econ.money.max(0) + CLASSIC_OVERDRAFT)
@@ -63,6 +63,23 @@ pub(crate) fn collect_payment(w: &mut World, content: &Content) {
         if let Some(x) = w.story.payments.iter_mut().find(|x| x.0 == night) {
             x.2 = true;
         }
+        return;
+    }
+    // Relaxed (no money pressure): the instalment is covered — the debt shrinks, the till
+    // keeps its money, and the story counts it as paid
+    if content
+        .difficulty(w.difficulty.id())
+        .is_some_and(|d| d.payments == PaymentRule::Forgiven)
+    {
+        w.econ.debt -= amount;
+        if let Some(x) = w.story.payments.iter_mut().find(|x| x.0 == night) {
+            x.2 = true;
+        }
+        *w.story.counters.entry("payments_made".into()).or_insert(0) += 1;
+        w.log_key(
+            "access.log.payment_covered",
+            vec![("amount".into(), amount.to_string())],
+        );
         return;
     }
     if w.econ.money >= amount {

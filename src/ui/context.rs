@@ -203,6 +203,18 @@ impl Ui {
     pub fn scale(&self) -> f32 {
         self.user_scale
     }
+    /// Settings → Text size (1.0–1.3): scales the theme's type scale only (panels sized by
+    /// their text grow with it; the UI scale stays). See [`crate::ui::TextStyle::scale`].
+    pub fn set_text_scale(&mut self, s: f32) {
+        self.theme.text_scale = if s.is_finite() {
+            s.clamp(1.0, 1.3)
+        } else {
+            1.0
+        };
+    }
+    pub fn text_scale(&self) -> f32 {
+        self.theme.text_scale
+    }
     /// Screen in UI units.
     pub fn screen(&self) -> Rect {
         Rect::new(0.0, 0.0, self.screen.x, self.screen.y)

@@ -58,7 +58,14 @@ pub fn log(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         (s.h - 88.0 - 60.0).max(200.0),
     );
     ui.glass(pr, &Glass::panel());
-    let (body, close) = ui.panel_header(pr, loc.tr("ui.log.title"), Some("L"), None);
+    let (body, close) = ui.panel_header(
+        pr,
+        loc.tr("ui.log.title"),
+        Some(&crate::settings::keys::label(
+            crate::settings::keys::Action::Log,
+        )),
+        None,
+    );
     if close {
         g.panel = None;
         return;

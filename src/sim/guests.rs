@@ -650,7 +650,7 @@ pub(crate) fn spawn_party(
         * pmul;
     // a cosy hall makes waiting easier (handson.md §11.3)
     patience *= super::atmos::patience_mul(w, content);
-    if reg.is_some() && w.difficulty == Difficulty::Cozy {
+    if reg.is_some() && w.difficulty.gentle() {
         patience = patience.max(content.handson.tuning.cozy_regular_patience_floor);
     }
     let mut party = Party {
@@ -972,7 +972,7 @@ pub(crate) fn refresh_queue_goals(w: &mut World, content: &Content) {
 /// crew is one or two new helpers — T9 balance). Cozy is softer than Classic. Sandbox starts
 /// with two people and gets a shorter ramp.
 pub(crate) fn early_ramp(w: &World) -> (f32, f32) {
-    let cozy = w.difficulty == Difficulty::Cozy;
+    let cozy = w.difficulty.gentle();
     let n = w.night as usize;
     let (rate, patience): (&[f32], &[f32]) = match (w.mode, cozy) {
         (Mode::Story, true) => (
@@ -1089,8 +1089,7 @@ pub(crate) fn cozy_pressure(w: &World, content: &Content) -> u32 {
 pub(crate) fn on_minute(w: &mut World, content: &Content) {
     let m = w.minute();
     // Cozy: her hands are full (crowds and walk-ins linger outside a little)
-    let full_hands =
-        w.difficulty == Difficulty::Cozy && cozy_pressure(w, content) >= COZY_HOLD_PRESSURE;
+    let full_hands = w.difficulty.gentle() && cozy_pressure(w, content) >= COZY_HOLD_PRESSURE;
     // Random walk-ins.
     if m < LAST_CALL
         && let Some(hour) = crate::content::ClockTime::from_minutes_since_open(m).open_hour_index()
@@ -1164,7 +1163,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     }
     // Patience & eating. The wait clock runs only once they're actually inside and waiting
     // (not while walking in), at the claimed / rush rates (handson.md §1.4).
-    let cozy = w.difficulty == Difficulty::Cozy;
+    let cozy = w.difficulty.gentle();
     let forgive = content.handson.tuning.cozy_forgiveness;
     let mut leave: Vec<(u32, Exit)> = Vec::new();
     let waiting: Vec<u32> = w
@@ -1414,7 +1413,7 @@ fn prep_mul(w: &mut World, job: crate::content::Job, item: &str) -> f32 {
 
 /// Patience multiplier while waiting for food.
 pub(crate) fn food_patience(w: &World) -> f32 {
-    if w.difficulty == Difficulty::Cozy {
+    if w.difficulty.gentle() {
         COZY_FOOD_PATIENCE
     } else {
         FOOD_PATIENCE
@@ -1589,7 +1588,7 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
         return;
     };
     // Cozy: nobody leaves angry — they forgive
-    let exit = if exit == Exit::Angry && w.difficulty == Difficulty::Cozy {
+    let exit = if exit == Exit::Angry && w.difficulty.gentle() {
         Exit::Forgiven
     } else {
         exit

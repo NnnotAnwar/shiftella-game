@@ -506,7 +506,10 @@ pub fn order_card(
     if v.can_hand_off && ui.take_key(KeyCode::H) {
         out.action = Some(OrderAction::HandOff);
     }
-    if ui.take_key(KeyCode::K) {
+    // the recipe book's key follows Settings → Controls
+    if ui.take_key(crate::settings::keys::key(
+        crate::settings::keys::Action::Book,
+    )) {
         out.action = Some(OrderAction::OpenBook);
     }
     if ui.esc() {
@@ -647,6 +650,13 @@ pub fn ticket_rail(
         }
         if tk.regular {
             stroke_circle(pc, 15.2, 1.4, t.amber);
+            // colour-blind friendly: a regular also gets a star (top-left), not just the ring
+            if crate::render::marker_shapes() {
+                let sb = pc + vec2(-13.0, -12.0);
+                fill_circle(sb, 7.0, t.glass_solid_top);
+                stroke_circle(sb, 7.0, 1.0, with_a(t.amber, 0.9));
+                draw_icon(Icon::Star, sb, 9.0, t.amber);
+            }
         }
         ui.avatar(pc, 28.0, &tk.guest, None, false);
         // item badge (bottom-right of the portrait)

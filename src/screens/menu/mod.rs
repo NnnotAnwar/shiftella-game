@@ -629,7 +629,13 @@ impl MainMenu {
     fn new_game_page(&mut self, ui: &mut Ui, loc: &Locale) -> Option<MenuAction> {
         let s = ui.screen();
         let th = ui.theme.clone();
-        let w = (s.w - 48.0).min(620.0);
+        // three presets (Cozy, Carefree, Classic) get a wider panel
+        let max_w = if self.difficulties.len() >= 3 {
+            760.0
+        } else {
+            620.0
+        };
+        let w = (s.w - 48.0).min(max_w);
         let h = 316.0;
         let p = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0 + 40.0, w, h);
         self.title(ui, loc, s.w / 2.0, p.y - 96.0, true);

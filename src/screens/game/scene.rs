@@ -497,10 +497,12 @@ impl WorldScene {
         // dirt blots on the hall floor (mop them with a swipe), and the shine where she mopped
         if cs.is_none() {
             for (x, y) in world.dirt_spots() {
-                draw_dirt_blot(
-                    vec2(x as f32 + 0.5, y as f32 + 0.55) * TILE,
-                    x * 31 + y * 17,
-                );
+                let c = vec2(x as f32 + 0.5, y as f32 + 0.55) * TILE;
+                draw_dirt_blot(c, x * 31 + y * 17);
+                // colour-blind friendly: a dashed "mop here" ring (shape, not only a tint)
+                if crate::render::marker_shapes() {
+                    dashed_ellipse(c, 24.0, 10.5, Color::new(0.88, 0.88, 1.0, 0.55));
+                }
             }
             for (tile, t0) in &self.shine {
                 let age = t - t0;
@@ -996,6 +998,23 @@ impl WorldScene {
         let pose = wv::person_pose(v, t);
         let h = if v.pose == sim::Pose::Sit { 70.0 } else { 92.0 };
         Some(pose.feet - vec2(0.0, h))
+    }
+}
+
+/// A dashed ellipse ring (14 dashes) — the colour-blind "mop here" cue round a blot.
+fn dashed_ellipse(c: Vec2, rx: f32, ry: f32, col: Color) {
+    let n = 14;
+    for i in 0..n {
+        let a0 = i as f32 / n as f32 * std::f32::consts::TAU;
+        let a1 = a0 + std::f32::consts::TAU / n as f32 * 0.55;
+        draw_line(
+            c.x + a0.cos() * rx,
+            c.y + a0.sin() * ry,
+            c.x + a1.cos() * rx,
+            c.y + a1.sin() * ry,
+            1.3,
+            col,
+        );
     }
 }
 

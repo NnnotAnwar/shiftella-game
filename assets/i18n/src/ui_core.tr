@@ -265,10 +265,10 @@ uk Атмосфера (дощ, поїзди)
 ru Атмосфера (дождь, поезда)
 
 ui.settings.mute
-cs Ztlumit zvuk (M)
-en Mute (M)
-uk Вимкнути звук (M)
-ru Выключить звук (M)
+cs Ztlumit zvuk ({key.mute})
+en Mute ({key.mute})
+uk Вимкнути звук ({key.mute})
+ru Выключить звук ({key.mute})
 
 ui.settings.ui_scale
 cs Velikost rozhraní

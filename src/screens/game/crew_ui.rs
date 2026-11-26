@@ -1552,7 +1552,9 @@ pub fn panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let (content_r, close) = ui.panel_header(
         pr,
         loc.tr("ui.crew.title"),
-        Some("C"),
+        Some(&crate::settings::keys::label(
+            crate::settings::keys::Action::Crew,
+        )),
         (!sub.is_empty()).then_some(sub.as_str()),
     );
     if close {

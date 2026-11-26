@@ -11,8 +11,8 @@ mod atmos;
 mod attic;
 mod backroom;
 pub mod bot;
-mod build_ux;
 mod build_content;
+mod build_ux;
 mod build_wishes;
 mod commands;
 mod corners;
@@ -50,9 +50,9 @@ mod tests;
 #[cfg(test)]
 mod tests_balance;
 #[cfg(test)]
-mod tests_build_ux;
-#[cfg(test)]
 mod tests_build;
+#[cfg(test)]
+mod tests_build_ux;
 #[cfg(test)]
 mod tests_equipment;
 #[cfg(test)]
@@ -73,18 +73,20 @@ mod tests_sys;
 mod tests_t10;
 #[cfg(test)]
 mod tests_walk;
+#[cfg(test)]
+mod tests_access;
 
 pub use app::digest_lines;
-pub use build_ux::{InUseReason, PieceMove};
 pub use attic::{AtticOffer, AtticView};
 pub use backroom::{BACK_COLS, BackRoomView};
 pub use build_content::{BackRoomState, BuildState, WishProgress};
+pub use build_ux::{InUseReason, PieceMove};
 pub use build_wishes::{BuildRequest, BuildRequestStatus, BuildWho, BuildWish};
 pub use corners::CornerView;
+pub use crew::{Activity, Feeling, Feelings, IdleWhy, ShiftTonight, TaskFor, TodoParts};
 pub use equipment::{
     Cake, CakeView, EquipAction, EquipCue, EquipKind, EquipState, EquipView, Pot, PotView,
 };
-pub use crew::{Activity, Feeling, Feelings, IdleWhy, ShiftTonight, TaskFor, TodoParts};
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;
@@ -137,7 +139,7 @@ pub(crate) fn trains_tick(w: &mut World, content: &Content) {
             // Cozy: the passengers drift in over a longer stretch (a busy moment, not a wall),
             // but not after last call (the 05:20 train used to bring people in at 05:50, right
             // into the closing checklist)
-            let spread = if w.difficulty == Difficulty::Cozy {
+            let spread = if w.difficulty.gentle() {
                 COZY_TRAIN_SPREAD.min(guests::LAST_CALL.saturating_sub(m + start + 1).max(1))
             } else {
                 6
@@ -233,7 +235,7 @@ impl World {
     pub fn overlay_scale(&self, content: &Content) -> f32 {
         let o = content.handson.tuning.overlay_scale;
         match self.difficulty {
-            Difficulty::Cozy => o.cozy,
+            Difficulty::Cozy | Difficulty::Relaxed => o.cozy,
             Difficulty::Classic => o.classic,
         }
     }

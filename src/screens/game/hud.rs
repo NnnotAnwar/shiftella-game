@@ -215,7 +215,11 @@ fn ticker(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     );
     let long = ui.fonts.measure(&text, &t.body_medium().size(11.0)) > text_w;
     draw::vline(er.right() - 40.0, er.y + 8.0, er.bottom() - 8.0, t.divider);
-    ui.keycap(vec2(er.right() - 30.0, er.center_y()), "L", false);
+    ui.keycap(
+        vec2(er.right() - 30.0, er.center_y()),
+        &crate::settings::keys::label(crate::settings::keys::Action::Log),
+        false,
+    );
     if resp.clicked {
         g.panel = if g.panel == Some(Panel::Log) {
             None
@@ -358,12 +362,27 @@ fn resources(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
 fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let loc = cx.loc;
     let pending = pending_requests(&g.world);
+    // the keycaps follow Settings → Controls
+    use crate::settings::keys::{Action as A, label};
+    let (kc, kh, kt, kb, kl, kk) = (
+        label(A::Crew),
+        label(A::Duties),
+        label(A::App),
+        label(A::Build),
+        label(A::Log),
+        label(A::Book),
+    );
     let items = [
-        (Icon::Crew, "ui.toolbar.crew", "C", Panel::Crew),
-        (Icon::Priorities, "ui.duties.title", "H", Panel::Duties),
-        (Icon::Phone, "ui.toolbar.app", "T", Panel::App),
-        (Icon::Build, "ui.toolbar.build", "B", Panel::Build),
-        (Icon::Log, "ui.toolbar.log", "L", Panel::Log),
+        (Icon::Crew, "ui.toolbar.crew", kc.as_str(), Panel::Crew),
+        (
+            Icon::Priorities,
+            "ui.duties.title",
+            kh.as_str(),
+            Panel::Duties,
+        ),
+        (Icon::Phone, "ui.toolbar.app", kt.as_str(), Panel::App),
+        (Icon::Build, "ui.toolbar.build", kb.as_str(), Panel::Build),
+        (Icon::Log, "ui.toolbar.log", kl.as_str(), Panel::Log),
     ];
     let anchor_names = [
         "dock.crew",
@@ -380,7 +399,7 @@ fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         &Button::new(loc.tr("ui.toolbar.book"))
             .ghost()
             .icon(Icon::Book)
-            .shortcut("K"),
+            .shortcut(&kk),
     );
     let total: f32 =
         widths.iter().sum::<f32>() + book_w + 4.0 * (items.len() as f32 + 1.0) + 36.0 + 32.0;
@@ -412,7 +431,7 @@ fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let book = Button::new(loc.tr("ui.toolbar.book"))
         .ghost()
         .icon(Icon::Book)
-        .shortcut("K")
+        .shortcut(&kk)
         .selected(g.hands.book.is_some());
     let bw = ui.button_width(&book);
     let br = fr.next(bw);
