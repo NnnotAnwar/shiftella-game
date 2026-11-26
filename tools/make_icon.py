@@ -6,7 +6,8 @@ Usage:
 `out.png` is a 1024x1024 macOS-style icon (used for the .icns in the app bundle).
 With `--rgba <dir>` it also writes `icon_16.rgba`, `icon_32.rgba` and `icon_64.rgba`
 (raw RGBA, row-major) — the window/Dock icon compiled into the game binary, so
-macroquad does not show its default icon while the game runs.
+macroquad does not show its default icon while the game runs — and `mark_256.png`,
+the brand mark used in in-game titles.
 """
 
 import math
@@ -122,6 +123,8 @@ def main(argv) -> None:
             im = tile.resize((s, s), Image.LANCZOS)
             with open(os.path.join(out_dir, f"icon_{s}.rgba"), "wb") as f:
                 f.write(im.tobytes())
+        # the game's brand mark for in-game titles (main menu, credits)
+        tile.resize((256, 256), Image.LANCZOS).save(os.path.join(out_dir, "mark_256.png"))
 
 
 if __name__ == "__main__":

@@ -39,7 +39,7 @@ chmod +x "$APP/Contents/MacOS/Shiftella"
 
 # Game resources
 mkdir -p "$APP/Contents/Resources/assets"
-for d in audio data fonts i18n; do
+for d in audio data fonts i18n icon; do
     [ -d "assets/$d" ] && cp -R "assets/$d" "$APP/Contents/Resources/assets/$d"
 done
 
