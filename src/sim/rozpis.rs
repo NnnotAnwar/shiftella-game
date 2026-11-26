@@ -373,6 +373,22 @@ fn total_cost(w: &World, content: &Content, rows: &Rows, ids: &[u32]) -> f32 {
     people + short as f32 * COVERAGE_COST
 }
 
+/// Prefs broken on these rows once the shift kinds are planned (auto-fill search).
+fn violated(w: &World, ids: &[u32], rows: &Rows) -> usize {
+    let rows = shift_pass(w, ids, rows.clone());
+    ids.iter()
+        .map(|id| {
+            let Some(row) = rows.get(id) else {
+                return 0;
+            };
+            prefs_of(w, *id)
+                .iter()
+                .filter(|p| pref_status(w, &rows, *id, row, p) == PrefStatus::Violated)
+                .count()
+        })
+        .sum()
+}
+
 /// Search cost of one helper-night below the suggested coverage.
 const COVERAGE_COST: f32 = 8.0;
 
@@ -403,17 +419,6 @@ fn away_days(w: &World, content: &Content, id: u32) -> [bool; 7] {
     a
 }
 
-/// A helper's main work: their best skill.
-fn main_job(w: &World, id: u32) -> usize {
-    w.staff_by_id(id)
-        .map(|s| {
-            (0..5)
-                .max_by(|a, b| s.skills[*a].total_cmp(&s.skills[*b]))
-                .unwrap_or(0)
-        })
-        .unwrap_or(0)
-}
-
 /// Shift kinds by `ShiftPref` (a Need always; a Wish only while the other half of the night
 /// stays covered by a colleague).
 fn shift_pass(w: &World, ids: &[u32], mut rows: Rows) -> Rows {
@@ -438,13 +443,12 @@ fn shift_pass(w: &World, ids: &[u32], mut rows: Rows) -> Rows {
                 if want == Shift::Full && full_on(&rows, d) >= app::ROZPIS_MAX_FULL_HIRES {
                     continue;
                 }
-                // the other half needs someone doing the same work (the bar stays open)
-                let job = main_job(w, id);
+                // the other half needs a colleague on the floor: Karolina keeps the bar open
+                // herself, so anyone will do (T9: the same main job was required, so no story
+                // crew could ever get Bára her late shifts and a happy week)
                 let covered = |half: Shift| {
                     ids.iter().any(|o| {
-                        *o != id
-                            && main_job(w, *o) == job
-                            && rows.get(o).is_some_and(|r| overlap(r[d], half) >= 4.0)
+                        *o != id && rows.get(o).is_some_and(|r| overlap(r[d], half) >= 4.0)
                     })
                 };
                 let ok = match want {
@@ -487,7 +491,8 @@ pub(crate) fn autofill(w: &World, content: &Content, base: Rows) -> (Rows, Autof
     };
     // 1. move days off, 1b. a night less where a Need can't be kept otherwise; repeat while
     // either helps
-    let mut cost = total_cost(w, content, &rows, &ids);
+    let eval = |r: &Rows| total_cost(w, content, r, &ids);
+    let mut cost = eval(&rows);
     for _round in 0..4 {
         let before = cost;
         for _ in 0..64 {
@@ -512,7 +517,7 @@ pub(crate) fn autofill(w: &World, content: &Content, base: Rows) -> (Rows, Autof
                         let r = next.get_mut(&id).unwrap();
                         r[b] = r[a];
                         r[a] = Shift::Off;
-                        let c = total_cost(w, content, &next, &ids);
+                        let c = eval(&next);
                         if c + 0.01 < cost && best.as_ref().is_none_or(|(_, bc)| c < *bc) {
                             best = Some((next, c));
                             if c <= 0.01 {
@@ -551,7 +556,7 @@ pub(crate) fn autofill(w: &World, content: &Content, base: Rows) -> (Rows, Autof
                     }
                     let mut next = rows.clone();
                     next.get_mut(&id).unwrap()[a] = Shift::Off;
-                    let c = total_cost(w, content, &next, &ids);
+                    let c = eval(&next);
                     if c + 0.01 < cost && best.as_ref().is_none_or(|(_, bc)| c < *bc) {
                         best = Some((next, c));
                     }
@@ -587,7 +592,52 @@ pub(crate) fn autofill(w: &World, content: &Content, base: Rows) -> (Rows, Autof
                         Shift::Full
                     };
                     next.get_mut(&id).unwrap()[b] = shift;
-                    let c = total_cost(w, content, &next, &ids);
+                    let c = eval(&next);
+                    if c + 0.01 < cost && best.as_ref().is_none_or(|(_, bc)| c < *bc) {
+                        best = Some((next, c));
+                    }
+                }
+            }
+            match best {
+                Some((r, c)) => {
+                    rows = r;
+                    cost = c;
+                }
+                None => break,
+            }
+        }
+        // 1d. one night more than planned for someone, only where it keeps a pref nobody
+        // could keep otherwise (T9: a colleague on the floor lets Bára take her late shift —
+        // the story crew's happy week is one Auto-fill away)
+        for _ in 0..4 {
+            let broken = violated(w, &ids, &rows);
+            if broken == 0 {
+                break;
+            }
+            let mut best: Option<(Rows, f32)> = None;
+            for &id in &ids {
+                let (Some(row), Some(planned)) = (rows.get(&id).copied(), base_count.get(&id))
+                else {
+                    continue;
+                };
+                if row.iter().filter(|x| **x != Shift::Off).count() > *planned {
+                    continue;
+                }
+                for b in 0..7 {
+                    if row[b] != Shift::Off || away[&id][b] {
+                        continue;
+                    }
+                    let mut next = rows.clone();
+                    let shift = if full_on(&rows, b) >= app::ROZPIS_MAX_FULL_HIRES {
+                        Shift::Late
+                    } else {
+                        Shift::Full
+                    };
+                    next.get_mut(&id).unwrap()[b] = shift;
+                    if violated(w, &ids, &next) >= broken {
+                        continue;
+                    }
+                    let c = eval(&next);
                     if c + 0.01 < cost && best.as_ref().is_none_or(|(_, bc)| c < *bc) {
                         best = Some((next, c));
                     }

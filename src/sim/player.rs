@@ -561,7 +561,9 @@ pub(crate) fn brew(
             _ => Some((kind, 1)),
         };
     }
-    push(w, PlayerAct::Brew { item: iid, extra }, false);
+    // a regular's wish goes first: their visit windows are short (T9 balance)
+    let front = for_wish && w.parties[pi].regular.is_some();
+    push(w, PlayerAct::Brew { item: iid, extra }, front);
     Ok(())
 }
 
@@ -1484,11 +1486,24 @@ pub(crate) fn brew_start(
     mode: BrewMode,
 ) -> Result<(), CommandError> {
     let q = content.handson.minigames.common.skip_quality;
+    let brews = |w: &World| -> Vec<u32> {
+        w.hands
+            .player
+            .queue
+            .iter()
+            .filter_map(|a| match a {
+                PlayerAct::Brew { item, .. } => Some(*item),
+                _ => None,
+            })
+            .collect()
+    };
+    let before = brews(w);
     brew(w, content, guest, recipe, q, mode)?;
+    // the brew just queued (a regular's goes to the front, the others to the back)
+    let added = brews(w).into_iter().find(|i| !before.contains(i));
     if mode == BrewMode::ByHand
-        && let Some(PlayerAct::Brew { item, .. }) = w.hands.player.queue.back()
+        && let Some(item) = added
     {
-        let item = *item;
         let tick = w.tick;
         w.sys.brew_waiting.push((item, tick));
     }

@@ -37,6 +37,8 @@ mod xlogic;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod tests_balance;
+#[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
 mod tests_qa;
@@ -61,8 +63,13 @@ use std::collections::BTreeSet;
 use crate::content::handson::{Duty, HallMood};
 use crate::content::{Content, Job};
 
-/// Cozy: train passengers walk in within this many minutes (Classic: 6).
-pub const COZY_TRAIN_SPREAD: u32 = 14;
+/// The order card proposes Quick for wishes once tonight had this many mini-games (T9: the
+/// §9 range is 6–14 a night; regulars' and calm wishes before that are By hand).
+pub const BY_HAND_SOFT_CAP: u32 = 12;
+
+/// Cozy: train passengers walk in within this many minutes (Classic: 6; T9: 14 → 24, so a
+/// train is a busy stretch, not a wall of tickets).
+pub const COZY_TRAIN_SPREAD: u32 = 24;
 
 /// Trains: arrivals by timetable (if `announce_if` holds), passengers come in.
 pub(crate) fn trains_tick(w: &mut World, content: &Content) {
@@ -141,14 +148,14 @@ impl World {
 // -------------------------------------------------------------------------------------------------
 
 impl World {
-    /// Real seconds per tick at ×1 (`handson.ron`; 0.15 → 12-minute nights). Integration:
+    /// Real seconds per tick at ×1 (`handson.ron`; 0.13 → 10.4 minutes + overlays). Integration:
     /// `acc += dt × speed × overlay; while acc >= this { tick }`.
     pub fn real_seconds_per_tick(&self, content: &Content) -> f32 {
         let v = content.handson.tuning.real_seconds_per_tick_x1;
         if v > 0.0 { v } else { REAL_SECONDS_PER_TICK_X1 }
     }
     /// Sim dt multiplier while an overlay (order card, mini-game, book, moment card, the phone
-    /// app) is open: Cozy 0.1, Classic 0.35; clamp the speed to ×1 meanwhile.
+    /// app) is open: Cozy 0.25, Classic 0.35; clamp the speed to ×1 meanwhile.
     pub fn overlay_scale(&self, content: &Content) -> f32 {
         let o = content.handson.tuning.overlay_scale;
         match self.difficulty {
@@ -230,11 +237,21 @@ impl World {
         }
     }
     /// The order card's default mode: plain = the last plain choice (Quick at first), wishes
-    /// = By hand — but Quick after `by_hand_streak_max` same-kind mini-games in a row (§2.0).
+    /// = By hand — but Quick after `by_hand_streak_max` same-kind mini-games in a row (§2.0),
+    /// and Quick once tonight already had [`BY_HAND_SOFT_CAP`] mini-games (busy late-story
+    /// nights stay 12–14 real minutes; the player can still pick By hand).
     pub fn default_brew_mode(&self, content: &Content, wish: bool, recipe: &str) -> BrewMode {
         if !wish {
             return self.hands.player.last_mode_plain;
         }
+        if self.hands.tally.by_hand >= BY_HAND_SOFT_CAP {
+            return BrewMode::Quick;
+        }
+        self.by_hand_streak_mode(content, recipe)
+    }
+    /// The anti-repetition part of [`World::default_brew_mode`] alone: By hand unless the last
+    /// `by_hand_streak_max` mini-games were this recipe's kind.
+    pub fn by_hand_streak_mode(&self, content: &Content, recipe: &str) -> BrewMode {
         let kind = content
             .handson
             .recipe(recipe)

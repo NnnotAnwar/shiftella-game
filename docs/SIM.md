@@ -283,6 +283,14 @@ are overlays (sim slowed by `overlay_scale`); by hand for regulars and calm mome
 busy; regulars first; delegates tonight's crew (dishes, bar, serving, register, kitchen, floor).
 `nights` → `BotNight { minigames, same_kind_max, overlay_seconds, real_minutes, max_rail, … }`.
 Results (6 seeds, nights 1–10, q 0.75, 3 s): see the T4 report / `sim_balance` output.
+T9 tuning: the bot hires the candidate whose hire card covers the chore nobody holds (dishes,
+kitchen, bar…), keeps each helper on their card's duty and fills the gaps by need; plays by hand
+when ≤ 4 things wait and 10 min passed since the last mini-game. In the sim a regular's wish brew
+goes to the front of her queue, the order card proposes Quick once a night had
+`BY_HAND_SOFT_CAP` (12) mini-games, and the auto-fill may give a helper one night more when that
+keeps a colleague's pref (so the story crew gets a happy week from Auto-fill alone).
+`sim_balance` prints a T9 line (todo peak p50/p90, overlay minutes, payments by run, endings,
+cat affection); `SIM_TOWN=1` lists sandbox towns. Locks: `src/sim/tests_balance.rs`.
 
 ## 10. Sim systems (T5: design/handson.md §4–§6, §11–§13)
 

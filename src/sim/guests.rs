@@ -12,9 +12,13 @@ use crate::content::{Content, MenuItem, Pays, TraitEffect};
 pub const GUEST_SPEED: f32 = 0.35;
 /// Parties per opening hour at reputation 25 in a normal town (before hour weights).
 pub const BASE_PARTIES_PER_HOUR: f32 = 1.7;
-/// Waiting for food allows this many × the archetype patience.
-pub const FOOD_PATIENCE: f32 = 2.4;
-/// Cozy: food waits are longer still — Karolina makes most things herself (handson.md §1.4).
+/// Waiting for food allows this many × the archetype patience (T9: 2.4 → 3.0, so a Classic
+/// party waiting for a round Karolina makes by hand doesn't walk out mid-brew).
+pub const FOOD_PATIENCE: f32 = 3.0;
+/// Sandbox bills × this on top of the difficulty's `income_mul` (T9: endless mode has no debt to
+/// pay off, so the café doesn't pile up money it can't spend; story money is the difficulty's).
+pub const SANDBOX_INCOME_MUL: f32 = 0.85;
+/// Cozy: the same food wait (× Cozy's `guest_patience_mul`); then forgiveness (handson.md §1.4).
 pub const COZY_FOOD_PATIENCE: f32 = 3.0;
 /// Chance (× spend_mult) that a guest orders a second thing.
 pub const SECOND_ITEM_CHANCE: f32 = 0.75;
@@ -895,13 +899,17 @@ pub(crate) fn refresh_queue_goals(w: &mut World, content: &Content) {
 /// Gentle start: (arrival multiplier, patience multiplier) for the first nights.
 ///
 /// Story night 1 is a solo shift (the player only), so it is a quiet, forgiving tutorial; the
-/// crowd and the impatience ramp up over nights 1–5. Cozy is softer than Classic. Sandbox
-/// starts with two people and gets a shorter ramp.
+/// crowd and the impatience ramp up over nights 1–5 (Cozy: over act 1, nights 1–8, while the
+/// crew is one or two new helpers — T9 balance). Cozy is softer than Classic. Sandbox starts
+/// with two people and gets a shorter ramp.
 pub(crate) fn early_ramp(w: &World) -> (f32, f32) {
     let cozy = w.difficulty == Difficulty::Cozy;
     let n = w.night as usize;
     let (rate, patience): (&[f32], &[f32]) = match (w.mode, cozy) {
-        (Mode::Story, true) => (&[0.28, 0.5, 0.62, 0.74, 0.86], &[2.8, 2.0, 1.6, 1.3, 1.1]),
+        (Mode::Story, true) => (
+            &[0.28, 0.5, 0.6, 0.68, 0.76, 0.84, 0.9, 0.95],
+            &[2.8, 2.0, 1.6, 1.35, 1.2, 1.1, 1.05],
+        ),
         (Mode::Story, false) => (
             &[0.28, 0.58, 0.72, 0.84, 0.94],
             &[2.4, 1.5, 1.25, 1.1, 1.05],
@@ -1464,7 +1472,12 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
         return;
     }
     let diff = content.difficulty(w.difficulty.id());
-    let income_mul = diff.map(|d| d.income_mul).unwrap_or(1.0);
+    let income_mul = diff.map(|d| d.income_mul).unwrap_or(1.0)
+        * if w.mode == Mode::Sandbox {
+            SANDBOX_INCOME_MUL
+        } else {
+            1.0
+        };
     let bad_mul = diff.map(|d| d.bad_review_mul).unwrap_or(1.0);
     let arch = content.guest(&w.parties[pi].archetype);
     let reg = w.parties[pi]

@@ -42,7 +42,9 @@
     ],
     institutions_per_town: (2, 4),
     cafe_names: ["Café Nocturne", "Kavárna u nádraží", "Night Platform", "Café Perón", "The Lantern", "Signal Box", "Last Tram", "Café Semafor"],
-    rent: (800, 2500),
+    // nightly rent by town size (T9: 800–2500 → 1800–2800 — a big town no longer pays double
+    // for a café that's full either way)
+    rent: (1800, 2800),
     options: {
         "rain_every_night": true,
         "pause_on_events": false,

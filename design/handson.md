@@ -96,7 +96,7 @@ A sample night (night 5, Friday, rain, one helper on dishes), at ×1:
 * The sim never assigns her tasks. Her task comes only from `PlayerState.queue` (FIFO, max 5 actions).
   - Click = append. **Shift+click** = do next (insert at the front). Click a queued icon above her head = remove it.
   - Queue icons (16 px, glass chips) float over her head. The current action shows a thin progress ring.
-* Speed: walks at `PLAYER_WALK_MUL = 1.4` × staff speed. Her work speed is skill-independent: `PLAYER_WORK_MUL = 1.0`
+* Speed: walks at `PLAYER_WALK_MUL = 1.5` (T9; was 1.4) × staff speed. Her work speed is skill-independent: `PLAYER_WORK_MUL = 1.0`
   (helpers use `0.5 + skill × 0.1`, then × `HELPER_SPEED = 0.85`).
 * She never tires on Cozy. On Classic her energy drains at 50 % of the staff rate. At energy < 25 a
   "make yourself a coffee" chip appears (§6.10), and the drink restores 40.
@@ -167,10 +167,11 @@ derived from duties: on → 1, off → 0.
 
 ### 1.4 Pacing and time (MUST)
 
-* **Tick length:** `REAL_SECONDS_PER_TICK_X1 = 0.15` (currently 0.1). A night is 12 real minutes at ×1,
-  6 at ×2 and 4 at ×3. This is a tuning constant in `handson.ron`, confirmed by the player-bot test (§9).
+* **Tick length:** `REAL_SECONDS_PER_TICK_X1 = 0.13` (T9; was 0.15). The sim part of a night is 10.4 real
+  minutes at ×1 (5.2 at ×2, 3.5 at ×3); with the order cards and 6–14 mini-games a night is 12–14 real
+  minutes. This is a tuning constant in `handson.ron`, confirmed by the player-bot test (§9).
 * **Overlay time scale:** while the order card, a mini-game, the book or a moment card is open,
-  the integration multiplies the sim dt by `overlay_scale`: **Cozy 0.1**, **Classic 0.35**. While an
+  the integration multiplies the sim dt by `overlay_scale`: **Cozy 0.25** (T9; was 0.1), **Classic 0.35**. While an
   overlay is open, speed is clamped to ×1. Rain, steam and people keep drifting slowly, so the room never freezes.
 * **Wait clock** (per party, in sim): it drives patience and every `ServedFast` measurement.
 
@@ -718,9 +719,9 @@ All files use `#![enable(implicit_some)]`. Validation: ids unique, refs resolve,
 ```ron
 #![enable(implicit_some)]
 (
-    real_seconds_per_tick_x1: 0.15,
-    overlay_scale: (cozy: 0.1, classic: 0.35),
-    player_walk_mul: 1.4,
+    real_seconds_per_tick_x1: 0.13,
+    overlay_scale: (cozy: 0.25, classic: 0.35),
+    player_walk_mul: 1.5,
     helper_speed: 0.85,
     helper_quality: (base: 0.35, per_skill: 0.04, max: 0.75),
     quick_quality: 0.6,

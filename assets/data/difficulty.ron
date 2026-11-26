@@ -8,13 +8,17 @@
         start_money: 15000,
         payments: Soft,
         missed_payment_effects: [Reputation(-2.0), SetFlag("landlord_grumbling"), Bot("payment_missed_soft")],
-        guest_patience_mul: 1.5,
+        // T9: 1.5 → 1.7 — fewer forgiven parties after trains and the concert crowd
+        guest_patience_mul: 1.7,
         bad_review_mul: 0.7,
         wear_mul: 0.5,
         need_decay_mul: 0.8,
-        income_mul: 1.35,
-        rent_growth_percent: 0.0,
-        rent_growth_every: 0,
+        // T9: 1.35 → 1.5 so an average player makes all five story payments with room to spare
+        // (sandbox bills × sim::guests::SANDBOX_INCOME_MUL).
+        income_mul: 1.5,
+        // sandbox only: the landlord notices a busy café
+        rent_growth_percent: 5.0,
+        rent_growth_every: 10,
     ),
     (
         id: "classic",
@@ -22,11 +26,14 @@
         payments: Hard,
         close_after_missed: 2,
         missed_payment_effects: [Reputation(-5.0), AddCounter("missed_payments", 1), Bot("payment_missed_hard")],
-        guest_patience_mul: 1.0,
+        // T9: 1.0 → 1.5 and 1.25 → 1.35 — ~13 % of guests walk out instead of ~23 %, and a
+        // decent player reaches «Light in the Window» about half the time (sim_balance 30
+        // story classic 12); Cozy stays the gentler, richer one.
+        guest_patience_mul: 1.5,
         bad_review_mul: 1.0,
         wear_mul: 1.0,
         need_decay_mul: 1.0,
-        income_mul: 1.25,
+        income_mul: 1.35,
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
         bankrupt_after: 3,
