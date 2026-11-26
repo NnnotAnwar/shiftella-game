@@ -12,3 +12,8 @@ serde = { version = "1.0.229", features = ["derive"] }
 # otherwise music loading and FPS in `cargo run` are much slower. Our own crate still builds fast.
 [profile.dev.package."*"]
 opt-level = 3
+
+# miniquad 0.4.11 with a one-function fix for a stale texture-binding cache (black text after
+# a font atlas regrows). See vendor/README.md.
+[patch.crates-io]
+miniquad = { path = "vendor/miniquad" }
