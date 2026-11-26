@@ -382,32 +382,20 @@ pub fn draw_world(
             continue;
         };
         let hov = hover == Some(Target::Checklist(i));
+        let s = crate::render::world_icon_scale();
         let c = vec2(p.x as f32 + 0.5, p.y as f32 - 0.45) * TILE + vec2(0.0, (t * 2.0).sin() * 1.5);
-        let r = Rect::new(c.x - 9.0, c.y - 9.0, 18.0, 18.0);
+        let r = Rect::new(c.x - 9.0 * s, c.y - 9.0 * s, 18.0 * s, 18.0 * s);
         draw_circle(
             c.x,
             c.y,
-            15.0,
+            15.0 * s,
             Color::new(0.39, 0.4, 0.95, if hov { 0.3 } else { 0.16 }),
         );
-        crate::ui::draw::fill_rrect(r, 5.0, Color::new(0.11, 0.1, 0.24, 0.9));
-        crate::ui::draw::stroke_rrect(r, 5.0, 1.4, Color::new(0.65, 0.7, 1.0, 0.9));
-        draw_line(
-            c.x - 4.0,
-            c.y,
-            c.x - 1.0,
-            c.y + 3.5,
-            2.0,
-            Color::new(0.65, 0.7, 1.0, 0.55),
-        );
-        draw_line(
-            c.x - 1.0,
-            c.y + 3.5,
-            c.x + 4.5,
-            c.y - 3.5,
-            2.0,
-            Color::new(0.65, 0.7, 1.0, 0.55),
-        );
+        crate::ui::draw::fill_rrect(r, 5.0 * s, Color::new(0.11, 0.1, 0.24, 0.9));
+        crate::ui::draw::stroke_rrect(r, 5.0 * s, 1.4 * s, Color::new(0.65, 0.7, 1.0, 0.9));
+        let ink = Color::new(0.75, 0.8, 1.0, 0.85);
+        draw_line(c.x - 4.0 * s, c.y, c.x - 1.0 * s, c.y + 3.5 * s, 2.0 * s, ink);
+        draw_line(c.x - 1.0 * s, c.y + 3.5 * s, c.x + 4.5 * s, c.y - 3.5 * s, 2.0 * s, ink);
     }
     // tip coins and their glints
     for c in &g.hands.coins {

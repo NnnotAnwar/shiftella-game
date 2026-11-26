@@ -600,3 +600,38 @@ fn open_the_doors_from_the_hud_and_the_door_toast() {
     let want = sim::PREP_MINUTES as f32 / (sim::PREP_MINUTES + sim::NIGHT_MINUTES) as f32;
     assert!((p - want).abs() < 1e-4, "{p}");
 }
+
+/// 0.1.1 bug: during the preparation half hour the night tick stands still, so the drawn
+/// people froze on the spot while they walked and worked, then jumped at 22:00.
+#[test]
+fn people_are_drawn_walking_during_the_preparation_half_hour() {
+    let c = content();
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.start_night(&c);
+    assert!(g.world.in_prep());
+    // Karolina goes to light the window
+    assert!(g.intent(&c, hands::Intent::Window));
+    let karolina = |g: &GameScreen| {
+        g.scene
+            .people
+            .iter()
+            .find(|v| matches!(v.agent, sim::AgentRef::Staff(_)))
+            .map(|v| v.feet)
+            .expect("Karolina is drawn")
+    };
+    g.scene.refresh(&g.world, 0.0, 0.0);
+    let start = karolina(&g);
+    let mut moved = 0.0f32;
+    let mut last = start;
+    for i in 0..90 {
+        g.advance(&c, 1.0 / 30.0, None);
+        g.scene.refresh(&g.world, i as f32 / 30.0, 0.5);
+        let now = karolina(&g);
+        let step = ((now.0 - last.0).powi(2) + (now.1 - last.1).powi(2)).sqrt();
+        assert!(step < 1.5 * crate::map::TILE, "a jump of {step} px in one frame");
+        moved += step;
+        last = now;
+    }
+    assert!(g.world.in_prep(), "still the preparation");
+    assert!(moved > 0.5 * crate::map::TILE, "drawn Karolina walked {moved} px");
+}

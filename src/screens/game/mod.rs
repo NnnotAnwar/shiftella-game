@@ -451,6 +451,7 @@ impl GameScreen {
             while self.acc >= tick && guard < 64 {
                 self.acc -= tick;
                 self.world.tick(content);
+                self.scene.sim_steps += 1;
                 guard += 1;
                 // stop stepping as soon as something needs the player
                 if self.world.playing_cutscene().is_some() {
@@ -1053,6 +1054,7 @@ impl GameScreen {
                 }
                 bot.step(&mut self.world, content);
                 self.world.tick(content);
+                self.scene.sim_steps += 1;
                 let evs = self.world.drain_events();
                 for e in evs {
                     if !matches!(e, SimEvent::PlayCutscene(_)) {
@@ -1101,6 +1103,7 @@ impl GameScreen {
                 );
             }
             self.world.tick(content);
+            self.scene.sim_steps += 1;
             for e in self.world.drain_events() {
                 if !matches!(e, SimEvent::PlayCutscene(_)) {
                     self.handle_event(content, e, Some(loc));
@@ -1241,6 +1244,7 @@ impl GameScreen {
             while self.acc >= tick && guard < 64 {
                 self.acc -= tick;
                 self.world.tick(content);
+                self.scene.sim_steps += 1;
                 guard += 1;
                 ticks_run += 1;
                 let evs = self.world.drain_events();
@@ -1281,6 +1285,8 @@ impl GameScreen {
         } else {
             self.acc / tick
         };
+        // little icons over heads and on furniture stay readable when zoomed out
+        crate::render::set_world_icon_scale(crate::render::icon_scale_for_zoom(self.cam.zoom));
         self.scene.refresh(&self.world, self.time, alpha);
 
         let t_sim = std::time::Instant::now();
