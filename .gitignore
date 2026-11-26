@@ -5,3 +5,7 @@
 /dist
 /assets/audio/
 /design/audio/raw/
+
+# Generated audio (ElevenLabs licence: ships only inside release builds)
+/assets/audio/
+/design/audio/raw/
