@@ -9,6 +9,7 @@ pub mod content;
 pub mod cutscene;
 pub mod i18n;
 pub mod map;
+pub mod minigame;
 pub mod palette;
 pub mod render;
 pub mod save;

@@ -58,6 +58,7 @@
 #![allow(clippy::too_many_arguments)]
 
 mod brand;
+pub mod cat;
 pub mod colors;
 pub mod draw;
 pub mod faces;
