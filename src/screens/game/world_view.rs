@@ -47,6 +47,8 @@ pub fn emote(e: sim::SimEmote) -> Emote {
         sim::SimEmote::Music => Emote::Music,
         sim::SimEmote::Exclamation => Emote::Exclamation,
         sim::SimEmote::Money => Emote::Money,
+        // hands-on emotes: until the render mirrors them (T3), the closest existing bubble
+        sim::SimEmote::Sparkle | sim::SimEmote::Smile => Emote::Heart,
     }
 }
 

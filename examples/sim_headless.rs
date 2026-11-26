@@ -2,24 +2,35 @@
 //!
 //! ```text
 //! cargo run --release --example sim_headless -- [nights] [story|sandbox] [cozy|classic] [seed]
+//!     [--player-bot [quality] [react_seconds]]
 //! ```
-//! The "player" here is a simple bot: lights the window, ticks jobless checklist items,
-//! hires the first candidates up to 3 staff, answers choices with their default.
+//! Without `--player-bot` nobody works behind the counter: Karolina "steps back" (the helpers
+//! do their duties, guests wait and — on Cozy — forgive). With it, `sim::bot::PlayerBot` plays:
+//! takes orders, brews wishes by hand at `quality` (±0.2), quick-brews unowned plain tickets,
+//! clears, washes, mops, collects tips, hires on nights 3/5/9 (Classic 3/8/15) and delegates.
+//! `SIM_STRESS=1` adds 60 guests at 23:00 every night (perf check, without the bot).
 
 use std::time::Instant;
 
 use shiftella_game::content::Content;
-use shiftella_game::sim::{Command, Difficulty, Phase, SandboxSetup, Shift, SimEvent, World};
+use shiftella_game::sim::bot::{BotConfig, PlayerBot, finish_cutscenes};
+use shiftella_game::sim::{Difficulty, Phase, SandboxSetup, World};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let nights: u32 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(5);
-    let mode = args.get(2).map(String::as_str).unwrap_or("story");
-    let difficulty = match args.get(3).map(String::as_str) {
+    let bot_at = args.iter().position(|a| a == "--player-bot");
+    let pos: Vec<&String> = args
+        .iter()
+        .take(bot_at.unwrap_or(args.len()))
+        .skip(1)
+        .collect();
+    let nights: u32 = pos.first().and_then(|s| s.parse().ok()).unwrap_or(5);
+    let mode = pos.get(1).map(|s| s.as_str()).unwrap_or("story");
+    let difficulty = match pos.get(2).map(|s| s.as_str()) {
         Some("classic") => Difficulty::Classic,
         _ => Difficulty::Cozy,
     };
-    let seed: u64 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(7);
+    let seed: u64 = pos.get(3).and_then(|s| s.parse().ok()).unwrap_or(7);
     let content = Content::load("assets/data").expect("content");
     let mut world = if mode == "sandbox" {
         World::new_sandbox(
@@ -33,89 +44,100 @@ fn main() {
     } else {
         World::new_story_seeded(&content, difficulty, seed)
     };
+    let mut bot = bot_at.map(|i| {
+        let quality = args.get(i + 1).and_then(|s| s.parse().ok()).unwrap_or(0.75);
+        let react = args.get(i + 2).and_then(|s| s.parse().ok()).unwrap_or(3.0);
+        PlayerBot::new(BotConfig {
+            quality,
+            react_seconds: react,
+            hire_nights: if difficulty == Difficulty::Classic {
+                vec![3, 8, 15]
+            } else {
+                vec![3, 5, 9]
+            },
+            seed,
+            ..Default::default()
+        })
+    });
     println!(
-        "{} · {} · {:?} · town {} · money {}",
+        "{} · {} · {:?} · town {} · money {} · {}",
         mode,
         world.cafe_name(),
         difficulty,
         world.town().name,
-        world.money()
+        world.money(),
+        if bot.is_some() {
+            "player-bot"
+        } else {
+            "nobody behind the counter"
+        }
     );
     println!(
-        "night  guests served left away | revenue  tips  wages supply  rent  pay |   money   rep  sat | ev bad | exh stuck tick-µs"
+        "night  guests served forgv left | K-items help wish perf mg | idle% todo med/pk | revenue  tips  wages |   money   rep  sat | real-min | tick-µs"
     );
-    // SIM_STRESS=1: 60 extra guests arrive at 23:00 every night (perf check)
     let stress = std::env::var("SIM_STRESS").is_ok();
-    let mut worst_tick = 0f64;
     let mut total_ticks = 0u64;
     let mut total_time = 0f64;
-    let mut max_agents = 0usize;
     for _ in 0..nights {
         if world.is_closed() {
             break;
         }
-        play_day(&mut world, &content);
-        // finish day cutscenes, start the night
-        finish_cutscenes(&mut world, &content);
-        world.start_night(&content);
         let t0 = Instant::now();
-        let mut ticks = 0u64;
-        while world.phase() == Phase::Night && !world.is_closed() {
-            finish_cutscenes(&mut world, &content);
-            if world.minute() == 1 {
-                let _ = world.apply(
-                    &content,
-                    Command::TickChecklist {
-                        id: "light_window".into(),
-                    },
-                );
+        let ticks;
+        let mut real_min = 12.0;
+        match bot.as_mut() {
+            Some(b) => {
+                b.run_night(&mut world, &content);
+                let n = b.nights.last().cloned().unwrap_or_default();
+                ticks = n.ticks as u64;
+                real_min = n.real_minutes;
             }
-            if world.minute() == 475 {
-                for id in ["handover_note", "light_off_at_six"] {
-                    let _ = world.apply(&content, Command::TickChecklist { id: id.into() });
+            None => {
+                finish_cutscenes(&mut world, &content);
+                world.start_night(&content);
+                let mut t = 0u64;
+                while world.phase() == Phase::Night && !world.is_closed() {
+                    finish_cutscenes(&mut world, &content);
+                    if stress && world.minute() == 60 && world.tick_count() % 10 == 0 {
+                        world.debug_spawn_guests(&content, "students", 60, 10);
+                    }
+                    world.tick(&content);
+                    world.drain_events();
+                    t += 1;
                 }
-            }
-            if stress && world.minute() == 60 && world.tick_count() % 10 == 0 {
-                world.debug_spawn_guests(&content, "students", 60, 10);
-            }
-            let t1 = Instant::now();
-            world.tick(&content);
-            worst_tick = worst_tick.max(t1.elapsed().as_secs_f64());
-            ticks += 1;
-            max_agents = max_agents.max(world.guests().len() + world.staff().len());
-            for e in world.drain_events() {
-                if let SimEvent::ChoiceNeeded { .. } = e {
-                    // let it time out → default choice
-                }
+                finish_cutscenes(&mut world, &content);
+                ticks = t;
             }
         }
         let dt = t0.elapsed().as_secs_f64();
         total_ticks += ticks;
         total_time += dt;
-        finish_cutscenes(&mut world, &content);
         if let Some(s) = world.last_summary() {
+            // idle share of the night minutes outside the quiet hour (420)
+            let idle = s.karolina_idle_minutes as f32 / 420.0 * 100.0;
             println!(
-                "{:>5}  {:>6} {:>6} {:>4} {:>4} | {:>7} {:>5} {:>6} {:>6} {:>5} {:>5} | {:>7} {:>5.1} {:>4.0} | {:>2} {:>3} | {:>3} {:>5} {:>6.1}  {}",
+                "{:>5}  {:>6} {:>6} {:>5} {:>4} | {:>7} {:>4} {:>4} {:>4} {:>2} | {:>5.1} {:>4}/{:<3} | {:>7} {:>5} {:>6} | {:>7} {:>5.1} {:>4.0} | {:>8.1} | {:>6.1}",
                 s.night,
                 s.guests_arrived,
                 s.guests_served,
+                s.guests_forgiven,
                 s.guests_left_unhappy,
-                s.guests_turned_away,
+                s.karolina_items,
+                s.helper_items,
+                s.wishes_served,
+                s.wishes_perfect,
+                s.minigames,
+                idle,
+                s.todo_median,
+                s.todo_peak,
                 s.revenue,
                 s.tips,
                 s.wages,
-                s.supplies,
-                s.rent,
-                s.payment,
                 s.money_end,
                 s.reputation_end,
                 s.avg_satisfaction,
-                s.events.len(),
-                s.bad_events,
-                s.exhausted_minutes,
-                s.stuck_resets,
+                real_min,
                 dt * 1e6 / ticks.max(1) as f64,
-                s.events.join(","),
             );
         }
     }
@@ -123,63 +145,9 @@ fn main() {
         println!("ending: {e} ({:?})", world.ending_variant());
     }
     println!(
-        "notes {:?} · staff {} · max agents {} · avg tick {:.1} µs · worst tick {:.0} µs",
+        "notes {:?} · staff {} · avg tick {:.1} µs",
         world.notes_found(),
         world.staff().len(),
-        max_agents,
         total_time * 1e6 / total_ticks.max(1) as f64,
-        worst_tick * 1e6
     );
-}
-
-fn finish_cutscenes(world: &mut World, content: &Content) {
-    while let Some(id) = world.playing_cutscene().map(str::to_string) {
-        let _ = world.apply(
-            content,
-            Command::CutsceneFinished {
-                id,
-                choices: vec![0, 0, 0],
-            },
-        );
-    }
-}
-
-fn play_day(world: &mut World, content: &Content) {
-    finish_cutscenes(world, content);
-    let crew = world.staff().len();
-    // owner + 1 hire from night 2, +1 from night 5, +1 from night 9
-    let plan: &[u32] = if world.difficulty() == Difficulty::Classic {
-        &[2, 8, 15]
-    } else {
-        &[2, 5, 9]
-    };
-    let want = 1 + plan.iter().filter(|n| world.night() >= **n).count();
-    if crew < want {
-        let ids: Vec<u32> = world.candidates().iter().map(|c| c.id).collect();
-        for id in ids.into_iter().take(want - crew) {
-            let _ = world.apply(content, Command::Hire { candidate: id });
-        }
-    }
-    // the newest of 3+ hires covers only the busy first half of the night
-    let hires: Vec<u32> = world
-        .staff()
-        .iter()
-        .filter(|s| !s.owner)
-        .map(|s| s.id)
-        .collect();
-    if hires.len() >= 3 {
-        let id = *hires.last().unwrap();
-        for d in 0..7 {
-            let _ = world.apply(
-                content,
-                Command::SetShift {
-                    staff: id,
-                    weekday: d,
-                    shift: Shift::Early,
-                },
-            );
-        }
-    }
-    let _ = world.apply(content, Command::PublishSchedule);
-    let _ = world.drain_events();
 }

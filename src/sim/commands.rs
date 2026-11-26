@@ -3,7 +3,8 @@
 use super::grid::{self, Floor, Placed};
 use super::types::*;
 use super::world::*;
-use crate::content::{BuildCategory, Content, FurnitureDef};
+use crate::content::handson::Duty;
+use crate::content::{BuildCategory, Content, FurnitureDef, Job};
 
 const UNDO_DEPTH: usize = 50;
 
@@ -86,6 +87,37 @@ fn place_piece(w: &mut World, content: &Content, piece: Placed) -> Result<(), Co
     Ok(())
 }
 
+/// Places a free piece (migrations: grandma's jukebox in an old save). False if it won't fit.
+pub(crate) fn place_free(
+    w: &mut World,
+    content: &Content,
+    def: &str,
+    x: i32,
+    y: i32,
+    rot: u8,
+) -> bool {
+    let Some(d) = content.furniture_def(def) else {
+        return false;
+    };
+    let uid = w.alloc_id();
+    let piece = Placed {
+        uid,
+        def: def.to_string(),
+        x,
+        y,
+        rot,
+        on: false,
+        dirt: 0.0,
+        dishes: 0,
+        wear: 0.0,
+        seat_by: vec![None; d.seats as usize],
+        user: None,
+        claim: None,
+        paid: 0,
+    };
+    place_piece(w, content, piece).is_ok()
+}
+
 fn in_use(_w: &World, p: &Placed) -> bool {
     p.user.is_some() || p.claim.is_some() || p.seat_by.iter().any(|s| s.is_some())
 }
@@ -136,15 +168,16 @@ impl World {
         if self.story.playing.is_some() && !matches!(cmd, Command::CutsceneFinished { .. }) {
             return Err(CommandError::CutscenePlaying);
         }
+        self.ensure_hands(content);
         self.grid.ensure_masks(&self.furniture, content);
         match cmd {
             Command::PlaceFurniture { def: id, x, y, rot } => {
                 let d = def(content, &id)?;
-                if !furniture_unlocked(self, d) {
-                    return Err(CommandError::NotUnlocked);
-                }
                 if d.unique && self.furniture.iter().any(|p| p.def == id) {
                     return Err(CommandError::AlreadyPlaced);
+                }
+                if !furniture_unlocked(self, d) {
+                    return Err(CommandError::NotUnlocked);
                 }
                 let price = d.price as i64;
                 if d.category == BuildCategory::Floors {
@@ -338,25 +371,60 @@ impl World {
                 self.emit(SimEvent::StaffFired { staff });
                 Ok(())
             }
+            // Legacy shim for the old priorities grid: 1–4 = the job's duty on, 0 = off
+            // (cleaning → dishes; off also drops the floor duty).
             Command::SetPriority {
                 staff,
                 job,
                 priority,
             } => {
-                let i = staff_idx(self, staff)?;
+                staff_idx(self, staff)?;
                 if priority > 4 {
                     return Err(CommandError::Invalid("priority 0–4".into()));
                 }
-                let old = self.staff[i].priorities[job.index()];
-                self.staff[i].priorities[job.index()] = priority;
-                push_undo(
-                    self,
-                    UndoOp::Priority {
-                        staff,
-                        job: job.index() as u8,
-                        old,
-                    },
-                );
+                let duty = match job {
+                    Job::Cleaning => Duty::Dishes,
+                    j => Duty::for_job(j),
+                };
+                let on = priority > 0;
+                if !on && job == Job::Cleaning {
+                    let was = super::duties::set_duty(self, content, staff, Duty::Floor, false)?;
+                    if was {
+                        push_undo(
+                            self,
+                            UndoOp::Duty {
+                                staff,
+                                duty: Duty::Floor,
+                                was_on: true,
+                            },
+                        );
+                    }
+                }
+                let was = super::duties::set_duty(self, content, staff, duty, on)?;
+                if was != on {
+                    push_undo(
+                        self,
+                        UndoOp::Duty {
+                            staff,
+                            duty,
+                            was_on: was,
+                        },
+                    );
+                }
+                Ok(())
+            }
+            Command::SetDuty { staff, duty, on } => {
+                let was = super::duties::set_duty(self, content, staff, duty, on)?;
+                if was != on {
+                    push_undo(
+                        self,
+                        UndoOp::Duty {
+                            staff,
+                            duty,
+                            was_on: was,
+                        },
+                    );
+                }
                 Ok(())
             }
             Command::SetShift {
@@ -486,6 +554,7 @@ impl World {
                 self.cafe_name = name;
                 Ok(())
             }
+            // At night a checklist item is Karolina's act: she walks to it and ticks it.
             Command::TickChecklist { id } => {
                 if !self.app.checklist.iter().any(|c| c.id == id) {
                     if content.app.checklists.iter().any(|c| c.id == id) {
@@ -493,8 +562,12 @@ impl World {
                     }
                     return Err(CommandError::UnknownId(id));
                 }
-                super::app::tick_checklist(self, content, &id, None);
-                Ok(())
+                super::player::queue(
+                    self,
+                    content,
+                    super::hands::PlayerAct::Checklist { id },
+                    false,
+                )
             }
             Command::PostAnnouncement { id, args } => {
                 let a = content
@@ -532,6 +605,11 @@ impl World {
                 }
                 let i = staff_idx(self, staff)?;
                 let s = &self.staff[i];
+                if s.owner {
+                    return Err(CommandError::Invalid(
+                        "Karolina takes her breaks herself".into(),
+                    ));
+                }
                 if !s.on_duty() {
                     return Err(CommandError::Invalid("not on the floor".into()));
                 }
@@ -550,6 +628,35 @@ impl World {
                     return Err(CommandError::WrongPhase);
                 }
                 self.start_night(content);
+                Ok(())
+            }
+            Command::PlayerTakeOrder { guest } => super::player::take_order(self, content, guest),
+            Command::PlayerBrew {
+                guest,
+                recipe,
+                quality,
+                mode,
+            } => super::player::brew(self, content, guest, &recipe, quality, mode),
+            Command::PlayerUsual { guest, quality } => {
+                super::player::usual(self, content, guest, quality)
+            }
+            Command::PlayerHandOff { guest } => super::player::hand_off(self, content, guest),
+            Command::PlayerCancel => super::player::cancel(self, content),
+            Command::PlayerQueue { act, front } => super::player::queue(self, content, act, front),
+            Command::PlayerUnqueue { index } => super::player::unqueue(self, content, index),
+            Command::PlayerWashProgress { sink, seconds } => {
+                super::player::wash_progress(self, sink, seconds)
+            }
+            Command::PlayerGreet { guest } => super::player::greet(self, content, guest),
+            Command::PlayRecord { id, repeat } => super::player::queue(
+                self,
+                content,
+                super::hands::PlayerAct::PlayRecord { record: id, repeat },
+                false,
+            ),
+            Command::RecordFinished { id } => super::music::record_finished(self, content, &id),
+            Command::SetAssistWishes { on } => {
+                self.hands.assist_wishes = on;
                 Ok(())
             }
         }
@@ -631,6 +738,11 @@ impl World {
                 self.staff[i].priorities[job as usize % 5] = old;
                 Ok(())
             }
+            UndoOp::Duty {
+                staff,
+                duty,
+                was_on,
+            } => super::duties::set_duty(self, content, staff, duty, was_on).map(|_| ()),
             UndoOp::Shift {
                 staff,
                 weekday,

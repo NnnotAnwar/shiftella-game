@@ -5,12 +5,15 @@ use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use serde::{Deserialize, Serialize};
 
 use super::grid::{self, Grid, PathCache, Placed};
+use super::hands::*;
 use super::rng::{Rng, hash_str};
 use super::types::*;
+use crate::content::handson::Duty;
 use crate::content::{ClockTime, Content, Job, Weather, Weekday};
 
-/// Save format version (bump on incompatible changes).
-pub const SAVE_VERSION: u32 = 1;
+/// Save format version. 2 = the hands-on update (Karolina, duties, wishes, jukebox); version 1
+/// saves still load (`World::load_from_str` migrates them).
+pub const SAVE_VERSION: u32 = 2;
 pub const TICKS_PER_MINUTE: u32 = 10;
 pub const NIGHT_MINUTES: u32 = 480;
 pub const NIGHT_TICKS: u32 = NIGHT_MINUTES * TICKS_PER_MINUTE;
@@ -22,6 +25,8 @@ pub const STORY_TOWN: &str = "Praha-Holešovice";
 /// Story institutions around Praha-Holešovice (guest pools besides the always-present ones):
 /// the taxi rank by the station, the hospital (Bulovka) shift change, the college campus.
 pub const STORY_INSTITUTIONS: &[&str] = &["taxi_rank", "hospital", "college"];
+/// Where `DEFAULT_LAYOUT` puts grandma's jukebox (`j`).
+pub const JUKEBOX_TILE: (i32, i32) = (28, 8);
 /// Story nightly utilities (the story's "rent" is the debt payments).
 pub const STORY_UTILITIES: i64 = 350;
 
@@ -174,6 +179,16 @@ pub struct Staff {
     pub met_333: bool,
     /// Night the staff is on approved leave.
     pub leave_nights: Vec<(u32, LeaveKind)>,
+    /// Duties the player delegated (helpers only; Karolina has none). Capacity 1–3
+    /// (`World::capacity`). `priorities` is kept in sync (duty on → 1, off → 0).
+    #[serde(default)]
+    pub duties: Vec<Duty>,
+    /// Shifts worked so far (capacity growth, `ShiftsWorked`).
+    #[serde(default)]
+    pub nights_worked: u32,
+    /// Tasks finished tonight per duty (`Duty::ALL` order) — the morning digest credits.
+    #[serde(default)]
+    pub duty_done: [u32; 6],
 }
 
 impl Staff {
@@ -247,6 +262,45 @@ pub struct Party {
     pub leave_by: Option<u32>,
     pub served: bool,
     pub angry: bool,
+    /// What the leader ordered (wish parties are Karolina's).
+    #[serde(default)]
+    pub order_kind: OrderKind,
+    /// The leader's wish still has no item (taken, waiting for Karolina's recipe).
+    #[serde(default)]
+    pub wish_open: bool,
+    /// Karolina handed the wish off to the helpers (match capped, no story credit).
+    #[serde(default)]
+    pub handed_off: bool,
+    /// Wait clock (game minutes, scaled: ×0.5 while Karolina is on it, ×0.67 Cozy rush).
+    #[serde(default)]
+    pub wait_clock: f32,
+    /// Wait clock when the order was taken (`ServedFastStreak` counts from here).
+    #[serde(default)]
+    pub wait_at_order: f32,
+    /// Cozy: patience ran out this many times (a glass of water, then they leave content).
+    #[serde(default)]
+    pub forgiven: u32,
+    #[serde(default)]
+    pub greeted: bool,
+    /// Tip factor of every served item (Karolina's match & quality, rhythm).
+    #[serde(default)]
+    pub tip_factors: Vec<f32>,
+    /// Game minutes the current record has played while they were inside.
+    #[serde(default)]
+    pub record_minutes: u32,
+    /// A record reaction (like / dislike) happened this visit.
+    #[serde(default)]
+    pub music_reacted: bool,
+    /// Archetype music like / dislike applied this visit.
+    #[serde(default)]
+    pub archetype_music_done: bool,
+}
+
+impl Party {
+    /// The leader (wish guest).
+    pub fn leader(&self) -> Option<u32> {
+        self.members.first().copied()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -299,6 +353,18 @@ pub struct OrderItem {
     pub ready_tile: Option<(i32, i32)>,
     pub quality: f32,
     pub created: u32,
+    /// Who made it (Karolina's recipe & quality, or a helper).
+    #[serde(default)]
+    pub origin: ItemOrigin,
+    /// Recipe surcharge on top of the menu price (Karolina's specials).
+    #[serde(default)]
+    pub price_add: u32,
+    /// The leader's wish handed off to the helpers: this capped match applies when served.
+    #[serde(default)]
+    pub hand_off_match: Option<f32>,
+    /// This is the leader's wish (made by Karolina, or handed off).
+    #[serde(default)]
+    pub wish: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -331,6 +397,9 @@ pub struct VisitRecord {
     pub served_minutes: Option<u32>,
     pub seat_free: bool,
     pub clean: f32,
+    /// Best match of a Karolina-made item this visit (`WishMatchStreak`).
+    #[serde(default)]
+    pub best_match: Option<f32>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -341,6 +410,9 @@ pub struct RegularState {
     pub party: Option<u32>,
     /// Visit-window indexes already spawned tonight.
     pub spawned: Vec<usize>,
+    /// Recipes Karolina has served them (`ServedRecipe`).
+    #[serde(default)]
+    pub served_recipes: BTreeSet<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -640,6 +712,12 @@ pub enum UndoOp {
         job: u8,
         old: u8,
     },
+    /// `SetDuty` / the `SetPriority` shim.
+    Duty {
+        staff: u32,
+        duty: Duty,
+        was_on: bool,
+    },
     Shift {
         staff: u32,
         weekday: u8,
@@ -718,6 +796,9 @@ pub struct World {
     pub(crate) satisfaction_n: u32,
     /// Sandbox legend / misc counters.
     pub(crate) relationships: BTreeMap<(u32, u32), f32>,
+    /// Hands-on state: Karolina, knowledge, the jukebox, tips, rush, tallies (save v2).
+    #[serde(default)]
+    pub(crate) hands: HandsState,
     #[serde(skip)]
     pub(crate) events: Vec<SimEvent>,
     #[serde(skip)]
@@ -798,6 +879,7 @@ impl World {
             satisfaction_sum: 0.0,
             satisfaction_n: 0,
             relationships: BTreeMap::new(),
+            hands: HandsState::default(),
             events: Vec::new(),
             paths: PathCache::default(),
         }
@@ -827,6 +909,7 @@ impl World {
             "calm".into()
         };
         w.add_owner(content);
+        w.ensure_hands(content);
         w.begin_day(content);
         w
     }
@@ -898,8 +981,41 @@ impl World {
         first.id = w.alloc_id();
         first.hired_night = 1;
         w.push_staff(first);
+        w.ensure_hands(content);
         w.begin_day(content);
         w
+    }
+
+    /// Hands-on state from content, once (new games; saves of version 1 on their first
+    /// tick / command / `rebuild_caches`): starter & menu recipes, the starter pantry and
+    /// records, default duties for helpers without any.
+    pub(crate) fn ensure_hands(&mut self, content: &Content) {
+        if self.hands.ready {
+            return;
+        }
+        self.hands.ready = true;
+        super::orders::init_knowledge(self, content);
+        super::music::init(self, content);
+        // an old save's café gets grandma's jukebox where the default layout has it
+        if super::music::jukebox(self).is_none() && self.phase == Phase::Day {
+            let (x, y) = JUKEBOX_TILE;
+            super::commands::place_free(self, content, "jukebox", x, y, 1);
+        }
+        for s in self.staff.iter_mut() {
+            if s.owner {
+                s.duties.clear();
+                s.priorities = [0; 5];
+            } else if s.duties.is_empty() {
+                s.duties = super::duties::default_duties(content, &s.archetype);
+                super::duties::sync_priorities(s);
+            }
+        }
+        for c in self.candidates.iter_mut() {
+            if c.staff.duties.is_empty() {
+                c.staff.duties = super::duties::default_duties(content, &c.staff.archetype);
+                super::duties::sync_priorities(&mut c.staff);
+            }
+        }
     }
 
     pub(crate) fn alloc_id(&mut self) -> u32 {
@@ -939,7 +1055,8 @@ impl World {
             traits: Vec::new(),
             skills: [4.0, 3.5, 4.0, 4.0, 4.0],
             wage: 0,
-            priorities: [2, 2, 2, 3, 2],
+            // Karolina has no job priorities: she only does what the player asks.
+            priorities: [0; 5],
             energy: 100.0,
             mood: 70.0,
             hunger: 90.0,
@@ -970,6 +1087,9 @@ impl World {
             breaks_tonight: 0,
             met_333: false,
             leave_nights: Vec::new(),
+            duties: Vec::new(),
+            nights_worked: 0,
+            duty_done: [0; 6],
         };
         self.push_staff(s);
     }
@@ -1072,6 +1192,9 @@ impl World {
             }
         }
         super::staff::refresh_candidates(self, content);
+        super::player::reset(self);
+        super::orders::check_learning(self, content);
+        super::music::check_unlocks(self, content);
         super::app::on_day_start(self, content);
         super::story::on_day_start(self, content);
         self.emit(SimEvent::DayStarted { night: self.night });
@@ -1135,10 +1258,21 @@ impl World {
             r.spawned.clear();
         }
         self.story.beats_done.clear();
+        // hands-on night state
+        super::player::reset(self);
+        let h = &mut self.hands;
+        h.tally = HandsTally::default();
+        h.wish_uses.clear();
+        h.rush = RushState::default();
+        h.lull = LullState::default();
+        h.hall_mood = HallMoodState::default();
+        let left = std::mem::take(&mut h.tips);
+        super::player::collect_coins(self, left, None);
         super::economy::restock(self, content);
         super::story::roll_weather(self, content);
         super::app::on_night_start(self, content);
         super::staff::on_night_start(self, content);
+        super::music::on_night_start(self, content);
         self.emit(SimEvent::NightStarted { night: self.night });
         super::story::on_night_start(self, content);
     }
@@ -1148,6 +1282,7 @@ impl World {
         if self.is_paused() {
             return;
         }
+        self.ensure_hands(content);
         self.grid.ensure_masks(&self.furniture, content);
         if self.tick.is_multiple_of(TICKS_PER_MINUTE) {
             self.on_minute(content);
@@ -1237,14 +1372,27 @@ impl World {
         super::guests::on_minute(self, content);
         super::staff::on_minute(self, content);
         super::app::on_minute(self, content);
+        super::music::on_minute(self, content);
+        if m.is_multiple_of(5) {
+            super::orders::check_learning(self, content);
+        }
+        super::orders::assist_wishes(self, content);
+        super::pacing::on_minute(self, content);
         let q = self.queue_len() as u32;
         self.tonight.max_queue = self.tonight.max_queue.max(q);
     }
 
     fn end_night(&mut self, content: &Content) {
         self.tick = NIGHT_TICKS;
-        // Everybody still inside pays and leaves.
+        // Everybody still inside pays and leaves; uncollected tips go into the jar.
         super::guests::close_up(self, content);
+        super::player::collect_all_tips(self);
+        super::player::reset(self);
+        for s in self.staff.iter_mut() {
+            if !s.owner && s.minutes_worked > 0 {
+                s.nights_worked += 1;
+            }
+        }
         super::story::on_night_end_early(self, content);
         super::app::on_night_end(self, content);
         super::economy::on_night_end(self, content);
@@ -1262,7 +1410,33 @@ impl World {
         self.parties.clear();
         self.items.clear();
         self.queues.clear();
+        super::music::on_night_end(self);
         let mut summary = self.tonight.clone();
+        let t = &self.hands.tally;
+        summary.karolina_items = t.karolina_items;
+        summary.helper_items = t.helper_items;
+        summary.minigames = t.by_hand;
+        summary.wishes_served = t.wishes_served;
+        summary.wishes_perfect = t.tiers[0];
+        summary.regular_items = t.regular_items;
+        summary.regular_items_karolina = t.regular_items_karolina;
+        summary.karolina_idle_minutes = t.idle_minutes;
+        summary.todo_peak = t.todo_peak;
+        summary.todo_median = {
+            let total: u32 = t.todo_hist.iter().sum();
+            let mut acc = 0;
+            let mut med = 0;
+            for (k, n) in t.todo_hist.iter().enumerate() {
+                acc += n;
+                if acc * 2 >= total {
+                    med = k as u32;
+                    break;
+                }
+            }
+            med
+        };
+        summary.best_rhythm = t.best_rhythm as u32;
+        summary.helper_credits = super::duties::helper_credits(self);
         summary.money_end = self.econ.money;
         summary.reputation_end = self.econ.reputation;
         summary.avg_satisfaction = if self.satisfaction_n > 0 {
@@ -1326,19 +1500,54 @@ impl World {
     }
 
     /// Loads a save. Caches (walk masks, paths) rebuild on the next tick.
+    ///
+    /// Version 1 saves (before the hands-on update) are migrated: helpers' duties come from
+    /// their priority-1 jobs, Karolina drops any autopilot task, and the recipe knowledge and
+    /// records are filled from content on the first tick / command / `rebuild_caches`.
     pub fn load_from_str(text: &str) -> Result<World, String> {
         let file: SaveFile = ron::from_str(text).map_err(|e| e.to_string())?;
-        if file.version != SAVE_VERSION {
-            return Err(format!(
-                "save version {} not supported (expected {SAVE_VERSION})",
-                file.version
-            ));
+        let mut world = file.world;
+        match file.version {
+            SAVE_VERSION => {}
+            1 => world.migrate_v1(),
+            v => {
+                return Err(format!(
+                    "save version {v} not supported (expected {SAVE_VERSION})"
+                ));
+            }
         }
-        Ok(file.world)
+        world.version = SAVE_VERSION;
+        Ok(world)
+    }
+
+    fn migrate_v1(&mut self) {
+        self.hands = HandsState::default();
+        for i in 0..self.staff.len() {
+            if self.staff[i].owner {
+                // the old job loop may have left her mid-task
+                super::staff::abandon(self, i);
+                self.staff[i].priorities = [0; 5];
+                self.staff[i].duties.clear();
+            } else {
+                let p = self.staff[i].priorities;
+                self.staff[i].duties = super::duties::duties_from_priorities(&p);
+                super::duties::sync_priorities(&mut self.staff[i]);
+            }
+        }
+        for c in self.candidates.iter_mut() {
+            let p = c.staff.priorities;
+            c.staff.duties = super::duties::duties_from_priorities(&p);
+        }
+        // the shift loop's "nights worked" didn't exist: count the nights since the hire
+        let night = self.night;
+        for s in self.staff.iter_mut().filter(|s| !s.owner) {
+            s.nights_worked = night.saturating_sub(s.hired_night.max(1));
+        }
     }
 
     /// Call once after loading if you need queries before the first tick.
     pub fn rebuild_caches(&mut self, content: &Content) {
+        self.ensure_hands(content);
         self.grid.rebuild(&self.furniture, content);
     }
 

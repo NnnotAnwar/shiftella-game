@@ -3,6 +3,7 @@
 
 use super::grid::{self, TileKind};
 use super::*;
+use crate::content::handson::Duty;
 use crate::content::{Content, Job};
 
 const DATA: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/assets/data");
@@ -24,9 +25,18 @@ fn finish_cutscenes(w: &mut World, c: &Content) {
     }
 }
 
-/// Runs the current night to 06:00 and returns its events.
+/// Runs the current night to 06:00 with nobody behind the counter (Karolina steps back).
 fn run_night(w: &mut World, c: &Content) -> Vec<SimEvent> {
     w.run_night_headless(c)
+}
+
+/// Runs the current night with the player-bot (Karolina works; no hiring plan).
+fn play_night(w: &mut World, c: &Content) -> Vec<SimEvent> {
+    let mut bot = bot::PlayerBot::new(bot::BotConfig {
+        hire_nights: Vec::new(),
+        ..Default::default()
+    });
+    bot.run_night(w, c)
 }
 
 fn sandbox(c: &Content, seed: u64, difficulty: Difficulty) -> World {
@@ -212,9 +222,10 @@ fn unique_and_locked_furniture() {
         w.apply(&c, place("grandma_photo", 9, 9)),
         Err(CommandError::AlreadyPlaced)
     );
+    // grandma's jukebox stands in the café from night 1 (unique)
     assert_eq!(
         w.apply(&c, place("jukebox", 9, 9)),
-        Err(CommandError::NotUnlocked)
+        Err(CommandError::AlreadyPlaced)
     );
     w.debug_set_money(0);
     assert!(matches!(
@@ -224,20 +235,39 @@ fn unique_and_locked_furniture() {
 }
 
 #[test]
-fn priority_and_schedule_edits_undo() {
+fn duty_and_schedule_edits_undo() {
     let c = content();
-    let mut w = World::new_story(&c, Difficulty::Cozy);
+    let mut w = sandbox(&c, 2, Difficulty::Cozy);
     let owner = w.staff()[0].id;
+    let hire = w.staff()[1].id;
+    assert!(w.staff()[0].owner && w.staff()[0].duties.is_empty());
+    assert_eq!(
+        w.staff()[0].priorities,
+        [0; 5],
+        "Karolina has no job priorities"
+    );
+    assert!(matches!(
+        w.apply(
+            &c,
+            Command::SetDuty {
+                staff: owner,
+                duty: Duty::Dishes,
+                on: true,
+            },
+        ),
+        Err(CommandError::Invalid(_))
+    ));
+    let before = w.staff()[1].duties.clone();
     w.apply(
         &c,
-        Command::SetPriority {
-            staff: owner,
-            job: Job::Cleaning,
-            priority: 1,
+        Command::SetDuty {
+            staff: hire,
+            duty: before[0],
+            on: false,
         },
     )
     .unwrap();
-    assert_eq!(w.staff()[0].priorities[Job::Cleaning.index()], 1);
+    assert!(w.staff()[1].duties.is_empty());
     w.apply(
         &c,
         Command::SetShift {
@@ -252,7 +282,21 @@ fn priority_and_schedule_edits_undo() {
     assert_eq!(w.app().draft[&owner][0], Shift::Full);
     assert!(!w.app().draft_dirty);
     w.undo(&c).unwrap();
-    assert_eq!(w.staff()[0].priorities[Job::Cleaning.index()], 3);
+    assert_eq!(w.staff()[1].duties, before);
+    // the old priorities grid still works as a shim onto duties
+    w.apply(
+        &c,
+        Command::SetPriority {
+            staff: hire,
+            job: Job::Cleaning,
+            priority: 2,
+        },
+    )
+    .ok();
+    assert_eq!(
+        w.staff()[1].priorities[Job::Cleaning.index()],
+        u8::from(w.staff()[1].duties.contains(&Duty::Dishes))
+    );
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -260,33 +304,32 @@ fn priority_and_schedule_edits_undo() {
 // ---------------------------------------------------------------------------------------------
 
 #[test]
-fn job_priorities_pick_the_right_person() {
+fn helpers_only_do_their_duties() {
     let c = content();
     let mut w = sandbox(&c, 3, Difficulty::Cozy);
     let owner = w.staff()[0].id;
     let hire = w.staff()[1].id;
-    for job in Job::ALL {
-        let p = if job == Job::Register { 1 } else { 0 };
+    for d in Duty::ALL {
         w.apply(
             &c,
-            Command::SetPriority {
-                staff: owner,
-                job,
-                priority: p,
-            },
-        )
-        .unwrap();
-        let q = if job == Job::Register { 0 } else { 1 };
-        w.apply(
-            &c,
-            Command::SetPriority {
+            Command::SetDuty {
                 staff: hire,
-                job,
-                priority: q,
+                duty: d,
+                on: false,
             },
         )
         .unwrap();
     }
+    w.apply(
+        &c,
+        Command::SetDuty {
+            staff: hire,
+            duty: Duty::Register,
+            on: true,
+        },
+    )
+    .unwrap();
+    // nobody behind the counter: the helper takes plain orders and nothing else
     let events = run_night(&mut w, &c);
     let takers: Vec<u32> = events
         .iter()
@@ -296,45 +339,49 @@ fn job_priorities_pick_the_right_person() {
         })
         .collect();
     assert!(!takers.is_empty());
-    assert!(takers.iter().filter(|s| **s == owner).count() * 2 >= takers.len());
-    let preparers: Vec<u32> = events
-        .iter()
-        .filter_map(|e| match e {
-            SimEvent::OrderReady { staff, .. } => Some(*staff),
-            _ => None,
-        })
-        .collect();
-    assert!(!preparers.is_empty());
-    // the owner has Bar/Kitchen off; they only step in while the hire is on a break
-    let by_owner = preparers.iter().filter(|s| **s == owner).count();
     assert!(
-        by_owner * 5 <= preparers.len(),
-        "owner has Bar/Kitchen off: {by_owner} of {}",
-        preparers.len()
+        takers.iter().all(|s| *s == hire),
+        "only the register helper"
     );
+    assert!(
+        !events.iter().any(|e| matches!(
+            e,
+            SimEvent::OrderReady { .. } | SimEvent::OrderServed { .. }
+        )),
+        "nobody holds the bar, kitchen or serving duty"
+    );
+    assert!(!events.iter().any(|e| matches!(
+        e,
+        SimEvent::PlayerOrderTaken { .. } | SimEvent::PlayerServed { .. }
+    )));
+    let _ = owner;
+    // Cozy: the guests waited and forgave — nobody left angry
+    let s = w.last_summary().unwrap();
+    assert_eq!(s.guests_left_unhappy, 0);
+    assert!(s.guests_forgiven > 0);
 }
 
 #[test]
-fn nobody_on_a_job_means_everyone_helps() {
+fn a_helper_without_duties_does_nothing() {
     let c = content();
     let mut w = sandbox(&c, 4, Difficulty::Cozy);
-    for s in w.staff().iter().map(|s| s.id).collect::<Vec<_>>() {
+    let hire = w.staff()[1].id;
+    for d in w.staff()[1].duties.clone() {
         w.apply(
             &c,
-            Command::SetPriority {
-                staff: s,
-                job: Job::Serving,
-                priority: 0,
+            Command::SetDuty {
+                staff: hire,
+                duty: d,
+                on: false,
             },
         )
         .unwrap();
     }
     let events = run_night(&mut w, &c);
-    assert!(
-        events
-            .iter()
-            .any(|e| matches!(e, SimEvent::OrderServed { .. }))
-    );
+    assert!(!events.iter().any(|e| matches!(e,
+        SimEvent::OrderTaken { staff, .. } | SimEvent::OrderReady { staff, .. }
+            | SimEvent::OrderServed { staff, .. } if *staff == hire)));
+    assert_eq!(w.last_summary().unwrap().helper_items, 0);
 }
 
 #[test]
@@ -382,7 +429,7 @@ fn guest_lifecycle_arrive_order_eat_pay_leave() {
     let c = content();
     let mut w = sandbox(&c, 6, Difficulty::Cozy);
     let money = w.money();
-    let events = run_night(&mut w, &c);
+    let events = play_night(&mut w, &c);
     let has = |f: &dyn Fn(&SimEvent) -> bool| events.iter().any(f);
     assert!(has(&|e| matches!(e, SimEvent::NightStarted { .. })));
     assert!(has(&|e| matches!(e, SimEvent::GuestArrived { .. })));
@@ -760,6 +807,7 @@ fn shiftella_app_schedule_requests_checklists_payroll() {
     // checklists: staff tick job items; the player lights the window
     w.start_night(&c);
     finish_cutscenes(&mut w, &c);
+    // at night the window light is Karolina's act: she walks to the lamp
     w.apply(
         &c,
         Command::TickChecklist {
@@ -767,12 +815,23 @@ fn shiftella_app_schedule_requests_checklists_payroll() {
         },
     )
     .unwrap();
+    assert!(!w.window_light_on(&c));
+    for _ in 0..600 {
+        w.tick(&c);
+        if w.window_light_on(&c) {
+            break;
+        }
+    }
     assert!(w.window_light_on(&c));
-    run_night(&mut w, &c);
+    let mut bot = bot::PlayerBot::new(bot::BotConfig {
+        hire_nights: Vec::new(),
+        ..Default::default()
+    });
+    bot.run_night(&mut w, &c);
     let done = w.last_summary().unwrap().checklist_done;
     assert!(done >= 4, "checklist done {done}");
     while w.night() <= 7 {
-        run_night(&mut w, &c);
+        bot.run_night(&mut w, &c);
     }
     let week = w.app().payroll.last().expect("payroll week");
     assert_eq!(week.week, 1);
@@ -864,6 +923,10 @@ fn same_seed_same_story() {
 
 fn three_nights(mut w: World, c: &Content) -> Vec<NightSummary> {
     let mut out = Vec::new();
+    let mut bot = bot::PlayerBot::new(bot::BotConfig {
+        hire_nights: Vec::new(),
+        ..Default::default()
+    });
     for _ in 0..3 {
         let ids: Vec<u32> = w.candidates().iter().map(|c| c.id).take(1).collect();
         if w.staff().len() < 3 {
@@ -871,19 +934,14 @@ fn three_nights(mut w: World, c: &Content) -> Vec<NightSummary> {
                 w.apply(c, Command::Hire { candidate: id }).unwrap();
             }
         }
+        bot.day(&mut w, c);
+        finish_cutscenes(&mut w, c);
         w.start_night(c);
         let mut stuck = 0u32;
         while w.phase() == Phase::Night {
             finish_cutscenes(&mut w, c);
+            bot.step(&mut w, c);
             w.tick(c);
-            if w.minute() == 2 {
-                let _ = w.apply(
-                    c,
-                    Command::TickChecklist {
-                        id: "light_window".into(),
-                    },
-                );
-            }
             // nobody stands still on a path for more than ~20 game minutes
             for g in &w.guests {
                 assert!(g.stuck_ticks <= 200, "guest stuck {} ticks", g.stuck_ticks);
@@ -920,8 +978,8 @@ fn three_nights_cozy_story_and_sandbox() {
         let served: u32 = nights.iter().map(|s| s.guests_served).sum();
         let unhappy: u32 = nights.iter().map(|s| s.guests_left_unhappy).sum();
         assert!(served >= 40, "served {served}");
-        // early story nights are the tutorial (owner + one hire); still most guests are served
-        assert!(served >= unhappy, "served {served} vs unhappy {unhappy}");
+        // Cozy: nobody leaves angry — they forgive
+        assert_eq!(unhappy, 0, "served {served} vs unhappy {unhappy}");
     }
 }
 

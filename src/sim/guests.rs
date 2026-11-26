@@ -14,6 +14,8 @@ pub const GUEST_SPEED: f32 = 0.35;
 pub const BASE_PARTIES_PER_HOUR: f32 = 1.7;
 /// Waiting for food allows this many × the archetype patience.
 pub const FOOD_PATIENCE: f32 = 2.4;
+/// Cozy: food waits are longer still — Karolina makes most things herself (handson.md §1.4).
+pub const COZY_FOOD_PATIENCE: f32 = 3.0;
 /// Chance (× spend_mult) that a guest orders a second thing.
 pub const SECOND_ITEM_CHANCE: f32 = 0.75;
 /// Chance (× spend_mult) of a third thing (usually dessert).
@@ -27,6 +29,21 @@ pub const TRUST_SERVED: f32 = 2.0;
 pub const TRUST_ANGRY: f32 = 2.0;
 /// No new walk-ins after this minute (05:40).
 pub const LAST_CALL: u32 = 460;
+/// Hall dirt above this is worth a mop.
+pub const MOP_DIRT: f32 = 0.12;
+/// Key of the line a forgiving Cozy guest leaves with ("I'll come back tomorrow.").
+pub const FORGIVEN_KEY: &str = "ui.guest.forgiven";
+
+/// How a party leaves (`finish_party`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Exit {
+    /// Done (or closing time).
+    Normal,
+    /// Ran out of patience (Classic): a mild review.
+    Angry,
+    /// Cozy: waited too long, but they leave content — no review penalty.
+    Forgiven,
+}
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct PendingSpawn {
@@ -36,6 +53,9 @@ pub struct PendingSpawn {
     pub patience_mul: f32,
     pub spend_mul: f32,
     pub orders: Vec<String>,
+    /// The leader comes with a wish (lull-director walk-ins).
+    #[serde(default)]
+    pub wish: bool,
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -95,11 +115,11 @@ pub(crate) fn item_orderable(w: &World, content: &Content, m: &MenuItem) -> bool
     if !station_ok(w, content, &m.station) {
         return false;
     }
-    // Somebody tonight must be able to make it.
+    // Somebody tonight must be able to make it (Karolina can make anything).
     if w.phase == Phase::Night {
         let able = w.staff.iter().any(|s| {
             matches!(s.status, StaffStatus::OnDuty | StaffStatus::Expected { .. })
-                && s.skill(m.job, w.night) >= m.min_skill
+                && (s.owner || s.skill(m.job, w.night) >= m.min_skill)
                 && w.mods.iter().all(|md| {
                     !(md.kind == ModKind::WorkSpeed(Some(m.job.index() as u8)) && md.mul <= 0.0)
                 })
@@ -413,6 +433,7 @@ pub(crate) fn schedule_rush(
             patience_mul,
             spend_mul,
             orders: orders.to_vec(),
+            wish: false,
         });
         left -= size;
     }
@@ -497,9 +518,13 @@ pub(crate) fn spawn_party(
     spend_mul: f32,
     orders: &[String],
     leave_by: Option<u32>,
+    force_wish: bool,
 ) -> Option<u32> {
     let arch = content.guest(archetype)?;
     let reg = regular.and_then(|r| content.regular(r));
+    // the leader's order kind (regulars always wish; others by chance)
+    let order_kind = super::orders::pick_order_kind(w, content, archetype, reg, size, force_wish);
+    let wish_party = order_kind.is_wish();
     let favourites: Vec<String> = arch.favourites.clone();
     let mut order_list: Vec<String> = orders.to_vec();
     if let Some(r) = reg {
@@ -518,7 +543,25 @@ pub(crate) fn spawn_party(
             }
         }
     }
-    let wishes = if reg.is_some() {
+    let wishes = if wish_party && reg.is_some() {
+        // the regular's wish is Karolina's: no plain items
+        Vec::new()
+    } else if wish_party {
+        // the leader's main order is the wish (it may still come with something on the
+        // side); the others order plain items
+        let mut v = pick_wishes(
+            w,
+            content,
+            &favourites,
+            &order_list,
+            size,
+            arch.spend_mult * spend_mul,
+        );
+        if !v.is_empty() {
+            v.remove(0);
+        }
+        v
+    } else if reg.is_some() {
         // regulars: their first orderable order (+ maybe the second)
         let ok: Vec<String> = order_list
             .iter()
@@ -554,10 +597,13 @@ pub(crate) fn spawn_party(
     let start = edges[side];
     let diff = content.difficulty(w.difficulty.id());
     let pmul = diff.map(|d| d.guest_patience_mul).unwrap_or(1.0) * patience_mul * early_ramp(w).1;
-    let patience = reg
+    let mut patience = reg
         .map(|r| r.patience_minutes)
         .unwrap_or(arch.patience_minutes)
         * pmul;
+    if reg.is_some() && w.difficulty == Difficulty::Cozy {
+        patience = patience.max(content.handson.tuning.cozy_regular_patience_floor);
+    }
     let mut party = Party {
         id,
         archetype: archetype.to_string(),
@@ -581,9 +627,20 @@ pub(crate) fn spawn_party(
         leave_by,
         served: false,
         angry: false,
+        wish_open: wish_party,
+        order_kind,
+        handed_off: false,
+        wait_clock: 0.0,
+        wait_at_order: 0.0,
+        forgiven: 0,
+        greeted: false,
+        tip_factors: Vec::new(),
+        record_minutes: 0,
+        music_reacted: false,
+        archetype_music_done: false,
     };
     let prefer = reg.and_then(|r| r.seat.clone());
-    let seats_pick = if party.wishes.is_empty() {
+    let seats_pick = if party.wishes.is_empty() && !wish_party {
         None
     } else {
         choose_seats(w, content, size as usize, prefer.as_deref())
@@ -603,6 +660,7 @@ pub(crate) fn spawn_party(
             served_minutes: None,
             seat_free,
             clean,
+            best_match: None,
         });
         if st.visits.len() > 12 {
             st.visits.remove(0);
@@ -674,10 +732,12 @@ pub(crate) fn spawn_party(
                 .iter()
                 .map(|(u, _)| (*u, w.queues.get(u).map(|q| q.len()).unwrap_or(0)))
                 .min_by_key(|(_, n)| *n);
-            let table_order = match best {
-                None => true,
-                Some((_, n)) => n >= 3 && w.rng.chance(0.7),
-            };
+            // wishes are told to Karolina at the table, never in the register queue
+            let table_order = wish_party
+                || match best {
+                    None => true,
+                    Some((_, n)) => n >= 3 && w.rng.chance(0.7),
+                };
             for (k, &gid) in party.members.clone().iter().enumerate() {
                 let seat_t = seat_list[k].2;
                 if k == 0 && !table_order {
@@ -708,7 +768,14 @@ pub(crate) fn spawn_party(
                 size: size_u,
                 regular: reg_id.clone(),
             });
+            w.hands.tally.parties += 1;
+            super::pacing::note_arrival(w, content);
             if let Some(r) = reg_id {
+                w.emit(SimEvent::RegularIncoming {
+                    regular: r.clone(),
+                    party: id,
+                    minutes: content.handson.tuning.regular_announce_minutes,
+                });
                 w.emit(SimEvent::RegularArrived {
                     regular: r.clone(),
                     party: id,
@@ -742,7 +809,18 @@ pub(crate) fn spawn_regular(w: &mut World, content: &Content, id: &str, visit: O
     let leave_by = visit
         .and_then(|v| r.visits.get(v))
         .map(|v| v.to.minutes_since_open().clamp(0, 480) as u32);
-    spawn_party(w, content, &r.base, 1, Some(id), 1.0, 1.0, &[], leave_by);
+    spawn_party(
+        w,
+        content,
+        &r.base,
+        1,
+        Some(id),
+        1.0,
+        1.0,
+        &[],
+        leave_by,
+        false,
+    );
 }
 
 pub(crate) fn set_goal(w: &mut World, gid: u32, goal: (i32, i32)) {
@@ -843,16 +921,21 @@ fn arrival_rate(w: &World, content: &Content, hour: usize) -> f32 {
         _ => 1.0,
     };
     let story_ramp = story_ramp(w);
+    let quiet = if super::pacing::quiet_hour(w, content) {
+        content.handson.tuning.quiet_hour.guest_rate_mul
+    } else {
+        1.0
+    };
     let mods: f32 = w
         .mods
         .iter()
         .filter(|m| m.kind == ModKind::GuestRate)
         .map(|m| m.mul)
         .product();
-    BASE_PARTIES_PER_HOUR / 60.0 * shape * rep * weather * story_ramp * mods * w.town.size
+    BASE_PARTIES_PER_HOUR / 60.0 * shape * rep * weather * story_ramp * mods * quiet * w.town.size
 }
 
-fn pick_archetype(w: &mut World, content: &Content, hour: usize) -> Option<String> {
+pub(crate) fn pick_archetype(w: &mut World, content: &Content, hour: usize) -> Option<String> {
     let wd = w.weekday as usize;
     let list: Vec<(&str, f32)> = content
         .guests
@@ -889,7 +972,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             && let Some(arch) = content.guest(&a)
         {
             let size = w.rng.range_u32(arch.group.0.max(1), arch.group.1.max(1));
-            spawn_party(w, content, &a, size, None, 1.0, 1.0, &[], None);
+            spawn_party(w, content, &a, size, None, 1.0, 1.0, &[], None, false);
         }
     }
     // Scheduled (rushes, trains).
@@ -917,12 +1000,15 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
                 s.spend_mul,
                 &s.orders,
                 None,
+                s.wish,
             );
         }
     }
-    // Patience & eating.
-    let mut leave: Vec<(u32, bool)> = Vec::new();
-    // patience only runs once they're actually inside and waiting (not while walking in)
+    // Patience & eating. The wait clock runs only once they're actually inside and waiting
+    // (not while walking in), at the claimed / rush rates (handson.md §1.4).
+    let cozy = w.difficulty == Difficulty::Cozy;
+    let forgive = content.handson.tuning.cozy_forgiveness;
+    let mut leave: Vec<(u32, Exit)> = Vec::new();
     let waiting: Vec<u32> = w
         .parties
         .iter()
@@ -941,22 +1027,38 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
         })
         .map(|p| p.id)
         .collect();
-    for p in w.parties.iter_mut() {
+    let rates: Vec<f32> = (0..w.parties.len())
+        .map(|pi| super::pacing::wait_rate(w, content, pi))
+        .collect();
+    let mut refilled: Vec<u32> = Vec::new();
+    for (pi, p) in w.parties.iter_mut().enumerate() {
         match p.state {
             PartyState::Queue | PartyState::WaitOrder | PartyState::WaitFood
                 if !waiting.contains(&p.id) => {}
             PartyState::Queue | PartyState::WaitOrder | PartyState::WaitFood => {
-                p.patience -= 1.0;
+                let rate = rates[pi];
+                p.wait_clock += rate;
+                p.patience -= rate;
                 if p.patience <= 0.0 {
-                    leave.push((p.id, true));
-                } else if p.patience < p.patience_max * 0.3 {
+                    if !cozy {
+                        leave.push((p.id, Exit::Angry));
+                    } else if p.forgiven + 1 < forgive.runs || p.regular.is_some() {
+                        // a glass of water; regulars never leave before their window ends
+                        p.forgiven += 1;
+                        p.patience = p.patience_max * forgive.refill;
+                        refilled.push(p.id);
+                    } else {
+                        p.forgiven += 1;
+                        leave.push((p.id, Exit::Forgiven));
+                    }
+                } else if !cozy && p.patience < p.patience_max * 0.3 {
                     p.satisfaction = (p.satisfaction - 0.5).max(0.0);
                 }
             }
             PartyState::Eating => {
                 p.stay_left -= 1.0;
                 if p.stay_left <= 0.0 {
-                    leave.push((p.id, false));
+                    leave.push((p.id, Exit::Normal));
                 }
             }
             _ => {}
@@ -966,22 +1068,42 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             && p.state != PartyState::Leaving
             && !leave.iter().any(|l| l.0 == p.id)
         {
-            leave.push((p.id, p.state != PartyState::Eating));
+            let exit = if p.state == PartyState::Eating {
+                Exit::Normal
+            } else if cozy {
+                Exit::Forgiven
+            } else {
+                Exit::Angry
+            };
+            leave.push((p.id, exit));
         }
     }
-    for (pid, angry) in leave {
-        finish_party(w, content, pid, angry);
+    let tick = w.tick;
+    for pid in refilled {
+        if let Some(p) = w.parties.iter().find(|p| p.id == pid)
+            && let Some(l) = p.leader()
+            && let Some(g) = w.guests.iter_mut().find(|g| g.id == l)
+        {
+            g.emote = Some((SimEmote::Coffee, tick + 30));
+        }
+        w.emit(SimEvent::GuestPatienceRefilled { party: pid });
+    }
+    for (pid, exit) in leave {
+        finish_party(w, content, pid, exit);
     }
     // Emotes for impatient guests.
     let tick = w.tick;
+    // (never on Cozy: nothing there turns red)
     let impatient: Vec<u32> = w
         .parties
         .iter()
         .filter(|p| {
-            matches!(
-                p.state,
-                PartyState::Queue | PartyState::WaitOrder | PartyState::WaitFood
-            ) && p.patience < p.patience_max * 0.25
+            !cozy
+                && matches!(
+                    p.state,
+                    PartyState::Queue | PartyState::WaitOrder | PartyState::WaitFood
+                )
+                && p.patience < p.patience_max * 0.25
         })
         .map(|p| p.id)
         .collect();
@@ -1011,6 +1133,13 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
     let mut items = Vec::new();
     let wishes = w.parties[pi].wishes.clone();
     let members = w.parties[pi].members.clone();
+    let wish_party = w.parties[pi].order_kind.is_wish() && w.parties[pi].wish_open;
+    // plain items go to the members who didn't wish
+    let eaters: Vec<u32> = if wish_party && members.len() > 1 {
+        members[1..].to_vec()
+    } else {
+        members.clone()
+    };
     let mut names = Vec::new();
     for (k, wish) in wishes.iter().enumerate() {
         let Some(mi) = content.menu_item(wish) else {
@@ -1024,7 +1153,7 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         w.items.push(OrderItem {
             id: iid,
             party: pid,
-            guest: members[k.min(members.len() - 1)],
+            guest: eaters[k.min(eaters.len() - 1)],
             menu: wish.clone(),
             state: ItemState::Pending,
             prep_left: mi.prep_minutes * TICKS_PER_MINUTE as f32,
@@ -1032,24 +1161,35 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
             ready_tile: None,
             quality: 0.0,
             created: m,
+            origin: Default::default(),
+            price_add: 0,
+            hand_off_match: None,
+            wish: false,
         });
         items.push(iid);
         names.push(wish.clone());
     }
     let reg = w.parties[pi].register;
+    let food_patience = food_patience(w);
     {
         let p = &mut w.parties[pi];
         p.items = items;
         p.ordered_at = Some(m);
+        p.wait_at_order = p.wait_clock;
         p.order_claim = None;
         p.satisfaction += 10.0 * (1.0 - (wait / pmax.max(1.0)).min(1.5));
-        p.patience = (pmax * FOOD_PATIENCE).max(15.0);
-        p.state = if p.items.is_empty() {
+        p.patience = (pmax * food_patience).max(15.0);
+        p.state = if p.items.is_empty() && !p.wish_open {
             PartyState::Eating
         } else {
             PartyState::WaitFood
         };
         p.stay_left = 5.0;
+    }
+    // a wish handed off to the helpers becomes a plain ticket now
+    let by_karolina = w.staff_by_id(staff).is_some_and(|s| s.owner);
+    if wish_party && w.parties[pi].handed_off {
+        super::player::hand_off_item(w, content, pi);
     }
     // Chatty / kind staff taking the order.
     let bonus = service_bonus(w, content, staff, pid);
@@ -1076,6 +1216,25 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         staff,
         items: names,
     });
+    if by_karolina {
+        let p = &w.parties[pi];
+        let ev = SimEvent::PlayerOrderTaken {
+            guest: p.leader().unwrap_or(0),
+            party: pid,
+            wish: p.order_kind.wish().map(str::to_string),
+            kind: p.order_kind.clone(),
+        };
+        w.emit(ev);
+    }
+}
+
+/// Patience multiplier while waiting for food.
+pub(crate) fn food_patience(w: &World) -> f32 {
+    if w.difficulty == Difficulty::Cozy {
+        COZY_FOOD_PATIENCE
+    } else {
+        FOOD_PATIENCE
+    }
 }
 
 fn trait_effects<'a>(content: &'a Content, s: &Staff) -> Vec<&'a TraitEffect> {
@@ -1131,6 +1290,10 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
         return;
     };
     let reg = w.parties[pi].regular.clone();
+    let by_karolina = w.staff_by_id(staff).is_some_and(|s| s.owner);
+    let karolina_made = w.items[ii].origin.by_player();
+    let food_patience = food_patience(w);
+    super::orders::on_served(w, content, ii, pi, by_karolina);
     {
         let p = &mut w.parties[pi];
         let wait = (m - p.ordered_at.unwrap_or(m)) as f32;
@@ -1140,22 +1303,27 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
         p.satisfaction = p.satisfaction.clamp(0.0, 100.0);
         p.served = true;
         p.served_by = Some(staff);
-        p.patience = (p.patience + 4.0).min(p.patience_max * FOOD_PATIENCE);
+        p.patience = (p.patience + 4.0).min(p.patience_max * food_patience);
     }
     if let Some(r) = &reg {
         let st = w.story.regulars.entry(r.clone()).or_default();
         st.served_items.insert(menu.clone());
-        // "Served fast" counts from the order (walking in from the street and a queue the
-        // player can't see from the counter would make the regulars' streaks unreachable).
-        let since = m.saturating_sub(w.parties[pi].ordered_at.unwrap_or(w.parties[pi].arrived));
+        // "Served fast" counts the wait clock from the order (walking in from the street and
+        // a queue the player can't see from the counter would make the streaks unreachable).
+        let p = &w.parties[pi];
+        let since = (p.wait_clock - p.wait_at_order).max(0.0).round() as u32;
         if let Some(v) = st.visits.last_mut()
             && v.served_minutes.is_none()
         {
             v.served_minutes = Some(since);
         }
-        let fast = since <= 8;
-        let t = w.story.trust.entry(r.clone()).or_insert(0.0);
-        *t = (*t + if fast { TRUST_FAST } else { TRUST_SERVED }).min(100.0);
+        // Karolina's items earn trust by match & quality (orders::on_served); helpers' the
+        // old flat amount
+        if !karolina_made {
+            let fast = since <= 8;
+            let t = w.story.trust.entry(r.clone()).or_insert(0.0);
+            *t = (*t + if fast { TRUST_FAST } else { TRUST_SERVED }).min(100.0);
+        }
     }
     w.emit(SimEvent::OrderServed {
         party: pid,
@@ -1168,10 +1336,13 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
             .find(|x| x.id == *i)
             .is_none_or(|x| matches!(x.state, ItemState::Served | ItemState::Cancelled))
     });
-    if all_done && w.parties[pi].state == PartyState::WaitFood {
+    if all_done && !w.parties[pi].wish_open && w.parties[pi].state == PartyState::WaitFood {
         let arch = content.guest(&w.parties[pi].archetype);
         let (lo, hi) = arch.map(|a| a.stay_minutes).unwrap_or((15, 30));
-        let stay = w.rng.range_u32(lo, hi) as i32 + w.guest_stay_add;
+        let stay_mul = super::music::mood_effect(w, content)
+            .map(|m| m.stay_mul)
+            .unwrap_or(1.0);
+        let stay = (w.rng.range_u32(lo, hi) as f32 * stay_mul).round() as i32 + w.guest_stay_add;
         let p = &mut w.parties[pi];
         p.state = PartyState::Eating;
         p.served_at = Some(m);
@@ -1228,10 +1399,18 @@ fn ambience(w: &World, content: &Content, pid: u32) -> f32 {
 }
 
 /// Party pays (if served) and leaves.
-pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, angry: bool) {
+pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exit) {
     let Some(pi) = w.parties.iter().position(|p| p.id == pid) else {
         return;
     };
+    // Cozy: nobody leaves angry — they forgive
+    let exit = if exit == Exit::Angry && w.difficulty == Difficulty::Cozy {
+        Exit::Forgiven
+    } else {
+        exit
+    };
+    let angry = exit == Exit::Angry;
+    let forgiven = exit == Exit::Forgiven;
     if w.parties[pi].state == PartyState::Leaving {
         return;
     }
@@ -1263,7 +1442,7 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, angry: bo
             .iter()
             .find(|x| x.id == *iid && x.state == ItemState::Served)
         {
-            served_value += w.price_of(content, &it.menu) as i64;
+            served_value += w.price_of(content, &it.menu) as i64 + it.price_add as i64;
         }
     }
     let size = w.parties[pi].members.len() as u32;
@@ -1273,6 +1452,11 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, angry: bo
         w.tonight.guests_left_unhappy += size;
         let r = &mut w.parties[pi];
         r.angry = true;
+    }
+    if forgiven {
+        sat = sat.max(content.handson.tuning.cozy_forgiveness.leave_satisfaction);
+        w.tonight.guests_forgiven += size;
+        w.hands.tally.forgiven_parties += 1;
     }
     // payment
     let spend = arch.map(|a| a.spend_mult).unwrap_or(1.0) * w.parties[pi].spend_mul;
@@ -1313,26 +1497,55 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, angry: bo
                 .filter(|m| m.kind == ModKind::Tips)
                 .map(|m| m.mul)
                 .product();
-            tip = ((bill as f32 * (0.05 + 0.15 * ((sat - 55.0) / 45.0))) * tips_mul)
+            // Karolina's match & quality and her rhythm (handson.md §1.7), the hall mood
+            let f = &w.parties[pi].tip_factors;
+            let party_mul = if f.is_empty() {
+                1.0
+            } else {
+                f.iter().sum::<f32>() / f.len() as f32
+            };
+            let mood_mul = super::music::mood_effect(w, content)
+                .map(|m| m.tips_mul)
+                .unwrap_or(1.0);
+            tip = ((bill as f32 * (0.05 + 0.15 * ((sat - 55.0) / 45.0)))
+                * tips_mul
+                * party_mul
+                * mood_mul)
                 .round()
                 .max(5.0) as i64;
-            w.econ.money += tip;
-            w.tonight.tips += tip;
-            w.app.week_tips += tip;
+            // a coin on the table: Karolina (or a dishes helper) puts it in the jar
             let by = w.parties[pi].served_by;
-            w.emit(SimEvent::TipReceived {
+            let table = party_table(w, content, pi);
+            let id = w.alloc_id();
+            let coin = super::hands::TipCoin {
+                id,
+                table: table.unwrap_or(0),
                 amount: tip,
                 staff: by,
-            });
+                minute: w.minute(),
+            };
+            match table {
+                Some(t) if w.phase == Phase::Night && w.tick < NIGHT_TICKS => {
+                    w.hands.tips.push(coin);
+                    w.emit(SimEvent::TipLeft {
+                        table: t,
+                        amount: tip,
+                    });
+                }
+                _ => super::player::collect_coins(w, vec![coin], by),
+            }
         }
     }
     w.parties[pi].bill = bill + tip;
     if served_n > 0 && !angry {
         w.tonight.guests_served += size;
     }
-    if served_n > 0 || angry {
+    if served_n > 0 || angry || forgiven {
         w.satisfaction_sum += sat * size as f32;
         w.satisfaction_n += size;
+    }
+    // forgiven guests write no review (handson.md §1.4)
+    if (served_n > 0 || angry) && !forgiven {
         // review → reputation
         let mut weight = arch.map(|a| a.review_mult).unwrap_or(1.0);
         let at = w.parties[pi].archetype.clone();
@@ -1360,6 +1573,12 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, angry: bo
         if angry {
             *t = (*t - TRUST_ANGRY).max(0.0);
         }
+    }
+    if forgiven {
+        w.emit(SimEvent::GuestForgiven {
+            party: pid,
+            key: FORGIVEN_KEY.into(),
+        });
     }
     // free seats, dirty tables
     let members = w.parties[pi].members.clone();
@@ -1431,16 +1650,26 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, angry: bo
     refresh_queue_goals(w, content);
 }
 
+/// The table at the leader's seat (where the tip coin goes).
+fn party_table(w: &World, content: &Content, pi: usize) -> Option<u32> {
+    let leader = w.parties[pi].leader()?;
+    let (uid, _) = w.guests.iter().find(|g| g.id == leader)?.seat?;
+    seats(w, content)
+        .iter()
+        .find(|s| s.uid == uid)
+        .and_then(|s| s.table)
+}
+
 /// 06:00: everyone finishes up.
 pub(crate) fn close_up(w: &mut World, content: &Content) {
     let ids: Vec<(u32, PartyState)> = w.parties.iter().map(|p| (p.id, p.state)).collect();
     for (id, st) in ids {
         match st {
             PartyState::Leaving => {}
-            PartyState::Eating => finish_party(w, content, id, false),
+            PartyState::Eating => finish_party(w, content, id, Exit::Normal),
             _ => {
                 // not their fault: closing time, they just go
-                finish_party(w, content, id, false);
+                finish_party(w, content, id, Exit::Normal);
             }
         }
     }

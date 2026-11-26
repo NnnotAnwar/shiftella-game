@@ -63,7 +63,7 @@ pub(crate) fn window_light(w: &World, content: &Content) -> Option<u32> {
     best
 }
 
-fn regular_present(w: &World, id: &str) -> bool {
+pub(crate) fn regular_present(w: &World, id: &str) -> bool {
     w.story
         .regulars
         .get(id)

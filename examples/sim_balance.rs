@@ -1,63 +1,84 @@
-//! Balance + QA sweep: plays several seeds headless and prints per-night averages plus
-//! sanity checks (stuck agents, NaN, staff never resting, events firing every night,
-//! regular arcs, cameo nights, endings).
+//! Balance + QA sweep: plays several seeds headless with the player-bot (`sim::bot`) and
+//! prints per-night averages, the design/handson.md §9 targets and sanity checks (stuck
+//! agents, NaN, events, regular arcs, cameo nights, endings).
 //!
 //! ```text
-//! cargo run --release --example sim_balance -- [nights] [story|sandbox] [cozy|classic] [seeds] [character]
-//! SIM_PLAN=2,2,5 …   # nights on which the bot hires one more person (default: like sim_headless)
-//! SIM_VISITS=1        # print each regular's last visits (night:served minutes)
-//! SIM_FULL=1          # everybody 22–06 every night instead of the default rozpis
+//! cargo run --release --example sim_balance -- [nights] [story|sandbox] [cozy|classic] [seeds]
+//!     [--player-bot [quality] [react_seconds]] [--no-bot]
+//! SIM_PLAN=3,5,9   # nights on which the bot hires one more helper (default 3,5,9; Classic 3,8,15)
+//! SIM_VISITS=1     # print each regular's last visits (night:served minutes) and trust
 //! ```
-//! The bot player lights the window, ticks its checklist items, hires by plan, publishes the
-//! default rozpis and lets every choice time out to its default.
+//! `--player-bot` is the default; `--no-bot` = nobody behind the counter (Karolina steps back).
 
 use std::collections::BTreeMap;
 
 use shiftella_game::content::Content;
-use shiftella_game::sim::{
-    Command, Difficulty, PartyState, Phase, SandboxSetup, SimEvent, StaffStatus, World,
-};
+use shiftella_game::sim::bot::{BotConfig, PlayerBot, finish_cutscenes};
+use shiftella_game::sim::{Difficulty, SandboxSetup, SimEvent, World};
 
 #[derive(Default, Clone)]
 struct Row {
     arrived: f32,
     served: f32,
+    forgiven: f32,
     left: f32,
-    away: f32,
+    parties: f32,
+    forgiven_parties: f32,
+    k_items: f32,
+    h_items: f32,
+    reg_items: f32,
+    reg_k: f32,
+    wishes: f32,
+    minigames: f32,
+    same_kind: f32,
+    idle: f32,
+    todo_med: f32,
+    todo_peak: f32,
     revenue: f32,
-    wages: f32,
-    net: f32,
+    tips: f32,
     money: f32,
     rep: f32,
     sat: f32,
+    real_min: f32,
     crew: f32,
     n: f32,
 }
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
-    let nights: u32 = args.get(1).and_then(|s| s.parse().ok()).unwrap_or(30);
-    let mode = args.get(2).map(String::as_str).unwrap_or("story");
-    let difficulty = match args.get(3).map(String::as_str) {
+    let flag_at = args
+        .iter()
+        .position(|a| a.starts_with("--"))
+        .unwrap_or(args.len());
+    let pos: Vec<&String> = args.iter().take(flag_at).skip(1).collect();
+    let nights: u32 = pos.first().and_then(|s| s.parse().ok()).unwrap_or(10);
+    let mode = pos.get(1).map(|s| s.as_str()).unwrap_or("story");
+    let difficulty = match pos.get(2).map(|s| s.as_str()) {
         Some("classic") => Difficulty::Classic,
         _ => Difficulty::Cozy,
     };
-    let seeds: u64 = args.get(4).and_then(|s| s.parse().ok()).unwrap_or(6);
-    let character = args.get(5).cloned();
+    let seeds: u64 = pos.get(3).and_then(|s| s.parse().ok()).unwrap_or(6);
+    let no_bot = args.iter().any(|a| a == "--no-bot");
+    let (quality, react) = match args.iter().position(|a| a == "--player-bot") {
+        Some(i) => (
+            args.get(i + 1).and_then(|s| s.parse().ok()).unwrap_or(0.75),
+            args.get(i + 2).and_then(|s| s.parse().ok()).unwrap_or(3.0),
+        ),
+        None => (0.75, 3.0),
+    };
     let plan: Vec<u32> = std::env::var("SIM_PLAN")
         .ok()
         .map(|s| s.split(',').filter_map(|x| x.trim().parse().ok()).collect())
         .unwrap_or_else(|| {
             if difficulty == Difficulty::Classic {
-                vec![2, 8, 15]
+                vec![3, 8, 15]
             } else {
-                vec![2, 5, 9]
+                vec![3, 5, 9]
             }
         });
     let content = Content::load("assets/data").expect("content");
 
     let mut rows: Vec<Row> = vec![Row::default(); nights as usize + 1];
-    let mut angry_by_state: BTreeMap<String, u32> = BTreeMap::new();
     let mut event_nights: BTreeMap<String, u32> = BTreeMap::new();
     let mut nights_played = 0u32;
     let mut endings: BTreeMap<String, u32> = BTreeMap::new();
@@ -65,11 +86,9 @@ fn main() {
     let mut arcs: BTreeMap<String, Vec<i32>> = BTreeMap::new();
     let mut anwar_nights: Vec<u32> = Vec::new();
     let mut breaks = 0u32;
-    let mut staff_nights = 0u32;
-    let mut no_break_tired = 0u32;
+    let mut helper_nights = 0u32;
     let mut stuck = 0u32;
-    let mut exhausted = 0u32;
-    let mut day1: Vec<(i64, i64, i64)> = Vec::new();
+    let mut unhappy_cozy = 0u32;
 
     for seed in 1..=seeds {
         let seed = seed * 7919 + 13;
@@ -79,115 +98,98 @@ fn main() {
                 SandboxSetup {
                     seed,
                     difficulty,
-                    character: character.clone(),
                     ..Default::default()
                 },
             )
         } else {
             World::new_story_seeded(&content, difficulty, seed)
         };
-        day1.push((world.money(), world.debt(), world.rent()));
+        let mut bot = PlayerBot::new(BotConfig {
+            quality,
+            react_seconds: react,
+            hire_nights: plan.clone(),
+            seed,
+            ..Default::default()
+        });
         for _ in 0..nights {
             if world.is_closed() {
                 break;
             }
-            play_day(&mut world, &content, &plan);
-            finish_cutscenes(&mut world, &content);
-            world.start_night(&content);
-            let mut last_state: BTreeMap<u32, PartyState> = BTreeMap::new();
-            let mut counted: std::collections::BTreeSet<u32> = Default::default();
-            let mut rested: std::collections::BTreeSet<u32> = Default::default();
-            let mut low_energy: std::collections::BTreeSet<u32> = Default::default();
-            let mut fired: std::collections::BTreeSet<String> = Default::default();
-            while world.phase() == Phase::Night && !world.is_closed() {
+            let night = world.night();
+            let events = if no_bot {
                 finish_cutscenes(&mut world, &content);
-                if world.minute() == 1 {
-                    let _ = world.apply(
-                        &content,
-                        Command::TickChecklist {
-                            id: "light_window".into(),
-                        },
-                    );
-                }
-                if world.minute() == 475 {
-                    for id in ["handover_note", "light_off_at_six"] {
-                        let _ = world.apply(&content, Command::TickChecklist { id: id.into() });
+                world.run_night_headless(&content)
+            } else {
+                bot.run_night(&mut world, &content)
+            };
+            let mut fired: std::collections::BTreeSet<String> = Default::default();
+            let (mut parties, mut forgiven) = (0u32, 0u32);
+            for e in events {
+                match e {
+                    SimEvent::StaffBreak { .. } => breaks += 1,
+                    SimEvent::EventStarted { id } => {
+                        fired.insert(id);
                     }
-                }
-                world.tick(&content);
-                for p in world.parties() {
-                    if p.angry && counted.insert(p.id) {
-                        let st = last_state.get(&p.id).copied().unwrap_or(p.state);
-                        *angry_by_state.entry(format!("{st:?}")).or_default() +=
-                            p.members.len() as u32;
+                    SimEvent::GuestArrived { .. } => parties += 1,
+                    SimEvent::GuestForgiven { .. } => forgiven += 1,
+                    SimEvent::RegularArrived { regular, .. } if regular == "guest_anwar" => {
+                        anwar_nights.push(night);
                     }
-                    if p.state != PartyState::Leaving {
-                        last_state.insert(p.id, p.state);
-                    }
-                    if !p.patience.is_finite() || !p.satisfaction.is_finite() {
-                        problems.push(format!("seed {seed} night {}: NaN party", world.night()));
-                    }
-                }
-                for s in world.staff() {
-                    if !(s.energy.is_finite() && s.mood.is_finite() && s.hunger.is_finite()) {
-                        problems.push(format!("seed {seed} night {}: NaN staff", world.night()));
-                    }
-                    if s.status == StaffStatus::OnDuty && s.energy < 25.0 {
-                        low_energy.insert(s.id);
-                    }
-                }
-                if !world.reputation().is_finite() {
-                    problems.push(format!("seed {seed}: NaN reputation"));
-                }
-                for e in world.drain_events() {
-                    match e {
-                        SimEvent::StaffBreak { staff } => {
-                            breaks += 1;
-                            rested.insert(staff);
-                        }
-                        SimEvent::EventStarted { id } => {
-                            fired.insert(id);
-                        }
-                        SimEvent::RegularArrived { regular, .. } if regular == "guest_anwar" => {
-                            anwar_nights.push(world.night());
-                        }
-                        _ => {}
-                    }
+                    _ => {}
                 }
             }
-            finish_cutscenes(&mut world, &content);
             for id in fired {
                 *event_nights.entry(id).or_default() += 1;
             }
-            staff_nights += world
+            helper_nights += world
                 .staff()
                 .iter()
-                .filter(|s| s.minutes_worked > 0)
+                .filter(|s| s.minutes_worked > 0 && !s.owner)
                 .count() as u32;
-            no_break_tired += low_energy.difference(&rested).count() as u32;
             nights_played += 1;
-            if let Some(s) = world.last_summary() {
-                let r = &mut rows[s.night.min(nights) as usize];
-                r.arrived += s.guests_arrived as f32;
-                r.served += s.guests_served as f32;
-                r.left += s.guests_left_unhappy as f32;
-                r.away += s.guests_turned_away as f32;
-                r.revenue += s.revenue as f32;
-                r.wages += s.wages as f32;
-                r.net += s.net as f32;
-                r.money += s.money_end as f32;
-                r.rep += s.reputation_end;
-                r.sat += s.avg_satisfaction;
-                r.crew += world.staff().len() as f32;
-                r.n += 1.0;
-                stuck += s.stuck_resets;
-                exhausted += s.exhausted_minutes;
-                if s.money_end < -50_000 {
-                    problems.push(format!(
-                        "seed {seed} night {}: money {}",
-                        s.night, s.money_end
-                    ));
+            for s in world.staff() {
+                if !(s.energy.is_finite() && s.mood.is_finite() && s.hunger.is_finite()) {
+                    problems.push(format!("seed {seed} night {night}: NaN staff"));
                 }
+            }
+            let Some(s) = world.last_summary().cloned() else {
+                continue;
+            };
+            let bn = bot.nights.last().cloned().unwrap_or_default();
+            let r = &mut rows[s.night.min(nights) as usize];
+            r.arrived += s.guests_arrived as f32;
+            r.served += s.guests_served as f32;
+            r.forgiven += s.guests_forgiven as f32;
+            r.left += s.guests_left_unhappy as f32;
+            r.parties += parties as f32;
+            r.forgiven_parties += forgiven as f32;
+            r.k_items += s.karolina_items as f32;
+            r.h_items += s.helper_items as f32;
+            r.reg_items += s.regular_items as f32;
+            r.reg_k += s.regular_items_karolina as f32;
+            r.wishes += s.wishes_served as f32;
+            r.minigames += s.minigames as f32;
+            r.same_kind += bn.same_kind_max as f32;
+            r.idle += s.karolina_idle_minutes as f32 / 420.0 * 100.0;
+            r.todo_med += s.todo_median as f32;
+            r.todo_peak += s.todo_peak as f32;
+            r.revenue += s.revenue as f32;
+            r.tips += s.tips as f32;
+            r.money += s.money_end as f32;
+            r.rep += s.reputation_end;
+            r.sat += s.avg_satisfaction;
+            r.real_min += if no_bot { 12.0 } else { bn.real_minutes };
+            r.crew += world.staff().len() as f32;
+            r.n += 1.0;
+            stuck += s.stuck_resets;
+            if difficulty == Difficulty::Cozy {
+                unhappy_cozy += s.guests_left_unhappy;
+            }
+            if !s.avg_satisfaction.is_finite() || !s.reputation_end.is_finite() {
+                problems.push(format!("seed {seed} night {night}: NaN summary"));
+            }
+            if s.money_end < -50_000 {
+                problems.push(format!("seed {seed} night {night}: money {}", s.money_end));
             }
         }
         *endings
@@ -219,40 +221,69 @@ fn main() {
     }
 
     println!(
-        "{mode} · {difficulty:?} · {seeds} seeds · plan {plan:?} · day 1 money/debt/rent {:?}",
-        day1.first()
+        "{mode} · {difficulty:?} · {seeds} seeds · {} · hires on {plan:?}",
+        if no_bot {
+            "nobody behind the counter".to_string()
+        } else {
+            format!("player-bot q {quality} react {react}s")
+        }
     );
-    println!("night arrived served  left  away | revenue  wages    net |   money   rep  sat crew");
+    println!(
+        "night arrived served forgv left | K-made% reg-K% wish   mg same | idle% todo med/pk | revenue   tips |   money   rep  sat | real-min crew"
+    );
+    let mut sums = Row::default();
     for (n, r) in rows.iter().enumerate().skip(1) {
         if r.n == 0.0 {
             continue;
         }
         let k = r.n;
+        let made = (r.k_items + r.h_items).max(1.0);
         println!(
-            "{n:>5} {:>7.1} {:>6.1} {:>5.1} {:>5.1} | {:>7.0} {:>6.0} {:>6.0} | {:>7.0} {:>5.1} {:>4.0} {:>4.1}{}",
+            "{n:>5} {:>7.1} {:>6.1} {:>5.1} {:>4.1} | {:>6.0}% {:>5.0}% {:>4.1} {:>4.1} {:>4.1} | {:>5.1} {:>4.1}/{:<4.1} | {:>7.0} {:>6.0} | {:>7.0} {:>5.1} {:>4.0} | {:>8.1} {:>4.1}",
             r.arrived / k,
             r.served / k,
+            r.forgiven / k,
             r.left / k,
-            r.away / k,
+            r.k_items / made * 100.0,
+            r.reg_k / r.reg_items.max(1.0) * 100.0,
+            r.wishes / k,
+            r.minigames / k,
+            r.same_kind / k,
+            r.idle / k,
+            r.todo_med / k,
+            r.todo_peak / k,
             r.revenue / k,
-            r.wages / k,
-            r.net / k,
+            r.tips / k,
             r.money / k,
             r.rep / k,
             r.sat / k,
+            r.real_min / k,
             r.crew / k,
-            if k < seeds as f32 {
-                format!("  ({k} runs)")
-            } else {
-                String::new()
-            }
         );
+        sums.parties += r.parties;
+        sums.forgiven_parties += r.forgiven_parties;
+        sums.idle += r.idle;
+        sums.todo_med += r.todo_med;
+        sums.todo_peak = sums.todo_peak.max(r.todo_peak / k);
+        sums.n += r.n;
+        sums.minigames += r.minigames;
+        sums.real_min += r.real_min;
     }
-    println!("angry guests by state they left from: {angry_by_state:?}");
+    let k = sums.n.max(1.0);
+    println!(
+        "§9: idle {:.1}% (≤ 15) · todo median {:.1} (1–3), worst avg peak {:.1} (≤ 7) · forgiven parties {:.1}% (≤ 10) · unhappy on Cozy {} (0) · mini-games {:.1}/night (6–14) · night {:.1} real min (12 ±1 + 1–2 overlays)",
+        sums.idle / k,
+        sums.todo_med / k,
+        sums.todo_peak,
+        sums.forgiven_parties / sums.parties.max(1.0) * 100.0,
+        unhappy_cozy,
+        sums.minigames / k,
+        sums.real_min / k,
+    );
     println!("endings: {endings:?}");
     println!(
-        "breaks per staff-night {:.2} · tired staff without a break {no_break_tired} · stuck resets {stuck} · exhausted staff-min {exhausted}",
-        breaks as f32 / staff_nights.max(1) as f32
+        "breaks per helper-night {:.2} · stuck resets {stuck}",
+        breaks as f32 / helper_nights.max(1) as f32
     );
     let mut ev: Vec<(String, u32)> = event_nights.into_iter().collect();
     ev.sort_by_key(|e| std::cmp::Reverse(e.1));
@@ -281,51 +312,4 @@ fn main() {
             println!("  {p}");
         }
     }
-}
-
-fn finish_cutscenes(world: &mut World, content: &Content) {
-    while let Some(id) = world.playing_cutscene().map(str::to_string) {
-        let _ = world.apply(
-            content,
-            Command::CutsceneFinished {
-                id,
-                choices: vec![0, 0, 0],
-            },
-        );
-    }
-}
-
-fn play_day(world: &mut World, content: &Content, plan: &[u32]) {
-    finish_cutscenes(world, content);
-    let crew = world.staff().len();
-    let want = 1 + plan.iter().filter(|n| world.night() >= **n).count();
-    let base = if world.mode() == shiftella_game::sim::Mode::Sandbox {
-        1
-    } else {
-        0
-    };
-    if crew < want + base {
-        let ids: Vec<u32> = world.candidates().iter().map(|c| c.id).collect();
-        for id in ids.into_iter().take(want + base - crew) {
-            let _ = world.apply(content, Command::Hire { candidate: id });
-        }
-    }
-    if std::env::var("SIM_FULL").is_ok() {
-        // the old default: everybody 22–06 every night
-        let ids: Vec<u32> = world.staff().iter().map(|s| s.id).collect();
-        for id in ids {
-            for d in 0..7 {
-                let _ = world.apply(
-                    content,
-                    Command::SetShift {
-                        staff: id,
-                        weekday: d,
-                        shift: shiftella_game::sim::Shift::Full,
-                    },
-                );
-            }
-        }
-    }
-    let _ = world.apply(content, Command::PublishSchedule);
-    let _ = world.drain_events();
 }

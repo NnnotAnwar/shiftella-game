@@ -1,10 +1,13 @@
 //! Staff: generation & hiring, shifts, needs, traits, relationships, job selection and the work loop.
 
+use super::duties;
 use super::grid::{self, Room};
 use super::guests;
+use super::hands::ItemOrigin;
 use super::rng::{Rng, hash_str};
 use super::types::*;
 use super::world::*;
+use crate::content::handson::Duty;
 use crate::content::{
     ChecklistKind, Content, Gender, Job, Need, SandboxDef, Situation, TraitEffect,
 };
@@ -15,6 +18,9 @@ pub const STAFF_SPEED: f32 = 0.5;
 pub const TRAY: usize = 4;
 /// Global work-speed multiplier (balance knob: a 2–3 person night should keep up).
 pub const WORK_SPEED: f32 = 1.2;
+/// Story nights 1–2 are Karolina's solo nights (handson.md §0): the first hire is offered on
+/// night 3 at the earliest, whatever `hire_from_night` says, so the hire hints line up.
+pub const FIRST_HIRE_NIGHT: u32 = 3;
 
 // ---------------------------------------------------------------------------------------------
 // Generation
@@ -98,16 +104,10 @@ fn blank_staff(id: u32) -> Staff {
         breaks_tonight: 0,
         met_333: false,
         leave_nights: Vec::new(),
+        duties: Vec::new(),
+        nights_worked: 0,
+        duty_done: [0; 6],
     }
-}
-
-fn default_priorities(role: Job) -> [u8; 5] {
-    let mut p = [3u8; 5];
-    p[role.index()] = 1;
-    if role != Job::Serving {
-        p[Job::Serving.index()] = 2;
-    }
-    p
 }
 
 /// The fixed story person of an archetype.
@@ -126,7 +126,8 @@ pub(crate) fn story_person(w: &mut World, content: &Content, arch_id: &str) -> O
     }
     apply_skill_traits(&mut s, content);
     s.wage = a.wage;
-    s.priorities = default_priorities(a.role);
+    s.duties = duties::default_duties(content, &a.id);
+    duties::sync_priorities(&mut s);
     s.look_seed = hash_str(&a.id);
     Some(s)
 }
@@ -206,7 +207,8 @@ pub(crate) fn generate_staff(w: &mut World, content: &Content, arch: Option<&str
     let base_avg: f32 = Job::ALL.iter().map(|j| a.skills.get(*j)).sum::<f32>() / 5.0;
     let avg: f32 = s.skills.iter().sum::<f32>() / 5.0;
     s.wage = ((a.wage as f32 * (1.0 + 0.06 * (avg - base_avg))) / 10.0).round() as u32 * 10;
-    s.priorities = default_priorities(a.role);
+    s.duties = duties::default_duties(content, &a.id);
+    duties::sync_priorities(&mut s);
     s.look_seed = w.rng.fork();
     s
 }
@@ -223,7 +225,7 @@ pub(crate) fn refresh_candidates(w: &mut World, content: &Content) {
             let ids: Vec<String> = content
                 .staff
                 .iter()
-                .filter(|a| a.hire_from_night <= w.night)
+                .filter(|a| a.hire_from_night.max(FIRST_HIRE_NIGHT) <= w.night)
                 .map(|a| a.id.clone())
                 .collect();
             for a in ids {
@@ -315,6 +317,13 @@ fn when_ok(w: &World, idx: usize, when: &Option<Situation>) -> bool {
 pub(crate) fn work_speed(w: &World, content: &Content, idx: usize, job: Job) -> f32 {
     let s = &w.staff[idx];
     let mut v = (0.5 + s.skill(job, w.night) * 0.1) * WORK_SPEED;
+    if !s.owner {
+        // helpers are a little slower than Karolina (handson.md §1.1)
+        v *= content.handson.tuning.helper_speed;
+        if let Some(m) = super::music::mood_effect(w, content) {
+            v *= m.helper_speed_mul;
+        }
+    }
     for e in effects_of(content, s) {
         if let TraitEffect::Speed { job: j, mul, when } = e
             && j.is_none_or(|j| j == job)
@@ -402,7 +411,7 @@ fn staff_tiles(w: &World) -> Vec<(i32, i32)> {
 
 fn idle_tile(w: &World, content: &Content, idx: usize) -> (i32, i32) {
     let s = &w.staff[idx];
-    if s.priorities[Job::Register.index()] == 1
+    if (s.owner || duties::has_duty(s, Duty::Register))
         && let Some(t) = guests::registers(w, content).first().and_then(|(uid, _)| {
             let p = w.furniture_by_uid(*uid)?;
             let d = content.furniture_def(&p.def)?;
@@ -454,6 +463,7 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
         s.tasks_done = 0;
         s.late_minutes = 0;
         s.breaks_tonight = 0;
+        s.duty_done = [0; 6];
         s.task = None;
         s.path.clear();
         s.carrying = None;
@@ -580,7 +590,7 @@ struct Work {
     rank: u8,
 }
 
-fn station_access(w: &World, content: &Content, uid: u32) -> Option<(i32, i32)> {
+pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(i32, i32)> {
     let p = w.furniture_by_uid(uid)?;
     let d = content.furniture_def(&p.def)?;
     let tiles = grid::access_tiles(&w.grid, d, p);
@@ -591,7 +601,7 @@ fn station_access(w: &World, content: &Content, uid: u32) -> Option<(i32, i32)> 
         .copied()
 }
 
-fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32)> {
+pub(crate) fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32)> {
     let mut best: Option<(i32, i32)> = None;
     for (dx, dy) in [
         (0, 1),
@@ -621,13 +631,13 @@ fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32
     best
 }
 
-fn guest_seat_tile(w: &World, gid: u32) -> Option<(i32, i32)> {
+pub(crate) fn guest_seat_tile(w: &World, gid: u32) -> Option<(i32, i32)> {
     let g = w.guests.iter().find(|g| g.id == gid)?;
     let (uid, idx) = g.seat?;
     guests::seat_tile(w, uid, idx)
 }
 
-fn station_free(w: &World, content: &Content, tag: &str, staff: u32) -> Option<u32> {
+pub(crate) fn station_free(w: &World, content: &Content, tag: &str, staff: u32) -> Option<u32> {
     if w.mods
         .iter()
         .any(|m| matches!(&m.kind, ModKind::StationDown(t) if t == tag))
@@ -646,17 +656,34 @@ fn station_free(w: &World, content: &Content, tag: &str, staff: u32) -> Option<u
         .next()
 }
 
-fn works_for(w: &World, content: &Content, idx: usize, job: Job) -> Vec<Work> {
+/// Can helpers take this party's order? Plain orders only (or a wish Karolina handed off),
+/// never a regular's, never one Karolina claimed (handson.md §1.3).
+pub(crate) fn helper_may_order(p: &Party) -> bool {
+    p.order_claim.is_none()
+        && (!p.order_kind.is_wish() || p.handed_off)
+        && (p.regular.is_none() || p.handed_off)
+}
+
+/// Can helpers make this item? Plain tickets (and handed-off wishes) nobody holds.
+fn helper_may_make(i: &OrderItem) -> bool {
+    i.by.is_none()
+        && matches!(i.origin, ItemOrigin::Unassigned)
+        && (!i.wish || i.hand_off_match.is_some())
+}
+
+/// Candidate tasks of one duty for helper `idx`.
+fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> {
     let s = &w.staff[idx];
     let me = s.id;
     let here = s.tile();
     let m = w.minute();
+    let job = duty.job();
     let mut out = Vec::new();
     if work_speed(w, content, idx, job) <= 0.01 {
         return out;
     }
-    match job {
-        Job::Register => {
+    match duty {
+        Duty::Register => {
             for (reg, _) in guests::registers(w, content) {
                 let Some(q) = w.queues.get(&reg) else {
                     continue;
@@ -665,7 +692,7 @@ fn works_for(w: &World, content: &Content, idx: usize, job: Job) -> Vec<Work> {
                 let Some(p) = w.parties.iter().find(|p| p.id == pid) else {
                     continue;
                 };
-                if p.order_claim.is_some() || p.state != PartyState::Queue {
+                if p.state != PartyState::Queue || !helper_may_order(p) {
                     continue;
                 }
                 let reg_free = w
@@ -687,31 +714,12 @@ fn works_for(w: &World, content: &Content, idx: usize, job: Job) -> Vec<Work> {
                     rank: 0,
                 });
             }
-            for c in checklist_works(w, content, job, me) {
-                out.push(c);
-            }
-        }
-        Job::Serving => {
-            for it in &w.items {
-                if it.state == ItemState::Ready && it.by.is_none() {
-                    let Some(goal) = it.ready_tile else { continue };
-                    out.push(Work {
-                        task: Task::Serve {
-                            item: it.id,
-                            picked: false,
-                            extra: Vec::new(),
-                        },
-                        goal,
-                        work: 3.0,
-                        rank: 0,
-                    });
-                }
-            }
+            // seated parties who order at the table
             for p in &w.parties {
-                if p.state != PartyState::WaitOrder || p.order_claim.is_some() {
+                if p.state != PartyState::WaitOrder || !helper_may_order(p) {
                     continue;
                 }
-                let Some(&leader) = p.members.first() else {
+                let Some(leader) = p.leader() else {
                     continue;
                 };
                 let seated = w
@@ -737,13 +745,31 @@ fn works_for(w: &World, content: &Content, idx: usize, job: Job) -> Vec<Work> {
                     rank: 0,
                 });
             }
-            for c in checklist_works(w, content, job, me) {
-                out.push(c);
+        }
+        Duty::Serving => {
+            for it in &w.items {
+                // helpers carry what helpers made; Karolina carries her own
+                if it.state == ItemState::Ready
+                    && it.by.is_none()
+                    && matches!(it.origin, ItemOrigin::Helper { .. })
+                {
+                    let Some(goal) = it.ready_tile else { continue };
+                    out.push(Work {
+                        task: Task::Serve {
+                            item: it.id,
+                            picked: false,
+                            extra: Vec::new(),
+                        },
+                        goal,
+                        work: 3.0,
+                        rank: 0,
+                    });
+                }
             }
         }
-        Job::Bar | Job::Kitchen => {
+        Duty::Bar | Duty::Kitchen => {
             for it in &w.items {
-                if it.state != ItemState::Pending || it.by.is_some() {
+                if it.state != ItemState::Pending || !helper_may_make(it) {
                     continue;
                 }
                 let Some(mi) = content.menu_item(&it.menu) else {
@@ -779,11 +805,8 @@ fn works_for(w: &World, content: &Content, idx: usize, job: Job) -> Vec<Work> {
                 Task::Prepare { item, .. } => *item,
                 _ => 0,
             });
-            for c in checklist_works(w, content, job, me) {
-                out.push(c);
-            }
         }
-        Job::Cleaning => {
+        Duty::Dishes => {
             let seat_info = guests::seats(w, content);
             for p in &w.furniture {
                 if p.dishes == 0 || p.claim.is_some() {
@@ -823,45 +846,54 @@ fn works_for(w: &World, content: &Content, idx: usize, job: Job) -> Vec<Work> {
                     rank: 1,
                 });
             }
-            for (k, b) in w.buckets.iter().enumerate() {
-                if b.2.is_none() && b.1 <= m {
-                    if let Some(goal) = stand_next_to(w, b.0, here) {
-                        out.push(Work {
-                            task: Task::Bucket { tile: b.0 },
-                            goal,
-                            work: 20.0,
-                            rank: 2,
-                        });
-                    }
-                    let _ = k;
-                }
-            }
-            if w.dirt > 0.12 && w.mop_claim.is_none() {
-                // a hall tile near the middle of the mess (deterministic by minute)
-                let hall: Vec<(i32, i32)> = (0..w.grid.height)
-                    .flat_map(|y| (0..w.grid.width).map(move |x| (x, y)))
-                    .filter(|t| w.grid.room(t.0, t.1) == Room::Hall && w.grid.walkable(t.0, t.1))
-                    .filter(|t| w.grid.object_at(t.0, t.1).is_none())
-                    .collect();
-                if !hall.is_empty() {
-                    let t = hall[(m as usize * 7 + me as usize) % hall.len()];
+        }
+        Duty::Floor => {
+            for b in w.buckets.iter() {
+                if b.2.is_none()
+                    && b.1 <= m
+                    && let Some(goal) = stand_next_to(w, b.0, here)
+                {
                     out.push(Work {
-                        task: Task::Mop { tile: t },
-                        goal: t,
-                        work: 40.0,
-                        rank: 3,
+                        task: Task::Bucket { tile: b.0 },
+                        goal,
+                        work: 20.0,
+                        rank: 2,
                     });
                 }
             }
-            for c in checklist_works(w, content, job, me) {
-                out.push(c);
-            }
+            out.extend(mop_work(w, me));
         }
+    }
+    // checklist items of the duty's job (cleaning items belong to the floor duty)
+    if duty != Duty::Dishes {
+        out.extend(checklist_works(w, content, job));
     }
     out
 }
 
-fn checklist_works(w: &World, content: &Content, job: Job, _me: u32) -> Vec<Work> {
+/// A hall tile near the middle of the mess (deterministic by minute).
+fn mop_work(w: &World, me: u32) -> Option<Work> {
+    if w.dirt <= guests::MOP_DIRT || w.mop_claim.is_some() {
+        return None;
+    }
+    let hall: Vec<(i32, i32)> = (0..w.grid.height)
+        .flat_map(|y| (0..w.grid.width).map(move |x| (x, y)))
+        .filter(|t| w.grid.room(t.0, t.1) == Room::Hall && w.grid.walkable(t.0, t.1))
+        .filter(|t| w.grid.object_at(t.0, t.1).is_none())
+        .collect();
+    if hall.is_empty() {
+        return None;
+    }
+    let t = hall[(w.minute() as usize * 7 + me as usize) % hall.len()];
+    Some(Work {
+        task: Task::Mop { tile: t },
+        goal: t,
+        work: 40.0,
+        rank: 3,
+    })
+}
+
+fn checklist_works(w: &World, content: &Content, job: Job) -> Vec<Work> {
     let m = w.minute();
     let mut out = Vec::new();
     for c in &content.app.checklists {
@@ -895,7 +927,7 @@ fn checklist_works(w: &World, content: &Content, job: Job, _me: u32) -> Vec<Work
     out
 }
 
-fn checklist_tile(w: &World, content: &Content, job: Job) -> (i32, i32) {
+pub(crate) fn checklist_tile(w: &World, content: &Content, job: Job) -> (i32, i32) {
     let tag = match job {
         Job::Bar => "station:coffee",
         Job::Kitchen => "station:fridge",
@@ -914,47 +946,37 @@ fn checklist_tile(w: &World, content: &Content, job: Job) -> (i32, i32) {
         .unwrap_or_else(|| w.grid.entrance())
 }
 
-fn effective_priority(w: &World, content: &Content, idx: usize, job: Job) -> u8 {
+/// A helper's next task: only from the duties the player gave them (no "everyone helps"
+/// fallback any more). `AutoClean` people also mop when nobody holds the floor duty.
+fn find_work(w: &World, content: &Content, idx: usize) -> Option<Work> {
     let s = &w.staff[idx];
-    let p = s.priorities[job.index()];
-    if p > 0 {
-        return p;
+    if s.owner {
+        return None;
     }
-    if job == Job::Cleaning
+    let here = s.tile();
+    let mut best: Option<(i32, Work)> = None;
+    let mut consider = |wk: Work| {
+        let score = wk.rank as i32 * 40 + grid::manhattan(here, wk.goal);
+        if best.as_ref().is_none_or(|b| score < b.0) {
+            best = Some((score, wk));
+        }
+    };
+    for d in s.duties.clone() {
+        for wk in works_for(w, content, idx, d) {
+            consider(wk);
+        }
+    }
+    if !duties::has_duty(s, Duty::Floor)
+        && !duties::duty_on_floor(w, Duty::Floor)
         && effects_of(content, s)
             .iter()
             .any(|e| matches!(e, TraitEffect::AutoClean))
+        && let Some(mut wk) = mop_work(w, s.id)
     {
-        return 4;
+        wk.rank = 6;
+        consider(wk);
     }
-    // Nobody on the floor does this job → anyone helps out (keeps the café from deadlocking).
-    let covered = w
-        .staff
-        .iter()
-        .any(|o| o.on_duty() && o.priorities[job.index()] > 0);
-    if !covered { 4 } else { 0 }
-}
-
-fn find_work(w: &World, content: &Content, idx: usize) -> Option<Work> {
-    let here = w.staff[idx].tile();
-    for level in 1..=4u8 {
-        let mut best: Option<(i32, Work)> = None;
-        for job in Job::ALL {
-            if effective_priority(w, content, idx, job) != level {
-                continue;
-            }
-            for wk in works_for(w, content, idx, job) {
-                let score = wk.rank as i32 * 40 + grid::manhattan(here, wk.goal);
-                if best.as_ref().is_none_or(|b| score < b.0) {
-                    best = Some((score, wk));
-                }
-            }
-        }
-        if let Some((_, wk)) = best {
-            return Some(wk);
-        }
-    }
-    None
+    best.map(|b| b.1)
 }
 
 fn claim(w: &mut World, task: &Task, me: u32) {
@@ -1130,7 +1152,7 @@ fn task_valid(w: &World, idx: usize) -> bool {
 // Ticking
 // ---------------------------------------------------------------------------------------------
 
-fn go(w: &mut World, idx: usize, goal: (i32, i32)) -> bool {
+pub(crate) fn go(w: &mut World, idx: usize, goal: (i32, i32)) -> bool {
     let from = w.staff[idx].tile();
     match w.paths.get(&w.grid, from, goal, false) {
         Some(p) => {
@@ -1155,6 +1177,11 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
                 go(w, idx, t);
                 let id = w.staff[idx].id;
                 w.emit(SimEvent::StaffArrived { staff: id });
+                continue;
+            }
+            StaffStatus::OnDuty if w.staff[idx].owner => {
+                // Karolina: only what the player queued
+                super::player::tick(w, content, idx);
                 continue;
             }
             StaffStatus::OnDuty => {}
@@ -1207,6 +1234,10 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
                 w.staff[idx].task = None;
                 let me = w.staff[idx].id;
                 claim(w, &wk.task, me);
+                // "on it!"
+                if w.staff[idx].emote.is_none() {
+                    w.staff[idx].emote = Some((SimEmote::Note, w.tick + 12));
+                }
                 w.staff[idx].task = Some(wk.task);
                 w.staff[idx].work_left = wk.work;
                 if !go(w, idx, wk.goal) {
@@ -1265,7 +1296,7 @@ pub(crate) fn break_task(w: &World, content: &Content, idx: usize, base: f32) ->
 fn wants_break(w: &World, content: &Content, idx: usize) -> Option<Task> {
     let s = &w.staff[idx];
     let m = w.minute();
-    if m > 460 {
+    if m > 460 || s.owner {
         return None;
     }
     let tired = s.energy < 32.0 || s.hunger < 28.0;
@@ -1283,7 +1314,7 @@ fn wants_break(w: &World, content: &Content, idx: usize) -> Option<Task> {
             return None;
         }
     }
-    let on: Vec<&Staff> = w.staff.iter().filter(|o| o.on_duty()).collect();
+    let on: Vec<&Staff> = w.staff.iter().filter(|o| o.on_duty() && !o.owner).collect();
     let on_break = on
         .iter()
         .filter(|o| matches!(o.task, Some(Task::Break { .. })))
@@ -1292,8 +1323,8 @@ fn wants_break(w: &World, content: &Content, idx: usize) -> Option<Task> {
         return None;
     }
     if !tired {
-        // a regular break needs someone else on the floor and a calm moment
-        let others = on.len() - on_break - 1;
+        // a regular break needs a calm moment; Karolina is always on the floor
+        let others = on.len() - on_break; // the other helpers, plus Karolina, minus themself
         let calm = w.queue_len() <= 1 || on_shift >= BREAK_LATEST_MINUTES;
         if others == 0 || !calm {
             return None;
@@ -1441,6 +1472,11 @@ fn learn(w: &mut World, idx: usize, job: Job) {
     s.tasks_done += 1;
 }
 
+/// Digest credit for a finished duty task.
+fn credit(w: &mut World, idx: usize, duty: Duty, n: u32) {
+    w.staff[idx].duty_done[duties::duty_index(duty)] += n;
+}
+
 fn mishap(w: &mut World, content: &Content, idx: usize) {
     // per finished task; ~1 broken cup every other night without clumsy people
     let mut chance = 0.002;
@@ -1490,6 +1526,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
             }
             guests::order_taken(w, content, party, me);
             learn(w, idx, Job::Register);
+            credit(w, idx, Duty::Register, 1);
         }
         Task::Prepare { item, station } => {
             w.staff[idx].task = None;
@@ -1504,14 +1541,21 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                 }
             }
             quality += w.staff[idx].skill(job, w.night) * 1.5;
+            let helper_q = content
+                .handson
+                .tuning
+                .helper_quality
+                .at(w.staff[idx].skill(job, w.night));
             let mut name = String::new();
             if let Some(i) = w.items.iter_mut().find(|i| i.id == item) {
                 i.state = ItemState::Ready;
                 i.by = None;
                 i.ready_tile = Some(here);
                 i.quality = quality;
+                i.origin = ItemOrigin::Helper { quality: helper_q };
                 name = i.menu.clone();
             }
+            credit(w, idx, Duty::for_job(job), 1);
             w.emit(SimEvent::OrderReady {
                 item: name,
                 staff: me,
@@ -1545,6 +1589,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                         && i.party == party
                         && i.state == ItemState::Ready
                         && i.by.is_none()
+                        && matches!(i.origin, ItemOrigin::Helper { .. })
                         && i.ready_tile.is_some_and(|t| {
                             grid::chebyshev(t, here) <= 3
                                 || at.is_some_and(|a| grid::chebyshev(t, a) <= 3)
@@ -1573,10 +1618,12 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
             } else {
                 w.staff[idx].task = None;
                 w.staff[idx].carrying = None;
+                let n = 1 + extra.len() as u32;
                 for id in std::iter::once(item).chain(extra) {
                     guests::item_served(w, content, id, me);
                 }
                 learn(w, idx, Job::Serving);
+                credit(w, idx, Duty::Serving, n);
                 mishap(w, content, idx);
             }
         }
@@ -1592,6 +1639,8 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     f.dirt = 0.0;
                     f.claim = None;
                 }
+                // a dishes helper puts the tip coins in the jar
+                super::player::collect_tips_on(w, table, Some(me));
                 w.staff[idx].carrying = Some("dishes".into());
                 let sink = w
                     .furniture
@@ -1626,6 +1675,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
         Task::Wash { .. } => {
             let n = w.sink_dishes.min(12);
             w.sink_dishes -= n;
+            credit(w, idx, Duty::Dishes, n);
             w.sink_claim = None;
             w.staff[idx].task = None;
             learn(w, idx, Job::Cleaning);
@@ -1635,6 +1685,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
             let s = 0.5 + w.staff[idx].skill(Job::Cleaning, w.night) * 0.1;
             w.dirt = (w.dirt - 0.07 * s).max(0.0);
             w.mop_claim = None;
+            credit(w, idx, Duty::Floor, 1);
             w.staff[idx].task = None;
             learn(w, idx, Job::Cleaning);
         }
@@ -1710,12 +1761,20 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             }
         }
         let floor = mood_floor(&w.staff[idx], content);
+        let cozy = w.difficulty == Difficulty::Cozy;
+        let classic_mul = content.handson.tuning.player_energy.classic_drain_mul;
         let s = &mut w.staff[idx];
         s.minutes_worked += 1;
+        // Karolina never tires on Cozy; on Classic she drains at half the staff rate
+        let mine = if s.owner {
+            if cozy { 0.0 } else { classic_mul }
+        } else {
+            1.0
+        };
         if !on_break {
             let base = if working { 9.0 } else { 4.5 };
-            s.energy = (s.energy - base / 60.0 * decay * er).max(0.0);
-            s.hunger = (s.hunger - 9.0 / 60.0 * decay * hr).max(0.0);
+            s.energy = (s.energy - base / 60.0 * decay * er * mine).max(0.0);
+            s.hunger = (s.hunger - 9.0 / 60.0 * decay * hr * mine).max(0.0);
         }
         let mut target = 62.0;
         if s.energy < 25.0 {
