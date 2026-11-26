@@ -178,12 +178,20 @@ pub fn rounded_rect_path(r: Rect, radius: f32) -> Vec<Vec2> {
         (vec2(r.x + r.w - rad, r.y + r.h - rad), 0.0),
         (vec2(r.x + rad, r.y + r.h - rad), 90.0),
     ];
-    let mut pts = Vec::with_capacity(4 * (n + 1));
+    let mut pts: Vec<Vec2> = Vec::with_capacity(4 * (n + 1));
     for (c, start) in corners {
         for i in 0..=n {
             let a = (start + 90.0 * i as f32 / n as f32).to_radians();
-            pts.push(c + vec2(a.cos(), a.sin()) * rad);
+            let p = c + vec2(a.cos(), a.sin()) * rad;
+            // a capsule (radius = half the side) makes corners meet: skip the duplicate,
+            // a zero-length edge would spike the shadow / fringe normals
+            if pts.last().is_none_or(|q| q.distance_squared(p) > 1e-6) {
+                pts.push(p);
+            }
         }
+    }
+    if pts.len() > 1 && pts[0].distance_squared(pts[pts.len() - 1]) <= 1e-6 {
+        pts.pop();
     }
     pts
 }
@@ -716,6 +724,14 @@ mod tests {
             .map(|(i, _)| i)
             .unwrap();
         assert!(n[top].y < -0.5);
+    }
+
+    #[test]
+    fn capsule_path_has_no_duplicate_points() {
+        let p = rounded_rect_path(Rect::new(0.0, 0.0, 120.0, 36.0), 18.0);
+        for i in 0..p.len() {
+            assert!(p[i].distance(p[(i + 1) % p.len()]) > 1e-4);
+        }
     }
 
     #[test]

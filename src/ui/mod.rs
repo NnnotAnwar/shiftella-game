@@ -49,7 +49,7 @@
 //!   `letterbox`, `fade`.
 //! * **Layout** — [`layout`]: `anchored(Anchor)`, [`RectExt`] (`inset split_left split_top
 //!   centered …`), `row column weighted_row grid grid_cell`, [`Flow`] cursor.
-//! * **Icons** — [`Icon`] (53 glyphs, `Icon::ALL`), [`draw_icon`].
+//! * **Icons** — [`Icon`] (78 glyphs, `Icon::ALL`), [`draw_icon`].
 //!
 //! ## Example
 //! ```ignore
@@ -67,6 +67,7 @@ pub mod context;
 pub mod dialogue;
 pub mod draw;
 pub mod glass;
+pub mod handson;
 pub mod icons;
 pub mod id;
 pub mod layout;

@@ -1,0 +1,488 @@
+//! The polaroid card and the journal scrapbook (J), design §11.4.
+//!
+//! A polaroid is a white frame around a photo texture (the render agent's
+//! `draw_scene_snap` target), tilted a little, with a handwritten caption and the date.
+//! The journal is a kraft-paper panel with six polaroids per page; click one to enlarge
+//! it; **←/→** turn pages, **Esc** closes the enlarged photo, then the journal.
+
+use macroquad::prelude::*;
+
+use super::common::{Affine, dashed_rrect, draw_handwritten_block, with_transform};
+use crate::ui::draw::{
+    self, Paint, fill_rrect, fill_rrect_grain, line, shadow_rrect, stroke_rrect, with_a,
+};
+use crate::ui::layout::RectExt;
+use crate::ui::{
+    Align, Glass, Icon, IconButton, Response, TextStyle, Ui, UiSound, Weight, draw_icon, ease_out,
+};
+
+/// One photo with its caption.
+#[derive(Clone, Debug)]
+pub struct PolaroidView {
+    /// The scene snapshot (any size; drawn to the 4:3 window, cropped to fill).
+    pub photo: Option<Texture2D>,
+    /// Render targets come out upside down: set this for them.
+    pub flip_y: bool,
+    pub caption: String,
+    /// "7. 11. 2039" (per language).
+    pub date: String,
+    /// Degrees, −3…+3 (from the entry's seed).
+    pub tilt: f32,
+    /// 0 = still white, 1 = fully developed (the morning reveal).
+    pub develop: f32,
+}
+
+/// Size of a polaroid frame of width `w` (photo 4:3, white border, deep bottom band).
+pub fn polaroid_size(w: f32) -> Vec2 {
+    let w = w.max(20.0);
+    let b = (w * 0.05).max(4.0);
+    let ph = (w - 2.0 * b) * 0.75;
+    vec2(w, b + ph + w * 0.17)
+}
+
+/// Height ÷ width of a typical polaroid (for fitting one into a box).
+pub fn polaroid_aspect() -> f32 {
+    polaroid_size(200.0).y / 200.0
+}
+
+/// Draw a polaroid centred at `c`, `w` wide. Returns the (untilted) hit response.
+pub fn polaroid(
+    ui: &mut Ui,
+    key: impl std::hash::Hash,
+    c: Vec2,
+    w: f32,
+    v: &PolaroidView,
+) -> Response {
+    let id = ui.id(key);
+    let size = polaroid_size(w);
+    let r = Rect::new(c.x - size.x / 2.0, c.y - size.y / 2.0, size.x, size.y);
+    let resp = ui.interact(id, r);
+    let lift = resp.hover_t * 3.0;
+    let tilt = v.tilt * (1.0 - 0.6 * resp.hover_t);
+    let rr = r.translate(vec2(0.0, -lift));
+    let xf = Affine::rotate(rr.center(), tilt);
+    with_transform(ui, xf, |ui| draw_polaroid(ui, rr, v, 1.0 + lift * 0.3));
+    resp
+}
+
+fn draw_polaroid(ui: &mut Ui, r: Rect, v: &PolaroidView, shadow_k: f32) {
+    let w = r.w;
+    let b = (w * 0.05).max(4.0);
+    shadow_rrect(
+        r,
+        3.0,
+        draw::Shadow::new(
+            0.0,
+            3.0 * shadow_k,
+            10.0 * shadow_k,
+            0.0,
+            Color::new(0.0, 0.0, 0.0, 0.45),
+        ),
+    );
+    fill_rrect_grain(
+        r,
+        2.5,
+        Paint::vertical(r, Color::from_hex(0xFBF8F1), Color::from_hex(0xEDE6D8)),
+    );
+    let photo = Rect::new(r.x + b, r.y + b, w - 2.0 * b, (w - 2.0 * b) * 0.75);
+    fill_rrect(photo, 1.0, Color::from_hex(0x1A1626));
+    if let Some(tex) = &v.photo {
+        // crop to fill the 4:3 window
+        let (tw, th) = (tex.width(), tex.height());
+        let want = photo.w / photo.h;
+        let src = if tw / th > want {
+            let cw = th * want;
+            Rect::new((tw - cw) / 2.0, 0.0, cw, th)
+        } else {
+            let ch = tw / want;
+            Rect::new(0.0, (th - ch) / 2.0, tw, ch)
+        };
+        draw_texture_ex(
+            tex,
+            photo.x,
+            photo.y,
+            draw::faded(WHITE),
+            DrawTextureParams {
+                dest_size: Some(vec2(photo.w, photo.h)),
+                source: Some(src),
+                flip_y: v.flip_y,
+                ..Default::default()
+            },
+        );
+        // photo grade: warm vignette + a soft flash highlight
+        let vg = Color::from_hex(0x1A0F08);
+        for (k, a) in [(0.0, 0.3), (0.06, 0.16), (0.12, 0.07)] {
+            stroke_rrect(photo.inset(photo.w * k), 1.0, photo.w * 0.07, with_a(vg, a));
+        }
+        draw::glow_ellipse(
+            vec2(photo.x + photo.w * 0.3, photo.y + photo.h * 0.25),
+            photo.w * 0.35,
+            photo.h * 0.3,
+            Color::new(1.0, 0.95, 0.85, 0.08),
+        );
+    }
+    // developing: white → photo
+    let dev = v.develop.clamp(0.0, 1.0);
+    if dev < 0.999 {
+        fill_rrect(
+            photo,
+            1.0,
+            with_a(Color::from_hex(0xF1EEE6), 1.0 - ease_out(dev)),
+        );
+    }
+    stroke_rrect(photo, 1.0, 1.0, Color::new(0.0, 0.0, 0.0, 0.18));
+    // caption in the bottom band
+    let band = Rect::new(
+        r.x + b,
+        photo.bottom(),
+        photo.w,
+        r.bottom() - photo.bottom(),
+    );
+    let ink = Color::from_hex(0x2E2840);
+    let cap_size = (w * 0.05).clamp(10.0, 17.0);
+    let cs = TextStyle::new(cap_size, Weight::Medium, ink).line_height(1.22);
+    let date_s = TextStyle::new(
+        (cap_size * 0.72).max(8.5),
+        Weight::Medium,
+        Color::from_hex(0x8A8396),
+    )
+    .tabular();
+    let dw = ui.fonts.measure(&v.date, &date_s);
+    let lines_h = cs.line_h() * if band.h > cs.line_h() * 2.4 { 2.0 } else { 1.0 };
+    let cap_r = Rect::new(
+        band.x + 2.0,
+        band.y + (band.h - lines_h) / 2.0 - 1.0,
+        band.w - dw - 10.0,
+        lines_h,
+    );
+    let max_lines = (lines_h / cs.line_h()).round() as usize;
+    draw_handwritten_block(ui, &v.caption, cap_r, &cs, Align::Left, max_lines.max(1));
+    ui.fonts.draw(
+        &v.date,
+        band.right() - dw - 1.0,
+        band.bottom() - band.h * 0.22,
+        &date_s,
+    );
+}
+
+/// A taped strip of washi tape across a corner (decoration on the scrapbook).
+fn tape(c: Vec2, w: f32, deg: f32, color: Color) {
+    let (s, co) = deg.to_radians().sin_cos();
+    let d = vec2(co, s) * w / 2.0;
+    let n = vec2(-s, co) * 7.0;
+    draw::fill_convex(
+        &[c - d - n, c + d - n, c + d + n, c - d + n],
+        Paint::Solid(color),
+    );
+}
+
+// ---------------------------------------------------------------------------
+// Journal
+// ---------------------------------------------------------------------------
+
+#[derive(Clone, Debug)]
+pub struct JournalEntry {
+    pub night: u32,
+    /// The night's title ("Rain and the first regular").
+    pub title: String,
+    /// None: a dashed empty slot ("night 12").
+    pub polaroid: Option<PolaroidView>,
+}
+
+#[derive(Clone, Debug)]
+pub struct JournalView {
+    pub entries: Vec<JournalEntry>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct JournalLabels {
+    pub title: String,
+    /// "Page {n} of {m}".
+    pub page: String,
+    /// "Night {n}" (placeholder replaced here).
+    pub night: String,
+    pub close: String,
+    pub prev: String,
+    pub next: String,
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum JournalAction {
+    Close,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct JournalState {
+    pub page: usize,
+    pub open: Option<usize>,
+    turn: f32,
+}
+
+pub const JOURNAL_SIZE: Vec2 = Vec2::new(780.0, 500.0);
+const PER_PAGE: usize = 6;
+
+pub fn journal(
+    ui: &mut Ui,
+    key: impl std::hash::Hash,
+    r: Rect,
+    v: &JournalView,
+    l: &JournalLabels,
+    st: &mut JournalState,
+) -> Option<JournalAction> {
+    let id = ui.id(key);
+    let mut action = None;
+    ui.glass(r, &Glass::panel().solid().radius(14.0));
+    // kraft paper inside the glass frame
+    let paper = r.inset(8.0);
+    fill_rrect_grain(
+        paper,
+        9.0,
+        Paint::diagonal(paper, Color::from_hex(0x9C7A55), Color::from_hex(0x6F5238)),
+    );
+    for i in 0..60 {
+        let fx = ((i * 7919) % 1000) as f32 / 1000.0;
+        let fy = ((i * 104_729) % 1000) as f32 / 1000.0;
+        let p = vec2(paper.x + fx * paper.w, paper.y + fy * paper.h);
+        let a = (i % 7) as f32 * 0.9;
+        line(
+            p,
+            p + vec2(a.cos(), a.sin()) * (6.0 + (i % 5) as f32 * 3.0),
+            0.6,
+            Color::new(0.2, 0.12, 0.05, 0.12),
+        );
+    }
+    fill_rrect(
+        paper,
+        9.0,
+        Paint::vertical(
+            paper,
+            Color::new(1.0, 0.9, 0.7, 0.06),
+            Color::new(0.0, 0.0, 0.0, 0.12),
+        ),
+    );
+    stroke_rrect(paper, 9.0, 1.0, Color::new(0.0, 0.0, 0.0, 0.25));
+
+    // header
+    let cream = Color::from_hex(0xF6EEDC);
+    let head = Rect::new(paper.x + 16.0, paper.y + 10.0, paper.w - 32.0, 30.0);
+    draw_icon(
+        Icon::Camera,
+        vec2(head.x + 10.0, head.center_y()),
+        17.0,
+        cream,
+    );
+    let ts = TextStyle::new(18.0, Weight::Bold, cream);
+    let tw = super::common::draw_handwritten(
+        ui,
+        &l.title,
+        head.x + 26.0,
+        ui.fonts.baseline_in(head, &ts),
+        &ts,
+    );
+    ui.keycap(vec2(head.x + 36.0 + tw, head.center_y()), "J", false);
+    let close = Rect::new(head.right() - 26.0, head.y + 2.0, 26.0, 26.0);
+    if ui
+        .icon_button(
+            id.with("close"),
+            close,
+            Icon::Close,
+            &IconButton::secondary().size(14.0).tooltip(&l.close),
+        )
+        .clicked
+    {
+        action = Some(JournalAction::Close);
+    }
+    let pages = v.entries.len().div_ceil(PER_PAGE).max(1);
+    st.page = st.page.min(pages - 1);
+
+    // page turn: slide + fade
+    st.turn = crate::ui::approach(st.turn, 0.0, ui.dt(), 0.09);
+    let grid = Rect::new(
+        paper.x + 18.0,
+        head.bottom() + 6.0,
+        paper.w - 36.0,
+        paper.bottom() - head.bottom() - 6.0 - 44.0,
+    );
+    let cell_w = grid.w / 3.0;
+    let cell_h = grid.h / 2.0;
+    let pw = (cell_w - 40.0)
+        .min((cell_h - 34.0) / polaroid_aspect())
+        .max(40.0);
+    draw::push_alpha(1.0 - st.turn.abs().min(1.0) * 0.8);
+    let shift = st.turn * 60.0;
+    let start = st.page * PER_PAGE;
+    let tape_cols = [
+        Color::new(0.75, 0.72, 0.95, 0.55),
+        Color::new(1.0, 0.85, 0.6, 0.5),
+        Color::new(0.7, 0.9, 0.85, 0.5),
+    ];
+    let mut clicked = None;
+    for (k, e) in v.entries.iter().enumerate().skip(start).take(PER_PAGE) {
+        let slot = k - start;
+        let (cx, cy) = ((slot % 3) as f32, (slot / 3) as f32);
+        let cell = Rect::new(
+            grid.x + cx * cell_w + shift,
+            grid.y + cy * cell_h,
+            cell_w,
+            cell_h,
+        );
+        let size = polaroid_size(pw);
+        let c = vec2(cell.center().x, cell.y + 6.0 + size.y / 2.0);
+        let label = l.night.replace("{n}", &e.night.to_string());
+        match &e.polaroid {
+            Some(p) => {
+                let resp = polaroid(ui, id.with(("pol", k)), c, pw, p);
+                tape(
+                    vec2(c.x - size.x * 0.32, c.y - size.y / 2.0 + 2.0),
+                    34.0,
+                    -28.0 + p.tilt * 2.0,
+                    tape_cols[k % 3],
+                );
+                if resp.clicked {
+                    ui.sound(UiSound::Click);
+                    clicked = Some(k);
+                }
+                ui.tooltip(&resp, &p.caption);
+            }
+            None => {
+                let er = Rect::new(c.x - size.x / 2.0, c.y - size.y / 2.0, size.x, size.y);
+                fill_rrect(er, 3.0, Color::new(0.0, 0.0, 0.0, 0.1));
+                dashed_rrect(er, 3.0, 1.2, 5.0, with_a(cream, 0.4));
+                ui.fonts.draw_in(
+                    &label,
+                    er,
+                    &TextStyle::new(12.0, Weight::Medium, with_a(cream, 0.55)),
+                    Align::Center,
+                );
+            }
+        }
+        let ty = c.y + size.y / 2.0 + 6.0;
+        let ls = TextStyle::new(11.0, Weight::SemiBold, with_a(cream, 0.95));
+        let txt = if e.polaroid.is_some() {
+            format!("{label} · {}", e.title)
+        } else {
+            String::new()
+        };
+        ui.fonts.draw_in(
+            &txt,
+            Rect::new(cell.x + 8.0, ty, cell.w - 16.0, 16.0),
+            &ls,
+            Align::Center,
+        );
+    }
+    draw::pop_alpha();
+    if let Some(k) = clicked {
+        st.open = Some(k);
+    }
+
+    // footer: page arrows
+    let foot = Rect::new(paper.x + 16.0, paper.bottom() - 36.0, paper.w - 32.0, 28.0);
+    let page_txt = l
+        .page
+        .replace("{n}", &(st.page + 1).to_string())
+        .replace("{m}", &pages.to_string());
+    ui.fonts.draw_in(
+        &page_txt,
+        foot,
+        &TextStyle::new(12.0, Weight::Medium, cream),
+        Align::Center,
+    );
+    let pw_btn = 28.0;
+    let prev = Rect::new(foot.center().x - 90.0 - pw_btn, foot.y, pw_btn, 28.0);
+    let next = Rect::new(foot.center().x + 90.0, foot.y, pw_btn, 28.0);
+    let mut turn: i32 = 0;
+    if ui
+        .icon_button(
+            id.with("prev"),
+            prev,
+            Icon::ChevronLeft,
+            &IconButton::secondary()
+                .size(14.0)
+                .disabled(st.page == 0)
+                .tooltip(&l.prev),
+        )
+        .clicked
+    {
+        turn = -1;
+    }
+    if ui
+        .icon_button(
+            id.with("next"),
+            next,
+            Icon::ChevronRight,
+            &IconButton::secondary()
+                .size(14.0)
+                .disabled(st.page + 1 >= pages)
+                .tooltip(&l.next),
+        )
+        .clicked
+    {
+        turn = 1;
+    }
+
+    // enlarged photo
+    if let Some(k) = st.open {
+        if let Some(Some(p)) = v.entries.get(k).map(|e| e.polaroid.as_ref()) {
+            let a = ui.ease_value(id.with(("big", k)), 1.0, 0.08);
+            fill_rrect(paper, 9.0, Color::new(0.03, 0.02, 0.07, 0.6 * a));
+            ui.region(paper);
+            let bw = ((paper.h - 150.0) / polaroid_aspect())
+                .clamp(60.0, (paper.w * 0.6).clamp(60.0, 400.0));
+            let c = vec2(paper.center().x, paper.center_y() - 22.0 + (1.0 - a) * 12.0);
+            let mut big = p.clone();
+            big.tilt *= 0.4;
+            draw::push_alpha(a);
+            let resp = polaroid(ui, id.with(("bigpol", k)), c, bw, &big);
+            let e = &v.entries[k];
+            let title = format!(
+                "{} · {}",
+                l.night.replace("{n}", &e.night.to_string()),
+                e.title
+            );
+            ui.fonts.draw_in(
+                &title,
+                Rect::new(
+                    paper.x,
+                    c.y + polaroid_size(bw).y / 2.0 + 8.0,
+                    paper.w,
+                    20.0,
+                ),
+                &TextStyle::new(13.0, Weight::SemiBold, cream),
+                Align::Center,
+            );
+            draw::pop_alpha();
+            let backdrop = ui.interact(id.with("backdrop"), paper);
+            if resp.clicked || backdrop.clicked {
+                st.open = None;
+            }
+        } else {
+            st.open = None;
+        }
+    }
+
+    // keyboard
+    if st.open.is_none() {
+        if ui.key_repeat(KeyCode::Left) && st.page > 0 {
+            turn = -1;
+        }
+        if ui.key_repeat(KeyCode::Right) && st.page + 1 < pages {
+            turn = 1;
+        }
+    }
+    if turn != 0 {
+        let np = (st.page as i32 + turn).clamp(0, pages as i32 - 1) as usize;
+        if np != st.page {
+            st.page = np;
+            st.turn = turn as f32;
+            ui.sound(UiSound::Click);
+        }
+    }
+    if ui.esc() {
+        if st.open.is_some() {
+            st.open = None;
+        } else {
+            action = Some(JournalAction::Close);
+        }
+    }
+    action
+}
