@@ -2,6 +2,8 @@
 //! checklists, handover notes, announcements, @shiftella_bot inbox, digest, payroll basis.
 //! Never clock-in/out through the bot.
 
+use std::collections::BTreeMap;
+
 use super::logic;
 use super::types::*;
 use super::world::*;
@@ -193,6 +195,7 @@ pub(crate) fn bot_action(
             answer_swap(w, r, approve)?;
         } else if w.app.time_off.iter().any(|x| x.id == r) {
             answer_time_off(w, r, approve)?;
+            crew_changed(w, content);
         }
     }
     if action == "get_well" {
@@ -225,6 +228,8 @@ pub(crate) fn answer_swap(w: &mut World, id: u32, approve: bool) -> Result<(), C
     };
     let wd = s.weekday as usize % 7;
     if approve {
+        // a hand-made change: the app stops re-planning the rozpis on its own
+        w.app.manual_rozpis = true;
         for sched in [&mut w.app.published, &mut w.app.draft] {
             let a = sched.get(&s.from).map(|x| x[wd]).unwrap_or_default();
             let b = sched.get(&s.to).map(|x| x[wd]).unwrap_or_default();
@@ -328,6 +333,7 @@ pub(crate) fn tick_checklist(w: &mut World, content: &Content, id: &str, by: Opt
 
 pub(crate) fn on_day_start(w: &mut World, content: &Content) {
     w.app.week = week_of(w.night);
+    crew_changed(w, content);
     // story announcements of this night
     for a in &content.app.announcements {
         if w.mode == Mode::Story
@@ -603,4 +609,183 @@ pub fn digest_lines(summary: &NightSummary) -> Vec<(String, Vec<(String, String)
         v.push(("app.digest.quiet".into(), Vec::new()));
     }
     v
+}
+
+// ---------------------------------------------------------------------------------------------
+// Default rozpis
+// ---------------------------------------------------------------------------------------------
+
+/// Full-shift hires per night before extra people get split shifts (22–02 / 02–06).
+pub const ROZPIS_MAX_FULL_HIRES: usize = 2;
+
+/// Weekday of a night (story nights carry their own weekday).
+fn weekday_of_night(w: &World, content: &Content, night: u32) -> usize {
+    match w.mode {
+        Mode::Story => content
+            .story
+            .night(night)
+            .map(|n| n.weekday as usize)
+            .unwrap_or(((night.max(1) - 1) % 7) as usize),
+        Mode::Sandbox => ((night.max(1) - 1) % 7) as usize,
+    }
+}
+
+/// How busy each weekday is (sum of the town's guest pools × weekday multipliers).
+fn weekday_demand(w: &World, content: &Content) -> [f32; 7] {
+    let mut d = [0.0f32; 7];
+    for g in &content.guests {
+        if g.institution
+            .as_ref()
+            .is_some_and(|i| !w.town.institutions.iter().any(|x| x == i))
+        {
+            continue;
+        }
+        let avg: f32 = (0..8).map(|h| g.weight_at(h)).sum::<f32>() / 8.0;
+        for (wd, x) in d.iter_mut().enumerate() {
+            *x += avg * g.weekday_mult.get(wd).copied().unwrap_or(1.0);
+        }
+    }
+    // normalised: the average night is 1.0
+    let mean = (d.iter().sum::<f32>() / 7.0).max(0.01);
+    for x in d.iter_mut() {
+        *x = (*x / mean).max(0.05);
+    }
+    d
+}
+
+/// A sensible default rozpis for the current crew.
+///
+/// * The owner (the player) is in every night, 22–06.
+/// * Hires get rotating days off: 5 shifts a week with up to three hires, 4 with more
+///   (a lone hire works every night — the coverage rule wins: at least 2 people a night).
+/// * Nights are filled by demand (Fri/Sat first get the second person), days off are
+///   staggered so no night is left to the owner alone.
+/// * Approved time off in the coming week (dovolená / náhradní volno) is respected.
+/// * More than [`ROZPIS_MAX_FULL_HIRES`] hires on one night: the extra people get split
+///   shifts, alternating 22–02 and 02–06.
+pub(crate) fn default_rozpis(w: &World, content: &Content) -> BTreeMap<u32, [Shift; 7]> {
+    let mut out: BTreeMap<u32, [Shift; 7]> = BTreeMap::new();
+    let hires: Vec<&Staff> = w.staff.iter().filter(|s| !s.owner).collect();
+    for s in w.staff.iter().filter(|s| s.owner) {
+        out.insert(s.id, [Shift::Full; 7]);
+    }
+    let n = hires.len();
+    if n == 0 {
+        return out;
+    }
+    let per_person = match n {
+        1 => 7,
+        2 | 3 => 5,
+        _ => 4,
+    };
+    let demand = weekday_demand(w, content);
+    // weekdays each hire is away in the coming week
+    let away: Vec<[bool; 7]> = hires
+        .iter()
+        .map(|s| {
+            let mut a = [false; 7];
+            for (night, _) in &s.leave_nights {
+                if *night >= w.night && *night < w.night + 7 {
+                    a[weekday_of_night(w, content, *night)] = true;
+                }
+            }
+            a
+        })
+        .collect();
+    // each person's main job (their best skill); people sharing it take their days off on
+    // different nights, so the kitchen / the bar isn't left to the owner
+    let main_job: Vec<usize> = hires
+        .iter()
+        .map(|s| {
+            (0..5)
+                .max_by(|a, b| s.skills[*a].total_cmp(&s.skills[*b]))
+                .unwrap_or(0)
+        })
+        .collect();
+    let mut on = vec![[false; 7]; n];
+    let mut count = [0usize; 7];
+    let mut job_count = [[0usize; 5]; 7];
+    for k in 0..n {
+        let mut days: Vec<usize> = (0..7).filter(|d| !away[k][*d]).collect();
+        // least covered (relative to demand, and for this person's job) first; the rotation
+        // staggers the days off
+        let key =
+            |d: usize| (count[d] + 1) as f32 / demand[d] + job_count[d][main_job[k]] as f32 * 0.8;
+        days.sort_by(|a, b| {
+            key(*a)
+                .total_cmp(&key(*b))
+                .then(((a + 7 - (k * 2) % 7) % 7).cmp(&((b + 7 - (k * 2) % 7) % 7)))
+        });
+        for d in days.into_iter().take(per_person) {
+            on[k][d] = true;
+            count[d] += 1;
+            job_count[d][main_job[k]] += 1;
+        }
+    }
+    // coverage: nobody but the owner on a night → the least-busy available hire steps in
+    for d in 0..7 {
+        if count[d] > 0 {
+            continue;
+        }
+        let pick = (0..n)
+            .filter(|&k| !away[k][d] && !on[k][d])
+            .min_by_key(|&k| on[k].iter().filter(|x| **x).count());
+        if let Some(k) = pick {
+            on[k][d] = true;
+            count[d] += 1;
+        }
+    }
+    let mut rows: Vec<[Shift; 7]> = on
+        .iter()
+        .map(|r| r.map(|x| if x { Shift::Full } else { Shift::Off }))
+        .collect();
+    // overstaffed nights: extra people work half a night
+    for d in 0..7 {
+        if count[d] <= ROZPIS_MAX_FULL_HIRES {
+            continue;
+        }
+        // the newest people get the split shifts, alternating early / late
+        let mut extra = 0usize;
+        for k in (0..n).rev() {
+            if count[d] - extra <= ROZPIS_MAX_FULL_HIRES {
+                break;
+            }
+            if rows[k][d] == Shift::Full {
+                rows[k][d] = if extra.is_multiple_of(2) {
+                    Shift::Early
+                } else {
+                    Shift::Late
+                };
+                extra += 1;
+            }
+        }
+    }
+    for (k, s) in hires.iter().enumerate() {
+        out.insert(s.id, rows[k]);
+    }
+    out
+}
+
+/// The crew or their time off changed: keep the rozpis sensible.
+///
+/// While the player hasn't edited the rozpis by hand (`AppState::manual_rozpis`), the app
+/// plans it: draft **and** published become the default rozpis (no "unpublished" grumbling).
+/// After manual edits only rows for new people are added (their default row, published too so
+/// they can start tonight) and rows of people who left are dropped.
+pub(crate) fn crew_changed(w: &mut World, content: &Content) {
+    let def = default_rozpis(w, content);
+    if !w.app.manual_rozpis {
+        if w.app.published != def || w.app.draft != def {
+            w.app.draft = def.clone();
+            w.app.published = def;
+            w.app.draft_dirty = false;
+        }
+        return;
+    }
+    for sched in [&mut w.app.draft, &mut w.app.published] {
+        sched.retain(|id, _| def.contains_key(id));
+        for (id, row) in &def {
+            sched.entry(*id).or_insert(*row);
+        }
+    }
 }

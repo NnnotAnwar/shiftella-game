@@ -20,6 +20,7 @@ pub const TILE: f32 = 64.0;
 /// `=` street · `T` table_round · `h` chair (faces the table) · `C` bar_counter · `R` register ·
 /// `M` coffee_machine · `S` stove (2×1) · `F` fridge · `K` sink · `t` trash_bin ·
 /// `l` floor_lamp (the window light) · `p` plant_tall · `g` grandma_photo · `b` bookshelf.
+/// Every table also gets a `pendant_lamp` (tag `light`) hanging over it.
 pub const DEFAULT_LAYOUT: &str = "\
 ####WWWW######WWWW######WWWW##
 #p....l......g...............#
@@ -359,6 +360,7 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
     }
     // Counter row tiles are staff side too (they're blocked anyway).
     let mut furniture: Vec<Placed> = Vec::new();
+    let mut tables: Vec<(i32, i32)> = Vec::new();
     let mut place = |grid: &mut Grid, def_id: &str, x: i32, y: i32, rot: u8| {
         let Some(def) = content.furniture_def(def_id) else {
             return;
@@ -400,7 +402,10 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
             let c = row[x];
             let xi = x as i32;
             match c {
-                'T' => place(&mut grid, "table_round", xi, y, 0),
+                'T' => {
+                    place(&mut grid, "table_round", xi, y, 0);
+                    tables.push((xi, y));
+                }
                 'h' => {
                     // Face the neighbouring table.
                     let right = row.get(x + 1) == Some(&'T');
@@ -424,6 +429,11 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
             }
             x += 1;
         }
+    }
+    // A pendant lamp over every table (rug layer: shares the table's tile). The warm pools
+    // of light come from the sim's furniture, so the renderer just draws `pendant_lamp`s.
+    for (x, y) in std::mem::take(&mut tables) {
+        place(&mut grid, "pendant_lamp", x, y, 0);
     }
     // The window lamp starts off (the player lights it — `light_window` checklist).
     for p in furniture.iter_mut() {

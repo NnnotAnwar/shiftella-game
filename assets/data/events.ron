@@ -141,7 +141,8 @@
 
     // ---------------------------------------------------------------- the uncanny (quiet wonder, never fear)
     (id: "clock_333", kind: Uncanny, severity: 1, trigger: Auto, min_night: 4,
-     conditions: [TimeBetween("03:33", "03:34"), WindowLightOn],
+     // every story night with the light on (the 3:33 guest); in sandbox only now and then
+     conditions: [TimeBetween("03:33", "03:34"), WindowLightOn, Any([Mode(Story), Chance(0.15)])],
      effects: [ClockStop(seconds: 60.0)]),
     (id: "phantom_horn", kind: Uncanny, severity: 1, weight: 10.0, cooldown: 2,
      conditions: [TimeBetween("02:00", "04:00")],

@@ -10,6 +10,9 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   night trains, soft holographic signs, small delivery drones over wet roofs — near-future but intimate
   and human, never cyberpunk-grim. International feel with a Czech note (renamed 2026-11-26 from the
   former fictional town "Mlhov nad Šeřavou" and café "U Výhybky").
+- **Heroine (the player): Karolina** — grandma Lida's granddaughter, the heir (uk: Кароліна). Lines may use
+  feminine grammatical forms in cs/sk/uk. In the Shiftella app her row reads "Karolina (you)" localized
+  (cs/sk "(ty)", uk "(ти)").
 - **Names:** simplified, international-friendly with a Czech note: grandma **Lida**, her fiancé **Jindra**,
   regulars Mirek, Hana, **Vera**, Filip, Radek, Lori; the 3:33 guest; Anwar (cameo). Staff/guest name pools: an
   international mix (Czech, Slovak, Ukrainian, European) with few diacritics.
@@ -114,7 +117,11 @@ Do not edit files outside your area. If you need something from another area, wr
 your final report as an interface request.
 
 ## 6. Hands-on gameplay (in v0.1.0, owner decision 2026-11-26)
-Goal: the player is not only a manager — the heir works behind the counter herself. Relaxing,
+Goal: the player is not only a manager — the heir works behind the counter herself.
+**Core principle (owner): "I don't want to just watch the game play itself."** The loop is PLAYER-FIRST:
+the heir does the core work by hand every night; staff are helpers who only take what the player
+delegates (limited, never the whole café); regulars, wishes, specials, moments and story beats always need
+the player; at ×1 there is almost always something meaningful to do. Relaxing,
 tactile, never failable. Three features:
 
 1. **The heir behind the counter (direct control).** A `player` actor (look preset `player`) lives in the
@@ -146,3 +153,22 @@ Mini-games (`src/minigame/**`, `MiniGameKind`): **MilkFroth** (hold to froth, re
 circles to a gentle rhythm), **TeaSteep** (lift the tea bag when the colour looks right), **Plate** (arrange a
 pastry / soup garnish). Each: `start(kind, seed)`, `update(&mut Ui, dt) -> MiniGameStatus { Running,
 Done { quality } }`, `draw(&mut Ui, rect)`; skippable (auto quality 0.7), 8–20 seconds, cosy SFX hooks.
+
+### 6.4 The café changes over time (in v0.1.0)
+- **Seasons over the 30 nights:** late autumn (rain, leaves) → first snow around night 27 (snow outside,
+  frosted windows, steam on breath) → festive garlands and lights near the end. Sandbox cycles seasons slowly.
+- **Decor themes & coziness:** unlockable themes (e.g. Grandma's original, Prague Art-Nouveau, Station Retro,
+  Winter Lights) for walls/floors/lamps/textiles; a **coziness / atmosphere** value of the hall (lighting,
+  plants, rugs, music, cleanliness, theme) that gently raises guests' mood and patience and shows as a
+  soft "atmosphere" meter.
+- **Polaroid journal:** every morning the night's best moment (a regular's arc beat, a perfect latte, the
+  3:33 guest, a full house…) is captured as a small "polaroid" snapshot of the actual scene with a
+  handwritten-style caption, stored in the save and browsable in a **Journal** (hotkey **J**).
+
+### 6.5 The rozpis as a light puzzle (in v0.1.0)
+- Staff have **preferences**: "I have lectures on Tuesdays", "night owl — late shift please", "wants the weekend
+  off", "can't work two nights in a row", "loves working with Bára"… shown as small chips in the Shiftella app.
+- The rozpis shows a gentle **fairness / wellbeing score** per person and for the week; respecting wishes lowers
+  fatigue and raises mood (better work, fewer late arrivals and sick days); ignoring them is allowed but costs
+  mood. Auto-fill respects wishes where it can. This is the in-game echo of what the real Shiftella does —
+  keep it satisfying, not spreadsheet-heavy.
