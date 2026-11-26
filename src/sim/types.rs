@@ -2,6 +2,8 @@
 
 use serde::{Deserialize, Serialize};
 
+use super::hands::{BrewMode, LullHint, OrderKind, PlayerAct};
+use crate::content::handson::{Duty, HallMood, MatchTier};
 use crate::content::{Job, Weather};
 
 /// Serde helpers for content enums that only derive `Deserialize`.
@@ -114,6 +116,10 @@ pub enum SimEmote {
     Music,
     Exclamation,
     Money,
+    /// A perfect serve (hands-on; render mirrors it).
+    Sparkle,
+    /// A greeting, an okay serve.
+    Smile,
 }
 
 /// A week shift in the Shiftella rozpis.
@@ -216,6 +222,40 @@ pub struct NightSummary {
     pub stuck_resets: u32,
     pub checklist_done: u32,
     pub checklist_total: u32,
+    // --- hands-on (save v2) -------------------------------------------------------------------
+    /// Guests who waited too long on Cozy and left content (no review penalty).
+    #[serde(default)]
+    pub guests_forgiven: u32,
+    /// Items made by Karolina / by helpers.
+    #[serde(default)]
+    pub karolina_items: u32,
+    #[serde(default)]
+    pub helper_items: u32,
+    /// Karolina's by-hand (mini-game) brews.
+    #[serde(default)]
+    pub minigames: u32,
+    #[serde(default)]
+    pub wishes_served: u32,
+    #[serde(default)]
+    pub wishes_perfect: u32,
+    /// Regulars' items, and how many of them Karolina made.
+    #[serde(default)]
+    pub regular_items: u32,
+    #[serde(default)]
+    pub regular_items_karolina: u32,
+    /// Night minutes Karolina had nothing meaningful to do (quiet hour excluded).
+    #[serde(default)]
+    pub karolina_idle_minutes: u32,
+    /// Median / peak of her pending things per minute.
+    #[serde(default)]
+    pub todo_median: u32,
+    #[serde(default)]
+    pub todo_peak: u32,
+    #[serde(default)]
+    pub best_rhythm: u32,
+    /// Helpers' credits for the digest: (name, duty id, tasks).
+    #[serde(default)]
+    pub helper_credits: Vec<(String, String, u32)>,
 }
 
 /// Everything the sim tells audio / UI / cutscenes. Drain with `World::drain_events`.
@@ -395,6 +435,101 @@ pub enum SimEvent {
     FurnitureRemoved {
         uid: u32,
     },
+    // --- hands-on -----------------------------------------------------------------------------
+    /// Karolina took an order: open the order card (`wish` = `wish.<id>`, `None` = plain).
+    PlayerOrderTaken {
+        guest: u32,
+        party: u32,
+        wish: Option<String>,
+        kind: OrderKind,
+    },
+    /// Karolina served something she made.
+    PlayerServed {
+        guest: u32,
+        recipe: String,
+        match_score: f32,
+        quality: f32,
+    },
+    /// Her queue / current act changed (refresh the icons over her head).
+    PlayerQueueChanged,
+    PlayerGreeted {
+        guest: u32,
+    },
+    /// Reaction bubble after a wish serve (`react.<tier>.<n>` / `react.<regular>.<tier>`).
+    GuestReaction {
+        guest: u32,
+        tier: MatchTier,
+        key: String,
+    },
+    /// Cozy: patience ran out — a glass of water, patience refills once.
+    GuestPatienceRefilled {
+        party: u32,
+    },
+    /// Cozy: they waited too long and leave content ("I'll come back tomorrow.").
+    GuestForgiven {
+        party: u32,
+        key: String,
+    },
+    /// A coin glints on a table.
+    TipLeft {
+        table: u32,
+        amount: i64,
+    },
+    /// Coins went into the tip jar (Karolina, a dishes helper, or the night end).
+    TipCollected {
+        amount: i64,
+        by: Option<u32>,
+    },
+    /// Karolina learned a recipe (`source`: `starter`, `card`, `taught:<who>`, `story`).
+    RecipeLearned {
+        recipe: String,
+        source: String,
+    },
+    IngredientUnlocked {
+        id: String,
+    },
+    PractisedRecipe {
+        recipe: String,
+    },
+    RushStarted,
+    RushEnded,
+    /// The rhythm streak (purely positive; 0 = it faded).
+    RhythmChanged {
+        step: u8,
+    },
+    /// Karolina has been idle this long; the lull director suggests something.
+    KarolinaIdle {
+        minutes: u32,
+    },
+    LullSuggestion {
+        hint: LullHint,
+    },
+    /// A regular is crossing the street: portrait chip on the rail.
+    RegularIncoming {
+        regular: String,
+        party: u32,
+        minutes: u32,
+    },
+    /// The jukebox changed (`None` = the house playlist).
+    RecordChanged {
+        record: Option<String>,
+        repeat: bool,
+    },
+    HallMoodChanged {
+        mood: Option<HallMood>,
+    },
+    RecordUnlocked {
+        id: String,
+    },
+    RecordReaction {
+        guest: u32,
+        record: String,
+        liked: bool,
+    },
+    /// The quiet hour began (03:00).
+    QuietHour {
+        on: bool,
+    },
 }
 
 /// Every player action.
@@ -525,12 +660,79 @@ pub enum Command {
     },
     /// Day → Night (same as `World::start_night`).
     StartNight,
+    // --- hands-on: Karolina behind the counter --------------------------------------------------
+    /// Karolina walks over and takes the order (`guest` = any member or the party id). The
+    /// party is claimed at once; error `InUse` if a helper already took it.
+    PlayerTakeOrder {
+        guest: u32,
+    },
+    /// Brew for a guest whose order she took: the leader's wish (any known recipe) or a plain
+    /// item (a recipe on that menu item). `quality` (0–1, from the mini-game) is ignored for
+    /// `Quick`. She walks to the station, works, then serves automatically.
+    PlayerBrew {
+        guest: u32,
+        recipe: String,
+        quality: f32,
+        mode: BrewMode,
+    },
+    /// "The usual?" = `PlayerBrew` with the regular's usual recipe, by hand.
+    PlayerUsual {
+        guest: u32,
+        quality: f32,
+    },
+    /// The wish becomes a plain ticket for the helpers (match capped, no story credit).
+    PlayerHandOff {
+        guest: u32,
+    },
+    /// Cancels the current act (claims are released).
+    PlayerCancel,
+    /// Queue a micro-act (`front` = do next).
+    PlayerQueue {
+        act: PlayerAct,
+        front: bool,
+    },
+    /// Remove a queued act (index into `player().queue`).
+    PlayerUnqueue {
+        index: usize,
+    },
+    /// Hold-to-wash released after `seconds` (real) at the sink: 2 dishes per second.
+    PlayerWashProgress {
+        sink: u32,
+        seconds: f32,
+    },
+    /// Wave at a guest who came in within the last few minutes (no walk).
+    PlayerGreet {
+        guest: u32,
+    },
+    /// Delegate / take back a duty. Capacity-checked (`CommandError::Capacity`); undoable.
+    SetDuty {
+        staff: u32,
+        duty: Duty,
+        on: bool,
+    },
+    /// Grandma's jukebox (`None` = house playlist). Night: Karolina's act; Day: tonight's
+    /// opening record. Errors `Locked`, `NoJukebox`, `NoPower`.
+    PlayRecord {
+        id: Option<String>,
+        repeat: bool,
+    },
+    /// A play-once pass ended (the integration measures `RecordDef::seconds`).
+    RecordFinished {
+        id: String,
+    },
+    /// Accessibility: helpers may hand off wishes left unclaimed for a while.
+    SetAssistWishes {
+        on: bool,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum CommandError {
     UnknownId(String),
-    NotEnoughMoney { need: i64, have: i64 },
+    NotEnoughMoney {
+        need: i64,
+        have: i64,
+    },
     OutOfBounds,
     Occupied,
     BlocksPath,
@@ -542,6 +744,15 @@ pub enum CommandError {
     Invalid(String),
     NothingToUndo,
     GameOver,
+    /// The helper has no free duty slot.
+    Capacity,
+    /// Karolina's queue is full.
+    QueueFull,
+    /// The record (or recipe) isn't unlocked yet.
+    Locked,
+    NoJukebox,
+    /// The power is out.
+    NoPower,
 }
 
 impl std::fmt::Display for CommandError {

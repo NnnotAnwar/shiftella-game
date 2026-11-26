@@ -19,7 +19,8 @@ pub const TILE: f32 = 64.0;
 /// `#` wall · `W` window · `D` door · `.` hall floor (wood) · `,` staff floor (tile) ·
 /// `=` street · `T` table_round · `h` chair (faces the table) · `C` bar_counter · `R` register ·
 /// `M` coffee_machine · `S` stove (2×1) · `F` fridge · `K` sink · `t` trash_bin ·
-/// `l` floor_lamp (the window light) · `p` plant_tall · `g` grandma_photo · `b` bookshelf.
+/// `l` floor_lamp (the window light) · `p` plant_tall · `g` grandma_photo · `b` bookshelf ·
+/// `j` grandma Lida's jukebox (handson.md §10.1).
 /// Every table also gets a `pendant_lamp` (tag `light`) hanging over it.
 pub const DEFAULT_LAYOUT: &str = "\
 ####WWWW######WWWW######WWWW##
@@ -30,7 +31,7 @@ pub const DEFAULT_LAYOUT: &str = "\
 #..hTh.....hTh.....hTh......b#
 #............................#
 #............................#
-#..hTh.....hTh...............#
+#..hTh.....hTh..............j#
 #............................#
 #...............CCCCCCCCCRC,,#
 #...............,,,,,,,,,,,,,#
@@ -425,6 +426,7 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
                 'p' => place(&mut grid, "plant_tall", xi, y, 0),
                 'g' => place(&mut grid, "grandma_photo", xi, y, 0),
                 'b' => place(&mut grid, "bookshelf", xi, y, 1),
+                'j' => place(&mut grid, "jukebox", xi, y, 1),
                 _ => {}
             }
             x += 1;

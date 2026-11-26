@@ -1,6 +1,7 @@
 //! Gameplay QA regression tests (v0.1.0 balance pass): the gentle first nights, the default
 //! rozpis, pendant lamps, breaks, hire log, starting money, event frequency, regular arcs,
-//! the Anwar cameo nights and both endings (forced).
+//! the Anwar cameo nights and both endings (forced). Nights are played by the player-bot
+//! (`sim::bot`): since the hands-on update Karolina only does what the player asks.
 
 use super::*;
 use crate::content::{Content, Job};
@@ -22,46 +23,15 @@ fn sandbox(c: &Content, seed: u64, difficulty: Difficulty) -> World {
     )
 }
 
-fn finish_cutscenes(w: &mut World, c: &Content) {
-    for _ in 0..64 {
-        let Some(id) = w.playing_cutscene().map(str::to_string) else {
-            return;
-        };
-        w.apply(
-            c,
-            Command::CutsceneFinished {
-                id,
-                choices: Vec::new(),
-            },
-        )
-        .unwrap();
-    }
-    panic!("cutscenes never finish");
-}
-
-/// Runs one night like a careful player: lights the window, publishes the rozpis.
+/// Runs one night like a careful player (the player-bot: takes orders, brews, serves, lights
+/// the window, publishes the rozpis, delegates). Hiring stays with the test.
 fn play_night(w: &mut World, c: &Content) -> Vec<SimEvent> {
-    let _ = w.apply(c, Command::PublishSchedule);
-    let mut out = Vec::new();
-    finish_cutscenes(w, c);
-    out.extend(w.drain_events());
-    w.start_night(c);
-    while w.phase() == Phase::Night && !w.is_closed() {
-        finish_cutscenes(w, c);
-        if w.minute() == 1 {
-            let _ = w.apply(
-                c,
-                Command::TickChecklist {
-                    id: "light_window".into(),
-                },
-            );
-        }
-        w.tick(c);
-        out.extend(w.drain_events());
-    }
-    finish_cutscenes(w, c);
-    out.extend(w.drain_events());
-    out
+    let mut b = bot::PlayerBot::new(bot::BotConfig {
+        hire_nights: Vec::new(),
+        seed: w.seed(),
+        ..Default::default()
+    });
+    b.run_night(w, c)
 }
 
 fn hire(w: &mut World, c: &Content, n: usize) {
@@ -103,12 +73,12 @@ fn story_night_one_alone_is_gentle() {
         served += s.guests_served;
         left += s.guests_left_unhappy;
     }
-    // Cozy: almost nobody leaves angry on the first solo night
+    // Cozy: nobody leaves angry on the first solo night
+    assert_eq!(left, 0, "cozy night 1: served {served}, left {left}");
     assert!(
-        left * 6 <= served,
-        "cozy night 1: served {served}, left {left}"
+        served >= 6 * 10,
+        "cozy night 1: served {served} over 6 seeds"
     );
-    assert!(left <= 12, "cozy night 1: {left} angry guests over 6 seeds");
     // Classic: some pressure, still mostly served
     let (mut served, mut left) = (0u32, 0u32);
     for seed in 1..=6u64 {
@@ -130,7 +100,7 @@ fn first_week_ramps_up_gently_on_cozy() {
     let mut w = World::new_story_seeded(&c, Difficulty::Cozy, 77);
     let mut arrived = Vec::new();
     for night in 1..=5 {
-        if night == 2 {
+        if night == FIRST_HIRE_NIGHT {
             hire(&mut w, &c, 2);
         }
         play_night(&mut w, &c);
@@ -318,23 +288,43 @@ fn pendant_lamps_hang_over_every_table() {
 #[test]
 fn send_on_break_command() {
     let c = content();
-    let mut w = sandbox(&c, 2, Difficulty::Cozy);
+    // a night where the hire is on the floor (not sick or off)
+    let mut w = (2..40)
+        .map(|seed| {
+            let mut w = sandbox(&c, seed, Difficulty::Cozy);
+            assert_eq!(
+                w.apply(
+                    &c,
+                    Command::SendOnBreak {
+                        staff: w.staff()[0].id
+                    }
+                ),
+                Err(CommandError::WrongPhase)
+            );
+            w.start_night(&c);
+            for _ in 0..30 * TICKS_PER_MINUTE {
+                w.tick(&c);
+            }
+            w
+        })
+        .find(|w| {
+            w.staff()
+                .iter()
+                .any(|s| s.on_duty() && !s.owner && !matches!(s.task, Some(Task::Break { .. })))
+        })
+        .expect("a night with the hire on the floor");
     let owner = w.staff()[0].id;
-    assert_eq!(
-        w.apply(&c, Command::SendOnBreak { staff: owner }),
-        Err(CommandError::WrongPhase)
-    );
-    w.start_night(&c);
-    for _ in 0..30 * TICKS_PER_MINUTE {
-        w.tick(&c);
-    }
     let _ = w.drain_events();
-    // anyone on the floor (the hire may be late or off tonight) — the owner can rest too
+    // a helper on the floor (Karolina takes no breaks: she does what the player asks)
+    assert!(matches!(
+        w.apply(&c, Command::SendOnBreak { staff: owner }),
+        Err(CommandError::Invalid(_))
+    ));
     let hire = w
         .staff()
         .iter()
         .rev()
-        .find(|s| s.on_duty())
+        .find(|s| s.on_duty() && !s.owner && !matches!(s.task, Some(Task::Break { .. })))
         .map(|s| s.id)
         .unwrap();
     w.apply(&c, Command::SendOnBreak { staff: hire }).unwrap();
@@ -374,7 +364,7 @@ fn everyone_on_a_full_shift_gets_a_break_but_the_cafe_is_never_left_alone() {
     let mut w = sandbox(&c, 8, Difficulty::Cozy);
     hire(&mut w, &c, 1);
     play_night(&mut w, &c);
-    for s in w.staff() {
+    for s in w.staff().iter().filter(|s| !s.owner) {
         if s.minutes_worked >= 360 {
             assert!(s.breaks_tonight >= 1, "{} never rested", s.name);
         }
@@ -463,7 +453,7 @@ fn thirty_story_nights_arcs_cameo_and_a_light_ending() {
     let mut dishes_nights = 0;
     for night in 1..=30 {
         match night {
-            2 => hire(&mut w, &c, 2),
+            3 => hire(&mut w, &c, 2),
             5 | 9 => hire(&mut w, &c, 1),
             _ => {}
         }
@@ -570,6 +560,7 @@ fn fast_service_streak_counts_from_the_order() {
     let c = content();
     let mut w = World::new_story(&c, Difficulty::Cozy);
     play_night(&mut w, &c);
+    play_night(&mut w, &c);
     hire(&mut w, &c, 2);
     let mut served = Vec::new();
     for _ in 0..4 {
@@ -579,10 +570,34 @@ fn fast_service_streak_counts_from_the_order() {
         }
     }
     assert!(!served.is_empty());
-    // measured from the order, the first coffee comes within a few minutes on a calm night
+    // measured on the wait clock from the order, the first coffee comes within a few minutes
     assert!(
         served.iter().any(|m| *m <= 10),
         "mirek served after {served:?} min"
     );
     let _ = Job::Bar;
+}
+
+#[test]
+fn the_first_hire_is_offered_on_night_three() {
+    let c = content();
+    let mut w = World::new_story(&c, Difficulty::Cozy);
+    assert!(
+        w.candidates().is_empty(),
+        "night 1 is Karolina's solo night"
+    );
+    play_night(&mut w, &c);
+    assert_eq!(w.night(), 2);
+    assert!(w.candidates().is_empty(), "night 2 is solo too");
+    play_night(&mut w, &c);
+    assert_eq!(w.night(), FIRST_HIRE_NIGHT);
+    assert!(
+        !w.candidates().is_empty(),
+        "the hire hint and the candidates line up"
+    );
+    // the hire card proposes the archetype's default duty
+    for cand in w.candidates() {
+        let a = c.staff_archetype(&cand.staff.archetype).unwrap();
+        assert_eq!(cand.staff.duties, vec![a.default_duty.unwrap()]);
+    }
 }

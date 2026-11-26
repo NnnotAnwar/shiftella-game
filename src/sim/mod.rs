@@ -7,30 +7,51 @@
 //! API & integration guide: `docs/SIM.md`.
 
 mod app;
+pub mod bot;
 mod commands;
+mod duties;
 mod economy;
 pub mod grid;
 mod guests;
+mod hands;
 mod logic;
+mod music;
 mod narrator;
+mod orders;
+mod pacing;
+mod player;
 pub mod rng;
 mod staff;
 mod story;
 mod types;
 mod world;
+mod xlogic;
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_hands;
 #[cfg(test)]
 mod tests_qa;
 
 pub use app::digest_lines;
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
+pub use guests::{FORGIVEN_KEY, LAST_CALL};
+pub use hands::*;
+pub use orders::PLAIN_CREDIT;
+pub use player::{MOP_AMOUNT, WASH_PER_SECOND};
+pub use staff::FIRST_HIRE_NIGHT;
 pub use story::{ambient_line_for, talk_available};
 pub use types::*;
 pub use world::*;
 
-use crate::content::Content;
+use std::collections::BTreeSet;
+
+use crate::content::handson::{Duty, HallMood};
+use crate::content::{Content, Job};
+
+/// Cozy: train passengers walk in within this many minutes (Classic: 6).
+pub const COZY_TRAIN_SPREAD: u32 = 14;
 
 /// Trains: arrivals by timetable (if `announce_if` holds), passengers come in.
 pub(crate) fn trains_tick(w: &mut World, content: &Content) {
@@ -54,9 +75,15 @@ pub(crate) fn trains_tick(w: &mut World, content: &Content) {
             let start = w.rng.range_u32(3, 6);
             let mut left = n;
             let group = content.guest(&t.guest).map(|g| g.group).unwrap_or((1, 2));
+            // Cozy: the passengers drift in over a longer stretch (a busy moment, not a wall)
+            let spread = if w.difficulty == Difficulty::Cozy {
+                COZY_TRAIN_SPREAD
+            } else {
+                6
+            };
             while left > 0 {
                 let size = w.rng.range_u32(group.0.max(1), group.1.max(1)).min(left);
-                let minute = m + start + w.rng.range_u32(0, 6);
+                let minute = m + start + w.rng.range_u32(0, spread);
                 w.spawns.push(guests::PendingSpawn {
                     minute,
                     archetype: t.guest.clone(),
@@ -64,6 +91,7 @@ pub(crate) fn trains_tick(w: &mut World, content: &Content) {
                     patience_mul: 1.0,
                     spend_mul: 1.0,
                     orders: Vec::new(),
+                    wish: false,
                 });
                 left -= size;
             }
@@ -94,5 +122,238 @@ impl World {
     /// Debug helper: fire an event now (ignores conditions).
     pub fn debug_fire_event(&mut self, content: &Content, id: &str) {
         narrator::fire(self, content, id, EffectCtx::default(), true);
+    }
+}
+
+// -------------------------------------------------------------------------------------------------
+// Hands-on queries (design/handson.md §7.2)
+// -------------------------------------------------------------------------------------------------
+
+impl World {
+    /// Real seconds per tick at ×1 (`handson.ron`; 0.15 → 12-minute nights). Integration:
+    /// `acc += dt × speed × overlay; while acc >= this { tick }`.
+    pub fn real_seconds_per_tick(&self, content: &Content) -> f32 {
+        let v = content.handson.tuning.real_seconds_per_tick_x1;
+        if v > 0.0 { v } else { REAL_SECONDS_PER_TICK_X1 }
+    }
+    /// Sim dt multiplier while an overlay (order card, mini-game, book, moment card, the phone
+    /// app) is open: Cozy 0.1, Classic 0.35; clamp the speed to ×1 meanwhile.
+    pub fn overlay_scale(&self, content: &Content) -> f32 {
+        let o = content.handson.tuning.overlay_scale;
+        match self.difficulty {
+            Difficulty::Cozy => o.cozy,
+            Difficulty::Classic => o.classic,
+        }
+    }
+    /// Karolina's queue, current act (with `progress()`), rhythm, idle clock.
+    pub fn player(&self) -> &PlayerState {
+        &self.hands.player
+    }
+    /// Karolina's body (position, pose, carrying) — the owner in `staff()`.
+    pub fn karolina(&self) -> Option<&Staff> {
+        self.staff.iter().find(|s| s.owner)
+    }
+    pub fn knowledge(&self) -> &Knowledge {
+        &self.hands.knowledge
+    }
+    pub fn known_recipes(&self) -> impl Iterator<Item = &str> {
+        self.hands.knowledge.recipes.keys().map(String::as_str)
+    }
+    /// Karolina knows it and its base item can be made tonight.
+    pub fn recipe_available(&self, content: &Content, recipe: &str) -> bool {
+        content
+            .handson
+            .recipe(recipe)
+            .is_some_and(|r| orders::recipe_available(self, content, r))
+    }
+    /// The party a guest (or party id) belongs to.
+    pub fn party_of_guest(&self, guest: u32) -> Option<&Party> {
+        player::party_of(self, guest).map(|i| &self.parties[i])
+    }
+    /// What the guest's party leader ordered.
+    pub fn order_kind(&self, guest: u32) -> Option<&OrderKind> {
+        self.party_of_guest(guest).map(|p| &p.order_kind)
+    }
+    /// The order card's chips: the top 4 recipes for the guest's wish (recipe id, match).
+    /// Plain orders: the recipes on their pending item (match 1.0).
+    pub fn best_matches(&self, content: &Content, guest: u32) -> Vec<(String, f32)> {
+        let Some(p) = self.party_of_guest(guest) else {
+            return Vec::new();
+        };
+        if p.wish_open
+            && let Some(wish) = p.order_kind.wish().and_then(|w| content.handson.wish(w))
+        {
+            let mut v = orders::matches_for(self, content, wish);
+            v.truncate(4);
+            return v;
+        }
+        let item = self
+            .items
+            .iter()
+            .filter(|i| i.party == p.id && i.state == ItemState::Pending && i.by.is_none())
+            .min_by_key(|i| (i.guest != guest, i.id));
+        match item {
+            Some(i) => content
+                .handson
+                .recipes_for_item(&i.menu)
+                .filter(|r| orders::recipe_available(self, content, r))
+                .map(|r| (r.id.clone(), 1.0))
+                .take(4)
+                .collect(),
+            None => Vec::new(),
+        }
+    }
+    /// Quick-brew quality for a recipe (0.6; 0.8 once practised).
+    pub fn quick_quality(&self, content: &Content, recipe: &str) -> f32 {
+        let t = &content.handson.tuning;
+        if self
+            .hands
+            .knowledge
+            .recipes
+            .get(recipe)
+            .is_some_and(|s| s.practised)
+        {
+            t.practised_quick_quality
+        } else {
+            t.quick_quality
+        }
+    }
+    /// The order card's default mode: plain = the last plain choice (Quick at first), wishes
+    /// = By hand — but Quick after `by_hand_streak_max` same-kind mini-games in a row (§2.0).
+    pub fn default_brew_mode(&self, content: &Content, wish: bool, recipe: &str) -> BrewMode {
+        if !wish {
+            return self.hands.player.last_mode_plain;
+        }
+        let kind = content
+            .handson
+            .recipe(recipe)
+            .map(|r| r.playable_minigame(false).0);
+        match (self.hands.player.minigame_streak, kind) {
+            (Some((k, n)), Some(kind))
+                if k == kind && n >= content.handson.tuning.by_hand_streak_max =>
+            {
+                BrewMode::Quick
+            }
+            _ => BrewMode::ByHand,
+        }
+    }
+    /// "The usual?" is offered (a trusted regular whose usual she can make).
+    pub fn usual_available(&self, content: &Content, guest: u32) -> Option<String> {
+        let p = self.party_of_guest(guest)?;
+        let r = p.order_kind.usual()?;
+        (p.wish_open && self.recipe_available(content, r)).then(|| r.to_string())
+    }
+    /// The ticket rail: every open order / wish / item, with its owner.
+    pub fn ticket_rail(&self, content: &Content) -> Vec<Ticket> {
+        orders::ticket_rail(self, content)
+    }
+    /// Dirty dishes waiting at the sink.
+    pub fn sink_dishes(&self) -> u32 {
+        self.sink_dishes
+    }
+    pub fn tips_on_tables(&self) -> &[TipCoin] {
+        &self.hands.tips
+    }
+    /// Lifetime tips in the jar (CZK).
+    pub fn tips_lifetime(&self) -> i64 {
+        self.hands.tips_lifetime
+    }
+    pub fn hall_mood(&self, content: &Content) -> Option<HallMood> {
+        music::hall_mood(self, content)
+    }
+    /// A rush is on (trains, crowds): the rail sorts by wait, the house music shifts.
+    pub fn rush(&self) -> bool {
+        self.hands.rush.until.is_some()
+    }
+    /// Karolina's rhythm streak (tips +4 % a step).
+    pub fn rhythm(&self) -> u8 {
+        self.hands.player.rhythm
+    }
+    pub fn staff_duties(&self, staff: u32) -> &[Duty] {
+        self.staff_by_id(staff)
+            .map(|s| s.duties.as_slice())
+            .unwrap_or(&[])
+    }
+    /// How many duties this helper can hold (1–3).
+    pub fn capacity(&self, content: &Content, staff: u32) -> u32 {
+        self.staff_by_id(staff)
+            .map(|s| {
+                if s.owner {
+                    0
+                } else {
+                    duties::capacity(content, s, self.night, None)
+                }
+            })
+            .unwrap_or(0)
+    }
+    /// The duty board's "Suggest": the best free duty for this helper by skill.
+    pub fn suggest_duty(&self, staff: u32) -> Option<Duty> {
+        let s = self.staff_by_id(staff)?;
+        Duty::ALL
+            .iter()
+            .copied()
+            .filter(|d| !s.duties.contains(d) && !duties::duty_tonight(self, *d))
+            .max_by(|a, b| {
+                s.skill(a.job(), self.night)
+                    .total_cmp(&s.skill(b.job(), self.night))
+            })
+    }
+    pub fn music(&self) -> &MusicState {
+        &self.hands.music
+    }
+    /// The track the café plays now and its volume (`None` = silence: a blackout).
+    pub fn music_track(&self, content: &Content) -> Option<(String, f32)> {
+        music::track(self, content)
+    }
+    pub fn records_unlocked(&self) -> &BTreeSet<String> {
+        &self.hands.music.unlocked
+    }
+    /// Things only Karolina will do right now (rail + markers + dirt).
+    pub fn karolina_todo(&self, content: &Content) -> u32 {
+        pacing::todo(self, content)
+    }
+    /// The quiet hour (03:00–04:00).
+    pub fn quiet_hour(&self, content: &Content) -> bool {
+        pacing::quiet_hour(self, content)
+    }
+    /// Tonight's hands-on tallies (balance harness, digest).
+    pub fn hands_tally(&self) -> &HandsTally {
+        &self.hands.tally
+    }
+    pub fn assist_wishes(&self) -> bool {
+        self.hands.assist_wishes
+    }
+    /// Dirt blots to render and mop: one per 0.1 of hall dirt (max 6), on fixed hall tiles.
+    pub fn dirt_spots(&self) -> Vec<(i32, i32)> {
+        let n = ((self.dirt - 0.02) / MOP_AMOUNT).ceil().clamp(0.0, 6.0) as usize;
+        if n == 0 {
+            return Vec::new();
+        }
+        let hall: Vec<(i32, i32)> = (0..self.grid.height)
+            .flat_map(|y| (0..self.grid.width).map(move |x| (x, y)))
+            .filter(|t| {
+                self.grid.room(t.0, t.1) == Room::Hall
+                    && self.grid.walkable(t.0, t.1)
+                    && self.grid.object_at(t.0, t.1).is_none()
+            })
+            .collect();
+        if hall.is_empty() {
+            return Vec::new();
+        }
+        let mut out = Vec::new();
+        let mut k = 0u64;
+        while out.len() < n && k < 64 {
+            let h = rng::hash_str(&format!("dirt{}:{k}", self.night));
+            let t = hall[(h % hall.len() as u64) as usize];
+            if !out.contains(&t) {
+                out.push(t);
+            }
+            k += 1;
+        }
+        out
+    }
+    /// The job that makes an order item.
+    pub(crate) fn item_job(&self, content: &Content, item: &OrderItem) -> Option<Job> {
+        content.menu_item(&item.menu).map(|m| m.job)
     }
 }
