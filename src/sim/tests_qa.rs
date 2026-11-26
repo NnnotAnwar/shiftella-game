@@ -628,3 +628,45 @@ fn the_first_hire_is_offered_on_night_three() {
         assert_eq!(cand.staff.duties, vec![a.default_duty.unwrap()]);
     }
 }
+
+/// Every way into «Last Train» and its three variants (owner: "did you check the bad ending?").
+#[test]
+fn every_road_to_the_last_train_and_its_variants() {
+    let c = content();
+    // 1) neglect on Cozy: a café nobody loves (reputation under 20, no regular's story ends well)
+    let mut w = World::new_story(&c, Difficulty::Cozy);
+    jump_to_night(&mut w, &c, 30);
+    w.econ.reputation = 10.0;
+    play_night(&mut w, &c);
+    assert_eq!(w.ending(), Some("last_train"), "neglect");
+    assert_eq!(w.ending_variant(), Some("closed"), "neglect: closed");
+    // the same café with a good regular's story is saved by it
+    let mut w = World::new_story(&c, Difficulty::Cozy);
+    jump_to_night(&mut w, &c, 30);
+    w.econ.reputation = 10.0;
+    w.story.flags.insert("arc.mirek.good".into());
+    play_night(&mut w, &c);
+    assert_eq!(w.ending(), Some("light"), "one good story keeps the light on");
+    // 2) Classic, two missed payments → closed; with three good stories → farewell
+    for (good, variant) in [(0usize, "closed"), (3, "farewell")] {
+        let mut w = World::new_story(&c, Difficulty::Classic);
+        for r in ["mirek", "vera", "radek"].iter().take(good) {
+            w.story.flags.insert(format!("arc.{r}.good"));
+        }
+        for night in [7, 14] {
+            jump_to_night(&mut w, &c, night);
+            w.debug_set_money(0);
+            play_night(&mut w, &c);
+        }
+        assert_eq!(w.ending(), Some("last_train"), "classic, {good} good");
+        assert_eq!(w.ending_variant(), Some(variant), "classic, {good} good");
+    }
+    // 3) Carefree never closes over money, whatever the till says
+    let mut w = World::new_story(&c, Difficulty::Relaxed);
+    for night in [7, 14, 21, 28] {
+        jump_to_night(&mut w, &c, night);
+        w.debug_set_money(0);
+        play_night(&mut w, &c);
+    }
+    assert!(!w.is_closed(), "carefree stays open");
+}
