@@ -133,4 +133,29 @@
              placeholders: ["name", "time"]),
         ],
     ),
+    // Hands-on appliances (design/v0.2.md §B, sim::equipment): one click or one hold at the
+    // machine, the stove, the oven, the fridge, the register, the bin; lamps toggle. Work is in
+    // ticks at speed 1 (10 = one game minute); holding a hold chore adds hold_ticks_per_second.
+    // Effects are small: a no-appliance player still finishes the story (tests_t10).
+    equipment: (
+        work: (warm_up: 30.0, pull_tray: 25.0, service: 40.0, clean_up: 30.0, soup_on: 25.0,
+               stir: 8.0, bake: 25.0, take_out: 8.0, milk: 10.0, count_till: 30.0, trash: 25.0),
+        hold_ticks_per_second: 40.0,
+        service_wear: 0.5,
+        sputter_every: 25,
+        // "pull a tray ahead" before a train: the next 3 plain coffees are (almost) instant
+        tray: (count: 3, minutes: 40, prep_mul: 0.05, items: ["black_coffee", "cappuccino", "oat_flat_white"]),
+        // the milk out of the fridge in the preparation: the first lattes are quicker
+        milk: (count: 5, helper_count: 3, prep_mul: 0.7, until_minute: 60,
+               items: ["cappuccino", "oat_flat_white", "hot_chocolate", "chai"]),
+        // a pot of soup (kulajda once grandma's recipe is known): bubbles now and then, a stir
+        // makes soups quicker for a while; untouched it simply keeps warm
+        soup: (items: ["garlic_soup", "grandma_kulajda"], warm_mul: 0.9, helper_warm_mul: 0.95,
+               stir_mul: 0.6, stir_minutes: 30, bubble_every: 35, bubble_minutes: 12, until_minute: 120),
+        // grandma's medovník: ding → take it out → slices without waiting tonight
+        cake: (items: ["medovnik", "kolac"], bake_minutes: 12, slices: 8, helper_slices: 4,
+               prep_mul: 0.05, helper_after: 10, until_minute: 120),
+        // from 05:00: count the till, take the trash out (sometimes the station cat is there)
+        closing: (from_minute: 420, trash_dirt: 0.03, cat_chance: 0.35),
+    ),
 )

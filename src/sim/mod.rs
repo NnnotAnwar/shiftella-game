@@ -12,6 +12,7 @@ pub mod bot;
 mod commands;
 mod duties;
 mod economy;
+mod equipment;
 pub mod grid;
 mod guests;
 mod hands;
@@ -39,6 +40,8 @@ mod tests;
 #[cfg(test)]
 mod tests_balance;
 #[cfg(test)]
+mod tests_equipment;
+#[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
 mod tests_prep;
@@ -50,6 +53,9 @@ mod tests_sys;
 mod tests_t10;
 
 pub use app::digest_lines;
+pub use equipment::{
+    Cake, CakeView, EquipAction, EquipCue, EquipKind, EquipState, EquipView, Pot, PotView,
+};
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;

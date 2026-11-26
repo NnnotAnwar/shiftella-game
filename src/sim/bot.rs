@@ -49,6 +49,9 @@ pub struct BotConfig {
     /// ([`attentive_choices`]) and builds what a regular asks for (Filip's socket table, Lori's
     /// stage). `false` = every scene ends on its defaults (no choice picked), as before.
     pub attentive: bool,
+    /// v0.2: uses the appliances now and then (`false` = never touches them, the
+    /// "a no-equipment player still finishes the story" runs).
+    pub equipment: bool,
 }
 
 impl Default for BotConfig {
@@ -67,6 +70,7 @@ impl Default for BotConfig {
             seed: 1,
             thrifty: false,
             attentive: true,
+            equipment: true,
         }
     }
 }
@@ -92,6 +96,8 @@ pub struct BotNight {
     pub moments: u32,
     pub experiments: u32,
     pub buttons: u32,
+    /// v0.2: appliance chores done by hand.
+    pub equipment: u32,
 }
 
 pub struct PlayerBot {
@@ -103,6 +109,11 @@ pub struct PlayerBot {
     kinds: Vec<String>,
     pub nights: Vec<BotNight>,
     cur: BotNight,
+    /// Tonight's optional appliance chores the bot feels like doing (v0.2 equipment): a
+    /// player sometimes puts the soup on, sometimes doesn't.
+    equip_plan: Vec<super::equipment::EquipAction>,
+    /// The night `equip_plan` was rolled for (`step` alone plans too).
+    equip_night: u32,
 }
 
 impl PlayerBot {
@@ -116,6 +127,8 @@ impl PlayerBot {
             kinds: Vec::new(),
             nights: Vec::new(),
             cur: BotNight::default(),
+            equip_plan: Vec::new(),
+            equip_night: 0,
         }
     }
 
@@ -288,6 +301,7 @@ impl PlayerBot {
         self.record_done = false;
         self.last_by_hand = None;
         self.kinds.clear();
+        self.plan_equipment(w.night());
         let mut guard = 0u32;
         while w.phase() == Phase::Night && !w.is_closed() && guard < NIGHT_TICKS * 3 {
             self.finish_scenes(w, content);
@@ -333,6 +347,9 @@ impl PlayerBot {
             return;
         }
         self.cur.max_rail = self.cur.max_rail.max(w.ticket_rail(content).len());
+        if self.equip_night != w.night() {
+            self.plan_equipment(w.night());
+        }
         if self.busy > 0 {
             self.busy -= 1;
             return;
@@ -401,6 +418,16 @@ impl PlayerBot {
             {
                 return Some(Self::ticks(w, content, secs));
             }
+        }
+        // holding a hold chore at an appliance (warm up, purge, clean the group head)
+        if let Some(c) = &w.player().current
+            && let PlayerAct::Use { action, .. } = c.act
+            && action.hold()
+            && c.stage == 1
+            && w.apply(content, Command::EquipmentHold { seconds: 1.0 })
+                .is_ok()
+        {
+            return Some(Self::ticks(w, content, 1.0));
         }
         // an open wish whose order she took: the order card (+ the mini-game)
         // regulars first (their visit windows are short), soonest to leave first
@@ -873,6 +900,10 @@ impl PlayerBot {
         if queued >= 3 {
             return None;
         }
+        // the appliances (v0.2): the machine, the soup pot, the oven, the milk, the till, the bin
+        if let Some(t) = self.equipment(w, content, queued) {
+            return Some(t);
+        }
         // opening / closing items nobody else will do
         let window = if m < 25 {
             Some(crate::content::world::ChecklistKind::Opening)
@@ -918,6 +949,73 @@ impl PlayerBot {
                 if w.apply(content, Command::TickChecklist { id }).is_ok() {
                     return Some(0);
                 }
+            }
+        }
+        None
+    }
+
+    /// Rolls tonight's optional appliance chores (separate RNG: the rest of the bot's choices
+    /// stay as they were).
+    fn plan_equipment(&mut self, night: u32) {
+        use super::equipment::EquipAction as A;
+        self.equip_night = night;
+        if !self.cfg.equipment {
+            self.equip_plan.clear();
+            return;
+        }
+        let mut rng = Rng::new(self.cfg.seed ^ 0xE9E9 ^ (night as u64).wrapping_mul(0x9E37));
+        self.equip_plan = [
+            (A::WarmUp, 0.6),
+            (A::SoupOn, 0.7),
+            (A::Milk, 0.6),
+            (A::Bake, 0.7),
+            (A::Stir, 0.8),
+            (A::TakeOut, 1.0),
+            (A::PullTray, 0.5),
+            (A::Service, 1.0),
+            (A::CleanUp, 0.5),
+            (A::CountTill, 0.7),
+            (A::Trash, 0.6),
+        ]
+        .into_iter()
+        .filter(|(_, p)| rng.chance(*p))
+        .map(|(a, _)| a)
+        .collect();
+    }
+
+    /// One appliance chore when it suits (calm hands, the right moment).
+    fn equipment(&mut self, w: &mut World, content: &Content, queued: usize) -> Option<u32> {
+        use super::equipment::EquipAction as A;
+        if queued >= 2 || self.equip_plan.is_empty() {
+            return None;
+        }
+        let m = w.minute();
+        let soon_train = content.trains.trains.iter().any(|t| {
+            let at = t.arrives.minutes_since_open();
+            (0..480).contains(&at) && (m as i32..m as i32 + 10).contains(&at)
+        });
+        let offers: Vec<(u32, A)> = w
+            .furniture()
+            .iter()
+            .filter_map(|p| w.equipment_action(content, p.uid).map(|a| (p.uid, a)))
+            .collect();
+        for (uid, a) in offers {
+            if !self.equip_plan.contains(&a) {
+                continue;
+            }
+            let now = match a {
+                A::WarmUp | A::SoupOn | A::Milk | A::Bake => w.in_prep() || m < 20,
+                A::Stir | A::TakeOut => queued == 0,
+                A::PullTray => queued == 0 && soon_train,
+                A::Service => queued <= 1,
+                A::CleanUp | A::CountTill | A::Trash => m >= 430 && queued == 0,
+            };
+            if now
+                && w.apply(content, Command::UseEquipment { uid, action: a })
+                    .is_ok()
+            {
+                self.cur.equipment += 1;
+                return Some(0);
             }
         }
         None

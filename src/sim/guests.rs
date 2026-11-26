@@ -1205,7 +1205,10 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         }
         let iid = w.alloc_id();
         w.econ.supplies -= mi.cost as i64;
-        let prep = mi.prep_minutes * TICKS_PER_MINUTE as f32 * prep_mul(w, mi.job, wish);
+        let prep = mi.prep_minutes
+            * TICKS_PER_MINUTE as f32
+            * prep_mul(w, mi.job, wish)
+            * super::equipment::item_prep_mul(w, content, wish, true);
         w.items.push(OrderItem {
             id: iid,
             party: pid,

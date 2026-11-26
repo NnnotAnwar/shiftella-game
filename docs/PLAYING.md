@@ -44,6 +44,8 @@ Sandbox is endless, with a random town from a seed you can share.
 | Mop a dirt blot | swipe across it | **E** |
 | The light in the window | click a window | **E** |
 | Put a record on | click grandma's jukebox | **V** (then **← →**, **Enter**) |
+| Use an appliance (warm the machine up, put the soup on, take the cake out…) | click it (hold on a *hold* chore) | **E**, then hold **E** |
+| Switch a lamp on / off | click it (a pendant: its shade) | — |
 | Do it next instead of last | **Shift**+click | **Shift**+key |
 | Cancel what she's doing | right-click (or a chip over her head) | **Backspace** |
 
@@ -75,6 +77,27 @@ are always yours.
 **Grandma's jukebox** — Lida's records really change the music (and the mood of the room);
 Repeat or Play once. Regulars have favourites. Putting a record on is also part of the
 opening ritual.
+
+## The appliances
+
+Everything in the kitchen can be used by hand — one click, sometimes one hold, nothing to
+fail. A small amber chip floats over a piece that offers something; hovering shows what a
+click does. Helpers with the kitchen duty do the soup, the milk and the cake at 22:00 if you
+didn't (with a smaller effect); doing it yourself is quicker and better. None of it is needed
+to finish the story.
+
+| Piece | When | What it does |
+|---|---|---|
+| Coffee machine | the preparation | **Warm it up** (*hold*): it hisses, its little lamp lights — the opening item done by hand |
+| | at night | **Pull a tray ahead** (before a train): the next 3 plain coffees are ready at once (they go cold after 40 min) |
+| | worn (it sputters) | **Purge it** (*hold*): the wear is gone and the slow-down it caused ends — free, no service call |
+| | from 05:00 | **Clean the group head** (*hold*): the closing item by hand |
+| Stove | the preparation (until 00:00) | **Put a pot of soup on**: soups are a little quicker all night; now and then the pot bubbles — **Stir the pot** and soups are much quicker for half an hour (left alone it just keeps warm) |
+| Oven (once bought) | the preparation (until 00:00) | **Bake grandma's medovník**: a timer dings after ~12 min — **Take the cake out** and 8 slices go out without waiting (a helper takes it out later, with fewer slices) |
+| Fridge | the preparation (until 23:00) | **Take the milk out**: the first 5 milky drinks are quicker; also ticks the stock check. With nothing to do, a click opens the pantry |
+| Register | from 05:00 | **Count the till**: the closing item, with tonight's takings, guests and tips |
+| Trash bin | from 05:00 | **Take the trash out**: Karolina steps out of the door for a moment — sometimes the station cat is waiting by the bins |
+| Lamps | any time | on / off: the light and the coziness change; the window lamp keeps its opening and six-o'clock rituals |
 
 ## Little moments, the cat and the atmosphere
 
@@ -213,3 +236,8 @@ picture isn't needed.
 
 `SHIFTELLA_TIME=HH:MM` also takes the preparation half hour: `21:30`–`21:59` start the night
 before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`).
+
+`SHIFTELLA_SCENE=equipment SHIFTELLA_EQUIP=prep|night|worn|closing` plays the appliances to a
+picture: the preparation (soup on, milk out, the cake baking, the machine warming up), the
+night (the pot bubbling, the oven's ding, a tray of shots), a worn machine being purged, and
+closing (the till counted, the trash run). `SHIFTELLA_ZOOM=2` follows Karolina closer.

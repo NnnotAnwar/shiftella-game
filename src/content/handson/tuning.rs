@@ -217,6 +217,9 @@ pub struct HandsonTuning {
     pub player_energy: PlayerEnergy,
     pub quiet_hour: QuietHour,
     pub rozpis: RozpisTuning,
+    /// Hands-on appliances (design/v0.2.md §B): `handson.ron` → `equipment`.
+    #[serde(default)]
+    pub equipment: EquipmentTuning,
 }
 
 impl HandsonTuning {
@@ -237,5 +240,217 @@ impl HandsonTuning {
             .find(|b| b.act == act)
             .map(|b| b.range)
             .unwrap_or((2, 4))
+    }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Hands-on appliances (design/v0.2.md §B, `sim::equipment`)
+// ---------------------------------------------------------------------------------------------
+
+/// Karolina's work at an appliance, in work ticks at speed 1 (10 ticks = 1 game minute).
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct EquipWork {
+    pub warm_up: f32,
+    pub pull_tray: f32,
+    pub service: f32,
+    pub clean_up: f32,
+    pub soup_on: f32,
+    pub stir: f32,
+    pub bake: f32,
+    pub take_out: f32,
+    pub milk: f32,
+    pub count_till: f32,
+    pub trash: f32,
+}
+
+impl Default for EquipWork {
+    fn default() -> Self {
+        EquipWork {
+            warm_up: 30.0,
+            pull_tray: 25.0,
+            service: 40.0,
+            clean_up: 30.0,
+            soup_on: 25.0,
+            stir: 8.0,
+            bake: 25.0,
+            take_out: 8.0,
+            milk: 10.0,
+            count_till: 30.0,
+            trash: 25.0,
+        }
+    }
+}
+
+/// "Pull a tray ahead": the next `count` plain coffees are made almost at once.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct TrayTuning {
+    pub count: u32,
+    /// The shots go cold after this many game minutes (it's for the next train).
+    pub minutes: u32,
+    pub prep_mul: f32,
+    /// Plain menu items that count as "a coffee".
+    pub items: Vec<String>,
+}
+
+impl Default for TrayTuning {
+    fn default() -> Self {
+        TrayTuning {
+            count: 3,
+            minutes: 40,
+            prep_mul: 0.05,
+            items: vec![
+                "black_coffee".into(),
+                "cappuccino".into(),
+                "oat_flat_white".into(),
+            ],
+        }
+    }
+}
+
+/// "Take the milk out": the first lattes of the night are quicker.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct MilkTuning {
+    pub count: u32,
+    /// A kitchen helper does it at 22:00 when Karolina didn't (fewer cups).
+    pub helper_count: u32,
+    pub prep_mul: f32,
+    /// Until this night minute (0 = 22:00) she can still take it out.
+    pub until_minute: u32,
+    pub items: Vec<String>,
+}
+
+impl Default for MilkTuning {
+    fn default() -> Self {
+        MilkTuning {
+            count: 5,
+            helper_count: 3,
+            prep_mul: 0.7,
+            until_minute: 60,
+            items: vec![
+                "cappuccino".into(),
+                "oat_flat_white".into(),
+                "hot_chocolate".into(),
+                "chai".into(),
+            ],
+        }
+    }
+}
+
+/// The soup pot on the stove: soups are a little quicker all night, much quicker for a
+/// while after a stir. The pot bubbles now and then; untouched it just keeps warm.
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct SoupTuning {
+    pub items: Vec<String>,
+    pub warm_mul: f32,
+    pub helper_warm_mul: f32,
+    pub stir_mul: f32,
+    pub stir_minutes: u32,
+    pub bubble_every: u32,
+    pub bubble_minutes: u32,
+    /// Until this night minute she can still put the pot on.
+    pub until_minute: u32,
+}
+
+impl Default for SoupTuning {
+    fn default() -> Self {
+        SoupTuning {
+            items: vec!["garlic_soup".into(), "grandma_kulajda".into()],
+            warm_mul: 0.9,
+            helper_warm_mul: 0.95,
+            stir_mul: 0.6,
+            stir_minutes: 30,
+            bubble_every: 35,
+            bubble_minutes: 12,
+            until_minute: 120,
+        }
+    }
+}
+
+/// Grandma's medovník in the oven: after the ding and "take it out", cake slices are served
+/// without waiting (a limited number tonight).
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct CakeTuning {
+    pub items: Vec<String>,
+    pub bake_minutes: u32,
+    pub slices: u32,
+    pub helper_slices: u32,
+    pub prep_mul: f32,
+    /// A kitchen helper takes a ready cake out after this many minutes.
+    pub helper_after: u32,
+    pub until_minute: u32,
+}
+
+impl Default for CakeTuning {
+    fn default() -> Self {
+        CakeTuning {
+            items: vec!["medovnik".into(), "kolac".into()],
+            bake_minutes: 12,
+            slices: 8,
+            helper_slices: 4,
+            prep_mul: 0.05,
+            helper_after: 10,
+            until_minute: 120,
+        }
+    }
+}
+
+/// Closing chores: count the till, take the trash out.
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct ClosingTuning {
+    /// From this night minute (420 = 05:00).
+    pub from_minute: u32,
+    /// Hall dirt the trash run takes away.
+    pub trash_dirt: f32,
+    /// Chance the station cat waits by the bins (affection +1).
+    pub cat_chance: f32,
+}
+
+impl Default for ClosingTuning {
+    fn default() -> Self {
+        ClosingTuning {
+            from_minute: 420,
+            trash_dirt: 0.03,
+            cat_chance: 0.35,
+        }
+    }
+}
+
+/// `handson.ron` → `equipment` (design/v0.2.md §B).
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct EquipmentTuning {
+    pub work: EquipWork,
+    /// Holding the mouse / **E** on a hold chore adds this many work ticks per real second.
+    pub hold_ticks_per_second: f32,
+    /// Appliances at or above this wear sputter; "purge / service" resets the wear (free).
+    pub service_wear: f32,
+    /// A worn machine sputters (a sound cue) every N minutes.
+    pub sputter_every: u32,
+    pub tray: TrayTuning,
+    pub milk: MilkTuning,
+    pub soup: SoupTuning,
+    pub cake: CakeTuning,
+    pub closing: ClosingTuning,
+}
+
+impl Default for EquipmentTuning {
+    fn default() -> Self {
+        EquipmentTuning {
+            work: EquipWork::default(),
+            hold_ticks_per_second: 40.0,
+            service_wear: 0.5,
+            sputter_every: 25,
+            tray: TrayTuning::default(),
+            milk: MilkTuning::default(),
+            soup: SoupTuning::default(),
+            cake: CakeTuning::default(),
+            closing: ClosingTuning::default(),
+        }
     }
 }

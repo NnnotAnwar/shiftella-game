@@ -82,6 +82,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | `OpenDoors` | "Open the doors now": ends the preparation half hour early (only before 22:00 → `WrongPhase` otherwise); emits `DoorsOpened`, the clock jumps to 22:00 |
 | Karolina: `PlayerTakeOrder`, `PlayerBrew`, `PlayerUsual`, `PlayerHandOff`, `PlayerCancel`, `PlayerQueue`, `PlayerUnqueue`, `PlayerWashProgress`, `PlayerGreet` | §9.1 |
 | `PlayRecord { id, repeat }`, `RecordFinished { id }`, `SetAssistWishes { on }` | §9.6; accessibility hand-off |
+| `UseEquipment { uid, action }`, `EquipmentHold { seconds }` | v0.2 appliances (§11): a queued chore at a piece; holding speeds a hold chore |
 
 `world.undo(&content)` reverts the last reversible command (furniture place/move/rotate/remove,
 floors, lamps, duties, draft shifts, prices, menu). The stack clears at phase changes.
@@ -117,6 +118,8 @@ floors, lamps, duties, draft shifts, prices, menu). The stack clears at phase ch
 * App: `app()` → `AppState { draft, published, draft_dirty, week, swaps, time_off, handovers,
   announcements, checklist, inbox, payroll }`; `sim::digest_lines(&summary)` → `(app.digest.<id>, args)`.
 * Narrator: `pending_choices()`, `tension()`, `event_log()` (`LogEntry { night, minute, key, args }`).
+* Appliances (§11): `equipment()` (`EquipState`), `equipment_kind(&c, uid)`,
+  `equipment_action(&c, uid)` (what a click does now), `equipment_views(&c)` (`EquipView`).
 
 ## 4. Events out (`SimEvent`)
 
@@ -130,6 +133,9 @@ key: "app.bot.<t>", args }`, `Speech { speaker, agent, key }` (beat lines, arc l
 `PlayCutscene`, `EndingReached`, `NoteFound`, `ItemGained/Lost`, `FlagSet`, `RegularArrived`, `ArcAdvanced`,
 `ClockStop`, `DoorsOpened { early_minutes }` (22:00, the preparation is over), `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`,
 `MenuUnlocked`, `FurnitureUnlocked`, `FurniturePlaced/Removed`, `DayStarted`, `NightStarted`, `NightEnded`.
+
+Appliances (§11): `EquipmentUsed { uid, action, by }`, `EquipmentCue { uid, cue: Bubbling | Ding |
+Sputter }`, `TillCounted { revenue, guests, tips }`, `TrashOut { cat }`.
 
 Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order card),
 `PlayerServed { guest, recipe, match_score, quality }`, `PlayerQueueChanged`, `PlayerGreeted`,
@@ -458,3 +464,58 @@ polaroid, counts the jar, buys / switches themes, auto-fills on Mondays, answers
 buttons, ticks checklists nobody else does, picks specials, books payroll (`thrifty` keeps money
 comparable). `sim_balance` prints a T5 line (moments per night, two-open check, journal
 completeness, per-system counts). `--thrifty` for money comparisons.
+
+## 11. Hands-on appliances (v0.2, `sim::equipment`, design/v0.2.md §B)
+
+Karolina can use the coffee machine, the stove, the oven, the fridge, the register and the
+trash bin by hand during the preparation half hour and the night. A chore is a queued act
+`PlayerAct::Use { uid, action: EquipAction }` (sugar `Command::UseEquipment`; `QueueFull`,
+`Invalid` when it isn't on offer now): she walks to the piece's access tile, works
+`equipment.work.<action>` ticks (× her work speed), and the effect applies
+(`SimEvent::EquipmentUsed { by: Some(karolina) }`). Hold chores (`WarmUp`, `Service`,
+`CleanUp`) progress by themselves; `Command::EquipmentHold { seconds }` (the mouse / **E**
+held) adds `hold_ticks_per_second` per real second. The trash run is two stops: the bin, then
+the street tile outside the door. Lamps have no chore — the UI toggles them with
+`SetFurnitureOn` (coziness follows on the next minute).
+
+`World::equipment_action(&c, uid)` is what a click picks (first available of
+`EquipKind::actions()`, skipping what is already in her hands):
+
+| kind | action | available | effect |
+|---|---|---|---|
+| Machine | `Service` | wear ≥ `service_wear` (0.5) | wear → 0; `StationSlow` / `StationDown` mods on its station tag end; their pending event choice is dropped (`ChoiceResolved { choice: "purged" }`) — no cost |
+| | `WarmUp` | `coffee_warmup` open | ticks it (by Karolina); `EquipState::warm` (the lamp) |
+| | `CleanUp` | from `closing.from_minute` (05:00), `clean_machine` open | ticks it |
+| | `PullTray` | doors open, before 05:00, no tray, a tray item on the menu | `tray = 3` until +40 min: the next plain `tray.items` orders get prep × 0.05 |
+| Stove | `Stir` | the pot is bubbling | soups (`soup.items`) × 0.6 for 30 min |
+| | `SoupOn` | no pot, minute ≤ 120, power, a soup on the menu | the pot: soups × 0.9 (helper's 0.95) all night; bubbles from ~21 min after opening every 35 min for 12 min (`EquipmentCue::Bubbling`); untouched it just keeps warm |
+| Oven | `TakeOut` | the cake is ready | `Cake::Out { slices: 8 }` (helper 4): `cake.items` × 0.05 per slice |
+| | `Bake` | no cake, minute ≤ 120, power, a cake on the menu | `Cake::Baking` → after 12 min `Ready` (`EquipmentCue::Ding`); a kitchen helper takes it out 10 min after the ding |
+| Fridge | `Milk` | not done tonight and minute ≤ 60, or `check_stock` open | `milk_left = 5` (helper 3): `milk.items` × 0.7; ticks `check_stock` |
+| Register | `CountTill` | from 05:00, once | ticks `cash_up`; `TillCounted { revenue, guests, tips }` |
+| Trash | `Trash` | from 05:00, once | dirt − 0.03; with `cat_chance` (0.35) the cat waits: affection +1 (`check_cat`), `TrashOut { cat }` |
+
+Service applies to every appliance with `wear_per_night > 0` (machine, stove, oven, fridge);
+a worn one emits `EquipmentCue::Sputter` every `sputter_every` (25) minutes after opening.
+
+**Item prep:** `equipment::item_prep_mul(w, c, menu, plain)` multiplies a new order item's prep
+— in `guests::order_taken` (plain items, the tray only applies here) and in Karolina's wish
+brews (`player::brew`). Slices, milk and tray shots are consumed as they are used.
+
+**Helpers:** at 22:00 an on-shift helper with the **kitchen** duty puts the soup on, takes the
+milk out and bakes (oven present) if Karolina didn't — the smaller helper numbers above, the
+event carries the helper's id. Bar / register chores stay checklist items helpers do as before.
+
+**State:** `HandsState::equip: EquipState` (`#[serde(default)]`; reset at `start_night`; 0.1.x
+saves load with the appliances idle). Hooks: `equipment::on_minute` in both the preparation and
+the night minute, `on_night_start`. Tuning: `handson.ron` → `equipment`
+(`content::handson::EquipmentTuning`, every field defaulted).
+
+**Bot:** each night the player-bot rolls which optional chores it feels like (a separate RNG,
+so its other decisions are unchanged): warm-up 60 %, soup 70 %, milk 60 %, bake 70 %, stir
+80 %, take out 100 %, a tray 50 % (only within 10 min of a train), service 100 %, clean-up
+50 %, till 70 %, trash 60 %; hold chores are held. `BotNight::equipment` counts them.
+Balance (`sim_headless 30 story cozy|classic 4242 --player-bot`): see the commit / report —
+the money and the served counts move by a few per cent at most; the light ending is reached
+with and without appliances.
+

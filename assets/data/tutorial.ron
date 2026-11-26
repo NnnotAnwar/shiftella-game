@@ -11,6 +11,9 @@
      done_when: Event(WindowLightOn)),
     (id: "machine", night: 1, trigger: After("light_window"), anchor: Tag("station:coffee"),
      done_when: Event(MachineWarmed)),
+    // v0.2 equipment: the other appliances have small jobs too (a pot of soup, the milk out)
+    (id: "equipment", night: 1, trigger: After("machine"), anchor: Tag("station:stove"),
+     done_when: GotIt(seconds: 10.0)),
     // the opening checklist as a whole (the rest of the items, the 22:30 ritual)
     (id: "checklist_open", night: 1, trigger: After("machine"), anchor: Widget("app.checklist"),
      done_when: GotIt(seconds: 10.0)),

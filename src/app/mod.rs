@@ -8,7 +8,8 @@
 //! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|build|crew|app|
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
-//!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day`
+//!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
+//!   equipment` (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
 //!   (hands-on scenes are played to their moment by the autoplayer;
 //!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
 //!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
@@ -354,6 +355,39 @@ impl App {
                 if name == "pause" {
                     g.pause = Some(Default::default());
                 }
+                self.game(g)
+            }
+            // v0.2 appliances: SHIFTELLA_EQUIP=prep (21:40, the default) | night | worn | closing
+            "equipment" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let variant = env("SHIFTELLA_EQUIP").unwrap_or_else(|| "prep".into());
+                let n = night.unwrap_or(3);
+                let m = minute.unwrap_or(match variant.as_str() {
+                    "night" => 40,
+                    "worn" => 60,
+                    "closing" => 430,
+                    _ => -20,
+                });
+                let mut g = GameScreen::new_story(&content, "cozy", true);
+                g.fast_forward(&content, &loc, n, None, n > 1);
+                // an oven for the medovník (bought in the day)
+                if !g.world.furniture().iter().any(|p| p.def == "oven") {
+                    'place: for y in [13, 14] {
+                        for x in (22..28).rev() {
+                            let cmd = sim::Command::PlaceFurniture {
+                                def: "oven".into(),
+                                x,
+                                y,
+                                rot: 2,
+                            };
+                            if g.world.apply(&content, cmd).is_ok() {
+                                break 'place;
+                            }
+                        }
+                    }
+                }
+                g.fast_forward(&content, &loc, n, Some(m), n > 1);
+                g.stage_equipment(&content, &loc, &variant);
                 self.game(g)
             }
             "night1_handson" | "order_card" | "minigame" | "jukebox" | "book" => {

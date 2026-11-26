@@ -1,0 +1,184 @@
+# v0.2 hands-on appliances (design/v0.2.md §B, sim::equipment): the hover label over a piece
+# (what a click does now), the little float when a chore is done, the till's count, the cat by
+# the bins, the free purge of a worn machine, the night-1 coach mark.
+# Karolina is addressed in the second person (feminine forms in cs/uk/ru). Labels stay short.
+
+equip.hold
+cs drž
+en hold
+uk тримай
+ru держи
+
+equip.act.warm_up
+cs Nahřát kávovar
+en Warm it up
+uk Нагріти кавоварку
+ru Разогреть кофемашину
+
+equip.act.pull_tray
+cs Natočit kávy dopředu
+en Pull a tray ahead
+uk Зробити каву наперед
+ru Сварить кофе впрок
+
+equip.act.service
+cs Propláchnout a vyčistit
+en Purge it
+uk Промити й почистити
+ru Промыть и почистить
+
+equip.act.clean_up
+cs Vyčistit hlavu kávovaru
+en Clean the group head
+uk Почистити групу
+ru Почистить группу
+
+equip.act.soup_on
+cs Postavit hrnec polévky
+en Put a pot of soup on
+uk Поставити каструлю супу
+ru Поставить кастрюлю супа
+
+equip.act.stir
+cs Zamíchat polévku
+en Stir the pot
+uk Помішати суп
+ru Помешать суп
+
+equip.act.bake
+cs Upéct babiččin medovník
+en Bake grandma's medovník
+uk Спекти бабусин медівник
+ru Испечь бабушкин медовик
+
+equip.act.take_out
+cs Vytáhnout dort
+en Take the cake out
+uk Дістати торт
+ru Достать торт
+
+equip.act.milk
+cs Vyndat mléko
+en Take the milk out
+uk Дістати молоко
+ru Достать молоко
+
+equip.act.count_till
+cs Spočítat kasu
+en Count the till
+uk Перерахувати касу
+ru Пересчитать кассу
+
+equip.act.trash
+cs Vynést koš
+en Take the trash out
+uk Винести сміття
+ru Вынести мусор
+
+equip.act.pantry
+cs Spíž
+en The pantry
+uk Комора
+ru Кладовая
+
+equip.act.lamp_on
+cs Rozsvítit
+en Light it
+uk Увімкнути
+ru Включить
+
+equip.act.lamp_off
+cs Zhasnout
+en Turn it off
+uk Вимкнути
+ru Выключить
+
+equip.done.warm_up
+cs Kávovar předl
+en The machine purrs
+uk Кавоварка замуркотіла
+ru Кофемашина замурлыкала
+
+equip.done.pull_tray
+cs Kávy čekají
+en Coffees ready ahead
+uk Кава вже чекає
+ru Кофе уже ждёт
+
+equip.done.service
+cs Jako nový
+en Good as new
+uk Як новенька
+ru Как новенькая
+
+equip.done.clean_up
+cs Čisto
+en Spotless
+uk Чисто
+ru Чисто
+
+equip.done.soup_on
+cs Polévka se hřeje
+en The soup is warming
+uk Суп гріється
+ru Суп греется
+
+equip.done.stir
+cs Voní to
+en Smells lovely
+uk Пахне чудово
+ru Пахнет чудесно
+
+equip.done.bake
+cs Medovník peče
+en The cake is baking
+uk Медівник печеться
+ru Медовик печётся
+
+equip.done.take_out
+cs Dort je venku
+en Cake's out
+uk Торт готовий
+ru Торт готов
+
+equip.done.milk
+cs Mléko je venku
+en The milk is out
+uk Молоко дістала
+ru Молоко достала
+
+equip.done.count_till
+cs Sedí to
+en It adds up
+uk Усе зійшлося
+ru Всё сошлось
+
+equip.done.trash
+cs Venku je chladno
+en Chilly out there
+uk Надворі прохолодно
+ru Снаружи прохладно
+
+equip.till.counted
+cs Kasa spočítaná: {revenue}, {guests} hostů, dýška {tips}
+en The till's counted: {revenue}, {guests} guests, {tips} in tips
+uk Касу перераховано: {revenue}, {guests} гостей, чайові {tips}
+ru Касса пересчитана: {revenue}, {guests} гостей, чаевые {tips}
+
+equip.trash.cat
+cs U popelnic čekala nádražní kočka. Chvilku ses s ní mazlila.
+en The station cat was waiting by the bins. You stopped for a scratch.
+uk Біля смітників чекала вокзальна кішка. Ти трохи її погладила.
+ru У мусорных баков ждала вокзальная кошка. Ты немного её погладила.
+
+event.coffee_machine.result.purged
+cs Proplachla jsi ho sama — zase mručí, jak má, a nestálo to ani korunu.
+en You purged it yourself — it hums as it should again, and it didn't cost a crown.
+uk Ти сама його промила — знову гуде як слід, і жодної крони не коштувало.
+ru Ты сама его промыла — снова гудит как надо, и ни кроны не стоило.
+
+tutorial.equipment
+cs I zbytek kuchyně má své drobné práce: hrnec polévky na sporák, mléko z lednice. Co svítí, to můžu použít.
+en The rest of the kitchen has small jobs too: a pot of soup on the stove, the milk out of the fridge. Whatever glows, I can use.
+uk Решта кухні теж має дрібні справи: каструлю супу на плиту, молоко з холодильника. Що світиться — тим можна скористатися.
+ru У остальной кухни тоже есть мелкие дела: кастрюлю супа на плиту, молоко из холодильника. Что светится — тем можно воспользоваться.
