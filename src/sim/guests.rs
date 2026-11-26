@@ -992,6 +992,8 @@ fn arrival_rate(w: &World, content: &Content, hour: usize) -> f32 {
 
 pub(crate) fn pick_archetype(w: &mut World, content: &Content, hour: usize) -> Option<String> {
     let wd = w.weekday as usize;
+    // corners draw their guests a little more often
+    let attract = super::corners::attraction(w, content);
     let list: Vec<(&str, f32)> = content
         .guests
         .iter()
@@ -1003,7 +1005,13 @@ pub(crate) fn pick_archetype(w: &mut World, content: &Content, hour: usize) -> O
         .map(|g| {
             (
                 g.id.as_str(),
-                g.weight_at(hour) * g.weekday_mult.get(wd).copied().unwrap_or(1.0),
+                g.weight_at(hour)
+                    * g.weekday_mult.get(wd).copied().unwrap_or(1.0)
+                    * attract
+                        .iter()
+                        .find(|a| a.0 == g.id)
+                        .map(|a| a.1)
+                        .unwrap_or(1.0),
             )
         })
         .collect();

@@ -7,7 +7,9 @@
 //! * **frame** ([`GameScreen::frame`], [`GameScreen::hotkeys`]) — input, drawing, widgets.
 
 mod app_tool;
+mod attic_ui;
 mod build;
+mod build_content_ui;
 pub mod coach;
 mod day;
 mod duties;
@@ -25,6 +27,8 @@ pub mod scene;
 mod scene_fx;
 pub mod tutorial;
 pub mod world_view;
+
+pub use build_content_ui::scene_setup as build_content_scene;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -84,6 +88,8 @@ pub enum Panel {
     Journal,
     /// The weekly payroll basis (podklady pro mzdy) as a decision screen.
     Payroll,
+    /// Grandma's attic and the back room (package C; the day card's "Attic").
+    Attic,
 }
 
 /// A line in the top ticker / log.
@@ -667,6 +673,7 @@ impl GameScreen {
         };
         self.hands_event(content, &e);
         self.extras_event(content, &e);
+        self.build_content_event(content, &e, loc);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;
@@ -899,6 +906,9 @@ impl GameScreen {
                 audio.play_sfx_vol(Sfx::UiClick, 0.5)
             }
             SimEvent::PlayerOrderTaken { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.35),
+            // package C: a corner forms, someone thanks you for what you built
+            SimEvent::CornerFormed { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.5),
+            SimEvent::BuildWishFulfilled { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.6),
             _ => {}
         }
     }
@@ -1409,6 +1419,7 @@ impl GameScreen {
                 Some(Panel::Help) => tutorial::help(self, ui, cx),
                 Some(Panel::Journal) => journal_ui::journal_panel(self, ui, cx),
                 Some(Panel::Payroll) => phone_app::payroll_panel(self, ui, cx),
+                Some(Panel::Attic) => attic_ui::panel(self, ui, cx),
                 None => {}
             }
             if self.world.phase() == Phase::Day && self.summary.is_none() {
@@ -1971,8 +1982,14 @@ mod capitalize_tests {
 
     #[test]
     fn toast_body_starts_with_a_capital_in_every_language() {
-        assert_eq!(capitalize_first("say hello, take the order"), "Say hello, take the order");
-        assert_eq!(capitalize_first("pozdrav, vezmi objednávku"), "Pozdrav, vezmi objednávku");
+        assert_eq!(
+            capitalize_first("say hello, take the order"),
+            "Say hello, take the order"
+        );
+        assert_eq!(
+            capitalize_first("pozdrav, vezmi objednávku"),
+            "Pozdrav, vezmi objednávku"
+        );
         assert_eq!(capitalize_first("привітайся"), "Привітайся");
         assert_eq!(capitalize_first("поздоровайся"), "Поздоровайся");
         assert_eq!(capitalize_first("Already"), "Already");

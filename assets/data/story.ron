@@ -211,7 +211,7 @@
         "franchise_met", "landlord_grumbling", "final_payment_missed",
         "roof_fixed", "cat_adopted",
         // hands-on
-        "garlands_up", "strange_tea_two_sugars", "reward_decor", "mug_raindrop", "mug_heart",
+        "garlands_up", "strange_tea_two_sugars", "reward_decor", "attic_piece", "mug_raindrop", "mug_heart",
     ],
     vars: [
         (id: "letter", default: "hidden",

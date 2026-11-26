@@ -201,6 +201,37 @@ the clock crawls.
 * A paused game is a fine place to think. Event buttons still work while paused.
 * On Cozy nothing can really go wrong. Classic makes the payments matter.
 
+## Reasons to build: wishes, corners, the attic, the back room
+
+* **Wishes for the café.** Regulars, helpers and guests sometimes say what they'd like —
+  Filip needs a table with a socket, Hana a quiet corner, Vera a seat by the window, Mirek
+  grandma's old radio, the crew a coat rack… They say it once in a bubble, and every wish
+  sits as a card in the Shiftella app (T → Requests, "Wishes for the café"): *Waiting*,
+  *Built — they'll see it*, *Thanked*. "Build" on a card opens build mode. When the piece
+  stands and the person is in the café, they thank you (a bubble + a toast) and there is a
+  small reward: trust, a napkin, a better mood, a happier table. Story wishes (Filip, Lori,
+  Hana) are marked "Matters to their story" — their arcs still need the same piece as before;
+  the card only tells you. Nothing here is needed to finish the story.
+* **Corners.** Pieces placed close together in the hall form a named corner: a *reading
+  nook* (armchair + lamp + bookshelf), a *window spot* (window seat + plant + lamp), a
+  *little stage* (stage + lamp), a *listening corner* (jukebox or radio + a soft seat), a
+  *coat corner*, a *study table* (socket table + lamp), a *green corner* (three plants). Each
+  adds a little coziness (up to +8 together) and draws its kind of guests a bit more often.
+  A toast says when one forms.
+* **Grandma's attic** (day card → *Grandma's attic*). From night 3, and every Saturday after,
+  three second-hand pieces come down from the attic at a flea-market price — each with a
+  line about grandma Lida (her sewing chair, the waiting-room bench Jindra sat on, the tram
+  lamp she traded for three cakes…). One click on *Bring down* buys it and puts it in the
+  hall; drag it where you like in build mode. Removed again, it goes back upstairs and comes
+  down for free. Each piece exists once; things come down in the daytime.
+* **The back room** (in the same panel). From night 15 grandma's back room can be reopened
+  for 14 000 Kč: the café grows by a small second hall behind the right wall, with two of
+  her tables (4 seats) and floor to decorate. A Cozy player usually has the money by night
+  16–20. It's optional.
+* **Before / after.** When the hall changed noticeably during the day (a new corner, the
+  back room, clearly cosier), the next morning's polaroids include a *before / after* print:
+  the same spot last night and tonight, side by side.
+
 ## For developers: automation runs
 
 Screenshot, autoplay and QA runs (`SHIFTELLA_SHOT`, `SHIFTELLA_AUTOPLAY`, or
@@ -210,6 +241,11 @@ the game still renders every frame and the screenshot is the real picture (`src/
 `SHIFTELLA_HIDDEN=0` keeps the window visible, e.g. to watch an autoplay run. Prefer the
 headless checks (`cargo test`, `game_autoplay`, `sim_balance`, `sim_headless`) where a
 picture isn't needed.
+
+Package C scenes: `SHIFTELLA_SCENE=attic` (day 13, the attic panel), `backroom` (night 16,
+00:30, the reopened back room), `requests` (night 12, the app's Requests tab), `corner`
+(day 9, a reading nook just placed, build mode), `before_after` (morning after night 9 with
+the before / after polaroid picked); `SHIFTELLA_NIGHT` overrides the night.
 
 `SHIFTELLA_TIME=HH:MM` also takes the preparation half hour: `21:30`–`21:59` start the night
 before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`).

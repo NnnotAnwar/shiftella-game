@@ -10,6 +10,7 @@
 //!
 //! Schemas and semantics: `docs/CONTENT.md`.
 
+pub mod build;
 pub mod defs;
 pub mod handson;
 pub mod logic;
@@ -71,6 +72,8 @@ pub struct Content {
     pub sandbox: SandboxDef,
     /// Hands-on content (`handson::HANDSON_FILES`).
     pub handson: handson::HandsOn,
+    /// Reasons to build: requests, corners, the attic, the back room (`build::BUILD_FILES`).
+    pub build: build::BuildContent,
 }
 
 /// The data files, in load order (plus [`handson::HANDSON_FILES`]).
@@ -118,6 +121,7 @@ impl Content {
             difficulties: read(dir, "difficulty.ron")?,
             sandbox: read(dir, "sandbox.ron")?,
             handson: handson::HandsOn::load(dir)?,
+            build: build::BuildContent::load(dir)?,
         })
     }
 

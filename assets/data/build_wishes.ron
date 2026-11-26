@@ -1,0 +1,61 @@
+// Requests from guests and staff (design/v0.2.md item 4, package C).
+// Keys: build_wish.<id>.reason (card title), .ask (what they say), .thanks (their reaction).
+// who: Regular(id) | Staff(Some(archetype) | None = the first helper) | Guests(archetype).
+// appear / done: Cond lists; reward: Fx run once when they see it (target = them).
+// `arc: true` = the request mirrors a story arc's own condition (the arc keeps it; the card
+// only tells the player). Nothing here is needed to finish the story.
+#![enable(implicit_some)]
+(
+    wishes: [
+        // --- the regulars ---------------------------------------------------------------------
+        (id: "filip_socket", who: Regular("filip"), tag: "power_socket", arc: true,
+         appear: [NightAtLeast(6)],
+         done: [HasFurnitureTag("power_socket")],
+         reward: [TargetTrust(3.0)]),
+        (id: "lori_stage", who: Regular("lori"), tag: "stage", arc: true,
+         appear: [Flag("lori_invited")],
+         done: [HasFurnitureTag("stage")],
+         reward: [TargetTrust(3.0)]),
+        (id: "hana_quiet", who: Regular("hana"), def: "armchair", arc: true,
+         appear: [NightAtLeast(8)],
+         done: [HasFurniture("armchair"), HasFurniture("floor_lamp")],
+         reward: [TargetTrust(4.0), ThankYouNote(None)]),
+        (id: "vera_window", who: Regular("vera"), tag: "window_spot",
+         appear: [NightAtLeast(6)],
+         done: [HasFurnitureTag("window_spot")],
+         reward: [TargetTrust(5.0), ThankYouNote(None)]),
+        (id: "mirek_radio", who: Regular("mirek"), def: "radio",
+         appear: [NightAtLeast(8)],
+         done: [HasFurniture("radio")],
+         reward: [TargetTrust(5.0), TargetSatisfaction(10.0)]),
+        (id: "radek_board", who: Regular("radek"), def: "menu_holo_board",
+         appear: [NightAtLeast(10)],
+         done: [HasFurniture("menu_holo_board")],
+         reward: [TargetTrust(5.0), TargetSatisfaction(10.0)]),
+        // --- the crew -------------------------------------------------------------------------
+        (id: "crew_coats", who: Staff(None), tag: "coats",
+         appear: [NightAtLeast(3)],
+         done: [HasFurnitureTag("coats")],
+         reward: [TargetStaffMood(10.0), TargetRelationship(4.0)]),
+        (id: "cook_rack", who: Staff("cook"), def: "dish_rack",
+         done: [HasFurniture("dish_rack")],
+         reward: [TargetStaffMood(10.0), TargetRelationship(4.0)]),
+        (id: "barista_grinder", who: Staff("barista"), def: "espresso_grinder",
+         appear: [NightAtLeast(4)],
+         done: [HasFurniture("espresso_grinder")],
+         reward: [TargetStaffMood(10.0), TargetRelationship(4.0)]),
+        // --- guests -----------------------------------------------------------------------------
+        (id: "students_sockets", who: Guests("students"), tag: "power_socket",
+         appear: [NightAtLeast(10), HasFurnitureTag("power_socket")],
+         done: [FurnitureTagCount("power_socket", 2)],
+         reward: [TargetSatisfaction(15.0), Reputation(1.0)]),
+        (id: "nurses_sofa", who: Guests("nurses"), def: "sofa",
+         appear: [NightAtLeast(6)],
+         done: [HasFurniture("sofa")],
+         reward: [TargetSatisfaction(15.0), Reputation(1.0)]),
+        (id: "insomniacs_rug", who: Guests("insomniacs"), def: "rug",
+         appear: [NightAtLeast(9)],
+         done: [Any([HasFurniture("rug"), HasFurniture("attic_rag_rug"), HasFurniture("mosaic_rug")])],
+         reward: [TargetSatisfaction(15.0), Reputation(1.0)]),
+    ],
+)

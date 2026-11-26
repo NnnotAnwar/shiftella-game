@@ -49,6 +49,10 @@ pub struct BotConfig {
     /// ([`attentive_choices`]) and builds what a regular asks for (Filip's socket table, Lori's
     /// stage). `false` = every scene ends on its defaults (no choice picked), as before.
     pub attentive: bool,
+    /// 0.2: an attentive bot also builds — what the regulars ask for, a piece from grandma's
+    /// attic now and then, the back room once affordable. `false` = a player who never builds
+    /// (the story still ends in the light; tested).
+    pub build: bool,
 }
 
 impl Default for BotConfig {
@@ -67,6 +71,7 @@ impl Default for BotConfig {
             seed: 1,
             thrifty: false,
             attentive: true,
+            build: true,
         }
     }
 }
@@ -171,8 +176,11 @@ impl PlayerBot {
             }
         }
         self.systems_day(w, content);
-        if self.cfg.attentive {
+        if self.cfg.attentive && self.cfg.build {
             build_for_regulars(w, content);
+            if !self.cfg.thrifty {
+                build_extras(w, content);
+            }
         }
         let _ = w.apply(content, Command::PublishSchedule);
         self.delegate(w, content);
@@ -1248,6 +1256,39 @@ pub fn build_for_regulars(w: &mut World, content: &Content) {
     }
     if w.flag("lori_invited") && !has_tag(w, "stage") {
         place_group(w, content, "stage_corner", false);
+    }
+}
+
+/// 0.2 package C: the back room once there's money to spare (10 000 after the price), and the
+/// cheapest piece of grandma's attic now and then (12 000 to spare) — never the money for
+/// the debt payments of the next ten nights.
+pub fn build_extras(w: &mut World, content: &Content) {
+    // nice-to-haves never touch the money for the debt payments of the next ten nights
+    let due: i64 = if w.mode() == Mode::Story {
+        (w.night()..w.night() + 10)
+            .filter_map(|n| content.story.payment_on(n))
+            .map(|p| p.amount)
+            .sum::<i64>()
+            .min(w.debt().max(0))
+    } else {
+        0
+    };
+    let free = w.money() - due;
+    let br = w.back_room(content);
+    if br.available && free >= br.price as i64 + 10_000 {
+        let _ = w.apply(content, Command::OpenBackRoom);
+    }
+    let attic = w.attic(content);
+    let free = w.money() - due;
+    if w.night() >= 8
+        && let Some(o) = attic
+            .offers
+            .iter()
+            .filter(|o| !o.owned)
+            .min_by_key(|o| (o.price, o.id.clone()))
+        && free >= o.price as i64 + 12_000
+    {
+        let _ = w.apply(content, Command::BuyAtticPiece { id: o.id.clone() });
     }
 }
 

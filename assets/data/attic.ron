@@ -1,0 +1,36 @@
+// Grandma's attic & back room (design/v0.2.md items 7 and 9, package C).
+// Attic: from `first_night`, then every `restock_weekday` morning, `per_week` second-hand pieces
+// (unique; furniture.ron entries hidden from the catalogue with unlock_flag "attic_piece").
+// Buying brings the piece down into the hall; taken away it goes back upstairs (free to bring
+// down again). Key attic.<id>.story — one line about grandma Lida.
+// Back room: reopened once (Day), widening the café by 6 columns to the right; `pieces` are
+// grandma's old tables waiting inside (tiles of the widened grid; x 30–34, y 1–14).
+#![enable(implicit_some)]
+(
+    restock_weekday: Sat,
+    first_night: 3,
+    per_week: 3,
+    pieces: [
+        (id: "attic_sewing_chair", price: 1200, from_night: 3),
+        (id: "attic_reading_lamp", price: 350, from_night: 3),
+        (id: "attic_rubber_plant", price: 300, from_night: 3),
+        (id: "attic_bentwood_stand", price: 300, from_night: 3),
+        (id: "attic_station_bench", price: 1600, from_night: 6),
+        (id: "attic_bookcase", price: 900, from_night: 6),
+        (id: "attic_rag_rug", price: 600, from_night: 6),
+        (id: "attic_marble_table", price: 700, from_night: 10),
+        (id: "attic_tram_lamp", price: 350, from_night: 10),
+        (id: "attic_piano_stool", price: 200, from_night: 10),
+        (id: "attic_window_bench", price: 1400, from_night: 13),
+    ],
+    back_room: (
+        from_night: 15,
+        sandbox_night: 15,
+        price: 14000,
+        pieces: [
+            ("table_round", 32, 3, 0), ("chair", 31, 3, 3), ("chair", 33, 3, 1), ("pendant_lamp", 32, 3, 0),
+            ("table_round", 32, 7, 0), ("chair", 31, 7, 3), ("chair", 33, 7, 1), ("pendant_lamp", 32, 7, 0),
+            ("plant_small", 34, 1, 0),
+        ],
+    ),
+)

@@ -19,6 +19,7 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                     | super::Panel::Build
                     | super::Panel::Journal
                     | super::Panel::Payroll
+                    | super::Panel::Attic
             )
         )
     {
@@ -261,6 +262,21 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         &t.small(),
         Align::Left,
     );
+    // grandma's attic (and the back room): new things on Saturdays
+    let attic = g.world.attic(content);
+    if attic.open || g.world.back_room(content).available {
+        let ar = Rect::new(c.x, c.bottom() - 108.0, c.w, 28.0);
+        let fresh = attic.offers.iter().filter(|o| !o.owned).count();
+        let label = if fresh > 0 {
+            format!("{} · {fresh}", loc.tr("ui.attic.title"))
+        } else {
+            loc.tr_owned("ui.attic.title")
+        };
+        let b = Button::new(&label).ghost().icon(Icon::Home);
+        if ui.button("plan_attic", ar, &b).clicked {
+            super::attic_ui::toggle(g);
+        }
+    }
     let _ = y;
     // shortcuts to the panels
     let br = Rect::new(c.x, c.bottom() - 72.0, c.w, 28.0);

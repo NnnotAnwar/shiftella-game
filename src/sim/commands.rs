@@ -72,7 +72,11 @@ fn connectivity_ok(w: &World, content: &Content) -> bool {
     true
 }
 
-fn place_piece(w: &mut World, content: &Content, piece: Placed) -> Result<(), CommandError> {
+pub(crate) fn place_piece(
+    w: &mut World,
+    content: &Content,
+    piece: Placed,
+) -> Result<(), CommandError> {
     let d = def(content, &piece.def)?;
     grid::can_place(&w.grid, d, piece.x, piece.y, piece.rot, None)?;
     occupy(w, d, &piece, true);
@@ -170,7 +174,16 @@ impl World {
         }
         self.ensure_hands(content);
         self.grid.ensure_masks(&self.furniture, content);
-        match cmd {
+        let furniture_cmd = matches!(
+            cmd,
+            Command::PlaceFurniture { .. }
+                | Command::MoveFurniture { .. }
+                | Command::RotateFurniture { .. }
+                | Command::RemoveFurniture { .. }
+        );
+        // a new helper may have a wish for the café (package C requests)
+        let crew_cmd = matches!(cmd, Command::Hire { .. } | Command::Fire { .. });
+        let r = match cmd {
             Command::PlaceFurniture { def: id, x, y, rot } => {
                 let d = def(content, &id)?;
                 if d.unique && self.furniture.iter().any(|p| p.def == id) {
@@ -781,7 +794,13 @@ impl World {
                 super::tool::grant_toil(self, content, staff, weekday)
             }
             Command::SendPayroll { week } => super::tool::send_payroll(self, content, week),
+            Command::BuyAtticPiece { id } => super::attic::buy(self, content, &id),
+            Command::OpenBackRoom => super::backroom::open(self, content),
+        };
+        if r.is_ok() && (furniture_cmd || crew_cmd) {
+            super::build_content::after_furniture_change(self, content);
         }
+        r
     }
 
     fn move_piece(
@@ -912,6 +931,14 @@ impl World {
         };
         if r.is_ok() && matches!(op, UndoOp::Shift { .. } | UndoOp::Draft { .. }) {
             super::rozpis::score(self, content);
+        }
+        if r.is_ok()
+            && matches!(
+                op,
+                UndoOp::Unplace { .. } | UndoOp::Replace { .. } | UndoOp::MoveBack { .. }
+            )
+        {
+            super::build_content::after_furniture_change(self, content);
         }
         if r.is_err() {
             // couldn't revert (e.g. a guest sits on the chair now): keep it for later

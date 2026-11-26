@@ -54,6 +54,19 @@
     (id: "mosaic_rug", sprite: "rug", skin: "mosaic_rug", category: Decor, size: (2, 2), price: 1800, tags: ["decor", "theme:art_nouveau"], comfort: 1.0, beauty: 3.0, walkable: true, unlock_flag: "reward_decor"),
     (id: "enamel_sign", sprite: "menu_holo_board", skin: "enamel_sign", category: Decor, size: (2, 1), price: 900, tags: ["decor", "theme:station_retro"], beauty: 3.0, unlock_flag: "reward_decor"),
     (id: "led_strip", sprite: "floor_lamp", skin: "led_strip", category: Decor, size: (1, 1), price: 800, tags: ["light", "decor", "theme:nocturne_2039"], beauty: 2.0, light_radius: 2.5, unlock_flag: "reward_decor"),
+    // --- grandma's attic (package C): second-hand, unique, only through attic.ron ---
+    // Hidden behind the never-set flag `attic_piece`; `Command::BuyAtticPiece` brings them down.
+    (id: "attic_sewing_chair", sprite: "armchair", skin: "sewing_chair", category: Furniture, size: (1, 1), price: 2600, tags: ["seat", "comfort", "quiet_corner"], comfort: 6.5, beauty: 3.0, seats: 1, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_reading_lamp", sprite: "floor_lamp", skin: "reading_lamp", category: Decor, size: (1, 1), price: 900, tags: ["light", "decor"], beauty: 2.0, light_radius: 3.0, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_rubber_plant", sprite: "plant_tall", skin: "rubber_plant", category: Decor, size: (1, 1), price: 1100, tags: ["decor"], beauty: 3.5, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_bentwood_stand", sprite: "coat_rack", skin: "bentwood_stand", category: Decor, size: (1, 1), price: 900, tags: ["coats", "decor"], comfort: 1.0, beauty: 2.0, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_station_bench", sprite: "sofa", skin: "station_bench", category: Furniture, size: (2, 1), price: 4200, tags: ["seat", "comfort"], comfort: 4.5, beauty: 3.0, seats: 2, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_bookcase", sprite: "bookshelf", skin: "glass_bookcase", category: Decor, size: (1, 1), price: 2600, tags: ["decor", "comfort"], comfort: 1.0, beauty: 4.0, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_rag_rug", sprite: "rug", skin: "rag_rug", category: Decor, size: (2, 2), price: 1700, tags: ["decor"], comfort: 1.5, beauty: 3.0, walkable: true, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_marble_table", sprite: "table_round_2", skin: "marble_table", category: Furniture, size: (1, 1), price: 1600, tags: ["table", "grandma"], beauty: 2.0, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_tram_lamp", sprite: "pendant_lamp", skin: "tram_lamp", category: Decor, size: (1, 1), price: 1000, tags: ["light", "decor"], beauty: 2.0, walkable: true, light_radius: 2.5, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_piano_stool", sprite: "stool", skin: "piano_stool", category: Furniture, size: (1, 1), price: 500, tags: ["seat"], comfort: 2.0, beauty: 1.0, walkable: true, seats: 1, unique: true, unlock_flag: "attic_piece"),
+    (id: "attic_window_bench", sprite: "window_seat", skin: "window_bench", category: Furniture, size: (2, 1), price: 3200, tags: ["seat", "window_spot", "comfort"], comfort: 4.5, beauty: 3.5, seats: 2, unique: true, unlock_flag: "attic_piece"),
     // --- floors (price per tile) ---
     (id: "floor_wood", sprite: "floor_wood", category: Floors, size: (1, 1), price: 120, tags: ["floor"], beauty: 0.3, walkable: true),
     (id: "floor_tile", sprite: "floor_tile", category: Floors, size: (1, 1), price: 90, tags: ["floor"], walkable: true),

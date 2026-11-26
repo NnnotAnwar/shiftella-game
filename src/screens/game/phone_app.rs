@@ -439,10 +439,20 @@ fn requests(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
         items.push((false, s.id));
     }
     let early: Vec<sim::EarlyLeaveRequest> = g.world.early_leave_requests().to_vec();
-    if items.is_empty() && early.is_empty() {
+    // package C: what people would like built (on top, it's what the café is about)
+    let build_h = super::build_content_ui::requests_height(g, content);
+    if items.is_empty() && early.is_empty() && build_h == 0.0 {
         empty(ui, r, &loc);
         return;
     }
+    let r = if build_h > 0.0 {
+        let only = items.is_empty() && early.is_empty();
+        let h = if only { r.h } else { build_h.min(r.h * 0.5) };
+        super::build_content_ui::requests_section(g, ui, cx, Rect::new(r.x, r.y, r.w, h));
+        Rect::new(r.x, r.y + h + 6.0, r.w, (r.h - h - 6.0).max(0.0))
+    } else {
+        r
+    };
     // "Can I go at 2?" — tonight's early-leave requests first
     let early_h = early.len() as f32 * (card_h_early() + 8.0);
     let mut ey = r.y;

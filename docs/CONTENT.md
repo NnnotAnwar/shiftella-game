@@ -510,3 +510,29 @@ language, placeholder parity for UI keys and data templates.
   `ServedRecipe("r_kulajda")`, Lori's encore trust bonus — need `ArcStage.conditions` to accept `Cond`.
   Hana's / Radek's fast-service thresholds are already 9 / 7 min (looser than the design's 6 / 5).
 * `events.ron`: drop `choices` of the five events replaced by moments once the moment director runs.
+
+---
+
+## 11. Reasons to build (`content::build`, 0.2 package C)
+
+Loaded into `content.build: BuildContent { wishes, corners, attic }` and validated with the rest
+(`validate_build.rs`). Texts: `assets/i18n/src/build_content.tr`.
+
+| file | type | contents |
+|---|---|---|
+| build_wishes.ron | `BuildWishesFile` | 12 requests: 6 regulars, 3 crew, 3 guest archetypes |
+| corners.ron | `CornersFile` | 7 corners, `max_bonus`, `before_after { min_gain, after_at }` |
+| attic.ron | `AtticFile` | restock weekday / first night / per week, 11 second-hand pieces, the back room |
+
+* `BuildWishDef { id, who: Regular(id) | Staff(Option<archetype>) | Guests(archetype), def, tag,
+  appear: Vec<Cond>, done: Vec<Cond>, reward: Vec<Fx>, arc }` — keys `build_wish.<id>.reason`
+  (card title), `.ask`, `.thanks`. Needs a `def` or a `tag`; `done` non-empty.
+* `CornerDef { id, needs: [CornerNeed { defs, tags, count }], radius (1–4), bonus (0–10), max,
+  attracts (guest archetypes), attract_mul (1–2) }` — keys `corner.<id>.name/.desc`. The first
+  need is the anchor (count 1).
+* `AtticPiece { id (= furniture id), price, from_night }` — key `attic.<id>.story`. The furniture
+  must be `unique` with `unlock_flag: "attic_piece"` (declared in story.ron, never set) and the
+  second-hand price below the new one; every furniture hidden that way must be in attic.ron.
+* `BackRoomDef { from_night, sandbox_night, price, pieces: [(furniture, x, y, rot)] }`.
+* Journal: `HighlightKind::BeforeAfter` (`journal.caption.before_after` with `{what}`).
+* Fixed keys: `content::build::UI_KEYS` (with placeholders).
