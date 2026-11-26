@@ -118,6 +118,7 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | tutorial.ron | `Vec<TutorialStep>` | 26 coach marks, nights 1–4 + 8 + 21 (§10.9) |
 | extras.ron | `ExtrasFile` | station cat levels, tip-jar goals, 40 napkins, rituals, mug lines (§10.10) |
 | guest_names.ron | `sim::names` (compiled in) | strangers: 30 + 30 first names (Latin + Cyrillic, optional Russian spelling), per archetype the share of women / elderly guests, tops, extras and whole-phrase descriptions (`needs` a visible feature); texts in `guest_names.tr` (`stranger.<phrase>.<f|m>[.short]`, `stranger.intro.*`, `stranger.party`, `stranger.log.met`) |
+| stories.ron | `sim::stories` (compiled in) | 22 little stories of strangers (filters by archetype / persona / party / time / weather; 2–3 answers each, `good` ones with `Fx`), the storm night (story night 29, sandbox chance, times, blankets / soup, the 03:00 talks); texts in `night_stories.tr` (`story.<id>.text/.opt.<a>/.react.<a>/.log`, `journal.caption.story.<id>`, `storm.*`, `app.bot.storm_cancel`) |
 
 ### Core types (`content::defs`)
 

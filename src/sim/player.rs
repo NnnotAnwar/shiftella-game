@@ -281,12 +281,15 @@ fn release_act(w: &mut World, content: &Content, act: &PlayerAct, stage: u8, cou
                 if let super::systems::WalkKind::Moment { id, .. } = &j.kind {
                     super::moments::release(w, id);
                 }
+                super::stories::release(w, &j.kind);
             }
             if stage > 0
                 && let Some(j) = w.sys.moments.walk_now.take()
-                && let super::systems::WalkKind::Moment { id, .. } = &j.kind
             {
-                super::moments::release(w, id);
+                if let super::systems::WalkKind::Moment { id, .. } = &j.kind {
+                    super::moments::release(w, id);
+                }
+                super::stories::release(w, &j.kind);
             }
         }
         _ => {}
@@ -1445,6 +1448,16 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                         content.handson.tuning.experiment_minutes.max(1) as f32
                             * TICKS_PER_MINUTE as f32
                     }
+                    k @ (super::systems::WalkKind::Story { .. }
+                    | super::systems::WalkKind::Storm { .. }) => {
+                        match super::stories::walk_work(w, content, k) {
+                            Some(work) => work,
+                            None => {
+                                super::stories::release(w, k);
+                                return finish(w);
+                            }
+                        }
+                    }
                 };
                 w.sys.moments.walk_now = Some(job);
                 set_work(w, 1, work);
@@ -1461,6 +1474,10 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                         {
                             super::knowledge::run(w, content, &ingredients);
                         }
+                        Some(
+                            k @ (super::systems::WalkKind::Story { .. }
+                            | super::systems::WalkKind::Storm { .. }),
+                        ) => super::stories::arrive(w, content, &k),
                         _ => {}
                     }
                     finish(w);

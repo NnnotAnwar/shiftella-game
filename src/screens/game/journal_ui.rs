@@ -183,6 +183,8 @@ pub fn sys_args(loc: &Locale, args: &[(String, String)]) -> Vec<(String, String)
                 loc.tr_owned(key)
             } else if let Some(n) = v.strip_prefix("money:") {
                 crate::i18n::format_money(loc.lang, n.parse().unwrap_or(0))
+            } else if let Some(name) = super::stories_ui::persona_arg_text(loc, v) {
+                name
             } else if v.contains('.') && loc.has(v) {
                 loc.tr_owned(v)
             } else {

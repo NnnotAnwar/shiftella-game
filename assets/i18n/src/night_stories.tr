@@ -1,0 +1,1464 @@
+# Little stories of strangers and the storm night (design/v0.2.md H). Data:
+# assets/data/stories.ron. Short, human, never melodramatic.
+# Grammar: strangers' gender is unknown when the text is written, so texts about them use the
+# present tense and no gendered pronouns / past participles (cs/uk/ru); {name} always stands in
+# the nominative (a "{name}: …" prefix in log lines). Karolina is addressed in the second
+# person (feminine forms are fine); guests speak to her politely.
+
+story.toast
+cs Malý příběh
+en A little story
+uk Маленька історія
+ru Маленькая история
+
+# ─────────────────────────── 1. waiting for a call ───────────────────────────
+
+story.call.text
+cs Telefon displejem nahoru, 4 % baterie. Čeká na hovor, který pořád nepřichází.
+en Phone face up on the table, 4 % battery. Waiting for a call that doesn't come.
+uk Телефон екраном догори, 4 % заряду. Чекає на дзвінок, якого все немає.
+ru Телефон экраном вверх, 4 % заряда. Ждёт звонка, которого всё нет.
+
+story.call.opt.charger
+cs Půjčit nabíječku
+en Lend the charger
+uk Позичити зарядку
+ru Одолжить зарядку
+
+story.call.opt.window
+cs Místo u okna — lepší signál
+en The window seat — better signal
+uk Місце біля вікна — кращий сигнал
+ru Место у окна — сигнал лучше
+
+story.call.opt.tea
+cs Čaj na účet podniku
+en A cup of tea, on the house
+uk Чай від закладу
+ru Чай от заведения
+
+story.call.react.charger
+cs Ach, děkuju. Jestli teď zazvoní, je to vaše zásluha.
+en Oh, thank you. If it rings now, it's your doing.
+uk Ой, дякую. Якщо зараз задзвонить — це ваша заслуга.
+ru Ой, спасибо. Если сейчас позвонят — это ваша заслуга.
+
+story.call.react.window
+cs Dvě čárky. Celé dvě čárky! Děkuju.
+en Two bars. Two whole bars! Thank you.
+uk Дві поділки. Цілих дві! Дякую.
+ru Две палочки. Целых две! Спасибо.
+
+story.call.react.tea
+cs Díky. Je dobré držet v rukou něco teplého.
+en Thanks. It helps to hold something warm.
+uk Дякую. Добре тримати в руках щось тепле.
+ru Спасибо. Хорошо держать в руках что-то тёплое.
+
+story.call.log
+cs {name}: hovor nakonec přišel.
+en {name}: the call comes through at last.
+uk {name}: дзвінок нарешті надійшов.
+ru {name}: звонок наконец пришёл.
+
+journal.caption.story.call
+cs {name} a hovor, který přišel
+en {name} and the call that came
+uk {name} і дзвінок, що надійшов
+ru {name} и звонок, который пришёл
+
+# ─────────────────────────── 2. the last train has gone ───────────────────────────
+
+story.last_train.text
+cs Poslední vlak do Děčína ujel. Další jede až za svítání.
+en The last train to Děčín has gone. The next one leaves at dawn.
+uk Останній потяг на Děčín уже пішов. Наступний — аж на світанку.
+ru Последний поезд на Děčín ушёл. Следующий — только на рассвете.
+
+story.last_train.opt.app
+cs Najít v aplikaci první ranní vlak
+en Find the first morning train in the app
+uk Знайти в застосунку перший ранковий потяг
+ru Найти в приложении первый утренний поезд
+
+story.last_train.opt.armchair
+cs Křeslo u topení — do rána si odpočinout
+en The armchair by the radiator — rest till morning
+uk Крісло біля батареї — відпочити до ранку
+ru Кресло у батареи — отдохнуть до утра
+
+story.last_train.opt.cake
+cs Kousek dortu
+en A slice of cake
+uk Шматочок торта
+ru Кусочек торта
+
+story.last_train.react.app
+cs 5:41, druhé nástupiště. Nastavím si tři budíky. Děkuju!
+en 5:41, platform 2. Three alarms it is. Thank you!
+uk 5:41, друга платформа. Поставлю три будильники. Дякую!
+ru 5:41, вторая платформа. Поставлю три будильника. Спасибо!
+
+story.last_train.react.armchair
+cs Ó, to je… moc dobré křeslo.
+en Oh, that's… a very good armchair.
+uk О, це… дуже добре крісло.
+ru О, это… очень хорошее кресло.
+
+story.last_train.react.cake
+cs Díky. S dortem se čeká líp.
+en Thanks. Waiting is easier with cake.
+uk Дякую. З тортом чекати легше.
+ru Спасибо. С тортом ждать легче.
+
+story.last_train.log
+cs {name}: vlak až za svítání, ale teplé místo na čekání.
+en {name}: no train till dawn, but a warm place to wait.
+uk {name}: потяг аж на світанку, зате є тепле місце, щоб дочекатися.
+ru {name}: поезд только на рассвете, зато есть тёплое место, где переждать.
+
+journal.caption.story.last_train
+cs {name} čeká na ranní vlak
+en {name}, waiting for the dawn train
+uk {name} чекає на ранковий потяг
+ru {name} ждёт утреннего поезда
+
+# ─────────────────────────── 3. the first pay cheque ───────────────────────────
+
+story.pay_cheque.text
+cs Úplně první výplata. Čte si výplatní pásku pořád dokola.
+en The very first pay cheque. Reading the payslip again and again.
+uk Найперша зарплата. Знову й знову перечитує розрахунковий листок.
+ru Самая первая зарплата. Снова и снова перечитывает расчётный листок.
+
+story.pay_cheque.opt.medovnik
+cs Babiččin medovník na oslavu
+en Grandma's medovník, to celebrate
+uk Бабусин медовик на честь свята
+ru Бабушкин медовик в честь праздника
+
+story.pay_cheque.opt.record
+cs Pustit něco veselého
+en Put on something cheerful
+uk Поставити щось веселе
+ru Поставить что-нибудь весёлое
+
+story.pay_cheque.opt.word
+cs Pogratulovat
+en Say congratulations
+uk Привітати
+ru Поздравить
+
+story.pay_cheque.react.medovnik
+cs Pro mě? Tohle je už teď nejlepší den v měsíci.
+en For me? This is the best day of the month already.
+uk Мені? Це вже найкращий день місяця.
+ru Мне? Это уже лучший день месяца.
+
+story.pay_cheque.react.record
+cs Ha! Teď je to opravdová oslava.
+en Ha! Now it's a real celebration.
+uk Ха! Тепер це справжнє свято.
+ru Ха! Вот теперь это настоящий праздник.
+
+story.pay_cheque.react.word
+cs Děkuju! Není to moc, ale je to moje.
+en Thank you! It's not much, but it's mine.
+uk Дякую! Небагато, але моє.
+ru Спасибо! Немного, но своё.
+
+story.pay_cheque.log
+cs {name}: první výplata, oslavená u pultu.
+en {name}: a first pay cheque, celebrated at the counter.
+uk {name}: перша зарплата, відсвяткована біля стійки.
+ru {name}: первая зарплата, отпразднованная у стойки.
+
+journal.caption.story.pay_cheque
+cs {name} a první výplata
+en {name} and a first pay cheque
+uk {name} і перша зарплата
+ru {name} и первая зарплата
+
+# ─────────────────────────── 4. a birthday alone ───────────────────────────
+
+story.birthday.text
+cs Dnes má narozeniny. Nikdo, s kým je slavit — jen tichý šálek.
+en A birthday tonight. Nobody to share it with — just a quiet cup.
+uk Сьогодні день народження. Нема з ким розділити — лише тиха чашка.
+ru Сегодня день рождения. Не с кем разделить — только тихая чашка.
+
+story.birthday.opt.candle
+cs Svíčka v kousku dortu
+en A candle in a slice of cake
+uk Свічка в шматочку торта
+ru Свечка в кусочке торта
+
+story.birthday.opt.sing
+cs Popřát od pultu k narozeninám
+en Wish a happy birthday from the counter
+uk Привітати з днем народження з-за стійки
+ru Поздравить с днём рождения из-за стойки
+
+story.birthday.opt.record
+cs Pustit desku
+en Put a record on
+uk Поставити платівку
+ru Поставить пластинку
+
+story.birthday.react.candle
+cs Ach… Tohle pro mě nikdo neudělal celé roky. Děkuju.
+en Oh… Nobody's done that in years. Thank you.
+uk Ох… Такого для мене ніхто не робив роками. Дякую.
+ru Ох… Такого для меня никто не делал годами. Спасибо.
+
+story.birthday.react.sing
+cs Vy jste to slyšela? …Děkuju. Opravdu.
+en You heard that? …Thank you. Really.
+uk Ви це почули? …Дякую. Справді.
+ru Вы это услышали? …Спасибо. Правда.
+
+story.birthday.react.record
+cs Pěkná písnička. Díky.
+en Nice tune. Thanks.
+uk Гарна мелодія. Дякую.
+ru Хорошая мелодия. Спасибо.
+
+story.birthday.log
+cs {name}: přece jen narozeniny.
+en {name}: a birthday after all.
+uk {name}: усе-таки справжній день народження.
+ru {name}: всё-таки настоящий день рождения.
+
+journal.caption.story.birthday
+cs {name}: narozeniny v Café Nocturne
+en {name}: a birthday at Café Nocturne
+uk {name}: день народження в Café Nocturne
+ru {name}: день рождения в Café Nocturne
+
+# ─────────────────────────── 5. a nurse after a hard shift ───────────────────────────
+
+story.nurse_loss.text
+cs Po těžké službě — dnes v noci pacient nepřežil. Dívá se do hrnku.
+en After a hard shift — a patient didn't make it tonight. Staring into the cup.
+uk Після важкої зміни — цієї ночі пацієнта не стало. Дивиться в чашку.
+ru После тяжёлой смены — этой ночью пациента не стало. Смотрит в чашку.
+
+story.nurse_loss.opt.quiet
+cs Přinést čaj a nechat v klidu
+en Bring tea, and let them be
+uk Принести чай і залишити в спокої
+ru Принести чай и оставить в покое
+
+story.nurse_loss.opt.record
+cs Něco tichého z jukeboxu
+en Something soft on the jukebox
+uk Щось тихе на джукбоксі
+ru Что-нибудь тихое на джукбоксе
+
+story.nurse_loss.opt.cake
+cs Kousek dortu
+en A slice of cake
+uk Шматочок торта
+ru Кусочек торта
+
+story.nurse_loss.react.quiet
+cs …Děkuju. Že se neptáte.
+en …Thank you. For not asking.
+uk …Дякую. Що не питаєте.
+ru …Спасибо. Что не спрашиваете.
+
+story.nurse_loss.react.record
+cs To je hezké. Trochu se mi uleví.
+en That's nice. I can breathe a little.
+uk Гарно. Трохи легше дихати.
+ru Хорошо. Немного легче дышать.
+
+story.nurse_loss.react.cake
+cs Děkuju. Možná později.
+en Thank you. Maybe later.
+uk Дякую. Може, пізніше.
+ru Спасибо. Может, позже.
+
+story.nurse_loss.log
+cs {name}: těžká noc a po ní tiché místo.
+en {name}: a hard night, and a quiet place after it.
+uk {name}: важка ніч і тихе місце після неї.
+ru {name}: тяжёлая ночь и тихое место после неё.
+
+journal.caption.story.nurse_loss
+cs {name} po těžké službě
+en {name}, after the hard shift
+uk {name} після важкої зміни
+ru {name} после тяжёлой смены
+
+# ─────────────────────────── 6. before the state exam ───────────────────────────
+
+story.exam.text
+cs Státnice v devět. Všude poznámky, káva dávno vystydlá.
+en State exam at nine. Notes everywhere, the coffee long gone cold.
+uk Державний іспит о дев'ятій. Скрізь конспекти, кава давно вихолола.
+ru Госэкзамен в девять. Всюду конспекты, кофе давно остыл.
+
+story.exam.opt.quiz
+cs Vyzkoušet z poznámek
+en Quiz them from the notes
+uk Поганяти по конспектах
+ru Погонять по конспектам
+
+story.exam.opt.mug
+cs Babiččin hrnek pro štěstí
+en Grandma's lucky mug
+uk Бабусина щаслива чашка
+ru Бабушкина счастливая кружка
+
+story.exam.opt.luck
+cs Popřát hodně štěstí
+en Wish them luck
+uk Побажати удачі
+ru Пожелать удачи
+
+story.exam.react.quiz
+cs Tohle vím! Já to fakt umím!
+en That one I know! I actually know this!
+uk Це я знаю! Я це справді знаю!
+ru Это я знаю! Я правда это знаю!
+
+story.exam.react.mug
+cs Šťastný hrnek, šťastná zkouška. To je věda.
+en Lucky mug, lucky exam. That's science.
+uk Щаслива чашка — щасливий іспит. Це наука.
+ru Счастливая кружка — счастливый экзамен. Это наука.
+
+story.exam.react.luck
+cs Díky. Štěstí přesně potřebuju.
+en Thanks. Luck is exactly what I need.
+uk Дякую. Удача — саме те, що треба.
+ru Спасибо. Удача — именно то, что нужно.
+
+story.exam.log
+cs {name}: státnice v devět a k tomu trocha odvahy.
+en {name}: the state exam at nine, and courage to go with it.
+uk {name}: держіспит о дев'ятій — і трохи сміливості на дорогу.
+ru {name}: госэкзамен в девять — и немного смелости в дорогу.
+
+journal.caption.story.exam
+cs {name} před státnicemi
+en {name} before the state exam
+uk {name} перед держіспитом
+ru {name} перед госэкзаменом
+
+# ─────────────────────────── 7. a couple not talking ───────────────────────────
+
+story.couple.text
+cs Dva u jednoho stolu, ani slovo. Dva šálky stydnou.
+en Two at one table, not a word between them. Two cups going cold.
+uk Двоє за одним столиком — ані слова. Дві чашки холонуть.
+ru Двое за одним столиком — ни слова. Две чашки остывают.
+
+story.couple.opt.spoons
+cs Jeden dezert, dvě lžičky
+en One dessert, two spoons
+uk Один десерт, дві ложечки
+ru Один десерт, две ложки
+
+story.couple.opt.candle
+cs Zapálit svíčku na jejich stole
+en Light the candle on their table
+uk Запалити свічку на їхньому столику
+ru Зажечь свечу на их столике
+
+story.couple.opt.ask
+cs Zeptat se, jestli je všechno v pořádku
+en Ask if everything's all right
+uk Спитати, чи все гаразд
+ru Спросить, всё ли в порядке
+
+story.couple.react.spoons
+cs …Ty si dej první. Ne, ty.
+en …You take the first bite. No, you.
+uk …Ти перший шматочок. Ні, ти.
+ru …Ты первый кусочек. Нет, ты.
+
+story.couple.react.candle
+cs Hm. Jako náš první večer.
+en Huh. Like our first evening.
+uk Хм. Як наш перший вечір.
+ru Хм. Как наш первый вечер.
+
+story.couple.react.ask
+cs Ano. Jo, v pořádku. Děkujeme.
+en Yes. Yes, fine. Thank you.
+uk Так. Так, усе гаразд. Дякуємо.
+ru Да. Да, всё хорошо. Спасибо.
+
+story.couple.log
+cs {name}: dva u jednoho stolu zase mluví.
+en {name}: two at one table, talking again.
+uk {name}: двоє за одним столиком знову розмовляють.
+ru {name}: двое за одним столиком снова разговаривают.
+
+journal.caption.story.couple
+cs {name} a dezert pro dva
+en {name} and a dessert for two
+uk {name} і десерт на двох
+ru {name} и десерт на двоих
+
+# ─────────────────────────── 8. a tourist lost in the night ───────────────────────────
+
+story.lost_tourist.text
+cs Papírová mapa vzhůru nohama. Hledá hostel, který není tam, kde ho ukazuje mapa.
+en A paper map upside down. Looking for a hostel that isn't where the map says.
+uk Паперова мапа догори дриґом. Шукає хостел, якого нема там, де показує мапа.
+ru Бумажная карта вверх ногами. Ищет хостел, которого нет там, где он на карте.
+
+story.lost_tourist.opt.map
+cs Nakreslit cestu na ubrousek
+en Draw the way on a napkin
+uk Намалювати дорогу на серветці
+ru Нарисовать дорогу на салфетке
+
+story.lost_tourist.opt.taxi
+cs Zavolat taxi přes aplikaci
+en Call a taxi through the app
+uk Викликати таксі через застосунок
+ru Вызвать такси через приложение
+
+story.lost_tourist.opt.point
+cs Ukázat směr
+en Point the way
+uk Показати напрямок
+ru Показать дорогу
+
+story.lost_tourist.react.map
+cs Mapa na ubrousku! Lepší než ta skutečná.
+en A napkin map! Better than the real one.
+uk Мапа на серветці! Краща за справжню.
+ru Карта на салфетке! Лучше настоящей.
+
+story.lost_tourist.react.taxi
+cs Tři minuty? Jste kouzelnice. Děkuji!
+en Three minutes? You're magic. Děkuji!
+uk Три хвилини? Ви чарівниця. Děkuji!
+ru Три минуты? Вы волшебница. Děkuji!
+
+story.lost_tourist.react.point
+cs Doleva, pak doprava… pak doleva? Děkuju!
+en Left, then right… then left? Thank you!
+uk Ліворуч, потім праворуч… потім ліворуч? Дякую!
+ru Налево, потом направо… потом налево? Спасибо!
+
+story.lost_tourist.log
+cs {name}: noční Holešovice — a teď správným směrem.
+en {name}: Holešovice by night, and now the right way.
+uk {name}: нічні Голешовиці — і тепер у правильному напрямку.
+ru {name}: ночные Голешовице — и теперь в правильную сторону.
+
+journal.caption.story.lost_tourist
+cs {name}, daleko od domova
+en {name}, a long way from home
+uk {name}, далеко від дому
+ru {name}, далеко от дома
+
+# ─────────────────────────── 9. the cello case ───────────────────────────
+
+story.cello.text
+cs U židle se opírá pouzdro s violoncellem. Po koncertě, a spát se nechce.
+en A cello case leaning on the chair. Back from a concert, far too awake to sleep.
+uk Біля стільця стоїть футляр із віолончеллю. Після концерту — і зовсім не спиться.
+ru У стула стоит футляр с виолончелью. После концерта — и совсем не спится.
+
+story.cello.opt.play
+cs Poprosit o jednu krátkou skladbu
+en Ask for one short piece
+uk Попросити зіграти щось коротке
+ru Попросить сыграть что-нибудь короткое
+
+story.cello.opt.corner
+cs Udělat violoncellu místo v rohu
+en Make room for the cello in the corner
+uk Звільнити віолончелі місце в кутку
+ru Освободить виолончели место в углу
+
+story.cello.opt.coffee
+cs Kávu na účet podniku
+en A coffee, on the house
+uk Каву від закладу
+ru Кофе от заведения
+
+story.cello.react.play
+cs Jen jednu. Něco pro tuhle noc.
+en Just one. Something for the night.
+uk Лише одну. Щось для цієї ночі.
+ru Только одну. Что-нибудь для этой ночи.
+
+story.cello.react.corner
+cs Teď má vlastní místo. Bude nesnesitelné.
+en It has its own seat now. It'll be unbearable.
+uk Тепер у неї власне місце. Ще зазнається.
+ru Теперь у неё своё место. Ещё зазнается.
+
+story.cello.react.coffee
+cs Děkuju. Ruce ještě pořád hrají.
+en Thank you. My hands are still playing.
+uk Дякую. Руки досі грають.
+ru Спасибо. Руки всё ещё играют.
+
+story.cello.log
+cs {name}: violoncello, dlouhý koncert a teplý kout.
+en {name}: a cello, a long concert, a warm corner.
+uk {name}: віолончель, довгий концерт і теплий куточок.
+ru {name}: виолончель, долгий концерт и тёплый уголок.
+
+journal.caption.story.cello
+cs {name} a violoncello
+en {name} and the cello
+uk {name} і віолончель
+ru {name} и виолончель
+
+# ─────────────────────────── 10. the old lady and the cat ───────────────────────────
+
+story.cat_lady.text
+cs Kousky šunky schované v ubrousku — pro nádražní kočku.
+en Bits of ham saved in a napkin — for the station cat.
+uk Шматочки шинки, загорнуті в серветку, — для вокзальної кішки.
+ru Кусочки ветчины, завёрнутые в салфетку, — для вокзальной кошки.
+
+story.cat_lady.opt.saucer
+cs Mističku mléka ke dveřím
+en A saucer of milk by the door
+uk Блюдце молока біля дверей
+ru Блюдце молока у двери
+
+story.cat_lady.opt.window
+cs Místo u okna — tam kočka chodí
+en The seat by the window — the cat comes there
+uk Місце біля вікна — кішка приходить туди
+ru Место у окна — кошка приходит туда
+
+story.cat_lady.opt.word
+cs Zeptat se na kočku
+en Ask about the cat
+uk Розпитати про кішку
+ru Расспросить о кошке
+
+story.cat_lady.react.saucer
+cs Ach, ta vás za to bude milovat. A já taky.
+en Oh, she'll love you for this. So will I.
+uk Ой, вона вас за це полюбить. І я теж.
+ru Ой, она вас за это полюбит. И я тоже.
+
+story.cat_lady.react.window
+cs Tamhle je! Ahoj, zlatíčko.
+en There she is! Hello, my sweet.
+uk Он вона! Привіт, моя хороша.
+ru Вот она! Привет, моя хорошая.
+
+story.cat_lady.react.word
+cs Chodí sem už roky. Chytřejší než vlaky.
+en She's been coming for years. Smarter than the trains.
+uk Ходить сюди роками. Розумніша за потяги.
+ru Ходит сюда годами. Умнее поездов.
+
+story.cat_lady.log
+cs {name}: šunka pro nádražní kočku, mléko od nás.
+en {name}: ham for the station cat, milk from the café.
+uk {name}: шинка для вокзальної кішки, молоко від кав'ярні.
+ru {name}: ветчина для вокзальной кошки, молоко от кафе.
+
+journal.caption.story.cat_lady
+cs {name} a nádražní kočka
+en {name} and the station cat
+uk {name} і вокзальна кішка
+ru {name} и вокзальная кошка
+
+# ─────────────────────────── 11. a letter by hand ───────────────────────────
+
+story.letter.text
+cs Píše dopis rukou. Škrtá a začíná znovu.
+en Writing a letter by hand. Crossing out, starting again.
+uk Пише листа від руки. Закреслює, починає знову.
+ru Пишет письмо от руки. Зачёркивает, начинает снова.
+
+story.letter.opt.paper
+cs Babiččin dobrý dopisní papír
+en Grandma's good writing paper
+uk Бабусин гарний папір для листів
+ru Бабушкина хорошая бумага для писем
+
+story.letter.opt.lamp
+cs Přisunout lampu blíž
+en Bring a lamp closer
+uk Присунути лампу ближче
+ru Придвинуть лампу поближе
+
+story.letter.opt.tea
+cs Čaj na účet podniku
+en A cup of tea, on the house
+uk Чай від закладу
+ru Чай от заведения
+
+story.letter.react.paper
+cs Pořádný papír. Teď to musím napsat pořádně.
+en Proper paper. Now I have to write it properly.
+uk Справжній папір. Тепер доведеться написати як слід.
+ru Настоящая бумага. Теперь придётся написать как следует.
+
+story.letter.react.lamp
+cs Lepší. Teď vidím, co chci říct.
+en Better. Now I can see what I'm trying to say.
+uk Так краще. Тепер бачу, що хочу сказати.
+ru Так лучше. Теперь вижу, что хочу сказать.
+
+story.letter.react.tea
+cs Děkuju. Dopisy potřebují čaj.
+en Thank you. Letters need tea.
+uk Дякую. Листам потрібен чай.
+ru Спасибо. Письмам нужен чай.
+
+story.letter.log
+cs {name}: dopis psaný rukou je konečně hotový.
+en {name}: a letter by hand, finished at last.
+uk {name}: лист від руки нарешті дописано.
+ru {name}: письмо от руки наконец дописано.
+
+journal.caption.story.letter
+cs {name} píše dopis
+en {name} writing a letter
+uk {name} пише листа
+ru {name} пишет письмо
+
+# ─────────────────────────── 12. home after years ───────────────────────────
+
+story.homecoming.text
+cs Po letech zpátky v Praze. Dívá se na všechno, jako by to mohlo zmizet.
+en Back in Prague after years away. Looking at everything as if it might vanish.
+uk Знову в Празі після багатьох років. Дивиться на все, ніби воно може зникнути.
+ru Снова в Праге после долгих лет. Смотрит на всё, будто оно может исчезнуть.
+
+story.homecoming.opt.soup
+cs Talíř polévky — chutná jako doma
+en A bowl of soup — it tastes like home
+uk Тарілка супу — смакує як удома
+ru Тарелка супа — вкус как дома
+
+story.homecoming.opt.welcome
+cs Říct „vítejte doma“
+en Say "welcome home"
+uk Сказати «з поверненням додому»
+ru Сказать «с возвращением домой»
+
+story.homecoming.opt.record
+cs Pustit starou českou písničku
+en Put on an old Czech song
+uk Поставити стару чеську пісню
+ru Поставить старую чешскую песню
+
+story.homecoming.react.soup
+cs Ach. Přesně tak. Tohle je domov.
+en Oh. Oh, that's exactly it. That's home.
+uk Ох. Саме так. Оце — дім.
+ru Ох. Именно так. Вот он, дом.
+
+story.homecoming.react.welcome
+cs Doma. Ano. To slovo zní zase nově.
+en Home. Yes. The word sounds new again.
+uk Додому. Так. Це слово знову звучить по-новому.
+ru Домой. Да. Это слово снова звучит по-новому.
+
+story.homecoming.react.record
+cs Tohle zpíval můj děda.
+en My grandad used to sing this.
+uk Це співав мій дідусь.
+ru Это пел мой дедушка.
+
+story.homecoming.log
+cs {name}: po letech zase doma.
+en {name}: home again, after years away.
+uk {name}: знову вдома після багатьох років.
+ru {name}: снова дома после долгих лет.
+
+journal.caption.story.homecoming
+cs {name}, po letech doma
+en {name}, home after years
+uk {name}, удома після багатьох років
+ru {name}, дома после долгих лет
+
+# ─────────────────────────── 13. a new parent ───────────────────────────
+
+story.new_parent.text
+cs Doma miminko, konečně spí. Na vlastní spánek už nezbývá sil.
+en A newborn at home, finally asleep. No strength left for sleep of one's own.
+uk Удома немовля, нарешті спить. А на власний сон уже нема сил.
+ru Дома младенец, наконец уснул. А на свой сон уже нет сил.
+
+story.new_parent.opt.warm
+cs Něco teplého bez kofeinu
+en Something warm without caffeine
+uk Щось тепле без кофеїну
+ru Что-нибудь тёплое без кофеина
+
+story.new_parent.opt.easier
+cs Říct, že to bude lehčí
+en Say it gets easier
+uk Сказати, що далі буде легше
+ru Сказать, что дальше будет легче
+
+story.new_parent.opt.cake
+cs Kousek dortu
+en A slice of cake
+uk Шматочок торта
+ru Кусочек торта
+
+story.new_parent.react.warm
+cs Máte pravdu. Káva by byla hrozný nápad.
+en You're right. Coffee would be a terrible idea.
+uk Ваша правда. Кава була б жахливою ідеєю.
+ru Вы правы. Кофе был бы ужасной идеей.
+
+story.new_parent.react.easier
+cs Fakt? Slibujete? …Děkuju.
+en Really? Promise? …Thank you.
+uk Справді? Обіцяєте? …Дякую.
+ru Правда? Обещаете? …Спасибо.
+
+story.new_parent.react.cake
+cs Cukr. Ano. Cukr je dobrý.
+en Sugar. Yes. Sugar is good.
+uk Цукор. Так. Цукор — це добре.
+ru Сахар. Да. Сахар — это хорошо.
+
+story.new_parent.log
+cs {name}: miminko doma a tichá půlhodinka tady.
+en {name}: a baby at home, a quiet half hour here.
+uk {name}: немовля вдома й тиха пів години тут.
+ru {name}: младенец дома и тихие полчаса здесь.
+
+journal.caption.story.new_parent
+cs {name}, doma spí miminko
+en {name}, a baby asleep at home
+uk {name}, удома спить немовля
+ru {name}, дома спит малыш
+
+# ─────────────────────────── 14. an interview at eight ───────────────────────────
+
+story.interview.text
+cs Pohovor v osm. Šeptem zkouší odpovědi do okna.
+en Job interview at eight. Whispering answers to the window.
+uk Співбесіда о восьмій. Пошепки репетирує відповіді вікну.
+ru Собеседование в восемь. Шёпотом репетирует ответы окну.
+
+story.interview.opt.rehearse
+cs Na chvíli hrát personalistku
+en Play the interviewer for a minute
+uk На хвилинку стати інтерв'юеркою
+ru На минутку побыть интервьюером
+
+story.interview.opt.coffee
+cs Silnou kávu zdarma
+en A strong coffee, no charge
+uk Міцну каву безкоштовно
+ru Крепкий кофе бесплатно
+
+story.interview.opt.luck
+cs Popřát hodně štěstí
+en Wish them luck
+uk Побажати удачі
+ru Пожелать удачи
+
+story.interview.react.rehearse
+cs „Kde se vidím za pět let?“ Tady, upřímně.
+en "Where do I see myself in five years?" Here, honestly.
+uk «Де я бачу себе через п'ять років?» Тут, чесно.
+ru «Где я вижу себя через пять лет?» Здесь, честно.
+
+story.interview.react.coffee
+cs Dost silná, aby odpovídala za mě. Skvělé.
+en Strong enough to answer for me. Perfect.
+uk Достатньо міцна, щоб відповідати замість мене. Чудово.
+ru Достаточно крепкий, чтобы отвечать за меня. Отлично.
+
+story.interview.react.luck
+cs Díky. Beru všechno.
+en Thanks. I'll take all of it.
+uk Дякую. Беру все.
+ru Спасибо. Беру всё.
+
+story.interview.log
+cs {name}: pohovor v osm, nacvičený u pultu.
+en {name}: an interview at eight, rehearsed at the counter.
+uk {name}: співбесіда о восьмій, відрепетирувана біля стійки.
+ru {name}: собеседование в восемь, отрепетированное у стойки.
+
+journal.caption.story.interview
+cs {name}, noc před pohovorem
+en {name}, the night before the interview
+uk {name}, ніч перед співбесідою
+ru {name}, ночь перед собеседованием
+
+# ─────────────────────────── 15. a cabbie after twelve hours ───────────────────────────
+
+story.cabbie.text
+cs Dvanáct hodin za volantem. Ruce pořád drží ten neviditelný.
+en Twelve hours at the wheel. The hands still hold an invisible one.
+uk Дванадцять годин за кермом. Руки досі тримають невидиме.
+ru Двенадцать часов за рулём. Руки всё ещё держат невидимый руль.
+
+story.cabbie.opt.sandwich
+cs Obložený chleba na účet podniku
+en A sandwich on the house
+uk Бутерброд від закладу
+ru Бутерброд от заведения
+
+story.cabbie.opt.corner
+cs Tichý kout a dolít
+en The quiet corner and a refill
+uk Тихий куточок і ще чашку
+ru Тихий уголок и ещё чашку
+
+story.cabbie.opt.word
+cs Zeptat se, jaká byla noc
+en Ask how the night went
+uk Спитати, як минула ніч
+ru Спросить, как прошла ночь
+
+story.cabbie.react.sandwich
+cs První pořádné jídlo od poledne. Zlatá jste.
+en First real food since noon. You're a treasure.
+uk Перша справжня їжа з обіду. Ви — скарб.
+ru Первая нормальная еда с обеда. Вы — сокровище.
+
+story.cabbie.react.corner
+cs Ticho. Nikdo neříká „rychleji“. Nádhera.
+en Quiet. Nobody saying "faster". Lovely.
+uk Тиша. Ніхто не каже «швидше». Чудово.
+ru Тишина. Никто не говорит «быстрее». Чудесно.
+
+story.cabbie.react.word
+cs Tři opilci, jedna žádost o ruku, husa. Normální noc.
+en Three drunks, one proposal, a goose. A normal night.
+uk Троє п'яних, одна пропозиція руки й серця, гуска. Звичайна ніч.
+ru Трое пьяных, одно предложение руки и сердца, гусь. Обычная ночь.
+
+story.cabbie.log
+cs {name}: dvanáct hodin za volantem, pak odpočinek.
+en {name}: twelve hours at the wheel, then a rest.
+uk {name}: дванадцять годин за кермом, а тоді відпочинок.
+ru {name}: двенадцать часов за рулём, а потом отдых.
+
+journal.caption.story.cabbie
+cs {name} po dlouhé šichtě
+en {name} after the long shift
+uk {name} після довгої зміни
+ru {name} после долгой смены
+
+# ─────────────────────────── 16. a conductor's last shift ───────────────────────────
+
+story.conductor.text
+cs Poslední služba před důchodem. Čtyřicet let na kolejích.
+en The last shift before retirement. Forty years on the rails.
+uk Остання зміна перед пенсією. Сорок років на колії.
+ru Последняя смена перед пенсией. Сорок лет на железной дороге.
+
+story.conductor.opt.cake
+cs Kousek dortu na účet podniku
+en A slice of cake, on the house
+uk Шматочок торта від закладу
+ru Кусочек торта от заведения
+
+story.conductor.opt.toast
+cs Připít na čtyřicet let
+en Raise a cup to forty years
+uk Підняти чашку за сорок років
+ru Поднять чашку за сорок лет
+
+story.conductor.opt.word
+cs Zeptat se na staré vlaky
+en Ask about the old trains
+uk Розпитати про старі потяги
+ru Расспросить о старых поездах
+
+story.conductor.react.cake
+cs Čtyřicet let a první dort. Děkuju.
+en Forty years, and the first cake. Thank you.
+uk Сорок років — і перший торт. Дякую.
+ru Сорок лет — и первый торт. Спасибо.
+
+story.conductor.react.toast
+cs Na koleje! A na každého, kdo tu nechává svítit.
+en To the rails! And to whoever keeps this light on.
+uk За колію! І за тих, хто тримає тут світло.
+ru За железную дорогу! И за тех, кто держит здесь свет.
+
+story.conductor.react.word
+cs Pára byla přede mnou. Ale starý Rn 333… o tom mluvili všichni.
+en Steam was before my time. But the old Rn 333… everyone talked about that one.
+uk Пара була до мене. А от старий Rn 333… про нього говорили всі.
+ru Пар был до меня. А вот старый Rn 333… о нём говорили все.
+
+story.conductor.log
+cs {name}: čtyřicet let na kolejích, poslední noční.
+en {name}: forty years on the rails, one last night shift.
+uk {name}: сорок років на колії, остання нічна зміна.
+ru {name}: сорок лет на железной дороге, последняя ночная смена.
+
+journal.caption.story.conductor
+cs {name}: poslední noční služba
+en {name}: the last night shift
+uk {name}: остання нічна зміна
+ru {name}: последняя ночная смена
+
+# ─────────────────────────── 17. soaked to the skin ───────────────────────────
+
+story.soaked.text
+cs Mokro až na kůži. Tiše to kape na babiččinu podlahu.
+en Soaked to the skin. Dripping quietly on grandma's floor.
+uk Промокло все до нитки. Тихенько капає на бабусину підлогу.
+ru Всё промокло до нитки. Тихонько капает на бабушкин пол.
+
+story.soaked.opt.towel
+cs Suchý ručník
+en A dry towel
+uk Сухий рушник
+ru Сухое полотенце
+
+story.soaked.opt.radiator
+cs Místo u topení
+en A seat by the radiator
+uk Місце біля батареї
+ru Место у батареи
+
+story.soaked.opt.tea
+cs Čaj na účet podniku
+en A cup of tea, on the house
+uk Чай від закладу
+ru Чай от заведения
+
+story.soaked.react.towel
+cs Ručník! Jste svatá.
+en A towel! You're a saint.
+uk Рушник! Ви свята.
+ru Полотенце! Вы святая.
+
+story.soaked.react.radiator
+cs Ach, teplo… Odsud už neodejdu.
+en Oh, warm… I'm never leaving.
+uk Ох, тепло… Я звідси не піду.
+ru Ох, тепло… Я отсюда не уйду.
+
+story.soaked.react.tea
+cs Děkuju. Horký čaj, mokré ponožky. Napůl vyhráno.
+en Thank you. Hot tea, wet socks. Halfway there.
+uk Дякую. Гарячий чай, мокрі шкарпетки. Пів справи зроблено.
+ru Спасибо. Горячий чай, мокрые носки. Полдела сделано.
+
+story.soaked.log
+cs {name}: zpátky z nečasu a zase v suchu.
+en {name}: in from the weather, dry again.
+uk {name}: з негоди — і знову сухо.
+ru {name}: из непогоды — и снова сухо.
+
+journal.caption.story.soaked
+cs {name}, v teple před nečasem
+en {name}, in from the weather
+uk {name}, у теплі від негоди
+ru {name}, в тепле от непогоды
+
+# ─────────────────────────── 18. a sketchbook ───────────────────────────
+
+story.sketch.text
+cs Kreslí kavárnu do malého skicáku. Pult, lampy… a tebe.
+en Drawing the café in a small sketchbook. The counter, the lamps… and you.
+uk Малює кав'ярню в маленькому скетчбуці. Стійку, лампи… і тебе.
+ru Рисует кафе в маленьком скетчбуке. Стойку, лампы… и тебя.
+
+story.sketch.opt.pose
+cs Chvíli nehybně stát za pultem
+en Stand still behind the counter
+uk Завмерти за стійкою
+ru Замереть за стойкой
+
+story.sketch.opt.lamp
+cs Rozsvítit lampu nad stolem
+en Switch on the lamp above the table
+uk Увімкнути лампу над столиком
+ru Включить лампу над столиком
+
+story.sketch.opt.peek
+cs Nakouknout do kresby
+en Peek at the drawing
+uk Зазирнути в малюнок
+ru Заглянуть в рисунок
+
+story.sketch.react.pose
+cs Skvělé, nehýbat! …Hotovo. Vypadáte jako ta kavárna.
+en Perfect, don't move! …Done. You look like the café.
+uk Ідеально, не рухайтесь! …Готово. Ви схожі на цю кав'ярню.
+ru Идеально, не двигайтесь! …Готово. Вы похожи на это кафе.
+
+story.sketch.react.lamp
+cs Ó, to světlo! Teď sedí stíny.
+en Oh, the light! Now the shadows are right.
+uk О, світло! Тепер тіні правильні.
+ru О, свет! Теперь тени правильные.
+
+story.sketch.react.peek
+cs Ještě to není hotové! …No dobře. Jen kouknout.
+en It's not finished! …Fine. A little peek.
+uk Ще не готово! …Гаразд. Тільки одним оком.
+ru Ещё не готово! …Ладно. Одним глазком.
+
+story.sketch.log
+cs {name}: skica kavárny s rozsvícenými lampami.
+en {name}: a sketch of the café, with the lamps lit.
+uk {name}: начерк кав'ярні з увімкненими лампами.
+ru {name}: набросок кафе с зажжёнными лампами.
+
+journal.caption.story.sketch
+cs {name} kreslí kavárnu
+en {name} drawing the café
+uk {name} малює кав'ярню
+ru {name} рисует кафе
+
+# ─────────────────────────── 19. a ring in the pocket ───────────────────────────
+
+story.ring.text
+cs Otáčí v prstech prstýnek. Už ne na prstě.
+en Turning a ring over and over. Not on the finger any more.
+uk Крутить у пальцях обручку. Уже не на пальці.
+ru Крутит в пальцах кольцо. Уже не на пальце.
+
+story.ring.opt.cocoa
+cs Horkou čokoládu, bez otázek
+en Hot chocolate, no questions
+uk Гарячий шоколад, без запитань
+ru Горячий шоколад, без вопросов
+
+story.ring.opt.record
+cs Něco jemného z jukeboxu
+en Something gentle on the jukebox
+uk Щось ніжне на джукбоксі
+ru Что-нибудь нежное на джукбоксе
+
+story.ring.opt.ask
+cs Zeptat se, jak se daří
+en Ask how things are
+uk Спитати, як справи
+ru Спросить, как дела
+
+story.ring.react.cocoa
+cs Bez otázek. Děkuju. Přesně tak.
+en No questions. Thank you. That's exactly right.
+uk Без запитань. Дякую. Саме те.
+ru Без вопросов. Спасибо. Именно то.
+
+story.ring.react.record
+cs Tahle písnička… To je dobrý. Je hezká.
+en This song… it's all right. It's a good one.
+uk Ця пісня… усе гаразд. Вона гарна.
+ru Эта песня… всё в порядке. Хорошая.
+
+story.ring.react.ask
+cs Bude to dobré. Dnes ne, ale bude.
+en It'll be fine. Not tonight, but it will.
+uk Буде добре. Не сьогодні, але буде.
+ru Будет хорошо. Не сегодня, но будет.
+
+story.ring.log
+cs {name}: těžký večer, aspoň trochu měkčí.
+en {name}: a hard evening, softened a little.
+uk {name}: важкий вечір, хоч трохи м'якший.
+ru {name}: тяжёлый вечер, хоть немного мягче.
+
+journal.caption.story.ring
+cs {name}, prstýnek v kapse
+en {name}, a ring in the pocket
+uk {name}, обручка в кишені
+ru {name}, кольцо в кармане
+
+# ─────────────────────────── 20. the night before the wedding ───────────────────────────
+
+story.wedding.text
+cs Zítra svatba. Ani oka nezamhouří.
+en Getting married tomorrow. Can't sleep a wink.
+uk Завтра весілля. Ані на мить не заснути.
+ru Завтра свадьба. Сна ни в одном глазу.
+
+story.wedding.opt.medovnik
+cs Medovník pro štěstí
+en Medovník for luck
+uk Медовик на щастя
+ru Медовик на счастье
+
+story.wedding.opt.toast
+cs Připít si čajem
+en A toast with tea
+uk Тост із чаєм
+ru Тост с чаем
+
+story.wedding.opt.record
+cs Pustit zamilovanou písničku
+en Put on a love song
+uk Поставити пісню про кохання
+ru Поставить песню о любви
+
+story.wedding.react.medovnik
+cs Pro štěstí. Beru každý drobek štěstí.
+en For luck. I'll take every crumb of luck there is.
+uk На щастя. Беру кожну крихту щастя.
+ru На счастье. Беру каждую крошку счастья.
+
+story.wedding.react.toast
+cs Na zítřek! Ach ne, už je zítra.
+en To tomorrow! Oh no, it's already tomorrow.
+uk За завтра! Ой, уже завтра.
+ru За завтра! Ой, уже завтра.
+
+story.wedding.react.record
+cs Moc brzo! …Dobře, ještě jednou.
+en Too soon! …Okay, one more time.
+uk Зарано! …Гаразд, ще раз.
+ru Рано! …Ладно, ещё разок.
+
+story.wedding.log
+cs {name}: zítra svatba, dnes přípitek.
+en {name}: a wedding tomorrow, and a toast tonight.
+uk {name}: завтра весілля, сьогодні тост.
+ru {name}: завтра свадьба, сегодня тост.
+
+journal.caption.story.wedding
+cs {name}, noc před svatbou
+en {name}, the night before the wedding
+uk {name}, ніч перед весіллям
+ru {name}, ночь перед свадьбой
+
+# ─────────────────────────── 21. a pocket chess set ───────────────────────────
+
+story.chess.text
+cs Kapesní šachy, figurky na místech. Čeká na soupeře.
+en A pocket chess set, the pieces in place. Waiting for an opponent.
+uk Кишенькові шахи, фігури розставлено. Чекає на суперника.
+ru Карманные шахматы, фигуры расставлены. Ждёт соперника.
+
+story.chess.opt.play
+cs Zahrát si jednu rychlou partii
+en Play one quick game
+uk Зіграти одну швидку партію
+ru Сыграть одну быструю партию
+
+story.chess.opt.window
+cs Postavit šachovnici k oknu
+en Set the board up by the window
+uk Перенести дошку до вікна
+ru Перенести доску к окну
+
+story.chess.react.play
+cs Šach. …Ach, nechala jste mě vyhrát. Zítra znovu?
+en Check. …Ah, you let me win. Again tomorrow?
+uk Шах. …Ой, ви мені піддалися. Завтра ще?
+ru Шах. …Ой, вы мне поддались. Завтра ещё?
+
+story.chess.react.window
+cs Děkuju. Noc se bude dívat.
+en Thank you. The night can watch the game.
+uk Дякую. Ніч подивиться на гру.
+ru Спасибо. Ночь посмотрит на игру.
+
+story.chess.log
+cs {name}: jedna rychlá partie šachů.
+en {name}: one quick game of chess.
+uk {name}: одна швидка партія в шахи.
+ru {name}: одна быстрая партия в шахматы.
+
+journal.caption.story.chess
+cs {name} u šachovnice
+en {name} at the chessboard
+uk {name} за шахівницею
+ru {name} за шахматной доской
+
+# ─────────────────────────── 22. a brand-new grandchild ───────────────────────────
+
+story.grandchild.text
+cs Fotka v telefonu, ukazuje ji každému okolo: čerstvé vnouče.
+en A photo on the phone, shown to anyone nearby: a brand-new grandchild.
+uk Фото в телефоні — показує кожному поруч: щойно народився онук.
+ru Фото в телефоне — показывает всем вокруг: только что родился внук.
+
+story.grandchild.opt.look
+cs Pořádně si fotku prohlédnout
+en Look at the photo properly
+uk Як слід роздивитися фото
+ru Как следует рассмотреть фото
+
+story.grandchild.opt.cocoa
+cs Kakao na oslavu
+en A cocoa to celebrate
+uk Какао на честь свята
+ru Какао в честь праздника
+
+story.grandchild.opt.nod
+cs Usmát se a přikývnout
+en Smile and nod
+uk Усміхнутися й кивнути
+ru Улыбнуться и кивнуть
+
+story.grandchild.react.look
+cs Vidíte ty uši? Přesně moje uši.
+en See those ears? Exactly my ears.
+uk Бачите ці вушка? Точнісінько мої.
+ru Видите эти уши? Точь-в-точь мои.
+
+story.grandchild.react.cocoa
+cs Na malého Jonáše! Devět dní.
+en To little Jonáš! Nine days old.
+uk За маленького Йонаша! Дев'ять днів.
+ru За маленького Йонаша! Девять дней.
+
+story.grandchild.react.nod
+cs Není krásný? Devět dní.
+en Isn't he lovely? Nine days old.
+uk Правда, гарний? Дев'ять днів.
+ru Правда, красавец? Девять дней.
+
+story.grandchild.log
+cs {name}: čerstvé vnouče, ukázané celé kavárně.
+en {name}: a brand-new grandchild, shown to the whole café.
+uk {name}: новенький онук, показаний усій кав'ярні.
+ru {name}: новорождённый внук, показанный всему кафе.
+
+journal.caption.story.grandchild
+cs {name} a čerstvé vnouče
+en {name} and the new grandchild
+uk {name} і новенький онук
+ru {name} и новорождённый внук
+
+# ═══════════════════════════ the storm night ═══════════════════════════
+
+storm.forecast.title
+cs Blíží se sněhová bouře
+en A snowstorm is coming
+uk Насувається снігова буря
+ru Надвигается снежная буря
+
+storm.forecast.text
+cs Celou noc má hustě sněžit. Na nádraží se bojí o trať.
+en Heavy snow all night. The station is worried about the line.
+uk Усю ніч сильний сніг. На вокзалі хвилюються за колію.
+ru Всю ночь сильный снег. На вокзале беспокоятся за линию.
+
+storm.cancel.title
+cs Vlaky zrušeny
+en Trains cancelled
+uk Потяги скасовано
+ru Поезда отменены
+
+storm.cancel.text
+cs Praha-Holešovice: kvůli sněhové bouři jsou všechny noční vlaky do 6:00 zrušeny.
+en Praha-Holešovice: due to the snowstorm, all night trains are cancelled until 06:00.
+uk Прага-Голешовиці: через снігову бурю всі нічні потяги скасовано до 06:00.
+ru Прага-Голешовице: из-за снежной бури все ночные поезда отменены до 06:00.
+
+storm.cancel.stay
+cs Kdo je uvnitř, zůstává do rána.
+en Everyone inside stays till morning.
+uk Усі, хто всередині, залишаються до ранку.
+ru Все, кто внутри, остаются до утра.
+
+app.bot.storm_cancel
+cs Sněhová bouře: trať je do 6:00 zavřená. Vaše kavárna je dnes jediné teplé světlo na nádraží.
+en Snowstorm: the line is closed until 06:00. Your café is the only warm light at the station tonight.
+uk Снігова буря: колію закрито до 06:00. Ваша кав'ярня — сьогодні єдине тепле світло на вокзалі.
+ru Снежная буря: линия закрыта до 06:00. Ваше кафе — сегодня единственный тёплый свет на вокзале.
+
+app.bot.storm_cancel.action.noted
+cs Beru na vědomí
+en Noted
+uk Зрозуміло
+ru Понятно
+
+storm.chip.title
+cs Zasněženo
+en Snowed in
+uk Замело
+ru Замело
+
+storm.chip.stranded.one
+cs {n} host zůstává do rána
+en {n} guest stays the night
+uk {n} гість залишається до ранку
+ru {n} гость остаётся до утра
+
+storm.chip.stranded.few
+cs {n} hosté zůstávají do rána
+en {n} guests stay the night
+uk {n} гості залишаються до ранку
+ru {n} гостя остаются до утра
+
+storm.chip.stranded.many
+cs {n} hostů zůstává do rána
+en {n} guests stay the night
+uk {n} гостей залишаються до ранку
+ru {n} гостей остаются до утра
+
+storm.act.blankets
+cs Deky pro všechny
+en Blankets for all
+uk Ковдри для всіх
+ru Пледы для всех
+
+storm.act.soup
+cs Hrnec polévky
+en A pot of soup
+uk Каструля супу
+ru Кастрюля супа
+
+storm.act.blankets.tip
+cs Babiččiny deky zpod pultu: hostům tepleji, v sále útulněji.
+en Grandma's blankets from under the counter: warmer guests, a cozier hall.
+uk Бабусині ковдри з-під стійки: гостям тепліше, у залі затишніше.
+ru Бабушкины пледы из-под стойки: гостям теплее, в зале уютнее.
+
+storm.act.soup.tip
+cs Hrnec na sporák a talíř pro každého, kdo zůstal.
+en A pot on the stove and a bowl for everyone who stayed.
+uk Каструля на плиту й тарілка кожному, хто залишився.
+ru Кастрюля на плиту и тарелка каждому, кто остался.
+
+storm.act.on_way
+cs Už jdeš…
+en On your way…
+uk Уже йдеш…
+ru Уже идёшь…
+
+storm.done.blankets
+cs Všichni zachumlaní
+en All tucked in
+uk Усі вкутані
+ru Все укутаны
+
+storm.done.soup
+cs Polévka pro všechny
+en Soup for everyone
+uk Суп для всіх
+ru Суп для всех
+
+storm.cared.blankets
+cs Babiččiny deky vyšly ze skříně. Všem je teplo.
+en Grandma's blankets came out of the cupboard. Everyone's warm.
+uk Бабусині ковдри дістали з шафи. Усім тепло.
+ru Бабушкины пледы достали из шкафа. Всем тепло.
+
+storm.cared.soup
+cs Velký hrnec je na sporáku: talíř polévky pro každého.
+en The big pot is on: a bowl of soup for everyone.
+uk Велика каструля на плиті: тарілка супу кожному.
+ru Большая кастрюля на плите: тарелка супа каждому.
+
+storm.morning.title
+cs Přestalo sněžit
+en The snow has stopped
+uk Сніг ущух
+ru Снег утих
+
+storm.morning.cared
+cs Jedou první vlaky. Všichni cestou ven děkují.
+en The first trains are running. Everyone says thank you on the way out.
+uk Пішли перші потяги. Усі дякують на виході.
+ru Пошли первые поезда. Все благодарят на выходе.
+
+storm.morning.plain
+cs První vlaky už zase jedou.
+en The first trains are running again.
+uk Перші потяги знову ходять.
+ru Первые поезда снова ходят.
+
+journal.caption.storm
+cs Noc, kdy sníh zavřel trať
+en The night the snow closed the line
+uk Ніч, коли сніг закрив колію
+ru Ночь, когда снег закрыл линию
+
+# The 3:00 talk: {a} {b} {c} = the stranded strangers (nominative only).
+
+storm.talk.intro
+cs Tři ráno. Sníh na oknech a nikdo nikam nejde.
+en Three in the morning. Snow against the windows, and nobody's going anywhere.
+uk Третя ночі. Сніг на вікнах, і ніхто нікуди не йде.
+ru Три часа ночи. Снег на окнах, и никто никуда не идёт.
+
+storm.talk.snow.1
+cs Tak. Dneska nikdo nikam nepojede.
+en So. Nobody's going anywhere tonight.
+uk Отже. Сьогодні ніхто нікуди не поїде.
+ru Итак. Сегодня никто никуда не поедет.
+
+storm.talk.snow.2
+cs Telefon tvrdí, že první vlak jede v šest. Taky tvrdí, že je slunečno.
+en My phone says the first train is at six. It also says it's sunny.
+uk Телефон каже, що перший потяг о шостій. А ще каже, що сонячно.
+ru Телефон говорит, что первый поезд в шесть. А ещё говорит, что солнечно.
+
+storm.talk.snow.3
+cs Doma na mě stejně nikdo nečeká. Tady je aspoň teplo.
+en Nobody's waiting for me at home anyway. At least it's warm here.
+uk Удома на мене однаково ніхто не чекає. Тут хоча б тепло.
+ru Дома меня всё равно никто не ждёт. Здесь хотя бы тепло.
+
+storm.talk.snow.4
+cs Tady je vždycky teplo. Babiččino pravidlo.
+en It's always warm here. Grandma's rule.
+uk Тут завжди тепло. Бабусине правило.
+ru Здесь всегда тепло. Бабушкино правило.
+
+storm.talk.snow.5
+cs {a} má pravdu. Ať žije sníh.
+en {a} has a point. Three cheers for the snow.
+uk {a} діло каже. Хай живе сніг.
+ru {a} дело говорит. Да здравствует снег.
+
+storm.talk.snow.6
+cs Na sníh. A na kavárnu, co nezavírá.
+en To the snow. And to the café that never closes.
+uk За сніг. І за кав'ярню, яка не зачиняється.
+ru За снег. И за кафе, которое не закрывается.
+
+storm.talk.trains.1
+cs Děčín si počká do rána.
+en Děčín will have to wait till morning.
+uk Děčín почекає до ранку.
+ru Děčín подождёт до утра.
+
+storm.talk.trains.2
+cs Frýdlant taky. Někdo tam drží večeři v teple. Teď už spíš snídani.
+en Frýdlant too. Someone there is keeping dinner warm. Breakfast now, I suppose.
+uk Frýdlant теж. Хтось там тримає вечерю теплою. Тепер уже, мабуть, сніданок.
+ru Frýdlant тоже. Кто-то там держит ужин тёплым. Теперь уже, наверное, завтрак.
+
+storm.talk.trains.3
+cs Bydlím pět minut odsud. Jen se mi nechtělo domů.
+en I live five minutes from here. I just didn't feel like going home.
+uk Я живу за п'ять хвилин звідси. Просто не хотілося додому.
+ru Я живу в пяти минутах отсюда. Просто не хотелось домой.
+
+storm.talk.trains.4
+cs Pět minut? A pořád tady. {c} ví, kde je dobře.
+en Five minutes? And still here. {c} knows a good place.
+uk П'ять хвилин? І досі тут. {c} знає, де добре.
+ru Пять минут? И всё ещё здесь. {c} знает, где хорошо.
+
+storm.talk.trains.5
+cs Dnes tu nikdo není sám. Ještě čaj?
+en Nobody's alone here tonight. More tea?
+uk Сьогодні тут ніхто не сам. Ще чаю?
+ru Сегодня здесь никто не один. Ещё чаю?
+
+storm.talk.trains.6
+cs Ano, prosím. A povídejte o tomhle místě — působí tak staře.
+en Yes, please. And tell us about this place — it feels so old.
+uk Так, будь ласка. І розкажіть про це місце — воно таке старе.
+ru Да, пожалуйста. И расскажите про это место — оно такое старое.
+
+storm.talk.trains.7
+cs Podívejte. Sníh zakryl koleje. Jako deka.
+en Look. The snow's covered the tracks. Like a blanket.
+uk Погляньте. Сніг укрив колії. Мов ковдра.
+ru Смотрите. Снег укрыл рельсы. Как одеяло.

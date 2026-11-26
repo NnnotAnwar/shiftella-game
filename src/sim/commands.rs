@@ -671,6 +671,15 @@ impl World {
             Command::SendHome { staff } => super::crew::send_home(self, content, staff),
             Command::WalkHome { route } => super::walk::walk_home(self, &route),
             Command::StepOutBack => super::walk::step_out_back(self, content),
+            Command::AnswerStory { guest, answer } => {
+                super::stories::answer(self, content, guest, &answer)
+            }
+            Command::StormBlankets => {
+                super::storm::command(self, content, super::storm::StormAct::Blankets)
+            }
+            Command::StormSoup => {
+                super::storm::command(self, content, super::storm::StormAct::Soup)
+            }
             Command::OpenDoors => {
                 if !self.in_prep() {
                     return Err(CommandError::WrongPhase);

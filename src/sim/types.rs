@@ -791,6 +791,46 @@ pub enum SimEvent {
         guest: u32,
         key: String,
     },
+    // --- v0.2 H: little stories of strangers, the storm night (`sim::stories`, `sim::storm`) ---
+    /// A stranger carries a little story now (the screens draw a small bubble over them).
+    StoryNoticed {
+        guest: u32,
+        story: String,
+    },
+    /// Karolina answered it (she was there): the reaction `story.<story>.react.<answer>`;
+    /// `good` = the answer that fits (a log line `story.<story>.log`, a polaroid candidate).
+    StoryAnswered {
+        guest: u32,
+        story: String,
+        answer: String,
+        good: bool,
+    },
+    /// Nobody answered and it passed (or the guest left).
+    StoryFaded {
+        guest: u32,
+        story: String,
+    },
+    /// Tonight is a storm night: snow from the start (a toast).
+    StormForecast,
+    /// The snowstorm closed the line: trains cancelled till morning, the strangers stay.
+    StormCancelled {
+        stranded: u32,
+    },
+    /// Karolina handed out the blankets / served the big pot of soup.
+    StormCared {
+        act: super::storm::StormAct,
+        guests: u32,
+    },
+    /// 03:00: the stranded strangers talk (`speakers` = guest ids, `talk` = `stories.ron`
+    /// talk id; lines `storm.talk.<talk>.<n>`).
+    StormTalk {
+        talk: String,
+        speakers: Vec<u32>,
+    },
+    /// 06:00 after a storm: `cared` = she looked after them (the morning effects ran).
+    StormMorning {
+        cared: bool,
+    },
 }
 
 /// Every player action.
@@ -1112,6 +1152,16 @@ pub enum Command {
     },
     /// A break on the back step (night, once, not in a rush): picks tonight's phone message.
     StepOutBack,
+    /// Answers the little story on a stranger (`sim::stories`): Karolina walks over; errors
+    /// `Invalid` (no story / on her way), `UnknownId` (answer), `QueueFull`, `WrongPhase`.
+    AnswerStory {
+        guest: u32,
+        answer: String,
+    },
+    /// The storm night: blankets for everyone (she fetches them from behind the counter).
+    StormBlankets,
+    /// The storm night: a big pot of soup on the stove, a bowl for everyone.
+    StormSoup,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]

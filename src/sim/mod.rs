@@ -36,6 +36,8 @@ mod player;
 pub mod rng;
 mod rozpis;
 mod staff;
+mod stories;
+mod storm;
 mod story;
 mod systems;
 mod tool;
@@ -65,6 +67,8 @@ mod tests_prep;
 #[cfg(test)]
 mod tests_qa;
 #[cfg(test)]
+mod tests_stories;
+#[cfg(test)]
 mod tests_sys;
 #[cfg(test)]
 mod tests_t10;
@@ -90,6 +94,8 @@ pub use names::{Extra, Garment, Persona, StrangerLook, stranger_look};
 pub use orders::PLAIN_CREDIT;
 pub use player::{MOP_AMOUNT, WASH_PER_SECOND};
 pub use staff::FIRST_HIRE_NIGHT;
+pub use stories::{ActiveStory, AnswerDef, StoriesState, StoryDef, persona_arg};
+pub use storm::{StormAct, StormState, TalkDef, TalkLine};
 pub use story::{ambient_line_for, talk_available};
 pub use systems::*;
 pub use types::*;
@@ -110,6 +116,10 @@ pub const COZY_TRAIN_SPREAD: u32 = 24;
 
 /// Trains: arrivals by timetable (if `announce_if` holds), passengers come in.
 pub(crate) fn trains_tick(w: &mut World, content: &Content) {
+    // the snowstorm closed the line (`sim::storm`)
+    if storm::line_closed(w) {
+        return;
+    }
     let m = w.minute();
     for t in &content.trains.trains {
         let at = t.arrives.minutes_since_open();

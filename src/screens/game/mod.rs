@@ -30,6 +30,7 @@ mod pause;
 mod phone_app;
 pub mod scene;
 mod scene_fx;
+mod stories_ui;
 pub mod tutorial;
 pub mod walk_home;
 pub mod world_view;
@@ -37,6 +38,7 @@ pub mod world_view;
 /// Build mode's drag state (screenshot scenes set it up).
 pub use build::{Drag as BuildDrag, THEME_TAB as BUILD_THEME_TAB};
 pub use build_content_ui::scene_setup as build_content_scene;
+pub use stories_ui::scene_setup as stories_scene;
 
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -292,6 +294,8 @@ pub struct GameScreen {
     recent_toasts: std::collections::VecDeque<(ToastId, String, f32)>,
     /// The walk home / the back step on screen (design/v0.2.md F).
     pub walk: walk_home::WalkUi,
+    /// Little stories of strangers, the storm card and its 03:00 talk (design/v0.2.md H).
+    pub stories: stories_ui::StoriesUi,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -375,6 +379,7 @@ impl GameScreen {
             photos: journal_ui::Photos::default(),
             recent_toasts: Default::default(),
             walk: Default::default(),
+            stories: Default::default(),
         }
     }
 
@@ -442,6 +447,7 @@ impl GameScreen {
             || self.summary.is_some()
             || self.world.phase() == Phase::Day
             || self.walk.is_open()
+            || self.stories.talk_open()
     }
 
     pub fn set_speed(&mut self, s: u8) {
@@ -688,6 +694,7 @@ impl GameScreen {
         self.extras_event(content, &e);
         self.build_content_event(content, &e, loc);
         self.names_event(&e, loc);
+        self.stories_event(&e, loc);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;
@@ -923,6 +930,12 @@ impl GameScreen {
             // package C: a corner forms, someone thanks you for what you built
             SimEvent::CornerFormed { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.5),
             SimEvent::BuildWishFulfilled { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.6),
+            // 0.2 H: stories and the storm (new sounds would go here: a soft chime for a story,
+            // the station gong for the cancellation, blankets / a ladle — sounds agent)
+            SimEvent::StoryNoticed { .. } => audio.play_sfx_vol(Sfx::UiClick, 0.25),
+            SimEvent::StoryAnswered { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.55),
+            SimEvent::StormCancelled { .. } => audio.play_sfx_vol(Sfx::EventAlert, 0.6),
+            SimEvent::StormCared { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 0.6),
             _ => {}
         }
     }
@@ -1381,10 +1394,12 @@ impl GameScreen {
             let ghost = build::ghost(self, content, mouse_world, wants_mouse);
             let t = self.time;
             let (sel, hov) = (self.selected, self.hovered);
+            let blankets = stories_ui::blankets(self);
             let mut extra = |q: &mut crate::render::RenderQueue| {
                 if let Some(g) = &ghost {
                     g.push(q, t);
                 }
+                stories_ui::push_blankets(q, &blankets, t);
             };
             self.scene
                 .draw(&self.world, content, &cam, t, sel, hov, &mut extra);
@@ -1400,8 +1415,13 @@ impl GameScreen {
                 }
                 _ => None,
             };
+            self.stories.hover = match target {
+                Some(hands_view::Target::Story(g)) => Some(g),
+                _ => None,
+            };
             self.scene.sec_per_minute = self.world.real_seconds_per_tick(content) * 10.0;
             hands_view::draw_world(self, content, &loc, target, mouse_world);
+            stories_ui::draw_world(self);
             if self.panel == Some(Panel::Build) {
                 build::draw_world_overlay(self, content, ghost.as_ref());
             }
@@ -1424,6 +1444,8 @@ impl GameScreen {
         self.anchors.clear();
         if self.player.is_playing() {
             self.player.draw_ui(ui, &loc);
+        } else if stories_ui::talk_ui(self, ui, cx, dt) {
+            // the storm's 03:00 talk holds the café (letterbox, dialogue)
         } else {
             hud::draw(self, ui, cx);
             hands_ui::hud(self, ui, cx);
@@ -1438,6 +1460,7 @@ impl GameScreen {
                 extras_ui::tip_goal(self, ui, cx);
                 extras_ui::napkin(self, ui, cx);
                 walk_home::backstep_chip(self, ui, cx);
+                stories_ui::draw(self, ui, cx);
             }
             // after the HUD and the rail: the bubble keeps clear of them
             if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {
@@ -1479,7 +1502,7 @@ impl GameScreen {
             .unwrap_or_default();
         cx.audio.set_loops(loops.steam, loops.trickle);
         // toasts wait while a scene or a mini-game is on screen (the cup has her attention)
-        if !self.player.is_playing() && self.hands.minigame.is_none() {
+        if !self.player.is_playing() && self.hands.minigame.is_none() && !self.stories.talk_open() {
             self.flush_notices(ui, &loc);
             // the build panel sits over the dock: toasts rise above it
             let inset = if self.panel == Some(Panel::Build) {
@@ -1646,8 +1669,11 @@ impl GameScreen {
         use hands::Intent;
         use hands_view::Target;
         let night = self.world.phase() == Phase::Night;
-        let blocked =
-            ui.wants_mouse() || self.pause.is_some() || self.summary.is_some() || self.automation;
+        let blocked = ui.wants_mouse()
+            || self.pause.is_some()
+            || self.summary.is_some()
+            || self.automation
+            || self.stories.talk_open();
         let down = is_mouse_button_down(MouseButton::Left);
         // hold-to-wash: the mouse went down on the sink, or E is held (keyboard play)
         if night {
@@ -1778,6 +1804,10 @@ impl GameScreen {
                 }
                 return;
             }
+            Some(Target::Story(guest)) => {
+                self.open_story(guest);
+                return;
+            }
             _ => {}
         }
         match pick {
@@ -1831,7 +1861,7 @@ impl GameScreen {
         if ui.key(KeyCode::M) {
             cx.audio.toggle_mute();
         }
-        if self.walk.is_open() {
+        if self.walk.is_open() || stories_ui::talk_hotkeys(self, ui) {
             return;
         }
         if self.pause.is_some() {
@@ -1857,6 +1887,8 @@ impl GameScreen {
                 self.hands.book = None;
             } else if self.hands.moment.is_some() {
                 self.hands.moment = None;
+            } else if self.stories.card.is_some() {
+                self.stories.card = None;
             } else if self.hands.records_open {
                 self.hands.records_open = false;
             } else if self.hands.order.is_some() {

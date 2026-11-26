@@ -76,6 +76,10 @@ pub fn season_of(world: &World, content: &Content) -> (SeasonLook, Season) {
     {
         look.snowfall = 0.35;
     }
+    // the storm night (`sim::storm`): a flurry all night
+    if world.storm().tonight && world.phase() == sim::Phase::Night {
+        look.snowfall = look.snowfall.max(1.8);
+    }
     let season = Season::from_id(&p.id).unwrap_or(match p.id.as_str() {
         "summer" | "spring" => Season::LateAutumn,
         _ => Season::LateAutumn,

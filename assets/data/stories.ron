@@ -1,0 +1,259 @@
+// Little stories of strangers and the storm night (design/v0.2.md H). Read by
+// `src/sim/stories.rs` / `src/sim/storm.rs` (compiled in with include_str!).
+// Text: assets/i18n/src/night_stories.tr.
+//
+// A vignette rides on a described stranger (never a regular): Karolina notices it (a small
+// amber bubble over them), the card shows `story.<id>.text` and the answers
+// `story.<id>.opt.<answer>`; she walks over, the guest reacts (`story.<id>.react.<answer>`).
+// `good: true` answers are the ones that fit: their `effects` (Fx, docs/CONTENT.md §10, run
+// with the guest's party as the target) + a night-log line (`story.<id>.log`, `{name}`) + a
+// polaroid candidate (`journal.caption.story.<id>`, `{name}`). The other answers are still
+// kind: a mild reaction and a small `effects`. Ignoring a story is fine — it fades.
+//
+// Filters: `archetypes` (empty = any stranger), `female` / `elder` (the persona), `party`
+// (min, max size), `from` / `until` (clock, night order), `wet` (only when it rains / snows).
+// Texts are written in the present tense and without pronouns where a language would need a
+// gender (cs/uk/ru); reactions are the guest's own words, also gender-free.
+#![enable(implicit_some)]
+(
+    // story nights from this one (night 1 belongs to the tutorial); the sandbox from night 1
+    from_night: 2,
+    // stories a night: the budget is 0, 1 or 2 with these weights (one at a time) — about
+    // 0.8 a night, so the 22 vignettes last the whole 30-night story
+    per_night: [0.35, 0.5, 0.15],
+    // when they may appear (minutes after 22:00): 22:20 – 04:40
+    from_minute: 20,
+    until_minute: 400,
+    // minutes between two stories
+    gap_minutes: 50,
+    // a story nobody answered fades after this many minutes (or when the guest leaves)
+    expires_minutes: 40,
+    // the stranger has been inside this long (seated, not walking in)
+    settled_minutes: 4,
+    // work at the guest (ticks) when an answer has none
+    work: 8.0,
+    // polaroid score of a good answer (journal.ron: MomentWarm 40, PerfectServe 55)
+    journal_score: 44,
+    stories: [
+        (id: "call",
+         archetypes: ["travelers", "students", "insomniacs", "night_wanderer", "clubbers", "drone_operators"],
+         party: (1, 1),
+         answers: [
+            (id: "charger", good: true, effects: [TargetSatisfaction(14.0), Tip(min: 20, max: 50)]),
+            (id: "window", good: true, effects: [TargetSatisfaction(12.0), TargetStay(10)]),
+            (id: "tea", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "last_train",
+         archetypes: ["travelers", "clubbers", "students"],
+         from: "00:20", until: "04:30",
+         answers: [
+            (id: "app", good: true, effects: [TargetSatisfaction(14.0), Tip(min: 20, max: 60)]),
+            (id: "armchair", good: true, effects: [TargetSatisfaction(12.0), TargetStay(30)]),
+            (id: "cake", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "pay_cheque",
+         archetypes: ["shift_workers", "nurses", "drone_operators", "students", "taxi_drivers", "train_crew"],
+         elder: false,
+         answers: [
+            (id: "medovnik", good: true, effects: [TargetSatisfaction(15.0), Tip(min: 30, max: 80)]),
+            (id: "record", good: true, effects: [TargetSatisfaction(12.0), HallMood(mood: Lively, minutes: 20)]),
+            (id: "word", effects: [TargetSatisfaction(6.0)]),
+         ]),
+        (id: "birthday",
+         archetypes: ["insomniacs", "night_wanderer", "travelers", "taxi_drivers", "truckers", "train_crew"],
+         party: (1, 1),
+         answers: [
+            (id: "candle", good: true, effects: [TargetSatisfaction(18.0), ThankYouNote(None)]),
+            (id: "sing", good: true, effects: [TargetSatisfaction(14.0), GuestSatisfactionNear(add: 3.0, tiles: 3)]),
+            (id: "record", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "nurse_loss",
+         archetypes: ["nurses"],
+         answers: [
+            (id: "quiet", good: true, effects: [TargetSatisfaction(14.0), TargetStay(15)]),
+            (id: "record", good: true, effects: [TargetSatisfaction(10.0), HallMood(mood: Tender, minutes: 25)]),
+            (id: "cake", effects: [TargetSatisfaction(4.0)]),
+         ]),
+        (id: "exam",
+         archetypes: ["students"],
+         answers: [
+            (id: "quiz", good: true, effects: [TargetSatisfaction(14.0), Tip(min: 20, max: 40)]),
+            (id: "mug", good: true, effects: [TargetSatisfaction(12.0)]),
+            (id: "luck", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "couple",
+         archetypes: ["travelers", "students", "clubbers", "insomniacs", "night_wanderer"],
+         party: (2, 2),
+         answers: [
+            (id: "spoons", good: true, effects: [TargetSatisfaction(15.0), Tip(min: 20, max: 60)]),
+            (id: "candle", good: true, effects: [TargetSatisfaction(12.0), Coziness(add: 1.0, minutes: 60)]),
+            (id: "ask", effects: [TargetSatisfaction(3.0)]),
+         ]),
+        (id: "lost_tourist",
+         archetypes: ["travelers"],
+         answers: [
+            (id: "map", good: true, effects: [TargetSatisfaction(14.0), Tip(min: 20, max: 60)]),
+            (id: "taxi", good: true, effects: [TargetSatisfaction(12.0), Reputation(0.3)]),
+            (id: "point", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "cello",
+         archetypes: ["travelers", "night_wanderer", "clubbers", "students"],
+         party: (1, 1),
+         answers: [
+            (id: "play", good: true, effects: [TargetSatisfaction(12.0), HallMood(mood: Dreamy, minutes: 20), GuestSatisfactionNear(add: 4.0, tiles: 5)]),
+            (id: "corner", good: true, effects: [TargetSatisfaction(12.0)]),
+            (id: "coffee", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "cat_lady",
+         archetypes: ["insomniacs", "night_wanderer", "travelers"],
+         female: true, elder: true,
+         answers: [
+            (id: "saucer", good: true, effects: [TargetSatisfaction(14.0), Coziness(add: 1.0, minutes: 60)]),
+            (id: "window", good: true, effects: [TargetSatisfaction(12.0), TargetStay(15)]),
+            (id: "word", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "letter",
+         archetypes: ["insomniacs", "night_wanderer", "travelers", "train_crew", "truckers"],
+         party: (1, 1),
+         answers: [
+            (id: "paper", good: true, effects: [TargetSatisfaction(14.0), TargetStay(10)]),
+            (id: "lamp", good: true, effects: [TargetSatisfaction(10.0), Coziness(add: 1.0, minutes: 45)]),
+            (id: "tea", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "homecoming",
+         archetypes: ["travelers"],
+         answers: [
+            (id: "soup", good: true, effects: [TargetSatisfaction(15.0), Tip(min: 30, max: 70), ThankYouNote(None)]),
+            (id: "welcome", good: true, effects: [TargetSatisfaction(12.0)]),
+            (id: "record", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "new_parent",
+         archetypes: ["shift_workers", "insomniacs", "nurses", "drone_operators", "taxi_drivers"],
+         elder: false, party: (1, 1),
+         answers: [
+            (id: "warm", good: true, effects: [TargetSatisfaction(14.0), TargetStay(10)]),
+            (id: "easier", good: true, effects: [TargetSatisfaction(10.0)]),
+            (id: "cake", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "interview",
+         archetypes: ["students", "travelers", "insomniacs", "drone_operators", "night_wanderer"],
+         elder: false, from: "02:00",
+         answers: [
+            (id: "rehearse", good: true, effects: [TargetSatisfaction(15.0), Tip(min: 20, max: 50)]),
+            (id: "coffee", good: true, effects: [TargetSatisfaction(10.0)]),
+            (id: "luck", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "cabbie",
+         archetypes: ["taxi_drivers", "truckers"],
+         answers: [
+            (id: "sandwich", good: true, effects: [TargetSatisfaction(15.0), Tip(min: 20, max: 50)]),
+            (id: "corner", good: true, effects: [TargetSatisfaction(12.0), TargetStay(10)]),
+            (id: "word", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "conductor",
+         archetypes: ["train_crew"],
+         answers: [
+            (id: "cake", good: true, effects: [TargetSatisfaction(15.0), Tip(min: 30, max: 80)]),
+            (id: "toast", good: true, effects: [TargetSatisfaction(12.0), GuestSatisfactionNear(add: 3.0, tiles: 4)]),
+            (id: "word", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "soaked",
+         wet: true,
+         answers: [
+            (id: "towel", good: true, effects: [TargetSatisfaction(14.0)]),
+            (id: "radiator", good: true, effects: [TargetSatisfaction(12.0), TargetStay(10)]),
+            (id: "tea", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "sketch",
+         archetypes: ["students", "night_wanderer", "clubbers", "insomniacs", "drone_operators"],
+         party: (1, 2),
+         answers: [
+            (id: "pose", good: true, effects: [TargetSatisfaction(14.0), Tip(min: 20, max: 40)]),
+            (id: "lamp", good: true, effects: [TargetSatisfaction(10.0), Coziness(add: 1.0, minutes: 45)]),
+            (id: "peek", effects: [TargetSatisfaction(4.0)]),
+         ]),
+        (id: "ring",
+         archetypes: ["travelers", "insomniacs", "night_wanderer", "clubbers", "shift_workers"],
+         party: (1, 1),
+         answers: [
+            (id: "cocoa", good: true, effects: [TargetSatisfaction(14.0), TargetStay(15)]),
+            (id: "record", good: true, effects: [TargetSatisfaction(10.0), HallMood(mood: Tender, minutes: 25)]),
+            (id: "ask", effects: [TargetSatisfaction(3.0)]),
+         ]),
+        (id: "wedding",
+         archetypes: ["travelers", "insomniacs", "shift_workers", "students", "night_wanderer", "nurses"],
+         elder: false,
+         answers: [
+            (id: "medovnik", good: true, effects: [TargetSatisfaction(15.0), Tip(min: 30, max: 80)]),
+            (id: "toast", good: true, effects: [TargetSatisfaction(12.0), GuestSatisfactionNear(add: 3.0, tiles: 3)]),
+            (id: "record", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "chess",
+         archetypes: ["insomniacs", "night_wanderer", "travelers"],
+         elder: true, party: (1, 1),
+         answers: [
+            (id: "play", good: true, effects: [TargetSatisfaction(15.0), TargetStay(15)]),
+            (id: "window", effects: [TargetSatisfaction(5.0)]),
+         ]),
+        (id: "grandchild",
+         archetypes: ["insomniacs", "night_wanderer", "travelers", "taxi_drivers"],
+         elder: true,
+         answers: [
+            (id: "look", good: true, effects: [TargetSatisfaction(15.0), Tip(min: 20, max: 60)]),
+            (id: "cocoa", good: true, effects: [TargetSatisfaction(12.0)]),
+            (id: "nod", effects: [TargetSatisfaction(4.0)]),
+         ]),
+    ],
+
+    // ─────────────────────────── the storm night ───────────────────────────
+    // A snowstorm closes the line: a station announcement + @shiftella_bot, no new strangers
+    // after `cancel_at` (regulars still walk over — they live nearby), every stranger inside
+    // stays till `stay_until`. Karolina hands out blankets and makes a big pot of soup; at
+    // `talk_at` the stranded strangers talk (a short scene, their persona names); a special
+    // polaroid for the morning. No story flags, no money; `morning` runs at 06:00 when she
+    // looked after them (blankets or soup).
+    storm: (
+        // December story nights (night 29 = Mon 5 Dec, Mikuláš eve: after the first snow,
+        // clear of the payment nights 28 / 30 and the franchise beats)
+        story_nights: [29],
+        // the sandbox: a rare snow night (Snow weather, from this night, at most every `gap`)
+        sandbox_chance: 0.15,
+        sandbox_from_night: 6,
+        sandbox_gap: 12,
+        // the 00:15 passengers are in; the 01:52 and 05:20 won't come
+        cancel_at: "00:50",
+        talk_at: "03:00",
+        stay_until: "05:40",
+        // strangers who still came in from the platform within this many minutes count too
+        platform_minutes: 30,
+        // the shared talk needs at least this many stranded strangers
+        talk_min: 2,
+        // the morning's headline photo (journal.ron: the 3:33 guest 90, first snow 85)
+        polaroid_score: 92,
+        blankets: (work: 20.0, per_guest: 2.0, effects: [Coziness(add: 3.0, minutes: None)], satisfaction: 10.0),
+        soup: (work: 36.0, effects: [Coziness(add: 2.0, minutes: None)], satisfaction: 12.0),
+        morning: [Reputation(2.0)],
+        // the talk: lines by speaker (0, 1, 2 = the stranded strangers in seat order; `None` =
+        // Karolina); `{a}` `{b}` `{c}` = their names. A talk is picked by how many strangers
+        // there are (`min`), the ones not heard yet in this game first.
+        talks: [
+            (id: "snow", min: 2, lines: [
+                (who: 0, key: "storm.talk.snow.1"),
+                (who: 1, key: "storm.talk.snow.2"),
+                (who: 0, key: "storm.talk.snow.3"),
+                (who: None, key: "storm.talk.snow.4"),
+                (who: 1, key: "storm.talk.snow.5"),
+                (who: 0, key: "storm.talk.snow.6"),
+            ]),
+            (id: "trains", min: 3, lines: [
+                (who: 0, key: "storm.talk.trains.1"),
+                (who: 1, key: "storm.talk.trains.2"),
+                (who: 2, key: "storm.talk.trains.3"),
+                (who: 0, key: "storm.talk.trains.4"),
+                (who: None, key: "storm.talk.trains.5"),
+                (who: 2, key: "storm.talk.trains.6"),
+                (who: 1, key: "storm.talk.trains.7"),
+            ]),
+        ],
+    ),
+)

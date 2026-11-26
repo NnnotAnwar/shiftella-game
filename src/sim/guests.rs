@@ -1091,8 +1091,9 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     // Cozy: her hands are full (crowds and walk-ins linger outside a little)
     let full_hands =
         w.difficulty == Difficulty::Cozy && cozy_pressure(w, content) >= COZY_HOLD_PRESSURE;
-    // Random walk-ins.
+    // Random walk-ins (none while the snowstorm closes the line, `sim::storm`).
     if m < LAST_CALL
+        && !super::storm::line_closed(w)
         && let Some(hour) = crate::content::ClockTime::from_minutes_since_open(m).open_hour_index()
     {
         let rate = arrival_rate(w, content, hour);

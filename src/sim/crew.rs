@@ -447,6 +447,9 @@ fn act_activity(w: &World, a: &PlayerAct) -> Activity {
             Some(j) => match &j.kind {
                 super::systems::WalkKind::Moment { id, .. } => Activity::Moment { id: id.clone() },
                 super::systems::WalkKind::Experiment { .. } => Activity::Experiment,
+                super::systems::WalkKind::Story { .. } | super::systems::WalkKind::Storm { .. } => {
+                    Activity::Walk
+                }
             },
             None => Activity::Walk,
         },

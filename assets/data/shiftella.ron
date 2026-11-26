@@ -101,6 +101,8 @@
         (id: "early_leave", kind: Story, placeholders: ["name", "time"],
          actions: [(id: "approve"), (id: "decline")]),
         (id: "manage_alone", kind: Story, placeholders: ["name"]),
+        // 0.2 H: the snowstorm closes the line (sim::storm)
+        (id: "storm_cancel", kind: Story, actions: [(id: "noted")]),
     ],
     digest: [
         (id: "title", placeholders: ["night"]),

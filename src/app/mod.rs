@@ -12,7 +12,9 @@
 //!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
 //!   build_drag|attic|backroom|requests|corner|before_after` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
-//!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow`
+//!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
+//!   story_marker|story_card|storm|storm_talk` (`SHIFTELLA_STORY=<id>`: the vignette put on a
+//!   stranger when none came by itself; `SHIFTELLA_LINE=n`: the storm talk's line)
 //!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
 //!   (hands-on scenes are played to their moment by the autoplayer;
 //!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
@@ -524,6 +526,14 @@ impl App {
                     g.world.minutes_since_open() >= until && !g.unknown_strangers().is_empty()
                 });
                 g.show_strangers(&content, &loc);
+                self.game(g)
+            }
+            // 0.2 H: a stranger's little story (the marker, the card) and the storm night
+            "story_marker" | "story_card" | "storm" | "storm_talk" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let n = night.unwrap_or(if name.starts_with("storm") { 29 } else { 8 });
+                let mut g = story_at(n, Some(0), &self.i18n, lang);
+                game::stories_scene(&mut g, &content, &loc, name);
                 self.game(g)
             }
             // T8: the world's systems, each played to its moment

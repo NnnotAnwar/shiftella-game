@@ -169,14 +169,20 @@ pub enum WalkKind {
     Moment { id: String, option: String },
     /// A pantry experiment at the counter (`Command::Experiment` at night).
     Experiment { ingredients: Vec<String> },
+    /// An answer to a stranger's little story (`Command::AnswerStory`).
+    Story { guest: u32, answer: String },
+    /// A storm chore: `blankets` / `soup` (`Command::StormBlankets` / `StormSoup`).
+    Storm { act: String },
 }
 
 impl WalkKind {
-    /// Queue icon hint for the UI (`moment` / `experiment`).
+    /// Queue icon hint for the UI (`moment` / `experiment` / `story` / `storm`).
     pub fn id(&self) -> &'static str {
         match self {
             WalkKind::Moment { .. } => "moment",
             WalkKind::Experiment { .. } => "experiment",
+            WalkKind::Story { .. } => "story",
+            WalkKind::Storm { .. } => "storm",
         }
     }
 }
