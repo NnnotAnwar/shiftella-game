@@ -108,8 +108,8 @@ pub(crate) fn check(w: &World, c: &Content) -> Vec<String> {
                 .collect();
             let party = w.parties.iter().find(|p| p.id == g.party).map(|p| p.state);
             fail!(
-                "guest {} stuck >{STUCK_LIMIT} ticks at {t:?} ({:?}, {party:?}, goal {:?}, \
-                 seat {:?}, path {:?}, around {around})",
+                "guest {} stuck >{STUCK_LIMIT} ticks at {t:?} | {:?}, {party:?}, goal {:?}, \
+                 seat {:?}, path {:?}, around {around}",
                 g.id,
                 g.pose,
                 g.goal,
@@ -459,12 +459,15 @@ pub(crate) fn people(w: &World, c: &Content) -> Vec<String> {
             || (g.seat.is_none() && seat_tiles.contains(&t));
         if !ok {
             out.push(format!(
-                "guest {} walks through furniture at {t:?} ({:?}, goal {:?}, seat {:?}, path {:?})",
+                "guest {} walks through furniture at {t:?} | {:?}, goal {:?}, seat {:?}, path {:?}, \
+                 tick {}, around {}",
                 g.id,
                 g.pose,
                 g.goal,
                 g.seat,
-                g.path.iter().take(4).collect::<Vec<_>>()
+                g.path.iter().take(4).collect::<Vec<_>>(),
+                w.tick,
+                around(w, t)
             ));
         }
         if let Some(j) = jump(t, &g.path) {
@@ -478,10 +481,15 @@ pub(crate) fn people(w: &World, c: &Content) -> Vec<String> {
         let t = s.tile();
         if !w.grid.walkable(t.0, t.1) {
             out.push(format!(
-                "staff {} walks through furniture at {t:?} (task {:?}, path {:?})",
+                "staff {} walks through furniture at {t:?} | {}, task {:?}, path {:?}, pos {:?}, \
+                 tick {}, around {}",
                 s.id,
+                staff_doing(w, s),
                 s.task.as_ref().map(|t| t.id()),
-                s.path.iter().take(4).collect::<Vec<_>>()
+                s.path.iter().take(4).collect::<Vec<_>>(),
+                s.pos,
+                w.tick,
+                around(w, t)
             ));
         }
         if let Some(j) = jump(t, &s.path) {
@@ -492,21 +500,118 @@ pub(crate) fn people(w: &World, c: &Content) -> Vec<String> {
         for g in w.guests.iter().filter(|g| g.id != *gid) {
             if g.tile() == *st {
                 out.push(format!(
-                    "guest {} stands on the seat {st:?} guest {gid} sits on ({:?}, seat {:?})",
-                    g.id, g.pose, g.seat
+                    "guest {} stands on the seat {st:?} guest {gid} sits on | {:?}, seat {:?}, \
+                     goal {:?}, path {:?}, pos {:?}, tick {}, around {}",
+                    g.id,
+                    g.pose,
+                    g.seat,
+                    g.goal,
+                    g.path.iter().take(4).collect::<Vec<_>>(),
+                    g.pos,
+                    w.tick,
+                    around(w, *st)
                 ));
             }
         }
         for s in w.staff.iter().filter(|s| s.present()) {
             if s.tile() == *st {
                 out.push(format!(
-                    "staff {} stands on the seat {st:?} guest {gid} sits on",
-                    s.id
+                    "staff {} stands on the seat {st:?} guest {gid} sits on | {}, task {:?}, \
+                     path {:?}, pos {:?}, tick {}, around {}",
+                    s.id,
+                    staff_doing(w, s),
+                    s.task.as_ref().map(|t| t.id()),
+                    s.path.iter().take(4).collect::<Vec<_>>(),
+                    s.pos,
+                    w.tick,
+                    around(w, *st)
                 ));
             }
         }
     }
     out
+}
+
+/// The 5×5 tiles around `t`, row by row: `@` = `t`, `S` = a taken seat, `s` = a free
+/// seat, `,` = staff-only floor, `.` = floor, `#` = not walkable.
+fn around(w: &World, t: (i32, i32)) -> String {
+    let mut rows = Vec::new();
+    for y in t.1 - 2..=t.1 + 2 {
+        let row: String = (t.0 - 2..=t.0 + 2)
+            .map(|x| {
+                if (x, y) == t {
+                    '@'
+                } else if w.grid.is_taken(x, y) {
+                    'S'
+                } else if w.grid.is_seat(x, y) {
+                    's'
+                } else if !w.grid.walkable(x, y) {
+                    '#'
+                } else if w.grid.room(x, y).staff_only() {
+                    ','
+                } else {
+                    '.'
+                }
+            })
+            .collect();
+        rows.push(row);
+    }
+    rows.join("/")
+}
+
+/// The whole floor (as [`around`]; `R` = a register, `Q` = its line, `o` = a to-go spot,
+/// `d` = the door) — `CHAOS_MAP=1` prints it with the first violation of a run.
+pub(crate) fn map(w: &World, c: &Content) -> String {
+    let regs = guests::registers(w, c);
+    let mut line = Vec::new();
+    let mut togo = Vec::new();
+    for (r, _) in &regs {
+        line.extend(guests::queue_slots(w, c, *r));
+        togo.extend(super::to_go::spots(w, c, *r));
+    }
+    let mut rows = Vec::new();
+    for y in 0..w.grid.height {
+        let row: String = (0..w.grid.width)
+            .map(|x| {
+                let t = (x, y);
+                if regs.iter().any(|(u, _)| w.grid.object_at(x, y) == Some(*u)) {
+                    'R'
+                } else if w.grid.tile(x, y).is_some_and(|i| i.kind == TileKind::Door) {
+                    'd'
+                } else if line.contains(&t) {
+                    'Q'
+                } else if togo.contains(&t) {
+                    'o'
+                } else if w.grid.is_taken(x, y) {
+                    'S'
+                } else if w.grid.is_seat(x, y) {
+                    's'
+                } else if !w.grid.walkable(x, y) {
+                    '#'
+                } else if w.grid.room(x, y).staff_only() {
+                    ','
+                } else {
+                    '.'
+                }
+            })
+            .collect();
+        rows.push(row);
+    }
+    rows.join("\n")
+}
+
+/// Who a staff member is and what they do (Karolina: her current act), for the messages.
+fn staff_doing(w: &World, s: &Staff) -> String {
+    if s.owner {
+        let act = w.hands.player.current.as_ref();
+        format!(
+            "Karolina, act {:?} stage {:?}",
+            act.map(|a| &a.act),
+            act.map(|a| a.stage)
+        )
+    } else {
+        format!("helper {:?}", s.status)
+    }
 }
 
 /// The first non-neighbouring step of a path walked from `from`, if any.
@@ -1093,12 +1198,45 @@ pub(crate) struct Report {
     pub off_floor: u64,
     pub off_floor_examples: Vec<String>,
     pub save_loads: u32,
+    /// Distinct violations by kind (numbers stripped), uncapped: the before/after counts.
+    pub kinds: std::collections::BTreeMap<String, u64>,
+    seen: std::collections::HashSet<String>,
+}
+
+/// A violation without its details (after ` | `): one incident (the same agent on the same
+/// tile), however many checks saw it.
+pub(crate) fn head_of(v: &str) -> &str {
+    v.split(" | ").next().unwrap_or(v)
+}
+
+/// A violation's kind: the message up to its first detail, numbers stripped
+/// ("staff # stands on the seat").
+pub(crate) fn kind_of(v: &str) -> String {
+    let head = head_of(v).split(['(', ':']).next().unwrap_or(v);
+    let mut out = String::new();
+    let mut digit = false;
+    for ch in head.chars() {
+        if ch.is_ascii_digit() {
+            if !digit {
+                out.push('#');
+            }
+            digit = true;
+        } else {
+            out.push(ch);
+            digit = false;
+        }
+    }
+    out.trim().to_string()
 }
 
 impl Report {
     fn violation(&mut self, at: &str, v: Vec<String>, last: &std::collections::VecDeque<String>) {
         for x in v {
-            if self.violations.len() < 40 && !self.violations.iter().any(|y| y.ends_with(&x)) {
+            if !self.seen.insert(head_of(&x).to_string()) {
+                continue;
+            }
+            *self.kinds.entry(kind_of(&x)).or_default() += 1;
+            if self.violations.len() < 40 {
                 let tail: Vec<&String> = last.iter().rev().take(6).collect();
                 self.violations
                     .push(format!("{at} | recent: {tail:?} | {x}"));
@@ -1412,6 +1550,9 @@ pub(crate) fn print(name: &str, rep: &Report) {
     }
     for v in &rep.violations {
         eprintln!("  !! {v}");
+    }
+    for (k, n) in &rep.kinds {
+        eprintln!("[tally] {n} × {k}");
     }
 }
 

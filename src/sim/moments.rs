@@ -730,6 +730,9 @@ pub(crate) fn stand_tile(w: &World, id: &str, from: (i32, i32)) -> Option<(i32, 
     if w.grid.walkable(tile.0, tile.1)
         && w.grid.object_at(tile.0, tile.1).is_none()
         && !w.buckets.iter().any(|b| b.0 == tile)
+        // (not in a nook behind a chair when there's clear floor beside it)
+        && (w.grid.clear(tile.0, tile.1)
+            || staff::stand_next_to(w, tile, from).is_none_or(|t| !w.grid.clear(t.0, t.1)))
     {
         return Some(tile);
     }

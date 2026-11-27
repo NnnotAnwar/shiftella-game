@@ -117,7 +117,8 @@ pub(super) fn people_in_the_way(
 /// A build that breaks it is refused (`BlocksPath`); a layout that already broke it (an old
 /// save) isn't held against new builds.
 pub(super) fn seat_access_ok(w: &World, content: &Content) -> bool {
-    let reach = grid::reachable_off_seats(&w.grid, w.grid.entrance());
+    // (from the street: a chair right inside the door is everyone's way in, chaos find)
+    let reach = grid::reachable_off_seats(&w.grid, w.grid.way_in());
     w.furniture.iter().all(|p| {
         let Some(d) = content.furniture_def(&p.def).filter(|d| d.seats > 0) else {
             return true;

@@ -419,14 +419,21 @@ pub(crate) fn add_relationship(w: &mut World, a: u32, b: u32, add: f32) {
 // Shifts
 // ---------------------------------------------------------------------------------------------
 
+/// The staff floor's standing spots (never a chair or stool built there: a guest may sit
+/// down on it — chaos find: a helper idled on a stool built on the flap and a guest sat
+/// down on her), and only those reached without crossing a chair while there are any (a
+/// nook behind a stool by the counter's gap: she climbed out over the guest on it).
 fn staff_tiles(w: &World) -> Vec<(i32, i32)> {
     let mut v = Vec::new();
     for y in 0..w.grid.height {
         for x in 0..w.grid.width {
-            if w.grid.room(x, y).staff_only() && w.grid.walkable(x, y) {
+            if w.grid.room(x, y).staff_only() && w.grid.walkable(x, y) && !w.grid.is_seat(x, y) {
                 v.push((x, y));
             }
         }
+    }
+    if v.iter().any(|t| w.grid.clear(t.0, t.1)) {
+        v.retain(|t| w.grid.clear(t.0, t.1));
     }
     v
 }
@@ -437,9 +444,14 @@ pub(crate) fn idle_tile(w: &World, content: &Content, idx: usize) -> (i32, i32) 
         && let Some(t) = guests::registers(w, content).first().and_then(|(uid, _)| {
             let p = w.furniture_by_uid(*uid)?;
             let d = content.furniture_def(&p.def)?;
-            grid::access_tiles(&w.grid, d, p)
-                .into_iter()
-                .find(|t| !w.grid.guest_ok(t.0, t.1))
+            let tiles = grid::access_tiles(&w.grid, d, p);
+            let behind = |t: &&(i32, i32)| !w.grid.guest_ok(t.0, t.1) && !w.grid.is_seat(t.0, t.1);
+            tiles
+                .iter()
+                .filter(behind)
+                .find(|t| w.grid.clear(t.0, t.1))
+                .or(tiles.iter().find(behind))
+                .copied()
         })
     {
         return t;
@@ -455,7 +467,7 @@ pub(crate) fn idle_tile(w: &World, content: &Content, idx: usize) -> (i32, i32) 
     near[k]
 }
 
-fn break_tile(w: &World, idx: usize) -> (i32, i32) {
+pub(crate) fn break_tile(w: &World, idx: usize) -> (i32, i32) {
     let mut tiles = staff_tiles(w);
     tiles.sort_by_key(|t| (-t.0, -t.1));
     tiles
@@ -620,25 +632,120 @@ struct Work {
 pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(i32, i32)> {
     let p = w.furniture_by_uid(uid)?;
     let d = content.furniture_def(&p.def)?;
-    let tiles = grid::access_tiles(&w.grid, d, p);
+    // never a chair somebody sits on (chaos find: a helper walked onto a seated guest's
+    // chair to clear the table it stands by)
+    let tiles: Vec<(i32, i32)> = grid::access_tiles(&w.grid, d, p)
+        .into_iter()
+        .filter(|t| !w.grid.is_taken(t.0, t.1))
+        .collect();
     // a side one can get to: a front tile walled in by other pieces (grandma's bookcase and
-    // bench around her marble table) sent every helper after it and back, all night
+    // bench around her marble table) sent every helper after it and back, all night — and
+    // one that isn't only reached over a chair (chaos find: a sink whose free side was
+    // behind a chair had the helpers climb over a seated guest with every dish)
+    let staff = |t: &&(i32, i32)| w.grid.room(t.0, t.1).staff_only();
+    let clear = |t: &&(i32, i32)| w.grid.clear(t.0, t.1);
     let reached = |t: &&(i32, i32)| w.grid.reached(t.0, t.1);
+    // no clear side (every side a chair or a nook behind one): a clear corner, then a
+    // corner at all (every side a taken chair: a table with its chairs all round)
+    let fp = grid::footprint(d, p.x, p.y, p.rot);
+    let from = fp.first().copied().unwrap_or((p.x, p.y));
+    let corner = |pick: &dyn Fn((i32, i32)) -> Option<(i32, i32)>| {
+        fp.iter()
+            .filter_map(|&t| pick(t))
+            .min_by_key(|t| (t.1, t.0))
+    };
     tiles
         .iter()
-        .filter(reached)
-        .find(|t| w.grid.room(t.0, t.1).staff_only())
-        .or(tiles.iter().find(reached))
-        .or(tiles.iter().find(|t| w.grid.room(t.0, t.1).staff_only()))
-        .or(tiles.first())
+        .filter(clear)
+        .find(staff)
+        .or(tiles.iter().find(clear))
         .copied()
+        .or_else(|| corner(&|t| stand_next_to_clear(w, t, from)))
+        .or_else(|| {
+            tiles
+                .iter()
+                .filter(reached)
+                .find(staff)
+                .or(tiles.iter().find(reached))
+                .or(tiles.iter().find(staff))
+                .or(tiles.first())
+                .copied()
+        })
+        .or_else(|| corner(&|t| stand_next_to_in(w, t, from, true)))
 }
 
 pub(crate) fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32)> {
     // beside the guest, not on the next chair (someone may sit down there) — unless only
-    // chairs are left
-    stand_next_to_in(w, t, from, true).or_else(|| stand_next_to_in(w, t, from, false))
+    // chairs are left: then one nobody has taken or reserved, else a free one
+    // (and first a spot one gets to without crossing a chair: chaos find — she took an
+    // order from a nook only reached over two chairs, and once both were taken she climbed
+    // over a seated guest to get out)
+    stand_next_to_clear(w, t, from)
+        .or_else(|| stand_next_to_in(w, t, from, true))
+        .or_else(|| stand_next_to_seat(w, t, from, false))
+        .or_else(|| stand_next_to_seat(w, t, from, true))
 }
+
+fn stand_next_to_clear(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32)> {
+    let mut best: Option<(i32, i32)> = None;
+    for (dx, dy) in NEXT_TO {
+        let n = (t.0 + dx, t.1 + dy);
+        if !w.grid.clear(n.0, n.1) {
+            continue;
+        }
+        if best.is_none_or(|b| grid::manhattan(n, from) < grid::manhattan(b, from)) {
+            best = Some(n);
+        }
+    }
+    best
+}
+
+/// Somebody has this seat tile (sits on it or is on the way to it).
+fn seat_held(w: &World, t: (i32, i32)) -> bool {
+    w.guests.iter().any(|g| {
+        !g.gone
+            && g.seat
+                .is_some_and(|(u, k)| guests::seat_tile(w, u, k) == Some(t))
+    })
+}
+
+fn stand_next_to_seat(
+    w: &World,
+    t: (i32, i32),
+    from: (i32, i32),
+    held_ok: bool,
+) -> Option<(i32, i32)> {
+    let mut best: Option<(i32, i32)> = None;
+    for (dx, dy) in NEXT_TO {
+        let n = (t.0 + dx, t.1 + dy);
+        if !w.grid.is_seat(n.0, n.1)
+            || !w.grid.walkable(n.0, n.1)
+            || !w.grid.reached(n.0, n.1)
+            || w.grid.is_taken(n.0, n.1)
+            || w.guests
+                .iter()
+                .any(|g| g.pose == Pose::Sit && g.tile() == n)
+            || (!held_ok && seat_held(w, n))
+        {
+            continue;
+        }
+        if best.is_none_or(|b| grid::manhattan(n, from) < grid::manhattan(b, from)) {
+            best = Some(n);
+        }
+    }
+    best
+}
+
+const NEXT_TO: [(i32, i32); 8] = [
+    (0, 1),
+    (0, -1),
+    (1, 0),
+    (-1, 0),
+    (1, 1),
+    (-1, 1),
+    (1, -1),
+    (-1, -1),
+];
 
 fn stand_next_to_in(
     w: &World,
@@ -647,16 +754,7 @@ fn stand_next_to_in(
     avoid_seats: bool,
 ) -> Option<(i32, i32)> {
     let mut best: Option<(i32, i32)> = None;
-    for (dx, dy) in [
-        (0, 1),
-        (0, -1),
-        (1, 0),
-        (-1, 0),
-        (1, 1),
-        (-1, 1),
-        (1, -1),
-        (-1, -1),
-    ] {
+    for (dx, dy) in NEXT_TO {
         let n = (t.0 + dx, t.1 + dy);
         if !w.grid.walkable(n.0, n.1)
             || !w.grid.reached(n.0, n.1)
@@ -680,11 +778,12 @@ fn stand_next_to_in(
 
 /// Where to pick up an item left at `t`: there, or beside it when a piece was put on that
 /// tile since (chaos find: Karolina walked into a counter placed on a ready tray's tile).
-pub(crate) fn pickup_tile(w: &World, t: (i32, i32), from: (i32, i32)) -> (i32, i32) {
-    if w.grid.walkable(t.0, t.1) {
-        t
+/// None: no spot beside it (never the piece's tile itself).
+pub(crate) fn pickup_tile(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32)> {
+    if w.grid.walkable(t.0, t.1) && !w.grid.is_taken(t.0, t.1) {
+        Some(t)
     } else {
-        stand_next_to(w, t, from).unwrap_or(t)
+        stand_next_to(w, t, from)
     }
 }
 
@@ -814,7 +913,7 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
                     && it.by.is_none()
                     && matches!(it.origin, ItemOrigin::Helper { .. })
                 {
-                    let Some(goal) = it.ready_tile.map(|t| pickup_tile(w, t, here)) else {
+                    let Some(goal) = it.ready_tile.and_then(|t| pickup_tile(w, t, here)) else {
                         continue;
                     };
                     out.push(Work {
@@ -1966,6 +2065,18 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     }
 }
 
+/// Somebody stands on `t` or walks to it (the last step of a path is entered even when it
+/// isn't walkable: a piece or a bucket put there would be walked into).
+pub(crate) fn people_at(w: &World, t: (i32, i32)) -> bool {
+    let going = |path: &[(i32, i32)]| path.last() == Some(&t);
+    w.guests
+        .iter()
+        .any(|g| !g.gone && (g.tile() == t || going(&g.path)))
+        || w.staff
+            .iter()
+            .any(|s| s.present() && (s.tile() == t || going(&s.path)))
+}
+
 pub(crate) fn block_random_tile(w: &mut World, content: &Content) {
     let entrance = w.grid.entrance();
     let seat_tiles: Vec<(i32, i32)> = guests::seats(w, content).iter().map(|s| s.tile).collect();
@@ -1986,7 +2097,21 @@ pub(crate) fn block_random_tile(w: &mut World, content: &Content) {
                 && w.guests.iter().all(|g| g.tile() != *t)
         })
         .collect();
-    let Some(&t) = w.rng.pick(&cands) else { return };
+    let Some(&picked) = w.rng.pick(&cands) else {
+        return;
+    };
+    // not under a helper or Karolina, nor where someone is walking to (chaos find: a
+    // bucket put on the spot she was heading for — she walked into it): the next free
+    // candidate instead (the one draw stays as it was)
+    let at = cands.iter().position(|t| *t == picked).unwrap_or(0);
+    let Some(t) = cands[at..]
+        .iter()
+        .chain(&cands[..at])
+        .copied()
+        .find(|t| !people_at(w, *t))
+    else {
+        return;
+    };
     if let Some(i) = w.grid.idx(t.0, t.1) {
         w.grid.blocked[i] = true;
     }

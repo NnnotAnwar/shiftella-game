@@ -77,7 +77,7 @@ pub(crate) fn plan(
         return None;
     }
     // the shortest line, and not a long one
-    let (reg, line) = super::guests::registers(w, content)
+    let (reg, line) = super::guests::guest_registers(w, content)
         .iter()
         .map(|(u, _)| (*u, w.queues.get(u).map_or(0, |q| q.len())))
         .min_by_key(|(_, n)| *n)?;
@@ -122,8 +122,9 @@ pub(crate) fn spots(w: &World, content: &Content, reg: u32) -> Vec<(i32, i32)> {
             if d == 0
                 || d > 4
                 || !w.grid.guest_ok(t.0, t.1)
-                || !w.grid.reached(t.0, t.1)
-                || w.grid.is_seat(t.0, t.1)
+                // (one gets to without crossing a chair: chaos find — a spot in a nook
+                // behind a chair had the to-go guest climb over whoever sat down there)
+                || !w.grid.guest_clear(t.0, t.1)
                 || seat_tiles.contains(&t)
                 || line.contains(&t)
                 || by_staff_door(t)

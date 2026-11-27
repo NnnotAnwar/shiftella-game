@@ -96,7 +96,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 
 | command | notes |
 |---|---|
-| `PlaceFurniture { def, x, y, rot }` | footprint, layer (rugs/stage/pendant lamps share tiles), money, unlocks, `unique`, never blocks the door / any piece (`BlocksPath`). Floors (`floor_*`) paint a tile. |
+| `PlaceFurniture { def, x, y, rot }` | footprint, layer (rugs/stage/pendant lamps share tiles), money, unlocks, `unique`, never blocks the door / any piece, nor leaves a seat reached only over another chair — checked from the street, so a chair can't be everyone's way in (`BlocksPath`). Floors (`floor_*`) paint a tile. |
 | `MoveFurniture`, `RotateFurniture`, `RemoveFurniture` | not while in use (seat taken, station busy, guests lined up at a register) → `InUse`; a solid piece never lands on someone standing there → `Occupied`; remove refunds 50 % |
 | `MoveGroup { moves: Vec<PieceMove { uid, x, y, rot }> }` | build mode's drag: all pieces are lifted, then put down (a table and its chairs may swap tiles); atomic — any `InUse` / `Occupied` / `BlocksPath` changes nothing; free; **one** undo step (`UndoOp::MoveGroupBack`) |
 | `SetFloor { x, y, floor }`, `SetFurnitureOn { uid, on }`, `SetMusic { on }` | lamps / jukebox / radio |
@@ -258,6 +258,23 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   train spread is cut so passengers are in by last call (05:15). Classic never holds. Seats are reserved on arrival, one chair per guest (no seat →
   a plain party may take it to go, `sim::to_go`, else they walk on). Paths go around chairs and stools (`grid::SEAT`) unless there is no other way; a
   guest with no way to the goal waits and retries (never walks through the furniture).
+  **Chairs in use (0.2.3):** a guest sits down only once nobody else stands on the chair
+  (they wait on it); the moment they sit, the chair is `grid::TAKEN` (not a tick later) and
+  everyone whose path still crosses it walks a new way around it (`guests::reroute_off_taken`;
+  a helper or Karolina headed for that very chair stands beside it). The masks also keep
+  `grid::CLEAR` / `GUEST_CLEAR`: floor reached from the street (`Grid::way_in`) without
+  crossing a chair — staff over any floor, guests over theirs. Standing spots prefer it and
+  are never a taken chair: `staff::station_access` (clear side → clear corner → any side →
+  a corner), `stand_next_to` (clear → floor → a free unheld chair → a free chair), the
+  helpers' idle / break spots (never a seat on the staff floor), a walk's goal in a nook
+  (beside it when that's clear), a moment's anchor. Guests are offered a seat only with a
+  `GUEST_CLEAR` tile beside it (also a regular's reserved seat); the register line and the
+  to-go spots are `GUEST_CLEAR` tiles, and a register whose front isn't takes no bar orders
+  and no to-go guests (`guests::guest_registers`; staff still use it). A path crosses a taken
+  chair only when nothing else leads there (an old layout). No act's goal is inside a piece
+  (`staff::pickup_tile` → `None`, a walk to a walled-in piece is dropped), and the leak's
+  bucket (`staff::block_random_tile`, `PlaceBucket`) never goes under someone or on the
+  tile they walk to (`staff::people_at`; the draw stays the same — the next free tile).
   **Ordering (0.2.2):** most parties sit down and order at their table (`WaitOrder`); a
   plain party orders at the bar (`Queue` at the register) with chance `BAR_ORDER_SHARE`
   0.10 + `BAR_ORDER_SOLO` 0.10 alone + `BAR_ORDER_QUICK` 0.25 for a stay of ≤ 20 min (half
@@ -971,7 +988,8 @@ night start); `Party.extra_seat` / `Party.rounds` and `NightSummary.payoff` are 
   `Party.to_go` (`#[serde(default)]`); the order is cut to those categories; the leader
   queues at the register, the others (and the leader once ordered) wait on
   `to_go::spots` — hall tiles ≤ 4 steps from the register front, never the line, a seat,
-  or a tile beside an opening to the staff side, the side away from the line first.
+  a tile only reached over a chair (`GUEST_CLEAR`, 0.2.3), or a tile beside an opening to
+  the staff side, the side away from the line first.
   `staff::guest_seat_tile` serves them there. Once everything is served they leave at once
   (no stay, no second round, no ambience) with the cup in hand (`Guest.holding` kept;
   `AgentView.to_go` → the scene draws `render::draw_paper_cup`: in hand once served, over

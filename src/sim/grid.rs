@@ -201,6 +201,12 @@ pub const REACH: u8 = 16;
 pub const SEAT: u8 = 4;
 /// A seat someone sits on (see [`Grid::set_taken`]).
 pub const TAKEN: u8 = 8;
+/// Reached from the door without crossing a chair or a stool ([`SEAT`]): a standing spot
+/// one can get to while every chair is taken (rebuilt with the masks).
+pub const CLEAR: u8 = 32;
+/// The same for guests: reached from the street over guests' floor without crossing a
+/// chair (no staff-only floor).
+pub const GUEST_CLEAR: u8 = 64;
 
 impl Grid {
     pub fn idx(&self, x: i32, y: i32) -> Option<usize> {
@@ -294,6 +300,27 @@ impl Grid {
                 self.walk[i] |= REACH;
             }
         }
+        let way_in = self.way_in();
+        let clear = if self.walkable(way_in.0, way_in.1) {
+            reachable_off_seats(self, way_in)
+        } else {
+            vec![true; self.tiles.len()]
+        };
+        for (i, r) in clear.into_iter().enumerate() {
+            if r && self.walk[i] & (WALK | SEAT) == WALK {
+                self.walk[i] |= CLEAR;
+            }
+        }
+        let guests = if self.walkable(way_in.0, way_in.1) {
+            guest_reachable_off_seats(self, way_in)
+        } else {
+            vec![true; self.tiles.len()]
+        };
+        for (i, r) in guests.into_iter().enumerate() {
+            if r && self.walk[i] & (WALK | GUEST_OK | SEAT) == WALK | GUEST_OK {
+                self.walk[i] |= GUEST_CLEAR;
+            }
+        }
         for &(x, y) in &self.taken {
             if let Some(i) = self.idx(x, y) {
                 self.walk[i] |= TAKEN;
@@ -307,6 +334,20 @@ impl Grid {
     pub fn reached(&self, x: i32, y: i32) -> bool {
         self.idx(x, y)
             .is_some_and(|i| self.walk.get(i).copied().unwrap_or(0) & REACH != 0)
+    }
+
+    /// A floor tile (not a seat) reached from the door without crossing a chair: see
+    /// [`CLEAR`].
+    pub fn clear(&self, x: i32, y: i32) -> bool {
+        self.idx(x, y)
+            .is_some_and(|i| self.walk.get(i).copied().unwrap_or(0) & CLEAR != 0)
+    }
+
+    /// A guests' floor tile (not a seat) they reach from the street without crossing a
+    /// chair: see [`GUEST_CLEAR`].
+    pub fn guest_clear(&self, x: i32, y: i32) -> bool {
+        self.idx(x, y)
+            .is_some_and(|i| self.walk.get(i).copied().unwrap_or(0) & GUEST_CLEAR != 0)
     }
 
     /// Marks the seats people sit on (path caches see a new version when it changed).
@@ -367,6 +408,18 @@ impl Grid {
             }
         }
         (1, 1)
+    }
+
+    /// Where people come in from for the "without crossing a chair" checks: the street
+    /// outside the door (`entrance` skips a tile with a piece on it, so a chair right inside
+    /// the door — everyone's only way in — was not seen as in the way).
+    pub fn way_in(&self) -> (i32, i32) {
+        let o = self.outside_door();
+        if self.walkable(o.0, o.1) {
+            o
+        } else {
+            self.entrance()
+        }
     }
 
     /// Street tile outside the main door.
@@ -643,15 +696,20 @@ pub fn can_place(
 
 /// Flood fill from `start` over walkable tiles.
 pub fn reachable(grid: &Grid, start: (i32, i32)) -> Vec<bool> {
-    reachable_by(grid, start, false)
+    reachable_by(grid, start, false, false)
 }
 
 /// The same without walking over chairs and stools ([`SEAT`] tiles).
 pub fn reachable_off_seats(grid: &Grid, start: (i32, i32)) -> Vec<bool> {
-    reachable_by(grid, start, true)
+    reachable_by(grid, start, true, false)
 }
 
-fn reachable_by(grid: &Grid, start: (i32, i32), off_seats: bool) -> Vec<bool> {
+/// Where a guest walks without crossing a chair (no staff-only floor, no [`SEAT`] tiles).
+pub fn guest_reachable_off_seats(grid: &Grid, start: (i32, i32)) -> Vec<bool> {
+    reachable_by(grid, start, true, true)
+}
+
+fn reachable_by(grid: &Grid, start: (i32, i32), off_seats: bool, guest: bool) -> Vec<bool> {
     let mut seen = vec![false; grid.tiles.len()];
     let mut stack = vec![start];
     if let Some(i) = grid.idx(start.0, start.1) {
@@ -663,6 +721,7 @@ fn reachable_by(grid: &Grid, start: (i32, i32), off_seats: bool) -> Vec<bool> {
             if let Some(i) = grid.idx(nx, ny)
                 && !seen[i]
                 && grid.walkable(nx, ny)
+                && !(guest && !grid.guest_ok(nx, ny))
                 && !(off_seats && grid.is_seat(nx, ny))
             {
                 seen[i] = true;

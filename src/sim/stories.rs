@@ -428,7 +428,8 @@ fn stand_tile(w: &World, guest: u32) -> Option<(i32, i32)> {
     let from = super::player::karolina_idx(w)
         .map(|k| w.staff[k].tile())
         .unwrap_or_else(|| w.grid.entrance());
-    super::staff::stand_next_to(w, g.tile(), from).or(Some(g.tile()))
+    let t = g.tile();
+    super::staff::stand_next_to(w, t, from).or((!w.grid.is_taken(t.0, t.1)).then_some(t))
 }
 
 /// `Command::AnswerStory`: Karolina walks to the guest; the answer applies when she's there.

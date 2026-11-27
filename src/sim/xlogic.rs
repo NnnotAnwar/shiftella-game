@@ -420,7 +420,10 @@ fn apply_x(w: &mut World, content: &Content, x: &XEffect, t: &XTarget, depth: u3
             if let Some(b) = w.buckets.iter_mut().find(|b| b.0 == tile) {
                 // Karolina's bucket stays until it is emptied (m_leak_empty)
                 b.1 = b.1.max(m + 600);
-            } else if w.grid.walkable(tile.0, tile.1) && w.grid.object_at(tile.0, tile.1).is_none()
+            } else if w.grid.walkable(tile.0, tile.1)
+                && w.grid.object_at(tile.0, tile.1).is_none()
+                // not under someone standing there or walking to it: they'd be inside it
+                && !super::staff::people_at(w, tile)
             {
                 if let Some(i) = w.grid.idx(tile.0, tile.1) {
                     w.grid.blocked[i] = true;
