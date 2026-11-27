@@ -760,7 +760,11 @@ mod tests {
         let big = t.body();
         assert_eq!(big.size, 13.0, "the nominal size stays");
         assert!((big.pt() - 16.9).abs() < 1e-4);
-        assert_eq!(big.line_h(), (16.9_f32 * 1.4).round(), "line boxes grow with it");
+        assert_eq!(
+            big.line_h(),
+            (16.9_f32 * 1.4).round(),
+            "line boxes grow with it"
+        );
         // a theme style resized keeps the player's text size
         assert!((t.small().size(10.0).pt() - 13.0).abs() < 1e-4);
         // the logo and hand-made styles don't

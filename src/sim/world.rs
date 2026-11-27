@@ -305,6 +305,12 @@ pub struct Party {
     /// A thank-you napkin they will leave with the tip (`thanks.<id>`).
     #[serde(default)]
     pub napkin: Option<String>,
+    /// Purchases: they found room only on a piece the player bought (grandma's seats were
+    /// full), and how many second rounds they ordered (`sim::purchases`).
+    #[serde(default)]
+    pub extra_seat: bool,
+    #[serde(default)]
+    pub rounds: u8,
 }
 
 impl Party {
@@ -844,6 +850,9 @@ pub struct World {
     /// Little stories of strangers and the storm night (design/v0.2.md H; `sim::stories`).
     #[serde(default)]
     pub(crate) stories: super::stories::StoriesState,
+    /// Purchases that matter: tonight's tally of what the bought pieces did (`sim::purchases`).
+    #[serde(default)]
+    pub(crate) pay: super::purchases::PayoffState,
     #[serde(skip)]
     pub(crate) events: Vec<SimEvent>,
     #[serde(skip)]
@@ -931,6 +940,7 @@ impl World {
             walk: Default::default(),
             sig: Default::default(),
             stories: Default::default(),
+            pay: Default::default(),
             events: Vec::new(),
             paths: PathCache::default(),
         }
@@ -1438,6 +1448,7 @@ impl World {
         super::build_content::on_night_start(self, content);
         super::equipment::on_night_start(self);
         super::stories::on_night_start(self, content);
+        super::purchases::on_night_start(self);
         self.emit(SimEvent::NightStarted { night: self.night });
         super::story::on_night_start(self, content);
     }
@@ -1617,6 +1628,7 @@ impl World {
         super::moments::on_minute(self, content);
         super::moments::naming_nudge(self, content);
         super::atmos::on_minute(self, content);
+        super::purchases::on_minute(self);
         super::journal::on_minute(self, content);
         super::build_content::on_minute(self, content);
         super::tool::on_minute(self, content);
@@ -1640,6 +1652,7 @@ impl World {
         super::journal::on_night_end(self, content);
         self.tonight.insights = super::tool::insights(self, content);
         self.tonight.coziness_avg = super::atmos::night_avg(self);
+        self.tonight.payoff = super::purchases::lines(self, content);
         for s in self.staff.iter_mut() {
             if !s.owner && s.minutes_worked > 0 {
                 s.nights_worked += 1;

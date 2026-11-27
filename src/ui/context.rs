@@ -266,6 +266,15 @@ impl Ui {
 
         self.mouse_prev = self.mouse;
         self.mouse = Vec2::from(mouse_position()) / self.user_scale;
+        // screenshots: `SHIFTELLA_HOVER=x,y` holds the pointer there (logical points)
+        static HOVER: std::sync::OnceLock<Option<Vec2>> = std::sync::OnceLock::new();
+        if let Some(p) = *HOVER.get_or_init(|| {
+            let s = std::env::var("SHIFTELLA_HOVER").ok()?;
+            let (x, y) = s.split_once(',')?;
+            Some(vec2(x.trim().parse().ok()?, y.trim().parse().ok()?))
+        }) {
+            self.mouse = p;
+        }
         self.down = is_mouse_button_down(MouseButton::Left);
         self.pressed = is_mouse_button_pressed(MouseButton::Left);
         self.released = is_mouse_button_released(MouseButton::Left);

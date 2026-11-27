@@ -659,6 +659,11 @@ pub(crate) fn guest_seat_tile(w: &World, gid: u32) -> Option<(i32, i32)> {
     guests::seat_tile(w, uid, idx)
 }
 
+/// Dishes one wash takes (12; more with a dish rack / a second sink — purchases).
+fn wash_batch(w: &World, content: &Content) -> u32 {
+    (12.0 * super::purchases::wash_mul(w, content)).round() as u32
+}
+
 pub(crate) fn station_free(w: &World, content: &Content, tag: &str, staff: u32) -> Option<u32> {
     if w.mods
         .iter()
@@ -864,7 +869,9 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
                 out.push(Work {
                     task: Task::Wash { sink: sink.uid },
                     goal,
-                    work: 4.0 * w.sink_dishes.min(12) as f32,
+                    // a dish rack / a second sink: faster (purchases)
+                    work: 4.0 * w.sink_dishes.min(wash_batch(w, content)) as f32
+                        / super::purchases::wash_mul(w, content),
                     rank: 1,
                 });
             }
@@ -1011,7 +1018,7 @@ pub(crate) fn peek_work(w: &World, content: &Content, idx: usize) -> Option<Task
     find_work(w, content, idx).map(|wk| wk.task)
 }
 
-fn claim(w: &mut World, task: &Task, me: u32) {
+fn claim(w: &mut World, content: &Content, task: &Task, me: u32) {
     match task {
         Task::TakeOrder { party, register } => {
             if let Some(p) = w.parties.iter_mut().find(|p| p.id == *party) {
@@ -1027,6 +1034,7 @@ fn claim(w: &mut World, task: &Task, me: u32) {
             if let Some(i) = w.items.iter_mut().find(|i| i.id == *item) {
                 i.by = Some(me);
             }
+            super::purchases::note_station_start(w, content, *station);
             if let Some(f) = w.furniture.iter_mut().find(|f| f.uid == *station) {
                 f.user = Some(me);
             }
@@ -1278,7 +1286,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
             } else if let Some(wk) = find_work(w, content, idx) {
                 w.staff[idx].task = None;
                 let me = w.staff[idx].id;
-                claim(w, &wk.task, me);
+                claim(w, content, &wk.task, me);
                 // "on it!"
                 if w.staff[idx].emote.is_none() {
                     w.staff[idx].emote = Some((SimEmote::Note, w.tick + 12));
@@ -1586,11 +1594,15 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                 }
             }
             quality += w.staff[idx].skill(job, w.night) * 1.5;
-            let helper_q = content
+            let mut helper_q = content
                 .handson
                 .tuning
                 .helper_quality
                 .at(w.staff[idx].skill(job, w.night));
+            if job == Job::Bar {
+                // a better grind (purchases)
+                helper_q = (helper_q + super::purchases::quick_quality_bonus(w, content)).min(1.0);
+            }
             let mut name = String::new();
             if let Some(i) = w.items.iter_mut().find(|i| i.id == item) {
                 i.state = ItemState::Ready;
@@ -1718,8 +1730,10 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
             }
         }
         Task::Wash { .. } => {
-            let n = w.sink_dishes.min(12);
+            let n = w.sink_dishes.min(wash_batch(w, content));
             w.sink_dishes -= n;
+            let mul = super::purchases::wash_mul(w, content);
+            super::purchases::note_washed(w, n, mul);
             credit(w, idx, Duty::Dishes, n);
             w.sink_claim = None;
             w.staff[idx].task = None;

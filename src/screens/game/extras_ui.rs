@@ -147,6 +147,8 @@ pub fn atmosphere(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         title: loc.tr_owned("atmo.title"),
         components,
         tip: weakest.map(|w| loc.tr_owned(&w.tip_key())),
+        tiers: super::purchases_ui::tier_lines(&g.world, content, &loc),
+        bounds: content.handson.decor.coziness.levels.clone(),
     };
     let r = Rect::new(12.0, 12.0 + 64.0 + 6.0, ATMO_SIZE.x, ATMO_SIZE.y);
     g.anchors.push(("hud.atmosphere", r));

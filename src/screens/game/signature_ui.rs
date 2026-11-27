@@ -1008,7 +1008,10 @@ mod tests {
         let other = GameScreen::new_story(&c, "cozy", true);
         sync_i18n(&mut i, &other.world, &c);
         assert_eq!(i.tr(Lang::En, "recipe.r_signature.name"), "The house drink");
-        assert_eq!(i.tr(Lang::Cs, "wish.house_special"), "Tu specialitu z tabule, prosím.");
+        assert_eq!(
+            i.tr(Lang::Cs, "wish.house_special"),
+            "Tu specialitu z tabule, prosím."
+        );
     }
 
     #[test]

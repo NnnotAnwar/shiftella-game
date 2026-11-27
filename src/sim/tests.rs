@@ -335,7 +335,10 @@ fn helpers_only_do_their_duties() {
     let mut events = Vec::new();
     for _ in 0..3 {
         events.extend(run_night(&mut w, &c));
-        if events.iter().any(|e| matches!(e, SimEvent::OrderTaken { .. })) {
+        if events
+            .iter()
+            .any(|e| matches!(e, SimEvent::OrderTaken { .. }))
+        {
             break;
         }
     }

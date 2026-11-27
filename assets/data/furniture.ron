@@ -18,7 +18,7 @@
     (id: "register", sprite: "register", category: Counters, size: (1, 1), price: 2900, tags: ["register"]),
     // --- appliances ---
     (id: "coffee_machine", sprite: "coffee_machine", category: Appliances, size: (1, 1), price: 3400, tags: ["station:coffee"], wear_per_night: 0.04),
-    (id: "espresso_grinder", sprite: "espresso_grinder", category: Appliances, size: (1, 1), price: 1500, tags: ["counter", "decor"], beauty: 1.0, unlock_night: 4),
+    (id: "espresso_grinder", sprite: "espresso_grinder", category: Appliances, size: (1, 1), price: 1500, tags: ["counter", "decor", "grinder"], beauty: 1.0, unlock_night: 4),
     (id: "stove", sprite: "stove", category: Appliances, size: (2, 1), price: 14900, tags: ["station:stove"], wear_per_night: 0.03),
     (id: "oven", sprite: "oven", category: Appliances, size: (1, 1), price: 6800, tags: ["station:oven"], wear_per_night: 0.02, unlock_night: 2),
     (id: "fridge", sprite: "fridge", category: Appliances, size: (1, 1), price: 5200, tags: ["station:fridge"], wear_per_night: 0.02),

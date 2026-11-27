@@ -48,8 +48,9 @@
             stay: (base: 0.9, div: 500.0),
             tips: (base: 0.96, div: 1250.0),
         ),
-        // Bare < 20 · Plain < 40 · Pleasant < 60 · Cosy < 80 · Like home
-        levels: [20.0, 40.0, 60.0, 80.0],
+        // Bare < 30 · Plain < 50 · Pleasant < 70 · Cosy < 85 · Like home (purchases: grandma's
+        // own hall sits in Pleasant, ≈ 64; each tier's perks are in purchases.ron)
+        levels: [30.0, 50.0, 70.0, 85.0],
         every_minutes: 1,
     ),
 )

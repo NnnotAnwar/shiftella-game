@@ -164,6 +164,7 @@ fn chips(loc: &Locale, t: &Theme, d: &FurnitureDef) -> Vec<Chip> {
 fn tooltip(
     loc: &Locale,
     g: &GameScreen,
+    content: &Content,
     d: &FurnitureDef,
     lock: Option<&str>,
     wish: Option<&BuildWish>,
@@ -202,6 +203,10 @@ fn tooltip(
     }
     if d.has_tag("power_socket") {
         lines.push(loc.tr_owned("bux.tip.socket"));
+    }
+    // what it would do, in numbers (purchases)
+    if lock.is_none() {
+        lines.extend(super::purchases_ui::card_lines(&g.world, content, loc, d));
     }
     let mut last = loc.trf(
         "ui.build.size",
@@ -410,7 +415,7 @@ fn card(
     if let Some(w) = wish {
         badge(g, ui, t, loc, r, &w.who);
     }
-    let tip = tooltip(loc, g, d, lock.as_deref(), wish);
+    let tip = tooltip(loc, g, content, d, lock.as_deref(), wish);
     ui.tooltip(&resp, &tip);
     if resp.clicked && unlocked && !placed_unique {
         let st = &mut g.ui_state.build;
@@ -464,7 +469,11 @@ fn badge(g: &GameScreen, ui: &mut Ui, t: &Theme, loc: &Locale, r: Rect, who: &st
     let many = !loc.has(&format!("regular.{who}.name"))
         && !g.world.staff().iter().any(|s| s.id.to_string() == who)
         && loc.has(&format!("guest.{who}.name"));
-    let key = if many { "bux.wanted_many" } else { "bux.wanted" };
+    let key = if many {
+        "bux.wanted_many"
+    } else {
+        "bux.wanted"
+    };
     let st = t.key().size(10.5).color(t.ink);
     // "Mrs Vera is waiting" when it fits the card; else the first name, else the name alone
     // (the amber badge with a face already says "wanted")

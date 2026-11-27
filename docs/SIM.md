@@ -823,3 +823,45 @@ go in a cup and their tastes), `one_of_family` (one milk), `photo` (`per_night` 
   payment event and the debt at 0).
 * Not in the sim: text size (`ui::Theme::text_scale` → `TextStyle::scale`), colour-blind markers
   (`render::set_marker_shapes`), key bindings (`settings::keys`, i18n tokens `{key.<action>}`).
+
+## 14. Purchases that matter (`sim::purchases`, data `assets/data/purchases.ron`)
+
+Compiled in (`purchases::data()`), every effect keyed by a furniture **tag** or a number from
+`furniture.ron` (seats, comfort) — never a piece id. Grandma's café is the neutral point of
+every curve: a player who never builds plays the old numbers and draws nothing extra from the
+world RNG. State: `World.pay: PayoffState` (`#[serde(default)]`; tonight's tally, reset at
+night start); `Party.extra_seat` / `Party.rounds` and `NightSummary.payoff` are defaulted too.
+
+* **Seats → guests.** Random walk-ins × `seat_draw` = (hall seats / 16)^0.8, clamped 0.7–1.6
+  (24 seats ≈ ×1.38, 32 ≈ ×1.6). A party with something to order and no seat goes on
+  (`GuestTurnedAway`) + toast `purchases.toast.no_seat` (at most every 40 min). A party that
+  only found room on a bought piece (grandma's own seats had none) is `extra_seat`.
+  `choose_seats`: a free table-less piece (sofa, window seat, armchair) now competes with the
+  tables by comfort, so comfy pieces are actually used (grandma's café has none).
+* **Comfort → stay, tips, a second round.** The party's mean seat comfort on the `comfort`
+  curve (chair 2 = neutral; stool 1: stay ×0.85, tips ×0.92, −3 satisfaction; 4.5: ×1.25,
+  ×1.10, 40 % second round, +3; 7: ×1.4, ×1.18, 55 %, +5). A second round = when the stay runs
+  out (before 05:00, not regulars), the same drink again as an unowned plain ticket; they stay
+  `round_stay` more minutes. `World::seat_feel(guest)` → the hover line ("comfy seat").
+* **Coziness tiers** = the meter's five levels, now at 30 / 50 / 70 / 85 (decor.ron; grandma's
+  hall ≈ 64, Pleasant). Perks on top of the smooth effects: Pleasant tips +3 %; Cosy tips +8 %,
+  stay +10 %, positive reviews +15 %; Like home tips +14 %, stay +20 %, reviews +30 %, second
+  rounds +8 %, night wanderers walk in (weight 0.6), and Mirek / Hana / Vera's `.like_home`
+  wishes (`CozinessAtLeast(85)`). The meter's pips span the real thresholds; its popover says
+  what the tier gives and what the next brings.
+* **Appliances by tag** (`free` = grandma's count): `station:coffee` / `station:stove`
+  `Parallel` (a second one: two at once — `station_free` hands Karolina or a helper the free
+  one; counted when work starts while the other is busy); `grinder` (espresso grinder)
+  `QuickQuality(+0.08)` for quick brews and helpers' bar items; `dishes` (dish rack, a second
+  sink) `Washing(+40 %)` per extra piece — Karolina's wash rate, the helpers' wash work and
+  batch; `station:oven` `Unlocks` (cakes on the menu at all).
+* **The morning.** `NightSummary.payoff: Vec<PayoffLine { key, args, money }>` (≤ 5,
+  `purchases.line.*`; `@key` args are names, `money` is Kč), shown as "What the café gave you
+  tonight" in the summary. `World::piece_effect(&c, def)` → the build card's numbers
+  (seats now → with, about +N guests a night; the comfort point; the appliance role; what an
+  oven puts on the menu).
+* **Player-bot.** `bot::build_for_guests` (attentive, `build`, not `thrifty`): one purchase a
+  day, the first affordable on the list — tables with chairs, window seat, plants, grinder, dish rack, sofa, a second coffee machine (with a
+  helper), floor lamps, armchairs, a table of four, the oven — keeping the next ten nights'
+  (seven nights) payments plus a cushion. `sim_headless … --no-build` plays the never-building player and
+  prints `earned (revenue + tips)`. Tests: `tests_purchases.rs`.

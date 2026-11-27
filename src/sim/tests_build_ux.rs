@@ -237,4 +237,3 @@ fn coziness_preview_of_a_drag() {
     let after = atmos::compute(&w, &c).value;
     assert!((after - before - p).abs() < 1e-3, "drag preview {p}");
 }
-

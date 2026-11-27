@@ -492,13 +492,15 @@ impl World {
                 // added before next week
                 let week = super::app::week_of(self.night);
                 if self.app.manual_rozpis && self.app.published_week == Some(week) {
-                    let only_new = self.app.draft.iter().all(|(id, row)| {
-                        match self.app.published.get(id) {
-                            Some(p) if p == row => true,
-                            Some(p) => p.iter().all(|s| *s == Shift::Off),
-                            None => true,
-                        }
-                    });
+                    let only_new =
+                        self.app
+                            .draft
+                            .iter()
+                            .all(|(id, row)| match self.app.published.get(id) {
+                                Some(p) if p == row => true,
+                                Some(p) => p.iter().all(|s| *s == Shift::Off),
+                                None => true,
+                            });
                     if !only_new {
                         return Err(CommandError::Locked);
                     }
@@ -740,7 +742,7 @@ impl World {
             Command::PlayerQueue { act, front } => super::player::queue(self, content, act, front),
             Command::PlayerUnqueue { index } => super::player::unqueue(self, content, index),
             Command::PlayerWashProgress { sink, seconds } => {
-                super::player::wash_progress(self, sink, seconds)
+                super::player::wash_progress(self, content, sink, seconds)
             }
             Command::PlayerGreet { guest } => super::player::greet(self, content, guest),
             Command::PlayRecord { id, repeat } => super::player::queue(

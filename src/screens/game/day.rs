@@ -367,7 +367,13 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     // the night's polaroid develops beside the numbers (pick one of the three)
     let photo = g.world.pending_polaroids().is_some();
     let pw = if photo { 300.0 } else { 0.0 };
-    let (w, h) = (440.0 + pw, 430.0_f32.min(s.h - 24.0));
+    // "What the café gave you tonight": a heading + one row per line
+    let pay_h = if sm.payoff.is_empty() {
+        0.0
+    } else {
+        24.0 + 18.0 * sm.payoff.len() as f32
+    };
+    let (w, h) = (440.0 + pw, (430.0 + pay_h).min(s.h - 24.0));
     let pr = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0 - 10.0, w, h);
     ui.glass(pr, &Glass::panel().radius(14.0));
     let c = Rect::new(pr.x, pr.y, 440.0, pr.h).inset(22.0);
@@ -517,6 +523,28 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         );
         y += 24.0;
     }
+    if !sm.payoff.is_empty() {
+        hline(c.x, c.right(), y + 2.0, t.divider);
+        y += 8.0;
+        ui.fonts.draw(
+            &loc.tr("purchases.summary.title").to_uppercase(),
+            c.x,
+            y + 12.0,
+            &t.micro(),
+        );
+        y += 18.0;
+        for l in &sm.payoff {
+            draw_icon(Icon::Sparkle, vec2(c.x + 7.0, y + 8.0), 11.0, t.amber);
+            ui.fonts.draw_fit(
+                &payoff_text(&loc, l),
+                Rect::new(c.x + 18.0, y, c.w - 18.0, 16.0),
+                &t.small().color(t.text),
+                Align::Left,
+                0.8,
+            );
+            y += 18.0;
+        }
+    }
     // a warm closing line
     let mood = if sm.avg_satisfaction >= 70.0 {
         "ui.summary.mood_good"
@@ -550,4 +578,25 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         super::walk_home::begin(g, cx.content, None);
     }
     let _ = wv::clock_of_minute(0);
+}
+
+/// One "What the café gave you tonight" line in words: `@key` args are translated (piece and
+/// level names), `money` is formatted.
+pub fn payoff_text(loc: &crate::settings::Locale, l: &sim::purchases::PayoffLine) -> String {
+    let args: Vec<(String, String)> = l
+        .args
+        .iter()
+        .map(|(k, v)| {
+            let v = if let Some(key) = v.strip_prefix('@') {
+                loc.tr_owned(key)
+            } else if k == "money" {
+                format_money(loc.lang, v.parse().unwrap_or(0))
+            } else {
+                v.clone()
+            };
+            (k.clone(), v)
+        })
+        .collect();
+    let refs: Vec<(&str, &str)> = args.iter().map(|(k, v)| (k.as_str(), v.as_str())).collect();
+    loc.trf(&l.key, &refs)
 }

@@ -79,6 +79,10 @@
          when: [RecipeKnown("r_signature")], kind: Drink, weight: 0.45),
         (id: "lori.house_special", any: true, who: ["lori"], favourite: ["r_signature"],
          when: [RecipeKnown("r_signature")], kind: Drink, weight: 0.45),
+        // --- a hall that feels like home (purchases: the top coziness tier asks for these) ------
+        (id: "mirek.like_home", want: [Warm, Comforting], who: ["mirek"], when: [CozinessAtLeast(85.0)], weight: 0.6),
+        (id: "hana.like_home", want: [Warm, Mild, Comforting], avoid: [Quick], who: ["hana"], when: [CozinessAtLeast(85.0)], weight: 0.6),
+        (id: "vera.like_home", want: [Sweet, Comforting], who: ["vera"], when: [CozinessAtLeast(85.0)], weight: 0.6),
         // --- the 3:33 guest and the quiet guy with the laptop ---------------------------------------
         (id: "guest_333.two_sugars", want: [Warm, Sweet, Mild], who: ["guest_333"],
          favourite: ["r_rn333_tea"], favourite_items: ["lemon_tea"]),

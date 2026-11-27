@@ -55,7 +55,11 @@ pub(crate) fn default_duties(content: &Content, archetype: &str) -> Vec<Duty> {
     });
     // a second duty that always has something to do, so a new helper never just stands
     // there (capacity starts at 2): the dishes, or the floor for whoever already washes up
-    let second = if d == Duty::Dishes { Duty::Floor } else { Duty::Dishes };
+    let second = if d == Duty::Dishes {
+        Duty::Floor
+    } else {
+        Duty::Dishes
+    };
     vec![d, second]
 }
 

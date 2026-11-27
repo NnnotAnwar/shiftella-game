@@ -12,9 +12,7 @@ use super::{Ctx, GameScreen, Panel};
 use crate::map::TILE;
 use crate::ui::draw::{fill_rrect, line, stroke_rrect, with_a};
 use crate::ui::handson::PolaroidView;
-use crate::ui::{
-    Align, Glass, Icon, IconButton, RectExt, TextStyle, ToastKind, Ui, Weight,
-};
+use crate::ui::{Align, Glass, Icon, IconButton, RectExt, TextStyle, ToastKind, Ui, Weight};
 use sim::{NightPhoto, Phase, signature};
 
 /// The viewfinder: what the camera looked at before it was raised.
@@ -505,9 +503,16 @@ mod tests {
         g.hands.moment = None;
         g.hands.book = None;
         g.panel = None;
-        assert!(can_open(&g), "phase {:?} cut {} sum {} walk {} pause {} overlay {}",
-            g.world.phase(), g.player.is_playing(), g.summary.is_some(), g.walk.is_open(),
-            g.pause.is_some(), g.hands.overlay());
+        assert!(
+            can_open(&g),
+            "phase {:?} cut {} sum {} walk {} pause {} overlay {}",
+            g.world.phase(),
+            g.player.is_playing(),
+            g.summary.is_some(),
+            g.walk.is_open(),
+            g.pause.is_some(),
+            g.hands.overlay()
+        );
         let before = (g.cam.center, g.cam.zoom);
         open(&mut g, &loc);
         assert!(g.photo.is_open());
@@ -527,12 +532,24 @@ mod tests {
             let half = fr.w / g.cam.zoom / 2.0;
             assert!(framed.x - half >= b.x - 0.5 && framed.x + half <= b.right() + 0.5);
             // and it really reaches that end, not just a few tiles from the start
-            let end = if dx < 0.0 { b.x + half } else { b.right() - half };
-            assert!((framed.x - end).abs() < 1.0, "reaches the {} end", if dx < 0.0 { "left" } else { "right" });
+            let end = if dx < 0.0 {
+                b.x + half
+            } else {
+                b.right() - half
+            };
+            assert!(
+                (framed.x - end).abs() < 1.0,
+                "reaches the {} end",
+                if dx < 0.0 { "left" } else { "right" }
+            );
         }
         close(&mut g);
         assert!(!g.photo.is_open() && !g.frozen());
-        assert_eq!((g.cam.center, g.cam.zoom), before, "back where she was looking");
+        assert_eq!(
+            (g.cam.center, g.cam.zoom),
+            before,
+            "back where she was looking"
+        );
         // the film runs out; then the camera only says so
         for _ in 0..r.per_night {
             let k = g.world.karolina().unwrap().pos;
@@ -548,8 +565,10 @@ mod tests {
         g.notices.clear();
         open(&mut g, &loc);
         assert!(!g.photo.is_open());
-        assert!(g.notices.iter().any(|n| matches!(n,
-            crate::screens::game::Notice::Toast { title, .. } if title == loc.tr("photo.no_film"))));
+        assert!(
+            g.notices.iter().any(|n| matches!(n,
+            crate::screens::game::Notice::Toast { title, .. } if title == loc.tr("photo.no_film")))
+        );
         // captions and keys are stable per photo
         let p = &g.world.photos()[0];
         assert_eq!(photo_key(p), photo_key(&p.clone()));

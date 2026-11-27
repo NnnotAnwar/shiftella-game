@@ -196,6 +196,7 @@ impl PlayerBot {
             build_for_regulars(w, content);
             if !self.cfg.thrifty {
                 build_extras(w, content);
+                build_for_guests(w, content);
             }
         }
         let _ = w.apply(content, Command::PublishSchedule);
@@ -1393,6 +1394,176 @@ pub fn build_extras(w: &mut World, content: &Content) {
     {
         let _ = w.apply(content, Command::BuyAtticPiece { id: o.id.clone() });
     }
+}
+
+/// Purchases that matter: an attentive player furnishes the café a step at a time (one piece
+/// a day, the first on the list that fits the budget) — tables with chairs, a window seat, a
+/// grinder and a dish rack, a sofa and a second coffee machine once a helper is behind the
+/// bar, plants and lamps, armchairs, a big table, the oven — never touching the money for the
+/// debt payments of the next seven nights (and a cushion on top).
+pub fn build_for_guests(w: &mut World, content: &Content) {
+    let due: i64 = if w.mode() == Mode::Story {
+        (w.night()..w.night() + 7)
+            .filter_map(|n| content.story.payment_on(n))
+            .map(|p| p.amount)
+            .sum::<i64>()
+            .min(w.debt().max(0))
+    } else {
+        0
+    };
+    let classic = w.difficulty() == Difficulty::Classic;
+    let cushion = if classic { 8_000 } else { 2_500 };
+    let count = |w: &World, def: &str| w.furniture().iter().filter(|p| p.def == def).count();
+    let helpers = w.staff().iter().filter(|s| !s.owner).count();
+    // (from night, def, how many in all, where)
+    #[derive(PartialEq)]
+    enum At {
+        Hall,
+        Table,
+        Group,
+        Bar,
+    }
+    let plan: &[(u32, &str, usize, At)] = &[
+        (2, "table_round", 9, At::Table),
+        (3, "window_seat", 1, At::Hall),
+        (3, "plant_small", 2, At::Hall),
+        (4, "table_round", 10, At::Table),
+        (4, "espresso_grinder", 1, At::Bar),
+        (4, "dish_rack", 1, At::Bar),
+        (5, "sofa", 1, At::Hall),
+        (5, "coffee_machine", 2, At::Bar),
+        (6, "table_round", 11, At::Table),
+        (6, "floor_lamp", 2, At::Hall),
+        (7, "plant_small", 4, At::Hall),
+        (8, "armchair", 2, At::Hall),
+        (9, "table_round", 12, At::Table),
+        (10, "table_square", 1, At::Group),
+        (12, "oven", 1, At::Bar),
+        (14, "sofa", 2, At::Hall),
+        (16, "window_seat", 2, At::Hall),
+    ];
+    for &(from, def, total, ref at) in plan {
+        if w.night() < from || count(w, def) >= total {
+            continue;
+        }
+        if def == "coffee_machine" && helpers == 0 {
+            continue;
+        }
+        let Some(d) = content.furniture_def(def) else {
+            continue;
+        };
+        let extra = match at {
+            At::Group => 4 * 450,
+            At::Table => 2 * 450,
+            _ => 0,
+        };
+        if w.money() - due < d.price as i64 + extra + cushion {
+            // not yet: the next thing on the list may fit
+            continue;
+        }
+        let placed = match at {
+            At::Hall => place_group(w, content, def, false),
+            At::Table => place_group(w, content, def, true),
+            At::Group => place_table_of_four(w, content, def),
+            At::Bar => place_behind_bar(w, content, def),
+        };
+        if !placed {
+            continue;
+        }
+        // one purchase a day keeps the till calm
+        return;
+    }
+}
+
+/// A 2×2 table with a chair on each side, on a free hall spot with a free ring around it.
+fn place_table_of_four(w: &mut World, content: &Content, def: &str) -> bool {
+    let (gw, gh) = (w.grid().width, w.grid().height);
+    let free = |w: &World, x: i32, y: i32| {
+        w.grid().is_indoor_floor(x, y)
+            && w.grid().object_at(x, y).is_none()
+            && w.grid()
+                .tile(x, y)
+                .is_some_and(|t| t.kind == grid::TileKind::Floor && t.room == grid::Room::Hall)
+    };
+    for y in 3..gh - 4 {
+        for x in 3..gw - 4 {
+            let ok = (y - 2..=y + 3).all(|ty| (x - 2..=x + 3).all(|tx| free(w, tx, ty)));
+            if !ok {
+                continue;
+            }
+            let place = |w: &mut World, def: &str, x: i32, y: i32, rot: u8| {
+                w.apply(
+                    content,
+                    Command::PlaceFurniture {
+                        def: def.to_string(),
+                        x,
+                        y,
+                        rot,
+                    },
+                )
+                .is_ok()
+            };
+            if !place(w, def, x, y, 0) {
+                continue;
+            }
+            for (cx, cy, rot) in [
+                (x - 1, y, 3),
+                (x + 2, y, 1),
+                (x - 1, y + 1, 3),
+                (x + 2, y + 1, 1),
+            ] {
+                let _ = place(w, "chair", cx, cy, rot);
+            }
+            return true;
+        }
+    }
+    false
+}
+
+/// An appliance on the staff floor of the bar / kitchen (the back row by the machines), where
+/// it can be reached; undone when nobody could stand at it.
+fn place_behind_bar(w: &mut World, content: &Content, def: &str) -> bool {
+    let (gw, gh) = (w.grid().width, w.grid().height);
+    for y in (10..gh - 2).rev() {
+        for x in 16..gw - 1 {
+            let staff_floor = w.grid().tile(x, y).is_some_and(|t| {
+                t.kind == grid::TileKind::Floor
+                    && matches!(t.room, grid::Room::Bar | grid::Room::Kitchen)
+            });
+            // keep the aisles: only the row with grandma's machines
+            let row_has_machines = (16..gw - 1).any(|tx| {
+                w.grid().object_at(tx, y).is_some_and(|u| {
+                    w.furniture_by_uid(u)
+                        .and_then(|p| content.furniture_def(&p.def))
+                        .is_some_and(|d| d.tags.iter().any(|t| t.starts_with("station:")))
+                })
+            });
+            if !staff_floor || !row_has_machines || w.grid().object_at(x, y).is_some() {
+                continue;
+            }
+            if w.apply(
+                content,
+                Command::PlaceFurniture {
+                    def: def.to_string(),
+                    x,
+                    y,
+                    rot: 2,
+                },
+            )
+            .is_err()
+            {
+                continue;
+            }
+            let uid = w.grid().object_at(x, y);
+            if uid.is_some_and(|u| super::staff::station_access(w, content, u).is_some()) {
+                return true;
+            }
+            if let Some(u) = uid {
+                let _ = w.apply(content, Command::RemoveFurniture { uid: u });
+            }
+        }
+    }
+    false
 }
 
 /// Places `def` on the first free hall spot (with chairs on both sides for a table), keeping a

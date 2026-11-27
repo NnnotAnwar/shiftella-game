@@ -646,7 +646,11 @@ fn every_road_to_the_last_train_and_its_variants() {
     w.econ.reputation = 10.0;
     w.story.flags.insert("arc.mirek.good".into());
     play_night(&mut w, &c);
-    assert_eq!(w.ending(), Some("light"), "one good story keeps the light on");
+    assert_eq!(
+        w.ending(),
+        Some("light"),
+        "one good story keeps the light on"
+    );
     // 2) Classic, two missed payments → closed; with three good stories → farewell
     for (good, variant) in [(0usize, "closed"), (3, "farewell")] {
         let mut w = World::new_story(&c, Difficulty::Classic);

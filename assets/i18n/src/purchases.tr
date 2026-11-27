@@ -1,0 +1,242 @@
+# Purchases that matter (sim::purchases): seats, comfort, coziness tiers, appliances, and the
+# morning's "What the café gave you tonight". Karolina is addressed in the second person
+# (feminine forms in cs/uk/ru). `{money}` arrives already formatted ("240 Kč").
+
+purchases.toast.no_seat
+cs Žádné volné místo — šli dál.
+en No free seat — they went on.
+uk Немає вільного місця — пішли далі.
+ru Нет свободного места — пошли дальше.
+
+# --- the morning summary -----------------------------------------------------------------------
+purchases.summary.title
+cs Co ti kavárna dnes dala
+en What the café gave you tonight
+uk Що кав'ярня дала тобі цієї ночі
+ru Что кафе дало тебе этой ночью
+
+purchases.line.seats
+cs Nová místa: {guests} hostů si mělo kam sednout, asi {drawn} přišlo navíc · {money}
+en New seats: {guests} guests found a place, about {drawn} more walked in · {money}
+uk Нові місця: {guests} гостей знайшли де сісти, ще близько {drawn} зайшли · {money}
+ru Новые места: {guests} гостей нашли где сесть, ещё около {drawn} зашли · {money}
+
+purchases.line.comfy
+cs {piece}: hosté zůstali o {min} min déle · +{money} spropitné
+en {piece}: guests stayed {min} min longer · +{money} tips
+uk {piece}: гості лишалися на {min} хв довше · +{money} чайових
+ru {piece}: гости оставались на {min} мин дольше · +{money} чаевых
+
+purchases.line.comfy_rounds
+cs {piece}: o {min} min déle, {rounds}× ještě jedna runda · +{money} spropitné
+en {piece}: {min} min longer, {rounds}× one more round · +{money} tips
+uk {piece}: на {min} хв довше, {rounds}× ще по одній · +{money} чайових
+ru {piece}: на {min} мин дольше, {rounds}× ещё по одной · +{money} чаевых
+
+purchases.line.hard_seat
+cs {piece}: hosté odcházeli o {min} min dřív
+en {piece}: guests left {min} min sooner
+uk {piece}: гості йшли на {min} хв раніше
+ru {piece}: гости уходили на {min} мин раньше
+
+purchases.line.parallel
+cs {piece}: {n} nápojů se připravovalo souběžně
+en {piece}: {n} drinks brewed side by side
+uk {piece}: {n} напоїв готувалися одночасно
+ru {piece}: {n} напитков готовились одновременно
+
+purchases.line.grinder
+cs {piece}: {n} rychlých nápojů chutnalo lépe
+en {piece}: {n} quick brews tasted better
+uk {piece}: {n} швидких напоїв смакували краще
+ru {piece}: {n} быстрых напитков вышли вкуснее
+
+purchases.line.washing
+cs {piece}: {n} kusů nádobí umytých rychleji
+en {piece}: {n} dishes washed faster
+uk {piece}: {n} одиниць посуду вимито швидше
+ru {piece}: {n} единиц посуды вымыто быстрее
+
+purchases.line.made
+cs {piece}: prodáno {n} · {money}
+en {piece}: {n} sold · {money}
+uk {piece}: продано {n} · {money}
+ru {piece}: продано {n} · {money}
+
+purchases.line.tier
+cs {level}: spropitné +{pct} % · +{money}
+en {level}: tips +{pct} % · +{money}
+uk {level}: чайові +{pct} % · +{money}
+ru {level}: чаевые +{pct} % · +{money}
+
+purchases.line.tier_rare
+cs {level}: spropitné +{pct} % · vzácní noční hosté: {n}
+en {level}: tips +{pct} % · rare night guests: {n}
+uk {level}: чайові +{pct} % · рідкісні нічні гості: {n}
+ru {level}: чаевые +{pct} % · редкие ночные гости: {n}
+
+purchases.line.no_seat
+cs Žádné volné místo: {n}× šli dál — víc míst by je udrželo
+en No free seat: {n}× they went on — more seats would keep them
+uk Не було місця: {n}× пішли далі — більше місць їх би втримало
+ru Не было места: {n}× ушли дальше — больше мест их бы удержало
+
+# --- the atmosphere meter: what the tier gives / the next one brings ---------------------------
+purchases.tier.now
+cs Teď: {perks}
+en Now: {perks}
+uk Зараз: {perks}
+ru Сейчас: {perks}
+
+purchases.tier.next
+cs Další: {level} od {at} — {perks}
+en Next: {level} at {at} — {perks}
+uk Далі: {level} від {at} — {perks}
+ru Дальше: {level} от {at} — {perks}
+
+purchases.tier.top
+cs Víc už to nejde — tady je jako doma.
+en The top of the meter — it's like home here.
+uk Вище нікуди — тут як удома.
+ru Выше некуда — здесь как дома.
+
+purchases.tier.none
+cs zatím nic navíc
+en nothing extra yet
+uk поки нічого понад
+ru пока ничего сверх
+
+purchases.perk.tips
+cs spropitné +{n} %
+en tips +{n} %
+uk чайові +{n} %
+ru чаевые +{n} %
+
+purchases.perk.stay
+cs delší návštěvy +{n} %
+en stays +{n} %
+uk довші візити +{n} %
+ru визиты дольше +{n} %
+
+purchases.perk.review
+cs recenze +{n} %
+en reviews +{n} %
+uk відгуки +{n} %
+ru отзывы +{n} %
+
+purchases.perk.round
+cs druhá runda +{n} %
+en second rounds +{n} %
+uk друга порція +{n} %
+ru второй заказ +{n} %
+
+purchases.perk.rare
+cs vzácní noční hosté
+en rare night guests
+uk рідкісні нічні гості
+ru редкие ночные гости
+
+purchases.perk.wishes
+cs zvláštní přání štamgastů
+en regulars' special wishes
+uk особливі побажання постійних гостей
+ru особые желания постоянных гостей
+
+# --- build cards: the expected effect ----------------------------------------------------------
+purchases.card.seats
+cs Míst v sále: {now} → {with} · asi +{n} hostů za noc
+en Seats in the hall: {now} → {with} · about +{n} guests a night
+uk Місць у залі: {now} → {with} · близько +{n} гостей за ніч
+ru Мест в зале: {now} → {with} · около +{n} гостей за ночь
+
+purchases.card.comfy
+cs Pohodlné: pobyt +{stay} %, spropitné +{tips} %, druhá runda {round} %
+en Comfy: stays +{stay} %, tips +{tips} %, a second round {round} %
+uk Зручно: візит +{stay} %, чайові +{tips} %, друга порція {round} %
+ru Удобно: визит +{stay} %, чаевые +{tips} %, второй заказ {round} %
+
+purchases.card.hard
+cs Tvrdé: hosté odejdou dřív a nechají o něco méně
+en Hard: guests leave sooner and tip a little less
+uk Тверде: гості підуть раніше й лишать трохи менше
+ru Жёстко: гости уйдут раньше и оставят чуть меньше
+
+purchases.card.parallel
+cs Druhý kus: dva nápoje najednou (ty a pomocník)
+en A second one: two at once (you and a helper)
+uk Ще один: два напої разом (ти й помічник)
+ru Ещё один: два напитка сразу (ты и помощник)
+
+purchases.card.parallel_first
+cs Bez něj se tu nic neuvaří
+en Nothing gets made here without one
+uk Без нього тут нічого не приготуєш
+ru Без него здесь ничего не приготовишь
+
+purchases.card.grinder
+cs Rychlé nápoje: kvalita +{n} %
+en Quick brews: quality +{n} %
+uk Швидкі напої: якість +{n} %
+ru Быстрые напитки: качество +{n} %
+
+purchases.card.washing
+cs Mytí nádobí: o {n} % rychleji
+en Washing up: {n} % faster
+uk Миття посуду: на {n} % швидше
+ru Мытьё посуды: на {n} % быстрее
+
+purchases.card.unlocks
+cs Přidá do menu: {items}
+en Puts on the menu: {items}
+uk Додає в меню: {items}
+ru Добавляет в меню: {items}
+
+purchases.card.no_more
+cs Těch už máš dost — další nic nepřidá
+en You have enough of these — another adds nothing
+uk Цих уже досить — ще один нічого не додасть
+ru Этих уже хватает — ещё один ничего не добавит
+
+purchases.card.cozy
+cs Atmosféra {value} ({level}) · {next}
+en Atmosphere {value} ({level}) · {next}
+uk Атмосфера {value} ({level}) · {next}
+ru Атмосфера {value} ({level}) · {next}
+
+purchases.card.cozy_next
+cs {level} od {at}: {perks}
+en {level} at {at}: {perks}
+uk {level} від {at}: {perks}
+ru {level} от {at}: {perks}
+
+# --- the guest's hover line --------------------------------------------------------------------
+purchases.guest.comfy
+cs pohodlně usazení — zůstanou déle
+en comfy seat — staying a while
+uk зручне місце — посидять довше
+ru удобное место — посидят подольше
+
+purchases.guest.hard
+cs tvrdá stolička — dlouho nevydrží
+en hard stool — won't stay long
+uk твердий стілець — довго не всидять
+ru жёсткий табурет — долго не усидят
+
+# --- regulars' wishes in a hall that feels like home (wishes.ron, CozinessAtLeast 85) ------------
+wish.mirek.like_home
+cs „Je tu teplo jako dřív u Lidy. Dej mi něco, u čeho se dá posedět.“
+en "It's warm in here like it used to be at Lida's. Give me something to sit with."
+uk «Тут тепло, як колись у Ліди. Дай щось, із чим можна посидіти.»
+ru «Тут тепло, как раньше у Лиды. Дай что-нибудь, с чем можно посидеть.»
+
+wish.hana.like_home
+cs „Dneska nikam nespěchám. Něco teplého a jemného, prosím.“
+en "I'm in no hurry tonight. Something warm and gentle, please."
+uk «Сьогодні я нікуди не поспішаю. Щось тепле й ніжне, будь ласка.»
+ru «Сегодня я никуда не спешу. Что-нибудь тёплое и мягкое, пожалуйста.»
+
+wish.vera.like_home
+cs „Takhle to tu vypadalo, když byla Lida mladá. Něco sladkého k tomu, děvče.“
+en "This is how it looked when Lida was young. Something sweet to go with it, dear."
+uk «Так тут було, коли Ліда була молодою. Щось солоденьке до цього, дитино.»
+ru «Так здесь было, когда Лида была молодой. Что-нибудь сладкое к этому, детка.»

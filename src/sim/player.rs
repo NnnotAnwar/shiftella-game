@@ -393,7 +393,9 @@ fn brew_quality(w: &World, content: &Content, recipe: &str, mode: BrewMode, q: f
                 .filter(|(_, u)| u.is_none_or(|u| u > m))
                 .map(|(a, _)| a)
                 .sum();
-            (base + add).clamp(0.0, 1.0)
+            // a better grind (purchases: the `grinder` tag)
+            let ground = super::purchases::quick_quality_bonus(w, content);
+            (base + add + ground).clamp(0.0, 1.0)
         }
     }
 }
@@ -430,6 +432,9 @@ pub(crate) fn brew(
     let me = me(w);
     let t = &content.handson.tuning;
     let q = brew_quality(w, content, recipe, mode, quality);
+    if mode == BrewMode::Quick {
+        super::purchases::note_ground(w, content);
+    }
     let leader = w.parties[pi].leader().unwrap_or(0);
     let party_id = w.parties[pi].id;
     let for_wish = w.parties[pi].wish_open
@@ -745,7 +750,12 @@ pub(crate) fn unqueue(w: &mut World, content: &Content, index: usize) -> Result<
 }
 
 /// `Command::PlayerWashProgress`: she must be standing at that sink.
-pub(crate) fn wash_progress(w: &mut World, sink: u32, seconds: f32) -> Result<(), CommandError> {
+pub(crate) fn wash_progress(
+    w: &mut World,
+    content: &Content,
+    sink: u32,
+    seconds: f32,
+) -> Result<(), CommandError> {
     let at_sink = w
         .hands
         .player
@@ -760,11 +770,14 @@ pub(crate) fn wash_progress(w: &mut World, sink: u32, seconds: f32) -> Result<()
     if !(seconds.is_finite() && seconds > 0.0) {
         return Err(CommandError::Invalid("seconds".into()));
     }
+    // a dish rack / a second sink: faster (purchases)
+    let mul = super::purchases::wash_mul(w, content);
     let p = &mut w.hands.player;
-    p.wash_bank += seconds.min(30.0) * WASH_PER_SECOND;
+    p.wash_bank += seconds.min(30.0) * WASH_PER_SECOND * mul;
     let n = (p.wash_bank.floor() as u32).min(w.sink_dishes);
     p.wash_bank -= n as f32;
     w.sink_dishes -= n;
+    super::purchases::note_washed(w, n, mul);
     if n > 0 {
         w.emit(SimEvent::Washed { dishes: n });
     }
@@ -1008,6 +1021,7 @@ fn enter_stage0(w: &mut World, content: &Content, idx: usize) -> bool {
                 && let Some(st) = staff::station_free(w, content, &mi.station, me(w))
             {
                 let me = me(w);
+                super::purchases::note_station_start(w, content, st);
                 if let Some(f) = w.furniture.iter_mut().find(|f| f.uid == st) {
                     f.user = Some(me);
                 }

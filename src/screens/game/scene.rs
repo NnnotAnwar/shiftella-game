@@ -206,7 +206,9 @@ impl WorldScene {
         // automation: `SHIFTELLA_TRAIN_P=0.4` freezes a passing train at that point
         static TRAIN_P: std::sync::OnceLock<Option<f32>> = std::sync::OnceLock::new();
         if let Some(p) = *TRAIN_P.get_or_init(|| {
-            std::env::var("SHIFTELLA_TRAIN_P").ok().and_then(|v| v.parse().ok())
+            std::env::var("SHIFTELLA_TRAIN_P")
+                .ok()
+                .and_then(|v| v.parse().ok())
         }) {
             self.train = Some(p);
             return;
@@ -1075,9 +1077,15 @@ mod bar_light_tests {
     fn bar_pendants_are_spread_over_the_counter_and_stay_on_it() {
         let cols = bar_pendant_columns(10.0 * TILE, 21.0 * TILE);
         assert!(cols.len() >= 3 && cols.len() <= 6, "{cols:?}");
-        assert!(cols.windows(2).all(|w| w[1] - w[0] >= 2.0 * TILE), "{cols:?}");
+        assert!(
+            cols.windows(2).all(|w| w[1] - w[0] >= 2.0 * TILE),
+            "{cols:?}"
+        );
         assert!(cols.iter().all(|x| *x >= 10.0 * TILE && *x < 21.0 * TILE));
-        assert_eq!(bar_pendant_columns(4.0 * TILE, 5.0 * TILE), vec![4.0 * TILE]);
+        assert_eq!(
+            bar_pendant_columns(4.0 * TILE, 5.0 * TILE),
+            vec![4.0 * TILE]
+        );
     }
 
     #[test]

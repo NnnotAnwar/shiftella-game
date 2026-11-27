@@ -2,7 +2,7 @@
 //!
 //! ```text
 //! cargo run --release --example sim_headless -- [nights] [story|sandbox] [cozy|classic] [seed]
-//!     [--player-bot [quality] [react_seconds]]
+//!     [--player-bot [quality] [react_seconds]] [--no-build]
 //! ```
 //! Without `--player-bot` nobody works behind the counter: Karolina "steps back" (the helpers
 //! do their duties, guests wait and — on Cozy — forgive). With it, `sim::bot::PlayerBot` plays:
@@ -18,6 +18,9 @@ use shiftella_game::sim::{Difficulty, Phase, SandboxSetup, World};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
+    // `--no-build`: the bot never buys anything (purchases balance: compare with the default)
+    let no_build = args.iter().any(|a| a == "--no-build");
+    let args: Vec<String> = args.into_iter().filter(|a| a != "--no-build").collect();
     let bot_at = args.iter().position(|a| a == "--player-bot");
     let pos: Vec<&String> = args
         .iter()
@@ -56,6 +59,7 @@ fn main() {
                 vec![3, 5, 9]
             },
             seed,
+            build: !no_build,
             ..Default::default()
         })
     });
@@ -78,6 +82,8 @@ fn main() {
     let stress = std::env::var("SIM_STRESS").is_ok();
     let mut total_ticks = 0u64;
     let mut total_time = 0f64;
+    let mut earned = 0i64;
+    let mut payoff: std::collections::BTreeMap<String, u32> = Default::default();
     for _ in 0..nights {
         if world.is_closed() {
             break;
@@ -113,6 +119,10 @@ fn main() {
         total_ticks += ticks;
         total_time += dt;
         if let Some(s) = world.last_summary() {
+            earned += s.revenue + s.tips;
+            for l in &s.payoff {
+                *payoff.entry(l.key.clone()).or_insert(0) += 1;
+            }
             // idle share of the night minutes outside the quiet hour (420)
             let idle = s.karolina_idle_minutes as f32 / 420.0 * 100.0;
             println!(
@@ -141,6 +151,19 @@ fn main() {
             );
         }
     }
+    println!(
+        "earned (revenue + tips): {earned} · pieces {} {:?} · hall seats {} · payoff lines {:?}",
+        world.furniture().len(),
+        {
+            let mut m: std::collections::BTreeMap<&str, u32> = Default::default();
+            for p in world.furniture() {
+                *m.entry(p.def.as_str()).or_default() += 1;
+            }
+            m
+        },
+        world.hall_seats(&content),
+        payoff
+    );
     if let Some(e) = world.ending() {
         println!("ending: {e} ({:?})", world.ending_variant());
     }

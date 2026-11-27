@@ -24,6 +24,10 @@ pub struct AtmosphereView {
     pub components: Vec<(String, f32)>,
     /// One tip for the weakest component.
     pub tip: Option<String>,
+    /// What the current tier gives and what the next one brings (one line each; may be empty).
+    pub tiers: Vec<String>,
+    /// The four thresholds between the five levels (0–100); empty = even steps of 20.
+    pub bounds: Vec<f32>,
 }
 
 /// Natural size of the HUD pill.
@@ -67,7 +71,18 @@ pub fn atmosphere_meter(
     let pip_w = (r.right() - tx - 14.0 - 4.0 * 3.0) / 5.0;
     for i in 0..5 {
         let pr = Rect::new(tx + i as f32 * (pip_w + 3.0), r.bottom() - 11.0, pip_w, 4.0);
-        let fill = ((v.value / 20.0) - i as f32).clamp(0.0, 1.0);
+        // each pip spans its level's own range (the thresholds are what the meter shows)
+        let lo = if i == 0 {
+            0.0
+        } else {
+            v.bounds.get(i - 1).copied().unwrap_or(i as f32 * 20.0)
+        };
+        let hi = v.bounds.get(i).copied().unwrap_or(if v.bounds.is_empty() {
+            (i + 1) as f32 * 20.0
+        } else {
+            100.0
+        });
+        let fill = ((v.value - lo) / (hi - lo).max(1.0)).clamp(0.0, 1.0);
         fill_rrect(pr, 2.0, Color::new(1.0, 1.0, 1.0, 0.09));
         if fill > 0.0 {
             let f = pr.with_w((pr.w * fill).max(pr.h));
@@ -88,7 +103,13 @@ pub fn atmosphere_meter(
         let tip_h = v.tip.as_ref().map_or(0.0, |tip| {
             ui.fonts.wrapped_height(tip, w - 46.0, &t.small(), Some(3)) + 14.0
         });
-        let h = 38.0 + v.components.len() as f32 * 20.0 + tip_h + 8.0;
+        let tier_h: f32 = v
+            .tiers
+            .iter()
+            .map(|l| ui.fonts.wrapped_height(l, w - 24.0, &t.small(), Some(3)) + 3.0)
+            .sum::<f32>()
+            + if v.tiers.is_empty() { 0.0 } else { 6.0 };
+        let h = 38.0 + v.components.len() as f32 * 20.0 + tier_h + tip_h + 8.0;
         let above = r.y - h - 8.0 >= 8.0;
         let py = if above {
             r.y - h - 8.0
@@ -128,6 +149,21 @@ pub fn atmosphere_meter(
             let bar = Rect::new(inner.x + 90.0, y + 6.0, inner.w - 90.0, 5.0);
             ui.progress(bar, *f, if weak { t.amber_deep } else { t.indigo_400 });
             y += 20.0;
+        }
+        if !v.tiers.is_empty() {
+            y += 4.0;
+            for (i, l) in v.tiers.iter().enumerate() {
+                let lh = ui.fonts.wrapped_height(l, inner.w, &t.small(), Some(3));
+                ui.fonts.draw_wrapped(
+                    l,
+                    Rect::new(inner.x, y, inner.w, lh + 2.0),
+                    &t.small().color(if i == 0 { t.text } else { t.amber }),
+                    Align::Left,
+                    Some(3),
+                );
+                y += lh + 3.0;
+            }
+            y += 2.0;
         }
         if let Some(tip) = &v.tip {
             let tr = Rect::new(inner.x, y + 4.0, inner.w, tip_h - 6.0);

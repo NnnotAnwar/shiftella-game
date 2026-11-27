@@ -29,6 +29,7 @@ mod panels;
 mod pause;
 mod phone_app;
 mod photo_mode;
+mod purchases_ui;
 pub mod scene;
 mod scene_fx;
 pub mod signature_ui;
@@ -55,7 +56,9 @@ use crate::content::Content;
 use crate::cutscene::{CutscenePlayer, CutsceneStatus};
 use crate::save::{SaveFile, SaveMeta, SaveStore, SessionExtra, Slot};
 use crate::settings::{Locale, Settings};
-use crate::ui::{Align, Button, Glass, Icon, Toast, ToastAnchor, ToastId, ToastKind, Ui, draw_icon};
+use crate::ui::{
+    Align, Button, Glass, Icon, Toast, ToastAnchor, ToastId, ToastKind, Ui, draw_icon,
+};
 use scene::{Pick, WorldScene};
 use sim::{AgentRef, Command, NightSummary, Phase, SimEvent, World};
 use world_view::{self as wv, sim};
@@ -479,17 +482,30 @@ impl GameScreen {
         let r = Rect::new((s.w - w) / 2.0, s.h - 64.0 - h - 8.0, w, h);
         ui.glass(r, &Glass::panel());
         draw_icon(card.icon, vec2(r.x + 22.0, r.y + 22.0), 14.0, t.amber);
-        ui.fonts
-            .draw(&card.title, r.x + 36.0, r.y + 27.0, &t.strong().color(t.text));
+        ui.fonts.draw(
+            &card.title,
+            r.x + 36.0,
+            r.y + 27.0,
+            &t.strong().color(t.text),
+        );
         ui.fonts.draw_wrapped(
             &card.text,
-            Rect::new(r.x + 20.0, r.y + 40.0, w - 40.0, lines * body.line_h() + 4.0),
+            Rect::new(
+                r.x + 20.0,
+                r.y + 40.0,
+                w - 40.0,
+                lines * body.line_h() + 4.0,
+            ),
             &body,
             Align::Left,
             None,
         );
         let more = self.reading.len() > 1;
-        let label = loc.tr(if more { "ui.read.next" } else { "ui.read.continue" });
+        let label = loc.tr(if more {
+            "ui.read.next"
+        } else {
+            "ui.read.continue"
+        });
         let b = Button::new(label).primary().shortcut("Enter");
         let bw = ui.button_width(&b);
         let br = Rect::new(r.right() - bw - 14.0, r.bottom() - 38.0, bw, 28.0);
@@ -689,14 +705,19 @@ impl GameScreen {
             .filter(|a| !a.gone && !a.exit_on_arrive && content.regular(&a.id).is_some())
             .map(|a| {
                 let t = crate::map::TILE;
-                (a.id.clone(), ((a.pos.x / t).floor() as i32, (a.pos.y / t).floor() as i32))
+                (
+                    a.id.clone(),
+                    ((a.pos.x / t).floor() as i32, (a.pos.y / t).floor() as i32),
+                )
             })
             .collect();
         let _ = self
             .world
             .apply(content, Command::CutsceneFinished { id, choices });
         for (regular, tile) in handoff {
-            let _ = self.world.apply(content, Command::SceneHandoff { regular, tile });
+            let _ = self
+                .world
+                .apply(content, Command::SceneHandoff { regular, tile });
         }
         self.drain_and_handle(content, None);
         // the next queued scene may already be waiting
@@ -1170,7 +1191,11 @@ impl GameScreen {
         // the storm night: the wind round the café, a little louder once the line is closed
         let storm = self.world.storm();
         if storm.tonight {
-            let level = if storm.cancelled_at.is_some() { 0.6 } else { 0.4 };
+            let level = if storm.cancelled_at.is_some() {
+                0.6
+            } else {
+                0.4
+            };
             audio.want_amb(AmbLoop::Storm, level);
         }
     }

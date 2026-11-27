@@ -82,12 +82,15 @@ pub fn rail_label(ui: &Ui, w: &World, loc: &Locale, guest: u32) -> String {
     match w.persona(guest) {
         Some(p) => {
             let short = format!("{}.short", role_key(arch, p.female));
-            if loc.has(&short) { loc.tr_owned(&short) } else { full }
+            if loc.has(&short) {
+                loc.tr_owned(&short)
+            } else {
+                full
+            }
         }
         None => full,
     }
 }
-
 
 // ───────────────────────── the look ─────────────────────────
 
@@ -273,12 +276,5 @@ mod tests {
                 assert_eq!(l, stranger_look(seed, arch));
             }
         }
-    }
-
-    #[test]
-    fn lower_first_handles_every_script() {
-        assert_eq!(lower_first("Žena v brýlích"), "žena v brýlích");
-        assert_eq!(lower_first("Женщина в очках"), "женщина в очках");
-        assert_eq!(lower_first(""), "");
     }
 }

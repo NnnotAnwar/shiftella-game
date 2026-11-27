@@ -1543,6 +1543,8 @@ pub fn atmosphere(l: Lang, value: f32) -> AtmosphereView {
                 "Посуда копится.",
             ],
         )),
+        tiers: Vec::new(),
+        bounds: Vec::new(),
     }
 }
 

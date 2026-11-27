@@ -33,6 +33,7 @@ mod narrator;
 mod orders;
 mod pacing;
 mod player;
+pub mod purchases;
 pub mod rng;
 mod rozpis;
 pub mod signature;
@@ -50,6 +51,8 @@ mod xlogic;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod tests_access;
+#[cfg(test)]
 mod tests_balance;
 #[cfg(test)]
 mod tests_build;
@@ -66,6 +69,8 @@ mod tests_polish;
 #[cfg(test)]
 mod tests_prep;
 #[cfg(test)]
+mod tests_purchases;
+#[cfg(test)]
 mod tests_qa;
 #[cfg(test)]
 mod tests_signature;
@@ -77,8 +82,6 @@ mod tests_sys;
 mod tests_t10;
 #[cfg(test)]
 mod tests_walk;
-#[cfg(test)]
-mod tests_access;
 
 pub use app::digest_lines;
 pub use attic::{AtticOffer, AtticView};

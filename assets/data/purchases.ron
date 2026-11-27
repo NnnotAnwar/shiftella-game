@@ -1,0 +1,60 @@
+// What buying things gives (package `purchases`, `sim::purchases`). Compiled into the sim
+// (`include_str!`), parsed once. Every effect hangs on a furniture *tag* or a number from
+// `furniture.ron` (seats, comfort), never on a piece id. Grandma's café is the neutral point:
+// a player who never builds plays exactly the old numbers.
+#![enable(implicit_some)]
+(
+    seats: (
+        // hall seats in grandma's café: walk-ins × 1.0 here
+        base: 16,
+        // walk-ins × (hall seats / base) ^ exponent, clamped — more seats, more guests, with
+        // diminishing returns (24 seats ≈ ×1.38, 32 ≈ ×1.6)
+        exponent: 0.8,
+        min_draw: 0.7,
+        max_draw: 1.6,
+        // "No free seat — they went on": at most one toast per this many minutes
+        toast_gap: 40,
+    ),
+    // A party's mean seat comfort → their stay ×, tips ×, the chance of a second round and a
+    // satisfaction add once served. Linear between the points; chairs (2) are neutral.
+    comfort: [
+        (at: 1.0, stay: 0.85, tips: 0.92, round: 0.0, satisfaction: -3.0),
+        (at: 2.0, stay: 1.0, tips: 1.0, round: 0.0, satisfaction: 0.0),
+        (at: 4.5, stay: 1.25, tips: 1.1, round: 0.4, satisfaction: 3.0),
+        (at: 7.0, stay: 1.4, tips: 1.18, round: 0.55, satisfaction: 5.0),
+    ],
+    // the hover card: "comfy" from this comfort, "hard" below that
+    comfy_at: 4.0,
+    hard_below: 1.5,
+    // a second round: they stay this many more minutes once it is served; none after 05:00
+    round_stay: (8, 16),
+    round_until: 420,
+    // Coziness tiers = the meter's five levels (decor.ron `levels`: 30 / 50 / 70 / 85;
+    // grandma's own hall ≈ 64, Pleasant).
+    // Fractions are added on top of the smooth coziness effects; `rare` adds arrival weight
+    // to an archetype; `wishes` = regulars may ask for the tier's special wishes (wishes.ron
+    // `CozinessAtLeast`).
+    tiers: [
+        (level: 1),
+        (level: 2),
+        (level: 3, tips: 0.03),
+        (level: 4, tips: 0.08, stay: 0.1, review: 0.15),
+        (level: 5, tips: 0.14, stay: 0.2, review: 0.3, round: 0.08,
+         rare: [("night_wanderer", 0.6)], wishes: true),
+    ],
+    // Appliance roles by tag. `free` = pieces grandma's café already has (the effect counts
+    // the ones beyond), `max` = extra pieces that still add.
+    appliances: [
+        // two drinks brew at once (Karolina and a barista, or her quick brew on the free one)
+        (tag: "station:coffee", role: Parallel, free: 1, max: 2),
+        (tag: "station:stove", role: Parallel, free: 1, max: 1),
+        // a better grind: quick brews (and helpers' bar items) taste better
+        (tag: "grinder", role: QuickQuality(0.08), free: 0, max: 1),
+        // a dish rack / a second sink: washing goes faster
+        (tag: "dishes", role: Washing(0.4), free: 1, max: 2),
+        // the oven: cakes are on the menu at all
+        (tag: "station:oven", role: Unlocks, free: 0, max: 1),
+    ],
+    // lines in the morning's "What the café gave you tonight"
+    summary_max: 5,
+)

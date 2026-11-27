@@ -558,7 +558,6 @@ pub fn guest_line(g: &GameScreen, content: &Content, guest: u32, loc: &Locale) -
     let Some(p) = w.parties().iter().find(|p| p.id == gs.party) else {
         return String::new();
     };
-    let _ = content;
     let name = super::guest_label::party_label(w, loc, guest);
     use sim::PartyState as S;
     let state = match p.state {
@@ -572,12 +571,17 @@ pub fn guest_line(g: &GameScreen, content: &Content, guest: u32, loc: &Locale) -
             loc.trf("ui.guest.wants", &[("item", &wish)])
         }
         S::Eating => {
-            if p.satisfaction >= 70.0 {
+            let mood = if p.satisfaction >= 70.0 {
                 loc.tr_owned("ui.guest.happy")
             } else if p.satisfaction >= 40.0 {
                 loc.tr_owned("ui.guest.content")
             } else {
                 loc.tr_owned("ui.guest.unhappy")
+            };
+            // a sofa or a stool shows (purchases)
+            match super::purchases_ui::seat_line(w, content, loc, guest) {
+                Some(seat) => format!("{mood} · {seat}"),
+                None => mood,
             }
         }
         S::Arriving | S::Leaving => String::new(),

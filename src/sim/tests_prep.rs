@@ -337,15 +337,28 @@ fn mirek_comes_in_once_on_night_one_and_his_scene_plays_as_he_arrives() {
             }
             bot::finish_cutscenes(&mut w, &c);
             w.drain_events();
-            for p in w.parties.iter().filter(|p| p.regular.as_deref() == Some("mirek")) {
+            for p in w
+                .parties
+                .iter()
+                .filter(|p| p.regular.as_deref() == Some("mirek"))
+            {
                 mirek_parties.insert(p.id);
             }
             guard += 1;
         }
-        let at = scene_at.unwrap_or_else(|| panic!("mirek_first never played (tutorial_off {tutorial_off})"));
+        let at = scene_at
+            .unwrap_or_else(|| panic!("mirek_first never played (tutorial_off {tutorial_off})"));
         // with the tutorial he is the first guest at 22:04, without it he comes at 23:00
         let when = if tutorial_off { 59..=61 } else { 3..=6 };
-        assert!(when.contains(&at), "scene at {at} (tutorial_off {tutorial_off})");
-        assert_eq!(mirek_parties.len(), 1, "Mirek came in {} times by 01:00", mirek_parties.len());
+        assert!(
+            when.contains(&at),
+            "scene at {at} (tutorial_off {tutorial_off})"
+        );
+        assert_eq!(
+            mirek_parties.len(),
+            1,
+            "Mirek came in {} times by 01:00",
+            mirek_parties.len()
+        );
     }
 }

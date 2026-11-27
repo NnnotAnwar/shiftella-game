@@ -287,6 +287,9 @@ pub struct NightSummary {
     pub experiments: u32,
     #[serde(default)]
     pub napkins: u32,
+    /// Purchases: "What the café gave you tonight" (`sim::purchases`, ≤ `summary_max` lines).
+    #[serde(default)]
+    pub payoff: Vec<super::purchases::PayoffLine>,
 }
 
 /// What an experiment in the pantry gave (handson.md §4.4); keys from `experiment.*`.

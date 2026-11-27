@@ -356,6 +356,27 @@ fn choose_seats(
             }
         }
     }
+    // A free sofa / window seat / armchair of its own (a piece without a table, every seat
+    // free): competes with the tables by comfort — grandma's café has none, so it plays as
+    // before (purchases).
+    let mut pieces: Vec<u32> = free
+        .iter()
+        .filter(|s| s.table.is_none())
+        .map(|s| s.uid)
+        .collect();
+    pieces.sort();
+    pieces.dedup();
+    for uid in pieces {
+        let at: Vec<&SeatInfo> = free.iter().filter(|s| s.uid == uid).copied().collect();
+        let total_at = all.iter().filter(|s| s.uid == uid).count();
+        if at.len() < n || at.len() < total_at {
+            continue;
+        }
+        let sc: f32 = at.iter().take(n).map(|s| score(s)).sum::<f32>() / n as f32;
+        if best.as_ref().is_none_or(|b| sc > b.0) {
+            best = Some((sc, at.into_iter().take(n).collect()));
+        }
+    }
     if best.is_none() {
         // Seats near each other (sofas, window seats, two tables).
         let first = free
@@ -546,7 +567,11 @@ fn pick_wishes(
             .filter(|m| favourites.contains(&m.id))
             .copied()
             .collect();
-        let src = if fav_side.is_empty() { &side } else { &fav_side };
+        let src = if fav_side.is_empty() {
+            &side
+        } else {
+            &fav_side
+        };
         if let Some(m) = w.rng.pick(src) {
             out.push(m.id.clone());
         }
@@ -688,13 +713,21 @@ pub(crate) fn spawn_party(
         music_reacted: false,
         archetype_music_done: false,
         napkin: None,
+        extra_seat: false,
+        rounds: 0,
     };
     let prefer = reg.and_then(|r| r.seat.clone());
-    let seats_pick = if party.wishes.is_empty() && !wish_party {
+    let nothing_to_order = party.wishes.is_empty() && !wish_party;
+    let seats_pick = if nothing_to_order {
         None
     } else {
         choose_seats(w, content, size as usize, prefer.as_deref(), regular)
     };
+    // purchases: room only on a piece the player bought (grandma's seats were full)
+    if let Some(list) = &seats_pick {
+        party.extra_seat = list.iter().any(|s| super::purchases::bought(content, s.0))
+            && !super::purchases::grandma_has_room(w, content, size as usize);
+    }
     // record regular visit
     if let Some(r) = reg {
         let seat_free = prefer.as_ref().is_none_or(|tag| {
@@ -763,6 +796,9 @@ pub(crate) fn spawn_party(
             }
             party.state = PartyState::Leaving;
             w.tonight.guests_turned_away += size;
+            if !nothing_to_order {
+                super::purchases::on_no_seat(w);
+            }
             if !party.wishes.is_empty() {
                 w.econ.reputation = (w.econ.reputation - 0.05 * size as f32).max(0.0);
             }
@@ -828,6 +864,7 @@ pub(crate) fn spawn_party(
                 regular: reg_id.clone(),
             });
             w.hands.tally.parties += 1;
+            super::purchases::on_arrived(w, archetype);
             super::pacing::note_arrival(w, content);
             super::tool::note_arrival_hour(w);
             if let Some(r) = reg_id {
@@ -933,7 +970,12 @@ pub(crate) fn scene_handoff(w: &mut World, regular: &str, tile: (i32, i32)) {
     else {
         return;
     };
-    let Some(leader) = w.parties.iter().find(|p| p.id == pid).and_then(|p| p.leader()) else {
+    let Some(leader) = w
+        .parties
+        .iter()
+        .find(|p| p.id == pid)
+        .and_then(|p| p.leader())
+    else {
         return;
     };
     if !(w.grid.guest_ok(tile.0, tile.1) || w.grid.walkable(tile.0, tile.1)) {
@@ -1090,7 +1132,9 @@ pub(crate) fn pick_archetype(w: &mut World, content: &Content, hour: usize) -> O
                         .iter()
                         .find(|a| a.0 == g.id)
                         .map(|a| a.1)
-                        .unwrap_or(1.0),
+                        .unwrap_or(1.0)
+                    // a hall that feels like home draws rarer night guests (purchases)
+                    + super::purchases::rare_weight(w, &g.id),
             )
         })
         .collect();
@@ -1127,7 +1171,10 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
         && !super::storm::line_closed(w)
         && let Some(hour) = crate::content::ClockTime::from_minutes_since_open(m).open_hour_index()
     {
-        let rate = arrival_rate(w, content, hour);
+        // more seats, more passers-by step in (purchases; 1.0 in grandma's café)
+        let draw = super::purchases::seat_draw(w, content);
+        let rate = arrival_rate(w, content, hour) * draw;
+        super::purchases::note_draw(w, rate, draw);
         if w.rng.chance(rate)
             && let Some(a) = pick_archetype(w, content, hour)
             && let Some(arch) = content.guest(&a)
@@ -1279,6 +1326,16 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
         w.emit(SimEvent::GuestPatienceRefilled { party: pid });
     }
     for (pid, exit) in leave {
+        // a comfy seat: maybe one more round before they go (purchases)
+        if exit == Exit::Normal
+            && w.parties
+                .iter()
+                .find(|p| p.id == pid)
+                .is_some_and(|p| p.stay_left <= 0.0)
+            && super::purchases::second_round(w, content, pid)
+        {
+            continue;
+        }
         finish_party(w, content, pid, exit);
     }
     // Emotes for impatient guests.
@@ -1424,7 +1481,7 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
 
 /// Tonight's prep × for a new plain item: "the machine is cold" for the first few, the
 /// announced spotlight item a little faster.
-fn prep_mul(w: &mut World, job: crate::content::Job, item: &str) -> f32 {
+pub(crate) fn prep_mul(w: &mut World, job: crate::content::Job, item: &str) -> f32 {
     let mut mul = 1.0;
     if let Some(s) = w
         .sys
@@ -1497,6 +1554,7 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
     }
     *w.econ.sold.entry(menu.clone()).or_insert(0) += 1;
     w.tonight.orders_served += 1;
+    super::purchases::on_item_served(w, content, &menu);
     let bonus = service_bonus(w, content, staff, pid);
     let mood_bonus = content
         .menu_item(&menu)
@@ -1554,21 +1612,33 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
     });
     if all_done && !w.parties[pi].wish_open && w.parties[pi].state == PartyState::WaitFood {
         let arch = content.guest(&w.parties[pi].archetype);
-        let (lo, hi) = arch.map(|a| a.stay_minutes).unwrap_or((15, 30));
+        let second = w.parties[pi].rounds > 0;
+        let (lo, hi) = if second {
+            super::purchases::data().round_stay
+        } else {
+            arch.map(|a| a.stay_minutes).unwrap_or((15, 30))
+        };
         let stay_mul = super::music::mood_effect(w, content)
             .map(|m| m.stay_mul)
             .unwrap_or(1.0)
             * super::atmos::stay_mul(w, content);
-        let stay = (w.rng.range_u32(lo, hi) as f32 * stay_mul).round() as i32 + w.guest_stay_add;
+        let base = w.rng.range_u32(lo, hi) as f32 * stay_mul;
+        // the seat's comfort and the coziness tier (purchases; 1.0 on grandma's chairs)
+        let seat_mul = super::purchases::stay_mul(w, content, pi, base);
+        let stay = (base * seat_mul).round() as i32 + w.guest_stay_add;
         let p = &mut w.parties[pi];
         p.state = PartyState::Eating;
         p.served_at = Some(m);
         p.stay_left = stay.max(3) as f32;
         // the hall's atmosphere once seated & served (coziness replaces the old
         // comfort / beauty / dirt / music terms, handson.md §11.3)
-        let amb = ambience(w, content, pid)
-            + super::atmos::archetype_bonus(w, content, &w.parties[pi].archetype)
-            + super::moments::window_seat_bonus(w, content, pi);
+        let amb = if second {
+            0.0
+        } else {
+            ambience(w, content, pid)
+                + super::atmos::archetype_bonus(w, content, &w.parties[pi].archetype)
+                + super::moments::window_seat_bonus(w, content, pi)
+        };
         w.parties[pi].satisfaction = (w.parties[pi].satisfaction + amb).clamp(0.0, 100.0);
     }
 }
@@ -1612,7 +1682,8 @@ fn ambience(w: &World, content: &Content, pid: u32) -> f32 {
     // the chair itself still counts a little (the hall's mean comfort is in coziness)
     let _ = beauty;
     let local = ((comfort / n) * 0.6).min(4.0);
-    coz + local
+    // a sofa feels better than a stool (purchases: 0 on chairs)
+    coz + local + super::purchases::comfort_satisfaction(comfort / n)
 }
 
 /// Party pays (if served) and leaves.
@@ -1729,13 +1800,15 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
             let mood_mul = super::music::mood_effect(w, content)
                 .map(|m| m.tips_mul)
                 .unwrap_or(1.0)
-                * super::atmos::tips_mul(w, content);
+                * super::atmos::tips_mul(w, content)
+                * super::purchases::tips_mul(w, content, pi);
             tip = ((bill as f32 * (0.05 + 0.15 * ((sat - 55.0) / 45.0)))
                 * tips_mul
                 * party_mul
                 * mood_mul)
                 .round()
                 .max(5.0) as i64;
+            super::purchases::note_tip(w, content, pi, tip);
             // a coin on the table: Karolina (or a dishes helper) puts it in the jar
             let by = w.parties[pi].served_by;
             let table = party_table(w, content, pi);
@@ -1784,6 +1857,7 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
         }
     }
     w.parties[pi].bill = bill + tip;
+    super::purchases::on_party_paid(w, pi, served_n > 0, bill + tip);
     if served_n > 0 && !angry {
         w.tonight.guests_served += size;
     }
@@ -1809,7 +1883,7 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
         let rep = w.econ.reputation;
         let mut delta = (sat - 55.0) * REVIEW_WEIGHT * weight;
         if delta > 0.0 {
-            delta *= 1.0 - rep / 120.0;
+            delta *= (1.0 - rep / 120.0) * super::purchases::review_mul(w);
         } else {
             delta *= bad_mul * (0.4 + rep / 100.0);
         }

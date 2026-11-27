@@ -549,8 +549,22 @@ pub fn draw_world(
             let k = 0.6 + 0.4 * (t * 3.0).sin().abs();
             draw_circle(c.x, c.y, 1.6 * s * k, ink);
         } else {
-            draw_line(c.x - 4.0 * s, c.y, c.x - 1.0 * s, c.y + 3.5 * s, 2.0 * s, ink);
-            draw_line(c.x - 1.0 * s, c.y + 3.5 * s, c.x + 4.5 * s, c.y - 3.5 * s, 2.0 * s, ink);
+            draw_line(
+                c.x - 4.0 * s,
+                c.y,
+                c.x - 1.0 * s,
+                c.y + 3.5 * s,
+                2.0 * s,
+                ink,
+            );
+            draw_line(
+                c.x - 1.0 * s,
+                c.y + 3.5 * s,
+                c.x + 4.5 * s,
+                c.y - 3.5 * s,
+                2.0 * s,
+                ink,
+            );
         }
     }
     // appliances that offer something: a small amber chip (the ritual chip marks the rest)

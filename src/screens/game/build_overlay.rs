@@ -275,7 +275,11 @@ pub fn labels(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     if !st.holding() {
         for corner in g.world.corners(content) {
             let (cx_t, cy_t) = corner.center;
-            let top = to_ui(g, ui, vec2((cx_t as f32 + 0.5) * TILE, (cy_t as f32 - 0.6) * TILE));
+            let top = to_ui(
+                g,
+                ui,
+                vec2((cx_t as f32 + 0.5) * TILE, (cy_t as f32 - 0.6) * TILE),
+            );
             let foot = to_ui(g, ui, vec2(0.0, (cy_t as f32 + 1.0) * TILE)).y;
             let text = format!(
                 "{} · {}",

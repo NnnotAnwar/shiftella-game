@@ -355,11 +355,13 @@ fn relations_line(g: &GameScreen, loc: &Locale, s: &Staff) -> Option<String> {
         parts.push(loc.trf("crew.rel.rival", &[("name", &first_name(loc, w, id))]));
     }
     if parts.is_empty() {
-        parts.push(loc.tr_owned(if w.night().saturating_sub(s.hired_night) < 2 {
-            "crew.rel.new"
-        } else {
-            "crew.rel.everyone"
-        }));
+        parts.push(
+            loc.tr_owned(if w.night().saturating_sub(s.hired_night) < 2 {
+                "crew.rel.new"
+            } else {
+                "crew.rel.everyone"
+            }),
+        );
     }
     Some(parts.join(" · "))
 }
@@ -1357,12 +1359,8 @@ fn hire_list(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) {
         let bw = ui.button_width(&b);
         let tx = r.x + 38.0;
         let tw = r.w - 38.0 - bw - 8.0;
-        ui.fonts.draw_in(
-            &name,
-            Rect::new(tx, top, tw, l1),
-            &t.strong(),
-            Align::Left,
-        );
+        ui.fonts
+            .draw_in(&name, Rect::new(tx, top, tw, l1), &t.strong(), Align::Left);
         let role = wv::staff_role(&loc, content, &c.staff);
         let sub = format!(
             "{role} · {}",
