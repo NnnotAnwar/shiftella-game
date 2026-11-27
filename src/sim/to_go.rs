@@ -92,8 +92,8 @@ pub(crate) fn plan(
     (roll(w, pid) < chance(w)).then_some((reg, items))
 }
 
-/// The spots beside register `reg` where to-go guests wait for their cups, best first: hall
-/// tiles within 4 steps of the register's front, never the line, a seat, or a tile beside an
+/// The spots beside register `reg` where to-go guests wait for their cups, best first: indoor
+/// hall tiles within 4 steps of the register's front, never the line, a seat, or a tile beside an
 /// opening to the staff side (the flap stays clear); the side away from the line first.
 pub(crate) fn spots(w: &World, content: &Content, reg: u32) -> Vec<(i32, i32)> {
     let Some(front) = super::guests::registers(w, content)
@@ -122,6 +122,9 @@ pub(crate) fn spots(w: &World, content: &Content, reg: u32) -> Vec<(i32, i32)> {
             if d == 0
                 || d > 4
                 || !w.grid.guest_ok(t.0, t.1)
+                // (indoor floor only: 0.2.4 — a register by the outer wall had its spots
+                // reach through the wall onto the sidewalk)
+                || !w.grid.is_indoor_floor(t.0, t.1)
                 // (one gets to without crossing a chair: chaos find — a spot in a nook
                 // behind a chair had the to-go guest climb over whoever sat down there)
                 || !w.grid.guest_clear(t.0, t.1)

@@ -361,3 +361,38 @@ fn a_pick_up_spot_is_never_inside_a_piece() {
     assert_eq!(staff::pickup_tile(&w, (1, 1), (5, 5)), None);
     assert_eq!(staff::pickup_tile(&w, (5, 5), (5, 5)), Some((5, 5)));
 }
+
+/// 0.2.4: grandma's register stands by the outer wall, and the to-go spots within four steps
+/// of its front reached through the wall onto the sidewalk — guests waited for their cups out
+/// on the street. Spots are indoor floor only.
+#[test]
+fn to_go_spots_are_always_inside_the_cafe() {
+    let c = content();
+    let mut w = night(&c, 3);
+    // a second register in the empty south-west of the hall, by the outer wall
+    for rot in 0..4u8 {
+        let ok = w.apply(
+            &c,
+            Command::PlaceFurniture {
+                def: "register".into(),
+                x: 6,
+                y: 13,
+                rot,
+            },
+        );
+        if ok.is_ok() {
+            break;
+        }
+    }
+    assert_eq!(guests::registers(&w, &c).len(), 2, "the second register was placed");
+    for (reg, _) in guests::registers(&w, &c) {
+        let spots = super::to_go::spots(&w, &c, reg);
+        assert!(!spots.is_empty(), "register {reg} has no to-go spot");
+        for t in spots {
+            assert!(
+                w.grid.is_indoor_floor(t.0, t.1),
+                "to-go spot {t:?} of register {reg} is not inside"
+            );
+        }
+    }
+}
