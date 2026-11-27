@@ -630,10 +630,20 @@ pub fn bubble(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         g.bubble = None;
         return;
     }
-    let Some(head) = g.scene.head_of(b.agent, g.time) else {
+    let Some(mut head) = g.scene.head_of(b.agent, g.time) else {
         g.bubble = None;
         return;
     };
+    // Karolina's queue chips sit right over her head: her bubble goes above them
+    if g.world
+        .karolina()
+        .is_some_and(|k| b.agent == AgentRef::Staff(k.id))
+        && g.world.phase() == sim::Phase::Night
+        && !super::hands::karolina_acts(&g.world).is_empty()
+    {
+        let s = crate::render::world_icon_scale();
+        head.y -= (crate::render::QUEUE_CHIP + crate::render::QUEUE_LIFT) * s;
+    }
     let t = ui.theme.clone();
     let anchor = world_to_ui(g, ui, head);
     let style = t.body();

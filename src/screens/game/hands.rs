@@ -56,6 +56,13 @@ pub enum Intent {
     Cancel,
     /// A queue chip over her head (0 = the current act when there is one).
     Unqueue(usize),
+    /// A checklist item (index into `content.app.checklists`) clicked anywhere — the app, the
+    /// ritual chip over its furniture: open → Karolina queues it; hers → cancelled.
+    Checklist(usize),
+    /// The queue strip: move a queued act (indexes into the sim's queue, current act excluded).
+    QueueMove { from: usize, to: usize },
+    /// The queue strip's "Clear all" (the current act goes on).
+    QueueClear,
     /// Held the sink (mouse or **E**) for `seconds` while she stands at it.
     WashHold { sink: u32, seconds: f32 },
     /// **E**: the nearest chore (a tip, a dirty table, the dishes, a dirt blot, the window).
@@ -257,6 +264,15 @@ pub struct Hands {
     pub press_equip: Option<u32>,
     /// Hold-chore bookkeeping (like the sink).
     pub equip_hold: Option<WashHold>,
+    /// Checklist items ticked tonight → `GameScreen::time` (the ritual chip shows a tick a
+    /// moment before it goes).
+    pub ritual_done: HashMap<String, f32>,
+    /// The checklist box under the mouse in the café (its hover text is drawn by the UI).
+    pub ritual_hover: Option<usize>,
+    /// The queue strip in the HUD is open (its key or a click on her chips toggles it).
+    pub queue_open: bool,
+    /// A queued act being dragged in the strip: (queue index, grab y offset).
+    pub queue_drag: Option<(usize, f32)>,
 }
 
 impl Hands {
@@ -681,6 +697,29 @@ impl GameScreen {
                     self.hand(content, Command::PlayerUnqueue { index: i })
                 }
             }
+            Intent::Checklist(i) => {
+                let Some(id) = content.app.checklists.get(i).map(|c| c.id.clone()) else {
+                    return false;
+                };
+                match self.world.checklist_mark(&id) {
+                    // the record is picked at the jukebox
+                    sim::ChecklistMark::Open if id == "record_on" => {
+                        self.intent(content, Intent::Jukebox)
+                    }
+                    sim::ChecklistMark::Open => self.hand(content, Command::TickChecklist { id }),
+                    sim::ChecklistMark::Taken { karolina: true, .. } => {
+                        match self.world.karolina_checklist_slot(&id) {
+                            Some(slot) => self.intent(content, Intent::Unqueue(slot)),
+                            None => false,
+                        }
+                    }
+                    _ => false,
+                }
+            }
+            Intent::QueueMove { from, to } => {
+                self.hand(content, Command::PlayerReorder { from, to })
+            }
+            Intent::QueueClear => self.hand(content, Command::PlayerClearQueue),
             Intent::Chore { front } => match self.next_chore(content) {
                 Some(i) => {
                     let i = match i {
@@ -1220,6 +1259,9 @@ impl GameScreen {
     /// Hands-on events (called from `handle_event`).
     pub fn hands_event(&mut self, content: &Content, e: &SimEvent) {
         self.moment_event(content, e);
+        if let SimEvent::ChecklistTicked { id } = e {
+            self.hands.ritual_done.insert(id.clone(), self.time);
+        }
         match e {
             SimEvent::NightStarted { .. } => {
                 self.hands.tried_tonight = false;
@@ -1231,6 +1273,7 @@ impl GameScreen {
                 self.hands.incoming.clear();
                 self.hands.record_play = None;
                 self.hands.equip_hold = None;
+                self.hands.ritual_done.clear();
                 self.hands.press_equip = None;
             }
             SimEvent::NightEnded { .. } => {

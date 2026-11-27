@@ -13,7 +13,9 @@
 //!   build_drag|attic|backroom|requests|corner|before_after` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
-//!   story_marker|story_card|storm|storm_talk` (`SHIFTELLA_STORY=<id>`: the vignette put on a
+//!   story_marker|story_card|storm|storm_talk|hands_ux` (`SHIFTELLA_HUX=checklist|rituals|
+//!   queue|follow`: the checklist states, the queue strip with 8 acts, the follow chip;
+//!   `SHIFTELLA_STORY=<id>`: the vignette put on a
 //!   stranger when none came by itself; `SHIFTELLA_LINE=n`: the storm talk's line)
 //!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
 //!   (hands-on scenes are played to their moment by the autoplayer;
@@ -468,6 +470,18 @@ impl App {
                 self.game(g)
             }
             // the character card (C): Karolina's, a helper's (also Classic and by day), hiring
+            // hands-ux shots: SHIFTELLA_HUX=checklist|rituals|queue|follow
+            "hands_ux" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let which = env("SHIFTELLA_HUX").unwrap_or_else(|| "queue".into());
+                let early = matches!(which.as_str(), "checklist" | "rituals");
+                let n = night.unwrap_or(if early { 1 } else { 8 });
+                let m = minute.unwrap_or(if early { 2 } else { 150 });
+                let mut g = GameScreen::new_story(&content, "cozy", true);
+                g.fast_forward(&content, &loc, n, Some(m), n > 1);
+                g.stage_hands_ux(&content, &which);
+                self.game(g)
+            }
             "crew_karolina" | "crew_helper" | "crew_classic" | "crew_day" | "crew_hire" => {
                 let loc = Locale::new(&self.i18n, lang);
                 let diff = if name == "crew_classic" {

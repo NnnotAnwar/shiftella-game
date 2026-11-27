@@ -502,6 +502,30 @@ pub(crate) fn on_event(w: &mut World, content: &Content, event: &str) -> bool {
 }
 
 /// Each game minute: expiry, waiting event moments, the budgeted director.
+/// Every tick: a moment about a guest who got up to leave (or is gone) closes at once, and
+/// Karolina's walk over there is called off (the same rule as the strangers' stories).
+pub(crate) fn on_tick(w: &mut World, content: &Content) {
+    let left: Vec<String> = w
+        .sys
+        .moments
+        .active
+        .iter()
+        .filter(|a| {
+            matches!(a.anchor.agent, Some(AgentRef::Guest(g)) if !super::stories::guest_here(w, g))
+        })
+        .map(|a| a.id.clone())
+        .collect();
+    for id in left {
+        super::player::drop_walks(
+            w,
+            content,
+            |k| matches!(k, super::systems::WalkKind::Moment { id: m, .. } if *m == id),
+        );
+        w.sys.moments.active.retain(|a| a.id != id);
+        w.emit(SimEvent::MomentExpired { id });
+    }
+}
+
 pub(crate) fn on_minute(w: &mut World, content: &Content) {
     let m = w.minute();
     // expiry (not while Karolina is on her way)
@@ -659,6 +683,11 @@ pub(crate) fn resolve(
     };
     if a.resolving.is_some() {
         return Err(CommandError::Invalid("Karolina is on her way".into()));
+    }
+    if let Some(AgentRef::Guest(g)) = a.anchor.agent
+        && !super::stories::guest_here(w, g)
+    {
+        return Err(CommandError::Invalid(super::stories::GUEST_LEFT.into()));
     }
     if !options_now(w, content, id).iter().any(|o| o == option) {
         return Err(CommandError::Invalid("not now".into()));

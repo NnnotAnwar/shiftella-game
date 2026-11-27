@@ -523,3 +523,126 @@ fn the_sandbox_storm_is_rare_and_needs_snow() {
         "{storms} of {snow}"
     );
 }
+
+/// The party of `g` gets up to go (what `guests` does when they are done).
+fn make_leave(w: &mut World, g: u32) {
+    let pid = w.guests.iter().find(|x| x.id == g).unwrap().party;
+    w.parties.iter_mut().find(|p| p.id == pid).unwrap().state = PartyState::Leaving;
+}
+
+#[test]
+fn a_story_closes_the_moment_its_guest_gets_up_to_leave() {
+    let c = content();
+    let mut w = night(&c, 6, true);
+    let (_, g) = seated(&mut w, &c, "travelers", 1);
+    assert!(w.debug_story("call", g));
+    make_leave(&mut w, g);
+    // the sim refuses an answer that raced the guest out of the door
+    assert_eq!(
+        w.apply(
+            &c,
+            Command::AnswerStory {
+                guest: g,
+                answer: "charger".into(),
+            },
+        ),
+        Err(CommandError::Invalid(GUEST_LEFT.into()))
+    );
+    assert!(
+        w.player().queue.is_empty(),
+        "nothing queued for a guest on the way out"
+    );
+    // and the very next tick closes it (card and marker with it), not a minute later
+    let ev = ticks(&mut w, &c, 1);
+    assert!(
+        ev.iter()
+            .any(|e| matches!(e, SimEvent::StoryFaded { guest, .. } if *guest == g))
+    );
+    assert!(w.story_of(g).is_none());
+}
+
+#[test]
+fn a_guest_leaving_while_karolina_walks_over_calls_her_walk_off() {
+    let c = content();
+    let mut w = night(&c, 6, true);
+    let (_, g) = seated(&mut w, &c, "travelers", 1);
+    assert!(w.debug_story("call", g));
+    w.apply(
+        &c,
+        Command::AnswerStory {
+            guest: g,
+            answer: "charger".into(),
+        },
+    )
+    .unwrap();
+    ticks(&mut w, &c, 2);
+    assert!(
+        w.player().current.is_some() || !w.player().queue.is_empty(),
+        "she is on her way"
+    );
+    make_leave(&mut w, g);
+    let ev = ticks(&mut w, &c, 600);
+    assert!(
+        !ev.iter()
+            .any(|e| matches!(e, SimEvent::StoryAnswered { guest, .. } if *guest == g)),
+        "no charger for someone who has gone"
+    );
+    assert!(
+        ev.iter()
+            .any(|e| matches!(e, SimEvent::StoryFaded { guest, .. } if *guest == g))
+    );
+    assert!(w.story_of(g).is_none());
+    assert!(
+        !w.player()
+            .queue
+            .iter()
+            .any(|a| matches!(a, PlayerAct::GoTo { .. })),
+        "the walk went with them"
+    );
+}
+
+#[test]
+fn a_moment_about_a_guest_closes_when_they_leave_too() {
+    let c = content();
+    let mut w = night(&c, 6, true);
+    let (_, g) = seated(&mut w, &c, "insomniacs", 1);
+    let tile = w.guests.iter().find(|x| x.id == g).unwrap().tile();
+    let m = w.minute();
+    w.sys.moments.active.push(super::systems::ActiveMoment {
+        id: "m_sleeping_guest".into(),
+        anchor: super::systems::MomentPos {
+            tile,
+            furniture: None,
+            agent: Some(AgentRef::Guest(g)),
+        },
+        spawned: m,
+        expires: m + 30,
+        target: Default::default(),
+        resolving: None,
+    });
+    w.apply(
+        &c,
+        Command::ResolveMoment {
+            id: "m_sleeping_guest".into(),
+            option: "blanket".into(),
+        },
+    )
+    .unwrap();
+    make_leave(&mut w, g);
+    let ev = ticks(&mut w, &c, 1);
+    assert!(
+        ev.iter()
+            .any(|e| matches!(e, SimEvent::MomentExpired { id } if id == "m_sleeping_guest"))
+    );
+    assert!(w.active_moments().is_empty());
+    assert!(
+        w.player().current.is_none() && w.player().queue.is_empty(),
+        "her walk over was called off"
+    );
+    let ev = ticks(&mut w, &c, 300);
+    assert!(
+        !ev.iter()
+            .any(|e| matches!(e, SimEvent::MomentResolved { .. })),
+        "no blanket for an empty chair"
+    );
+}

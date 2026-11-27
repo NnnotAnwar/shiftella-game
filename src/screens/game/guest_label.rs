@@ -82,7 +82,11 @@ pub fn rail_label(ui: &Ui, w: &World, loc: &Locale, guest: u32) -> String {
     match w.persona(guest) {
         Some(p) => {
             let short = format!("{}.short", role_key(arch, p.female));
-            if loc.has(&short) { loc.tr_owned(&short) } else { full }
+            if loc.has(&short) {
+                loc.tr_owned(&short)
+            } else {
+                full
+            }
         }
         None => full,
     }

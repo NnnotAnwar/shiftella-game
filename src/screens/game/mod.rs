@@ -13,6 +13,7 @@ mod build_cards;
 mod build_content_ui;
 mod build_overlay;
 mod build_themes;
+mod checklist_ui;
 pub mod coach;
 mod crew_ui;
 mod day;
@@ -20,6 +21,7 @@ mod duties;
 mod extras_ui;
 mod guest_label;
 pub mod hands;
+mod hands_hud;
 mod hands_ui;
 mod hands_view;
 mod hud;
@@ -295,6 +297,8 @@ pub struct GameScreen {
     pub coach: coach::CoachState,
     /// A camera hint from the sim (a moment, a bot button): ease towards this world point.
     pub cam_target: Option<Vec2>,
+    /// The camera follows this person (the crew card's Follow; `hands_hud`).
+    pub follow: Option<AgentRef>,
     /// Polaroid photos (rendered from the journal's scene snapshots) and the journal's page.
     pub photos: journal_ui::Photos,
     /// Plain toasts on screen (newest last): their ids, a signature and when they came.
@@ -388,6 +392,7 @@ impl GameScreen {
             latte_for: HashMap::new(),
             coach: coach::CoachState::default(),
             cam_target: None,
+            follow: None,
             photos: journal_ui::Photos::default(),
             recent_toasts: Default::default(),
             walk: Default::default(),
@@ -690,14 +695,19 @@ impl GameScreen {
             .filter(|a| !a.gone && !a.exit_on_arrive && content.regular(&a.id).is_some())
             .map(|a| {
                 let t = crate::map::TILE;
-                (a.id.clone(), ((a.pos.x / t).floor() as i32, (a.pos.y / t).floor() as i32))
+                (
+                    a.id.clone(),
+                    ((a.pos.x / t).floor() as i32, (a.pos.y / t).floor() as i32),
+                )
             })
             .collect();
         let _ = self
             .world
             .apply(content, Command::CutsceneFinished { id, choices });
         for (regular, tile) in handoff {
-            let _ = self.world.apply(content, Command::SceneHandoff { regular, tile });
+            let _ = self
+                .world
+                .apply(content, Command::SceneHandoff { regular, tile });
         }
         self.drain_and_handle(content, None);
         // the next queued scene may already be waiting
@@ -1171,7 +1181,11 @@ impl GameScreen {
         // the storm night: the wind round the café, a little louder once the line is closed
         let storm = self.world.storm();
         if storm.tonight {
-            let level = if storm.cancelled_at.is_some() { 0.6 } else { 0.4 };
+            let level = if storm.cancelled_at.is_some() {
+                0.6
+            } else {
+                0.4
+            };
             audio.want_amb(AmbLoop::Storm, level);
         }
     }
@@ -1528,7 +1542,10 @@ impl GameScreen {
                 && !ui.wants_keyboard()
                 && !(self.panel == Some(Panel::Crew) && crew_ui::arrows_held())
             {
-                self.cam.update();
+                let moved = self.cam.update();
+                self.follow_frame(moved, dt);
+            } else {
+                self.follow_frame(false, dt);
             }
             if let Some(tgt) = self.cam_target {
                 self.cam.center = self.cam.center.lerp(tgt, (dt * 2.5).min(1.0));
@@ -1595,6 +1612,10 @@ impl GameScreen {
             };
             self.stories.hover = match target {
                 Some(hands_view::Target::Story(g)) => Some(g),
+                _ => None,
+            };
+            self.hands.ritual_hover = match target {
+                Some(hands_view::Target::Checklist(i)) => Some(i),
                 _ => None,
             };
             self.scene.sec_per_minute = self.world.real_seconds_per_tick(content) * 10.0;
@@ -1667,6 +1688,13 @@ impl GameScreen {
             // after the HUD and the rail: the bubble keeps clear of them
             if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {
                 hud::bubble(self, ui, cx);
+            }
+            hands_hud::queue_strip(self, ui, cx);
+            if self.follow.is_some() {
+                hands_hud::follow_chip(self, ui, cx);
+            }
+            if self.panel.is_none() {
+                checklist_ui::world_tip(self, ui, &loc, content);
             }
             match self.panel {
                 Some(Panel::Crew) => crew_ui::panel(self, ui, cx),
@@ -2006,11 +2034,11 @@ impl GameScreen {
                 return;
             }
             Some(Target::Checklist(i)) => {
-                if let Some(it) = content.app.checklists.get(i) {
-                    let id = it.id.clone();
-                    if self.hand(content, Command::TickChecklist { id }) {
-                        self.hands.tut.bump("ritual_ticked");
-                    }
+                let open = content.app.checklists.get(i).is_some_and(|it| {
+                    self.world.checklist_mark(&it.id) == sim::ChecklistMark::Open
+                });
+                if self.intent(content, Intent::Checklist(i)) && open {
+                    self.hands.tut.bump("ritual_ticked");
                 }
                 return;
             }
@@ -2114,6 +2142,8 @@ impl GameScreen {
                 self.hands.records_open = false;
             } else if self.hands.order.is_some() {
                 self.hands.order = None;
+            } else if self.esc_stops_follow() {
+                // Esc stops following first (the card it came from stays open)
             } else if self.panel == Some(Panel::Build) && self.ui_state.build.active() {
                 self.ui_state.build.cancel();
             } else if self.panel == Some(Panel::Crew) {
@@ -2183,6 +2213,11 @@ impl GameScreen {
         }
         if ui.key(KeyCode::Home) {
             self.cam_ready = false;
+            self.set_follow(None);
+        }
+        // the queue strip opens / closes (Settings → Controls, default Q)
+        if pressed(ui, A::Queue) && self.world.phase() == Phase::Night {
+            self.hands.queue_open = !self.hands.queue_open;
         }
         if self.panel == Some(Panel::Build) {
             build::hotkeys(self, ui, content);

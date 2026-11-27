@@ -231,10 +231,41 @@ pub(crate) fn on_night_end(w: &mut World, content: &Content) {
     super::storm::on_night_end(w, content);
 }
 
-fn guest_here(w: &World, guest: u32) -> bool {
+/// Why an answer to a guest who walked out is refused (`CommandError::Invalid`); the screens
+/// match it for the soft "They've already left" toast.
+pub const GUEST_LEFT: &str = "they've already left";
+
+/// The guest is still in the café and not on their way out.
+pub(crate) fn guest_here(w: &World, guest: u32) -> bool {
     w.guests.iter().any(|g| g.id == guest && !g.gone)
         && w.party_of_guest(guest)
             .is_some_and(|p| p.state != PartyState::Leaving)
+}
+
+/// Every tick: a story whose guest got up to leave (or is gone) closes at once — the card and
+/// the marker with it, and Karolina's walk over there is called off.
+pub(crate) fn on_tick(w: &mut World, content: &Content) {
+    let left: Vec<u32> = w
+        .stories
+        .active
+        .iter()
+        .filter(|a| !guest_here(w, a.guest))
+        .map(|a| a.guest)
+        .collect();
+    for guest in left {
+        super::player::drop_walks(
+            w,
+            content,
+            |k| matches!(k, WalkKind::Story { guest: g, .. } if *g == guest),
+        );
+        if let Some(i) = w.stories.active.iter().position(|a| a.guest == guest) {
+            let a = w.stories.active.remove(i);
+            w.emit(SimEvent::StoryFaded {
+                guest: a.guest,
+                story: a.story,
+            });
+        }
+    }
 }
 
 /// Each game minute (doors open): fading, then maybe a new story.
@@ -419,6 +450,9 @@ pub(crate) fn answer(
     if a.resolving.is_some() {
         return Err(CommandError::Invalid("Karolina is on her way".into()));
     }
+    if !guest_here(w, guest) {
+        return Err(CommandError::Invalid(GUEST_LEFT.into()));
+    }
     let d = def(&a.story).ok_or_else(|| CommandError::UnknownId(a.story.clone()))?;
     if d.answer(answer).is_none() {
         return Err(CommandError::UnknownId(answer.to_string()));
@@ -481,6 +515,14 @@ fn resolve(w: &mut World, content: &Content, guest: u32, answer: &str) {
         return;
     };
     let a = w.stories.active.remove(i);
+    // they walked out while she was on her way: nothing to give any more
+    if !guest_here(w, guest) {
+        w.emit(SimEvent::StoryFaded {
+            guest: a.guest,
+            story: a.story,
+        });
+        return;
+    }
     let Some(d) = def(&a.story) else {
         return;
     };

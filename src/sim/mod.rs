@@ -50,6 +50,8 @@ mod xlogic;
 #[cfg(test)]
 mod tests;
 #[cfg(test)]
+mod tests_access;
+#[cfg(test)]
 mod tests_balance;
 #[cfg(test)]
 mod tests_build;
@@ -78,15 +80,13 @@ mod tests_t10;
 #[cfg(test)]
 mod tests_walk;
 #[cfg(test)]
-mod tests_access;
-#[cfg(test)]
 mod tests_combos;
 #[cfg(test)]
 mod tests_sandbox;
 #[cfg(test)]
 pub(crate) mod chaos;
 
-pub use app::digest_lines;
+pub use app::{ChecklistMark, act_ticks, digest_lines};
 pub use attic::{AtticOffer, AtticView};
 pub use backroom::{BACK_COLS, BackRoomView};
 pub use build_content::{BackRoomState, BuildState, WishProgress};
@@ -106,7 +106,7 @@ pub use orders::PLAIN_CREDIT;
 pub use player::{MOP_AMOUNT, WASH_PER_SECOND};
 pub use signature::{NightPhoto, SIGNATURE_RECIPE, SignatureDrink};
 pub use staff::FIRST_HIRE_NIGHT;
-pub use stories::{ActiveStory, AnswerDef, StoriesState, StoryDef, persona_arg};
+pub use stories::{ActiveStory, AnswerDef, GUEST_LEFT, StoriesState, StoryDef, persona_arg};
 pub use storm::{StormAct, StormState, TalkDef, TalkLine};
 pub use story::{ambient_line_for, talk_available};
 pub use systems::*;

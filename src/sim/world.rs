@@ -1477,6 +1477,9 @@ impl World {
         self.tick += 1;
         super::staff::tick_staff(self, content);
         super::guests::tick_guests(self, content);
+        // a guest who got up to leave takes their story / moment with them (no answer races)
+        super::stories::on_tick(self, content);
+        super::moments::on_tick(self, content);
         for s in self.staff.iter_mut() {
             if let Some((_, until)) = s.emote
                 && self.tick >= until
@@ -1971,6 +1974,10 @@ impl World {
         self.buckets.iter().map(|b| b.0).collect()
     }
     /// The window lamp is on (`Condition::WindowLightOn`).
+    /// The lamp of the light in the window (the opening / closing checklist items' place).
+    pub fn window_light(&self, content: &Content) -> Option<u32> {
+        super::logic::window_light(self, content)
+    }
     pub fn window_light_on(&self, content: &Content) -> bool {
         super::logic::window_light(self, content).is_some_and(|uid| {
             self.furniture_by_uid(uid).is_some_and(|p| p.on) && self.blackout_until.is_none()
