@@ -994,6 +994,15 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
                 .and_then(|id| g.world.staff_by_id(id))
                 .map(|s| wv::staff_name(&loc, s))
                 .or_else(|| {
+                    // someone is on it right now (a helper took it, or it's in her hands)
+                    let id = st.filter(|s| !s.done).and_then(|s| s.claim)?;
+                    let s = g.world.staff_by_id(id)?;
+                    Some(loc.trf(
+                        "ui.app.checklist.doing",
+                        &[("name", &wv::staff_name(&loc, s))],
+                    ))
+                })
+                .or_else(|| {
                     // not done yet: whose it is (yours, or a helper with that duty)
                     (!checked).then(|| match it.owner() {
                         crate::content::handson::ChecklistOwner::Karolina => {

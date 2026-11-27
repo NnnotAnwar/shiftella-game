@@ -268,8 +268,8 @@ fn tuning(v: &mut Ctx, h: &HandsOn) {
     if !(0.05..=1.0).contains(&t.real_seconds_per_tick_x1) {
         v.push(format!("{ctx}: real_seconds_per_tick_x1 out of range"));
     }
-    if !(0.3..=1.0).contains(&t.prep_tick_scale) {
-        v.push(format!("{ctx}: prep_tick_scale out of range (0.3–1.0)"));
+    if !(0.3..=1.5).contains(&t.prep_tick_scale) {
+        v.push(format!("{ctx}: prep_tick_scale out of range (0.3–1.5)"));
     }
     for (what, x) in [
         ("overlay_scale.cozy", t.overlay_scale.cozy),

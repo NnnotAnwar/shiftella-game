@@ -187,10 +187,10 @@ uk Написати нотатку для наступної зміни
 ru Написать записку для следующей смены
 
 app.checklist.light_off_at_six
-cs V 6:00 zhasnout okno
-en Switch off the window at 6:00
-uk О 6:00 вимкнути вікно
-ru В 6:00 выключить окно
+cs Zhasnout okno, až zavíráš
+en Switch off the window light when you close up
+uk Вимкнути світло у вікні, коли зачиняєш
+ru Выключить свет в окне, когда закрываешься
 
 app.bot.hello
 cs Ahoj, jsem @shiftella_bot. Hlídám rozpis, výměny a volno. Píchačky nedělám — lidi nejsou děrné štítky.

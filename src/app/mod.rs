@@ -436,7 +436,7 @@ impl App {
                 let m = minute.unwrap_or(match variant.as_str() {
                     "night" => 40,
                     "worn" => 60,
-                    "closing" => 430,
+                    "closing" => 485,
                     _ => -20,
                 });
                 let mut g = GameScreen::new_story(&content, "cozy", true);

@@ -223,7 +223,8 @@
         // the 00:15 passengers are in; the 01:52 and 05:20 won't come
         cancel_at: "00:50",
         talk_at: "03:00",
-        stay_until: "05:40",
+        // (they stay till the doors close at 06:00, then walk out into the morning)
+        stay_until: "06:00",
         // strangers who still came in from the platform within this many minutes count too
         platform_minutes: 30,
         // the shared talk needs at least this many stranded strangers

@@ -167,6 +167,10 @@ fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerA
             }
         }
         PlayerAct::Checklist { id } => {
+            // the till, the group head and the window light wait for closing time
+            if !w.checklist_item_open(content, id) {
+                return Err(CommandError::Invalid("not yet: that's for closing time".into()));
+            }
             let c = w
                 .app
                 .checklist

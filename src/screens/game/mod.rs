@@ -747,6 +747,14 @@ impl GameScreen {
                 self.push_ticker(Icon::Door, title.clone());
                 self.toast(ToastKind::Success, Icon::Door, title, Some(body));
             }
+            // 06:00: the sign flips back, the quiet closing half hour
+            SimEvent::DoorsClosed => {
+                self.scene.doors_opened_at = Some(self.time);
+                let title = tr("close.toast.doors_closed.title", &[]);
+                let body = tr("close.toast.doors_closed.body", &[]);
+                self.push_ticker(Icon::Door, title.clone());
+                self.toast(ToastKind::Info, Icon::Door, title, Some(body));
+            }
             SimEvent::NightEnded { summary } => {
                 self.summary_pending = Some(*summary);
                 self.panel = None;
@@ -940,6 +948,7 @@ impl GameScreen {
             SimEvent::DishBroken { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 1.0),
             SimEvent::TrainPassing { .. } => audio.play_sfx(Sfx::TrainPass),
             SimEvent::DoorsOpened { .. } => audio.play_sfx_vol(Sfx::DoorBell, 0.9),
+            SimEvent::DoorsClosed => audio.play_sfx_vol(Sfx::DoorBell, 0.5),
             SimEvent::Blackout { on: true } => audio.play_sfx(Sfx::PowerOutage),
             SimEvent::ChoiceNeeded { .. } | SimEvent::EventStarted { .. } => {
                 audio.play_sfx_vol(Sfx::EventAlert, 0.8)
@@ -1140,11 +1149,18 @@ impl GameScreen {
         self.summary = None;
         self.summary_pending = None;
         if let Some(m) = minute {
+            bot.hold_doors = m < 0 || m >= sim::NIGHT_MINUTES as i32;
             self.world.start_night(content);
             let mut g = 0;
             // (minutes since 22:00: negative = the preparation half hour)
+            // (21:59 / 06:29: on until the clock waits there)
+            let wait_at = m == -1 || m == (sim::NIGHT_MINUTES + sim::CLOSE_MINUTES) as i32 - 1;
             while self.world.phase() == Phase::Night
-                && self.world.minutes_since_open() < m
+                && (self.world.minutes_since_open() < m
+                    || (wait_at
+                        && self.world.minutes_since_open() == m
+                        && !self.world.waiting_for_doors()
+                        && !self.world.waiting_to_close()))
                 && g < 20_000
             {
                 if let Some(id) = self.world.playing_cutscene().map(str::to_string) {
@@ -1156,7 +1172,19 @@ impl GameScreen {
                         },
                     );
                 }
-                bot.step(&mut self.world, content);
+                // (the bot never opens / closes up before the target time: a 21:59 or 06:10
+                // picture shows the waiting clock / the closing half hour)
+                if self.world.waiting_to_close() {
+                    break;
+                }
+                // `SHIFTELLA_DOORS=wait` (screenshots): she hasn't touched the opening / closing
+                // list yet, so at 21:59 / 06:29 the clock waits for her
+                let idle_prep = ((self.world.in_prep() && m < 0)
+                    || (self.world.in_closing() && m >= sim::NIGHT_MINUTES as i32))
+                    && std::env::var("SHIFTELLA_DOORS").is_ok_and(|v| v == "wait");
+                if !idle_prep {
+                    bot.step(&mut self.world, content);
+                }
                 self.world.tick(content);
                 self.scene.sim_steps += 1;
                 let evs = self.world.drain_events();
@@ -1193,10 +1221,16 @@ impl GameScreen {
         self.intro = false;
     }
 
-    /// Runs the current night to 06:00 and shows the morning summary.
+    /// Runs the current night to its end (the doors open at 21:59, she closes up at 06:29)
+    /// and shows the morning summary.
     pub fn run_to_morning(&mut self, content: &Rc<Content>, loc: &Locale) {
         let mut g = 0;
         while self.world.phase() == Phase::Night && g < 60_000 {
+            if self.world.waiting_for_doors() {
+                let _ = self.world.apply(content, Command::OpenDoors);
+            } else if self.world.waiting_to_close() {
+                let _ = self.world.apply(content, Command::CloseUp);
+            }
             if let Some(id) = self.world.playing_cutscene().map(str::to_string) {
                 let _ = self.world.apply(
                     content,
@@ -2069,6 +2103,14 @@ impl GameScreen {
             }
             if pressed(ui, A::Greet) {
                 self.intent(content, Intent::Greet);
+            }
+            // O: open the doors (the preparation) / close up (the closing half hour)
+            if pressed(ui, A::Doors) {
+                if self.world.in_prep() {
+                    let _ = self.command(content, Command::OpenDoors);
+                } else if self.world.in_closing() {
+                    let _ = self.command(content, Command::CloseUp);
+                }
             }
             // F: the nearest night moment's card
             if pressed(ui, A::Moment)

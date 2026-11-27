@@ -573,7 +573,7 @@ fn night_one_tutorial_starts_in_the_preparation_half_hour() {
     );
 }
 
-/// The HUD bar spans 21:30 → 06:00 and the door chip works ("Open now" → 22:00).
+/// The HUD bar spans 21:30 → 06:30 and the door chip works ("Open the doors" → 22:00).
 #[test]
 fn open_the_doors_from_the_hud_and_the_door_toast() {
     let c = content();
@@ -597,8 +597,47 @@ fn open_the_doors_from_the_hud_and_the_door_toast() {
         "ticker: doors open"
     );
     let p = g.world.evening_progress();
-    let want = sim::PREP_MINUTES as f32 / (sim::PREP_MINUTES + sim::NIGHT_MINUTES) as f32;
+    let want = sim::PREP_MINUTES as f32 / sim::evening_span() as f32;
     assert!((p - want).abs() < 1e-4, "{p}");
+}
+
+/// The closing half hour on screen: at 06:00 the sign flips back with a toast, the chip
+/// says "Close up" and closing up brings the morning summary.
+#[test]
+fn the_doors_close_at_six_and_close_up_brings_the_morning() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 2, Some(485), true);
+    assert!(g.world.in_closing(), "{}", g.world.clock_label());
+    assert_eq!(g.world.clock_label(), "06:05");
+    assert!(!g.world.doors_open(), "the sign says Closed");
+    assert!(g.world.guests_inside() == 0, "the café is empty");
+    // the light in the window goes off now (closing time), by the window click
+    assert!(super::hands::lights_off_due(&g) || !g.world.window_light_on(&c));
+    assert!(g.summary.is_none() && g.summary_pending.is_none());
+    g.command(&c, Command::CloseUp).unwrap();
+    g.drain_and_handle(&c, Some(&loc));
+    assert_eq!(g.world.phase(), sim::Phase::Day);
+    assert!(
+        g.summary.is_some() || g.summary_pending.is_some(),
+        "the morning summary comes now"
+    );
+    // and the toast at 06:00 (fresh night, run to the doors closing)
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 2, Some(479), true);
+    for _ in 0..40 {
+        g.world.tick(&c);
+        g.drain_and_handle(&c, Some(&loc));
+    }
+    assert!(g.world.in_closing());
+    assert!(
+        g.ticker
+            .iter()
+            .any(|t| t.text == loc.tr("close.toast.doors_closed.title")),
+        "ticker: doors closed"
+    );
 }
 
 /// v0.2 appliances: after the window, **E** reaches the appliances; a click on one queues

@@ -32,8 +32,16 @@ pub const REVIEW_WEIGHT: f32 = 0.003;
 pub const TRUST_FAST: f32 = 4.0;
 pub const TRUST_SERVED: f32 = 2.0;
 pub const TRUST_ANGRY: f32 = 2.0;
-/// No new walk-ins after this minute (05:40).
-pub const LAST_CALL: u32 = 460;
+/// Last call (05:15): nobody new comes in from this minute — no walk-ins, no train
+/// passengers, no event rushes, no regulars — so the café empties by 06:00.
+pub const LAST_CALL: u32 = 435;
+/// From 05:45 whoever is still eating is gently wrapped up: they pay and go (no review
+/// penalty, nobody "left angry")…
+pub const WRAP_UP: u32 = 465;
+/// …and from 05:50 the last ones still waiting go too (unserved: they pay nothing, no
+/// penalty, Cozy or Classic), so they are out of the door by 06:00. The storm night's
+/// stranded strangers stay till 06:00.
+pub const WRAP_UP_LAST: u32 = 470;
 /// Hall dirt above this is worth a mop.
 pub const MOP_DIRT: f32 = 0.12;
 /// Key of the line a forgiving Cozy guest leaves with ("I'll come back tomorrow.").
@@ -79,11 +87,10 @@ pub struct PendingSpawn {
 pub const COZY_HOLD_PRESSURE: u32 = 3;
 /// A party lingers for her hands at most this many minutes …
 pub const COZY_HOLD_MAX: u32 = 60;
-/// … nobody starts lingering from this minute on (05:00, when the closing checklist starts) …
-pub const COZY_HOLD_UNTIL: u32 = 420;
-/// … and the last ones who waited are in by this minute (05:20: the closing checklist still
-/// fits before 06:00).
-pub const COZY_HOLD_LAST: u32 = 440;
+/// … nobody starts lingering from this minute on (04:40) …
+pub const COZY_HOLD_UNTIL: u32 = 400;
+/// … and the last ones who waited are in by this minute (05:10, before last call).
+pub const COZY_HOLD_LAST: u32 = 430;
 
 // ---------------------------------------------------------------------------------------------
 // Menu availability
@@ -567,6 +574,10 @@ pub(crate) fn spawn_party(
     leave_by: Option<u32>,
     force_wish: bool,
 ) -> Option<u32> {
+    // last call (05:15) and the closed doors: nobody new comes in
+    if !w.doors_open() || w.minute() >= LAST_CALL {
+        return None;
+    }
     let arch = content.guest(archetype)?;
     let reg = regular.and_then(|r| content.regular(r));
     // the leader's order kind (regulars always wish; others by chance)
@@ -1179,7 +1190,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
         due
     };
     for s in due {
-        if m < 478 {
+        if m < LAST_CALL {
             spawn_party(
                 w,
                 content,
@@ -1277,6 +1288,22 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             g.emote = Some((SimEmote::Coffee, tick + 30));
         }
         w.emit(SimEvent::GuestPatienceRefilled { party: pid });
+    }
+    // closing time: from 05:45 whoever is eating pays and goes, from 05:50 everybody (the
+    // storm night's stranded strangers stay till 06:00)
+    if m >= WRAP_UP {
+        let stranded = super::storm::line_closed(w);
+        for p in &w.parties {
+            if p.state == PartyState::Leaving
+                || leave.iter().any(|l| l.0 == p.id)
+                || (stranded && p.regular.is_none())
+            {
+                continue;
+            }
+            if p.state == PartyState::Eating || m >= WRAP_UP_LAST {
+                leave.push((p.id, Exit::Normal));
+            }
+        }
     }
     for (pid, exit) in leave {
         finish_party(w, content, pid, exit);
@@ -1907,7 +1934,7 @@ fn party_table(w: &World, content: &Content, pi: usize) -> Option<u32> {
         .and_then(|s| s.table)
 }
 
-/// 06:00: everyone finishes up.
+/// 06:00 (the doors close) and the night's end: everyone still inside finishes up.
 pub(crate) fn close_up(w: &mut World, content: &Content) {
     let ids: Vec<(u32, PartyState)> = w.parties.iter().map(|p| (p.id, p.state)).collect();
     for (id, st) in ids {

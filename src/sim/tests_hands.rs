@@ -1136,10 +1136,13 @@ fn a_mid_night_save_continues_identically_with_karolina_busy() {
     b.day(&mut w, &c);
     bot::finish_cutscenes(&mut w, &c);
     w.start_night(&c);
-    for _ in 0..1800 {
+    // (to 02:30, whatever the preparation took)
+    let mut guard = 0;
+    while (w.in_prep() || w.minute() < 150) && guard < 10_000 {
         bot::finish_cutscenes(&mut w, &c);
         b.step(&mut w, &c);
         w.tick(&c);
+        guard += 1;
     }
     w.drain_events();
     assert!(w.player().current.is_some() || !w.parties().is_empty());

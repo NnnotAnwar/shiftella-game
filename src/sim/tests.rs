@@ -1029,6 +1029,7 @@ fn sixty_agents_tick_fast() {
     }
     w.start_night(&c);
     finish_cutscenes(&mut w, &c);
+    w.skip_prep(&c);
     w.debug_spawn_guests(&c, "students", 60, 5);
     let mut peak = 0;
     let t0 = std::time::Instant::now();

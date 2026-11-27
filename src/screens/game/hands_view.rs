@@ -49,7 +49,8 @@ pub enum Target {
 
 /// Checklist items Karolina can do by hand in the world right now: (index into
 /// `content.app.checklists`, furniture uid it sits on). Opening items until done, closing
-/// items from 05:00; the window light, the record and the handover note have their own ways.
+/// items by `World::checklist_item_open` (the till and the group head at closing time, the
+/// rest from 05:00); the window light, the record and the handover note have their own ways.
 pub fn open_rituals(g: &GameScreen, content: &Content) -> Vec<(usize, u32)> {
     let w = &g.world;
     if w.phase() != Phase::Night {
@@ -66,7 +67,7 @@ pub fn open_rituals(g: &GameScreen, content: &Content) -> Vec<(usize, u32)> {
             continue;
         }
         // the handover note waits for closing time
-        if it.id == "handover_note" && m < 466 {
+        if it.id == "handover_note" && m < 466 && !w.in_closing() {
             continue;
         }
         let open = w
@@ -74,10 +75,7 @@ pub fn open_rituals(g: &GameScreen, content: &Content) -> Vec<(usize, u32)> {
             .checklist
             .iter()
             .any(|c| c.id == it.id && !c.done && c.claim.is_none());
-        let in_time = match it.list {
-            crate::content::ChecklistKind::Opening => true,
-            crate::content::ChecklistKind::Closing => m >= 7 * 60,
-        };
+        let in_time = w.checklist_item_open(content, &it.id);
         let Some(tag) = it.anchor.as_deref() else {
             continue;
         };

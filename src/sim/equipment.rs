@@ -275,6 +275,12 @@ fn any_on_menu(w: &World, content: &Content, items: &[String]) -> bool {
     items.iter().any(|i| menu.contains(i))
 }
 
+/// The closing chores (count the till, clean the group head, the trash): the closing half
+/// hour, or from `closing.from_minute` (05:15, last call) once the café is empty.
+fn closing_now(w: &World, c: &crate::content::handson::EquipmentTuning) -> bool {
+    w.in_closing() || (w.closing_time() && w.minute() >= c.closing.from_minute)
+}
+
 fn in_hands(w: &World, uid: u32, action: EquipAction) -> bool {
     let p = &w.hands.player;
     let act = super::hands::PlayerAct::Use { uid, action };
@@ -310,7 +316,7 @@ pub(crate) fn possible(w: &World, content: &Content, uid: u32, action: EquipActi
     let c = cfg(content);
     let e = &w.hands.equip;
     let m = w.minute();
-    let closing = m >= c.closing.from_minute;
+    let closing = closing_now(w, c);
     let open = w.doors_open();
     let power = w.blackout_until.is_none();
     use EquipAction::*;
@@ -481,8 +487,13 @@ pub(crate) fn complete(
     let c = cfg(content).clone();
     let t = now(w);
     let by_hand = by.is_some_and(|id| w.staff_by_id(id).is_some_and(|s| s.owner));
+    // (never an item Karolina queued herself: her act ticks it)
     if let Some(id) = action.checklist()
-        && w.app.checklist.iter().any(|x| x.id == id && !x.done)
+        && w
+            .app
+            .checklist
+            .iter()
+            .any(|x| x.id == id && !x.done && x.claim.is_none_or(|c| Some(c) == by))
     {
         super::app::tick_checklist(w, content, id, by);
     }
@@ -662,37 +673,59 @@ pub(crate) fn on_night_start(w: &mut World) {
 
 /// Every minute of the preparation and the night: the oven dings, the pot bubbles, the
 /// tray goes cold, a worn machine sputters; at 22:00 the kitchen helper does what Karolina
-/// didn't.
+/// didn't (in the preparation, once they are in).
 pub(crate) fn on_minute(w: &mut World, content: &Content) {
     if w.phase != Phase::Night {
         return;
     }
     let c = cfg(content).clone();
     let t = now(w);
-    let m = w.minute();
-    // 22:00: delegated kitchen chores
-    if t == 0
-        && let Some(helper) = helper_with(w, Duty::Kitchen)
-    {
+    // the preparation (once the kitchen helper is in, a minute apart) and 22:00 at the
+    // latest: the delegated kitchen chores — never one Karolina has queued herself
+    let kitchen_at = if w.in_prep() {
+        (-(PREP_MINUTES as i32) + PREP_CREW_ARRIVES as i32 + 2..0).contains(&t)
+    } else {
+        t == 0
+    };
+    if kitchen_at && let Some(helper) = helper_with(w, Duty::Kitchen) {
         let power = w.blackout_until.is_none();
         if w.hands.equip.pot.is_none()
             && power
             && any_on_menu(w, content, &c.soup.items)
             && let Some(stove) = first_with(w, content, EquipKind::Stove)
+            && !in_hands(w, stove, EquipAction::SoupOn)
         {
             complete(w, content, stove, EquipAction::SoupOn, Some(helper));
-        }
-        if !w.hands.equip.milk_done
+        } else if !w.hands.equip.milk_done
             && let Some(fridge) = first_with(w, content, EquipKind::Fridge)
+            && !in_hands(w, fridge, EquipAction::Milk)
         {
             complete(w, content, fridge, EquipAction::Milk, Some(helper));
-        }
-        if w.hands.equip.cake == Cake::None
+        } else if w.hands.equip.cake == Cake::None
             && power
             && any_on_menu(w, content, &c.cake.items)
             && let Some(oven) = first_with(w, content, EquipKind::Oven)
+            && !in_hands(w, oven, EquipAction::Bake)
         {
             complete(w, content, oven, EquipAction::Bake, Some(helper));
+        }
+    }
+    // the closing half hour: the register helper counts the till, the floor / dishes helper
+    // takes the trash out (unless Karolina has it in her hands)
+    if w.in_closing() && w.close_minute() >= 2 {
+        if !w.hands.equip.till_counted
+            && let Some(helper) = helper_with(w, Duty::Register)
+            && let Some(reg) = first_with(w, content, EquipKind::Register)
+            && !in_hands(w, reg, EquipAction::CountTill)
+            && w.app.checklist.iter().any(|x| x.id == "cash_up" && x.claim.is_none())
+        {
+            complete(w, content, reg, EquipAction::CountTill, Some(helper));
+        } else if !w.hands.equip.trash_out
+            && let Some(helper) = helper_with(w, Duty::Floor).or_else(|| helper_with(w, Duty::Dishes))
+            && let Some(bin) = first_with(w, content, EquipKind::Trash)
+            && !in_hands(w, bin, EquipAction::Trash)
+        {
+            complete(w, content, bin, EquipAction::Trash, Some(helper));
         }
     }
     // the oven timer
@@ -718,7 +751,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     }
     // the pot bubbles now and then (doors open, before closing)
     if t >= 0
-        && m < c.closing.from_minute
+        && !closing_now(w, &c)
         && let Some(stove) = first_with(w, content, EquipKind::Stove)
         && let Some(p) = w.hands.equip.pot.as_mut()
     {
@@ -828,7 +861,7 @@ impl World {
                 (Cake::Out { slices }, EquipKind::Oven) if night => CakeView::Out(slices),
                 _ => CakeView::None,
             };
-            let closing = night && self.minute() >= c.closing.from_minute;
+            let closing = night && closing_now(self, c);
             out.push(EquipView {
                 uid: p.uid,
                 kind,

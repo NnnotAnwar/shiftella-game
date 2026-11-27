@@ -700,6 +700,13 @@ impl World {
                 self.open_doors(content);
                 Ok(())
             }
+            Command::CloseUp => {
+                if !self.in_closing() {
+                    return Err(CommandError::WrongPhase);
+                }
+                self.close_up_now(content);
+                Ok(())
+            }
             Command::StartNight => {
                 if self.phase != Phase::Day {
                     return Err(CommandError::WrongPhase);

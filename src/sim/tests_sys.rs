@@ -106,6 +106,8 @@ fn fx_later_next_night_if_maybe_and_targets() {
     to_day(&mut w, &c);
     w.start_night(&c);
     assert!(w.flag("t5_next"), "NextNight ran at the next night start");
+    // (guests come once the doors are open)
+    w.skip_prep(&c);
     // a target guest
     let pid =
         guests::spawn_party(&mut w, &c, "travelers", 1, None, 1.0, 1.0, &[], None, false).unwrap();

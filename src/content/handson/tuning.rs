@@ -156,7 +156,7 @@ pub struct QuietHour {
 }
 
 fn default_prep_tick_scale() -> f32 {
-    0.7
+    1.0
 }
 
 /// `assets/data/handson.ron`.
@@ -165,8 +165,9 @@ fn default_prep_tick_scale() -> f32 {
 pub struct HandsonTuning {
     /// Real seconds per sim tick at ×1 (0.15 → a night is 12 real minutes).
     pub real_seconds_per_tick_x1: f32,
-    /// Real seconds per tick × this during the preparation half hour (21:30–22:00, doors
-    /// closed): 0.7 → the half hour is ~27 real seconds at ×1 instead of 39.
+    /// Real seconds per tick × this during the two quiet halves (the preparation 21:30–22:00
+    /// and the closing half hour 06:00–06:30, doors closed; their clock already runs at
+    /// `sim::QUIET_TICKS_PER_MINUTE`): 1.0 → ~1.6 real minutes per half at ×1.
     #[serde(default = "default_prep_tick_scale")]
     pub prep_tick_scale: f32,
     pub overlay_scale: OverlayScale,
@@ -403,7 +404,8 @@ impl Default for CakeTuning {
 #[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
 #[serde(default, deny_unknown_fields)]
 pub struct ClosingTuning {
-    /// From this night minute (420 = 05:00).
+    /// From this night minute (435 = 05:15, last call) once the café is empty; always in the
+    /// closing half hour (06:00–06:30).
     pub from_minute: u32,
     /// Hall dirt the trash run takes away.
     pub trash_dirt: f32,
@@ -414,7 +416,7 @@ pub struct ClosingTuning {
 impl Default for ClosingTuning {
     fn default() -> Self {
         ClosingTuning {
-            from_minute: 420,
+            from_minute: 435,
             trash_dirt: 0.03,
             cat_chance: 0.35,
         }

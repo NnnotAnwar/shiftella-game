@@ -903,8 +903,8 @@ fn checklist_works(w: &World, content: &Content, job: Job, duty: Duty) -> Vec<Wo
             continue;
         }
         let window = match c.list {
-            ChecklistKind::Opening => m < 120,
-            ChecklistKind::Closing => m >= 420,
+            ChecklistKind::Opening => m < 120 && !w.in_closing(),
+            ChecklistKind::Closing => super::tool::closing_item_open(w, &c.id),
         };
         if !window {
             continue;
@@ -926,7 +926,9 @@ fn checklist_works(w: &World, content: &Content, job: Job, duty: Duty) -> Vec<Wo
                 * TICKS_PER_MINUTE as f32
                 * super::tool::checklist_speed(w, content, &c.id),
             // before the doors open the opening items come first (nobody is waiting yet)
-            rank: if w.in_prep() && c.list == ChecklistKind::Opening {
+            rank: if (w.in_prep() && c.list == ChecklistKind::Opening)
+                || (w.in_closing() && c.list == ChecklistKind::Closing)
+            {
                 0
             } else {
                 5
@@ -1185,7 +1187,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
         // the early crew walks in a couple of minutes apart in the preparation (21:38–21:45);
         // the late ones (and later shifts) come by the night clock as before
         let arrives_now = |minute: u32, helper: u32| match prep {
-            Some(pm) => minute == 0 && pm >= PREP_CREW_ARRIVES + (helper * 2) % 8,
+            Some(pm) => minute == 0 && pm >= PREP_CREW_ARRIVES + helper % 4,
             None => m >= minute,
         };
         if !w.staff[idx].owner {
@@ -1253,7 +1255,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
         // choose something to do
         let idle = matches!(w.staff[idx].task, None | Some(Task::Idle { .. }));
         // (every other tick per person; the prep ticks count too — the night clock stands still)
-        let beat = w.tick + PREP_TICKS.saturating_sub(w.prep_left);
+        let beat = w.tick + PREP_TICKS.saturating_sub(w.prep_left) + w.close_tick;
         if idle && (beat + idx as u32).is_multiple_of(2) {
             if let Some(b) = wants_break(w, content, idx) {
                 start_break(w, idx, b);
@@ -1270,6 +1272,14 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
                 if !go(w, idx, wk.goal) {
                     abandon(w, idx);
                 }
+            } else if w.in_closing() && w.close_minute() >= 1 {
+                // the closing half hour: their closing items are done — they go home
+                abandon(w, idx);
+                let edge = w.grid.street_edges()[0];
+                w.staff[idx].status = StaffStatus::Leaving;
+                w.staff[idx].task = Some(Task::Leave);
+                go(w, idx, edge);
+                continue;
             } else if w.staff[idx].task.is_none() {
                 let t = idle_tile(w, content, idx);
                 w.staff[idx].task = Some(Task::Idle { tile: t });

@@ -32,6 +32,8 @@ pub enum Action {
     Moment,
     Chore,
     Greet,
+    /// "Open the doors" in the preparation, "Close up" in the closing half hour.
+    Doors,
     Pause,
     Speed1,
     Speed2,
@@ -42,7 +44,7 @@ pub enum Action {
 
 impl Action {
     /// In the order of the Controls list.
-    pub const ALL: [Action; 18] = [
+    pub const ALL: [Action; 19] = [
         Action::Crew,
         Action::Duties,
         Action::App,
@@ -55,6 +57,7 @@ impl Action {
         Action::Moment,
         Action::Chore,
         Action::Greet,
+        Action::Doors,
         Action::Pause,
         Action::Speed1,
         Action::Speed2,
@@ -78,6 +81,7 @@ impl Action {
             Action::Moment => "moment",
             Action::Chore => "chore",
             Action::Greet => "greet",
+            Action::Doors => "doors",
             Action::Pause => "pause",
             Action::Speed1 => "speed1",
             Action::Speed2 => "speed2",
@@ -110,6 +114,7 @@ impl Action {
             Action::Moment => KeyCode::F,
             Action::Chore => KeyCode::E,
             Action::Greet => KeyCode::G,
+            Action::Doors => KeyCode::O,
             Action::Pause => KeyCode::Space,
             Action::Speed1 => KeyCode::Key1,
             Action::Speed2 => KeyCode::Key2,
