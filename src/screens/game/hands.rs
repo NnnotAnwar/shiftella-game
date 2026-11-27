@@ -1711,6 +1711,12 @@ impl GameScreen {
         }
         ap.cooldown = AUTOPLAY_REACT;
         self.hands.autoplay = Some(ap);
+        // the sim opened the phone (`SimEvent::OpenApp`, e.g. night 7's rozpis link): she
+        // glances at it and puts it away — open, it slows the night to a crawl for good
+        if self.panel == Some(Panel::App) && !self.automation {
+            self.panel = None;
+            return Some("phone");
+        }
         // closing time: the handover note and the light at six go to the front of her hands
         // even before an open card (a late guest at 05:45 must not keep the lamp on)
         if self.world.minute() >= 466 {
