@@ -50,6 +50,8 @@ fn spawn(w: &mut World, c: &Content, archetype: &str, size: u32, wish: bool) -> 
         p.order_kind = OrderKind::Plain;
         p.wish_open = false;
     }
+    // in and settled: her order can be taken now (0.2.2: never while walking in)
+    guests::settle_now(w, pid);
     pid
 }
 

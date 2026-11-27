@@ -59,6 +59,9 @@ fn night_only(w: &World) -> Result<(), CommandError> {
     Ok(())
 }
 
+/// `CommandError::Invalid` of an order taken before the party is in and settled.
+pub const NOT_IN_YET: &str = "not_in_yet";
+
 fn queue_room(w: &World) -> Result<(), CommandError> {
     if w.hands.player.queue.len() >= PLAYER_QUEUE_MAX {
         return Err(CommandError::QueueFull);
@@ -78,12 +81,21 @@ fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerA
         PlayerAct::TakeOrder { party } => {
             let p = w
                 .parties
-                .iter_mut()
+                .iter()
                 .find(|p| p.id == *party)
                 .ok_or_else(|| CommandError::UnknownId(party.to_string()))?;
             if !matches!(p.state, PartyState::Queue | PartyState::WaitOrder) {
                 return Err(CommandError::Invalid("they already ordered".into()));
             }
+            // still walking in: not before they sit down / stand in the line
+            if !guests::settled(w, p) {
+                return Err(CommandError::Invalid(NOT_IN_YET.into()));
+            }
+            let p = w
+                .parties
+                .iter_mut()
+                .find(|p| p.id == *party)
+                .ok_or_else(|| CommandError::UnknownId(party.to_string()))?;
             match p.order_claim {
                 Some(x) if x == me => return Err(CommandError::Invalid("already on it".into())),
                 Some(_) => return Err(CommandError::InUse),
@@ -1019,7 +1031,8 @@ fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal
             .items
             .iter()
             .find(|i| i.id == *item)
-            .and_then(|i| i.ready_tile)),
+            .and_then(|i| i.ready_tile)
+            .map(|t| staff::pickup_tile(w, t, here))),
         PlayerAct::ClearTable { table } | PlayerAct::CollectTip { table } => {
             at(staff::station_access(w, content, *table))
         }

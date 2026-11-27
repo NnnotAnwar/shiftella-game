@@ -45,6 +45,7 @@ mod stories;
 mod storm;
 mod story;
 mod systems;
+mod to_go;
 mod tool;
 mod types;
 pub mod walk;
@@ -90,6 +91,8 @@ mod tests_rituals;
 #[cfg(test)]
 mod tests_sandbox;
 #[cfg(test)]
+mod tests_seats;
+#[cfg(test)]
 mod tests_signature;
 #[cfg(test)]
 mod tests_stories;
@@ -118,7 +121,7 @@ pub use life::{HelperDoing, HelperWork, IdleLife, Pastime};
 pub use moments::CatView;
 pub use names::{Extra, Garment, Persona, StrangerLook, stranger_look};
 pub use orders::PLAIN_CREDIT;
-pub use player::{MOP_AMOUNT, WASH_PER_SECOND};
+pub use player::{MOP_AMOUNT, NOT_IN_YET, WASH_PER_SECOND};
 pub use rituals::{RitualHold, RitualStep, ritual_gesture, ritual_key};
 pub use signature::{NightPhoto, SIGNATURE_RECIPE, SignatureDrink};
 pub use staff::FIRST_HIRE_NIGHT;
@@ -294,6 +297,14 @@ impl World {
     /// The party a guest (or party id) belongs to.
     pub fn party_of_guest(&self, guest: u32) -> Option<&Party> {
         player::party_of(self, guest).map(|i| &self.parties[i])
+    }
+    /// Is party `party` in and settled — seated at their table, or standing in the register
+    /// line — so its order can be taken? (Walking in from the street: not yet.)
+    pub fn party_settled(&self, party: u32) -> bool {
+        self.parties
+            .iter()
+            .find(|p| p.id == party)
+            .is_some_and(|p| guests::settled(self, p))
     }
     /// What the guest's party leader ordered.
     pub fn order_kind(&self, guest: u32) -> Option<&OrderKind> {

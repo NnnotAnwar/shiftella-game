@@ -261,9 +261,12 @@ pub(crate) fn compute(w: &World, content: &Content) -> Coziness {
     let wt = |c| def.weight(c);
     let night = w.phase == Phase::Night;
     let blackout = w.blackout_until.is_some();
-    let seats: Vec<(i32, i32, f32)> = super::guests::seats(w, content)
+    let all_seats: Vec<super::guests::SeatInfo> = super::guests::seats(w, content)
         .into_iter()
         .filter(|s| in_hall(w, s.tile))
+        .collect();
+    let seats: Vec<(i32, i32, f32)> = all_seats
+        .iter()
         .map(|s| (s.tile.0, s.tile.1, s.comfort))
         .collect();
     // light: hall seats within the radius of a lit light (candles in a blackout)
@@ -290,14 +293,18 @@ pub(crate) fn compute(w: &World, content: &Content) -> Coziness {
     } else if seats.is_empty() {
         0.0
     } else {
-        let lit = seats
+        let lit = all_seats
             .iter()
-            .filter(|(x, y, _)| {
-                lights.iter().any(|((cx, cy), r)| {
-                    let dx = *x as f32 - cx;
-                    let dy = *y as f32 - cy;
-                    (dx * dx + dy * dy).sqrt() <= *r + 0.5
-                })
+            .map(|s| (s.tile.0, s.tile.1, s.bar))
+            .filter(|(x, y, bar)| {
+                // a seat at the bar sits under the bar's own pendant lamps (the renderer's
+                // warm row over the counter), lit whenever the power is on
+                (*bar && !blackout)
+                    || lights.iter().any(|((cx, cy), r)| {
+                        let dx = *x as f32 - cx;
+                        let dy = *y as f32 - cy;
+                        (dx * dx + dy * dy).sqrt() <= *r + 0.5
+                    })
             })
             .count();
         lit as f32 / seats.len() as f32

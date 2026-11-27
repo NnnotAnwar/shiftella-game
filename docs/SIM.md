@@ -250,9 +250,22 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   `COZY_HOLD_MAX` 60 min, none from 04:40), and the ones who waited come in one party a
   minute (all in by `COZY_HOLD_LAST` 05:10, before last call). The Cozy
   train spread is cut so passengers are in by last call (05:15). Classic never holds. Seats are reserved on arrival, one chair per guest (no seat →
-  they walk on). Paths go around chairs and stools (`grid::SEAT`) unless there is no other way; a
-  guest with no way to the goal waits and retries (never walks through the furniture). Plain parties queue at the register (or sit when the line is long); wish
-  parties always sit and wait for Karolina. Patience runs on the wait clock (§9.4); food waits
+  a plain party may take it to go, `sim::to_go`, else they walk on). Paths go around chairs and stools (`grid::SEAT`) unless there is no other way; a
+  guest with no way to the goal waits and retries (never walks through the furniture).
+  **Ordering (0.2.2):** most parties sit down and order at their table (`WaitOrder`); a
+  plain party orders at the bar (`Queue` at the register) with chance `BAR_ORDER_SHARE`
+  0.10 + `BAR_ORDER_SOLO` 0.10 alone + `BAR_ORDER_QUICK` 0.25 for a stay of ≤ 20 min (half
+  for ≤ 30) — about 25–35 % of plain parties — rolled from a derived stream (never
+  `World::rng`); never into a line of `BAR_LINE_MAX` (3) or more. Wish parties always sit.
+  **Settled:** `guests::settled(w, party)` / `World::party_settled(id)` — a table party once
+  its leader sits, a bar party once its leader stands at (or a step from, as the line moves)
+  their slot inside. Before that `PlayerTakeOrder` / `PlayerQueue(TakeOrder)` →
+  `CommandError::Invalid(NOT_IN_YET)` ("not_in_yet"; the screen shows the soft toast
+  `ui.order.not_in_yet` and a dashed "still walking in" rail chip,
+  `ui.rail.stage.walking_in`), helpers don't pick it up, and the player-bot skips it.
+  Helpers: `Register` takes bar orders (settled queue front) and table orders (rank 0);
+  `Serving` takes table orders too (rank 1, after carrying; credited to Serving unless the
+  helper also holds Register). Patience runs on the wait clock (§9.4); food waits
   get `FOOD_PATIENCE` 2.4× (Cozy `COZY_FOOD_PATIENCE` 3.0×). Satisfaction: wait times, item
   `mood_bonus`, quality, server traits, seat comfort, beauty, dirt, music, + the hands-on serve
   formula. Pay = (price + recipe `price_add`) × spend × `income_mul`; tips → coins (§9.5); review
@@ -298,7 +311,9 @@ for a mid-night save). Fixtures: `src/sim/testdata/save_v1_*.ron` (made by the p
 (`SIM_STRESS=1` adds 60 guests nightly). `sim_balance -- [nights] [mode] [diff] [seeds] [--player-bot q r | --no-bot]`
 averages seeds and prints the handson.md §9 targets (`SIM_PLAN=3,5,9` = hire nights).
 `sim_trace` prints staff/party states for debugging.
-Knobs: `guests::{BASE_PARTIES_PER_HOUR, FOOD_PATIENCE, COZY_FOOD_PATIENCE, SECOND_ITEM_CHANCE,
+`sim_balance … --no-build` plays the never-building player; it prints `seats: turned away N
+guests / P parties a night · to go G guests a night · earned (revenue + tips) E a run`.
+Knobs: `guests::{BASE_PARTIES_PER_HOUR (0.2.2: 1.7 → 1.3), BAR_ORDER_*, FOOD_PATIENCE, COZY_FOOD_PATIENCE, SECOND_ITEM_CHANCE,
 DRINK_WITH_FOOD_CHANCE, REVIEW_WEIGHT, story_ramp}`, `staff::{STAFF_SPEED, TRAY, FIRST_HIRE_NIGHT}`,
 `COZY_TRAIN_SPREAD`, `narrator::CHOICE_MINUTES`, `economy::CLASSIC_OVERDRAFT`, and all of
 `handson.ron` (content).
@@ -924,12 +939,41 @@ every curve: a player who never builds plays the old numbers and draws nothing e
 world RNG. State: `World.pay: PayoffState` (`#[serde(default)]`; tonight's tally, reset at
 night start); `Party.extra_seat` / `Party.rounds` and `NightSummary.payoff` are defaulted too.
 
-* **Seats → guests.** Random walk-ins × `seat_draw` = (hall seats / 16)^0.65, clamped 0.7–1.5
-  (24 seats ≈ ×1.30, 32 ≈ ×1.5; Cozy: not while her hands are full). A party with something to order and no seat goes on
-  (`GuestTurnedAway`) + toast `purchases.toast.no_seat` (at most every 40 min). A party that
-  only found room on a bought piece (grandma's own seats had none) is `extra_seat`.
-  `choose_seats`: a free table-less piece (sofa, window seat, armchair) now competes with the
-  tables by comfort, so comfy pieces are actually used (grandma's café has none).
+* **Grandma's bar stools (0.2.2).** `DEFAULT_LAYOUT` row 9, x 16–19 (`s`): four `stool`s on
+  the guests' ledge of the front counter, facing it, left of the register line (which runs
+  along row 9 to x 20, then up column 20 — 9 slots). They are placed after every other
+  piece, so older uids are unchanged (old saves keep their own layout). `SeatInfo.bar` = a
+  table-less seat beside a `counter` / `register` piece: it holds a guest but is **not** a
+  hall seat for the draw (`hall_seats` stays 16 = `seats.base`), and `atmos` counts it lit
+  by the bar's own pendant row (unless blacked out). Its hard-seat effect (comfort 1) is
+  booked in the morning's lines only for a *bought* seat (`purchases::booked`).
+* **Seats → guests.** Random walk-ins × `seat_draw` = (hall seats / 16)^0.95, clamped 0.7–1.6
+  (0.2.2: was ^0.65, max 1.5; 20 seats ≈ ×1.24, 24 ≈ ×1.47, 32 → ×1.6; Cozy: not while her
+  hands are full). A party with something to order and no seat takes it to go (below) or
+  goes on (`GuestTurnedAway`) + toast `purchases.toast.no_seat` / `purchases.toast.to_go`
+  (one shared clock: at most one every 40 min). A party that only found room on a bought
+  piece (grandma's own seats had none) is `extra_seat`. `choose_seats`: a free table-less
+  piece (sofa, window seat, armchair) competes with the tables by comfort; when no table or
+  piece fits the whole party, **every** free seat may start a group of seats within 4 steps
+  (0.2.2: only the best-scored one did, so a party of three went on with a free cluster
+  elsewhere) — a tight group wins, a seat beside a stranger at a small table counts 3 less.
+* **To go (0.2.2, `sim::to_go`, data `purchases.ron` → `to_go`).** No seat, a plain party
+  (never a regular, never a wish party) whose order has something in `categories` (Drink,
+  Dessert) takes it to go with chance `chance` 0.9 (Classic `classic_chance` 0.65), rolled
+  from a derived stream — unless the shortest register line is ≥ `max_queue` (5) or the
+  guests already waiting plus them would be > `max_waiting` (6) / the free spots.
+  `Party.to_go` (`#[serde(default)]`); the order is cut to those categories; the leader
+  queues at the register, the others (and the leader once ordered) wait on
+  `to_go::spots` — hall tiles ≤ 4 steps from the register front, never the line, a seat,
+  or a tile beside an opening to the staff side, the side away from the line first.
+  `staff::guest_seat_tile` serves them there. Once everything is served they leave at once
+  (no stay, no second round, no ambience) with the cup in hand (`Guest.holding` kept;
+  `AgentView.to_go` → the scene draws `render::draw_paper_cup`: in hand once served, over
+  the head while waiting); tips × `tips` (0.6), no table → the coin goes to the jar, no
+  dishes. Tally: `PayoffTally.{to_go, to_go_guests, to_go_money}`,
+  `NightSummary.guests_to_go` (defaulted). The morning's soft hint (always last):
+  `purchases.line.no_seat` (only went on), `purchases.line.to_go` (only to go), or
+  `purchases.line.to_go_some_left` (both); `PayoffLine.money` stays 0 for these hints.
 * **Comfort → stay, tips, a second round.** The party's mean seat comfort on the `comfort`
   curve (chair 2 = neutral; stool 1: stay ×0.85, tips ×0.92, −3 satisfaction; 4.5: ×1.25,
   ×1.10, 40 % second round, +3; 7: ×1.4, ×1.18, 55 %, +5). A second round = when the stay runs
@@ -956,5 +1000,11 @@ night start); `Party.extra_seat` / `Party.rounds` and `NightSummary.payoff` are 
   a second coffee machine (with a helper), floor lamps, armchairs, a table of four, the oven —
   keeping the next ten nights' payments (Classic seven) plus a cushion (Cozy 2 500, Classic 8 000), nothing
   new after night 20. `sim_headless … --no-build` plays the never-building player
-  and prints `earned (revenue + tips)` and the furniture. `income_mul` Cozy / Carefree 1.6 → 1.7, Classic 1.55 → 1.65.
-  Tests: `tests_purchases.rs` (a building bot earns ≥ +8 % over a full Cozy story).
+  and prints `earned (revenue + tips)` and the furniture. `income_mul` Cozy / Carefree 1.6 → 1.7, Classic 1.55 → 1.65;
+  0.2.2 seats: Cozy / Carefree 1.7 → 1.55, Classic 1.65 → 1.5.
+  Tests: `tests_purchases.rs` (a building bot earns ≥ +8 % over four full Cozy stories),
+  `tests_seats.rs` (the stools, big parties, to go, the ordering flow, settled orders).
+* **0.2.2 numbers** (`sim_balance 30 story <diff> 8`, guests a night): Cozy never-building
+  turned away 12.3 → 2.3 (+1.4 to go), earned 194.5k → 197k a run; Cozy builder 11.6 → 1.3,
+  216k → 226k (+14 % over the non-builder); Classic builder 12.8 → 3.3, 3–4 of 8 runs make
+  the final 30 000 (0.2.1: 4 of 8).

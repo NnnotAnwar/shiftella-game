@@ -4,7 +4,7 @@
 //!
 //! ```text
 //! cargo run --release --example sim_balance -- [nights] [story|sandbox] [cozy|classic] [seeds]
-//!     [--player-bot [quality] [react_seconds]] [--no-bot]
+//!     [--player-bot [quality] [react_seconds]] [--no-bot] [--no-build]
 //! SIM_PLAN=3,5,9   # nights on which the bot hires one more helper (default 3,5,9; Classic 3,8,15)
 //! SIM_VISITS=1     # print each regular's last visits (night:served minutes) and trust
 //! SIM_CHARACTER=chaotic  # sandbox storyteller (calm | balanced | chaotic …, sandbox.ron)
@@ -46,6 +46,8 @@ struct Row {
     crew: f32,
     overlay_min: f32,
     turned: f32,
+    turned_parties: f32,
+    to_go: f32,
     wages: f32,
     supplies: f32,
     n: f32,
@@ -68,6 +70,8 @@ fn main() {
     let no_bot = args.iter().any(|a| a == "--no-bot");
     let thrifty = args.iter().any(|a| a == "--thrifty");
     let attentive = !args.iter().any(|a| a == "--inattentive");
+    // `--no-build`: the bot never buys anything (the player who never builds)
+    let build = !args.iter().any(|a| a == "--no-build");
     let (quality, react) = match args.iter().position(|a| a == "--player-bot") {
         Some(i) => (
             args.get(i + 1).and_then(|s| s.parse().ok()).unwrap_or(0.75),
@@ -110,6 +114,7 @@ fn main() {
     let mut lights = 0u32;
     let mut peaks: Vec<u32> = Vec::new();
     let mut missed_runs: Vec<String> = Vec::new();
+    let mut earned_total = 0f32;
 
     for seed in 1..=seeds {
         let seed = seed * 7919 + 13;
@@ -134,6 +139,7 @@ fn main() {
             seed,
             thrifty,
             attentive,
+            build,
             ..Default::default()
         });
         for _ in 0..nights {
@@ -256,6 +262,9 @@ fn main() {
             r.crew += world.staff().len() as f32;
             r.overlay_min += bn.overlay_seconds / 60.0;
             r.turned += s.guests_turned_away as f32;
+            r.turned_parties += world.payoff_tonight().turned_away as f32;
+            r.to_go += s.guests_to_go as f32;
+            earned_total += (s.revenue + s.tips) as f32;
             r.wages += s.wages as f32;
             r.supplies += s.supplies as f32;
             r.n += 1.0;
@@ -456,6 +465,15 @@ fn main() {
         turned / k,
         wages / k,
         supplies / k,
+    );
+    let turned_parties: f32 = rows.iter().map(|r| r.turned_parties).sum();
+    let to_go: f32 = rows.iter().map(|r| r.to_go).sum();
+    println!(
+        "seats: turned away {:.1} guests / {:.1} parties a night · to go {:.1} guests a night · earned (revenue + tips) {:.0} a run",
+        turned / k,
+        turned_parties / k,
+        to_go / k,
+        earned_total / seeds as f32,
     );
     println!("endings: {endings:?}");
     println!(

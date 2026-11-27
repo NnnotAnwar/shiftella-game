@@ -39,6 +39,38 @@ pub struct PurchasesData {
     pub tiers: Vec<TierDef>,
     pub appliances: Vec<ApplianceDef>,
     pub summary_max: usize,
+    #[serde(default)]
+    pub to_go: ToGoDef,
+}
+
+/// No free seat → a paper cup to go (`guests::to_go`).
+#[derive(Debug, Clone, Deserialize)]
+pub struct ToGoDef {
+    /// The share of seatless plain parties who take it to go (Cozy / Carefree; Classic).
+    pub chance: f32,
+    pub classic_chance: f32,
+    /// What goes in a paper cup / bag.
+    pub categories: Vec<MenuCategory>,
+    /// Their tips ×.
+    pub tips: f32,
+    /// They don't join a register line this long.
+    pub max_queue: usize,
+    /// Guests waiting by the register for their cups at once.
+    pub max_waiting: usize,
+}
+
+impl Default for ToGoDef {
+    /// Off (a broken or old data file: they walk on as before).
+    fn default() -> Self {
+        ToGoDef {
+            chance: 0.0,
+            classic_chance: 0.0,
+            categories: Vec::new(),
+            tips: 1.0,
+            max_queue: 0,
+            max_waiting: 0,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -128,6 +160,7 @@ pub fn data() -> &'static PurchasesData {
                 tiers: Vec::new(),
                 appliances: Vec::new(),
                 summary_max: 0,
+                to_go: ToGoDef::default(),
             }
         })
     })
@@ -165,6 +198,11 @@ pub struct PayoffTally {
     pub drawn: f32,
     /// Parties that went on because every seat was taken.
     pub turned_away: u32,
+    /// Parties (and their guests) who found no seat and took their order to go, and what
+    /// they paid (bill + tips).
+    pub to_go: u32,
+    pub to_go_guests: u32,
+    pub to_go_money: i64,
     pub by_seat: BTreeMap<String, SeatTally>,
     /// Items started at a station while another piece of the same tag was busy.
     pub parallel: BTreeMap<String, u32>,
@@ -213,11 +251,12 @@ pub(crate) fn on_minute(w: &mut World) {
 // Seats → guests
 // ---------------------------------------------------------------------------------------------
 
-/// Hall seats right now.
+/// Hall seats right now (tables, sofas, window seats…; the stools at the bar hold a guest
+/// when the tables are full but draw nobody in, so grandma's 16 stay the neutral point).
 pub(crate) fn hall_seats(w: &World, content: &Content) -> u32 {
     super::guests::seats(w, content)
         .iter()
-        .filter(|s| w.grid.room(s.tile.0, s.tile.1) == Room::Hall)
+        .filter(|s| !s.bar && w.grid.room(s.tile.0, s.tile.1) == Room::Hall)
         .count() as u32
 }
 
@@ -281,13 +320,24 @@ pub(crate) fn grandma_has_room(w: &World, content: &Content, size: usize) -> boo
 /// A party went on: every seat was taken (the toast, at most once per `toast_gap`).
 pub(crate) fn on_no_seat(w: &mut World) {
     w.pay.tonight.turned_away += 1;
+    seat_toast(w, "purchases.toast.no_seat");
+}
+
+/// A party found no seat and takes it to go (the same gentle toast clock as `on_no_seat`).
+pub(crate) fn on_to_go(w: &mut World, size: u32) {
+    w.pay.tonight.to_go += 1;
+    w.pay.tonight.to_go_guests += size;
+    w.tonight.guests_to_go += size;
+    seat_toast(w, "purchases.toast.to_go");
+}
+
+/// "No free seat" toasts share one clock: at most one per `toast_gap` minutes.
+fn seat_toast(w: &mut World, key: &str) {
     let m = w.minute();
     let gap = data().seats.toast_gap;
     if w.pay.last_toast.is_none_or(|t| m >= t + gap) {
         w.pay.last_toast = Some(m);
-        w.emit(SimEvent::Toast {
-            key: "purchases.toast.no_seat".into(),
-        });
+        w.emit(SimEvent::Toast { key: key.into() });
     }
 }
 
@@ -356,6 +406,14 @@ pub(crate) fn party_comfort(w: &World, content: &Content, pi: usize) -> Option<(
     Some((mean, first.id.clone()))
 }
 
+/// The seat def a party's comfort effect is booked on in the morning's lines — only a piece
+/// the player bought (grandma's own bar stools are part of the café, not a purchase).
+fn booked(w: &World, content: &Content, pi: usize, seat: Option<(f32, String)>) -> Option<String> {
+    let leader = w.parties.get(pi)?.leader()?;
+    let (uid, _) = w.guests.iter().find(|g| g.id == leader)?.seat?;
+    bought(content, uid).then_some(seat?.1)
+}
+
 fn party_point(w: &World, content: &Content, pi: usize) -> ComfortPoint {
     match party_comfort(w, content, pi) {
         Some((c, _)) => comfort_at(c),
@@ -388,7 +446,7 @@ pub(crate) fn stay_mul(w: &mut World, content: &Content, pi: usize, base: f32) -
     let seat = party_comfort(w, content, pi);
     let cs = seat.as_ref().map_or(1.0, |(c, _)| comfort_at(*c).stay);
     let ts = 1.0 + tier(w).stay;
-    if let Some((_, def)) = seat
+    if let Some(def) = booked(w, content, pi, seat)
         && (cs - 1.0).abs() > 1e-4
     {
         let t = w.pay.tonight.by_seat.entry(def).or_default();
@@ -416,7 +474,7 @@ pub(crate) fn note_tip(w: &mut World, content: &Content, pi: usize, tip: i64) {
     // the seat's share first, then the tier's on top of it
     let seat_part = base * (cs - 1.0);
     let tier_part = base * cs * (ts - 1.0);
-    if let Some((_, def)) = seat
+    if let Some(def) = booked(w, content, pi, seat)
         && (cs - 1.0).abs() > 1e-4
     {
         w.pay.tonight.by_seat.entry(def).or_default().tips += seat_part.round() as i64;
@@ -465,6 +523,7 @@ pub(crate) fn second_round(w: &mut World, content: &Content, pid: u32) -> bool {
     {
         let p = &w.parties[pi];
         if p.rounds > 0
+            || p.to_go
             || !p.served
             || p.wish_open
             || p.regular.is_some()
@@ -611,6 +670,9 @@ pub(crate) fn on_item_served(w: &mut World, content: &Content, menu: &str) {
 /// A party paid and left: the extra-seat tally.
 pub(crate) fn on_party_paid(w: &mut World, pi: usize, served: bool, money: i64) {
     let p = &w.parties[pi];
+    if p.to_go && served {
+        w.pay.tonight.to_go_money += money;
+    }
     if p.extra_seat && served {
         let size = p.members.len() as u32;
         let t = &mut w.pay.tonight;
@@ -640,6 +702,13 @@ fn piece_with_tag(w: &World, content: &Content, tag: &str, skip: u32) -> Option<
 fn arg(k: &str, v: impl ToString) -> (String, String) {
     (k.to_string(), v.to_string())
 }
+
+/// The full-café hints (always the last line, kept when the list is cut).
+pub const SEAT_HINTS: [&str; 3] = [
+    "purchases.line.no_seat",
+    "purchases.line.to_go",
+    "purchases.line.to_go_some_left",
+];
 
 /// The payoff lines of tonight (sorted by what they stand for, ≤ `summary_max`).
 pub(crate) fn lines(w: &World, content: &Content) -> Vec<PayoffLine> {
@@ -752,13 +821,26 @@ pub(crate) fn lines(w: &World, content: &Content) -> Vec<PayoffLine> {
             },
         ));
     }
-    if t.turned_away > 0 {
-        // a soft hint, always last
+    // a soft hint, always last: they took it to go (and maybe a few still went on)
+    // (a hint, not a purchase's payoff: `money` stays 0, the cups' Kč are only in the text)
+    let hint = match (t.to_go, t.turned_away) {
+        (0, 0) => None,
+        (0, n) => Some(("purchases.line.no_seat", vec![arg("n", n)])),
+        (g, 0) => Some((
+            "purchases.line.to_go",
+            vec![arg("n", g), arg("money", t.to_go_money)],
+        )),
+        (g, n) => Some((
+            "purchases.line.to_go_some_left",
+            vec![arg("n", g), arg("left", n), arg("money", t.to_go_money)],
+        )),
+    };
+    if let Some((key, args)) = hint {
         out.push((
             -1.0,
             PayoffLine {
-                key: "purchases.line.no_seat".into(),
-                args: vec![arg("n", t.turned_away)],
+                key: key.into(),
+                args,
                 money: 0,
             },
         ));
@@ -770,7 +852,7 @@ pub(crate) fn lines(w: &World, content: &Content) -> Vec<PayoffLine> {
         // keep the full-café hint if it was there
         let hint = lines
             .iter()
-            .position(|l| l.key == "purchases.line.no_seat")
+            .position(|l| SEAT_HINTS.contains(&l.key.as_str()))
             .map(|i| lines.remove(i));
         lines.truncate(max.saturating_sub(usize::from(hint.is_some())));
         lines.extend(hint);

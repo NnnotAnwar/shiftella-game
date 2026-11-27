@@ -5,13 +5,16 @@
 #![enable(implicit_some)]
 (
     seats: (
-        // hall seats in grandma's café: walk-ins × 1.0 here
+        // hall seats in grandma's café: walk-ins × 1.0 here (her 4 bar stools aren't counted:
+        // they hold the overflow, they draw nobody in)
         base: 16,
         // walk-ins × (hall seats / base) ^ exponent, clamped — more seats, more guests, with
-        // diminishing returns (24 seats ≈ ×1.30, 32 ≈ ×1.5)
-        exponent: 0.65,
+        // diminishing returns (0.2.2: 0.65 → 0.95, max 1.5 → 1.6 — with grandma's stools and
+        // the to-go cups a non-builder turns few away, so bought seats pay through the draw;
+        // 20 seats ≈ ×1.24, 24 ≈ ×1.47, 32 → ×1.6)
+        exponent: 0.95,
         min_draw: 0.7,
-        max_draw: 1.5,
+        max_draw: 1.6,
         // "No free seat — they went on": at most one toast per this many minutes
         toast_gap: 40,
     ),
@@ -54,4 +57,21 @@
     ],
     // lines in the morning's "What the café gave you tonight"
     summary_max: 5,
+    // No free seat: a plain party may take its order to go instead of walking on — a paper
+    // cup from the register, a short wait beside it, out of the door with the cup
+    // (`guests::to_go`; never regulars or wish parties).
+    to_go: (
+        // the share of seatless plain parties who take it to go (Cozy / Carefree; Classic)
+        chance: 0.9,
+        classic_chance: 0.65,
+        // what can go in a paper cup or a paper bag
+        categories: [Drink, Dessert],
+        // their tips × (a quick hello at the counter, no table to leave a coin on)
+        tips: 0.6,
+        // nobody joins a line this long for a coffee to go
+        max_queue: 5,
+        // guests standing by the register waiting for their cups at once (the spots beside
+        // it, away from the line) — beyond that the café would feel crowded: they go on
+        max_waiting: 6,
+    ),
 )

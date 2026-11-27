@@ -244,6 +244,7 @@ fn karolina_serving_by_hand_reveals_the_name() {
     let pid = spawn(&mut w, &c, "nurses", 1, true);
     let g = leader(&w, pid);
     assert!(!w.persona(g).unwrap().known);
+    guests::settle_now(&mut w, pid);
     w.apply(&c, Command::PlayerTakeOrder { guest: g }).unwrap();
     tick_until(&mut w, &c, 900, |e| {
         matches!(e, SimEvent::PlayerOrderTaken { .. })

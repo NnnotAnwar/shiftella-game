@@ -195,6 +195,12 @@ en Your hands are full — eight things at once is plenty. Manage the queue bott
 uk Руки зайняті — вісім справ одночасно цілком досить. Черга — ліворуч унизу ({key.queue}).
 ru Руки заняты — восемь дел сразу вполне достаточно. Очередь — слева внизу ({key.queue}).
 
+ui.order.not_in_yet
+cs Ještě nejsou uvnitř — počkej, až se usadí (nebo stoupnou do fronty u pokladny).
+en Not in yet — wait till they sit down (or reach the line at the register).
+uk Ще не зайшли — зачекай, поки сядуть (або стануть у чергу біля каси).
+ru Ещё не зашли — подожди, пока сядут (или встанут в очередь у кассы).
+
 # --- tip jar ----------------------------------------------------------------------------------------
 ui.tipjar.tonight
 cs Dnes: {amount}

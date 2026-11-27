@@ -8,6 +8,12 @@ en No free seat — they went on.
 uk Немає вільного місця — пішли далі.
 ru Нет свободного места — пошли дальше.
 
+purchases.toast.to_go
+cs Žádné volné místo — vezmou si to s sebou.
+en No free seat — they'll take it to go.
+uk Немає вільного місця — візьмуть із собою.
+ru Нет свободного места — возьмут с собой.
+
 # --- the morning summary -----------------------------------------------------------------------
 purchases.summary.title
 cs Co ti kavárna dnes dala
@@ -82,6 +88,18 @@ cs Žádné volné místo: {n}× šli dál — víc míst by je udrželo
 en No free seat: {n}× they went on — more seats would keep them
 uk Не було місця: {n}× пішли далі — більше місць їх би втримало
 ru Не было места: {n}× ушли дальше — больше мест их бы удержало
+
+purchases.line.to_go
+cs Žádné volné místo: {n}× si to vzali s sebou · {money} — víc míst by je usadilo
+en No free seat: {n}× they took it to go · {money} — more seats would sit them down
+uk Не було місця: {n}× взяли із собою · {money} — більше місць їх би посадило
+ru Не было места: {n}× взяли с собой · {money} — больше мест их бы усадило
+
+purchases.line.to_go_some_left
+cs Žádné volné místo: {n}× s sebou · {money}, {left}× šli dál — víc míst by je usadilo
+en No free seat: {n}× to go · {money}, {left}× went on — more seats would sit them down
+uk Не було місця: {n}× із собою · {money}, {left}× пішли далі — більше місць їх би посадило
+ru Не было места: {n}× с собой · {money}, {left}× ушли дальше — больше мест их бы усадило
 
 # --- the atmosphere meter: what the tier gives / the next one brings ---------------------------
 purchases.tier.now

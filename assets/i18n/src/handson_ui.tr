@@ -20,6 +20,12 @@ en waiting to order
 uk чекає, щоб замовити
 ru ждёт, чтобы заказать
 
+ui.rail.stage.walking_in
+cs ještě přichází — objednávku vezmeš, až se usadí
+en still walking in — take the order once they sit down
+uk ще заходить — замовлення приймеш, коли сяде
+ru ещё заходит — заказ примешь, когда сядет
+
 ui.rail.stage.make
 cs připravit: {item}
 en to make: {item}

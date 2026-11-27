@@ -1669,6 +1669,7 @@ fn acts_for_people_who_left_leave_her_queue() {
     )
     .unwrap();
     for &party in &ids {
+        super::guests::settle_now(&mut w, party);
         w.apply(
             &c,
             Command::PlayerQueue {

@@ -655,6 +655,8 @@ pub fn draw_world(
             continue;
         }
         match p.state {
+            // the "!" once they sit down / stand in the line (0.2.2: no order before that)
+            PartyState::WaitOrder | PartyState::Queue if !g.world.party_settled(p.id) => {}
             PartyState::WaitOrder | PartyState::Queue => {
                 let mark = match p.order_claim {
                     Some(c) if Some(c) == me => OrderMark::Claimed,

@@ -2329,12 +2329,23 @@ impl GameScreen {
     /// Enter on the rail: claim / open the focused ticket (or the first).
     pub fn act_on_rail(&mut self, content: &Rc<Content>) {
         let tickets = hands_ui::rail_tickets(self, content);
+        // without a focus: the first ticket she can act on (not a guest still walking in)
+        let stages = self.world.ticket_rail(content);
+        let ready = |t: &&(u64, u32, u32)| {
+            tickets
+                .iter()
+                .position(|x| x == *t)
+                .and_then(|i| stages.get(i))
+                .is_none_or(|s| {
+                    !matches!(s.stage, sim::TicketStage::Order) || self.world.party_settled(s.party)
+                })
+        };
         let pick = self
             .hands
             .rail
             .focused
             .and_then(|f| tickets.iter().find(|t| t.0 == f))
-            .or_else(|| tickets.first())
+            .or_else(|| tickets.iter().find(ready))
             .cloned();
         if let Some((_, party, guest)) = pick {
             self.intent(content, hands::Intent::Ticket { party, guest });

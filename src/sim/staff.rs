@@ -678,10 +678,23 @@ fn stand_next_to_in(
     best
 }
 
+/// Where to pick up an item left at `t`: there, or beside it when a piece was put on that
+/// tile since (chaos find: Karolina walked into a counter placed on a ready tray's tile).
+pub(crate) fn pickup_tile(w: &World, t: (i32, i32), from: (i32, i32)) -> (i32, i32) {
+    if w.grid.walkable(t.0, t.1) {
+        t
+    } else {
+        stand_next_to(w, t, from).unwrap_or(t)
+    }
+}
+
+/// Where a guest is served: their seat — or, taking it to go, their spot by the register.
 pub(crate) fn guest_seat_tile(w: &World, gid: u32) -> Option<(i32, i32)> {
     let g = w.guests.iter().find(|g| g.id == gid)?;
-    let (uid, idx) = g.seat?;
-    guests::seat_tile(w, uid, idx)
+    match g.seat {
+        Some((uid, idx)) => guests::seat_tile(w, uid, idx),
+        None => super::to_go::hand_over_tile(w, gid),
+    }
 }
 
 pub(crate) fn station_free(w: &World, content: &Content, tag: &str, staff: u32) -> Option<u32> {
@@ -718,6 +731,32 @@ fn helper_may_make(i: &OrderItem) -> bool {
         && (!i.wish || i.hand_off_match.is_some())
 }
 
+/// Seated parties waiting to order at their table (once they sit), as `rank` work.
+fn table_orders(w: &World, here: (i32, i32), rank: u8) -> Vec<Work> {
+    let mut out = Vec::new();
+    for p in &w.parties {
+        if p.state != PartyState::WaitOrder || !helper_may_order(p) || !guests::settled(w, p) {
+            continue;
+        }
+        let Some(st) = p.leader().and_then(|l| guest_seat_tile(w, l)) else {
+            continue;
+        };
+        let Some(goal) = stand_next_to(w, st, here) else {
+            continue;
+        };
+        out.push(Work {
+            task: Task::TakeOrder {
+                party: p.id,
+                register: None,
+            },
+            goal,
+            work: 10.0 + 3.0 * p.wishes.len() as f32,
+            rank,
+        });
+    }
+    out
+}
+
 /// Candidate tasks of one duty for helper `idx`.
 fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> {
     let s = &w.staff[idx];
@@ -739,7 +778,8 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
                 let Some(p) = w.parties.iter().find(|p| p.id == pid) else {
                     continue;
                 };
-                if p.state != PartyState::Queue || !helper_may_order(p) {
+                // (only once they stand in the line, never while walking in)
+                if p.state != PartyState::Queue || !helper_may_order(p) || !guests::settled(w, p) {
                     continue;
                 }
                 let reg_free = w
@@ -762,45 +802,21 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
                 });
             }
             // seated parties who order at the table
-            for p in &w.parties {
-                if p.state != PartyState::WaitOrder || !helper_may_order(p) {
-                    continue;
-                }
-                let Some(leader) = p.leader() else {
-                    continue;
-                };
-                let seated = w
-                    .guests
-                    .iter()
-                    .any(|g| g.id == leader && g.pose == Pose::Sit);
-                if !seated {
-                    continue;
-                }
-                let Some(st) = guest_seat_tile(w, leader) else {
-                    continue;
-                };
-                let Some(goal) = stand_next_to(w, st, here) else {
-                    continue;
-                };
-                out.push(Work {
-                    task: Task::TakeOrder {
-                        party: p.id,
-                        register: None,
-                    },
-                    goal,
-                    work: 10.0 + 3.0 * p.wishes.len() as f32,
-                    rank: 0,
-                });
-            }
+            out.extend(table_orders(w, here, 0));
         }
         Duty::Serving => {
+            // most guests order at their table (0.2.2): the floor helper takes those orders
+            // too, after carrying what is ready
+            out.extend(table_orders(w, here, 1));
             for it in &w.items {
                 // helpers carry what helpers made; Karolina carries her own
                 if it.state == ItemState::Ready
                     && it.by.is_none()
                     && matches!(it.origin, ItemOrigin::Helper { .. })
                 {
-                    let Some(goal) = it.ready_tile else { continue };
+                    let Some(goal) = it.ready_tile.map(|t| pickup_tile(w, t, here)) else {
+                        continue;
+                    };
                     out.push(Work {
                         task: Task::Serve {
                             item: it.id,
@@ -1631,7 +1647,15 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
             }
             guests::order_taken(w, content, party, me);
             learn(w, idx, Job::Register);
-            credit(w, idx, Duty::Register, 1);
+            // a floor helper taking a table order is credited for the floor
+            let duty = if !super::duties::has_duty(&w.staff[idx], Duty::Register)
+                && super::duties::has_duty(&w.staff[idx], Duty::Serving)
+            {
+                Duty::Serving
+            } else {
+                Duty::Register
+            };
+            credit(w, idx, duty, 1);
         }
         Task::Prepare { item, station } => {
             w.staff[idx].task = None;

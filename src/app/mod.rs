@@ -10,7 +10,7 @@
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
 //!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
-//!   build_drag|attic|backroom|requests|corner|before_after` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
+//!   build_drag|attic|backroom|requests|corner|before_after|to_go` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
 //!   story_marker|story_card|storm|storm_talk|hands_ux` (`SHIFTELLA_HUX=checklist|rituals|
@@ -439,6 +439,22 @@ impl App {
                 }
                 if name == "pause" {
                     g.pause = Some(Default::default());
+                }
+                self.game(g)
+            }
+            // 0.2.2: a full house — every seat taken (the bar stools too), the overflow taking
+            // it to go: paper cups over the heads by the register, out of the door in hand
+            "to_go" => {
+                let mut g = story_at(
+                    night.unwrap_or(10),
+                    Some(minute.unwrap_or(150)),
+                    &self.i18n,
+                    lang,
+                );
+                g.world.debug_spawn_guests(&content, "students", 44, 5);
+                for _ in 0..(sim::TICKS_PER_MINUTE * 12) {
+                    g.world.tick(&content);
+                    sim::bot::finish_cutscenes(&mut g.world, &content);
                 }
                 self.game(g)
             }

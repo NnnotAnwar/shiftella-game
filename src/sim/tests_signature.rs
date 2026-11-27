@@ -460,6 +460,7 @@ fn karolina_brews_the_house_drink_and_it_pays_its_price() {
     };
     p.wish_open = true;
     let leader = p.leader().unwrap();
+    guests::settle_now(&mut w, pid);
     w.apply(&c, Command::PlayerTakeOrder { guest: leader })
         .unwrap();
     let mut taken = false;

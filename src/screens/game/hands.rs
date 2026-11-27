@@ -573,6 +573,11 @@ impl GameScreen {
                 self.toast_key(ToastKind::Info, Icon::Info, "ui.queue.full", &[]);
                 false
             }
+            // an order before they are in: a soft hint, nothing else happens
+            Err(sim::CommandError::Invalid(e)) if e == sim::NOT_IN_YET => {
+                self.toast_key(ToastKind::Info, Icon::Info, "ui.order.not_in_yet", &[]);
+                false
+            }
             Err(_) => false,
         }
     }
@@ -1970,11 +1975,15 @@ impl GameScreen {
                 continue;
             }
             let busy = match &t.stage {
-                TicketStage::Order => self
-                    .world
-                    .parties()
-                    .iter()
-                    .any(|p| p.id == t.party && p.order_claim.is_some()),
+                // (a guest still walking in can't be served yet)
+                TicketStage::Order => {
+                    !self.world.party_settled(t.party)
+                        || self
+                            .world
+                            .parties()
+                            .iter()
+                            .any(|p| p.id == t.party && p.order_claim.is_some())
+                }
                 TicketStage::Make { item, .. } | TicketStage::Serve { item, .. } => self
                     .world
                     .order_items()

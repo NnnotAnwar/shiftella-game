@@ -126,6 +126,10 @@ fn a_full_cafe_turns_parties_away_with_one_gentle_toast_and_more_seats_keep_them
             place(&mut w, &c, "window_seat", 9, 1, 0);
         }
         open(&mut w, &c);
+        // the bar stools are busy tonight (someone on each): grandma's tables are the room
+        for p in w.furniture.iter_mut().filter(|p| p.def == "stool") {
+            p.seat_by[0] = Some(u32::MAX);
+        }
         let mut away = 0;
         let mut toasts = 0;
         for _ in 0..14 {
@@ -133,21 +137,34 @@ fn a_full_cafe_turns_parties_away_with_one_gentle_toast_and_more_seats_keep_them
             for e in w.drain_events() {
                 match e {
                     SimEvent::GuestTurnedAway { .. } => away += 1,
-                    SimEvent::Toast { key } if key == "purchases.toast.no_seat" => toasts += 1,
+                    SimEvent::Toast { key } if key.starts_with("purchases.toast.") => toasts += 1,
                     _ => {}
                 }
             }
         }
+        let seated = w
+            .parties
+            .iter()
+            .filter(|p| p.state != PartyState::Leaving && !p.to_go)
+            .count();
+        let to_go = w.parties.iter().filter(|p| p.to_go).count() as u32;
         let extra_parties = w.parties.iter().filter(|p| p.extra_seat).count();
-        (away, toasts, w.payoff_tonight().turned_away, extra_parties)
+        let t = w.payoff_tonight();
+        assert_eq!((t.turned_away, t.to_go), (away, to_go));
+        (seated, away + to_go, toasts, extra_parties)
     };
-    let (away, toasts, tally, extra) = run(false);
-    assert!(away >= 5, "8 tables for 14 pairs: {away} went on");
+    let (seated, no_seat, toasts, extra) = run(false);
+    assert_eq!(seated, 8, "grandma's 8 tables seat 8 pairs");
+    assert_eq!(no_seat, 6, "the other 6 pairs take it to go or go on");
     assert_eq!(toasts, 1, "one toast, not one per party");
-    assert_eq!(tally, away);
     assert_eq!(extra, 0);
-    let (away2, _, _, extra2) = run(true);
-    assert_eq!(away2 + 3, away, "three more pieces seat three more pairs");
+    let (seated2, no_seat2, _, extra2) = run(true);
+    assert_eq!(
+        seated2,
+        seated + 3,
+        "three more pieces seat three more pairs"
+    );
+    assert_eq!(no_seat2 + 3, no_seat);
     // (the first pairs pick the comfy pieces while grandma's tables are still free; the ones
     // seated once hers were full are the extra guests)
     assert!(
@@ -498,15 +515,16 @@ fn the_payoff_lines_add_up_and_survive_a_save() {
     assert_eq!(back.last_summary(), w.last_summary());
 }
 
-/// The whole Cozy story twice: an attentive bot that furnishes the café vs one that never
-/// builds. Both end in the light; the builder earns clearly more by night 30 (≥ +8 %).
+/// The whole Cozy story twice per seed: an attentive bot that furnishes the café vs one
+/// that never builds. Both end in the light; over four seeds the builder earns clearly more
+/// by night 30 (≥ +8 %).
 #[test]
 fn a_building_player_earns_noticeably_more_than_one_who_never_builds() {
     let c = content();
-    let play = |build: bool| {
-        let mut w = World::new_story_seeded(&c, Difficulty::Cozy, 4242);
+    let play = |build: bool, seed: u64| {
+        let mut w = World::new_story_seeded(&c, Difficulty::Cozy, seed);
         let mut b = bot::PlayerBot::new(bot::BotConfig {
-            seed: 4242,
+            seed,
             build,
             ..Default::default()
         });
@@ -521,17 +539,25 @@ fn a_building_player_earns_noticeably_more_than_one_who_never_builds() {
         }
         (earned, w.ending().map(str::to_string), w.debt())
     };
-    let (built, end_b, debt_b) = play(true);
-    let (plain, end_p, debt_p) = play(false);
-    assert_eq!(
-        end_p.as_deref(),
-        Some("light"),
-        "never building still ends in the light"
-    );
-    assert_eq!(end_b.as_deref(), Some("light"));
-    assert_eq!((debt_b, debt_p), (0, 0));
+    let (mut built, mut plain) = (0i64, 0i64);
+    // (0.2.2: one seed alone swings +4 … +19 % — grandma's bar stools and the to-go cups
+    // keep a never-building café from turning many away, so the gain is the seat draw and
+    // comfort; four seeds sum to about +12 %)
+    for seed in [4242u64, 7932, 15851, 23770] {
+        let (b, end_b, debt_b) = play(true, seed);
+        let (p, end_p, debt_p) = play(false, seed);
+        assert_eq!(
+            end_p.as_deref(),
+            Some("light"),
+            "never building still ends in the light"
+        );
+        assert_eq!(end_b.as_deref(), Some("light"));
+        assert_eq!((debt_b, debt_p), (0, 0));
+        built += b;
+        plain += p;
+    }
     let gain = built as f32 / plain as f32 - 1.0;
-    // (0.2.1, Cozy and Classic, seeds 4242 / 7932 / 15851: +10 … +23 %)
+    // (0.2.2, Cozy and Classic, seeds 4242 / 7932 / 15851 / 23770: +4 … +19 % each)
     assert!(
         gain >= 0.08,
         "builder {built} vs {plain}: +{:.1} %",
