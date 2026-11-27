@@ -622,10 +622,11 @@ fn the_first_hire_is_offered_on_night_three() {
         !w.candidates().is_empty(),
         "the hire hint and the candidates line up"
     );
-    // the hire card proposes the archetype's default duty
+    // the hire card proposes the archetype's default duty first, plus a second one
     for cand in w.candidates() {
         let a = c.staff_archetype(&cand.staff.archetype).unwrap();
-        assert_eq!(cand.staff.duties, vec![a.default_duty.unwrap()]);
+        assert_eq!(cand.staff.duties.first(), a.default_duty.as_ref());
+        assert_eq!(cand.staff.duties.len(), 2);
     }
 }
 

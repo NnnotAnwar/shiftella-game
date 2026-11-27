@@ -411,8 +411,8 @@ fn capacity_limits_duties_and_grows_with_nights_and_skill() {
     w.staff[1].skills = [5.0; 5];
     w.staff[1].traits.clear();
     w.staff[1].nights_worked = 0;
-    assert_eq!(w.capacity(&c, id), 1);
-    assert_eq!(w.staff_duties(id).len(), 1, "the hire card's default duty");
+    assert_eq!(w.capacity(&c, id), 2);
+    assert_eq!(w.staff_duties(id).len(), 2, "the hire card's two default duties");
     let other = Duty::ALL
         .iter()
         .copied()
@@ -430,9 +430,9 @@ fn capacity_limits_duties_and_grows_with_nights_and_skill() {
         Err(CommandError::Capacity)
     );
     w.staff[1].nights_worked = 3;
-    assert_eq!(w.capacity(&c, id), 2);
+    assert_eq!(w.capacity(&c, id), 3);
     w.staff[1].skills[Duty::Floor.job().index()] = 8.0;
-    assert_eq!(w.capacity(&c, id), 2, "skill counts for held duties only");
+    assert_eq!(w.capacity(&c, id), 3, "never above the cap");
     w.apply(
         &c,
         Command::SetDuty {
