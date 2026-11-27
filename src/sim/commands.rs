@@ -488,6 +488,24 @@ impl World {
                 Ok(())
             }
             Command::PublishSchedule => {
+                // once a week: only new people (no shift in the published week yet) may be
+                // added before next week
+                let week = super::app::week_of(self.night);
+                if self.app.manual_rozpis && self.app.published_week == Some(week) {
+                    let only_new = self.app.draft.iter().all(|(id, row)| {
+                        match self.app.published.get(id) {
+                            Some(p) if p == row => true,
+                            Some(p) => p.iter().all(|s| *s == Shift::Off),
+                            None => true,
+                        }
+                    });
+                    if !only_new {
+                        return Err(CommandError::Locked);
+                    }
+                }
+                if self.app.manual_rozpis {
+                    self.app.published_week = Some(week);
+                }
                 self.app.published = self.app.draft.clone();
                 let changed = self.app.draft_dirty;
                 self.app.draft_dirty = false;

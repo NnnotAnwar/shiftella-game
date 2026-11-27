@@ -175,6 +175,15 @@ fn schedule(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
                 loc.tr_owned("ui.app.published"),
                 None,
             ),
+            Err(sim::CommandError::Locked) => {
+                let next = (g.world.night().max(1) - 1) / 7 * 7 + 8;
+                g.toast(
+                    crate::ui::ToastKind::Warning,
+                    Icon::Calendar,
+                    loc.trf("ui.app.rozpis_weekly", &[("night", &next.to_string())]),
+                    None,
+                )
+            }
             Err(e) => super::panels::command_error(g, &loc, &e),
         }
     }
@@ -1121,7 +1130,12 @@ fn payroll(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
         }
     }
     let r = Rect::new(r.x, r.y, r.w, r.h - 36.0);
-    let Some(week) = g.world.app().payroll.last().cloned() else {
+    // before the first week is closed: the week so far (hours and wages up to tonight)
+    let (week, so_far) = match g.world.app().payroll.last().cloned() {
+        Some(w) => (w, false),
+        None => (g.world.payroll_so_far(), true),
+    };
+    if so_far && week.rows.is_empty() {
         ui.fonts.draw_in(
             loc.tr("ui.app.payroll_empty"),
             r.with_h(60.0),
@@ -1129,12 +1143,17 @@ fn payroll(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             Align::Center,
         );
         return;
-    };
+    }
     let cr = Rect::new(r.x + r.w * 0.08, r.y + 4.0, r.w * 0.84, r.h - 8.0);
     ui.glass(cr, &Glass::card());
     let c = cr.inset(16.0);
+    let title_key = if so_far {
+        "app.payroll.title_so_far"
+    } else {
+        "app.payroll.title"
+    };
     ui.fonts.draw(
-        &loc.trf("app.payroll.title", &[("week", &week.week.to_string())]),
+        &loc.trf(title_key, &[("week", &week.week.to_string())]),
         c.x,
         c.y + 16.0,
         &t.h1(),

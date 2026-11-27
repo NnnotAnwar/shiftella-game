@@ -213,6 +213,24 @@ pub(crate) fn generate_staff(w: &mut World, content: &Content, arch: Option<&str
     s
 }
 
+impl World {
+    /// Story: the night the next new candidates come (story people not hired yet and not on
+    /// offer, who join the list later). `None` in the sandbox or when nobody is left.
+    pub fn next_candidates_night(&self, content: &Content) -> Option<u32> {
+        if self.mode != Mode::Story {
+            return None;
+        }
+        content
+            .staff
+            .iter()
+            .filter(|a| a.hire_from_night.max(FIRST_HIRE_NIGHT) > self.night)
+            .filter(|a| !self.staff.iter().any(|s| s.archetype == a.id))
+            .filter(|a| !self.candidates.iter().any(|c| c.staff.archetype == a.id))
+            .map(|a| a.hire_from_night.max(FIRST_HIRE_NIGHT))
+            .min()
+    }
+}
+
 pub(crate) fn refresh_candidates(w: &mut World, content: &Content) {
     match w.mode {
         Mode::Story => {

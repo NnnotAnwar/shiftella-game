@@ -360,6 +360,15 @@ pub fn rozpis_tab(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
                     None,
                 )
             }
+            Err(sim::CommandError::Locked) => {
+                let next = (g.world.night().max(1) - 1) / 7 * 7 + 8;
+                g.toast(
+                    crate::ui::ToastKind::Warning,
+                    Icon::Calendar,
+                    loc.trf("ui.app.rozpis_weekly", &[("night", &next.to_string())]),
+                    None,
+                )
+            }
             Err(e) => super::panels::command_error(g, &loc, &e),
         },
         Some(RozpisAction::FlashAutofill) => g.ui_state.rozpis.flash_until = ui.time() + 1.2,

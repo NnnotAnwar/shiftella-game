@@ -620,6 +620,36 @@ fn payroll(w: &mut World, content: &Content) {
     );
 }
 
+impl World {
+    /// The week in progress as a payroll sheet (hours and wages so far; nothing is booked).
+    pub fn payroll_so_far(&self) -> PayrollWeek {
+        let mut rows = Vec::new();
+        let (mut total, mut hours) = (0i64, 0.0f32);
+        for s in self.staff.iter().filter(|s| !s.owner) {
+            let wage = (s.wage as f32 * s.hours_week / 8.0).round() as i64;
+            rows.push(PayrollRow {
+                personal_number: s.personal_number,
+                staff: s.id,
+                name: s.name.clone(),
+                hours: s.hours_week,
+                night_hours: s.hours_week,
+                wage,
+                vacation_hours: 0.0,
+                toil_hours: 0.0,
+            });
+            total += wage;
+            hours += s.hours_week;
+        }
+        PayrollWeek {
+            week: week_of(self.night),
+            rows,
+            tips: self.app.week_tips,
+            total_hours: hours,
+            total,
+        }
+    }
+}
+
 pub(crate) fn digest(w: &mut World, content: &Content, summary: &NightSummary) {
     let ctx = EffectCtx::default();
     bot_with(

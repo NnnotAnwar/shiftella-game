@@ -66,7 +66,7 @@ Freesound sounds are listed as *title* by *author* (Freesound id).
 | File | Source | Licence | What was changed |
 |---|---|---|---|
 | `sfx_keys_lock.wav` | *Unlocking - Locking Door and Keys Rattling.wav* by nickrandomsounds (615287), https://freesound.org/people/nickrandomsounds/sounds/615287/ | CC0 1.0 | the locking half (2.2 s from 2.45 s), mono, low-passed, normalised |
-| `amb_wet_steps.ogg` | `footstep_concrete_000.ogg` … `footstep_concrete_004.ogg` from *Impact Sounds* by Kenney, https://kenney.nl/assets/impact-sounds | CC0 1.0 | 16 steps at a slow stroll (0.56 s apart, the five takes shuffled) into an 8.96 s loop; each step has a short splash of filtered noise generated with ffmpeg (no recording); mono, normalised |
+| `amb_wet_steps.ogg` | `footstep00.ogg` … `footstep09.ogg` from *RPG Audio* by Kenney, https://kenney.nl/assets/rpg-audio | CC0 1.0 | 16 recorded shoe steps at a slow stroll (0.56 s apart, the takes shuffled, every other one 2 dB softer) into an 8.96 s loop; mono, normalised |
 | `sfx_pigeons.wav` | *Pigeon, Flies Away, Flapping Wings* by Kinoton (689998), https://freesound.org/people/Kinoton/sounds/689998/ | CC0 1.0 | 2.3 s from 0.35 s, mono, normalised |
 | `sfx_tram_bell.wav` | *11-3 Tram bell* by 16HPanskaWillheimova_Sara (497561), https://freesound.org/people/16HPanskaWillheimova_Sara/sounds/497561/ | CC0 1.0 | 1.6 s from 0.22 s, mono, low-passed, normalised |
 | `sfx_tram_pass.ogg` | *15_Tram passing by.wav* by 16HPanskaWillheimova_Sara (497560), https://freesound.org/people/16HPanskaWillheimova_Sara/sounds/497560/ | CC0 1.0 | 7 s from 8 s (the tram coming close and going by), fade in 1.2 s / out 2.5 s, mono, normalised |

@@ -174,7 +174,7 @@ pub fn tr_args(loc: &Locale, key: &str, args: &[(String, String)]) -> String {
             } else if k == "item" && loc.has(&menu_key) {
                 // a menu id the sim also acts on (the bot's "take it off the menu")
                 loc.tr_owned(&menu_key)
-            } else if matches!(k.as_str(), "revenue" | "amount" | "money" | "tips" | "price")
+            } else if matches!(k.as_str(), "revenue" | "amount" | "money" | "tips" | "price" | "total")
                 && let Ok(n) = v.parse::<i64>()
             {
                 // the sim passes plain numbers: show them as money ("4 299 Kč")

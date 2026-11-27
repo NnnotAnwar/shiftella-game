@@ -141,18 +141,16 @@ cut sfx_tram_bell      "$FS/497561__16hpanskawillheimova_sara__11-3-tram-bell.wa
 finish sfx_tram_bell wav
 cut sfx_tram_pass      "$FS/497560__16hpanskawillheimova_sara__15_tram-passing-by.wav" 8.0 7.0 1.2 2.5 "highpass=f=40,$SOFT"
 finish sfx_tram_pass ogg
-# wet steps: the Freesound wet-sidewalk take is buried in traffic, so the steps are Kenney's
-# concrete steps (CC0) at a slow stroll, each with a soft splash of filtered noise (made here)
+# her steps on the way home: Kenney's recorded shoe-on-stone steps (RPG Audio, CC0) at a slow
+# stroll, left / right a touch apart — no made-up "splash" (owner: it didn't sound like steps)
 args=(); fc=""; n=0
-for f in 0 2 1 4 3 1 0 3 2 4 1 2 0 4 3 2; do
-  args+=(-i "$KI/footstep_concrete_00$f.ogg")
-  t=$((20 + n * 560))
-  fc+="[$n:a]aformat=sample_fmts=flt,aresample=44100,pan=mono|c0=0.5*c0+0.5*c1,lowpass=f=4500,volume=$(( n % 2 ? -2 : 0 ))dB,adelay=$t,apad=whole_dur=8.96[s$n];"
+for f in 0 5 2 7 1 6 3 8 4 9 2 5 0 7 3 6; do
+  args+=(-i "$K/footstep0$f.ogg")
+  t=$((30 + n * 560))
+  fc+="[$n:a]aformat=sample_fmts=flt,aresample=44100,pan=mono|c0=0.5*c0+0.5*c1,highpass=f=90,lowpass=f=6000,volume=$(( n % 2 ? -2 : 0 ))dB,adelay=$t,apad=whole_dur=8.96[s$n];"
   n=$((n+1))
 done
-# the splash: a short burst of filtered noise on every step (made here, not recorded)
-fc+="aevalsrc='(random(0)*2-1)*if(between(mod(t-0.025,0.56),0,0.09),exp(-mod(t-0.025,0.56)/0.02),0)*(0.75+0.25*sin(t*2.3))':s=44100:d=8.96,highpass=f=1500,lowpass=f=5500,volume=0.35[wet];"
-fc+="$(for i in $(seq 0 15); do printf "[s%d]" "$i"; done)[wet]amix=inputs=17:normalize=0:duration=first[o]"
+fc+="$(for i in $(seq 0 15); do printf "[s%d]" "$i"; done)amix=inputs=16:normalize=0:duration=first[o]"
 ff "${args[@]}" -filter_complex "$fc" -map "[o]" -t 8.96 -ac 1 -ar 44100 -c:a pcm_f32le "$TMP/amb_wet_steps.pre.wav"
 finish amb_wet_steps ogg
 

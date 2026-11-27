@@ -615,6 +615,10 @@ pub struct AppState {
     /// default rozpis current (`Command::AutoSchedule` hands it back to the app).
     #[serde(default)]
     pub manual_rozpis: bool,
+    /// The week the rozpis was last published by hand: once a week (owner, 2026-11-27 — no
+    /// putting the whole crew on one night and back).
+    #[serde(default)]
+    pub published_week: Option<u32>,
     pub week: u32,
     pub swaps: Vec<SwapRequest>,
     pub time_off: Vec<TimeOffRequest>,

@@ -793,3 +793,27 @@ cs Od všeho trochu
 en A bit of everything
 uk Потроху всього
 ru Всего понемногу
+
+crew.hire.more_from
+cs Další uchazeči přijdou od noci {night}.
+en More candidates come from night {night}.
+uk Нові кандидати з'являться з ночі {night}.
+ru Новые кандидаты появятся с ночи {night}.
+
+crew.hire.none_yet
+cs Teď nikdo — noví uchazeči přijdou od noci {night}.
+en No one right now — new candidates come from night {night}.
+uk Зараз нікого — нові кандидати з'являться з ночі {night}.
+ru Сейчас никого — новые кандидаты появятся с ночи {night}.
+
+app.payroll.title_so_far
+cs Mzdy · týden {week} (zatím)
+en Payroll · week {week} (so far)
+uk Зарплати · тиждень {week} (поки що)
+ru Зарплаты · неделя {week} (пока что)
+
+ui.app.rozpis_weekly
+cs Rozpis se mění jednou týdně — další změny od noci {night}. Nové lidi můžeš přidat hned.
+en The rozpis changes once a week — next changes from night {night}. New people can be added now.
+uk Розклад змінюється раз на тиждень — наступні зміни з ночі {night}. Нових людей можна додати одразу.
+ru График меняется раз в неделю — следующие изменения с ночи {night}. Новых людей можно добавить сразу.

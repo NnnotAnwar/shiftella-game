@@ -1402,11 +1402,31 @@ fn hire_list(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) {
             }
         }
     }
+    // when the next people come (story: the crew grows with the story)
+    if let Some(n) = g.world.next_candidates_night(content) {
+        let text = if cands.is_empty() {
+            loc.trf("crew.hire.none_yet", &[("night", &n.to_string())])
+        } else {
+            loc.trf("crew.hire.more_from", &[("night", &n.to_string())])
+        };
+        ui.fonts.draw_fit(
+            &text,
+            Rect::new(area.x + 4.0, y + 2.0, area.w - 8.0, 16.0 * t.text_scale),
+            &t.small().color(t.text_dim),
+            Align::Left,
+            0.8,
+        );
+    }
 }
 
-fn hire_height(g: &GameScreen) -> f32 {
-    let n = g.world.candidates().len().max(1) as f32;
-    n * (cand_row() + 2.0) - 2.0
+fn hire_height(g: &GameScreen, content: &Content) -> f32 {
+    let n = g.world.candidates().len() as f32;
+    let hint = if g.world.next_candidates_night(content).is_some() {
+        20.0
+    } else {
+        0.0
+    };
+    (n * (cand_row() + 2.0) - 2.0).max(0.0) + hint
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -1506,7 +1526,7 @@ pub fn panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let loc = cx.loc;
     let content = cx.content.clone();
     let mut cells = crew_order(&g.world);
-    if !g.world.candidates().is_empty() {
+    if !g.world.candidates().is_empty() || g.world.next_candidates_night(&content).is_some() {
         cells.push(HIRE);
     }
     let Some(&first) = cells.first() else {
@@ -1541,7 +1561,7 @@ pub fn panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let inner_w = pw - 2.0 * PAD;
     let body_h = match &card {
         Some(c) => walk(ui, &loc, c, Rect::new(0.0, 0.0, inner_w, 0.0), false, 0.0).0,
-        None => hire_height(g),
+        None => hire_height(g, &content),
     };
     let avail = (s.h - 88.0 - 60.0).max(200.0);
     let want = 45.0 + 8.0 + STRIP_H + 8.0 + body_h + PAD;
