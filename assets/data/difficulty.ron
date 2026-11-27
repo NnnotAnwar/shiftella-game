@@ -20,6 +20,9 @@
         // sandbox only: the landlord notices a busy café
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
+        // QA 0.2.x: 1.5 × the biggest town's rent — the landlord stops at what a full café
+        // can carry (uncapped, it passed 9 000 Kč by night 300 and every café went broke)
+        rent_growth_cap: 4200,
     ),
     (
         // Accessibility (0.2 package J): Cozy with no money pressure — every instalment of the
@@ -52,6 +55,7 @@
         income_mul: 1.55,
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
+        rent_growth_cap: 4200,
         bankrupt_after: 3,
     ),
 ]

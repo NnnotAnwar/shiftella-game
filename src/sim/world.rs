@@ -1315,7 +1315,12 @@ impl World {
         {
             // readable: whole 10 Kč
             let grown = self.econ.rent as f32 * (1.0 + d.rent_growth_percent / 100.0);
-            self.econ.rent = ((grown / 10.0).round() * 10.0) as i64;
+            let grown = ((grown / 10.0).round() * 10.0) as i64;
+            // capped (never lowered: an old save above the cap keeps its rent)
+            self.econ.rent = match d.rent_growth_cap {
+                Some(cap) => grown.min(cap).max(self.econ.rent),
+                None => grown,
+            };
         }
         // Repair overnight: slowdowns end, very worn stuff is serviced a little.
         for s in self.staff.iter_mut() {

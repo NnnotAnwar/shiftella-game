@@ -398,6 +398,11 @@ pub struct DifficultyDef {
     /// Sandbox rent growth: +percent every N nights (0 = none).
     pub rent_growth_percent: f32,
     pub rent_growth_every: u32,
+    /// Sandbox: the rent stops growing at this many Kč a night (`None` = no cap). Without it
+    /// +5 % every 10 nights compounds past what a full café earns: every café went broke
+    /// between nights 200 and 300.
+    #[serde(default)]
+    pub rent_growth_cap: Option<i64>,
     /// Sandbox: nights in a row below zero before the café closes (`None` = never).
     #[serde(default)]
     pub bankrupt_after: Option<u32>,

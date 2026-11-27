@@ -7,6 +7,10 @@ use super::types::*;
 use super::world::*;
 use crate::content::{BeatKind, Content, CutsceneStep, CutsceneTrigger, Weather};
 
+/// Sandbox with «Allow going into debt» off: nights in a row in the red before the café
+/// closes on a difficulty without its own `bankrupt_after` (Classic's is 3, too).
+pub(crate) const NO_DEBT_BANKRUPT_AFTER: u32 = 3;
+
 // ---------------------------------------------------------------------------------------------
 // Weather
 // ---------------------------------------------------------------------------------------------
@@ -268,9 +272,13 @@ pub(crate) fn on_night_end(w: &mut World, content: &Content) -> bool {
             false
         }
         Mode::Sandbox => {
+            // the setup's «Allow going into debt» (on by default): off, Cozy and Carefree
+            // close after nights in the red too, like Classic
+            let allow_debt = w.town.options.get("allow_debt").copied().unwrap_or(true);
             let bankrupt = content
                 .difficulty(w.difficulty.id())
                 .and_then(|d| d.bankrupt_after)
+                .or((!allow_debt).then_some(NO_DEBT_BANKRUPT_AFTER))
                 .is_some_and(|n| w.econ.nights_in_red >= n);
             if bankrupt {
                 w.closed = true;

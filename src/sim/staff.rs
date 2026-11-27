@@ -598,9 +598,15 @@ pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(
     let p = w.furniture_by_uid(uid)?;
     let d = content.furniture_def(&p.def)?;
     let tiles = grid::access_tiles(&w.grid, d, p);
+    // a side one can get to: a front tile walled in by other pieces (grandma's bookcase and
+    // bench around her marble table) sent every helper after it and back, all night
+    let reached = |t: &&(i32, i32)| w.grid.reached(t.0, t.1);
     tiles
         .iter()
+        .filter(reached)
         .find(|t| w.grid.room(t.0, t.1).staff_only())
+        .or(tiles.iter().find(reached))
+        .or(tiles.iter().find(|t| w.grid.room(t.0, t.1).staff_only()))
         .or(tiles.first())
         .copied()
 }
@@ -618,7 +624,7 @@ pub(crate) fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Optio
         (-1, -1),
     ] {
         let n = (t.0 + dx, t.1 + dy);
-        if !w.grid.walkable(n.0, n.1) {
+        if !w.grid.walkable(n.0, n.1) || !w.grid.reached(n.0, n.1) {
             continue;
         }
         // not on someone's seat
@@ -880,7 +886,7 @@ fn mop_work(w: &World, me: u32) -> Option<Work> {
     }
     let hall: Vec<(i32, i32)> = (0..w.grid.height)
         .flat_map(|y| (0..w.grid.width).map(move |x| (x, y)))
-        .filter(|t| w.grid.room(t.0, t.1) == Room::Hall && w.grid.walkable(t.0, t.1))
+        .filter(|t| w.grid.room(t.0, t.1) == Room::Hall && w.grid.reached(t.0, t.1))
         .filter(|t| w.grid.object_at(t.0, t.1).is_none())
         .collect();
     if hall.is_empty() {
@@ -965,6 +971,10 @@ fn find_work(w: &World, content: &Content, idx: usize) -> Option<Work> {
     let here = s.tile();
     let mut best: Option<(i32, Work)> = None;
     let mut consider = |wk: Work| {
+        // a goal in a pocket nobody can walk to: picked, no path, dropped, picked again…
+        if w.grid.walkable(wk.goal.0, wk.goal.1) && !w.grid.reached(wk.goal.0, wk.goal.1) {
+            return;
+        }
         let score = wk.rank as i32 * 40 + grid::manhattan(here, wk.goal);
         if best.as_ref().is_none_or(|b| score < b.0) {
             best = Some((score, wk));
