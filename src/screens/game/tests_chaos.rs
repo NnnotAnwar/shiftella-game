@@ -8,7 +8,9 @@
 //! Quick run (in `cargo test`): `chaos_quick_screen`. Heavy runs:
 //! `CHAOS_SEEDS=8 CHAOS_NIGHTS=30 cargo test --release --lib chaos_heavy_screen -- --ignored --nocapture`
 //! (`CHAOS_SEED0` shifts the seeds, `CHAOS_KIND=0..3` picks one mode: story Cozy, Carefree,
-//! Classic, sandbox).
+//! Classic, sandbox). Each run ends with `[tally] N × kind` lines — distinct incidents by
+//! kind, uncapped (one agent on one tile counts once) — and `CHAOS_MAP=1` prints the floor
+//! (`chaos::map`) with a run's first violation.
 
 use std::collections::VecDeque;
 use std::rc::Rc;
@@ -64,6 +66,9 @@ struct Stats {
     max_frames_night: u64,
     off_floor: u64,
     off_floor_examples: Vec<String>,
+    /// Distinct violations by kind, uncapped (`chaos::kind_of`).
+    kinds: std::collections::BTreeMap<String, u64>,
+    seen: std::collections::HashSet<String>,
 }
 
 struct Chaos<'a> {
@@ -140,7 +145,14 @@ impl<'a> Chaos<'a> {
     }
 
     fn violation(&mut self, v: String) {
-        if self.violations.len() >= 30 || self.violations.iter().any(|x| x.ends_with(&v)) {
+        if !self.stats.seen.insert(chaos::head_of(&v).to_string()) {
+            return;
+        }
+        *self.stats.kinds.entry(chaos::kind_of(&v)).or_default() += 1;
+        if self.stats.seen.len() == 1 && std::env::var("CHAOS_MAP").is_ok() {
+            eprintln!("{v}\n{}", chaos::map(&self.g.world, &self.c));
+        }
+        if self.violations.len() >= 30 {
             return;
         }
         let tail: Vec<String> = self.log.iter().rev().take(8).cloned().collect();
@@ -1111,6 +1123,9 @@ fn run_one(
     }
     for v in &ch.violations {
         eprintln!("  !! {v}");
+    }
+    for (k, n) in &s.kinds {
+        eprintln!("[tally] {n} × {k}");
     }
     // the story's 30th night ends the run with exactly one ending
     if ch.g.world.mode() == sim::Mode::Story && ch.done && s.endings != 1 {

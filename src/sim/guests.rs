@@ -310,28 +310,26 @@ fn choose_seats(
             .iter()
             .any(|(r, uid)| *uid == s.uid && Some(r.as_str()) != regular)
     };
+    // a seat with a guests' floor tile beside it that they get to without crossing a chair
+    // (chaos find: a stool built by the counter's end, its other sides staff floor, was
+    // only reached over the next stool — over the guest sitting there)
+    let reachable = |t: (i32, i32)| -> bool {
+        [(1, 0), (-1, 0), (0, 1), (0, -1)]
+            .iter()
+            .any(|(dx, dy)| w.grid.guest_clear(t.0 + dx, t.1 + dy))
+    };
     if n == 1
         && let Some(uid) = mine
-        && let Some(s) = all.iter().find(|s| s.uid == uid && s.free)
+        && let Some(s) = all
+            .iter()
+            .find(|s| s.uid == uid && s.free && reachable(s.tile))
     {
         return Some(vec![(s.uid, s.idx, s.tile)]);
     }
-    let free: Vec<&SeatInfo> = all.iter().filter(|s| s.free && !held(s)).collect();
-    if free.len() < n {
-        return None;
-    }
-    let reach = grid::reachable(&w.grid, w.grid.entrance());
-    let reachable = |t: (i32, i32)| -> bool {
-        // seat tile itself (chairs) or any neighbour reachable
-        [(0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)]
-            .iter()
-            .any(|(dx, dy)| {
-                w.grid
-                    .idx(t.0 + dx, t.1 + dy)
-                    .is_some_and(|i| reach[i] && w.grid.guest_ok(t.0 + dx, t.1 + dy))
-            })
-    };
-    let free: Vec<&SeatInfo> = free.into_iter().filter(|s| reachable(s.tile)).collect();
+    let free: Vec<&SeatInfo> = all
+        .iter()
+        .filter(|s| s.free && !held(s) && reachable(s.tile))
+        .collect();
     if free.len() < n {
         return None;
     }
@@ -458,14 +456,30 @@ pub(crate) fn registers(w: &World, content: &Content) -> Vec<(u32, (i32, i32))> 
         if !d.has_tag("register") {
             continue;
         }
-        if let Some(t) = grid::access_tiles(&w.grid, d, p)
-            .into_iter()
-            .find(|t| w.grid.guest_ok(t.0, t.1) && !w.grid.is_seat(t.0, t.1))
+        // first a side the guests get to without crossing a chair (chaos find: the line
+        // and the to-go guests climbed over seated guests to a front walled in by chairs)
+        let tiles = grid::access_tiles(&w.grid, d, p);
+        let guest = |t: &&(i32, i32)| w.grid.guest_ok(t.0, t.1) && !w.grid.is_seat(t.0, t.1);
+        if let Some(t) = tiles
+            .iter()
+            .filter(guest)
+            .find(|t| w.grid.guest_clear(t.0, t.1))
+            .or(tiles.iter().find(guest))
         {
-            v.push((p.uid, t));
+            v.push((p.uid, *t));
         }
     }
     v
+}
+
+/// The registers guests can order at: their front is reached without crossing a chair
+/// (chaos find: a register boxed in by chairs had its line climb over seated guests —
+/// its parties now sit down and order at the table, and nobody takes it to go there).
+pub(crate) fn guest_registers(w: &World, content: &Content) -> Vec<(u32, (i32, i32))> {
+    registers(w, content)
+        .into_iter()
+        .filter(|(_, t)| w.grid.guest_clear(t.0, t.1))
+        .collect()
 }
 
 /// Queue tiles for a register, front first.
@@ -478,7 +492,8 @@ pub(crate) fn queue_slots(w: &World, content: &Content, register: u32) -> Vec<(i
         return Vec::new();
     };
     let seat_tiles: Vec<(i32, i32)> = seats(w, content).iter().map(|s| s.tile).collect();
-    let ok = |t: (i32, i32)| w.grid.guest_ok(t.0, t.1) && !seat_tiles.contains(&t);
+    // (never a tile only reached over a chair: the line would climb over a seated guest)
+    let ok = |t: (i32, i32)| w.grid.guest_clear(t.0, t.1) && !seat_tiles.contains(&t);
     let mut v = vec![front];
     let mut cur = front;
     while v.len() < 8 {
@@ -908,7 +923,7 @@ pub(crate) fn spawn_party(
                 }
             }
             // order at the register, or at the table when the queue is long / no register
-            let regs = registers(w, content);
+            let regs = guest_registers(w, content);
             let best = regs
                 .iter()
                 .map(|(u, _)| (*u, w.queues.get(u).map(|q| q.len()).unwrap_or(0)))
@@ -2292,6 +2307,42 @@ pub(crate) fn step_along(
     ((pos.0 - start.0, pos.1 - start.1), path.is_empty(), false)
 }
 
+/// A guest just sat down on each of `sat` (guest, seat tile): everyone else whose path
+/// still leads over one of those chairs walks a new way (around it when there is one —
+/// `grid::find_path`); a helper or Karolina headed for that very chair stands beside it.
+/// Chaos find: paths planned while a chair was free walked people across a seated guest.
+pub(crate) fn reroute_off_taken(w: &mut World, sat: &[(u32, (i32, i32))]) {
+    let on_way = |path: &[(i32, i32)], me: Option<u32>| {
+        sat.iter().any(|(g, t)| Some(*g) != me && path.contains(t))
+    };
+    let guests: Vec<(u32, (i32, i32))> = w
+        .guests
+        .iter()
+        .filter(|g| !g.gone && on_way(&g.path, Some(g.id)))
+        .filter_map(|g| g.goal.map(|goal| (g.id, goal)))
+        .collect();
+    for (id, goal) in guests {
+        set_goal(w, id, goal);
+    }
+    for idx in 0..w.staff.len() {
+        let s = &w.staff[idx];
+        if !s.present() || !on_way(&s.path, None) {
+            continue;
+        }
+        let Some(&last) = s.path.last() else {
+            continue;
+        };
+        let goal = if sat.iter().any(|(_, t)| *t == last) {
+            super::staff::stand_next_to(w, last, s.tile()).unwrap_or(last)
+        } else {
+            last
+        };
+        // (no other way: the old one stands — `find_path` crosses a taken chair only when
+        // nothing else leads there)
+        let _ = super::staff::go(w, idx, goal);
+    }
+}
+
 pub(crate) fn tick_guests(w: &mut World, content: &Content) {
     let _ = content;
     let n = w.guests.len();
@@ -2315,6 +2366,10 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
                 }
             } else {
                 g.stuck_ticks = 0;
+                // at their chair, waiting for whoever stands on it to step off
+                if g.seat.is_some() && g.pose == Pose::Idle {
+                    maybe_sit.push((i, g.tile()));
+                }
             }
             continue;
         }
@@ -2347,13 +2402,22 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
     if !maybe_sit.is_empty() {
         let seat_info = seats(w, content);
         for (i, tile) in maybe_sit {
+            // nobody sits down on someone standing on the chair or crossing it (chaos find:
+            // a guest sat down on a helper idling on a stool, on Karolina walking over a
+            // chair, on the guest who had just got up from it): they wait on it till it's free
+            let id = w.guests[i].id;
+            let someone_there = w
+                .guests
+                .iter()
+                .any(|o| o.id != id && !o.gone && o.tile() == tile)
+                || w.staff.iter().any(|s| s.present() && s.tile() == tile);
             let g = &mut w.guests[i];
             let on_seat = g.seat.is_some_and(|(uid, idx)| {
                 seat_info
                     .iter()
                     .any(|s| s.uid == uid && s.idx == idx && s.tile == tile)
             });
-            if on_seat {
+            if on_seat && !someone_there {
                 if g.pose != Pose::Sit {
                     sat_down.push((g.id, tile));
                 }
@@ -2362,6 +2426,12 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
                 g.pose = Pose::Idle;
             }
         }
+    }
+    if !sat_down.is_empty() {
+        // the chairs just taken leave the walk masks now (not a tick later), and whoever's
+        // way led over one goes around it
+        w.refresh_taken();
+        reroute_off_taken(w, &sat_down);
     }
     // arrivals waiting for their photo until they sit (the 3:33 guest at the window…)
     if !w.sys.journal.on_seat.is_empty() {

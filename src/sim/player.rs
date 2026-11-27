@@ -1032,17 +1032,29 @@ fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal
             .iter()
             .find(|i| i.id == *item)
             .and_then(|i| i.ready_tile)
-            .map(|t| staff::pickup_tile(w, t, here))),
+            .and_then(|t| staff::pickup_tile(w, t, here))),
         PlayerAct::ClearTable { table } | PlayerAct::CollectTip { table } => {
             at(staff::station_access(w, content, *table))
         }
         PlayerAct::Wash { sink } => at(staff::station_access(w, content, *sink)),
         // a walk to a chair or a piece (a stranger's story, a moment at the jukebox) ends
-        // beside it, never on the chair someone may sit on or inside the furniture
+        // beside it, never on the chair someone may sit on or inside the furniture (with
+        // no spot beside it: on a free chair itself, else not at all — chaos find: she
+        // walked into a piece built on the tile she was sent to)
         PlayerAct::Mop { tile } | PlayerAct::GoTo { tile }
             if w.grid.is_seat(tile.0, tile.1) || !w.grid.walkable(tile.0, tile.1) =>
         {
-            at(staff::stand_next_to(w, *tile, here).or(Some(*tile)))
+            let free_chair = w.grid.walkable(tile.0, tile.1) && !w.grid.is_taken(tile.0, tile.1);
+            at(staff::stand_next_to(w, *tile, here).or(free_chair.then_some(*tile)))
+        }
+        // a nook only reached over a chair: beside it when that's clear floor (she'd climb
+        // back over whoever sat down meanwhile)
+        PlayerAct::Mop { tile } | PlayerAct::GoTo { tile } if !w.grid.clear(tile.0, tile.1) => {
+            Goal::At(
+                staff::stand_next_to(w, *tile, here)
+                    .filter(|t| w.grid.clear(t.0, t.1))
+                    .unwrap_or(*tile),
+            )
         }
         PlayerAct::Mop { tile } | PlayerAct::GoTo { tile } => Goal::At(*tile),
         PlayerAct::Checklist { id } => Goal::At(checklist_anchor(w, content, id, here)),
