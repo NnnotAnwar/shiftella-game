@@ -34,7 +34,7 @@ uk Нові місця: {guests} гостей знайшли де сісти · 
 ru Новые места: {guests} гостей нашли где сесть · {money}
 
 purchases.line.seats_drawn
-cs Nová místa: díky nim přišlo asi o {drawn} hostů víc
+cs Nová místa: díky nim přišli další hosté (asi {drawn})
 en New seats: about {drawn} more guests walked in
 uk Нові місця: завдяки ним зайшло ще близько {drawn} гостей
 ru Новые места: благодаря им зашло ещё около {drawn} гостей
