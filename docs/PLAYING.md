@@ -14,7 +14,8 @@ warm, pay off the debt — or let the café go, gently. Nothing here is meant to
    sign on the door says *Closed*): rain, quiet music, the lights coming up, no guests. Do the
    opening list in peace — light the window, warm up the machine, check the fridge, wipe the
    tables, count the float, chalk tonight's specials, put on a record (Shiftella **T** →
-   checklists, or click the ticks on the furniture). Helpers on tonight's rozpis walk in around
+   checklists, or click the little boxes over the furniture — the window lamp, the machine,
+   the fridge, a table, the till, the counter, the jukebox). Helpers on tonight's rozpis walk in around
    21:40 and do the items of their duties. The whole list by 22:30 → *"The café is ready."*
    (crew mood +2, coziness +2 tonight). The half hour runs a little quicker than the night
    (about 27 seconds at ×1); ×2/×3 work, and **Open now** beside the coziness meter opens the
@@ -49,8 +50,12 @@ Sandbox is endless, with a random town from a seed you can share.
 | Do it next instead of last | **Shift**+click | **Shift**+key |
 | Cancel what she's doing | right-click (or a chip over her head) | **Backspace** |
 
-Her next things float over her head as small chips (up to five, the current one with a
-progress ring). The **ticket rail** at the top shows every open order: who is on it (you, a
+Her next things float over her head as small chips, right over her hair (five at most, then
+"+3"; the current one with a progress ring). She can hold **eight** things at once. **Her queue**
+lives bottom-left, just above the dock: a small strip with the icons and "3/8" — click it (or
+**Q**) for the list: every act with an icon and a short label, the current one with its
+progress, **↑ / ↓** or a drag to reorder, **×** to drop one, **Clear all** (she finishes what she
+is doing). Karolina's crew card (**C**) shows the same whole list. The **ticket rail** at the top shows every open order: who is on it (you, a
 helper's initial, or a hollow ring = nobody), and how long they've waited. On Cozy nobody ever
 leaves angry: a guest who waits too long gets a glass of water, and later leaves content.
 
@@ -198,7 +203,9 @@ cello case by the chair… A small **amber speech bubble with three dots** float
 head (moment markers are indigo orbs on the other side; it stays readable zoomed out). Click
 it: a small card shows what Karolina notices and two or three answers — a free slice of
 cake, a warm word, the charger, the window seat, a taxi through the app, a record. One click
-and she walks over. Every answer is kind; the one that fits gets a warm reaction, a small
+and she walks over (if they get up to leave first, the card and the bubble close and her
+walk is called off — "They've already left"; the same for a moment about a guest). Every
+answer is kind; the one that fits gets a warm reaction, a small
 reward (the guest's mood, a tip in the jar, sometimes a thank-you napkin or a cozier hall), a
 line in the night log and a polaroid candidate for the morning, and they tell her their name.
 Ignoring a story is fine: it fades after a while or when they leave. At most two a night, one
@@ -274,6 +281,7 @@ never replace the polaroid you keep in the morning.
 | **J** | the polaroid journal |
 | **V** | grandma's jukebox |
 | **F** | the nearest night moment's card |
+| **Q** | Karolina's queue — the list bottom-left (reorder, drop, clear) |
 | **B** | build — click a card, click in the café; drag a placed piece to move it (a table brings its chairs; a click picks it up, the next click puts it down); **R** rotate (also while moving), **X** demolish, **Tab** next tab, **Ctrl+Z** undo, right-click / **Esc** cancel |
 | **L** | log (tonight / story) — also a click on the ticker at the top |
 | **F1** | how to play |
@@ -285,7 +293,7 @@ In cutscenes: click / **Space** — next line, **1–4** — choices, hold **Esc
 **A** — auto-advance, hold **Ctrl** — faster.
 
 These are the default keys. **Settings → Controls** rebinds the main actions (the panels C / H /
-T / B / L / K / J, the camera P, the jukebox V, the nearest moment F, the chore E, the wave G,
+T / B / L / K / J, the camera P, the jukebox V, the nearest moment F, the chore E, the wave G, the queue Q,
 pause, the three speeds, How to play and mute): click an action, press its new key (**Esc**
 cancels). Two actions on one key are marked with a warning sign; keys with a fixed meaning (Esc,
 Enter, the camera's WASD / arrows / Home, the rail's [ ] and Backspace, build mode's R / X / Tab,
@@ -337,7 +345,9 @@ the floor, amber: still to come, red: sick) and **Hire** with the number of cand
   with Zdeněk", "Wish not kept: Sun off", "Happy with this week's schedule"), **energy**
   with the reason on Classic (on Cozy only when they get tired), traits (hover for what they
   do), their **wishes** for the schedule and who they get along with.
-* Quick actions, one click, no questions: **Follow** (the camera glides over), **Break**
+* Quick actions, one click, no questions: **Follow** (the camera keeps on them; a chip at the
+  top says "Following Karolina · Esc / click to stop" — Esc, the chip, moving the camera or
+  the card's **Stop following** ends it), **Break**
   (Classic, or when they're tired), **Send home** (ends their shift now; tired people are
   glad of it), **Schedule** (opens their row in the Shiftella rozpis), by day **Let go**.
 * **Hire**: every candidate with their role, wage and what they are good at in one line.
@@ -382,6 +392,10 @@ the clock crawls.
   tomorrow — each one does something next night.
 * **Checklists** — the opening and closing rituals, with whose job each item is. The
   opening list fits in the preparation half hour (21:30–22:00) before the first guests.
+  Every item reads the same here and on its box in the café: an **empty box** = open (a click
+  sends Karolina); a **clock** = she has it queued / is on her way ("Karolina · on her way" —
+  a second click cancels it); a **person** = a helper is on it; a **tick**, struck through, with
+  who and when = done. A click never looks like *done* before it is.
 * **Night digest** — last night's numbers and up to four insights, each with a link
   (Rozpis, Recipe book, Pantry, Build, Duties…).
 * **Payroll basis** (podklady pro mzdy) — the week's hours and wages, the tip split (all to

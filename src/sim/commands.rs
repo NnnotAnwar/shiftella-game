@@ -721,6 +721,8 @@ impl World {
             Command::PlayerCancel => super::player::cancel(self, content),
             Command::PlayerQueue { act, front } => super::player::queue(self, content, act, front),
             Command::PlayerUnqueue { index } => super::player::unqueue(self, content, index),
+            Command::PlayerReorder { from, to } => super::player::reorder(self, from, to),
+            Command::PlayerClearQueue => super::player::clear_queue(self, content),
             Command::PlayerWashProgress { sink, seconds } => {
                 super::player::wash_progress(self, sink, seconds)
             }

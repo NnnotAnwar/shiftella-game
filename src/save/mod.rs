@@ -67,6 +67,10 @@ pub struct SessionExtra {
     /// First-time coach marks (`None` = not decided yet for this game).
     #[serde(default)]
     pub tutorial: Option<TutorialProgress>,
+    /// How many times the player used a checklist item by click (the one-line "how it works"
+    /// hint over the app's checklist goes once it's familiar; 99 = dismissed).
+    #[serde(default)]
+    pub checklist_tip: u32,
 }
 
 /// Where the first-time tutorial is (see `screens::game::tutorial`).

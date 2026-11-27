@@ -9,7 +9,7 @@ use super::world_view::sim;
 use super::{Bubble, GameScreen};
 use crate::render::{Accessory, FacialHair, HairStyle, PersonLook, TopStyle};
 use crate::settings::Locale;
-use crate::ui::{Icon, TextStyle, Ui, Weight};
+use crate::ui::{TextStyle, Ui, Weight};
 use sim::{AgentRef, Extra, Garment, SimEvent, World};
 
 /// Width of a ticket-rail label (`ui::handson::order` chip width − 4) at the smallest size
@@ -82,13 +82,18 @@ pub fn rail_label(ui: &Ui, w: &World, loc: &Locale, guest: u32) -> String {
     match w.persona(guest) {
         Some(p) => {
             let short = format!("{}.short", role_key(arch, p.female));
-            if loc.has(&short) { loc.tr_owned(&short) } else { full }
+            if loc.has(&short) {
+                loc.tr_owned(&short)
+            } else {
+                full
+            }
         }
         None => full,
     }
 }
 
 /// A description in the middle of a sentence (the log line): lower-case first letter.
+#[cfg_attr(not(test), allow(dead_code))]
 fn lower_first(s: &str) -> String {
     let mut c = s.chars();
     match c.next() {

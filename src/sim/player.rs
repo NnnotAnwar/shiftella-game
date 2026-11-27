@@ -1,5 +1,5 @@
 //! Karolina behind the counter (design/handson.md §1.1–§1.2): the player actor. The sim never
-//! assigns her work — she only does what the player queues (FIFO, at most 5): take orders,
+//! assigns her work — she only does what the player queues (FIFO, at most 8; reorderable): take orders,
 //! brew (quick or by hand), serve, clear, wash (hold), mop (swipe), collect tips, tick
 //! checklist items, put records on. She walks there herself (×1.4 staff speed) and works at a
 //! skill-independent speed.
@@ -742,6 +742,85 @@ pub(crate) fn unqueue(w: &mut World, content: &Content, index: usize) -> Result<
     release_act(w, content, &act, 0, 0);
     w.emit(SimEvent::PlayerQueueChanged);
     Ok(())
+}
+
+/// `Command::PlayerReorder`.
+pub(crate) fn reorder(w: &mut World, from: usize, to: usize) -> Result<(), CommandError> {
+    let q = &mut w.hands.player.queue;
+    if from >= q.len() || to >= q.len() {
+        return Err(CommandError::Invalid("no such queued act".into()));
+    }
+    if from == to {
+        return Ok(());
+    }
+    if let Some(act) = q.remove(from) {
+        q.insert(to, act);
+    }
+    w.emit(SimEvent::PlayerQueueChanged);
+    Ok(())
+}
+
+/// `Command::PlayerClearQueue`.
+pub(crate) fn clear_queue(w: &mut World, content: &Content) -> Result<(), CommandError> {
+    if w.hands.player.queue.is_empty() {
+        return Err(CommandError::Invalid("nothing queued".into()));
+    }
+    while let Some(act) = w.hands.player.queue.pop_back() {
+        release_act(w, content, &act, 0, 0);
+    }
+    w.emit(SimEvent::PlayerQueueChanged);
+    Ok(())
+}
+
+/// Drops whatever Karolina has queued or is doing for a story / moment walk that matches
+/// `pred` (its guest left): the queued walk goes, the current one is cancelled.
+pub(crate) fn drop_walks(
+    w: &mut World,
+    content: &Content,
+    pred: impl Fn(&super::systems::WalkKind) -> bool,
+) {
+    // the current act first: its job is `walk_now` (working) or still in `walks` (walking)
+    let cur_tile = w.hands.player.current.as_ref().and_then(|c| match c.act {
+        PlayerAct::GoTo { tile } => Some((tile, c.stage)),
+        _ => None,
+    });
+    if let Some((tile, stage)) = cur_tile {
+        let hit = if stage == 0 {
+            w.sys
+                .moments
+                .walks
+                .iter()
+                .any(|j| j.tile == tile && pred(&j.kind))
+        } else {
+            w.sys
+                .moments
+                .walk_now
+                .as_ref()
+                .is_some_and(|j| pred(&j.kind))
+        };
+        if hit {
+            drop_current(w, content);
+        }
+    }
+    let tiles: Vec<(i32, i32)> = w
+        .sys
+        .moments
+        .walks
+        .iter()
+        .filter(|j| pred(&j.kind))
+        .map(|j| j.tile)
+        .collect();
+    for tile in tiles {
+        if let Some(i) = w
+            .hands
+            .player
+            .queue
+            .iter()
+            .position(|a| *a == PlayerAct::GoTo { tile })
+        {
+            let _ = unqueue(w, content, i);
+        }
+    }
 }
 
 /// `Command::PlayerWashProgress`: she must be standing at that sink.

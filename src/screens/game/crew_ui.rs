@@ -218,8 +218,13 @@ pub fn skill_word(loc: &Locale, v: f32) -> String {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Act {
-    Follow,
-    Break { resting: bool },
+    /// `on` = the camera follows this person now (the button reads "Stop following").
+    Follow {
+        on: bool,
+    },
+    Break {
+        resting: bool,
+    },
     Home,
     Rozpis,
     LetGo,
@@ -355,11 +360,13 @@ fn relations_line(g: &GameScreen, loc: &Locale, s: &Staff) -> Option<String> {
         parts.push(loc.trf("crew.rel.rival", &[("name", &first_name(loc, w, id))]));
     }
     if parts.is_empty() {
-        parts.push(loc.tr_owned(if w.night().saturating_sub(s.hired_night) < 2 {
-            "crew.rel.new"
-        } else {
-            "crew.rel.everyone"
-        }));
+        parts.push(
+            loc.tr_owned(if w.night().saturating_sub(s.hired_night) < 2 {
+                "crew.rel.new"
+            } else {
+                "crew.rel.everyone"
+            }),
+        );
     }
     Some(parts.join(" · "))
 }
@@ -394,10 +401,10 @@ fn karolina_card(g: &GameScreen, loc: &Locale, content: &Content, s: &Staff) -> 
             }
             None => c.now = w.activity(s.id).map(|a| activity_text(loc, content, &a)),
         }
-        for (i, a) in plan.iter().enumerate().skip(1).take(3) {
+        // her whole queue (it holds at most `PLAYER_QUEUE_MAX`), each with its ×
+        for (i, a) in plan.iter().enumerate().skip(1) {
             c.next.push((activity_text(loc, content, a), Some(i)));
         }
-        c.next_more = plan.len().saturating_sub(4);
         let p = w.karolina_todo_parts(content);
         let mut chips = Vec::new();
         let mut add = |icon: Icon, n: u32, key: &str, number: bool| {
@@ -464,7 +471,9 @@ fn karolina_card(g: &GameScreen, loc: &Locale, content: &Content, s: &Staff) -> 
         }
     }
     if night {
-        c.actions.push(Act::Follow);
+        c.actions.push(Act::Follow {
+            on: g.follow == Some(AgentRef::Staff(s.id)),
+        });
     }
     c.actions.push(Act::Duties);
     c.actions.push(Act::Book);
@@ -556,7 +565,9 @@ fn helper_card(g: &GameScreen, loc: &Locale, content: &Content, s: &Staff) -> Ca
     );
     c.rel = relations_line(g, loc, s);
     if night && s.present() {
-        c.actions.push(Act::Follow);
+        c.actions.push(Act::Follow {
+            on: g.follow == Some(AgentRef::Staff(s.id)),
+        });
     }
     if on {
         let resting = matches!(s.task, Some(sim::Task::Break { .. }));
@@ -585,7 +596,8 @@ enum Clicked {
 
 fn act_label(loc: &Locale, a: Act) -> (Icon, String, String) {
     let (icon, key) = match a {
-        Act::Follow => (Icon::Search, "crew.act.follow"),
+        Act::Follow { on: false } => (Icon::Camera, "crew.act.follow"),
+        Act::Follow { on: true } => (Icon::Close, "hux.follow.stop"),
         Act::Break { .. } => (Icon::Cup, "crew.act.break"),
         Act::Home => (Icon::Home, "crew.act.home"),
         Act::Rozpis => (Icon::Calendar, "crew.act.rozpis"),
@@ -1249,6 +1261,7 @@ fn walk(
                         (crate::ui::ButtonKind::Secondary, *resting, *resting)
                     }
                     Act::LetGo => (crate::ui::ButtonKind::Danger, false, false),
+                    Act::Follow { on } => (crate::ui::ButtonKind::Secondary, *on, false),
                     _ => (crate::ui::ButtonKind::Secondary, false, false),
                 };
                 if act_button(
@@ -1357,12 +1370,8 @@ fn hire_list(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, area: Rect) {
         let bw = ui.button_width(&b);
         let tx = r.x + 38.0;
         let tw = r.w - 38.0 - bw - 8.0;
-        ui.fonts.draw_in(
-            &name,
-            Rect::new(tx, top, tw, l1),
-            &t.strong(),
-            Align::Left,
-        );
+        ui.fonts
+            .draw_in(&name, Rect::new(tx, top, tw, l1), &t.strong(), Align::Left);
         let role = wv::staff_role(&loc, content, &c.staff);
         let sub = format!(
             "{role} · {}",
@@ -1657,9 +1666,10 @@ fn apply(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, c: &Card, k: Clicked) {
         Clicked::Unqueue(i) => {
             g.intent(&content, Intent::Unqueue(i));
         }
-        Clicked::Act(Act::Follow) => {
-            if let Some(head) = g.scene.head_of(AgentRef::Staff(c.id), g.time) {
-                g.cam_target = Some(head);
+        Clicked::Act(Act::Follow { on: true }) => g.set_follow(None),
+        Clicked::Act(Act::Follow { on: false }) => {
+            if g.scene.head_of(AgentRef::Staff(c.id), g.time).is_some() {
+                g.set_follow(Some(AgentRef::Staff(c.id)));
                 g.selected = Some(AgentRef::Staff(c.id));
             }
         }

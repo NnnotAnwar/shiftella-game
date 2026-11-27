@@ -320,6 +320,16 @@ impl GameScreen {
                 });
                 false
             }
+            // a click raced the guest out of the door
+            Err(sim::CommandError::Invalid(why)) if why == sim::GUEST_LEFT => {
+                self.notices.push(Notice::Key {
+                    kind: ToastKind::Info,
+                    icon: Icon::Door,
+                    key: "hux.story.left".into(),
+                    args: Vec::new(),
+                });
+                false
+            }
             Err(_) => false,
         }
     }

@@ -65,8 +65,10 @@ impl WorldCamera {
         }
     }
 
-    /// Camera input. Works while paused too (uses real frame time).
-    pub fn update(&mut self) {
+    /// Camera input. Works while paused too (uses real frame time). Returns whether the
+    /// player moved it (keys, a drag, the wheel) — that ends a follow.
+    pub fn update(&mut self) -> bool {
+        let mut moved = false;
         let dt = get_frame_time();
 
         // Keys
@@ -84,12 +86,14 @@ impl WorldCamera {
             dir.x += 1.0;
         }
         self.center += dir.normalize_or_zero() * PAN_SPEED * dt / self.zoom;
+        moved |= dir != Vec2::ZERO;
 
         // Drag with the right or middle button
         let mouse = Vec2::from(mouse_position());
         if is_mouse_button_down(MouseButton::Right) || is_mouse_button_down(MouseButton::Middle) {
             if let Some(last) = self.drag_last {
                 self.center -= (mouse - last) / self.zoom;
+                moved |= mouse.distance(last) > 0.5;
             }
             self.drag_last = Some(mouse);
         } else {
@@ -104,6 +108,8 @@ impl WorldCamera {
             self.zoom = (self.zoom * factor).clamp(MIN_ZOOM, MAX_ZOOM);
             let after = self.screen_to_world(mouse);
             self.center += before - after;
+            moved = true;
         }
+        moved
     }
 }

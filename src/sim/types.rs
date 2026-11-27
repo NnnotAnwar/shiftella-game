@@ -1028,6 +1028,14 @@ pub enum Command {
     PlayerUnqueue {
         index: usize,
     },
+    /// Move a queued act from `from` to `to` (indexes into `player().queue`; the current act
+    /// is not part of it).
+    PlayerReorder {
+        from: usize,
+        to: usize,
+    },
+    /// Drop every queued act (the current one goes on), releasing their claims.
+    PlayerClearQueue,
     /// Hold-to-wash released after `seconds` (real) at the sink: 2 dishes per second.
     PlayerWashProgress {
         sink: u32,

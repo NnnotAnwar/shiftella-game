@@ -703,10 +703,10 @@ uk Стежити
 ru Следить
 
 crew.act.follow_tip
-cs Kamera najede na tuhle postavu
-en The camera glides over to this person
-uk Камера плавно наведеться на цю людину
-ru Камера плавно покажет этого человека
+cs Kamera tuhle postavu sleduje (Esc nebo pohyb kamerou to zastaví)
+en The camera follows this person (Esc or moving the camera stops it)
+uk Камера стежитиме за цією людиною (Esc або рух камери — стоп)
+ru Камера следит за этим человеком (Esc или движение камеры — стоп)
 
 crew.act.break
 cs Pauza
