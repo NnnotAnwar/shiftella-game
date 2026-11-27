@@ -293,8 +293,15 @@ fn helpers_do_no_less_real_work_with_pastimes() {
         on = (on.0 + b.0, on.1 + b.1, on.2 + b.3);
     }
     eprintln!("real-work ticks / served / helper tasks done: off {off:?} → on {on:?}");
+    // (0.2.2: most guests order at their table, and who takes a table order — Karolina or a
+    // helper — depends on who stands nearer, so the helpers' task count drifts more than
+    // the work itself: the real-work ticks and the items served hold at 0.95)
     assert!(
-        on.2 as f64 >= off.2 as f64 * 0.95,
+        on.0 as f64 >= off.0 as f64 * 0.95,
+        "real-work ticks {on:?} vs {off:?}"
+    );
+    assert!(
+        on.2 as f64 >= off.2 as f64 * 0.9,
         "tasks done {on:?} vs {off:?}"
     );
     assert!(

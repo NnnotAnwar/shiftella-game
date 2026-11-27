@@ -10,8 +10,11 @@ use crate::content::{Content, MenuCategory, MenuItem, Pays, TraitEffect};
 
 /// Guest walking speed, tiles per tick.
 pub const GUEST_SPEED: f32 = 0.35;
-/// Parties per opening hour at reputation 25 in a normal town (before hour weights).
-pub const BASE_PARTIES_PER_HOUR: f32 = 1.7;
+/// Parties per opening hour at reputation 25 in a normal town (before hour weights). 0.2.2:
+/// 1.7 → 1.3 — with grandma's bar stools, to-go cups and big parties finding a free cluster
+/// hardly anyone is turned away any more, so fewer walk in to keep the hall as calm (and
+/// about as many served) as before.
+pub const BASE_PARTIES_PER_HOUR: f32 = 1.3;
 /// Waiting for food allows this many × the archetype patience (T9: 2.4 → 3.0, so a Classic
 /// party waiting for a round Karolina makes by hand doesn't walk out mid-brew).
 pub const FOOD_PATIENCE: f32 = 3.0;
@@ -178,6 +181,10 @@ pub(crate) struct SeatInfo {
     pub free: bool,
     pub facing: Facing,
     pub comfort: f32,
+    /// A bar seat: no table, beside a counter (grandma's stools on the front counter's
+    /// ledge). It holds a guest when the tables are full but draws no extra walk-ins
+    /// (`purchases::hall_seats`), and the bar's own lamps light it (`atmos`).
+    pub bar: bool,
 }
 
 pub(crate) fn seat_tile(w: &World, uid: u32, idx: u8) -> Option<(i32, i32)> {
@@ -236,6 +243,14 @@ pub(crate) fn seats(w: &World, content: &Content) -> Vec<SeatInfo> {
                 }
                 None => p.facing(),
             };
+            let bar = table.is_none()
+                && [(0, 1), (0, -1), (1, 0), (-1, 0)].iter().any(|(dx, dy)| {
+                    w.grid
+                        .object_at(tile.0 + dx, tile.1 + dy)
+                        .and_then(|u| w.furniture_by_uid(u))
+                        .and_then(|q| content.furniture_def(&q.def))
+                        .is_some_and(|q| q.has_tag("counter") || q.has_tag("register"))
+                });
             out.push(SeatInfo {
                 uid: p.uid,
                 idx: i as u8,
@@ -244,6 +259,7 @@ pub(crate) fn seats(w: &World, content: &Content) -> Vec<SeatInfo> {
                 free: p.seat_by.get(i).copied().flatten().is_none(),
                 facing,
                 comfort: d.comfort,
+                bar,
             });
         }
     }
@@ -385,32 +401,49 @@ fn choose_seats(
         }
     }
     if best.is_none() {
-        // Seats near each other (sofas, window seats, two tables).
-        let first = free
-            .iter()
-            .max_by(|a, b| score(a).total_cmp(&score(b)))
-            .copied()?;
-        let mut v = vec![first];
-        // every seat but `first`, by seat (comparing the references compared the slots
-        // holding them, so `first` came back and a pair shared a chair)
-        let mut rest: Vec<&SeatInfo> = free
-            .iter()
-            .filter(|s| (s.uid, s.idx) != (first.uid, first.idx))
-            .copied()
-            .collect();
-        rest.sort_by_key(|s| grid::manhattan(s.tile, first.tile));
-        for s in rest {
-            if v.len() >= n {
-                break;
+        // Seats near each other (sofas, window seats, the bar stools, two tables). Every free
+        // seat may start the group (0.2.2: only the best-scored one did, and when it had no
+        // free neighbours left a party went on with a whole cluster free elsewhere); a tight
+        // group wins over a spread one, and a seat beside a stranger at a small table counts
+        // less (a pair takes two stools rather than two strangers' tables).
+        let stranger = |s: &SeatInfo| {
+            s.table
+                .is_some_and(|t| all.iter().any(|o| o.table == Some(t) && !o.free))
+        };
+        let mut firsts: Vec<&SeatInfo> = free.clone();
+        firsts.sort_by(|a, b| score(b).total_cmp(&score(a)));
+        for first in firsts {
+            let mut v = vec![first];
+            // every seat but `first`, by seat (comparing the references compared the slots
+            // holding them, so `first` came back and a pair shared a chair)
+            let mut rest: Vec<&SeatInfo> = free
+                .iter()
+                .filter(|s| (s.uid, s.idx) != (first.uid, first.idx))
+                .copied()
+                .collect();
+            rest.sort_by_key(|s| grid::manhattan(s.tile, first.tile));
+            for s in rest {
+                if v.len() >= n {
+                    break;
+                }
+                if grid::manhattan(s.tile, first.tile) <= 4 {
+                    v.push(s);
+                }
             }
-            if grid::manhattan(s.tile, first.tile) <= 4 {
-                v.push(s);
+            if v.len() < n {
+                continue;
+            }
+            let spread: i32 = v.iter().map(|s| grid::manhattan(s.tile, first.tile)).sum();
+            let q = v
+                .iter()
+                .map(|s| score(s) - if stranger(s) { 3.0 } else { 0.0 })
+                .sum::<f32>()
+                / n as f32
+                - 0.75 * spread as f32 / (n.max(2) - 1) as f32;
+            if best.as_ref().is_none_or(|b| q > b.0) {
+                best = Some((q, v));
             }
         }
-        if v.len() < n {
-            return None;
-        }
-        best = Some((0.0, v));
     }
     best.map(|(_, v)| v.iter().map(|s| (s.uid, s.idx, s.tile)).collect())
 }
@@ -728,6 +761,7 @@ pub(crate) fn spawn_party(
         napkin: None,
         extra_seat: false,
         rounds: 0,
+        to_go: false,
     };
     let prefer = reg.and_then(|r| r.seat.clone());
     let nothing_to_order = party.wishes.is_empty() && !wish_party;
@@ -799,6 +833,45 @@ pub(crate) fn spawn_party(
         });
     }
     w.tonight.guests_arrived += size;
+    // no free seat: a plain party may take it to go (`sim::to_go`)
+    let to_go = if seats_pick.is_none() && !nothing_to_order {
+        super::to_go::plan(
+            w,
+            content,
+            id,
+            size,
+            &party.wishes,
+            wish_party,
+            reg.is_some(),
+        )
+    } else {
+        None
+    };
+    if let Some((reg_uid, items)) = to_go {
+        party.to_go = true;
+        party.wishes = items;
+        party.register = Some(reg_uid);
+        party.state = PartyState::Queue;
+        w.queues.entry(reg_uid).or_default().push(id);
+        let members = party.members.clone();
+        w.parties.push(party);
+        refresh_queue_goals(w, content);
+        for &gid in members.iter().skip(1) {
+            super::to_go::send_to_spot(w, content, gid);
+        }
+        w.emit(SimEvent::GuestArrived {
+            party: id,
+            archetype: archetype.to_string(),
+            size,
+            regular: None,
+        });
+        w.hands.tally.parties += 1;
+        super::purchases::on_arrived(w, archetype);
+        super::purchases::on_to_go(w, size);
+        super::pacing::note_arrival(w, content);
+        super::tool::note_arrival_hour(w);
+        return Some(id);
+    }
     match seats_pick {
         None => {
             // Looks in, walks on (the wish wasn't used).
@@ -840,11 +913,14 @@ pub(crate) fn spawn_party(
                 .iter()
                 .map(|(u, _)| (*u, w.queues.get(u).map(|q| q.len()).unwrap_or(0)))
                 .min_by_key(|(_, n)| *n);
-            // wishes are told to Karolina at the table, never in the register queue
+            // most sit down and order at the table (wishes are always told to Karolina
+            // there); a quick few order at the bar, unless its line is long
             let table_order = wish_party
                 || match best {
                     None => true,
-                    Some((_, n)) => n >= 3 && w.rng.chance(0.7),
+                    Some((_, n)) => {
+                        n >= BAR_LINE_MAX || !orders_at_bar(w, content, id, archetype, size)
+                    }
                 };
             for (k, &gid) in party.members.clone().iter().enumerate() {
                 let seat_t = seat_list[k].2;
@@ -917,6 +993,93 @@ pub(crate) fn spawn_party(
         }
     }
     Some(id)
+}
+
+/// Is the party in and settled, ready to order? A table party once its leader sits; a bar
+/// party once its leader stands in the register line (inside, at — or a step from — their
+/// slot while the line moves up). Nobody takes an order from someone still walking in
+/// (`PlayerTakeOrder` → `Invalid("not_in_yet")`, helpers wait too).
+pub(crate) fn settled(w: &World, p: &Party) -> bool {
+    let Some(g) = p.leader().and_then(|l| w.guests.iter().find(|g| g.id == l)) else {
+        return false;
+    };
+    match p.state {
+        PartyState::WaitOrder => g.pose == Pose::Sit,
+        PartyState::Queue => {
+            let t = g.tile();
+            w.grid.room(t.0, t.1) == grid::Room::Hall
+                && g.goal.is_some_and(|goal| {
+                    goal == t || (grid::chebyshev(goal, t) <= 1 && !g.path.is_empty())
+                })
+        }
+        _ => false,
+    }
+}
+
+/// Tests: the party walks in at once — every member stands on their goal (sitting when it
+/// is their seat), so its order can be taken now.
+#[cfg(test)]
+pub(crate) fn settle_now(w: &mut World, pid: u32) {
+    let members: Vec<u32> = w
+        .parties
+        .iter()
+        .find(|p| p.id == pid)
+        .map(|p| p.members.clone())
+        .unwrap_or_default();
+    for gid in members {
+        let seat = w
+            .guests
+            .iter()
+            .find(|g| g.id == gid)
+            .and_then(|g| g.seat)
+            .and_then(|(u, i)| seat_tile(w, u, i));
+        if let Some(g) = w.guests.iter_mut().find(|g| g.id == gid)
+            && let Some(goal) = g.goal
+        {
+            g.pos = grid::tile_center(goal);
+            g.path.clear();
+            g.stuck_ticks = 0;
+            g.pose = if seat == Some(goal) {
+                Pose::Sit
+            } else {
+                Pose::Idle
+            };
+        }
+    }
+}
+
+/// The share of plain parties who order at the bar (the register) instead of at their table:
+/// a quick one — a lone passer-by, a taxi driver or a patrol in a hurry. Most sit down and
+/// wait for their order to be taken at the table.
+pub const BAR_ORDER_SHARE: f32 = 0.1;
+/// … + this for someone alone …
+pub const BAR_ORDER_SOLO: f32 = 0.1;
+/// … + this for a quick stay (at most 20 minutes; at most 30: half).
+pub const BAR_ORDER_QUICK: f32 = 0.25;
+/// Nobody new joins a bar line this long: they sit down and order at the table.
+pub const BAR_LINE_MAX: usize = 3;
+
+/// Does a plain party of `size` order at the bar? (A derived roll: never `World::rng`.)
+fn orders_at_bar(w: &World, content: &Content, pid: u32, archetype: &str, size: u32) -> bool {
+    let quick = content.guest(archetype).map_or(0.0, |a| {
+        if a.stay_minutes.1 <= 20 {
+            BAR_ORDER_QUICK
+        } else if a.stay_minutes.1 <= 30 {
+            BAR_ORDER_QUICK / 2.0
+        } else {
+            0.0
+        }
+    });
+    let p = BAR_ORDER_SHARE + if size == 1 { BAR_ORDER_SOLO } else { 0.0 } + quick;
+    let mix = |x: u64, k: u64| x.wrapping_mul(k).rotate_left(29);
+    let roll = super::rng::Rng::new(
+        w.seed
+            ^ mix(pid as u64 + 1, 0x9E37_79B9_7F4A_7C15)
+            ^ mix(w.night as u64 + 5, 0x1656_67B1_9E37_79F9)
+            ^ 0x6261_725f_6f72_6431,
+    )
+    .f32();
+    roll < p
 }
 
 fn party_is_queue(w: &World, id: u32) -> bool {
@@ -1074,6 +1237,7 @@ pub(crate) fn refresh_queue_goals(w: &mut World, content: &Content) {
             }
         }
     }
+    super::to_go::refresh(w, content);
 }
 
 /// Gentle start: (arrival multiplier, patience multiplier) for the first nights.
@@ -1517,6 +1681,11 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
             && let Some(t) = seat_tile(w, seat.0, seat.1)
         {
             set_goal(w, leader, t);
+        } else if w.parties[pi].to_go
+            && let Some(&leader) = members.first()
+        {
+            // to go: step aside and wait for the cup by the register
+            super::to_go::send_to_spot(w, content, leader);
         }
         refresh_queue_goals(w, content);
     }
@@ -1668,7 +1837,17 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
             .find(|x| x.id == *i)
             .is_none_or(|x| matches!(x.state, ItemState::Served | ItemState::Cancelled))
     });
-    if all_done && !w.parties[pi].wish_open && w.parties[pi].state == PartyState::WaitFood {
+    if all_done
+        && !w.parties[pi].wish_open
+        && w.parties[pi].state == PartyState::WaitFood
+        && w.parties[pi].to_go
+    {
+        // the cups are in their hands: out of the door (no seat, no stay)
+        let p = &mut w.parties[pi];
+        p.state = PartyState::Eating;
+        p.served_at = Some(m);
+        p.stay_left = 1.0;
+    } else if all_done && !w.parties[pi].wish_open && w.parties[pi].state == PartyState::WaitFood {
         let arch = content.guest(&w.parties[pi].archetype);
         let second = w.parties[pi].rounds > 0;
         let (lo, hi) = if second {
@@ -1859,7 +2038,8 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
                 .map(|m| m.tips_mul)
                 .unwrap_or(1.0)
                 * super::atmos::tips_mul(w, content)
-                * super::purchases::tips_mul(w, content, pi);
+                * super::purchases::tips_mul(w, content, pi)
+                * super::to_go::tips_mul(w, pi);
             tip = ((bill as f32 * (0.05 + 0.15 * ((sat - 55.0) / 45.0)))
                 * tips_mul
                 * party_mul
@@ -1970,9 +2150,13 @@ pub(crate) fn finish_party(w: &mut World, content: &Content, pid: u32, exit: Exi
         .product();
     w.dirt = (w.dirt + 0.005 * size as f32 * wet * dirt_mul).min(1.0);
     let mut table_dishes: Vec<(u32, u32)> = Vec::new();
+    // to go: they walk out with their paper cups (no dishes left behind)
+    let cups = w.parties[pi].to_go && served_n > 0;
     for gid in &members {
         if let Some(g) = w.guests.iter_mut().find(|g| g.id == *gid) {
-            g.holding = None;
+            if !cups {
+                g.holding = None;
+            }
             if let Some((uid, idx)) = g.seat.take() {
                 if let Some(p) = w.furniture.iter_mut().find(|p| p.uid == uid)
                     && let Some(s) = p.seat_by.get_mut(idx as usize)

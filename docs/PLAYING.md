@@ -55,7 +55,7 @@ Sandbox is endless, with a random town from a seed you can share.
 | Do this | Mouse | Keyboard |
 |---|---|---|
 | Wave at someone who just came in | click them | **G** |
-| Take an order (a guest with **!**) | click them, or their ticket on the rail | **Enter** on the rail (**[ ]** move along it) |
+| Take an order (a guest with **!**, once they sit down or stand in the line) | click them, or their ticket on the rail | **Enter** on the rail (**[ ]** move along it) |
 | Brew | the order card: **1–4** pick a recipe · **Q** Quick / By hand · **U** the usual · **H** hand off · **K** the book | same |
 | Clear a table / pick up a tip coin | click the table / the coin | **E** (the nearest chore) |
 | Wash up | click the sink, then **hold** the button on it | **E**, then hold **E** |
@@ -76,6 +76,24 @@ progress, **↑ / ↓** or a drag to reorder, **×** to drop one, **Clear all** 
 is doing). Karolina's crew card (**C**) shows the same whole list. The **ticket rail** at the top shows every open order: who is on it (you, a
 helper's initial, or a hollow ring = nobody), and how long they've waited. On Cozy nobody ever
 leaves angry: a guest who waits too long gets a glass of water, and later leaves content.
+
+**Where guests order.** Most guests come in, sit down and wait for you (or a helper) to take
+their order at the table — the **!** over them. A few order at the bar instead: a quick
+coffee, someone alone, a taxi driver or a patrol in a hurry; they stand in the line at the
+register. Nobody orders before they are in: a guest still walking in shows a dashed,
+dimmed ticket ("still walking in") — a click only reminds you to wait till they sit down or
+reach the line. Helpers wait for that too: the **register** helper takes orders at the
+register and at the tables, the **serving** helper takes table orders between trays.
+
+**A full café.** Grandma's café has four **bar stools** along the guests' side of the front
+counter (left of the register line): when the tables are full, a quick guest — or a group
+of four — sits at the bar. A big party takes any free seats close together. When there is
+really no seat left, a plain guest (never a regular, never a wish) may **take it to go**: they
+queue at the register, wait beside it (a little paper cup over their head), and walk out
+with a paper cup — drinks and desserts only, a smaller tip, no dishes. On Classic fewer
+bother. Only if the line is long or too many already wait by the register do they go on.
+A toast says so now and then, and the morning summary has one line about it ("No free
+seat: 3× they took it to go").
 
 **The order card** shows the wish ("something warm, not too sweet — long day") with faint taste
 icons, and up to four recipes; matching tastes light up. **Quick** lets the machine do it
@@ -510,6 +528,9 @@ Times are UTC; `+12.3s` is the time since the start of that run.
 
 ## Reasons to build: wishes, corners, the attic, the back room
 
+* **More seats, more guests.** Every table, sofa or window seat you add draws more passers-by
+  in (the build card says about how many); the bar stools by the counter only catch the
+  overflow. Comfy pieces keep guests longer and tip better.
 * **Wishes for the café.** Regulars, helpers and guests sometimes say what they'd like —
   Filip needs a table with a socket, Hana a quiet corner, Vera a seat by the window, Mirek
   grandma's old radio, the crew a coat rack… They say it once in a bubble, and every wish

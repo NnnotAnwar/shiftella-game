@@ -29,6 +29,12 @@ pub const TILE: f32 = 64.0;
 /// through the flap at the right end of the counter (row 10, x 27–28) or past its open left
 /// end (x 16, rows 11–14 — a counter return there made every trip to the left tables longer
 /// and cost the Classic bot its final payment). `c` = a return (guests to the west).
+///
+/// `s` = grandma's bar stools along the guests' ledge of the front counter (row 9, x 16–19,
+/// facing the counter): a quick coffee at the bar when the tables are full. They stand left
+/// of the register line (which runs along row 9 from the register to x 20, then up), never
+/// in the staff's way past the counter's open end (x 15). They are placed after everything
+/// else, so every other piece keeps the uid it had before 0.2.2.
 pub const DEFAULT_LAYOUT: &str = "\
 ####WWWW######WWWW######WWWW##
 #p....l......g...............#
@@ -39,7 +45,7 @@ pub const DEFAULT_LAYOUT: &str = "\
 #............................#
 #............................#
 #..hTh.....hTh..............j#
-#............................#
+#...............ssss.........#
 #...............CCCCCCGMCRC,,#
 #...............,,,,,,,,,,,,,#
 #...............,,,,,,,,,,,,,#
@@ -449,6 +455,7 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
     // Counter row tiles are staff side too (they're blocked anyway).
     let mut furniture: Vec<Placed> = Vec::new();
     let mut tables: Vec<(i32, i32)> = Vec::new();
+    let mut stools: Vec<(i32, i32)> = Vec::new();
     let mut place = |grid: &mut Grid, def_id: &str, x: i32, y: i32, rot: u8| {
         let Some(def) = content.furniture_def(def_id) else {
             return;
@@ -494,6 +501,8 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
                     place(&mut grid, "table_round", xi, y, 0);
                     tables.push((xi, y));
                 }
+                // a bar stool on the counter's ledge, facing the counter (placed last)
+                's' => stools.push((xi, y)),
                 'h' => {
                     // Face the neighbouring table.
                     let right = row.get(x + 1) == Some(&'T');
@@ -529,6 +538,10 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
     // of light come from the sim's furniture, so the renderer just draws `pendant_lamp`s.
     for (x, y) in std::mem::take(&mut tables) {
         place(&mut grid, "pendant_lamp", x, y, 0);
+    }
+    // 0.2.2: the bar stools come last (the pieces before them keep their old uids)
+    for (x, y) in std::mem::take(&mut stools) {
+        place(&mut grid, "stool", x, y, 0);
     }
     // The window lamp starts off (the player lights it — `light_window` checklist).
     for p in furniture.iter_mut() {

@@ -1306,6 +1306,49 @@ pub fn draw_cup(p: Vec2, k: f32, t: f32, steaming: bool) {
     }
 }
 
+/// A paper cup to go (`p` = the bottom point): a tapered white cup, a kraft sleeve, a dark
+/// lid with its sip slot — what a guest who found no seat walks out with.
+pub fn draw_paper_cup(p: Vec2, k: f32) {
+    let h = 9.0 * k;
+    let (bot, top) = (2.6 * k, 3.4 * k);
+    let paper = Color::from_hex(0xfbf7ef);
+    let paper_dark = shade(paper, 0.8);
+    // the tapered body (a trapezoid: wider at the top)
+    let (a, b) = (vec2(p.x - bot, p.y), vec2(p.x + bot, p.y));
+    let (c2, d) = (vec2(p.x + top, p.y - h), vec2(p.x - top, p.y - h));
+    draw_triangle(a, b, c2, paper_dark);
+    draw_triangle(a, c2, d, paper);
+    // the kraft sleeve
+    let (s0, s1) = (0.3, 0.68);
+    let w_at = |f: f32| bot + (top - bot) * f;
+    let sleeve = Color::from_hex(0xb07a4c);
+    let (sa, sb) = (
+        vec2(p.x - w_at(s0), p.y - h * s0),
+        vec2(p.x + w_at(s0), p.y - h * s0),
+    );
+    let (sc, sd) = (
+        vec2(p.x + w_at(s1), p.y - h * s1),
+        vec2(p.x - w_at(s1), p.y - h * s1),
+    );
+    draw_triangle(sa, sb, sc, shade(sleeve, 0.85));
+    draw_triangle(sa, sc, sd, sleeve);
+    // the lid
+    draw_rectangle(
+        p.x - top - 0.6 * k,
+        p.y - h - 1.6 * k,
+        2.0 * top + 1.2 * k,
+        1.8 * k,
+        c::WOOD_DARK,
+    );
+    ellipse(
+        p.x,
+        p.y - h - 1.6 * k,
+        top * 0.7,
+        0.8 * k,
+        shade(c::WOOD_DARK, 1.25),
+    );
+}
+
 /// Steam: a few wavy wisps rising and fading. Stateless.
 pub fn draw_steam(base: Vec2, t: f32, strength: f32) {
     let seed = (base.x * 13.0 + base.y * 7.0) as i32 as u32;

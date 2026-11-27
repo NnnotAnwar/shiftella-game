@@ -150,9 +150,9 @@ pub use outside::{
     world_text_width,
 };
 pub use person::{
-    draw_actor_highlight, draw_cup, draw_emote, draw_emote_ex, draw_laptop, draw_person,
-    draw_person_ex, draw_portrait, draw_selection, draw_shiftella_logo, draw_steam, emote_anchor,
-    person_sort_key, sit_anchor,
+    draw_actor_highlight, draw_cup, draw_emote, draw_emote_ex, draw_laptop, draw_paper_cup,
+    draw_person, draw_person_ex, draw_portrait, draw_selection, draw_shiftella_logo, draw_steam,
+    emote_anchor, person_sort_key, sit_anchor,
 };
 pub use polaroid::{
     PolaroidLayout, PolaroidStyle, SceneSnap, SnapActor, SnapCup, SnapFloor, SnapProp,

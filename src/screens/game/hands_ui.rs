@@ -205,6 +205,8 @@ fn rail(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let mut out: Vec<Ticket> = Vec::new();
     for (t, (id, _, _)) in tickets.iter().zip(&ids) {
         let (name, face) = guest_name(g, &loc, t.guest);
+        // still walking in: a dashed chip, no order to take yet
+        let walking_in = matches!(t.stage, TicketStage::Order) && !g.world.party_settled(t.party);
         let (item, stage) = match &t.stage {
             TicketStage::Order => {
                 let wish = g
@@ -222,7 +224,11 @@ fn rail(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                     } else {
                         TicketItem::Plain(dish_of(content, &first))
                     },
-                    loc.tr_owned("ui.rail.stage.order"),
+                    loc.tr_owned(if walking_in {
+                        "ui.rail.stage.walking_in"
+                    } else {
+                        "ui.rail.stage.order"
+                    }),
                 )
             }
             TicketStage::Wish { wish } => (TicketItem::Wish, loc.tr_owned(&format!("wish.{wish}"))),
@@ -265,7 +271,7 @@ fn rail(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             owner,
             wait: t.wait_frac,
             regular: t.regular.is_some(),
-            incoming: false,
+            incoming: walking_in,
         });
     }
     // regulars announced ahead: dashed chips

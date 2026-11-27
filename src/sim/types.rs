@@ -208,6 +208,9 @@ pub struct NightSummary {
     /// Parties/guests who left without being served (impatient, no seat…).
     pub guests_left_unhappy: u32,
     pub guests_turned_away: u32,
+    /// Guests who found no seat and took their order to go (0.2.2, `sim::to_go`).
+    #[serde(default)]
+    pub guests_to_go: u32,
     pub orders_served: u32,
     pub revenue: i64,
     pub tips: i64,
@@ -1303,6 +1306,9 @@ pub struct AgentView {
     pub seat_tile: Option<(i32, i32)>,
     /// Menu item id carried / being drunk.
     pub holding: Option<String>,
+    /// A guest taking it to go (no free seat): a paper cup in hand once served
+    /// (`sim::to_go`).
+    pub to_go: bool,
 }
 
 /// Render state of a placed furniture piece (maps onto `render::FurnitureState`).

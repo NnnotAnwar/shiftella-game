@@ -561,7 +561,11 @@ impl PlayerBot {
         // orders that are hers: wishes and regulars first (longest wait first)
         let mut orders: Vec<&Ticket> = rail
             .iter()
-            .filter(|t| t.stage == TicketStage::Order && t.owner == TicketOwner::Nobody)
+            .filter(|t| {
+                t.stage == TicketStage::Order
+                    && t.owner == TicketOwner::Nobody
+                    && w.party_settled(t.party)
+            })
             .collect();
         orders.sort_by(|a, b| b.wait_frac.total_cmp(&a.wait_frac));
         // a regular's order is done next (shift+click)

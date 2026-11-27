@@ -212,7 +212,8 @@ fn keyboard_intents_reach_the_sim() {
     // the window light first (an opening checklist item)
     assert_eq!(g.next_chore(&c), Some(hands::Intent::Window));
     assert!(g.intent(&c, hands::Intent::Chore { front: false }));
-    // a guest arrives: Enter on the rail takes the order (no autoplayer here)
+    // a guest arrives: Enter on the rail takes the order once they sit / stand in the line
+    // (no autoplayer here)
     g.set_speed(3);
     let mut guard = 0;
     while guard < 40_000
@@ -220,7 +221,7 @@ fn keyboard_intents_reach_the_sim() {
             .world
             .ticket_rail(&c)
             .iter()
-            .any(|t| matches!(t.stage, sim::TicketStage::Order))
+            .any(|t| matches!(t.stage, sim::TicketStage::Order) && g.world.party_settled(t.party))
     {
         if g.cutscene_playing() {
             g.finish_cutscene_now(&c, &loc);
@@ -232,7 +233,12 @@ fn keyboard_intents_reach_the_sim() {
     if g.cutscene_playing() {
         g.finish_cutscene_now(&c, &loc);
     }
-    let t = g.world.ticket_rail(&c)[0].clone();
+    let t = g
+        .world
+        .ticket_rail(&c)
+        .into_iter()
+        .find(|t| matches!(t.stage, sim::TicketStage::Order) && g.world.party_settled(t.party))
+        .expect("a settled guest's order ticket");
     g.act_on_rail(&c);
     let claimed = g
         .world
@@ -243,6 +249,61 @@ fn keyboard_intents_reach_the_sim() {
     assert!(
         claimed,
         "Enter on the rail sent Karolina to take the order: {t:?}"
+    );
+}
+
+/// 0.2.2: a guest still walking in shows a dashed "still walking in" chip; clicking it takes
+/// no order (nothing queued, nothing claimed), only a soft hint.
+#[test]
+fn a_guest_still_walking_in_cant_be_ordered_from_the_rail() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.start_night(&c);
+    g.set_speed(3);
+    let mut guard = 0;
+    let ticket =
+        loop {
+            if g.cutscene_playing() {
+                g.finish_cutscene_now(&c, &loc);
+            }
+            if let Some(t) = g.world.ticket_rail(&c).into_iter().find(|t| {
+                matches!(t.stage, sim::TicketStage::Order) && !g.world.party_settled(t.party)
+            }) {
+                break t;
+            }
+            g.advance(&c, 0.05, Some(&loc));
+            guard += 1;
+            assert!(guard < 40_000, "a guest walking in");
+        };
+    g.notices.clear();
+    // (a wave to someone coming in is still fine — the order is not)
+    g.intent(
+        &c,
+        hands::Intent::Ticket {
+            party: ticket.party,
+            guest: ticket.guest,
+        },
+    );
+    let p = g
+        .world
+        .parties()
+        .iter()
+        .find(|p| p.id == ticket.party)
+        .unwrap();
+    assert!(p.order_claim.is_none());
+    assert!(
+        !g.world
+            .player()
+            .queue
+            .contains(&sim::PlayerAct::TakeOrder { party: p.id })
+    );
+    assert!(
+        g.notices
+            .iter()
+            .any(|n| matches!(n, Notice::Key { key, .. } if key == "ui.order.not_in_yet")),
+        "a soft hint"
     );
 }
 

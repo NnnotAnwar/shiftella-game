@@ -348,6 +348,10 @@ pub struct Party {
     pub extra_seat: bool,
     #[serde(default)]
     pub rounds: u8,
+    /// No free seat: they take a paper cup to go (plain drinks / desserts, queue at the
+    /// register, wait by it, walk out with the cup; `guests::to_go`).
+    #[serde(default)]
+    pub to_go: bool,
 }
 
 impl Party {
@@ -2297,6 +2301,7 @@ impl World {
                 emote: s.emote.map(|e| e.0),
                 seat_tile: None,
                 holding: s.carrying.clone(),
+                to_go: false,
             })
             .collect()
     }
@@ -2326,6 +2331,7 @@ impl World {
                     emote: g.emote.map(|e| e.0),
                     seat_tile,
                     holding: g.holding.clone(),
+                    to_go: self.parties.iter().any(|p| p.id == g.party && p.to_go),
                 }
             })
             .collect()

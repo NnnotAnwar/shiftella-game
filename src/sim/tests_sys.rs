@@ -1357,6 +1357,7 @@ fn a_brew_starts_with_the_minigame_and_takes_its_quality_after() {
         .unwrap()
         .leader()
         .unwrap();
+    guests::settle_now(&mut w, pid);
     w.apply(&c, Command::PlayerTakeOrder { guest }).unwrap();
     let mut ok = false;
     for _ in 0..3000 {

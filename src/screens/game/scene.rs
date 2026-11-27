@@ -636,6 +636,29 @@ impl WorldScene {
                 q.push_selection(pose);
             }
             q.push_person(look, *pose);
+            // to go (no free seat): the paper cup in hand once served; while they wait, a
+            // small paper cup over their head says what they are waiting for
+            if v.to_go && v.pose != sim::Pose::Sit {
+                let feet = pose.feet;
+                if v.holding.is_some() {
+                    let side = match pose.facing {
+                        Facing::Left => -11.0,
+                        Facing::Right => 11.0,
+                        _ => 12.0,
+                    };
+                    let at = feet + vec2(side, -24.0);
+                    q.push_custom(feet.y + 0.03, move || draw_paper_cup(at, 1.3));
+                } else {
+                    // a small round badge beside the head (the "!" keeps the top)
+                    let bob = (t * 2.2 + feet.x * 0.05).sin() * 1.2;
+                    let at = feet + vec2(17.0, -58.0 + bob);
+                    q.push_custom(feet.y + 0.03, move || {
+                        draw_circle(at.x, at.y - 7.0, 11.0, Color::new(0.16, 0.12, 0.24, 0.55));
+                        draw_circle(at.x, at.y - 7.0, 9.5, Color::new(1.0, 0.97, 0.92, 0.92));
+                        draw_paper_cup(at + vec2(0.0, -0.5), 1.25);
+                    });
+                }
+            }
             // props: a cup in front of seated guests, the laptop of the quiet guy
             if v.pose == sim::Pose::Sit {
                 let f = pose.facing;
