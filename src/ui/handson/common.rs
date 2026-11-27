@@ -851,25 +851,8 @@ pub fn place_near(screen: Rect, at: Vec2, size: Vec2, gap: f32, avoid: &[Rect]) 
 }
 
 // ---------------------------------------------------------------------------
-// Transformed drawing (rotation, slant) via the camera matrix
+// Transformed drawing (rotation, slant) via macroquad's model matrix
 // ---------------------------------------------------------------------------
-
-struct MatrixCamera(Mat4);
-
-impl Camera for MatrixCamera {
-    fn matrix(&self) -> Mat4 {
-        self.0
-    }
-    fn depth_enabled(&self) -> bool {
-        false
-    }
-    fn render_pass(&self) -> Option<macroquad::texture::RenderPass> {
-        None
-    }
-    fn viewport(&self) -> Option<(i32, i32, i32, i32)> {
-        None
-    }
-}
 
 /// A 2D affine map in UI units: `p' = m · p + t`.
 #[derive(Clone, Copy, Debug)]
@@ -919,37 +902,19 @@ impl Affine {
     }
 }
 
-thread_local! {
-    /// The transform in effect (nested `with_transform` calls compose).
-    static XF: std::cell::Cell<Option<Affine>> = const { std::cell::Cell::new(None) };
-}
-
-fn set_xf_camera(ui: &Ui, xf: Option<Affine>) {
-    match xf {
-        None => ui.set_camera(),
-        Some(xf) => {
-            let s = ui.screen();
-            let mut cam = Camera2D::from_display_rect(Rect::new(0.0, 0.0, s.w, s.h));
-            cam.zoom.y = -cam.zoom.y;
-            set_camera(&MatrixCamera(cam.matrix() * xf.mat4()));
-        }
-    }
-}
-
 /// Run `f` with everything it paints transformed by `xf` (UI units), then restore the
-/// previous transform (or the plain UI camera). Nested calls compose. Hit-testing is not
-/// transformed: keep interactive parts axis-aligned.
+/// previous transform. Nested calls compose. Hit-testing is not transformed: keep
+/// interactive parts axis-aligned.
+///
+/// The transform goes on macroquad's model matrix stack (the default shader draws
+/// `Projection × Model × p`), not into a camera: a model matrix only starts a new draw call
+/// in the same batch, while `set_camera` flushes the whole batch to the GPU — twice per
+/// handwritten line, which made the napkin and the signature board cost a few ms a frame.
 pub fn with_transform<R>(ui: &mut Ui, xf: Affine, f: impl FnOnce(&mut Ui) -> R) -> R {
-    let outer = XF.with(|c| c.get());
-    let combined = match outer {
-        Some(o) => o.then(xf),
-        None => xf,
-    };
-    XF.with(|c| c.set(Some(combined)));
-    set_xf_camera(ui, Some(combined));
+    // SAFETY: model-matrix push / pop on macroquad's own batcher, on the main thread.
+    unsafe { get_internal_gl() }.quad_gl.push_model_matrix(xf.mat4());
     let out = f(ui);
-    XF.with(|c| c.set(outer));
-    set_xf_camera(ui, outer);
+    unsafe { get_internal_gl() }.quad_gl.pop_model_matrix();
     out
 }
 

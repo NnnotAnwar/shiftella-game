@@ -30,6 +30,8 @@ struct Buffer {
     // used only as a type argument for glDrawElements and can be
     // 1, 2 or 4
     index_type: Option<u32>,
+    /// [shiftella patch] GL usage hint (stream buffers are re-specified on update).
+    gl_usage: GLenum,
 }
 
 #[derive(Debug)]
@@ -1381,6 +1383,7 @@ impl RenderingBackend for GlContext {
             buffer_type: type_,
             size,
             index_type,
+            gl_usage,
         };
 
         BufferId(self.buffers.add(buffer))
@@ -1407,7 +1410,16 @@ impl RenderingBackend for GlContext {
         self.cache.store_buffer_binding(gl_target);
         self.cache
             .bind_buffer(gl_target, buffer.gl_buf, buffer.index_type);
-        unsafe { glBufferSubData(gl_target, 0, size as _, data.ptr as _) };
+        if buffer.gl_usage == GL_STREAM_DRAW {
+            // [shiftella patch] Re-specify (orphan) a stream buffer instead of writing into
+            // its old store: the GPU may still be reading last frame's batch from it, and
+            // Apple's GL-on-Metal then copies through a staging buffer + a blit encoder for
+            // every update (macroquad updates two stream buffers per draw call). A fresh store
+            // is a plain copy. Same data, same draw: nothing changes on screen.
+            unsafe { glBufferData(gl_target, size as _, data.ptr as _, GL_STREAM_DRAW) };
+        } else {
+            unsafe { glBufferSubData(gl_target, 0, size as _, data.ptr as _) };
+        }
         self.cache.restore_buffer_binding(gl_target);
         // [shiftella patch] profiler counters
         crate::stats::add(&crate::stats::BUFFER_UPDATES, 1);

@@ -27,6 +27,15 @@ frame, until the atlas grew again.
 2. When the queued textures are freed, they are also dropped from the binding cache
    (`GlCache::forget_texture`), so a reused GL name is always really bound.
 3. `#[allow(dead_code)]` on an Android-only function, to keep our builds warning-free.
+4. **Stream buffers are re-specified on update** (`buffer_update`: `glBufferData` instead of
+   `glBufferSubData` for `BufferUsage::Stream`). macroquad uploads two stream buffers per
+   draw call every frame; writing into a store the GPU may still read (last frame's batch)
+   made Apple's GL-on-Metal copy through a staging buffer and a blit encoder per update —
+   ~30 % of the main thread on a busy night. Orphaning gives the driver a fresh store and a
+   plain copy (a busy night's main-thread CPU per frame went from ~9.5 to ~6 ms with this
+   alone). Same data, same draws, identical pixels.
+5. `miniquad::stats` — relaxed atomic counters (buffer updates, bytes, vertices, draw calls)
+   read by the game's frame profiler (`SHIFTELLA_PROFILE`, `src/profile.rs`).
 
 ### Updating
 
