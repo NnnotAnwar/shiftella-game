@@ -89,6 +89,7 @@ fn check_rituals(w: &mut World, content: &Content) {
             xlogic::run(w, content, &fx, &XTarget::default());
             w.emit(SimEvent::RitualComplete { list: r.list });
             w.emit(SimEvent::Toast { key: r.toast_key() });
+            super::rituals::on_ritual_complete(w, content, r);
         }
     }
 }

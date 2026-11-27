@@ -1179,6 +1179,7 @@ fn hand_over(w: &mut World, content: &Content, idx: usize, tray: &[u32]) {
 
 pub(crate) fn tick(w: &mut World, content: &Content, idx: usize) {
     prune_queue(w);
+    super::rituals::tidy(w, content);
     if !w.staff[idx].path.is_empty() {
         walk(w, content, idx);
         return;
@@ -1543,6 +1544,10 @@ fn step(w: &mut World, content: &Content, idx: usize) {
             ),
             _ => {
                 w.staff[idx].pose = Pose::Work;
+                // a ritual gesture in the player's hands (sim::rituals)
+                if !ritual_work(w, content) {
+                    return;
+                }
                 if work_tick(w, 1.0) {
                     super::app::tick_checklist(w, content, &id, Some(me));
                     finish(w);
@@ -1553,10 +1558,15 @@ fn step(w: &mut World, content: &Content, idx: usize) {
             0 => set_work(w, 1, NEEDLE_WORK),
             _ => {
                 w.staff[idx].pose = Pose::Work;
+                if !ritual_work(w, content) {
+                    return;
+                }
                 if work_tick(w, 1.0) {
                     if super::music::validate(w, &record).is_ok() {
                         super::music::set_record(w, content, record, repeat);
                     }
+                    // the needle dropped by hand: the opening's record item too
+                    super::rituals::record_dropped(w, content, me);
                     finish(w);
                 }
             }
@@ -1641,6 +1651,9 @@ fn use_step(
                 let here = w.staff[idx].tile();
                 let d = (p.x - here.0, p.y - here.1);
                 w.staff[idx].facing = Facing::from_delta(d.0 as f32, d.1 as f32);
+            }
+            if !ritual_work(w, content) {
+                return;
             }
             if !work_tick(w, work_speed(w, content, None)) {
                 return;
@@ -1737,6 +1750,22 @@ pub(crate) fn brew_quality_in(w: &mut World, guest: u32, quality: f32) -> Result
         .ok_or_else(|| CommandError::Invalid("no brew waits for a quality".into()))?;
     set_brew_quality(w, item, quality);
     Ok(())
+}
+
+/// A ritual gesture at the piece (`sim::rituals`): false = she waits for the player's
+/// gesture this tick; a finished gesture leaves no work (the item completes now). Without a
+/// gesture in the player's hands nothing changes.
+fn ritual_work(w: &mut World, content: &Content) -> bool {
+    match super::rituals::gate(w, content) {
+        super::rituals::Gate::Normal => true,
+        super::rituals::Gate::Wait => false,
+        super::rituals::Gate::Finish => {
+            if let Some(c) = w.hands.player.current.as_mut() {
+                c.work_left = 0.0;
+            }
+            true
+        }
+    }
 }
 
 /// Works one tick; true when the stage's work is done.

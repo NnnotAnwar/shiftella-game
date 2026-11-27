@@ -36,6 +36,7 @@ mod orders;
 mod pacing;
 mod player;
 pub mod rng;
+mod rituals;
 mod rozpis;
 pub mod signature;
 mod staff;
@@ -76,6 +77,8 @@ mod tests_closing;
 #[cfg(test)]
 mod tests_prep;
 #[cfg(test)]
+mod tests_rituals;
+#[cfg(test)]
 mod tests_qa;
 #[cfg(test)]
 mod tests_signature;
@@ -113,6 +116,7 @@ pub use moments::CatView;
 pub use names::{Extra, Garment, Persona, StrangerLook, stranger_look};
 pub use orders::PLAIN_CREDIT;
 pub use player::{MOP_AMOUNT, WASH_PER_SECOND};
+pub use rituals::{RitualHold, RitualStep, ritual_gesture, ritual_key};
 pub use signature::{NightPhoto, SIGNATURE_RECIPE, SignatureDrink};
 pub use staff::FIRST_HIRE_NIGHT;
 pub use stories::{ActiveStory, AnswerDef, GUEST_LEFT, StoriesState, StoryDef, persona_arg};

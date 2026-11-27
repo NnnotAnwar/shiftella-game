@@ -875,6 +875,7 @@ impl World {
                 false,
             ),
             Command::EquipmentHold { seconds } => super::equipment::hold(self, content, seconds),
+            Command::Ritual { key, step } => super::rituals::command(self, content, key, step),
             Command::Experiment { ingredients } => {
                 super::knowledge::validate(self, content, &ingredients)?;
                 if self.phase == Phase::Day {

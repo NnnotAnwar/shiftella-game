@@ -164,4 +164,39 @@
         // station cat is there)
         closing: (from_minute: 435, trash_dirt: 0.03, cat_chance: 0.35),
     ),
+    // Hands-on rituals (sim::rituals, screens::game::rituals_ui): when Karolina herself does a
+    // checklist item (or an appliance chore) and the player watches at ×1, a tiny gesture plays
+    // over the piece instead of a progress ring. Never needed: ignored, at ×2/×3, by the
+    // autoplayer or a helper it completes on its own with the same ticks. Once the player has
+    // started a gesture she waits for it at most `patience_ticks`; a finished gesture finishes
+    // the item at once. `perfect_min` perfect gestures in a list → that ritual's `perfect`
+    // reward (shiftella.ron). Keys: checklist ids, or `equip.<action>` for appliance chores (a
+    // chore without its own entry uses the gesture of the item it ticks: the warm-up, the
+    // group head, the till).
+    rituals: (
+        patience_ticks: 120,
+        perfect_min: 3,
+        gestures: {
+            // the opening
+            "light_window": Cord,
+            "coffee_warmup": Needle(green: (0.62, 0.8)),
+            "check_stock": Shelf(items: 3, look: Pantry),
+            "wipe_tables": Strokes(count: 3, look: Cloth),
+            "count_float": Count(coins: [1, 2, 5, 10, 20], total: (32, 68)),
+            "menu_board": Strokes(count: 2, look: Chalk),
+            "record_on": Drop(band: 0.16),
+            // the closing
+            "wash_dishes": Strokes(count: 3, look: Sponge),
+            "clean_machine": Strokes(count: 4, look: Brush),
+            "cash_up": Sort(coins: 5),
+            "fridge_check": Shelf(items: 3, look: Fridge),
+            "handover_note": Lines(count: 3),
+            "light_off_at_six": Cord,
+            // appliance chores of their own
+            "equip.milk": Slide(look: Bottle),
+            "equip.bake": Slide(look: Tray),
+            "equip.soup_on": Stir,
+            "equip.trash": Slide(look: Bag),
+        },
+    ),
 )

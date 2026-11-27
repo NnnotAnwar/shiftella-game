@@ -14,7 +14,9 @@
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
 //!   story_marker|story_card|storm|storm_talk|hands_ux` (`SHIFTELLA_HUX=checklist|rituals|
-//!   queue|follow`: the checklist states, the queue strip with 8 acts, the follow chip;
+//!   queue|follow|gesture`: the checklist states, the queue strip with 8 acts, the follow chip,
+//!   a ritual gesture over its piece — `SHIFTELLA_GESTURE=<checklist id | equip.<chore>>`,
+//!   `SHIFTELLA_GESTURE_T=<s>` played that long first, default 21:40 with the list untouched;
 //!   `SHIFTELLA_STORY=<id>`: the vignette put on a
 //!   stranger when none came by itself; `SHIFTELLA_LINE=n`: the storm talk's line)
 //!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
@@ -478,12 +480,27 @@ impl App {
             "hands_ux" => {
                 let loc = Locale::new(&self.i18n, lang);
                 let which = env("SHIFTELLA_HUX").unwrap_or_else(|| "queue".into());
-                let early = matches!(which.as_str(), "checklist" | "rituals");
+                let early = matches!(which.as_str(), "checklist" | "rituals" | "gesture");
                 let n = night.unwrap_or(if early { 1 } else { 8 });
-                let m = minute.unwrap_or(if early { 2 } else { 150 });
+                let m = minute.unwrap_or(if which == "gesture" {
+                    -20
+                } else if early {
+                    2
+                } else {
+                    150
+                });
                 let mut g = GameScreen::new_story(&content, "cozy", true);
                 g.fast_forward(&content, &loc, n, Some(m), n > 1);
-                g.stage_hands_ux(&content, &which);
+                if which == "gesture" {
+                    // SHIFTELLA_GESTURE=<checklist id | equip.<chore>>, SHIFTELLA_GESTURE_T=<s>
+                    let key = env("SHIFTELLA_GESTURE").unwrap_or_else(|| "light_window".into());
+                    let secs = env("SHIFTELLA_GESTURE_T")
+                        .and_then(|t| t.parse::<f32>().ok())
+                        .unwrap_or(0.6);
+                    g.stage_ritual(&content, &loc, &key, secs);
+                } else {
+                    g.stage_hands_ux(&content, &which);
+                }
                 self.game(g)
             }
             "crew_karolina" | "crew_helper" | "crew_classic" | "crew_day" | "crew_hire" => {

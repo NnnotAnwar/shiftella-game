@@ -511,6 +511,7 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
         })
         .collect();
     w.tonight.checklist_total = w.app.checklist.len() as u32;
+    w.hands.rituals = Default::default();
     // a published, unchanged schedule makes the crew happy; last-minute edits don't
     let dirty = w.app.draft_dirty;
     for s in w.staff.iter_mut() {

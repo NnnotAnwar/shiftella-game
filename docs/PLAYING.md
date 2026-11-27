@@ -143,6 +143,36 @@ to finish the story.
   chip on their furniture. Click the chip — or tick them in the app — and Karolina does them;
   helpers do the ones of their duty. A whole list done gives the night a little glow
   ("The café is ready.", "Closed properly.").
+* **Hands-on rituals** — when Karolina herself heads for one of those items and you are
+  watching at ×1, a small card opens over the piece with its own little gesture (2–5 seconds):
+
+  | item | gesture (mouse · keyboard) |
+  |---|---|
+  | light the window / the light off at six | pull the lamp's cord down · hold ↓ or Space |
+  | warm up the machine | hold until the pressure needle sits in the green, let go · Space |
+  | check the stock / the fridge check | tick off the three things on the shelf, the glowing one first · Space |
+  | wipe the tables | three cloth strokes across the table · ← → in turn |
+  | count the float | tap coins and notes into the tray until it makes tonight's sum (too much? click the tray to take one back) · ← → choose, Space adds, ↓ takes back |
+  | the specials board | two chalk strokes · ← → |
+  | put a record on | click as the swinging arm passes the green lead-in groove · Space |
+  | the dishes | sponge strokes over a plate · ← → |
+  | clean the group head | brush strokes · ← → |
+  | cash up | each coin to its stack (1 · 5 · 10) · ← ↓ → |
+  | the handover note | pick one of the night's lines to write (it becomes the first note) · ↑ ↓ Space |
+  | milk out · cake in · trash out (the appliances) | drag the bottle / the tray / the bag along · hold → or Space |
+  | soup on | stir once around the pot · hold Space |
+
+  It is never needed: leave it alone and she finishes the item herself exactly as before; at
+  ×2 / ×3, under the autoplayer, while another card or a panel is open, or when a helper does
+  the item, no card opens at all. Once you touch the gesture she waits for it at the piece (for
+  a while at most); finishing it finishes the item at once — usually a little sooner. **Esc**
+  or a right-click on the card lets her finish it herself. Pausing pauses it. Mistakes never
+  fail anything (a coin too many, the needle let go too early), they only mean *not perfect*;
+  a perfect gesture floats a small *Perfect*, and three perfect ones in a list make **a perfect
+  opening** (+1 coziness tonight) or **a perfect close** (crew mood +1.5). The first time each
+  gesture shows, a one-line hint sits under it (remembered in the settings, shown once).
+  *Relaxed mini-games* widen the needle's green and the record's groove. While the card plays,
+  Space and the arrows belong to it (pause with the button, or once it is done).
 * **The tip jar** — tonight's tips and the lifetime total. When the jar reaches a goal, a
   "Count the jar" chip appears: pick one of two decor pieces for the hall.
 * **Napkins** — a perfect cup for someone who needed it sometimes earns a folded thank-you
@@ -542,6 +572,12 @@ before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_T
 `06:00`–`06:29` the closing half hour after the doors closed (`06:29`: the waiting clock).
 `SHIFTELLA_DOORS=wait` leaves the opening / closing list to the crew, so `21:59` / `06:29` show
 the clock waiting for the doors / for "Close up".
+
+`SHIFTELLA_SCENE=hands_ux SHIFTELLA_HUX=gesture SHIFTELLA_GESTURE=<checklist id | equip.<chore>>`
+shows a ritual gesture over its piece (default night 1 at 21:40, `light_window`; use
+`SHIFTELLA_DOORS=wait` so the list is still open, `SHIFTELLA_TIME=06:05` for a closing item);
+`SHIFTELLA_GESTURE_T=<s>` plays it by script that long first (never to the end). A fresh
+`SHIFTELLA_SETTINGS` file shows the first-time hint.
 
 `SHIFTELLA_SCENE=equipment SHIFTELLA_EQUIP=prep|night|worn|closing` plays the appliances to a
 picture: the preparation (soup on, milk out, the cake baking, the machine warming up), the

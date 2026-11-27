@@ -37,6 +37,10 @@ pub struct Ritual {
     #[serde(default)]
     pub by: Option<ClockTime>,
     pub effects: Vec<Fx>,
+    /// Hands-on rituals: a tiny extra when the list is complete with at least
+    /// `rituals.perfect_min` perfect gestures of Karolina's in it (`app.ritual.perfect.<list>`).
+    #[serde(default)]
+    pub perfect: Vec<Fx>,
 }
 
 impl Ritual {
@@ -44,6 +48,14 @@ impl Ritual {
         match self.list {
             ChecklistKind::Opening => "app.ritual.opening".into(),
             ChecklistKind::Closing => "app.ritual.closing".into(),
+        }
+    }
+
+    /// The toast of a perfect ritual (`app.ritual.perfect.<list>`).
+    pub fn perfect_key(&self) -> String {
+        match self.list {
+            ChecklistKind::Opening => "app.ritual.perfect.opening".into(),
+            ChecklistKind::Closing => "app.ritual.perfect.closing".into(),
         }
     }
 }

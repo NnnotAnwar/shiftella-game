@@ -700,6 +700,11 @@ pub enum SimEvent {
     RitualComplete {
         list: ChecklistKind,
     },
+    /// A list done with enough perfect gestures of Karolina's (`sim::rituals`): its ritual's
+    /// small `perfect` extra ran (`app.ritual.perfect.<list>`).
+    RitualPerfect {
+        list: ChecklistKind,
+    },
     /// Last night's handover notes acted (`app.handover.option.<id>`).
     HandoverApplied {
         ids: Vec<String>,
@@ -1181,6 +1186,14 @@ pub enum Command {
     /// the group head): `seconds` real seconds of holding speed it up.
     EquipmentHold {
         seconds: f32,
+    },
+    /// A ritual gesture over the piece Karolina is doing (`sim::rituals`): `key` =
+    /// `World::ritual_key_now`. `Start` = she waits at the piece for it, `Done { perfect }` =
+    /// the item completes now, `LetGo` = she finishes it herself. Errors `WrongPhase`,
+    /// `Invalid` (not the gesture of her current act).
+    Ritual {
+        key: String,
+        step: super::rituals::RitualStep,
     },
     /// Night only: a helper on the floor ends their shift now and walks home (wages follow
     /// the minutes worked; a tired helper is glad of it, mood +4). Errors: `WrongPhase` by

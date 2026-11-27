@@ -1292,6 +1292,7 @@ impl GameScreen {
                 self.hands.press_equip = None;
             }
             SimEvent::NightEnded { .. } => {
+                self.rituals.open = None;
                 self.hands.moment = None;
                 self.hands.order = None;
                 self.hands.minigame = None;

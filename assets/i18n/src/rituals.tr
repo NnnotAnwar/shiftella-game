@@ -1,0 +1,118 @@
+# Hands-on rituals (sim::rituals, screens::game::rituals_ui): the little gesture over the piece
+# when Karolina herself does an opening / closing item. One-line hints show once per gesture
+# kind; keep them short (the card is ~190 px wide). Polite imperative, like the mini-game guides.
+
+ritual.hint.cord
+cs Stáhněte šňůrku dolů — nebo držte ↓
+en Pull the cord down — or hold ↓
+uk Потягніть шнурок униз — або тримайте ↓
+ru Потяните шнурок вниз — или держите ↓
+
+ritual.hint.needle
+cs Držte, pusťte s ručičkou v zeleném — nebo Mezerník
+en Hold, let go with the needle in the green — or Space
+uk Тримайте, відпустіть, коли стрілка в зеленому — або Пробіл
+ru Держите, отпустите, когда стрелка в зелёном — или Пробел
+
+ritual.hint.count
+cs Mince do misky na přesnou částku — ← → a Mezerník, ↓ vrátí
+en Coins into the tray to the exact sum — ← → and Space, ↓ takes back
+uk Монети в лоток до точної суми — ← → і Пробіл, ↓ забрати
+ru Монеты в лоток до точной суммы — ← → и Пробел, ↓ забрать
+
+ritual.hint.strokes
+cs Pár tahů napříč — nebo střídejte ← →
+en A few strokes across — or ← → in turn
+uk Кілька рухів упоперек — або ← → по черзі
+ru Несколько движений поперёк — или ← → по очереди
+
+ritual.hint.shelf
+cs Odškrtněte, co svítí — nebo Mezerník
+en Tick off what glows — or Space
+uk Відмітьте те, що світиться — або Пробіл
+ru Отметьте то, что светится — или Пробел
+
+ritual.hint.drop
+cs Klikněte, když je raménko nad zeleným — nebo Mezerník
+en Click as the arm passes the green groove — or Space
+uk Клацніть, коли важіль над зеленим — або Пробіл
+ru Кликните, когда рычаг над зелёным — или Пробел
+
+ritual.hint.sort
+cs Každou minci na její sloupek — nebo ← ↓ →
+en Each coin to its stack — or ← ↓ →
+uk Кожну монету на її стовпчик — або ← ↓ →
+ru Каждую монету на её столбик — или ← ↓ →
+
+ritual.hint.lines
+cs Vyberte řádek na zítra — nebo ↑ ↓ a Mezerník
+en Pick a line for tomorrow — or ↑ ↓ and Space
+uk Оберіть рядок на завтра — або ↑ ↓ і Пробіл
+ru Выберите строчку на завтра — или ↑ ↓ и Пробел
+
+ritual.hint.slide
+cs Přetáhněte až na konec — nebo držte →
+en Drag it all the way — or hold →
+uk Перетягніть до кінця — або тримайте →
+ru Перетащите до конца — или держите →
+
+ritual.hint.stir
+cs Jednou dokola — nebo držte Mezerník
+en Once around — or hold Space
+uk Один раз по колу — або тримайте Пробіл
+ru Один раз по кругу — или держите Пробел
+
+ritual.let_go
+cs Ať to Karolina dodělá sama
+en Let Karolina finish it herself
+uk Нехай Кароліна закінчить сама
+ru Пусть Каролина закончит сама
+
+ritual.perfect
+cs Dokonale
+en Perfect
+uk Ідеально
+ru Идеально
+
+ritual.too_much
+cs Moc — jednu vraťte
+en Too much — take one back
+uk Забагато — заберіть одну
+ru Многовато — заберите одну
+
+ritual.not_yet
+cs Ještě ne…
+en Not yet…
+uk Ще ні…
+ru Ещё нет…
+
+# the handover note's own lines when the night left nothing to suggest
+ritual.line.quiet
+cs Klidná noc, všechno v pořádku.
+en A calm night, all is well.
+uk Спокійна ніч, усе гаразд.
+ru Спокойная ночь, всё в порядке.
+
+ritual.line.thanks
+cs Díky všem, byli jste skvělí.
+en Thank you all, you were lovely.
+uk Дякую всім, ви були чудові.
+ru Спасибо всем, вы были чудесны.
+
+ritual.line.lamp
+cs Lampa v okně svítila celou noc.
+en The window lamp was on all night.
+uk Лампа у вікні світила всю ніч.
+ru Лампа в окне горела всю ночь.
+
+app.ritual.perfect.opening
+cs Dokonalé otevření — kavárna je dnes o kousek útulnější.
+en A perfect opening — the café feels a little cozier tonight.
+uk Ідеальне відкриття — кав'ярня сьогодні трохи затишніша.
+ru Идеальное открытие — кафе сегодня чуть уютнее.
+
+app.ritual.perfect.closing
+cs Dokonalé zavření — parta jde domů s úsměvem.
+en A perfect close — the crew heads home smiling.
+uk Ідеальне закриття — команда йде додому з усмішкою.
+ru Идеальное закрытие — команда идёт домой с улыбкой.

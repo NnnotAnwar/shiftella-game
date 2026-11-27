@@ -372,6 +372,9 @@ pub struct HandsState {
     pub place_jukebox: bool,
     /// Tonight's appliances (v0.2): the warm machine, the soup pot, the cake, the tray…
     pub equip: super::equipment::EquipState,
+    /// Tonight's ritual gestures (`sim::rituals`): the one in the player's hands, the items
+    /// done by hand.
+    pub rituals: super::rituals::RitualState,
 }
 
 /// Who holds a ticket on the rail.

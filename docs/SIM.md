@@ -111,6 +111,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | `CutsceneFinished { id, choices }`, `Talk { guest }` | see §1 / §4 |
 | `BuySupplies { amount }`, `SetAutoRestock { target }`, `SetPrice { item, price }`, `SetMenuItem { item, on }`, `RenameCafe { name }` | |
 | `TickChecklist { id }` (night), `PostAnnouncement { id, args }`, `WriteHandover { text }` | at night ticking an item is Karolina's act (she walks to it); jobless items (`light_window`, `handover_note`, `light_off_at_six`) are hers alone |
+| `Ritual { key, step: Start \| Done { perfect } \| LetGo }` | a hands-on ritual gesture over the piece of her **current** act (`key` = `ritual_key_now`; `Invalid` otherwise, `WrongPhase` by day): `Start` = she waits at the piece for it (≤ `rituals.patience_ticks` ticks of waiting), `Done` = the item completes on her next work tick (sooner than her own work; on her way: as she arrives), `LetGo` = she finishes it herself. See §10.8a |
 | `OpenDoors` | "Open the doors": ends the preparation half hour (only before 22:00 → `WrongPhase` otherwise; at 21:59 the clock waits for it); emits `DoorsOpened`, the clock jumps to 22:00 |
 | `CloseUp` | "Close up": ends the closing half hour and the night at once (only 06:00–06:30 → `WrongPhase` otherwise; at 06:29 the clock waits for it); what's left on the closing list counts as missed |
 | Karolina: `PlayerTakeOrder`, `PlayerBrew`, `PlayerUsual`, `PlayerHandOff`, `PlayerCancel`, `PlayerQueue`, `PlayerUnqueue`, `PlayerWashProgress`, `PlayerGreet` | §9.1 |
@@ -192,7 +193,7 @@ Audio/UI: `GuestArrived`, `GuestTurnedAway`, `GuestLeft`, `OrderTaken`, `OrderRe
 `ChoiceResolved`, `EventHint` (Foresight), `Toast { key }`, `Hint { key }`, `BotMessage { msg, template,
 key: "app.bot.<t>", args }`, `Speech { speaker, agent, key }` (beat lines, arc lines on arrival),
 `PlayCutscene`, `EndingReached`, `NoteFound`, `ItemGained/Lost`, `FlagSet`, `RegularArrived`, `ArcAdvanced`,
-`ClockStop`, `GuestIntroduced { guest, key }` (§11), `DoorsOpened { early_minutes }` (22:00, the preparation is over), `DoorsClosed` (06:00, the closing half hour begins), `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`,
+`ClockStop`, `GuestIntroduced { guest, key }` (§11), `DoorsOpened { early_minutes }` (22:00, the preparation is over), `DoorsClosed` (06:00, the closing half hour begins), `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`, `RitualPerfect { list }` (§10.8a),
 `MenuUnlocked`, `FurnitureUnlocked`, `FurniturePlaced/Removed`, `DayStarted`, `NightStarted`, `NightEnded`.
 
 Appliances (§11): `EquipmentUsed { uid, action, by }`, `EquipmentCue { uid, cue: Bubbling | Ding |
@@ -545,6 +546,33 @@ and the message stays open. New bot messages: `regular_tonight` / `regular_to_go
 `NightSummary.insights` (≤ 4 `Insight { key, args, link }`). Payroll: `SetTipSplit`, `PayBonus`,
 `GrantToil`, `SendPayroll { week }` → `PayrollSent { week, total, tips_to_crew }` (auto one day
 later); `tip_split(&c)`, `payroll_sent(week)`.
+
+### 10.8a Hands-on rituals (`sim::rituals`)
+When Karolina herself does a checklist item or an appliance chore, the UI may play a tiny
+gesture over the piece (`screens::game::rituals_ui`, the model in `minigame::ritual`; data:
+`handson.ron` → `rituals.gestures`, one `RitualGesture` per checklist id and per
+`equip.<action>` chore — `Cord`, `Needle { green }`, `Count { coins, total }`,
+`Strokes { count, look }`, `Shelf { items, look }`, `Drop { band }`, `Sort { coins }`,
+`Lines { count }`, `Slide { look }`, `Stir`; validation: every checklist item has one).
+`ritual_key(w, c, act)` / `World::ritual_key_now(c)`: `Checklist { id }` → `id` (while open);
+`Use { action }` → `equip.<action>` if it has its own gesture, else the item it ticks;
+`PlayRecord` → `record_on` while that item is open (a needle dropped by hand ticks `record_on`
+and drops the queued tick). The result enters only as `Command::Ritual` (§2): the state
+`hands.rituals` (`RitualState { hold, by_hand, rewarded }`, `#[serde(default)]`, reset at night
+start) holds the gesture in the player's hands and the items done by hand tonight (→ perfect).
+At the piece (stage 1 of `Checklist`, `PlayRecord`, `Use`) `rituals::gate` says *Normal* (no
+gesture: nothing changes), *Wait* (she stands there, `waited` counts up to `patience_ticks`,
+then the hold lets go) or *Finish* (work left = 0, `by_hand` recorded before the tick). A hold
+for an act that is no longer hers lets go by itself (`tidy`). Without the command nothing
+differs: the player-bot, `run_night_headless`, ×2/×3, helpers and ignored gestures complete
+with the same ticks (`sim_balance` 30 nights story Cozy/Classic: byte-identical output; tests
+in `tests_rituals`). A ritual completed with ≥ `rituals.perfect_min` (3) perfect gestures in
+its list runs its `perfect` Fx once (`shiftella.ron`: Opening `Coziness(+1)` tonight, Closing
+`StaffMood(1.5)`) → `SimEvent::RitualPerfect { list }` + toast `app.ritual.perfect.<list>`.
+The UI opens a card only at ×1, never under the autoplayer / automation (unless staged), over
+another card or panel, or for a piece off screen; pausing freezes it; a gesture's randomness
+(the float's sum, the coins to sort) comes from `minigame::ritual::seed_for(world seed, night,
+key)` — never the world's RNG. Seen first-time hints: `Settings::ritual_hints`.
 
 ### 10.9 Integration requests (T7)
 `TutorialShown { id }` / `SetTutorial { on }` (story `At(time)` steps run their `on_show` by

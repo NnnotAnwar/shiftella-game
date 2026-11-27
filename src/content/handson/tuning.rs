@@ -221,6 +221,10 @@ pub struct HandsonTuning {
     /// Hands-on appliances (design/v0.2.md §B): `handson.ron` → `equipment`.
     #[serde(default)]
     pub equipment: EquipmentTuning,
+    /// Hands-on rituals: the little gestures of Karolina's checklist items
+    /// (`handson.ron` → `rituals`, `sim::rituals`).
+    #[serde(default)]
+    pub rituals: super::rituals::RitualTuning,
 }
 
 impl HandsonTuning {

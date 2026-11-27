@@ -50,6 +50,7 @@ mod mulled;
 mod paint;
 mod plate;
 mod pour;
+pub mod ritual;
 pub mod score;
 mod soup;
 mod tea;

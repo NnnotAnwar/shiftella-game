@@ -58,8 +58,12 @@
         (id: "light_off_at_six", list: Closing, minutes: 1, owner: Karolina, anchor: "window", gesture: Click),
     ],
     rituals: [
-        (list: Opening, by: "22:30", effects: [StaffMood(2.0), Coziness(add: 2.0, minutes: None)]),
-        (list: Closing, effects: [NextNight([ChecklistSpeed(list: Opening, mul: 0.5)])]),
+        // `perfect`: a tiny extra for a list done with ≥ rituals.perfect_min perfect gestures
+        // of Karolina's (handson.ron → rituals; never needed for progress)
+        (list: Opening, by: "22:30", effects: [StaffMood(2.0), Coziness(add: 2.0, minutes: None)],
+         perfect: [Coziness(add: 1.0, minutes: None)]),
+        (list: Closing, effects: [NextNight([ChecklistSpeed(list: Opening, mul: 0.5)])],
+         perfect: [StaffMood(1.5)]),
     ],
     bot: [
         (id: "hello", kind: Story),

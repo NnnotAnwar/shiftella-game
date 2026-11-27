@@ -1048,6 +1048,38 @@ fn app(v: &mut Ctx, c: &Content) {
     }
     for r in &app.rituals {
         v.fx(&r.effects, &format!("ritual {:?}", r.list));
+        v.fx(&r.perfect, &format!("ritual {:?} perfect", r.list));
+    }
+    // hands-on rituals: every item Karolina may do has its gesture (handson.ron → rituals)
+    let rit = &c.handson.tuning.rituals;
+    for item in &app.checklists {
+        if rit.gesture(&item.id).is_none() {
+            v.push(format!(
+                "handson.ron rituals: checklist `{}` has no gesture",
+                item.id
+            ));
+        }
+    }
+    for (key, g) in &rit.gestures {
+        let known = app.checklists.iter().any(|i| &i.id == key) || key.starts_with("equip.");
+        if !known {
+            v.push(format!("handson.ron rituals: unknown key `{key}`"));
+        }
+        let bad = match g {
+            RitualGesture::Needle { green: (a, b) } => !(0.05..=0.95).contains(a) || b <= a || *b > 1.0,
+            RitualGesture::Count { coins, total } => {
+                coins.is_empty() || coins.contains(&0) || total.0 == 0 || total.1 < total.0
+            }
+            RitualGesture::Strokes { count, .. } => !(1..=8).contains(count),
+            RitualGesture::Shelf { items, .. } => !(1..=5).contains(items),
+            RitualGesture::Drop { band } => !(0.05..=0.5).contains(band),
+            RitualGesture::Sort { coins } => !(1..=8).contains(coins),
+            RitualGesture::Lines { count } => !(2..=4).contains(count),
+            RitualGesture::Cord | RitualGesture::Slide { .. } | RitualGesture::Stir => false,
+        };
+        if bad {
+            v.push(format!("handson.ron rituals: `{key}` has odd parameters"));
+        }
     }
     if app.rituals.len() != 2 {
         v.push("shiftella.ron: one Opening and one Closing ritual".into());
@@ -1281,6 +1313,13 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
     let app = &c.app;
     for r in &app.rituals {
         k.push(r.toast_key());
+        if !r.perfect.is_empty() {
+            k.push(r.perfect_key());
+        }
+    }
+    // the ritual gestures' first-time hints
+    for g in h.tuning.rituals.gestures.values() {
+        k.push(format!("ritual.hint.{}", g.id()));
     }
     for o in &app.handover_options {
         k.push(o.key());

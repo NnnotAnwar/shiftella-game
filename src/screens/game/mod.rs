@@ -31,6 +31,7 @@ mod panels;
 mod pause;
 mod phone_app;
 mod photo_mode;
+mod rituals_ui;
 pub mod scene;
 mod scene_fx;
 pub mod signature_ui;
@@ -312,6 +313,8 @@ pub struct GameScreen {
     pub photo: photo_mode::PhotoMode,
     /// Little stories of strangers, the storm card and its 03:00 talk (design/v0.2.md H).
     pub stories: stories_ui::StoriesUi,
+    /// The little ritual gestures over a piece Karolina is doing (`rituals_ui`).
+    pub rituals: rituals_ui::RitualUi,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -400,6 +403,7 @@ impl GameScreen {
             sig: Default::default(),
             photo: Default::default(),
             stories: Default::default(),
+            rituals: Default::default(),
         }
     }
 
@@ -1574,6 +1578,7 @@ impl GameScreen {
                 && self.pause.is_none()
                 && !self.automation
                 && self.hands.minigame.is_none()
+                && !self.rituals.wants_keys()
                 && !ui.wants_keyboard()
                 && !(self.panel == Some(Panel::Crew) && crew_ui::arrows_held())
             {
@@ -1726,6 +1731,8 @@ impl GameScreen {
                 hud::bubble(self, ui, cx);
             }
             hands_hud::queue_strip(self, ui, cx);
+            // a ritual gesture over the piece she is doing (only with nothing else open)
+            rituals_ui::frame(self, ui, cx, dt);
             if self.follow.is_some() {
                 hands_hud::follow_chip(self, ui, cx);
             }
