@@ -115,6 +115,8 @@ fn main() {
     let mut peaks: Vec<u32> = Vec::new();
     let mut missed_runs: Vec<String> = Vec::new();
     let mut earned_total = 0f32;
+    // the fridge (sim::fridge): Kč gone off, nights with spoilage, closing checks done
+    let (mut spoiled, mut spoil_nights, mut fridge_checks) = (0i64, 0u32, 0u32);
 
     for seed in 1..=seeds {
         let seed = seed * 7919 + 13;
@@ -268,6 +270,10 @@ fn main() {
             r.wages += s.wages as f32;
             r.supplies += s.supplies as f32;
             r.n += 1.0;
+            let f = world.fridge_last_night();
+            spoiled += f.spoiled;
+            spoil_nights += u32::from(f.spoiled > 0);
+            fridge_checks += u32::from(f.checked);
             peaks.push(s.todo_peak);
             if s.payment > 0 {
                 paid += 1;
@@ -474,6 +480,14 @@ fn main() {
         turned_parties / k,
         to_go / k,
         earned_total / seeds as f32,
+    );
+    let fridge_nights = rows.iter().map(|r| r.n).sum::<f32>().max(1.0);
+    println!(
+        "fridge: spoiled {:.0} Kč/night ({:.0} Kč a run) · nights with spoilage {:.0}% · fridge check done {:.0}%",
+        spoiled as f32 / fridge_nights,
+        spoiled as f32 / seeds as f32,
+        spoil_nights as f32 / fridge_nights * 100.0,
+        fridge_checks as f32 / fridge_nights * 100.0,
     );
     println!("endings: {endings:?}");
     println!(

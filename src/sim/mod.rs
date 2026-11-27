@@ -21,6 +21,7 @@ mod crew;
 mod duties;
 mod economy;
 mod equipment;
+pub mod fridge;
 pub mod grid;
 mod guests;
 mod hands;
@@ -72,6 +73,8 @@ mod tests_closing;
 mod tests_combos;
 #[cfg(test)]
 mod tests_equipment;
+#[cfg(test)]
+mod tests_fridge;
 #[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
@@ -238,6 +241,10 @@ impl World {
     /// Debug helper: set money (cheats / tests).
     pub fn debug_set_money(&mut self, money: i64) {
         self.econ.money = money;
+    }
+    /// Debug helper: set the supplies pool (Kč; screenshots of the fridge).
+    pub fn debug_set_supplies(&mut self, supplies: i64) {
+        self.econ.supplies = supplies.max(0);
     }
     /// Debug helper: fire an event now (ignores conditions).
     pub fn debug_fire_event(&mut self, content: &Content, id: &str) {

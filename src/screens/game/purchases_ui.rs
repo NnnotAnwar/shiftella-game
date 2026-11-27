@@ -115,6 +115,16 @@ pub fn card_lines(world: &World, content: &Content, loc: &Locale, d: &FurnitureD
             out.push(line);
         }
     }
+    // a fridge: the room for fresh stock now → with it
+    if let Some((now, with)) = e.fridge {
+        out.push(loc.trf(
+            "purchases.card.fridge",
+            &[
+                ("now", &crate::i18n::format_money(loc.lang, now)),
+                ("with", &crate::i18n::format_money(loc.lang, with)),
+            ],
+        ));
+    }
     // light and decor: where the meter stands and what its next tier brings
     let decor = d.beauty > 0.0 || (d.light_radius > 0.0 && d.has_tag("light"));
     if decor && d.seats == 0 {

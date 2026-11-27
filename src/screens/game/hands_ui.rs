@@ -1099,7 +1099,23 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         clear: loc.tr_owned("ui.book.clear"),
         slots_hint: loc.tr_owned("ui.book.slots"),
         bar_shelf: loc.tr_owned("ui.book.bar_shelf"),
-        kitchen_shelf: loc.tr_owned("ui.book.kitchen_shelf"),
+        // the kitchen shelf's heading carries the fridge: fresh stock / the room for it
+        kitchen_shelf: {
+            let fr = g.world.fridge(content);
+            let shelf = loc.tr_owned("ui.book.kitchen_shelf");
+            if fr.pieces > 0 {
+                let f = loc.trf(
+                    "fridge.pantry",
+                    &[
+                        ("fresh", &crate::i18n::format_int(loc.lang, fr.fresh)),
+                        ("cap", &format_money(loc.lang, fr.capacity)),
+                    ],
+                );
+                format!("{shelf} · {f}")
+            } else {
+                shelf
+            }
+        },
         locked_jar: loc.tr_owned("book.locked_jar"),
         empty_section: loc.tr_owned("ui.book.empty"),
         close: loc.tr_owned("ui.common.close"),

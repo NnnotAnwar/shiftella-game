@@ -74,4 +74,28 @@
         // it, away from the line) — beyond that the café would feel crowded: they go on
         max_waiting: 6,
     ),
+    // The fridge keeps the stock (sim::fridge). `fresh_share` of the supplies (Kč) is fresh —
+    // milk, cream, the cake, the chlebíček's fillings — and needs the fridge. Each piece with
+    // `tag` holds `per_piece` Kč of it × its condition (1 − wear_loss × wear, ≥ min_condition;
+    // the morning after `fail_event` the most worn one × failed_mul). At 06:00 `spoil` of the
+    // fresh stock beyond the room goes off, × check_mul when the closing `check_item` was done.
+    // Grandma's one fridge in good repair holds a usual morning's stock (the 3 000 Kč
+    // auto-restock less a night's use, × 0.4): it bites when it's worn, failed or overfull.
+    fridge: (
+        tag: "station:fridge",
+        fresh_share: 0.4,
+        per_piece: 1100.0,
+        wear_loss: 0.8,
+        min_condition: 0.3,
+        failed_mul: 0.5,
+        fail_event: "fridge_fail",
+        spoil: 0.5,
+        check_mul: 0.6,
+        check_item: "fridge_check",
+        // from this wear a fridge counts as worn (the morning line blames it, the planning card
+        // says so) — the appliances' service_wear, when it can be defrosted
+        worn_at: 0.5,
+        // "3 l of milk went off": Kč of fresh stock per litre
+        litre: 25.0,
+    ),
 )
