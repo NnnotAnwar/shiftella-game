@@ -8,7 +8,7 @@ use macroquad::prelude::*;
 use super::latte_shapes::{LatteShape, length, point_at};
 use super::paint::{contact_shadow, hex, with_alpha};
 use super::score;
-use super::{Common, Ctx, Hint, MgInput, MiniGameSound, MiniGameText, RegularTouch};
+use super::{Common, Ctx, Hint, LatteMilk, MgInput, MiniGameSound, MiniGameText, RegularTouch};
 use crate::render::draw as rd;
 use crate::ui::draw::{self, Paint, fill_circle, fill_rrect, stroke_circle};
 use crate::ui::{Glass, Icon, Ui, approach, draw_glass, draw_icon, ease_out};
@@ -43,8 +43,18 @@ struct Leg {
     b: Vec2,
 }
 
+/// The pattern's colour: dairy cream, oat beige, butterfly-pea blue.
+pub(crate) fn milk_color(m: LatteMilk) -> Color {
+    match m {
+        LatteMilk::Dairy => hex(0xf8f2e8),
+        LatteMilk::Oat => hex(0xf1e3c8),
+        LatteMilk::Butterfly => hex(0x9fb6f2),
+    }
+}
+
 pub(crate) struct Latte {
     shape: LatteShape,
+    milk: LatteMilk,
     common: Common,
     strokes: Vec<Vec<Vec2>>,
     covered: Vec<Vec<bool>>,
@@ -109,7 +119,12 @@ fn build_legs(strokes: &[Vec<Vec2>]) -> Vec<Leg> {
 }
 
 impl Latte {
-    pub fn new(shape: LatteShape, touch: Option<RegularTouch>, common: Common) -> Latte {
+    pub fn new(
+        shape: LatteShape,
+        milk: LatteMilk,
+        touch: Option<RegularTouch>,
+        common: Common,
+    ) -> Latte {
         let strokes: Vec<Vec<Vec2>> = shape
             .strokes()
             .into_iter()
@@ -133,6 +148,7 @@ impl Latte {
             .collect::<Vec<_>>();
         Latte {
             shape,
+            milk,
             common,
             covered: strokes.iter().map(|s| vec![false; s.len()]).collect(),
             guide48: shape.guide_points(48).into_iter().map(to_px).collect(),
@@ -234,6 +250,28 @@ impl Latte {
         }
     }
 
+    pub fn steps(&self) -> Vec<&'static str> {
+        Vec::new()
+    }
+
+    pub fn preview(&self, relaxed: bool) -> f32 {
+        self.quality(relaxed)
+    }
+
+    pub fn advice(&self, relaxed: bool) -> &'static str {
+        if self.kb_used && self.trace.len() < 10 {
+            return "minigame.why.latte.taps";
+        }
+        let w = score::widen(relaxed);
+        let cov = score::coverage(&self.guide48, &self.trace, 12.0 * w);
+        let stray = score::stray(&self.strokes, &self.trace, 24.0 * w);
+        if 0.6 * (1.0 - cov) >= 0.4 * stray {
+            "minigame.why.latte.coverage"
+        } else {
+            "minigame.why.latte.stray"
+        }
+    }
+
     fn quality(&self, relaxed: bool) -> f32 {
         if self.kb_used && self.trace.len() < 10 {
             return score::latte_taps(&self.taps, relaxed);
@@ -326,6 +364,11 @@ impl Latte {
             return Some(self.quality(ctx.relaxed));
         }
         None
+    }
+
+    /// The scripted pour has run its whole timeline (relaxed autoplay presses Done after it).
+    pub fn autoplay_finished(&self, t: f32) -> bool {
+        t - START_DELAY >= self.timeline_end() || self.kb_t >= self.timeline_end()
     }
 
     pub fn autoplay(&self, t: f32, keyboard: bool) -> MgInput {
@@ -490,8 +533,9 @@ impl Latte {
         for b in &self.blobs {
             fill_circle(o + b.c, grow(b) + 1.6, Color::new(0.83, 0.66, 0.48, 0.9));
         }
+        let mc = milk_color(self.milk);
         for b in &self.blobs {
-            fill_circle(o + b.c, grow(b), hex(0xf8f2e8));
+            fill_circle(o + b.c, grow(b), mc);
         }
         if self.cinnamon {
             for i in 0..140u32 {

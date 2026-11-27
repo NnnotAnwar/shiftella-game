@@ -1,7 +1,9 @@
 // Mini-game tuning per kind and variant (design/handson.md §2). Text keys minigame.* / latte.* live in
-// assets/i18n/src/minigame.tr (mini-game agent). Variant ids follow src/minigame Variation::from_variant_id
-// (froth: cappuccino/chocolate/raf; tea: lemon/two_sugars; latte: pattern ids; plate: dish ids); other ids
-// fall back to the defaults there until the mini-game reads these rows.
+// assets/i18n/src/minigame.tr and minigames2.tr. Every variant id of recipes.ron has a preset in
+// src/minigame Variation::from_variant_id that matches its row here (a test checks they agree);
+// the tea kind follows the variant, so the cup is always the drink on the order card.
+// SoupStir and MulledSpice are built: the soups stir and svařák is spiced. The froth `svarak` and
+// plate `soup` rows stay only as the recipes' fallbacks.
 // Recipes name their variants in recipes.ron. Guide polylines live in src/minigame (normalised 0..1).
 #![enable(implicit_some)]
 (
@@ -17,7 +19,7 @@
          tap: (id: "vanilla", window_s: 0.4, weight: 0.15), seconds: (7.0, 11.0)),
         (variant: "encore", t_target: 58.0, tol: 6.0, foam: 0.3, foam_tol: 0.3, t_weight: 0.75,
          tap: (id: "chili", window_s: 0.4, weight: 0.15), seconds: (7.0, 11.0)),
-        // svařák until MulledSpice ships: warm the wine, no foam to speak of
+        // fallback only (svařák plays MulledSpice): warm the wine, no foam to speak of
         (variant: "svarak", t_target: 70.0, tol: 6.0, foam: 0.0, foam_tol: 0.3, t_weight: 0.9, seconds: (6.0, 10.0)),
     ],
 
@@ -40,25 +42,26 @@
 
     tea_steep: [
         (variant: "lemon", target: 3.0, tol: 1.5, lemon: true, lemon_px: 25.0, tea_kind: "black", seconds: (8.0, 12.0)),
-        (variant: "chai", target: 4.0, tol: 1.5, milk_hold: true, tea_kind: "black", seconds: (10.0, 14.0)),
-        (variant: "linden", target: 2.5, tol: 1.5, tea_kind: "herbal", seconds: (8.0, 12.0)),
+        // masala chai: spices in the card's order, then the tea, then milk — in a little pan
+        (variant: "chai", target: 4.0, tol: 1.5, milk_hold: true, spices: 3, pan: true, tea_kind: "black", seconds: (14.0, 20.0)),
+        (variant: "linden", target: 2.5, tol: 1.5, honey: true, tea_kind: "linden", seconds: (9.0, 14.0)),
         (variant: "two_sugars", target: 3.0, tol: 1.5, lemon: true, lemon_px: 25.0, sugar: 2, tea_kind: "black", seconds: (9.0, 13.0)),
-        (variant: "tatra", target: 3.5, tol: 1.5, lemon: true, lemon_px: 25.0, tea_kind: "herbal", seconds: (9.0, 13.0)),
-        (variant: "uzvar", target: 3.0, tol: 1.5, tea_kind: "fruit", seconds: (8.0, 12.0)),
+        (variant: "tatra", target: 3.5, tol: 1.5, lemon: true, lemon_px: 25.0, honey: true, tea_kind: "mountain", seconds: (11.0, 16.0)),
+        (variant: "uzvar", target: 3.0, tol: 1.5, honey: true, tea_kind: "uzvar", seconds: (9.0, 14.0)),
     ],
 
     plate: [
-        // dish = the PlateSet the mini-game draws today; others are picked by seed until their layouts exist
+        // dish = the PlateSet the mini-game draws (every dish has its own pieces and garnish choices)
         (variant: "topinka", dish: "topinka", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5,
          gesture: GarlicRub, advent_twig: true, seconds: (8.0, 13.0)),
-        (variant: "chlebicek", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (9.0, 15.0)),
-        (variant: "kolac", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (8.0, 12.0)),
+        (variant: "chlebicek", dish: "chlebicek", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (9.0, 15.0)),
+        (variant: "kolac", dish: "kolac", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (8.0, 12.0)),
         (variant: "medovnik", dish: "medovnik", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (8.0, 12.0)),
-        (variant: "varenyky", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (9.0, 14.0)),
-        (variant: "pirohy", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (9.0, 14.0)),
-        (variant: "buchty", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (8.0, 12.0)),
-        (variant: "vera_kolac", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (8.0, 12.0)),
-        // soups until SoupStir ships
+        (variant: "varenyky", dish: "varenyky", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (9.0, 14.0)),
+        (variant: "pirohy", dish: "pirohy", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (9.0, 14.0)),
+        (variant: "buchty", dish: "buchty", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, gesture: Sprinkle, advent_twig: true, seconds: (8.0, 12.0)),
+        (variant: "vera_kolac", dish: "vera_kolac", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (8.0, 12.0)),
+        // fallback only (the soups play SoupStir)
         (variant: "soup", dish: "soup", slot_px: 40.0, keyboard_score: 0.85, ghost_s: 1.5, advent_twig: true, seconds: (8.0, 12.0)),
     ],
 

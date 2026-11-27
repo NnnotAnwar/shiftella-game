@@ -3,6 +3,11 @@
 //! (they snap to the nearest free slot when close), then click the garnish dots. Keyboard:
 //! Tab cycles the pieces, arrows move, Space drops (snaps, scored 0.85) / adds garnish.
 //! Quality: `0.7 × mean(slot_score) + 0.3 × garnish`.
+//!
+//! Every dish has its own pieces (chlebíček, koláč, Vera's poppy-seed koláč, varenyky,
+//! pirohy, buchty, topinka, medovník). Once the plate is set, pick the garnish (two or three
+//! choices — any is right; Tab cycles them), then dot it on. The layout is mirrored and the
+//! board's order shuffled per play.
 
 use macroquad::prelude::*;
 
@@ -43,23 +48,74 @@ enum PieceKind {
     Garlic,
     Cheese,
     Pickle,
+    /// A baguette slice (chlebíček's base).
+    Baguette,
+    Ham,
+    /// Potato salad.
+    Salad,
+    /// A round koláč base.
+    Pastry,
+    Tvaroh,
+    /// Plum jam (povidla).
+    Jam,
+    /// Poppy-seed filling.
+    Poppy,
+    /// Posypka crumble.
+    Crumble,
+    Dumpling,
+    Smetana,
+    FriedOnion,
+    Bryndza,
+    /// Crispy bacon bits (škvarky).
+    Bacon,
+    Bun,
 }
 
 impl PieceKind {
     fn radius(self) -> f32 {
         match self {
-            PieceKind::Slice | PieceKind::Toast => 32.0,
-            PieceKind::Cream | PieceKind::Honey | PieceKind::Croutons | PieceKind::Egg => 19.0,
+            PieceKind::Slice | PieceKind::Toast | PieceKind::Baguette | PieceKind::Pastry => 32.0,
+            PieceKind::Bun => 22.0,
+            PieceKind::Dumpling => 20.0,
+            PieceKind::Cream
+            | PieceKind::Honey
+            | PieceKind::Croutons
+            | PieceKind::Egg
+            | PieceKind::Salad
+            | PieceKind::Ham => 19.0,
             _ => 17.0,
         }
     }
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-enum GarnishKind {
+pub(crate) enum GarnishKind {
     SugarDust,
     DillFlecks,
     Onion,
+    Parsley,
+    Paprika,
+    Chives,
+    Cinnamon,
+    Cocoa,
+    PoppyDust,
+}
+
+impl GarnishKind {
+    /// `minigame.garnish.<id>`
+    pub fn key(self) -> &'static str {
+        match self {
+            GarnishKind::SugarDust => "minigame.garnish.sugar",
+            GarnishKind::DillFlecks => "minigame.garnish.dill",
+            GarnishKind::Onion => "minigame.garnish.onion",
+            GarnishKind::Parsley => "minigame.garnish.parsley",
+            GarnishKind::Paprika => "minigame.garnish.paprika",
+            GarnishKind::Chives => "minigame.garnish.chives",
+            GarnishKind::Cinnamon => "minigame.garnish.cinnamon",
+            GarnishKind::Cocoa => "minigame.garnish.cocoa",
+            GarnishKind::PoppyDust => "minigame.garnish.poppy",
+        }
+    }
 }
 
 struct Piece {
@@ -85,6 +141,9 @@ pub(crate) struct Plate {
     pieces: Vec<Piece>,
     slots: Vec<Vec2>,
     garnish_kind: GarnishKind,
+    /// The garnishes to choose from (any is right); the choice locks with the first dot.
+    garnish_opts: Vec<GarnishKind>,
+    garnish_sel: usize,
     garnish: Vec<Garnish>,
     dragging: Option<usize>,
     grab: Vec2,
@@ -167,6 +226,79 @@ impl Plate {
                         C + vec2(10.0, 56.0),
                     ],
                 ),
+                PlateSet::Chlebicek => (
+                    vec![
+                        (PieceKind::Baguette, C + vec2(-4.0, 6.0)),
+                        (PieceKind::Salad, C + vec2(-20.0, -2.0)),
+                        (PieceKind::Ham, C + vec2(16.0, -4.0)),
+                        (PieceKind::Egg, C + vec2(2.0, 20.0)),
+                        (PieceKind::Pickle, C + vec2(54.0, 34.0)),
+                    ],
+                    GarnishKind::Parsley,
+                    vec![
+                        C + vec2(-56.0, -34.0),
+                        C + vec2(40.0, -46.0),
+                        C + vec2(-40.0, 50.0),
+                    ],
+                ),
+                PlateSet::Kolac | PlateSet::VeraKolac => {
+                    let filling = if set == PlateSet::Kolac {
+                        PieceKind::Jam
+                    } else {
+                        PieceKind::Poppy
+                    };
+                    (
+                        vec![
+                            (PieceKind::Pastry, C + vec2(0.0, 12.0)),
+                            (PieceKind::Tvaroh, C + vec2(-2.0, -6.0)),
+                            (filling, C + vec2(-28.0, -16.0)),
+                            (filling, C + vec2(26.0, 22.0)),
+                            (PieceKind::Crumble, C + vec2(22.0, -22.0)),
+                        ],
+                        GarnishKind::SugarDust,
+                        vec![
+                            C + vec2(-60.0, 30.0),
+                            C + vec2(10.0, -62.0),
+                            C + vec2(64.0, -8.0),
+                        ],
+                    )
+                }
+                PlateSet::Varenyky | PlateSet::Pirohy => {
+                    let side = if set == PlateSet::Varenyky {
+                        (PieceKind::Smetana, PieceKind::FriedOnion)
+                    } else {
+                        (PieceKind::Bryndza, PieceKind::Bacon)
+                    };
+                    (
+                        vec![
+                            (PieceKind::Dumpling, C + vec2(-34.0, -12.0)),
+                            (PieceKind::Dumpling, C + vec2(6.0, -36.0)),
+                            (PieceKind::Dumpling, C + vec2(24.0, 10.0)),
+                            (side.0, C + vec2(-16.0, 32.0)),
+                            (side.1, C + vec2(-6.0, -4.0)),
+                        ],
+                        GarnishKind::DillFlecks,
+                        vec![
+                            C + vec2(-62.0, 26.0),
+                            C + vec2(50.0, -40.0),
+                            C + vec2(34.0, 52.0),
+                        ],
+                    )
+                }
+                PlateSet::Buchty => (
+                    vec![
+                        (PieceKind::Bun, C + vec2(-24.0, -16.0)),
+                        (PieceKind::Bun, C + vec2(22.0, -18.0)),
+                        (PieceKind::Bun, C + vec2(0.0, 22.0)),
+                        (PieceKind::Jam, C + vec2(46.0, 34.0)),
+                    ],
+                    GarnishKind::SugarDust,
+                    vec![
+                        C + vec2(-60.0, 28.0),
+                        C + vec2(4.0, -60.0),
+                        C + vec2(62.0, -14.0),
+                    ],
+                ),
             };
         // the cheese goes on the toast: give it its own spot slightly up
         if set == PlateSet::Topinka {
@@ -176,17 +308,55 @@ impl Plate {
         if touch == Some(RegularTouch::Honey) && set == PlateSet::Medovnik {
             spec.push((PieceKind::Honey, C + vec2(-46.0, 52.0)));
         }
+        let garnish_opts = match set {
+            PlateSet::Topinka => vec![
+                GarnishKind::Onion,
+                GarnishKind::Parsley,
+                GarnishKind::Paprika,
+            ],
+            PlateSet::Chlebicek => {
+                vec![
+                    GarnishKind::Parsley,
+                    GarnishKind::Paprika,
+                    GarnishKind::Chives,
+                ]
+            }
+            PlateSet::Medovnik => vec![GarnishKind::SugarDust, GarnishKind::Cocoa],
+            PlateSet::Kolac | PlateSet::Buchty => {
+                vec![GarnishKind::SugarDust, GarnishKind::Cinnamon]
+            }
+            PlateSet::VeraKolac => vec![GarnishKind::SugarDust, GarnishKind::PoppyDust],
+            PlateSet::Varenyky => vec![GarnishKind::DillFlecks, GarnishKind::Chives],
+            PlateSet::Pirohy => vec![GarnishKind::Chives, GarnishKind::Paprika],
+            _ => vec![garnish_kind],
+        };
+        // never the same layout twice: mirrored half the time, the board shuffled
+        let flip = rng.f() < 0.5;
+        let mut dots = dots;
+        if flip {
+            for (_, p) in &mut spec {
+                p.x = 2.0 * C.x - p.x;
+            }
+            for d in &mut dots {
+                d.x = 2.0 * C.x - d.x;
+            }
+        }
         let n = spec.len();
         let slots: Vec<Vec2> = spec
             .iter()
             .map(|(_, p)| *p + vec2(rng.range(-4.0, 4.0), rng.range(-4.0, 4.0)))
             .collect();
+        let mut order: Vec<usize> = (0..n).collect();
+        for i in (1..n).rev() {
+            let j = (rng.next_u64() % (i as u64 + 1)) as usize;
+            order.swap(i, j);
+        }
         let pieces = spec
             .into_iter()
             .enumerate()
             .map(|(i, (kind, _))| {
                 let gap = TRAY.h / n as f32;
-                let home = vec2(TRAY.center().x, TRAY.y + gap * (i as f32 + 0.5));
+                let home = vec2(TRAY.center().x, TRAY.y + gap * (order[i] as f32 + 0.5));
                 Piece {
                     kind,
                     home,
@@ -206,6 +376,8 @@ impl Plate {
             pieces,
             slots,
             garnish_kind,
+            garnish_opts,
+            garnish_sel: 0,
             garnish: dots
                 .into_iter()
                 .map(|at| Garnish { at, done: None })
@@ -220,6 +392,66 @@ impl Plate {
 
     pub fn focus(&self) -> Vec2 {
         C
+    }
+
+    #[cfg(test)]
+    pub fn layout(&self) -> Vec<(i32, i32, i32)> {
+        self.slots
+            .iter()
+            .zip(&self.pieces)
+            .map(|(s, p)| {
+                (
+                    s.x.round() as i32,
+                    s.y.round() as i32,
+                    p.home.y.round() as i32,
+                )
+            })
+            .collect()
+    }
+
+    pub fn steps(&self) -> Vec<&'static str> {
+        if self.garnish_opts.len() > 1 {
+            vec!["plate.choice"]
+        } else {
+            Vec::new()
+        }
+    }
+
+    pub fn preview(&self, relaxed: bool) -> f32 {
+        self.quality(relaxed)
+    }
+
+    pub fn advice(&self, relaxed: bool) -> &'static str {
+        let placed: Vec<Option<Vec2>> = self
+            .pieces
+            .iter()
+            .map(|p| p.on_plate.then_some(p.goal))
+            .collect();
+        let slots = score::plate_slots(&placed, &self.slots, relaxed);
+        let mean = slots.iter().sum::<f32>() / slots.len().max(1) as f32;
+        let g = self.garnish_done() as f32 / self.garnish.len().max(1) as f32;
+        if !self.all_placed() {
+            "minigame.why.plate.unplaced"
+        } else if 0.3 * (1.0 - g) > 0.7 * (1.0 - mean) {
+            "minigame.why.plate.garnish"
+        } else {
+            "minigame.why.plate.slots"
+        }
+    }
+
+    /// Garnish chip rects on the board (once everything is on the plate).
+    fn garnish_chip(&self, i: usize) -> Rect {
+        let h = 34.0;
+        Rect::new(
+            TRAY.x + 10.0,
+            TRAY.y + 34.0 + i as f32 * (h + 8.0),
+            TRAY.w - 20.0,
+            h,
+        )
+    }
+
+    fn choosing(&self) -> bool {
+        self.garnish_opts.len() > 1 && self.all_placed() && self.garnish_done() == 0
     }
 
     fn piece_at(&self, p: Vec2) -> Option<usize> {
@@ -295,6 +527,21 @@ impl Plate {
 
     pub fn step(&mut self, ctx: &mut Ctx, input: &MgInput, dt: f32) -> Option<f32> {
         self.t = ctx.t;
+        if self.choosing() {
+            if input.cycle {
+                self.garnish_sel = (self.garnish_sel + 1) % self.garnish_opts.len();
+                self.idle_since = ctx.t;
+            }
+            if input.pressed
+                && let Some(p) = input.pointer
+                && let Some(i) =
+                    (0..self.garnish_opts.len()).find(|i| self.garnish_chip(*i).contains(p))
+            {
+                self.garnish_sel = i;
+                self.idle_since = ctx.t;
+                ctx.sounds.push(MiniGameSound::Cue);
+            }
+        }
         if let Some(p) = input.pointer {
             if input.pressed && self.dragging.is_none() {
                 if let Some(i) = self.piece_at(p) {
@@ -308,6 +555,11 @@ impl Plate {
                     g.done.is_none() && g.at.distance(p) < 16.0 * score::widen(ctx.relaxed)
                 }) {
                     g.done = Some(ctx.t);
+                    self.garnish_kind = self
+                        .garnish_opts
+                        .get(self.garnish_sel)
+                        .copied()
+                        .unwrap_or(self.garnish_kind);
                     ctx.sounds.push(MiniGameSound::Cue);
                     self.idle_since = ctx.t;
                 }
@@ -327,7 +579,7 @@ impl Plate {
         }
 
         // keyboard: Tab picks the next piece, arrows move it, Space drops / garnishes
-        if input.cycle && self.dragging.is_none() {
+        if input.cycle && self.dragging.is_none() && !self.all_placed() {
             let start = self.selected.map_or(0, |s| s + 1);
             let n = self.pieces.len();
             self.selected = (0..n)
@@ -364,6 +616,11 @@ impl Plate {
                 }
             } else if let Some(g) = self.garnish.iter_mut().find(|g| g.done.is_none()) {
                 g.done = Some(ctx.t);
+                self.garnish_kind = self
+                    .garnish_opts
+                    .get(self.garnish_sel)
+                    .copied()
+                    .unwrap_or(self.garnish_kind);
                 ctx.sounds.push(MiniGameSound::Cue);
             }
             self.idle_since = ctx.t;
@@ -457,6 +714,8 @@ impl Plate {
             "minigame.plate.prompt.ghost"
         } else if !self.all_placed() {
             "minigame.plate.prompt.drag"
+        } else if self.choosing() {
+            "minigame.plate.prompt.choose"
         } else if self.garnish_done() < self.garnish.len() {
             "minigame.plate.prompt.garnish"
         } else {
@@ -465,7 +724,9 @@ impl Plate {
         Hint {
             key,
             emphasis: false,
-            keys: if self.all_placed() {
+            keys: if self.choosing() {
+                &["Tab", "Space"]
+            } else if self.all_placed() {
                 &["Space"]
             } else {
                 &["Tab", "Space"]
@@ -474,7 +735,7 @@ impl Plate {
         }
     }
 
-    pub fn draw(&self, _ui: &mut Ui, o: Vec2, t: f32) {
+    pub fn draw(&self, ui: &mut Ui, o: Vec2, t: f32, text: &super::MiniGameText) {
         let c = o + C;
         // board under the plate + the tray
         let tray = TRAY.offset(o);
@@ -661,7 +922,11 @@ impl Plate {
             let held = self.dragging == Some(*i) || self.selected == Some(*i);
             let base = matches!(
                 self.pieces[*i].kind,
-                PieceKind::Slice | PieceKind::Toast | PieceKind::Swirl
+                PieceKind::Slice
+                    | PieceKind::Toast
+                    | PieceKind::Swirl
+                    | PieceKind::Baguette
+                    | PieceKind::Pastry
             );
             (held, !base, (self.pieces[*i].pos.y * 10.0) as i32)
         });
@@ -688,6 +953,46 @@ impl Plate {
                 );
             }
         }
+        // the garnish choice on the board
+        if self.garnish_opts.len() > 1 && self.all_placed() {
+            let th = ui.theme.clone();
+            ui.fonts.draw_in(
+                &text.get("minigame.plate.garnish").to_uppercase(),
+                Rect::new(o.x + TRAY.x, o.y + TRAY.y + 10.0, TRAY.w, 14.0),
+                &th.micro(),
+                crate::ui::Align::Center,
+            );
+            for (i, g) in self.garnish_opts.iter().enumerate() {
+                let r = self.garnish_chip(i).offset(o);
+                let sel = i == self.garnish_sel;
+                let locked = self.garnish_done() > 0;
+                if locked && !sel {
+                    continue;
+                }
+                fill_rrect(
+                    r,
+                    8.0,
+                    if sel {
+                        with_alpha(th.amber, 0.22)
+                    } else {
+                        Color::new(0.0, 0.0, 0.0, 0.22)
+                    },
+                );
+                if sel {
+                    draw::stroke_rrect(r, 8.0, 1.4, with_alpha(th.amber, 0.9));
+                }
+                draw_garnish(*g, vec2(r.x + 16.0, r.y + r.h / 2.0), 1.0);
+                let st = ui
+                    .fonts
+                    .fit_width(text.get(g.key()), r.w - 36.0, &th.small_medium());
+                ui.fonts.draw_in(
+                    text.get(g.key()),
+                    Rect::new(r.x + 30.0, r.y, r.w - 34.0, r.h),
+                    &st,
+                    crate::ui::Align::Left,
+                );
+            }
+        }
     }
 }
 
@@ -707,6 +1012,15 @@ fn draw_garnish(kind: GarnishKind, p: Vec2, k: f32) {
                     stroke_circle(q, 2.6, 1.0, Color::new(0.98, 0.95, 0.9, 0.9 * k));
                 }
             }
+            GarnishKind::Parsley => fill_circle(q, 1.6, Color::new(0.3, 0.62, 0.3, 0.9 * k)),
+            GarnishKind::Paprika => fill_circle(q, 1.0, Color::new(0.85, 0.25, 0.15, 0.9 * k)),
+            GarnishKind::Chives => {
+                let d = vec2(a0.cos(), a0.sin()) * 1.6;
+                draw::line(q - d, q + d, 1.4, Color::new(0.38, 0.7, 0.3, 0.9 * k));
+            }
+            GarnishKind::Cinnamon => fill_circle(q, 1.0, Color::new(0.62, 0.34, 0.16, 0.9 * k)),
+            GarnishKind::Cocoa => fill_circle(q, 1.1, Color::new(0.3, 0.16, 0.08, 0.9 * k)),
+            GarnishKind::PoppyDust => fill_circle(q, 0.9, Color::new(0.2, 0.2, 0.3, 0.9 * k)),
         }
     }
 }
@@ -1011,6 +1325,146 @@ fn draw_piece(kind: PieceKind, p: Vec2, s: f32, r: f32, k: f32, t: f32) {
                 a(Color::new(1.0, 0.92, 0.7, 0.8), k),
             );
         }
+        PieceKind::Baguette => {
+            let pts: Vec<Vec2> = (0..28)
+                .map(|i| {
+                    let ang = i as f32 / 28.0 * std::f32::consts::TAU;
+                    q(vec2(ang.cos() * 34.0, ang.sin() * 20.0))
+                })
+                .collect();
+            fill_convex(&pts, Paint::Solid(a(hex(0xb7773c), k)));
+            let inner: Vec<Vec2> = (0..28)
+                .map(|i| {
+                    let ang = i as f32 / 28.0 * std::f32::consts::TAU;
+                    q(vec2(ang.cos() * 29.0, ang.sin() * 15.5))
+                })
+                .collect();
+            fill_convex(&inner, Paint::Solid(a(hex(0xf3dfb4), k)));
+            for i in 0..14u32 {
+                let p0 = vec2(
+                    rd::hash01(i * 3) * 44.0 - 22.0,
+                    rd::hash01(i * 5 + 1) * 20.0 - 10.0,
+                );
+                fill_circle(q(p0), 1.2 * s, a(Color::new(0.8, 0.62, 0.38, 0.5), k));
+            }
+        }
+        PieceKind::Ham => {
+            fill_circle(q(Vec2::ZERO), 17.0 * s, a(hex(0xe58b8f), k));
+            let spiral: Vec<Vec2> = (0..=30)
+                .map(|i| {
+                    let u = i as f32 / 30.0;
+                    let ang = u * std::f32::consts::TAU * 1.8;
+                    q(vec2(ang.cos(), ang.sin()) * (2.0 + u * 12.0))
+                })
+                .collect();
+            draw::stroke_path(&spiral, false, 2.0 * s, Paint::Solid(a(hex(0xf7c1c0), k)));
+            stroke_circle(q(Vec2::ZERO), 16.0 * s, 1.6, a(hex(0xfbe3df), k));
+        }
+        PieceKind::Salad => {
+            dollop(q, s, k, hex(0xe8d7a2), hex(0xf7ecc8), 16.0);
+            for (i, col) in [
+                (0u32, hex(0x6aa84f)),
+                (1, hex(0xe0904a)),
+                (2, hex(0xf2f0e2)),
+            ] {
+                for j in 0..4u32 {
+                    let p0 = vec2(
+                        rd::hash01(i * 17 + j * 5) * 20.0 - 10.0,
+                        rd::hash01(i * 7 + j * 11 + 3) * 16.0 - 10.0,
+                    );
+                    fill_circle(q(p0), 1.6 * s, a(col, k));
+                }
+            }
+        }
+        PieceKind::Pastry => {
+            fill_circle(q(Vec2::ZERO), 34.0 * s, a(hex(0xc8873f), k));
+            fill_circle(q(Vec2::ZERO), 29.0 * s, a(hex(0xe8b46a), k));
+            fill_circle(q(Vec2::ZERO), 22.0 * s, a(hex(0xf2cf8e), k));
+            draw::arc(
+                q(Vec2::ZERO),
+                31.0 * s,
+                3.6 + r,
+                5.0 + r,
+                1.6,
+                a(Color::new(1.0, 0.92, 0.75, 0.6), k),
+            );
+        }
+        PieceKind::Tvaroh => dollop(q, s, k, hex(0xf1ece0), hex(0xfffdf6), 14.0),
+        PieceKind::Smetana => {
+            dollop(q, s, k, hex(0xeee9e2), hex(0xffffff), 13.0);
+            fill_circle(q(vec2(-4.0, -5.0)), 2.6 * s, a(WHITE, k));
+        }
+        PieceKind::Jam => {
+            dollop(q, s, k, hex(0x4b1f3a), hex(0x7a3360), 12.0);
+            fill_circle(
+                q(vec2(-3.0, -4.0)),
+                2.2 * s,
+                a(Color::new(1.0, 0.8, 0.9, 0.6), k),
+            );
+        }
+        PieceKind::Poppy => {
+            dollop(q, s, k, hex(0x3b3a4c), hex(0x585870), 13.0);
+            for i in 0..18u32 {
+                let p0 = vec2(
+                    rd::hash01(i * 3 + 2) * 18.0 - 9.0,
+                    rd::hash01(i * 13 + 1) * 14.0 - 9.0,
+                );
+                fill_circle(q(p0), 0.8 * s, a(hex(0x1e1d2a), k));
+            }
+        }
+        PieceKind::Crumble => bits(q, s, k, hex(0xe6b56a), hex(0xf6dca0), 12, 2.4, 13.0),
+        PieceKind::Bryndza => bits(q, s, k, hex(0xf4f1e8), hex(0xffffff), 14, 2.6, 13.0),
+        PieceKind::Bacon => bits(q, s, k, hex(0x8a4a2a), hex(0xc77a4a), 12, 2.4, 12.0),
+        PieceKind::FriedOnion => {
+            for i in 0..8u32 {
+                let p0 = vec2(
+                    rd::hash01(i * 7 + 3) * 22.0 - 11.0,
+                    rd::hash01(i * 3 + 9) * 18.0 - 9.0,
+                );
+                let a0 = rd::hash01(i * 5) * std::f32::consts::TAU;
+                draw::arc(q(p0), 4.0 * s, a0, a0 + 3.4, 2.0, a(hex(0xc98a3e), k));
+            }
+        }
+        PieceKind::Dumpling => {
+            // a crescent with a crimped edge
+            let mut pts = Vec::new();
+            for i in 0..=16 {
+                let ang = std::f32::consts::PI * (1.0 + i as f32 / 16.0);
+                pts.push(q(vec2(ang.cos() * 19.0, ang.sin() * 15.0 + 6.0)));
+            }
+            fill_convex(&pts, Paint::Solid(a(hex(0xf3e8cf), k)));
+            for i in 0..8 {
+                let ang = std::f32::consts::PI * (1.0 + (i as f32 + 0.5) / 8.0);
+                fill_circle(
+                    q(vec2(ang.cos() * 17.0, ang.sin() * 13.0 + 6.0)),
+                    1.8 * s,
+                    a(hex(0xdccba6), k),
+                );
+            }
+            draw::line(
+                q(vec2(-15.0, 2.0)),
+                q(vec2(8.0, -6.0)),
+                1.0,
+                a(Color::new(1.0, 1.0, 1.0, 0.5), k),
+            );
+        }
+        PieceKind::Bun => {
+            let r0 = [
+                vec2(-19.0, -16.0),
+                vec2(19.0, -17.0),
+                vec2(20.0, 16.0),
+                vec2(-18.0, 17.0),
+            ];
+            let outer: Vec<Vec2> = r0.iter().map(|v| q(*v)).collect();
+            fill_convex(&outer, Paint::Solid(a(hex(0xc57a35), k)));
+            let inner: Vec<Vec2> = r0.iter().map(|v| q(*v * 0.78 + vec2(-1.0, -2.0))).collect();
+            fill_convex(&inner, Paint::Solid(a(hex(0xe9a95a), k)));
+            fill_circle(
+                q(vec2(-5.0, -6.0)),
+                4.0 * s,
+                a(Color::new(1.0, 0.9, 0.7, 0.45), k),
+            );
+        }
         PieceKind::Dill => {
             let stem = [vec2(0.0, 14.0), vec2(-2.0, 0.0), vec2(1.0, -14.0)];
             let pts: Vec<Vec2> = stem.iter().map(|v| q(*v)).collect();
@@ -1030,5 +1484,37 @@ fn draw_piece(kind: PieceKind, p: Vec2, s: f32, r: f32, k: f32, t: f32) {
                 }
             }
         }
+    }
+}
+
+/// A soft dollop (tvaroh, smetana, jam…): stacked circles, lighter on top.
+fn dollop(q: impl Fn(Vec2) -> Vec2, s: f32, k: f32, base: Color, light: Color, r0: f32) {
+    for (i, (rr, dy)) in [(r0, 0.0), (r0 * 0.78, -3.0), (r0 * 0.5, -5.5)]
+        .iter()
+        .enumerate()
+    {
+        let col = draw::mix(base, light, i as f32 / 2.0);
+        fill_circle(q(vec2(0.0, *dy)), rr * s, a(col, k));
+    }
+}
+
+/// Scattered small bits (crumble, bryndza, bacon).
+#[allow(clippy::too_many_arguments)]
+fn bits(
+    q: impl Fn(Vec2) -> Vec2,
+    s: f32,
+    k: f32,
+    base: Color,
+    light: Color,
+    n: u32,
+    size: f32,
+    spread: f32,
+) {
+    for i in 0..n {
+        let ang = rd::hash01(i * 7 + 1) * std::f32::consts::TAU;
+        let rr = rd::hash01(i * 3 + 5).sqrt() * spread;
+        let p0 = vec2(ang.cos(), ang.sin()) * rr;
+        let col = if i % 3 == 0 { light } else { base };
+        fill_circle(q(p0), (size + rd::hash01(i) * 1.2) * s, a(col, k));
     }
 }

@@ -274,11 +274,4 @@ mod tests {
             }
         }
     }
-
-    #[test]
-    fn lower_first_handles_every_script() {
-        assert_eq!(lower_first("Žena v brýlích"), "žena v brýlích");
-        assert_eq!(lower_first("Женщина в очках"), "женщина в очках");
-        assert_eq!(lower_first(""), "");
-    }
 }

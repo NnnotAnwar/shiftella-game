@@ -1,0 +1,939 @@
+# Mini-games 2.0 (src/minigame): the new games (SoupStir, MulledSpice), recipe-specific steps,
+# guide cards, the live star bar, "why this many stars", the practised flourish and the
+# F1 Mini-games section. Neutral forms (Karolina is not addressed).
+
+minigame.soup_stir.title
+cs Míchání polévky
+en Stirring soup
+uk Помішування супу
+ru Помешивание супа
+
+minigame.mulled_spice.title
+cs Koření do svařáku
+en Mulling spices
+uk Спеції для глінтвейну
+ru Специи для глинтвейна
+
+minigame.guide.how
+cs Jak na to
+en How to play
+uk Як грати
+ru Как играть
+
+minigame.guide.new
+cs Nový krok
+en Something new
+uk Новий крок
+ru Новый шаг
+
+minigame.guide.mouse
+cs Myš:
+en Mouse:
+uk Миша:
+ru Мышь:
+
+minigame.guide.keys
+cs Klávesy:
+en Keys:
+uk Клавіші:
+ru Клавиши:
+
+minigame.guide.step
+cs Tady navíc:
+en Here also:
+uk Тут також:
+ru Здесь ещё:
+
+minigame.guide.new_step
+cs Nově:
+en New:
+uk Нове:
+ru Новое:
+
+minigame.guide.got_it
+cs Rozumím
+en Got it
+uk Зрозуміло
+ru Понятно
+
+minigame.guide.read
+cs Hra počká — přečtěte si to a dejte Rozumím
+en The game waits — read, then Got it
+uk Гра зачекає — прочитайте й натисніть «Зрозуміло»
+ru Игра подождёт — прочитайте и нажмите «Понятно»
+
+minigame.guide.stars_any
+cs Pokazit to nejde: hvězdička je vždy, víc za přesnost.
+en Nothing can go wrong: one star always, more for care.
+uk Зіпсувати неможливо: одна зірка завжди, більше — за точність.
+ru Испортить нельзя: одна звезда всегда, больше — за точность.
+
+minigame.stars.now
+cs teď
+en now
+uk зараз
+ru сейчас
+
+minigame.guide.milk_froth.what
+cs Napěňte mléko: ručička teploty stoupá, pěna roste. Pusťte, když je ručička v jantarovém pásu a pěna u čárky.
+en Steam the milk: the needle climbs, the foam rises. Let go with the needle in the amber band and the foam at the line.
+uk Спініть молоко: стрілка температури росте, піна теж. Відпустіть, коли стрілка в бурштиновій смузі, а піна біля риски.
+ru Взбейте молоко: стрелка температуры растёт, пена тоже. Отпустите, когда стрелка в янтарной полосе, а пена у черты.
+
+minigame.guide.milk_froth.mouse
+cs držte tlačítko; opakovaným stiskem přidáte vzduch do pěny.
+en hold the button; press again to pull in more foam.
+uk тримайте кнопку; повторне натискання додає піни.
+ru держите кнопку; повторное нажатие добавляет пены.
+
+minigame.guide.milk_froth.keys
+cs držte Mezerník; pusťte a stiskněte znovu pro víc pěny.
+en hold Space; release and press again for more foam.
+uk тримайте Пробіл; відпустіть і натисніть знову для піни.
+ru держите Пробел; отпустите и нажмите снова для пены.
+
+minigame.guide.milk_froth.stars
+cs Tři hvězdy: teplota v pásu a pěna přesně u čárky.
+en Three stars: the needle in the band and the foam right at the line.
+uk Три зірки: стрілка в смузі, а піна точно біля риски.
+ru Три звезды: стрелка в полосе, а пена ровно у черты.
+
+minigame.guide.latte_art.what
+cs Nalijte vzor do kávy: veďte konvičku po světlé linii od tečky až do konce.
+en Pour the pattern: lead the jug along the faint line from the dot to its end.
+uk Налийте візерунок: ведіть глечик світлою лінією від крапки до кінця.
+ru Налейте узор: ведите кувшин по светлой линии от точки до конца.
+
+minigame.guide.latte_art.mouse
+cs držte a táhněte po linii; puštěním konvičku zvednete.
+en hold and drag along the line; let go to lift the jug.
+uk тримайте й ведіть по лінії; відпустіть, щоб підняти глечик.
+ru держите и ведите по линии; отпустите, чтобы поднять кувшин.
+
+minigame.guide.latte_art.keys
+cs držte Mezerník — konvička jde sama; na značkách ťukněte ←/→.
+en hold Space — the jug follows the line; tap ←/→ on the marks.
+uk тримайте Пробіл — глечик іде сам; на мітках тисніть ←/→.
+ru держите Пробел — кувшин идёт сам; на метках жмите ←/→.
+
+minigame.guide.latte_art.stars
+cs Tři hvězdy: celá linie pokrytá a skoro nic mimo ni.
+en Three stars: the whole line covered, hardly anything off it.
+uk Три зірки: уся лінія вкрита, майже нічого поза нею.
+ru Три звезды: вся линия покрыта, почти ничего мимо.
+
+minigame.guide.pour_over.what
+cs Lijte vodu v pomalých kruzích se světlem, v rytmu tikání, mezi kroužky.
+en Pour in slow circles with the guide light, in time with the ticks, between the rings.
+uk Лийте воду повільними колами за вогником, у ритмі тікання, між кільцями.
+ru Лейте воду медленными кругами за огоньком, в ритме тиканья, между кольцами.
+
+minigame.guide.pour_over.mouse
+cs držte tlačítko a kružte kurzorem za světlem.
+en hold the button and circle the cursor with the light.
+uk тримайте кнопку й кружляйте курсором за вогником.
+ru держите кнопку и кружите курсором за огоньком.
+
+minigame.guide.pour_over.keys
+cs držte Mezerník a ťukejte ←/→ do tiků.
+en hold Space and tap ←/→ on the ticks.
+uk тримайте Пробіл і тисніть ←/→ у такт.
+ru держите Пробел и жмите ←/→ в такт.
+
+minigame.guide.pour_over.stars
+cs Tři hvězdy: klidné kruhy v rytmu a uvnitř kroužků.
+en Three stars: calm circles in time, inside the rings.
+uk Три зірки: спокійні кола в ритмі та всередині кілець.
+ru Три звезды: спокойные круги в ритме и внутри колец.
+
+minigame.guide.tea_steep.what
+cs Nechte čaj louhovat, až barva odpovídá vzorku — pak sáček vytáhněte. Potom přísady, jak je recept chce.
+en Let the tea steep until it matches the swatch, then lift the bag. Then the add-ons the recipe wants.
+uk Заварюйте, доки колір не збіжиться зі зразком, тоді витягніть пакетик. Потім добавки за рецептом.
+ru Заваривайте, пока цвет не совпадёт с образцом, затем достаньте пакетик. Потом добавки по рецепту.
+
+minigame.guide.tea_steep.mouse
+cs klikněte pro vytažení; tažením sáčku louhujete rychleji.
+en click to lift; drag the bag to steep faster.
+uk клацніть, щоб витягнути; рухайте пакетик — заварюється швидше.
+ru щёлкните, чтобы достать; двигайте пакетик — заварится быстрее.
+
+minigame.guide.tea_steep.keys
+cs Mezerník vytáhne / pustí; ↑/↓ namáčí sáček.
+en Space lifts / drops; ↑/↓ dunk the bag.
+uk Пробіл витягує / кидає; ↑/↓ занурюють пакетик.
+ru Пробел достаёт / бросает; ↑/↓ окунают пакетик.
+
+minigame.guide.tea_steep.stars
+cs Tři hvězdy: síla v rámečku stupnice a přísady přesně.
+en Three stars: the strength inside the scale's box and the add-ons spot on.
+uk Три зірки: міцність у рамці шкали та точні добавки.
+ru Три звезды: крепость в рамке шкалы и точные добавки.
+
+minigame.guide.plate.what
+cs Babiččin způsob se ukáže na chvilku. Položte kousky na jejich místa, vyberte ozdobu a dejte ji na tečky.
+en Lida's way shows for a moment. Set the pieces on their spots, pick a garnish and dot it on.
+uk Бабусин спосіб видно мить. Покладіть шматочки на їхні місця, виберіть прикрасу й нанесіть на крапки.
+ru Бабушкин способ виден мгновение. Положите кусочки на их места, выберите украшение и нанесите на точки.
+
+minigame.guide.plate.mouse
+cs přetáhněte kousky na talíř, klikněte na tečky.
+en drag the pieces onto the plate, click the dots.
+uk перетягніть шматочки на тарілку, клацніть крапки.
+ru перетащите кусочки на тарелку, щёлкните точки.
+
+minigame.guide.plate.keys
+cs Tab další kousek, šipky posun, Mezerník položit / ozdobit.
+en Tab next piece, arrows move, Space drops / garnishes.
+uk Tab — наступний, стрілки — рух, Пробіл — покласти / прикрасити.
+ru Tab — следующий, стрелки — движение, Пробел — положить / украсить.
+
+minigame.guide.plate.stars
+cs Tři hvězdy: každý kousek přesně na místě a všechny tečky.
+en Three stars: every piece right on its spot and every dot.
+uk Три зірки: кожен шматочок точно на місці й усі крапки.
+ru Три звезды: каждый кусочек точно на месте и все точки.
+
+minigame.guide.soup_stir.what
+cs Míchejte pomalu dokola se světlem, polévka se vaří. Když hrnec zazáří, přidejte další přísadu.
+en Stir slowly round with the light while the soup cooks. When the pot glows, add the next ingredient.
+uk Помішуйте повільно по колу за вогником — суп вариться. Коли каструля засяє, додайте наступний інгредієнт.
+ru Помешивайте медленно по кругу за огоньком — суп варится. Когда кастрюля засветится, добавьте следующий ингредиент.
+
+minigame.guide.soup_stir.mouse
+cs držte tlačítko a kružte v hrnci; klikněte na zářící přísadu.
+en hold and circle in the pot; click the glowing ingredient.
+uk тримайте й кружляйте в каструлі; клацніть інгредієнт, що світиться.
+ru держите и кружите в кастрюле; щёлкните светящийся ингредиент.
+
+minigame.guide.soup_stir.keys
+cs držte Mezerník (naběračka krouží sama); ↑ přidá.
+en hold Space (the ladle circles by itself); ↑ adds.
+uk тримайте Пробіл (черпак кружляє сам); ↑ додає.
+ru держите Пробел (половник кружит сам); ↑ добавляет.
+
+minigame.guide.soup_stir.stars
+cs Tři hvězdy: klidné tempo a přísady hned, jak hrnec zazáří.
+en Three stars: a calm pace and each add right when the pot glows.
+uk Три зірки: спокійний темп і добавки одразу, як засяє каструля.
+ru Три звезды: спокойный темп и добавки сразу, как засветится кастрюля.
+
+minigame.guide.mulled_spice.what
+cs Dejte do vína koření z receptu (ostatní se vrátí) a držte ho teplé, ne vroucí — v jantarovém pásu.
+en Drop in the card's spices (the others bob back out) and keep the wine warm, not boiling — in the amber band.
+uk Покладіть у вино спеції з картки (інші спливуть назад) і тримайте його теплим, не киплячим — у бурштиновій смузі.
+ru Положите в вино специи с карточки (остальные всплывут обратно) и держите его тёплым, не кипящим — в янтарной полосе.
+
+minigame.guide.mulled_spice.mouse
+cs klikněte na koření; táhněte knoflík plamene.
+en click a spice; drag the flame knob.
+uk клацніть спецію; тягніть регулятор вогню.
+ru щёлкните специю; тяните регулятор огня.
+
+minigame.guide.mulled_spice.keys
+cs ←/→ vybrat, Mezerník vložit; ↑/↓ plamen.
+en ←/→ choose, Space drops; ↑/↓ the flame.
+uk ←/→ вибір, Пробіл — покласти; ↑/↓ вогонь.
+ru ←/→ выбор, Пробел — положить; ↑/↓ огонь.
+
+minigame.guide.mulled_spice.stars
+cs Tři hvězdy: jen koření z receptu a pár vteřin v pásu.
+en Three stars: only the card's spices and a few seconds in the band.
+uk Три зірки: лише спеції з картки та кілька секунд у смузі.
+ru Три звезды: только специи с карточки и несколько секунд в полосе.
+
+minigame.guide.step.latte_art.choose
+cs Nejdřív si vyberte vzor (←/→, Mezerník nebo klik).
+en First pick the pattern (←/→ and Space, or click).
+uk Спершу виберіть візерунок (←/→ і Пробіл або клік).
+ru Сначала выберите узор (←/→ и Пробел или клик).
+
+minigame.guide.step.flourish
+cs Procvičený recept: na konci se ke hrnku stáhne zlatý kruh — ťukněte, když se dotkne okraje. Bonus, ne povinnost.
+en Practised recipe: at the end a golden ring closes in — tap when it meets the rim. A bonus, never required.
+uk Відпрацьований рецепт: наприкінці золоте кільце стискається — тисніть, коли торкнеться краю. Бонус, не обов'язково.
+ru Отработанный рецепт: в конце золотое кольцо сжимается — жмите, когда коснётся края. Бонус, не обязательно.
+
+minigame.guide.step.milk_froth.vanilla
+cs Raf: nejdřív kapka vanilky — pusťte ji, když se houpe nad konvičkou.
+en Raf: a vanilla drop first — let it go while it swings over the jug.
+uk Раф: спершу крапля ванілі — відпустіть, коли гойдається над глечиком.
+ru Раф: сначала капля ванили — отпустите, когда качается над кувшином.
+
+minigame.guide.step.milk_froth.chili
+cs Na konci špetka chilli — pusťte ji, když je nad hrnkem.
+en At the end a pinch of chili — let it go over the cup.
+uk Наприкінці дрібка чилі — відпустіть над чашкою.
+ru В конце щепотка чили — отпустите над чашкой.
+
+minigame.guide.step.pour_over.stir
+cs Turek: lijte rovnou na sedlinu, pak třikrát zamíchejte do tiku a nechte usadit.
+en Turek: pour straight onto the grounds, stir three times on the tick, then let it settle.
+uk Турецька: лийте просто на гущу, тричі помішайте в такт і дайте відстоятися.
+ru По-турецки: лейте прямо на гущу, трижды помешайте в такт и дайте отстояться.
+
+minigame.guide.step.pour_over.slow
+cs Espresso tonic: lijte pomalu přes led — pomalejší kruhy.
+en Espresso tonic: pour slowly over the ice — slower circles.
+uk Еспресо-тонік: лийте повільно на лід — повільніші кола.
+ru Эспрессо-тоник: лейте медленно на лёд — круги помедленнее.
+
+minigame.guide.step.pour_over.dust
+cs Noční vlak: na konci posypte kakaem, když světlo projde nahoře.
+en Night train: at the end dust it with cocoa when the light passes the top.
+uk Нічний потяг: наприкінці посипте какао, коли вогник мине верх.
+ru Ночной поезд: в конце посыпьте какао, когда огонёк пройдёт верх.
+
+minigame.guide.step.tea_steep.spices
+cs Masala chai: koření dejte do pánve v pořadí z receptu (pořadí se mění).
+en Masala chai: add the spices to the pan in the card's order (it changes).
+uk Масала-чай: кладіть спеції в сотейник у порядку з картки (він змінюється).
+ru Масала-чай: кладите специи в сотейник в порядке с карточки (он меняется).
+
+minigame.guide.step.tea_steep.honey
+cs Lžička medu se houpe — pusťte ji nad středem hrnku.
+en A spoonful of honey swings — let it go over the middle.
+uk Ложка меду гойдається — відпустіть над серединою.
+ru Ложка мёда качается — отпустите над серединой.
+
+minigame.guide.step.tea_steep.milk
+cs Nakonec teplé mléko: držte, dokud lišta nedojde k jantarové značce.
+en Last, warm milk: hold until the bar reaches the amber mark.
+uk Наостанок тепле молоко: тримайте, доки смужка не дійде до бурштинової мітки.
+ru Напоследок тёплое молоко: держите, пока полоска не дойдёт до янтарной метки.
+
+minigame.guide.step.plate.choice
+cs Ozdobu si vyberte (každá je správně; Tab přepíná), pak ji dejte na tečky.
+en Choose the garnish (any is right; Tab cycles), then dot it on.
+uk Виберіть прикрасу (будь-яка правильна; Tab перемикає), потім на крапки.
+ru Выберите украшение (любое верно; Tab переключает), затем на точки.
+
+minigame.guide.step.soup_stir.swirl
+cs Kulajda: nakonec smetanová spirála, když hrnec zazáří.
+en Kulajda: a cream swirl at the end, when the pot glows.
+uk Кулайда: наприкінці вершкова спіраль, коли засяє каструля.
+ru Кулайда: в конце сливочная спираль, когда засветится кастрюля.
+
+minigame.milk_froth.texture.thick
+cs hustá pěna
+en thick foam
+uk густа піна
+ru густая пена
+
+minigame.milk_froth.texture.silky
+cs hedvábná pěna
+en silky foam
+uk шовковиста піна
+ru шелковистая пена
+
+minigame.milk_froth.texture.light
+cs lehká pěna
+en light foam
+uk легка піна
+ru лёгкая пена
+
+minigame.milk_froth.prompt.vanilla
+cs Kapka vanilky — pusťte ji nad konvičkou
+en A vanilla drop — let it go over the jug
+uk Крапля ванілі — відпустіть над глечиком
+ru Капля ванили — отпустите над кувшином
+
+minigame.milk_froth.prompt.chili
+cs Špetka chilli — pusťte ji nad hrnkem
+en A pinch of chili — let it go over the cup
+uk Дрібка чилі — відпустіть над чашкою
+ru Щепотка чили — отпустите над чашкой
+
+minigame.latte_art.choose
+cs Jaký vzor dnes?
+en Which pattern tonight?
+uk Який візерунок сьогодні?
+ru Какой узор сегодня?
+
+minigame.latte_art.prompt.choose
+cs Vyberte vzor
+en Pick a pattern
+uk Виберіть візерунок
+ru Выберите узор
+
+minigame.pour_over.style.dripper
+cs dripper
+en dripper
+uk дріпер
+ru дрип
+
+minigame.pour_over.style.night_train
+cs dripper · kakao
+en dripper · cocoa
+uk дріпер · какао
+ru дрип · какао
+
+minigame.pour_over.style.turek
+cs ve skle
+en in a glass
+uk у склянці
+ru в стакане
+
+minigame.pour_over.style.tonic
+cs přes led
+en over ice
+uk на льоду
+ru на льду
+
+minigame.pour_over.prompt.slow
+cs Pomalu přes led · klidné kruhy se světlem
+en Slowly over the ice · calm circles with the light
+uk Повільно на лід · спокійні кола за вогником
+ru Медленно на лёд · спокойные круги за огоньком
+
+minigame.pour_over.prompt.stir
+cs Zamíchejte do tiku
+en Stir on the tick
+uk Помішайте в такт
+ru Помешайте в такт
+
+minigame.pour_over.prompt.settle
+cs Nechte sedlinu klesnout…
+en Let the grounds settle…
+uk Дайте гущі осісти…
+ru Дайте гуще осесть…
+
+minigame.pour_over.prompt.dust
+cs Posypte, až světlo projde nahoře
+en Dust it as the light passes the top
+uk Посипте, коли вогник мине верх
+ru Посыпьте, когда огонёк пройдёт верх
+
+minigame.tea_steep.kind.linden
+cs Lipový květ
+en Linden blossom
+uk Липовий цвіт
+ru Липовый цвет
+
+minigame.tea_steep.kind.mountain
+cs Horské byliny
+en Mountain herbs
+uk Гірські трави
+ru Горные травы
+
+minigame.tea_steep.kind.uzvar
+cs Sušené ovoce
+en Dried fruit
+uk Сухофрукти
+ru Сухофрукты
+
+minigame.tea_steep.card
+cs Recept
+en Recipe card
+uk Картка рецепта
+ru Карточка рецепта
+
+minigame.tea_steep.card_hint
+cs Koření z misky v tomto pořadí.
+en Spices from the tray, in this order.
+uk Спеції з таці в такому порядку.
+ru Специи с подноса в этом порядке.
+
+minigame.tea_steep.prompt.spices
+cs Koření do pánve podle receptu
+en The spices into the pan, as the card says
+uk Спеції в сотейник за карткою
+ru Специи в сотейник по карточке
+
+minigame.tea_steep.prompt.lift_pan
+cs Louhujte do barvy vzorku, pak sáček ven
+en Steep to the swatch's colour, then lift the bag
+uk Заваріть до кольору зразка, тоді витягніть пакетик
+ru Заварите до цвета образца, затем достаньте пакетик
+
+minigame.tea_steep.prompt.honey
+cs Pusťte med nad středem
+en Let the honey go over the middle
+uk Відпустіть мед над серединою
+ru Отпустите мёд над серединой
+
+minigame.tea_steep.prompt.milk
+cs Držte a lijte mléko k jantarové značce
+en Hold to pour the milk to the amber mark
+uk Тримайте й лийте молоко до бурштинової мітки
+ru Держите и лейте молоко до янтарной метки
+
+minigame.milk
+cs Mléko
+en Milk
+uk Молоко
+ru Молоко
+
+minigame.spice.cinnamon
+cs Skořice
+en Cinnamon
+uk Кориця
+ru Корица
+
+minigame.spice.cardamom
+cs Kardamom
+en Cardamom
+uk Кардамон
+ru Кардамон
+
+minigame.spice.ginger
+cs Zázvor
+en Ginger
+uk Імбир
+ru Имбирь
+
+minigame.spice.clove
+cs Hřebíček
+en Clove
+uk Гвоздика
+ru Гвоздика
+
+minigame.spice.star_anise
+cs Badyán
+en Star anise
+uk Бадян
+ru Бадьян
+
+minigame.spice.orange
+cs Pomeranč
+en Orange
+uk Апельсин
+ru Апельсин
+
+minigame.spice.honey_drop
+cs Med
+en Honey
+uk Мед
+ru Мёд
+
+minigame.plate.dish.chlebicek
+cs Chlebíček
+en Chlebíček
+uk Хлєбічек
+ru Хлебичек
+
+minigame.plate.dish.kolac
+cs Koláč
+en Koláč
+uk Колач
+ru Колач
+
+minigame.plate.dish.vera_kolac
+cs Makový koláč
+en Poppy-seed koláč
+uk Маковий колач
+ru Маковый колач
+
+minigame.plate.dish.varenyky
+cs Varenyky
+en Varenyky
+uk Вареники
+ru Вареники
+
+minigame.plate.dish.pirohy
+cs Bryndzové pirohy
+en Bryndza pirohy
+uk Пироги з бриндзою
+ru Пироги с брынзой
+
+minigame.plate.dish.buchty
+cs Buchty
+en Buchty
+uk Бухти
+ru Бухты
+
+minigame.plate.garnish
+cs Ozdoba
+en Garnish
+uk Прикраса
+ru Украшение
+
+minigame.plate.prompt.choose
+cs Vyberte ozdobu, pak tečky
+en Pick a garnish, then the dots
+uk Виберіть прикрасу, потім крапки
+ru Выберите украшение, затем точки
+
+minigame.garnish.sugar
+cs Cukr
+en Sugar
+uk Цукор
+ru Сахар
+
+minigame.garnish.dill
+cs Kopr
+en Dill
+uk Кріп
+ru Укроп
+
+minigame.garnish.onion
+cs Cibulka
+en Onion
+uk Цибулька
+ru Лучок
+
+minigame.garnish.parsley
+cs Petržel
+en Parsley
+uk Петрушка
+ru Петрушка
+
+minigame.garnish.paprika
+cs Paprika
+en Paprika
+uk Паприка
+ru Паприка
+
+minigame.garnish.chives
+cs Pažitka
+en Chives
+uk Шніт-цибуля
+ru Шнитт-лук
+
+minigame.garnish.cinnamon
+cs Skořice
+en Cinnamon
+uk Кориця
+ru Корица
+
+minigame.garnish.cocoa
+cs Kakao
+en Cocoa
+uk Какао
+ru Какао
+
+minigame.garnish.poppy
+cs Mák
+en Poppy seed
+uk Мак
+ru Мак
+
+minigame.soup_stir.dish.garlic
+cs česnečka
+en garlic soup
+uk часниковий суп
+ru чесночный суп
+
+minigame.soup_stir.dish.kulajda
+cs kulajda
+en kulajda
+uk кулайда
+ru кулайда
+
+minigame.soup_stir.dish.borscht
+cs boršč
+en borscht
+uk борщ
+ru борщ
+
+minigame.mulled_spice.dish.svarak
+cs svařák
+en mulled wine
+uk глінтвейн
+ru глинтвейн
+
+minigame.soup_stir.add.garlic
+cs Česnek
+en Garlic
+uk Часник
+ru Чеснок
+
+minigame.soup_stir.add.croutons
+cs Krutony
+en Croutons
+uk Грінки
+ru Гренки
+
+minigame.soup_stir.add.mushrooms
+cs Houby
+en Mushrooms
+uk Гриби
+ru Грибы
+
+minigame.soup_stir.add.dill
+cs Kopr
+en Dill
+uk Кріп
+ru Укроп
+
+minigame.soup_stir.add.beetroot
+cs Řepa
+en Beetroot
+uk Буряк
+ru Свёкла
+
+minigame.soup_stir.add.smetana
+cs Smetana
+en Smetana
+uk Сметана
+ru Сметана
+
+minigame.soup_stir.add.cream
+cs Smetana
+en Cream
+uk Вершки
+ru Сливки
+
+minigame.soup_stir.adds
+cs Přidat
+en To add
+uk Додати
+ru Добавить
+
+minigame.soup_stir.prompt.stir
+cs Míchejte pomalu se světlem
+en Stir slowly with the light
+uk Помішуйте повільно за вогником
+ru Помешивайте медленно за огоньком
+
+minigame.soup_stir.prompt.add
+cs Hrnec září — přidejte!
+en The pot glows — add it!
+uk Каструля сяє — додавайте!
+ru Кастрюля светится — добавляйте!
+
+minigame.soup_stir.prompt.swirl
+cs Smetanová spirála — teď!
+en The cream swirl — now!
+uk Вершкова спіраль — зараз!
+ru Сливочная спираль — сейчас!
+
+minigame.soup_stir.prompt.done
+cs Hotovo, voní to
+en Done — it smells lovely
+uk Готово, пахне чудово
+ru Готово, пахнет чудесно
+
+minigame.mulled_spice.card
+cs Recept
+en Recipe card
+uk Рецепт
+ru Рецепт
+
+minigame.mulled_spice.prompt.spices
+cs Koření z receptu do hrnce · plamen do pásu
+en The card's spices into the pot · the flame to the band
+uk Спеції з картки в каструлю · вогонь до смуги
+ru Специи с карточки в кастрюлю · огонь до полосы
+
+minigame.mulled_spice.prompt.warm
+cs Trochu víc plamene
+en A little more flame
+uk Трохи більше вогню
+ru Чуть больше огня
+
+minigame.mulled_spice.prompt.hot
+cs Moc horké — ztlumte plamen
+en Too hot — turn the flame down
+uk Загаряче — зменшіть вогонь
+ru Слишком горячо — убавьте огонь
+
+minigame.mulled_spice.prompt.hold
+cs Držte ho v teple…
+en Keep it warm…
+uk Тримайте в теплі…
+ru Держите в тепле…
+
+minigame.flourish.prompt
+cs Babiččin závěr: ťukněte, až se kruh dotkne okraje
+en Lida's flourish: tap as the ring meets the rim
+uk Бабусин штрих: тисніть, коли кільце торкнеться краю
+ru Бабушкин штрих: жмите, когда кольцо коснётся края
+
+minigame.flourish.hit
+cs Babiččin závěr!
+en Lida's flourish!
+uk Бабусин штрих!
+ru Бабушкин штрих!
+
+minigame.flourish.miss
+cs Příště
+en Next time
+uk Наступного разу
+ru В следующий раз
+
+minigame.why.perfect
+cs Přesně jako u babičky.
+en Just like grandma's.
+uk Точно як у бабусі.
+ru Точь-в-точь как у бабушки.
+
+minigame.why.skipped
+cs Tentokrát rychle — chutná dobře.
+en A quick one this time — still tastes good.
+uk Цього разу швидко — все одно смачно.
+ru В этот раз быстро — всё равно вкусно.
+
+minigame.why.drop
+cs Pusťte ji, až se houpe nad středem.
+en Let it go as it swings over the middle.
+uk Відпускайте, коли гойдається над серединою.
+ru Отпускайте, когда качается над серединой.
+
+minigame.why.froth.cold
+cs Příště napěňujte o chvilku déle.
+en Froth a little longer next time.
+uk Наступного разу спінюйте трохи довше.
+ru В следующий раз взбивайте чуть дольше.
+
+minigame.why.froth.hot
+cs Příště pusťte o chvilku dřív.
+en Let go a little sooner next time.
+uk Наступного разу відпустіть трохи раніше.
+ru В следующий раз отпустите чуть раньше.
+
+minigame.why.froth.foam_low
+cs Pro víc pěny pusťte a stiskněte znovu.
+en Pulse the steam for more foam.
+uk Для піни відпустіть і натисніть знову.
+ru Для пены отпустите и нажмите снова.
+
+minigame.why.froth.foam_high
+cs Méně pulzů — pěny bylo moc.
+en Fewer pulses — the foam was too thick.
+uk Менше імпульсів — піни було забагато.
+ru Поменьше импульсов — пены было много.
+
+minigame.why.latte.coverage
+cs Dojeďte celou linii až do konce.
+en Follow the whole line to its end.
+uk Пройдіть усю лінію до кінця.
+ru Пройдите всю линию до конца.
+
+minigame.why.latte.stray
+cs Držte se blíž světlé linie.
+en Stay closer to the faint line.
+uk Тримайтеся ближче до світлої лінії.
+ru Держитесь ближе к светлой линии.
+
+minigame.why.latte.taps
+cs Ťukejte ←/→ přesně na značkách.
+en Tap ←/→ right on the marks.
+uk Тисніть ←/→ точно на мітках.
+ru Жмите ←/→ точно на метках.
+
+minigame.why.pour.bloom
+cs Při rozkvětu nelijte — počkejte na kruh.
+en Wait out the bloom before pouring on.
+uk Під час розкриття не лийте — дочекайтеся кола.
+ru Во время раскрытия не лейте — дождитесь круга.
+
+minigame.why.pour.rhythm
+cs Kružte pomaleji, s tikáním.
+en Circle slower, with the ticks.
+uk Кружляйте повільніше, у такт.
+ru Кружите медленнее, в такт.
+
+minigame.why.pour.centre
+cs Držte proud mezi kroužky.
+en Keep the stream between the rings.
+uk Тримайте струмінь між кільцями.
+ru Держите струю между кольцами.
+
+minigame.why.pour.beat
+cs Ťukejte ←/→ přesně do tiků.
+en Tap ←/→ right on the ticks.
+uk Тисніть ←/→ точно в такт.
+ru Жмите ←/→ точно в такт.
+
+minigame.why.pour.stir
+cs Míchejte přesně do tiku.
+en Stir right on the tick.
+uk Помішуйте точно в такт.
+ru Помешивайте точно в такт.
+
+minigame.why.pour.dust
+cs Posypte, až je světlo nahoře.
+en Dust it when the light is at the top.
+uk Посипайте, коли вогник угорі.
+ru Посыпайте, когда огонёк наверху.
+
+minigame.why.tea.weak
+cs Nechte čaj louhovat o chvilku déle.
+en Let it steep a little longer.
+uk Дайте заваритися трохи довше.
+ru Дайте завариться чуть дольше.
+
+minigame.why.tea.strong
+cs Sáček vytáhněte o chvilku dřív.
+en Lift the bag a little sooner.
+uk Витягніть пакетик трохи раніше.
+ru Достаньте пакетик чуть раньше.
+
+minigame.why.tea.sugar
+cs Spočítejte kostky cukru podle receptu.
+en Count the sugar cubes the recipe wants.
+uk Порахуйте кубики цукру за рецептом.
+ru Посчитайте кубики сахара по рецепту.
+
+minigame.why.tea.spices
+cs Koření v pořadí z receptu.
+en The spices in the card's order.
+uk Спеції в порядку з картки.
+ru Специи в порядке с карточки.
+
+minigame.why.tea.milk
+cs Mléko zastavte u jantarové značky.
+en Stop the milk at the amber mark.
+uk Зупиніть молоко біля бурштинової мітки.
+ru Остановите молоко у янтарной метки.
+
+minigame.why.plate.slots
+cs Kousky přesně na jejich místa.
+en Set the pieces right on their spots.
+uk Кладіть шматочки точно на місця.
+ru Кладите кусочки точно на места.
+
+minigame.why.plate.garnish
+cs Nezapomeňte na všechny tečky ozdoby.
+en Finish every garnish dot.
+uk Не забудьте всі крапки прикраси.
+ru Не забудьте все точки украшения.
+
+minigame.why.plate.unplaced
+cs Na talíř patří všechny kousky.
+en Every piece belongs on the plate.
+uk Усі шматочки — на тарілку.
+ru Все кусочки — на тарелку.
+
+minigame.why.soup.rhythm
+cs Míchejte klidně, v tempu světla.
+en Stir calmly, at the light's pace.
+uk Помішуйте спокійно, у темпі вогника.
+ru Помешивайте спокойно, в темпе огонька.
+
+minigame.why.soup.adds
+cs Přidávejte hned, jak hrnec zazáří.
+en Add as soon as the pot glows.
+uk Додавайте одразу, як засяє каструля.
+ru Добавляйте сразу, как засветится кастрюля.
+
+minigame.why.mulled.spices
+cs Jen koření z receptu.
+en Only the card's spices go in.
+uk Лише спеції з картки.
+ru Только специи с карточки.
+
+minigame.why.mulled.hot
+cs Plamen trochu níž — ať se nevaří.
+en A lower flame — it shouldn't boil.
+uk Вогонь трохи менше — щоб не кипіло.
+ru Огонь чуть меньше — чтобы не кипело.
+
+minigame.why.mulled.cool
+cs Víc plamene — svařák má hřát.
+en More flame — mulled wine should warm you.
+uk Більше вогню — глінтвейн має гріти.
+ru Больше огня — глинтвейн должен греть.
+
+ui.help.minigames.title
+cs Minihry a hvězdy
+en Mini-games and stars
+uk Міні-ігри та зірки
+ru Мини-игры и звёзды
+
+ui.help.minigames.body
+cs Každý nápoj a jídlo se dělá po svém: napěnění, latte art, pour-over a turek, čaje (chai s kořením v pánvi), talíře, polévky a svařák. Pokazit nic nejde. Nahoře vpravo ukazuje lišta, kolik hvězd by to bylo teď: ★ vždy, ★★ od 70 %, ★★★ od 90 %. Poprvé se ukáže krátký návod, „?“ ho otevře znovu. Po hře řádek poradí, co příště zlepšit. Procvičený recept (10 dobrých) přidá babiččin závěr — bonus navíc.
+en Every drink and dish plays like itself: milk froth, latte art, pour-over and turek, teas (chai with spices in a pan), plates, soups and mulled wine. Nothing can fail. The bar at the top right shows the stars you'd get now: ★ always, ★★ from 70 %, ★★★ from 90 %. A short guide shows the first time; "?" reopens it. Afterwards a line says what to try next time. A practised recipe (10 good plays) adds Lida's flourish — an extra bonus.
+uk Кожен напій і страва робляться по-своєму: спінювання, лате-арт, пуровер і турецька кава, чаї (чай масала зі спеціями в сотейнику), тарілки, супи й глінтвейн. Зіпсувати нічого не можна. Смужка вгорі праворуч показує, скільки зірок буде зараз: ★ завжди, ★★ від 70 %, ★★★ від 90 %. Уперше з'являється коротка підказка, «?» відкриває її знову. Після гри рядок підкаже, що покращити. Відпрацьований рецепт (10 вдалих) додає бабусин штрих — бонус.
+ru Каждый напиток и блюдо делаются по-своему: взбивание, латте-арт, пуровер и турка, чаи (масала с пряностями в сотейнике), тарелки, супы и глинтвейн. Испортить ничего нельзя. Полоска вверху справа показывает, сколько звёзд будет сейчас: ★ всегда, ★★ от 70 %, ★★★ от 90 %. В первый раз появляется короткая подсказка, «?» открывает её снова. После игры строка подскажет, что улучшить. Отработанный рецепт (10 удачных) добавляет бабушкин штрих — бонус.

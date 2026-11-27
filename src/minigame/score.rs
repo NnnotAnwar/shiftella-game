@@ -86,6 +86,24 @@ pub fn froth(
         + 0.25 * clamp01(1.0 - (foam - foam_target).abs() / (0.3 * w))
 }
 
+/// The content row's form: `w × clamp(1 − |T − T_target| / tol) + (1 − w) × clamp(1 − |foam −
+/// foam_target| / foam_tol)`.
+#[allow(clippy::too_many_arguments)]
+pub fn froth_weighted(
+    temp: f32,
+    t_target: f32,
+    tol: f32,
+    foam: f32,
+    foam_target: f32,
+    foam_tol: f32,
+    t_weight: f32,
+    relaxed: bool,
+) -> f32 {
+    let w = widen(relaxed);
+    t_weight * clamp01(1.0 - (temp - t_target).abs() / (tol * w))
+        + (1.0 - t_weight) * clamp01(1.0 - (foam - foam_target).abs() / (foam_tol * w))
+}
+
 // --- §2.2 LatteArt ------------------------------------------------------------
 
 /// Share of `guide` points with a trace sample within `radius`.
@@ -165,6 +183,14 @@ pub fn in_rhythm(rev_per_s: f32, relaxed: bool) -> bool {
     let w = widen(relaxed);
     let (lo, hi) = (0.9 - 0.3 * w, 0.9 + 0.3 * w);
     (lo..=hi).contains(&rev_per_s.abs())
+}
+
+/// Is an angular speed (rev/s) inside a calm band `(lo, hi)` (widened around its middle when
+/// relaxed)? `(0.6, 1.2)` is [`in_rhythm`].
+pub fn in_band(rev_per_s: f32, band: (f32, f32), relaxed: bool) -> bool {
+    let mid = (band.0 + band.1) * 0.5;
+    let half = (band.1 - band.0) * 0.5 * widen(relaxed);
+    (mid - half..=mid + half).contains(&rev_per_s.abs())
 }
 
 /// Beat tap within ±0.2 s (widened when relaxed)?

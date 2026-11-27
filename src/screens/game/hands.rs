@@ -306,47 +306,45 @@ pub fn cup_of(content: &Content, recipe_or_menu: &str) -> CupGlyph {
     }
 }
 
-/// The content mini-game of a recipe → the playable game and its variant id.
+/// The content mini-game of a recipe → the playable game and its variant id. Every content
+/// game is built now (SoupStir and MulledSpice too), so the recipe's own game and variant play:
+/// the cup on the card and the cup in the game are the same drink.
 pub fn playable(recipe: &RecipeDef, seed: u64) -> (MiniGameKind, String) {
-    let (kind, first) = recipe.playable_minigame(false);
-    let kind = match kind {
-        ContentGame::MilkFroth => MiniGameKind::MilkFroth,
-        ContentGame::LatteArt => MiniGameKind::LatteArt,
-        ContentGame::PourOver => MiniGameKind::PourOver,
-        ContentGame::TeaSteep => MiniGameKind::TeaSteep,
-        // the SHOULD games are not built yet: their recipes carry a MUST fallback
-        ContentGame::Plate | ContentGame::SoupStir | ContentGame::MulledSpice => {
-            MiniGameKind::Plate
-        }
-    };
-    // the main game picks one of its variants by seed; a fallback uses its own variant —
-    // except the soups, which plate their own bowl (česnečka, kulajda, borscht)
-    if recipe.minigame == ContentGame::SoupStir && kind == MiniGameKind::Plate {
-        let v = recipe
-            .variants
-            .first()
-            .map(String::as_str)
-            .unwrap_or("soup");
-        let set = crate::minigame::PlateSet::from_id(v).unwrap_or(crate::minigame::PlateSet::Soup);
-        return (kind, set.id().to_string());
-    }
-    let variant = if kind_matches(recipe.minigame, kind) && !recipe.variants.is_empty() {
-        recipe.variants[(seed % recipe.variants.len() as u64) as usize].clone()
+    let kind = minigame_kind(recipe.minigame);
+    let variant = if recipe.variants.is_empty() {
+        String::new()
     } else {
-        first.to_string()
+        recipe.variants[(seed % recipe.variants.len() as u64) as usize].clone()
     };
     (kind, variant)
 }
 
-fn kind_matches(c: ContentGame, k: MiniGameKind) -> bool {
-    matches!(
-        (c, k),
-        (ContentGame::MilkFroth, MiniGameKind::MilkFroth)
-            | (ContentGame::LatteArt, MiniGameKind::LatteArt)
-            | (ContentGame::PourOver, MiniGameKind::PourOver)
-            | (ContentGame::TeaSteep, MiniGameKind::TeaSteep)
-            | (ContentGame::Plate, MiniGameKind::Plate)
-    )
+/// The content enum → the mini-game enum (same names).
+pub fn minigame_kind(c: ContentGame) -> MiniGameKind {
+    match c {
+        ContentGame::MilkFroth => MiniGameKind::MilkFroth,
+        ContentGame::LatteArt => MiniGameKind::LatteArt,
+        ContentGame::PourOver => MiniGameKind::PourOver,
+        ContentGame::TeaSteep => MiniGameKind::TeaSteep,
+        ContentGame::Plate => MiniGameKind::Plate,
+        ContentGame::SoupStir => MiniGameKind::SoupStir,
+        ContentGame::MulledSpice => MiniGameKind::MulledSpice,
+    }
+}
+
+/// The latte patterns Karolina can pour tonight (night-unlocked basics, plus the ones
+/// moments and seasons gave her), in the content's order.
+pub fn latte_choices(content: &Content, w: &World) -> Vec<crate::minigame::LatteShape> {
+    let night = w.night();
+    content
+        .handson
+        .minigames
+        .latte_patterns
+        .iter()
+        .filter(|p| p.recipe.is_none())
+        .filter(|p| p.from_night.is_some_and(|n| night >= n) || w.lattes().contains(&p.id))
+        .filter_map(|p| crate::minigame::LatteShape::from_id(&p.id))
+        .collect()
 }
 
 /// The icon of a queued act.
@@ -1125,8 +1123,22 @@ impl GameScreen {
             .recipes
             .get(recipe)
             .is_some_and(|s| s.practised);
+        let mut variation = Variation::from_variant_id(kind, &variant);
+        if kind == MiniGameKind::LatteArt && variation.shape.is_none() {
+            // choose the pattern before the pour: three of tonight's, picked by the seed
+            let mut all = latte_choices(content, &self.world);
+            let mut pick = Vec::new();
+            let mut s = seed;
+            while pick.len() < 3 && !all.is_empty() {
+                s = s
+                    .wrapping_mul(6364136223846793005)
+                    .wrapping_add(1442695040888963407);
+                pick.push(all.remove((s >> 33) as usize % all.len()));
+            }
+            variation = variation.choices(&pick);
+        }
         let params = MiniGameParams::new(seed)
-            .variant(Variation::from_variant_id(kind, &variant))
+            .variant(variation)
             .relaxed(self.relaxed)
             .regular(regular.as_deref())
             .practised(practised);

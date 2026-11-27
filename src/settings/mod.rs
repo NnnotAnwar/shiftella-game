@@ -188,6 +188,9 @@ pub struct Settings {
     pub colorblind_markers: bool,
     /// Settings → Controls (only the changed actions are stored).
     pub keys: keys::KeyBindings,
+    /// Mini-game guide cards already read ("Got it"): game kinds and steps
+    /// (`milk_froth`, `tea_steep.spices`, …). Shown once each; "?" reopens them.
+    pub minigame_guides: std::collections::BTreeSet<String>,
 }
 
 impl Default for Settings {
@@ -206,6 +209,7 @@ impl Default for Settings {
             text_size: TextSize::Normal,
             colorblind_markers: true,
             keys: keys::KeyBindings::default(),
+            minigame_guides: Default::default(),
         }
     }
 }
@@ -364,6 +368,7 @@ mod tests {
                 k.set(keys::Action::Crew, macroquad::prelude::KeyCode::N);
                 k
             },
+            minigame_guides: ["tea_steep".to_string(), "flourish".to_string()].into(),
         };
         let back = Settings::from_ron(&s.to_ron()).unwrap();
         assert_eq!(back, s);
