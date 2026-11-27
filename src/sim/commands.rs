@@ -84,8 +84,8 @@ pub(super) fn connectivity_ok(w: &World, content: &Content) -> bool {
         && w.staff.iter().filter(|s| s.present()).all(|s| near(s.pos))
 }
 
-/// Somebody stands (or is about to stand) where a solid piece would go (building at night):
-/// refused, or they would stand inside the table and walk out through it.
+/// Somebody stands (or is about to stand) where a solid piece or a seat would go (building
+/// at night): refused, or they would stand inside the table and walk out through it.
 pub(super) fn people_in_the_way(
     w: &World,
     d: &FurnitureDef,
@@ -93,7 +93,9 @@ pub(super) fn people_in_the_way(
     y: i32,
     rot: u8,
 ) -> Result<(), CommandError> {
-    if d.walkable {
+    // a chair or a stool is walked across, but never put under somebody: a guest may sit
+    // down on it at once (0.2.4 chaos find: a chair moved under an idle helper)
+    if d.walkable && d.seats == 0 {
         return Ok(());
     }
     let fp = grid::footprint(d, x, y, rot);

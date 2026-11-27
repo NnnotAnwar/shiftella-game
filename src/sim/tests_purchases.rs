@@ -491,7 +491,11 @@ fn the_payoff_lines_add_up_and_survive_a_save() {
                 "purchases.line.no_seat" => assert_eq!(get("n"), Some(t.turned_away.to_string())),
                 "purchases.line.seats" | "purchases.line.seats_found" => {
                     assert_eq!(l.money, t.extra_money);
-                    assert_ne!(get("guests"), Some("0".into()), "no '0 guests found a place'");
+                    assert_ne!(
+                        get("guests"),
+                        Some("0".into()),
+                        "no '0 guests found a place'"
+                    );
                 }
                 "purchases.line.seats_drawn" => {
                     assert_ne!(get("drawn"), Some("0".into()));

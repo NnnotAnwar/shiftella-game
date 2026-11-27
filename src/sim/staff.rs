@@ -658,13 +658,7 @@ pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(
     // find: she cleared a table in a nook behind two chairs, a guest sat down on one, and
     // she climbed out over them); while she's in there, guests leave those chairs alone
     // (`gates_in_use`)
-    let claimed = claimed_seats(w);
-    let open = |t: &&(i32, i32)| {
-        w.grid
-            .nook_gates(**t)
-            .iter()
-            .all(|g| !w.grid.is_taken(g.0, g.1) && !claimed.contains(g))
-    };
+    let open = |t: &&(i32, i32)| nook_open(w, **t);
     tiles
         .iter()
         .filter(clear)
@@ -701,6 +695,18 @@ fn claimed_seats(w: &World) -> Vec<(i32, i32)> {
         .filter_map(|g| g.seat)
         .filter_map(|(uid, k)| guests::seat_tile(w, uid, k))
         .collect()
+}
+
+/// Nobody sits or is headed to sit on the way into the nook around `t` (clear floor: true).
+pub(crate) fn nook_open(w: &World, t: (i32, i32)) -> bool {
+    let gates = w.grid.nook_gates(t);
+    if gates.is_empty() {
+        return true;
+    }
+    let claimed = claimed_seats(w);
+    gates
+        .iter()
+        .all(|g| !w.grid.is_taken(g.0, g.1) && !claimed.contains(g))
 }
 
 /// The chairs that are the way out of a nook somebody of the crew stands in or walks to

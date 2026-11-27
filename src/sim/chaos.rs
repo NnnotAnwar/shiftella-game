@@ -337,8 +337,15 @@ pub(crate) fn check(w: &World, c: &Content) -> Vec<String> {
         fail!("Karolina busy by day: {:?}", pl.current);
     }
     let piece = |uid: u32| w.furniture.iter().any(|f| f.uid == uid);
+    // (her dishes on the way to the sink: the table may be gone by then, that's fine)
+    let carrying_dishes = |a: &PlayerAct| {
+        pl.current
+            .as_ref()
+            .is_some_and(|c| &c.act == a && c.stage >= 2)
+    };
     for a in acts {
         let ok = match a {
+            PlayerAct::ClearTable { .. } if carrying_dishes(a) => true,
             PlayerAct::TakeOrder { party } => w.parties.iter().any(|p| p.id == *party),
             PlayerAct::Brew { item, extra } | PlayerAct::Serve { item, extra } => {
                 std::iter::once(item)

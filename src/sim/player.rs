@@ -1049,12 +1049,15 @@ fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal
         }
         // a nook only reached over a chair: beside it when that's clear floor (she'd climb
         // back over whoever sat down meanwhile)
+        // (and into it only while nobody sits or is headed to sit on its way in — 0.2.4
+        // chaos find: a guest was sitting down on it as she walked in)
         PlayerAct::Mop { tile } | PlayerAct::GoTo { tile } if !w.grid.clear(tile.0, tile.1) => {
-            Goal::At(
-                staff::stand_next_to(w, *tile, here)
-                    .filter(|t| w.grid.clear(t.0, t.1))
-                    .unwrap_or(*tile),
-            )
+            let beside = staff::stand_next_to(w, *tile, here);
+            match beside.filter(|t| w.grid.clear(t.0, t.1)) {
+                Some(t) => Goal::At(t),
+                None if staff::nook_open(w, *tile) => Goal::At(*tile),
+                None => at(beside.filter(|t| staff::nook_open(w, *t))),
+            }
         }
         PlayerAct::Mop { tile } | PlayerAct::GoTo { tile } => Goal::At(*tile),
         PlayerAct::Checklist { id } => Goal::At(checklist_anchor(w, content, id, here)),

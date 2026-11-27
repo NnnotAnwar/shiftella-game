@@ -70,9 +70,9 @@ mod tests_build;
 #[cfg(test)]
 mod tests_build_ux;
 #[cfg(test)]
-mod tests_challenge;
-#[cfg(test)]
 mod tests_chairs;
+#[cfg(test)]
+mod tests_challenge;
 #[cfg(test)]
 mod tests_closing;
 #[cfg(test)]

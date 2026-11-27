@@ -384,7 +384,11 @@ fn to_go_spots_are_always_inside_the_cafe() {
             break;
         }
     }
-    assert_eq!(guests::registers(&w, &c).len(), 2, "the second register was placed");
+    assert_eq!(
+        guests::registers(&w, &c).len(),
+        2,
+        "the second register was placed"
+    );
     for (reg, _) in guests::registers(&w, &c) {
         let spots = super::to_go::spots(&w, &c, reg);
         assert!(!spots.is_empty(), "register {reg} has no to-go spot");
@@ -451,4 +455,62 @@ fn nobody_sits_down_in_the_way_out_of_a_nook_she_works_in() {
     let k = karolina(&w);
     w.staff[k].path = vec![(28, 1)];
     assert!(!gate_taken(&mut w, &c), "a guest sat down in her way in");
+}
+
+/// …and a walk into such a nook (a click on its floor) while a guest sits or is about to
+/// sit in its way in ends beside it instead (0.2.4 chaos find: she walked in over the
+/// chair a guest was sitting down on).
+#[test]
+fn a_walk_into_a_nook_whose_way_in_is_taken_stops_short() {
+    let c = content();
+    let mut w = night(&c, 3);
+    place(&mut w, &c, "table_round", (27, 1)).unwrap();
+    place(&mut w, &c, "table_round", (27, 2)).unwrap();
+    place(&mut w, &c, "chair", (28, 2)).unwrap();
+    let mut n = 0;
+    while !w
+        .guests
+        .iter()
+        .filter_map(|g| g.seat)
+        .any(|(u, k)| guests::seat_tile(&w, u, k) == Some((28, 2)))
+    {
+        guests::spawn_party(&mut w, &c, "students", 1, None, 1.0, 1.0, &[], None, true);
+        n += 1;
+        assert!(n < 40, "nobody took the chair");
+    }
+    assert!(!staff::nook_open(&w, (28, 1)));
+    w.apply(
+        &c,
+        Command::PlayerQueue {
+            act: PlayerAct::GoTo { tile: (28, 1) },
+            front: true,
+        },
+    )
+    .unwrap();
+    for _ in 0..600 {
+        w.tick(&c);
+        let k = karolina(&w);
+        assert_ne!(w.staff[k].tile(), (28, 1), "she walked into the nook");
+        assert_ne!(
+            w.staff[k].path.last(),
+            Some(&(28, 1)),
+            "she set off into the nook"
+        );
+    }
+}
+
+/// 0.2.4 chaos find: a chair moved under a helper idling there — and a guest sat down on
+/// it with her still on it. A seat is never put where somebody stands.
+#[test]
+fn a_chair_is_never_put_under_somebody() {
+    let c = content();
+    let mut w = night(&c, 3);
+    let k = karolina(&w);
+    w.staff[k].path.clear();
+    w.staff[k].pos = grid::tile_center((8, 3));
+    assert_eq!(
+        place(&mut w, &c, "chair", (8, 3)),
+        Err(CommandError::Occupied)
+    );
+    assert!(place(&mut w, &c, "chair", (8, 6)).is_ok());
 }
