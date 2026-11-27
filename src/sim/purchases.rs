@@ -92,10 +92,6 @@ impl TierDef {
 pub enum ApplianceRole {
     /// Two (or more) pieces with the tag work at once.
     Parallel,
-    /// Quick brews (and helpers' bar items) + quality.
-    QuickQuality(f32),
-    /// Washing × (1 + this) per extra piece.
-    Washing(f32),
     /// The tag's menu items exist only with the piece (the oven's cakes).
     Unlocks,
 }
@@ -172,10 +168,6 @@ pub struct PayoffTally {
     pub by_seat: BTreeMap<String, SeatTally>,
     /// Items started at a station while another piece of the same tag was busy.
     pub parallel: BTreeMap<String, u32>,
-    /// Quick brews that got the grinder's bonus.
-    pub ground: u32,
-    /// Dishes washed with the extra washing capacity.
-    pub washed: u32,
     /// Items of an `Unlocks` tag served, and their menu price.
     pub made: BTreeMap<String, (u32, i64)>,
     /// Tip Kč the coziness tier added.
@@ -573,51 +565,6 @@ fn count_tag(w: &World, content: &Content, tag: &str) -> u32 {
         .count() as u32
 }
 
-/// Pieces of an appliance's tag beyond grandma's (capped by `max`).
-fn extra_of(w: &World, content: &Content, a: &ApplianceDef) -> u32 {
-    count_tag(w, content, &a.tag)
-        .saturating_sub(a.free)
-        .min(a.max)
-}
-
-/// Quick-brew quality the grinder(s) add.
-pub(crate) fn quick_quality_bonus(w: &World, content: &Content) -> f32 {
-    data()
-        .appliances
-        .iter()
-        .map(|a| match a.role {
-            ApplianceRole::QuickQuality(q) => q * extra_of(w, content, a) as f32,
-            _ => 0.0,
-        })
-        .sum()
-}
-
-/// A quick brew got the bonus.
-pub(crate) fn note_ground(w: &mut World, content: &Content) {
-    if quick_quality_bonus(w, content) > 0.0 {
-        w.pay.tonight.ground += 1;
-    }
-}
-
-/// Washing × (dish racks, a second sink).
-pub(crate) fn wash_mul(w: &World, content: &Content) -> f32 {
-    1.0 + data()
-        .appliances
-        .iter()
-        .map(|a| match a.role {
-            ApplianceRole::Washing(x) => x * extra_of(w, content, a) as f32,
-            _ => 0.0,
-        })
-        .sum::<f32>()
-}
-
-/// `n` dishes were washed at `mul`: the share the extra capacity did.
-pub(crate) fn note_washed(w: &mut World, n: u32, mul: f32) {
-    if mul > 1.0 && n > 0 {
-        w.pay.tonight.washed += ((n as f32) * (1.0 - 1.0 / mul)).round().max(1.0) as u32;
-    }
-}
-
 /// Someone starts work at station `uid`: another piece of the same `Parallel` tag busy at the
 /// same time = a drink brewed side by side.
 pub(crate) fn note_station_start(w: &mut World, content: &Content, uid: u32) {
@@ -756,34 +703,6 @@ pub(crate) fn lines(w: &World, content: &Content) -> Vec<PayoffLine> {
                 args: vec![
                     arg("piece", format!("@furniture.{piece}.name")),
                     arg("n", n),
-                ],
-                money: 0,
-            },
-        ));
-    }
-    if t.ground > 0 {
-        let piece = piece_with_tag(w, content, "grinder", 0).unwrap_or_default();
-        out.push((
-            t.ground as f32 * 15.0,
-            PayoffLine {
-                key: "purchases.line.grinder".into(),
-                args: vec![
-                    arg("piece", format!("@furniture.{piece}.name")),
-                    arg("n", t.ground),
-                ],
-                money: 0,
-            },
-        ));
-    }
-    if t.washed > 0 {
-        let piece = piece_with_tag(w, content, "dishes", 1).unwrap_or_default();
-        out.push((
-            t.washed as f32 * 8.0,
-            PayoffLine {
-                key: "purchases.line.washing".into(),
-                args: vec![
-                    arg("piece", format!("@furniture.{piece}.name")),
-                    arg("n", t.washed),
                 ],
                 money: 0,
             },

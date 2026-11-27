@@ -1,0 +1,166 @@
+# hands-ux: checklist states (open → on her way → done), Karolina's queue strip in the HUD,
+# the follow camera chip, and the "they've already left" note for stories / moments.
+
+# --- checklist states ---------------------------------------------------------------------------
+
+hux.check.someone
+cs někdo
+en someone
+uk хтось
+ru кто-то
+
+hux.check.queued
+cs {name} · ve frontě
+en {name} · queued
+uk {name} · у черзі
+ru {name} · в очереди
+
+hux.check.doing
+cs {name} · už jde
+en {name} · on her way
+uk {name} · вже йде
+ru {name} · уже идёт
+
+hux.check.helper
+cs {name} · na cestě
+en {name} · on the way
+uk {name} · уже йде
+ru {name} · уже идёт
+
+hux.check.tip.open
+cs Klikni: Karolina to půjde udělat
+en Click: Karolina goes and does it
+uk Клацни — Кароліна піде й зробить
+ru Нажми — Каролина пойдёт и сделает
+
+hux.check.tip.queued
+cs Udělá to Karolina — klikni pro zrušení
+en Karolina will do it — click to cancel
+uk Зробить Кароліна — клацни, щоб скасувати
+ru Сделает Каролина — нажми, чтобы отменить
+
+hux.check.tip.helper
+cs Má to na starost {name}
+en {name} is on it
+uk Цим займається {name}
+ru Этим занимается {name}
+
+hux.check.tip.done
+cs Hotovo: {name}, {time}
+en Done by {name} at {time}
+uk Готово: {name}, {time}
+ru Готово: {name}, {time}
+
+hux.check.tip.done_by
+cs Hotovo: {name}
+en Done by {name}
+uk Готово: {name}
+ru Готово: {name}
+
+hux.check.hint
+cs Klik = Karolina jde (hodiny). Další klik to zruší. Fajfka = hotovo.
+en Click = Karolina goes (clock). Click again to cancel. Tick = done.
+uk Клік — Кароліна йде (годинник). Ще клік — скасувати. Галочка — готово.
+ru Клик — Каролина идёт (часы). Ещё клик — отмена. Галочка — готово.
+
+hux.check.hint_close
+cs Rozumím
+en Got it
+uk Зрозуміло
+ru Понятно
+
+# --- the queue strip ------------------------------------------------------------------------------
+
+hux.queue.title
+cs Fronta
+en Queue
+uk Черга
+ru Очередь
+
+hux.queue.open_tip
+cs Karolinina fronta: pořadí, zrušení, vše pryč ({k})
+en Karolina's queue: reorder, drop, clear ({k})
+uk Черга Кароліни: порядок, скасування, очистити ({k})
+ru Очередь Каролины: порядок, отмена, очистить ({k})
+
+hux.queue.close
+cs Sbalit
+en Collapse
+uk Згорнути
+ru Свернуть
+
+hux.queue.clear
+cs Vše pryč
+en Clear all
+uk Очистити
+ru Очистить
+
+hux.queue.clear_tip
+cs Zrušit vše ve frontě (to, co právě dělá, dodělá)
+en Drop everything queued (she finishes what she's doing)
+uk Скасувати все в черзі (поточну справу вона доробить)
+ru Отменить всё в очереди (текущее дело она доделает)
+
+hux.queue.empty
+cs Nic ve frontě — klikni na hosta, stůl, dřez…
+en Nothing queued — click a guest, a table, the sink…
+uk Черга порожня — клацни гостя, стіл, мийку…
+ru Очередь пуста — нажми на гостя, стол, мойку…
+
+hux.queue.cancel_tip
+cs Zrušit, co právě dělá
+en Cancel what she's doing
+uk Скасувати поточну справу
+ru Отменить текущее дело
+
+hux.queue.drop_tip
+cs Vyřadit z fronty
+en Drop from the queue
+uk Прибрати з черги
+ru Убрать из очереди
+
+hux.queue.up
+cs Dřív (nebo přetáhni)
+en Sooner (or drag it)
+uk Раніше (або перетягни)
+ru Раньше (или перетащи)
+
+hux.queue.down
+cs Později (nebo přetáhni)
+en Later (or drag it)
+uk Пізніше (або перетягни)
+ru Позже (или перетащи)
+
+access.action.queue
+cs Fronta (Karolina)
+en Karolina's queue
+uk Черга Кароліни
+ru Очередь Каролины
+
+# --- follow camera --------------------------------------------------------------------------------
+
+hux.follow.chip
+cs Sleduji: {name} · Esc / klik zastaví
+en Following {name} · Esc / click to stop
+uk Стежу: {name} · Esc / клік — стоп
+ru Слежу: {name} · Esc / клик — стоп
+
+hux.follow.stop
+cs Nesledovat
+en Stop following
+uk Не стежити
+ru Не следить
+
+hux.follow.stop_tip
+cs Kamera přestane sledovat (taky Esc nebo pohyb kamerou)
+en The camera stops following (so does Esc or moving the camera)
+uk Камера перестане стежити (також Esc або рух камери)
+ru Камера перестанет следить (также Esc или движение камеры)
+
+# --- stories / moments ------------------------------------------------------------------------------
+
+hux.story.left
+cs Už odešli.
+en They've already left.
+uk Вони вже пішли.
+ru Они уже ушли.

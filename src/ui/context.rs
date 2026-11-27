@@ -93,6 +93,9 @@ pub struct Ui {
     screen: Vec2,
     time: f64,
     dt: f32,
+    /// Screenshot runs: every frame lasts exactly this long (animations repeat
+    /// pixel-for-pixel run to run); `None` = the real frame time.
+    fixed_dt: Option<f32>,
     frame: u64,
     /// `SHIFTELLA_LAYOUT_DEBUG=1`: widgets / text outside their container are outlined in
     /// red and logged once.
@@ -154,6 +157,7 @@ impl Ui {
             screen: vec2(1280.0, 720.0),
             time: 0.0,
             dt: 1.0 / 60.0,
+            fixed_dt: None,
             frame: 0,
             mouse: Vec2::ZERO,
             mouse_prev: Vec2::ZERO,
@@ -232,6 +236,11 @@ impl Ui {
     pub fn dt(&self) -> f32 {
         self.dt
     }
+    /// Screenshot runs: a fixed frame time for the UI's own clock (animations, toasts), so
+    /// two runs of the same scene give the same image.
+    pub fn set_fixed_dt(&mut self, dt: Option<f32>) {
+        self.fixed_dt = dt;
+    }
     /// Avatars of `name` show this person's face instead of initials. Call at the start of a
     /// frame, before drawing: a new face is rendered into a small texture right away.
     pub fn register_face(&mut self, name: &str, look: crate::render::PersonLook) {
@@ -257,7 +266,7 @@ impl Ui {
     /// Read input for this frame. Call first thing in the frame.
     pub fn begin_frame(&mut self) {
         self.frame += 1;
-        self.dt = get_frame_time().min(0.1);
+        self.dt = self.fixed_dt.unwrap_or_else(|| get_frame_time().min(0.1));
         self.time += self.dt as f64;
         let dpi = screen_dpi_scale();
         draw::set_px(1.0 / (dpi * self.user_scale));
@@ -265,7 +274,7 @@ impl Ui {
         self.screen = vec2(screen_width(), screen_height()) / self.user_scale;
 
         self.mouse_prev = self.mouse;
-        self.mouse = Vec2::from(mouse_position()) / self.user_scale;
+        self.mouse = Vec2::from(crate::platform::pointer()) / self.user_scale;
         // screenshots: `SHIFTELLA_HOVER=x,y` holds the pointer there (logical points)
         static HOVER: std::sync::OnceLock<Option<Vec2>> = std::sync::OnceLock::new();
         if let Some(p) = *HOVER.get_or_init(|| {

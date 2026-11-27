@@ -5,9 +5,12 @@
     // ×1: 0.13 real s per tick → 10.4 real minutes of sim (×2: 5.2, ×3: 3.5); with the order
     // cards and 6–14 mini-games a night at ×1 is 12–14 real minutes (T9, sim_balance).
     real_seconds_per_tick_x1: 0.13,
-    // The preparation half hour (21:30–22:00, doors closed, no guests) runs a little quicker:
-    // ×0.7 → ~27 real seconds at ×1 (the evening stays ~12–14 real minutes); ×2/×3 work too.
-    prep_tick_scale: 0.7,
+    // The two quiet halves (the preparation 21:30–22:00 and the closing half hour 06:00–06:30,
+    // doors closed, no guests) run their clock slower (sim::QUIET_TICKS_PER_MINUTE = 25 ticks a
+    // game minute, people move at the usual pace): ×1.0 → ~1.6 real minutes per half at ×1
+    // (the owner: "time runs too fast for opening and closing"). The clock then waits at 21:59
+    // / 06:29 for her. ×2/×3 work too.
+    prep_tick_scale: 1.0,
     // Sim dt × this while the order card, a mini-game, the book or a moment card is open.
     // Cozy 0.25: the room still drifts on a little, the night doesn't stretch past 14 minutes.
     overlay_scale: (cozy: 0.25, classic: 0.35),
@@ -156,7 +159,44 @@
         // grandma's medovník: ding → take it out → slices without waiting tonight
         cake: (items: ["medovnik", "kolac"], bake_minutes: 12, slices: 8, helper_slices: 4,
                prep_mul: 0.05, helper_after: 10, until_minute: 120),
-        // from 05:00: count the till, take the trash out (sometimes the station cat is there)
-        closing: (from_minute: 420, trash_dirt: 0.03, cat_chance: 0.35),
+        // the closing half hour (06:00–06:30) — or from last call (05:15) once the café is
+        // empty: count the till, clean the group head, take the trash out (sometimes the
+        // station cat is there)
+        closing: (from_minute: 435, trash_dirt: 0.03, cat_chance: 0.35),
+    ),
+    // Hands-on rituals (sim::rituals, screens::game::rituals_ui): when Karolina herself does a
+    // checklist item (or an appliance chore) and the player watches at ×1, a tiny gesture plays
+    // over the piece instead of a progress ring. Never needed: ignored, at ×2/×3, by the
+    // autoplayer or a helper it completes on its own with the same ticks. Once the player has
+    // started a gesture she waits for it at most `patience_ticks`; a finished gesture finishes
+    // the item at once. `perfect_min` perfect gestures in a list → that ritual's `perfect`
+    // reward (shiftella.ron). Keys: checklist ids, or `equip.<action>` for appliance chores (a
+    // chore without its own entry uses the gesture of the item it ticks: the warm-up, the
+    // group head, the till).
+    rituals: (
+        patience_ticks: 120,
+        perfect_min: 3,
+        gestures: {
+            // the opening
+            "light_window": Cord,
+            "coffee_warmup": Needle(green: (0.62, 0.8)),
+            "check_stock": Shelf(items: 3, look: Pantry),
+            "wipe_tables": Strokes(count: 3, look: Cloth),
+            "count_float": Count(coins: [1, 2, 5, 10, 20], total: (32, 68)),
+            "menu_board": Strokes(count: 2, look: Chalk),
+            "record_on": Drop(band: 0.16),
+            // the closing
+            "wash_dishes": Strokes(count: 3, look: Sponge),
+            "clean_machine": Strokes(count: 4, look: Brush),
+            "cash_up": Sort(coins: 5),
+            "fridge_check": Shelf(items: 3, look: Fridge),
+            "handover_note": Lines(count: 3),
+            "light_off_at_six": Cord,
+            // appliance chores of their own
+            "equip.milk": Slide(look: Bottle),
+            "equip.bake": Slide(look: Tray),
+            "equip.soup_on": Stir,
+            "equip.trash": Slide(look: Bag),
+        },
     ),
 )

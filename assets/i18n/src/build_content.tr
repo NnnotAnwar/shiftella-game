@@ -130,41 +130,41 @@ en A coat rack! Finally my scarf isn't in the milk.
 uk Вішак! Нарешті мій шарф не в молоці.
 ru Вешалка! Наконец-то мой шарф не в молоке.
 
-build_wish.cook_rack.reason
-cs odkapávač na nádobí
-en a dish rack
-uk сушарка для посуду
-ru сушилка для посуды
+build_wish.cook_oven.reason
+cs troubu
+en an oven
+uk духовку
+ru духовку
 
-build_wish.cook_rack.ask
-cs U dřezu by se hodil odkapávač. Talíře nám schnou na židlích.
-en A dish rack by the sink would help. The plates are drying on the chairs.
-uk Біля мийки б не завадила сушарка. Тарілки сохнуть на стільцях.
-ru У мойки пригодилась бы сушилка. Тарелки сохнут на стульях.
+build_wish.cook_oven.ask
+cs Kdybychom měli troubu, koláče by šly na stůl ještě teplé. Takhle je jen ohřívám.
+en If we had an oven, the kolaches would come to the table still warm. Now I only reheat them.
+uk Якби в нас була духовка, колачі йшли б на стіл ще теплими. А так я їх тільки розігріваю.
+ru Будь у нас духовка, колачи шли бы на стол ещё тёплыми. А так я их только разогреваю.
 
-build_wish.cook_rack.thanks
-cs Odkapávač. Malá věc, velká radost. Díky!
-en A dish rack. Small thing, big joy. Thanks!
-uk Сушарка. Дрібниця, а як приємно. Дякую!
-ru Сушилка. Мелочь, а как приятно. Спасибо!
+build_wish.cook_oven.thanks
+cs Trouba! Cítíš to? Tak voní pořádná kuchyně. Díky!
+en An oven! Can you smell that? That's what a proper kitchen smells like. Thanks!
+uk Духовка! Чуєш? Отак пахне справжня кухня. Дякую!
+ru Духовка! Чуешь? Вот так пахнет настоящая кухня. Спасибо!
 
-build_wish.barista_grinder.reason
-cs druhý mlýnek
-en a second grinder
-uk другий млинок
-ru вторая кофемолка
+build_wish.barista_machine.reason
+cs druhý kávovar
+en a second coffee machine
+uk другу кавоварку
+ru вторую кофемашину
 
-build_wish.barista_grinder.ask
-cs S druhým mlýnkem by bylo pořád čerstvě namleto. Káva by voněla až na nástupiště.
-en With a second grinder I'd always have it freshly ground. You'd smell the coffee on the platform.
-uk З другим млинком завжди було б свіжозмелене. Кава пахла б аж до перону.
-ru Со второй кофемолкой всегда было бы свежемолотое. Кофе пахло бы до самого перрона.
+build_wish.barista_machine.ask
+cs Když přijede vlak, jeden kávovar nestíhá. Se dvěma bychom tu frontu zvládli.
+en When a train comes in, one machine can't keep up. With two we'd handle that queue.
+uk Коли приходить потяг, одна кавоварка не встигає. З двома ми б упоралися з тією чергою.
+ru Когда приходит поезд, одна кофемашина не успевает. С двумя мы бы справились с этой очередью.
 
-build_wish.barista_grinder.thanks
-cs Ten zvuk! Čerstvě mletá káva — tohle je moje hudba.
-en That sound! Freshly ground coffee — that's my music.
-uk Цей звук! Свіжозмелена кава — оце моя музика.
-ru Этот звук! Свежемолотый кофе — вот моя музыка.
+build_wish.barista_machine.thanks
+cs Dva kávovary! Teď ať si ten vlak přijede. Díky!
+en Two machines! Now let that train come. Thanks!
+uk Дві кавоварки! Тепер хай той потяг приходить. Дякую!
+ru Две кофемашины! Теперь пусть этот поезд приходит. Спасибо!
 
 build_wish.students_sockets.reason
 cs víc zásuvek

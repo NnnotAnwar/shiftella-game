@@ -702,6 +702,7 @@ impl StaticLayer {
         let scale = scale.min(max / world_rect.w).min(max / world_rect.h);
         let (w, h) = ((world_rect.w * scale) as u32, (world_rect.h * scale) as u32);
         let rt = render_target(w.max(1), h.max(1));
+        crate::profile::count(crate::profile::Counter::RenderTargets, 1);
         rt.texture.set_filter(FilterMode::Linear);
         let mut cam = Camera2D::from_display_rect(world_rect);
         cam.render_target = Some(rt.clone());

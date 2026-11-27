@@ -952,8 +952,10 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             .count()
     };
     let hint_h = if night { 0.0 } else { 24.0 };
+    // the first nights: one line on how a click works (open → on her way → done)
+    let tip_h = super::checklist_ui::hint(g, ui, &loc, r);
     // the lists scroll inside the tablet; the day hint stays fixed below them
-    let view = Rect::new(r.x, r.y, r.w, r.h - hint_h);
+    let view = Rect::new(r.x, r.y + tip_h, r.w, r.h - hint_h - tip_h);
     let content_h: f32 = kinds
         .iter()
         .map(|k| 30.0 + count(*k) as f32 * 30.0 + 8.0)
@@ -996,46 +998,11 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             if !sa.visible(rr.y, rr.h) {
                 continue;
             }
-            let st = states.iter().find(|s| s.id == it.id);
-            let mut checked = st.is_some_and(|s| s.done);
-            let who = st
-                .and_then(|s| s.by)
-                .and_then(|id| g.world.staff_by_id(id))
-                .map(|s| wv::staff_name(&loc, s))
-                .or_else(|| {
-                    // not done yet: whose it is (yours, or a helper with that duty)
-                    (!checked).then(|| match it.owner() {
-                        crate::content::handson::ChecklistOwner::Karolina => {
-                            loc.tr_owned("ui.rail.karolina")
-                        }
-                        crate::content::handson::ChecklistOwner::Either(d) => {
-                            format!("{} · {}", loc.tr("ui.rail.karolina"), loc.tr(&d.name_key()))
-                        }
-                    })
-                });
-            let label = loc.tr_owned(&format!("app.checklist.{}", it.id));
-            let was = checked;
-            ui.check_item(
-                ("chk", it.id.as_str()),
-                rr,
-                &label,
-                who.as_deref(),
-                &mut checked,
-            );
-            if checked && !was {
-                if night {
-                    if let Err(e) = g.command(content, Command::TickChecklist { id: it.id.clone() })
-                    {
-                        super::panels::command_error(g, &loc, &e);
-                    }
-                } else {
-                    g.toast(
-                        crate::ui::ToastKind::Info,
-                        Icon::ClipboardCheck,
-                        loc.tr_owned("ui.app.night_only"),
-                        None,
-                    );
-                }
+            let Some(idx) = content.app.checklists.iter().position(|c| c.id == it.id) else {
+                continue;
+            };
+            if super::checklist_ui::row(g, ui, &loc, content, rr, idx) {
+                super::checklist_ui::row_clicked(g, &loc, content, idx);
             }
         }
         y += 8.0;

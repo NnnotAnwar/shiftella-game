@@ -43,15 +43,12 @@
          rare: [("night_wanderer", 0.6)], wishes: true),
     ],
     // Appliance roles by tag. `free` = pieces grandma's café already has (the effect counts
-    // the ones beyond), `max` = extra pieces that still add.
+    // the ones beyond), `max` = extra pieces that still add. (The grinder and the drying rack
+    // beside their stations are `sim::companions`' — not repeated here.)
     appliances: [
-        // two drinks brew at once (Karolina and a barista, or her quick brew on the free one)
+        // two at once: Karolina and a barista, or her quick brew on the free machine
         (tag: "station:coffee", role: Parallel, free: 1, max: 2),
         (tag: "station:stove", role: Parallel, free: 1, max: 1),
-        // a better grind: quick brews (and helpers' bar items) taste better
-        (tag: "grinder", role: QuickQuality(0.08), free: 0, max: 1),
-        // a dish rack / a second sink: washing goes faster
-        (tag: "dishes", role: Washing(0.4), free: 1, max: 2),
         // the oven: cakes are on the menu at all
         (tag: "station:oven", role: Unlocks, free: 0, max: 1),
     ],

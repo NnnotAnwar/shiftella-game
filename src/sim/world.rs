@@ -9,11 +9,14 @@ use super::hands::*;
 use super::rng::{Rng, hash_str};
 use super::types::*;
 use crate::content::handson::Duty;
+use crate::content::world::ChecklistKind;
 use crate::content::{ClockTime, Content, Job, Weather, Weekday};
 
 /// Save format version. 2 = the hands-on update (Karolina, duties, wishes, jukebox); version 1
 /// saves still load (`World::load_from_str` migrates them).
 pub const SAVE_VERSION: u32 = 2;
+/// Furniture defs removed from the catalogue → what an old save's piece becomes on load.
+pub const REMOVED_DEFS: &[(&str, &str)] = &[("counter_corner", "bar_counter")];
 pub const TICKS_PER_MINUTE: u32 = 10;
 pub const NIGHT_MINUTES: u32 = 480;
 pub const NIGHT_TICKS: u32 = NIGHT_MINUTES * TICKS_PER_MINUTE;
@@ -21,10 +24,34 @@ pub const NIGHT_TICKS: u32 = NIGHT_MINUTES * TICKS_PER_MINUTE;
 /// the café ready, no guests come in. The night clock (`minute()`, `tick_count()`) stands at
 /// 0 meanwhile; `minutes_since_open()` / `clock()` show the real 21:30→22:00 time.
 pub const PREP_MINUTES: u32 = 30;
-pub const PREP_TICKS: u32 = PREP_MINUTES * TICKS_PER_MINUTE;
-/// Helpers on tonight's rozpis who start at 22:00 walk in during the preparation from this
-/// many prep minutes (21:38) on, a couple of minutes apart (all in by ~21:45).
-pub const PREP_CREW_ARRIVES: u32 = 8;
+/// The two quiet halves (the preparation and the closing half hour) run their clock slower
+/// than the night: this many ticks per game minute (the night has `TICKS_PER_MINUTE`). People
+/// walk and work at the usual pace, so a half hour gives her time for the lists (~1.6 real
+/// minutes at ×1 instead of ~27 s).
+pub const QUIET_TICKS_PER_MINUTE: u32 = 25;
+pub const PREP_TICKS: u32 = PREP_MINUTES * QUIET_TICKS_PER_MINUTE;
+/// The quiet closing half hour after the doors close (06:00–06:30): no guests, the crew and
+/// Karolina do the closing list. The night ends when she closes up (`Command::CloseUp`), or
+/// by itself at 06:29 once the closing list is done; otherwise the clock waits at 06:29. The
+/// night clock (`minute()`) stands at 480 meanwhile.
+pub const CLOSE_MINUTES: u32 = 30;
+pub const CLOSE_TICKS: u32 = CLOSE_MINUTES * QUIET_TICKS_PER_MINUTE;
+/// The night-flow rules a world was made with: 0 = 0.2.0 and older (prep ticks were night
+/// ticks, the night ended at 06:00), 1 = the waiting doors and the closing half hour.
+pub const NIGHT_FLOW: u32 = 1;
+
+fn auto_doors_default() -> bool {
+    cfg!(test)
+}
+
+/// Game minutes of the whole evening on the HUD bar: 21:30 → 06:30.
+pub const fn evening_span() -> u32 {
+    PREP_MINUTES + NIGHT_MINUTES + CLOSE_MINUTES
+}
+/// Helpers on tonight's rozpis who start at 22:00 walk in at the start of the preparation,
+/// from this many prep minutes (21:31) on, a minute apart (all in by ~21:34), and help with
+/// the opening list and the opening chores of their duties.
+pub const PREP_CREW_ARRIVES: u32 = 1;
 /// Story café name (proper noun, never translated; the sign's subtitle "kavárna u nádraží"
 /// is UI text).
 pub const STORY_CAFE: &str = "Café Nocturne";
@@ -197,6 +224,16 @@ pub struct Staff {
     /// Tasks finished tonight per duty (`Duty::ALL` order) — the morning digest credits.
     #[serde(default)]
     pub duty_done: [u32; 6],
+    /// A small pastime while the duties have nothing to do (`sim::life`; only with
+    /// `Task::Idle`).
+    #[serde(default)]
+    pub life: Option<super::life::IdleLife>,
+    /// The next pastime starts at this beat (`life::beat`): a moment of just standing.
+    #[serde(default)]
+    pub life_rest: u32,
+    /// The work units the current task started with (`work_left` counts down): its ring.
+    #[serde(default)]
+    pub work_total: f32,
 }
 
 impl Staff {
@@ -791,6 +828,17 @@ pub struct World {
     /// doors are open (and in the day). Older saves have none (doors open).
     #[serde(default)]
     pub(crate) prep_left: u32,
+    /// Ticks gone in the closing half hour (06:00–06:30); 0 before 06:00 and in the day.
+    #[serde(default)]
+    pub(crate) close_tick: u32,
+    /// [`NIGHT_FLOW`] of the rules this world runs (older saves: 0, migrated on load).
+    #[serde(default)]
+    pub(crate) flow: u32,
+    /// Nobody at the doors: the waiting clock opens them at 21:59 and closes up at 06:29 by
+    /// itself. Off in the game (the clock waits for the player); on in unit tests, whose
+    /// tick loops play nights unattended (tests of the waiting clock switch it off).
+    #[serde(skip, default = "auto_doors_default")]
+    pub(crate) auto_doors: bool,
     pub(crate) cafe_name: String,
     pub(crate) town: Town,
     /// 0 = Mon.
@@ -885,6 +933,9 @@ impl World {
             night: 1,
             tick: 0,
             prep_left: 0,
+            close_tick: 0,
+            flow: NIGHT_FLOW,
+            auto_doors: auto_doors_default(),
             cafe_name: STORY_CAFE.into(),
             town: Town {
                 name: STORY_TOWN.into(),
@@ -1189,6 +1240,9 @@ impl World {
             duties: Vec::new(),
             nights_worked: 0,
             duty_done: [0; 6],
+            life: None,
+            life_rest: 0,
+            work_total: 0.0,
         };
         self.push_staff(s);
     }
@@ -1222,18 +1276,23 @@ impl World {
             ClockTime::new(21, 0)
         } else if self.in_prep() {
             ClockTime::new(21, 30 + self.prep_minute() as u16)
+        } else if self.in_closing() {
+            ClockTime::new(6, self.close_minute() as u16)
         } else {
             ClockTime::from_minutes_since_open(self.minute().min(NIGHT_MINUTES))
         }
     }
 
     /// Minutes since 22:00, negative before the doors open: −30 at 21:30 (the start of the
-    /// preparation), 0 at 22:00, 480 at 06:00. The day phase reads −60 (21:00).
+    /// preparation), 0 at 22:00, 480 at 06:00, 480–509 in the closing half hour. The day phase
+    /// reads −60 (21:00).
     pub fn minutes_since_open(&self) -> i32 {
         if self.phase == Phase::Day {
             -60
         } else if self.in_prep() {
             self.prep_minute() as i32 - PREP_MINUTES as i32
+        } else if self.in_closing() {
+            (NIGHT_MINUTES + self.close_minute()) as i32
         } else {
             self.minute() as i32
         }
@@ -1244,9 +1303,55 @@ impl World {
         self.phase == Phase::Night && self.prep_left > 0
     }
 
-    /// Night and the doors are open (22:00 on).
+    /// Night and the doors are open (22:00–06:00).
     pub fn doors_open(&self) -> bool {
-        self.phase == Phase::Night && self.prep_left == 0
+        self.phase == Phase::Night && self.prep_left == 0 && self.tick < NIGHT_TICKS
+    }
+
+    /// The quiet closing half hour after the doors closed at 06:00 (until she closes up).
+    pub fn in_closing(&self) -> bool {
+        self.phase == Phase::Night && self.prep_left == 0 && self.tick >= NIGHT_TICKS
+    }
+
+    /// The preparation is over but the clock waits at 21:59 for her to open the doors
+    /// (`Command::OpenDoors`; the doors open by themselves once the opening list is done).
+    pub fn waiting_for_doors(&self) -> bool {
+        self.in_prep() && self.prep_left <= 1
+    }
+
+    /// The closing half hour is over but the clock waits at 06:29 for her to close up
+    /// (`Command::CloseUp`; the night ends by itself once the closing list is done).
+    pub fn waiting_to_close(&self) -> bool {
+        self.in_closing() && self.close_tick + 1 >= CLOSE_TICKS
+    }
+
+    /// Whole minutes of the closing half hour gone (0 at 06:00 … 29 at 06:29).
+    pub fn close_minute(&self) -> u32 {
+        if self.in_closing() {
+            (self.close_tick / QUIET_TICKS_PER_MINUTE).min(CLOSE_MINUTES - 1)
+        } else {
+            0
+        }
+    }
+
+    /// 0–1 through the closing half hour (0 before it).
+    pub fn close_progress(&self) -> f32 {
+        if self.in_closing() {
+            (self.close_tick as f32 / (CLOSE_TICKS - 1) as f32).min(1.0)
+        } else {
+            0.0
+        }
+    }
+
+    /// Closing time: the closing half hour, or after last call (05:15) once the café is
+    /// already empty — the till, the group head, the trash and the window light are for then.
+    pub fn closing_time(&self) -> bool {
+        self.in_closing()
+            || (self.doors_open()
+                && self.minute() >= super::guests::LAST_CALL
+                && self.guests_inside() == 0
+                && self.parties.is_empty()
+                && self.spawns.is_empty())
     }
 
     /// Ticks left before the doors open (0 = open).
@@ -1256,25 +1361,32 @@ impl World {
 
     /// Whole minutes of the preparation gone (0 at 21:30 … 29 at 21:59).
     pub fn prep_minute(&self) -> u32 {
-        PREP_TICKS.saturating_sub(self.prep_left) / TICKS_PER_MINUTE
+        (PREP_TICKS.saturating_sub(self.prep_left) / QUIET_TICKS_PER_MINUTE).min(PREP_MINUTES - 1)
     }
 
     /// 0–1 through the preparation (1 once the doors are open).
     pub fn prep_progress(&self) -> f32 {
         if self.in_prep() {
-            1.0 - self.prep_left as f32 / PREP_TICKS as f32
+            (1.0 - (self.prep_left.saturating_sub(1)) as f32 / (PREP_TICKS - 1) as f32).min(1.0)
         } else {
             1.0
         }
     }
 
-    /// 0–1 through the whole evening shown on the HUD bar: 21:30 → 06:00.
+    /// 0–1 through the whole evening shown on the HUD bar: 21:30 → 06:30 (the preparation,
+    /// the night, the closing half hour; [`evening_span`] minutes).
     pub fn evening_progress(&self) -> f32 {
         if self.phase == Phase::Day {
             return 0.0;
         }
-        let gone = PREP_TICKS.saturating_sub(self.prep_left) + self.tick.min(NIGHT_TICKS);
-        gone as f32 / (PREP_TICKS + NIGHT_TICKS) as f32
+        let gone = if self.in_prep() {
+            PREP_MINUTES as f32 * self.prep_progress()
+        } else if self.in_closing() {
+            (PREP_MINUTES + NIGHT_MINUTES) as f32 + CLOSE_MINUTES as f32 * self.close_progress()
+        } else {
+            PREP_MINUTES as f32 + self.tick.min(NIGHT_TICKS) as f32 / TICKS_PER_MINUTE as f32
+        };
+        (gone / evening_span() as f32).min(1.0)
     }
 
     /// `"03:33"`.
@@ -1300,11 +1412,21 @@ impl World {
         self.phase == Phase::Day || self.story.playing.is_some() || self.closed
     }
 
+    /// Where the sandbox rent stops growing: `mul` × the highest starting rent of a town this
+    /// size (`new_sandbox`: `lo + (hi − lo) × (0.6 t + 0.2)`), whole 10 Kč.
+    pub(crate) fn sandbox_rent_cap(&self, content: &Content, mul: f32) -> i64 {
+        let (lo, hi) = content.sandbox.rent;
+        let t = ((self.town.size - 0.6) / 0.9).clamp(0.0, 1.0);
+        let top = lo as f32 + (hi - lo) as f32 * (t * 0.6 + 0.2);
+        ((top * mul / 10.0).round() * 10.0) as i64
+    }
+
     /// Called when a new day (planning phase) for `self.night` begins.
     pub(crate) fn begin_day(&mut self, content: &Content) {
         self.phase = Phase::Day;
         self.tick = 0;
         self.prep_left = 0;
+        self.close_tick = 0;
         self.undo.clear();
         // last night's beat indices must not block today's day beats (e.g. night 17's 21:59
         // franchise offer shares index 0 with night 16's first beat)
@@ -1329,7 +1451,14 @@ impl World {
         {
             // readable: whole 10 Kč
             let grown = self.econ.rent as f32 * (1.0 + d.rent_growth_percent / 100.0);
-            self.econ.rent = ((grown / 10.0).round() * 10.0) as i64;
+            let grown = ((grown / 10.0).round() * 10.0) as i64;
+            // capped (never lowered: an old save above the cap keeps its rent)
+            self.econ.rent = match d.rent_growth_max {
+                Some(mul) => grown
+                    .min(self.sandbox_rent_cap(content, mul))
+                    .max(self.econ.rent),
+                None => grown,
+            };
         }
         // Repair overnight: slowdowns end, very worn stuff is serviced a little.
         for s in self.staff.iter_mut() {
@@ -1371,6 +1500,7 @@ impl World {
         self.tick = 0;
         // the night begins at 21:30 with the doors closed (the preparation half hour)
         self.prep_left = PREP_TICKS;
+        self.close_tick = 0;
         self.undo.clear();
         self.tonight = NightSummary {
             night: self.night,
@@ -1453,15 +1583,27 @@ impl World {
         super::story::on_night_start(self, content);
     }
 
-    /// One tick (10 per game minute). Does nothing while paused.
+    /// One tick (10 per game minute at night, [`QUIET_TICKS_PER_MINUTE`] in the preparation
+    /// and the closing half hour). Does nothing while paused.
     pub fn tick(&mut self, content: &Content) {
         if self.is_paused() {
             return;
         }
         self.ensure_hands(content);
         self.grid.ensure_masks(&self.furniture, content);
+        self.refresh_taken();
         if self.prep_left > 0 {
             self.prep_tick(content);
+            if self.auto_doors && self.waiting_for_doors() {
+                self.open_doors(content);
+            }
+            return;
+        }
+        if self.tick >= NIGHT_TICKS {
+            self.closing_tick(content);
+            if self.auto_doors && self.waiting_to_close() {
+                self.end_night(content);
+            }
             return;
         }
         if self.tick.is_multiple_of(TICKS_PER_MINUTE) {
@@ -1473,6 +1615,9 @@ impl World {
         self.tick += 1;
         super::staff::tick_staff(self, content);
         super::guests::tick_guests(self, content);
+        // a guest who got up to leave takes their story / moment with them (no answer races)
+        super::stories::on_tick(self, content);
+        super::moments::on_tick(self, content);
         for s in self.staff.iter_mut() {
             if let Some((_, until)) = s.emote
                 && self.tick >= until
@@ -1488,7 +1633,28 @@ impl World {
             }
         }
         if self.tick >= NIGHT_TICKS {
-            self.end_night(content);
+            self.close_doors(content);
+        }
+    }
+
+    /// Emotes count down by themselves in the quiet halves (their `until` is in night ticks,
+    /// which stand still meanwhile).
+    fn quiet_emotes(&mut self) {
+        let now = self.tick;
+        let fade = |e: &mut Option<(SimEmote, u32)>| {
+            if let Some((_, until)) = e {
+                if *until <= now + 1 {
+                    *e = None;
+                } else {
+                    *until -= 1;
+                }
+            }
+        };
+        for s in self.staff.iter_mut() {
+            fade(&mut s.emote);
+        }
+        for g in self.guests.iter_mut() {
+            fade(&mut g.emote);
         }
     }
 
@@ -1496,39 +1662,39 @@ impl World {
     /// meanwhile, so only the quiet systems run: Karolina's queue, the early crew walking in
     /// and doing their checklist items, the tutorial's clock steps, trains passing outside.
     /// No guests, rushes, regulars, moments, story beats, narrator events or wages — those
-    /// all start at 22:00 as before. The last prep tick opens the doors.
+    /// all start at 22:00 as before. At 21:59 the clock waits for her
+    /// ([`World::waiting_for_doors`]): the doors open when she opens them
+    /// (`Command::OpenDoors`) or by themselves once the opening list is done.
     fn prep_tick(&mut self, content: &Content) {
         let gone = PREP_TICKS - self.prep_left;
-        if gone.is_multiple_of(TICKS_PER_MINUTE) {
+        if gone.is_multiple_of(QUIET_TICKS_PER_MINUTE) {
             self.on_prep_minute(content);
             if self.is_paused() {
                 return;
             }
         }
-        self.prep_left -= 1;
-        super::staff::tick_staff(self, content);
-        // emotes count down by themselves (their `until` is in night ticks, which stand still)
-        for s in self.staff.iter_mut() {
-            if let Some((_, until)) = &mut s.emote {
-                if *until <= self.tick + 1 {
-                    s.emote = None;
-                } else {
-                    *until -= 1;
-                }
-            }
+        if self.prep_left > 1 {
+            self.prep_left -= 1;
         }
-        if self.prep_left == 0 {
+        super::staff::tick_staff(self, content);
+        self.quiet_emotes();
+        if self.waiting_for_doors() && super::tool::list_done(self, content, ChecklistKind::Opening)
+        {
             self.open_doors(content);
         }
     }
 
     /// Tests: plays the preparation half hour through (the crew walks in, nothing else
-    /// happens), then the doors are open at 22:00. Stops early (and opens the doors) if a
-    /// cutscene holds the clock.
+    /// happens) up to the wait at 21:59, then opens the doors: 22:00. Stops early (and opens
+    /// the doors) if a cutscene holds the clock.
     #[cfg(test)]
     pub(crate) fn skip_prep(&mut self, content: &Content) {
         let mut guard = 0;
-        while self.in_prep() && !self.is_paused() && guard < PREP_TICKS * 2 {
+        while self.in_prep()
+            && !self.waiting_for_doors()
+            && !self.is_paused()
+            && guard < PREP_TICKS * 2
+        {
             self.tick(content);
             guard += 1;
         }
@@ -1545,16 +1711,65 @@ impl World {
     }
 
     /// 22:00: the door sign flips to "Open" and guests may come (`SimEvent::DoorsOpened`).
-    /// Also `Command::OpenDoors` ("Open the doors now") during the preparation.
+    /// Also `Command::OpenDoors` ("Open the doors") during the preparation.
     pub(crate) fn open_doors(&mut self, _content: &Content) {
-        if self.phase != Phase::Night {
+        if self.phase != Phase::Night || self.prep_left == 0 {
             return;
         }
-        let early = self.prep_left;
+        // whole minutes she opened before 22:00 (0 once the clock waits at 21:59)
+        let early = self
+            .prep_left
+            .saturating_sub(1)
+            .div_ceil(QUIET_TICKS_PER_MINUTE);
         self.prep_left = 0;
         self.emit(SimEvent::DoorsOpened {
-            early_minutes: early.div_ceil(TICKS_PER_MINUTE),
+            early_minutes: early,
         });
+    }
+
+    /// 06:00: the doors close. Whoever is still inside (the storm night's stranded strangers)
+    /// pays and walks out into the morning, the sign flips back to "Closed" and the quiet
+    /// closing half hour begins (`SimEvent::DoorsClosed`).
+    fn close_doors(&mut self, content: &Content) {
+        self.tick = NIGHT_TICKS;
+        self.close_tick = 0;
+        super::guests::close_up(self, content);
+        self.spawns.clear();
+        self.emit(SimEvent::DoorsClosed);
+    }
+
+    /// One tick of the closing half hour (06:00–06:30): Karolina's queue, the crew's closing
+    /// duties, the stranded walking out, the appliances. No guests, story, narrator or wages.
+    /// At 06:29 the clock waits ([`World::waiting_to_close`]): the night ends when she closes
+    /// up (`Command::CloseUp`) or by itself once the closing list is done.
+    fn closing_tick(&mut self, content: &Content) {
+        if self.close_tick.is_multiple_of(QUIET_TICKS_PER_MINUTE) && !self.waiting_to_close() {
+            let m = self.minutes_since_open();
+            super::tool::tutorial_at(self, content, m);
+            super::equipment::on_minute(self, content);
+            super::tool::on_closing_minute(self, content);
+            if self.is_paused() {
+                return;
+            }
+        }
+        if self.close_tick + 1 < CLOSE_TICKS {
+            self.close_tick += 1;
+        }
+        super::staff::tick_staff(self, content);
+        super::guests::tick_guests(self, content);
+        self.quiet_emotes();
+        if self.waiting_to_close() && super::tool::list_done(self, content, ChecklistKind::Closing)
+        {
+            self.end_night(content);
+        }
+    }
+
+    /// "Close up" (`Command::CloseUp`): the night ends now (anything left on the closing list
+    /// counts as missed).
+    pub(crate) fn close_up_now(&mut self, content: &Content) {
+        if self.in_closing() {
+            self.end_night(content);
+        }
     }
 
     /// Runs whole ticks until the night is over or a cutscene/choice pauses it (headless helper).
@@ -1568,6 +1783,14 @@ impl World {
         let mut guard = 0u32;
         while self.phase == Phase::Night && !self.closed && guard < NIGHT_TICKS * 4 {
             self.auto_finish_cutscenes(content, &mut out);
+            // nobody behind the counter: the doors open at 21:59, she closes up at 06:29
+            if self.waiting_for_doors() {
+                self.open_doors(content);
+            } else if self.waiting_to_close() {
+                self.close_up_now(content);
+                out.extend(self.drain_events());
+                break;
+            }
             self.tick(content);
             out.extend(self.drain_events());
             guard += 1;
@@ -1640,6 +1863,7 @@ impl World {
 
     fn end_night(&mut self, content: &Content) {
         self.tick = NIGHT_TICKS;
+        self.close_tick = 0;
         // Everybody still inside pays and leaves; uncollected tips go into the jar.
         super::guests::close_up(self, content);
         super::player::collect_all_tips(self, content);
@@ -1782,8 +2006,41 @@ impl World {
             }
         }
         world.version = SAVE_VERSION;
+        if world.flow < NIGHT_FLOW {
+            world.migrate_night_flow();
+        }
+        world.migrate_defs();
         super::names::ensure_all(&mut world);
         Ok(world)
+    }
+
+    /// 0.2.0 → the waiting doors and the closing half hour: a save taken in the preparation
+    /// counted its ticks at the night's rate (10 a minute): keep the same clock time.
+    fn migrate_night_flow(&mut self) {
+        if self.prep_left > 0 {
+            let old_total = PREP_MINUTES * TICKS_PER_MINUTE;
+            let left = self.prep_left.min(old_total);
+            self.prep_left = (left * QUIET_TICKS_PER_MINUTE)
+                .div_ceil(TICKS_PER_MINUTE)
+                .max(1);
+        }
+        self.close_tick = 0;
+        self.flow = NIGHT_FLOW;
+    }
+
+    /// Furniture ids that left the catalogue load as their replacement (same footprint), so
+    /// old cafés keep every piece: the corner counter became the self-joining bar counter.
+    fn migrate_defs(&mut self) {
+        for p in self.furniture.iter_mut() {
+            if let Some(&(_, to)) = REMOVED_DEFS.iter().find(|(from, _)| *from == p.def) {
+                p.def = to.to_string();
+            }
+        }
+        for (from, to) in REMOVED_DEFS {
+            if self.story.unlocked_furniture.remove(*from) {
+                self.story.unlocked_furniture.insert(to.to_string());
+            }
+        }
     }
 
     fn migrate_v1(&mut self) {
@@ -1814,10 +2071,22 @@ impl World {
         }
     }
 
+    /// The seats people sit on, for the walk masks (derived state: the same after a load).
+    pub(crate) fn refresh_taken(&mut self) {
+        let tiles: Vec<(i32, i32)> = self
+            .guests
+            .iter()
+            .filter(|g| g.pose == Pose::Sit && g.seat.is_some())
+            .map(|g| g.tile())
+            .collect();
+        self.grid.set_taken(tiles);
+    }
+
     /// Call once after loading if you need queries before the first tick.
     pub fn rebuild_caches(&mut self, content: &Content) {
         self.ensure_hands(content);
         self.grid.rebuild(&self.furniture, content);
+        self.refresh_taken();
     }
 
     // -----------------------------------------------------------------------------------------
@@ -1957,6 +2226,10 @@ impl World {
         self.buckets.iter().map(|b| b.0).collect()
     }
     /// The window lamp is on (`Condition::WindowLightOn`).
+    /// The lamp of the light in the window (the opening / closing checklist items' place).
+    pub fn window_light(&self, content: &Content) -> Option<u32> {
+        super::logic::window_light(self, content)
+    }
     pub fn window_light_on(&self, content: &Content) -> bool {
         super::logic::window_light(self, content).is_some_and(|uid| {
             self.furniture_by_uid(uid).is_some_and(|p| p.on) && self.blackout_until.is_none()
@@ -2073,11 +2346,22 @@ impl World {
                 } else {
                     powered
                 };
+                // a helper (drying rack, grinder) only works beside its station
+                let active = if def.is_some_and(|d| super::companions::helps(d).is_some()) {
+                    powered && super::companions::helper_working(self, content, p.uid)
+                } else {
+                    active
+                };
+                let mut dirty = (p.dirt + p.dishes as f32 * 0.2).min(1.0);
+                if def.is_some_and(|d| d.has_tag("sink")) {
+                    // the dirty pile waiting at the sink
+                    dirty = dirty.max((self.sink_dishes as f32 / 12.0).min(1.0));
+                }
                 let size = def.map(|d| grid::rotated_size(d, p.rot)).unwrap_or((1, 1));
                 FurnitureView {
                     uid: p.uid,
                     active,
-                    dirty: (p.dirt + p.dishes as f32 * 0.2).min(1.0),
+                    dirty,
                     facing: p.facing(),
                     tile: (p.x, p.y),
                     size,

@@ -26,11 +26,19 @@ fn icon() -> Icon {
     }
 }
 
-fn window_conf() -> Conf {
+/// Indices one macroquad batch (draw call) holds before it starts a new one. macroquad's
+/// default (5000) is half its vertex capacity (10000), so our meshes (≈ 1.5 indices per
+/// vertex) split batches at ~3300 vertices: a busy night had ~200 draw calls, each one a
+/// GPU buffer upload pair. 30000 indices keep a batch up to the 10000 vertices a `u16` index
+/// can address anyway; nothing changes on screen (same order, same state).
+/// `SHIFTELLA_DC_INDICES=n` overrides it for perf checks.
+const DRAW_CALL_INDICES: usize = 30_000;
+
+fn window_conf() -> macroquad::conf::Conf {
     // screenshot / autoplay / QA runs: no window, no Dock icon, no focus steal
     shiftella_game::platform::hide_for_automation();
     let (window_width, window_height) = window_size();
-    Conf {
+    let window = Conf {
         window_title: "Shiftella".to_owned(),
         window_width,
         window_height,
@@ -42,7 +50,13 @@ fn window_conf() -> Conf {
             .unwrap_or(4),
         icon: Some(icon()),
         ..Default::default()
-    }
+    };
+    let mut conf = macroquad::conf::Conf::from(window);
+    conf.draw_call_index_capacity = std::env::var("SHIFTELLA_DC_INDICES")
+        .ok()
+        .and_then(|v| v.parse().ok())
+        .unwrap_or(DRAW_CALL_INDICES);
+    conf
 }
 
 /// macOS drops the first click on an inactive window unless the view accepts it

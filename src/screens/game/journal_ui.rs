@@ -272,6 +272,7 @@ impl Photos {
         let b = r.render(after, PHOTO_W, PHOTO_H);
         let (w, h) = (PHOTO_W as f32, PHOTO_H as f32);
         let out = render_target(PHOTO_W, PHOTO_H);
+        crate::profile::count(crate::profile::Counter::RenderTargets, 1);
         out.texture.set_filter(FilterMode::Linear);
         let mut cam = Camera2D::from_display_rect(Rect::new(0.0, 0.0, w, h));
         cam.render_target = Some(out.clone());

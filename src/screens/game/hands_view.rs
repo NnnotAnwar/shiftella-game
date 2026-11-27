@@ -49,7 +49,8 @@ pub enum Target {
 
 /// Checklist items Karolina can do by hand in the world right now: (index into
 /// `content.app.checklists`, furniture uid it sits on). Opening items until done, closing
-/// items from 05:00; the window light, the record and the handover note have their own ways.
+/// items by `World::checklist_item_open` (the till and the group head at closing time, the
+/// rest from 05:00); the window light, the record and the handover note have their own ways.
 pub fn open_rituals(g: &GameScreen, content: &Content) -> Vec<(usize, u32)> {
     let w = &g.world;
     if w.phase() != Phase::Night {
@@ -66,7 +67,7 @@ pub fn open_rituals(g: &GameScreen, content: &Content) -> Vec<(usize, u32)> {
             continue;
         }
         // the handover note waits for closing time
-        if it.id == "handover_note" && m < 466 {
+        if it.id == "handover_note" && m < 466 && !w.in_closing() {
             continue;
         }
         let open = w
@@ -74,10 +75,7 @@ pub fn open_rituals(g: &GameScreen, content: &Content) -> Vec<(usize, u32)> {
             .checklist
             .iter()
             .any(|c| c.id == it.id && !c.done && c.claim.is_none());
-        let in_time = match it.list {
-            crate::content::ChecklistKind::Opening => true,
-            crate::content::ChecklistKind::Closing => m >= 7 * 60,
-        };
+        let in_time = w.checklist_item_open(content, &it.id);
         let Some(tag) = it.anchor.as_deref() else {
             continue;
         };
@@ -93,6 +91,151 @@ pub fn open_rituals(g: &GameScreen, content: &Content) -> Vec<(usize, u32)> {
         }
     }
     out
+}
+
+/// Real seconds a ticked item keeps its tick over the furniture before the chip goes.
+pub const RITUAL_DONE_SECS: f32 = 2.5;
+
+/// A checklist item's marker over its place in the café (every item with a place: the window
+/// lamp, the machine, the fridge, a table, the register, the counter, the jukebox, the sink).
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct RitualMark {
+    /// Index into `content.app.checklists`.
+    pub item: usize,
+    /// The furniture it sits on.
+    pub uid: u32,
+    pub mark: sim::ChecklistMark,
+    /// 0..1 how far a done tick has faded (0 = just ticked).
+    pub fade: f32,
+    /// Its centre over the piece (world px; several items on one piece sit side by side).
+    pub at: Vec2,
+}
+
+/// The piece a checklist item belongs to (`anchor` tag; the window = the window lamp).
+pub fn ritual_piece(w: &sim::World, content: &Content, item: usize) -> Option<u32> {
+    let it = content.app.checklists.get(item)?;
+    let tag = it.anchor.as_deref()?;
+    if tag == "window" {
+        return w.window_light(content);
+    }
+    w.furniture()
+        .iter()
+        .find(|p| def_has(content, w, p.uid, tag))
+        .map(|p| p.uid)
+}
+
+/// Is a checklist item due now (a closing item only once closing comes near)?
+fn ritual_in_time(g: &GameScreen, id: &str, list: crate::content::ChecklistKind) -> bool {
+    let m = g.world.minute();
+    match id {
+        "light_off_at_six" | "handover_note" => m >= 466,
+        _ => match list {
+            crate::content::ChecklistKind::Opening => true,
+            crate::content::ChecklistKind::Closing => m >= 7 * 60,
+        },
+    }
+}
+
+/// Every checklist marker in the café now: open items, the ones someone has (queued / on the
+/// way) and the ones just ticked (fading).
+pub fn ritual_marks(g: &GameScreen, content: &Content) -> Vec<RitualMark> {
+    let w = &g.world;
+    if w.phase() != Phase::Night {
+        return Vec::new();
+    }
+    let mut out: Vec<RitualMark> = Vec::new();
+    for (i, it) in content.app.checklists.iter().enumerate() {
+        if !ritual_in_time(g, &it.id, it.list) {
+            continue;
+        }
+        let mark = w.checklist_mark(&it.id);
+        let fade = match mark {
+            // a tick shows a moment after it happened (this session, this very minute or so)
+            sim::ChecklistMark::Done { minute, .. } => match g.hands.ritual_done.get(&it.id) {
+                Some(at)
+                    if g.time - at < RITUAL_DONE_SECS
+                        && minute.is_none_or(|m| w.minute() <= m + 2) =>
+                {
+                    (g.time - at) / RITUAL_DONE_SECS
+                }
+                _ => continue,
+            },
+            _ => 0.0,
+        };
+        let Some(uid) = ritual_piece(w, content, i) else {
+            continue;
+        };
+        let Some(p) = w.furniture_by_uid(uid) else {
+            continue;
+        };
+        let (sw, _) = content
+            .furniture_def(&p.def)
+            .map(|d| sim::grid::rotated_size(d, p.rot))
+            .unwrap_or((1, 1));
+        let base = vec2(p.x as f32 + sw as f32 * 0.5, p.y as f32 - 0.45) * TILE;
+        out.push(RitualMark {
+            item: i,
+            uid,
+            mark,
+            fade,
+            at: base,
+        });
+    }
+    // several items on one piece: side by side
+    let s = crate::render::world_icon_scale();
+    for k in 0..out.len() {
+        let same: Vec<usize> = (0..out.len())
+            .filter(|j| out[*j].uid == out[k].uid)
+            .collect();
+        if same.len() > 1 {
+            let pos = same.iter().position(|j| *j == k).unwrap_or(0) as f32;
+            let off = (pos - (same.len() as f32 - 1.0) / 2.0) * 22.0 * s;
+            out[k].at.x += off;
+        }
+    }
+    out
+}
+
+/// The marker's box (world px) at time `t` (it bobs gently while open).
+pub fn ritual_rect(m: &RitualMark, t: f32) -> Rect {
+    let s = crate::render::world_icon_scale();
+    let bob = if m.mark == sim::ChecklistMark::Open {
+        (t * 2.0).sin() * 1.5
+    } else {
+        0.0
+    };
+    Rect::new(m.at.x - 9.0 * s, m.at.y - 9.0 * s + bob, 18.0 * s, 18.0 * s)
+}
+
+/// A checklist box in its state, centred on `c`, `size` px: open = an empty box, Karolina's =
+/// a clock, a helper's = a small person, done = a filled tick. World or UI space alike.
+pub fn draw_check_box(c: Vec2, size: f32, mark: sim::ChecklistMark, hover: bool, alpha: f32) {
+    use crate::ui::draw::{fill_rrect, stroke_rrect};
+    use crate::ui::{Icon, draw_icon};
+    let k = size / 18.0;
+    let r = Rect::new(c.x - size / 2.0, c.y - size / 2.0, size, size);
+    let a = |col: Color| Color::new(col.r, col.g, col.b, col.a * alpha);
+    match mark {
+        sim::ChecklistMark::Open => {
+            fill_rrect(r, 5.0 * k, a(Color::new(0.11, 0.1, 0.24, 0.9)));
+            stroke_rrect(
+                r,
+                5.0 * k,
+                1.4 * k,
+                a(Color::new(0.65, 0.7, 1.0, if hover { 1.0 } else { 0.85 })),
+            );
+        }
+        sim::ChecklistMark::Taken { karolina, .. } => {
+            fill_rrect(r, 5.0 * k, a(Color::new(0.2, 0.19, 0.45, 0.95)));
+            stroke_rrect(r, 5.0 * k, 1.4 * k, a(Color::new(0.65, 0.7, 1.0, 0.9)));
+            let icon = if karolina { Icon::Clock } else { Icon::User };
+            draw_icon(icon, c, 13.0 * k, a(Color::new(0.85, 0.88, 1.0, 1.0)));
+        }
+        sim::ChecklistMark::Done { .. } => {
+            fill_rrect(r, 5.0 * k, a(Color::new(0.39, 0.4, 0.95, 0.95)));
+            draw_icon(Icon::Check, c, 14.0 * k, a(WHITE));
+        }
+    }
 }
 
 pub fn taste_icon(t: Taste) -> TasteIcon {
@@ -154,6 +297,14 @@ pub fn target(
                 return Some(Target::Coin(c.table));
             }
         }
+        // a checklist box over its piece (open: queue it; hers: cancel it)
+        for rm in ritual_marks(g, content) {
+            if !matches!(rm.mark, sim::ChecklistMark::Done { .. })
+                && ritual_rect(&rm, g.time).grow(3.0).contains(m)
+            {
+                return Some(Target::Checklist(rm.item));
+            }
+        }
         // a stranger's story bubble (beside the head)
         if let Some(guest) = super::stories_ui::hit(g, m) {
             return Some(Target::Story(guest));
@@ -191,7 +342,7 @@ pub fn target(
         if def_has(content, w, uid, "music") {
             return Some(Target::Jukebox(uid));
         }
-        if night && def_has(content, w, uid, "dishes") && w.sink_dishes() > 0 {
+        if night && def_has(content, w, uid, "sink") && w.sink_dishes() > 0 {
             return Some(Target::Sink(uid));
         }
         if night && def_has(content, w, uid, "table") {
@@ -523,52 +674,26 @@ pub fn draw_world(
             _ => {}
         }
     }
-    // ritual items: a little checkbox chip on their furniture
-    for (i, uid) in open_rituals(g, content) {
-        let Some(p) = g.world.furniture_by_uid(uid) else {
-            continue;
-        };
-        let hov = hover == Some(Target::Checklist(i));
+    // checklist items: a box over their place (open / queued / done)
+    let marks = ritual_marks(g, content);
+    for m in &marks {
+        let hov = hover == Some(Target::Checklist(m.item));
         let s = crate::render::world_icon_scale();
-        let c = vec2(p.x as f32 + 0.5, p.y as f32 - 0.45) * TILE + vec2(0.0, (t * 2.0).sin() * 1.5);
-        let r = Rect::new(c.x - 9.0 * s, c.y - 9.0 * s, 18.0 * s, 18.0 * s);
-        draw_circle(
-            c.x,
-            c.y,
-            15.0 * s,
-            Color::new(0.39, 0.4, 0.95, if hov { 0.3 } else { 0.16 }),
-        );
-        crate::ui::draw::fill_rrect(r, 5.0 * s, Color::new(0.11, 0.1, 0.24, 0.9));
-        crate::ui::draw::stroke_rrect(r, 5.0 * s, 1.4 * s, Color::new(0.65, 0.7, 1.0, 0.9));
-        let ink = Color::new(0.75, 0.8, 1.0, 0.85);
-        if crate::render::marker_shapes() {
-            // colour-blind friendly: an open ritual reads as an empty box to tick (a tick
-            // would say "done"), with a soft dot that breathes
-            let b = Rect::new(c.x - 4.5 * s, c.y - 4.5 * s, 9.0 * s, 9.0 * s);
-            crate::ui::draw::stroke_rrect(b, 2.0 * s, 1.6 * s, ink);
-            let k = 0.6 + 0.4 * (t * 3.0).sin().abs();
-            draw_circle(c.x, c.y, 1.6 * s * k, ink);
-        } else {
-            draw_line(
-                c.x - 4.0 * s,
+        let r = ritual_rect(m, t);
+        let c = r.center();
+        let alpha = 1.0 - m.fade * m.fade;
+        if m.mark == sim::ChecklistMark::Open || hov {
+            draw_circle(
+                c.x,
                 c.y,
-                c.x - 1.0 * s,
-                c.y + 3.5 * s,
-                2.0 * s,
-                ink,
-            );
-            draw_line(
-                c.x - 1.0 * s,
-                c.y + 3.5 * s,
-                c.x + 4.5 * s,
-                c.y - 3.5 * s,
-                2.0 * s,
-                ink,
+                15.0 * s,
+                Color::new(0.39, 0.4, 0.95, (if hov { 0.3 } else { 0.16 }) * alpha),
             );
         }
+        draw_check_box(c, 18.0 * s, m.mark, hov, alpha);
     }
     // appliances that offer something: a small amber chip (the ritual chip marks the rest)
-    let rituals: Vec<u32> = open_rituals(g, content).iter().map(|r| r.1).collect();
+    let rituals: Vec<u32> = marks.iter().map(|m| m.uid).collect();
     let working = g.world.player().current.as_ref().and_then(|c| match c.act {
         sim::PlayerAct::Use { uid, action } if c.stage >= 1 => Some((uid, action, c.progress())),
         _ => None,
@@ -679,6 +804,26 @@ pub fn draw_world(
                 _ => None,
             };
             draw_queue_chips(anchor, &icons, progress, hovered, t);
+            // more than five: "+3" beside the last chip (the whole list is in the HUD strip)
+            if acts.len() > icons.len()
+                && let Some(last) = queue_chip_rects(anchor, icons.len()).last()
+            {
+                let s = crate::render::world_icon_scale();
+                let txt = format!("+{}", acts.len() - icons.len());
+                let p = vec2(last.right() + 3.0 * s, last.center().y + 4.0 * s);
+                let w = render::world_text_width(&txt, 11.0 * s);
+                crate::ui::draw::fill_rrect(
+                    Rect::new(
+                        p.x - 2.0 * s,
+                        last.y + 2.0 * s,
+                        w + 4.0 * s,
+                        last.h - 4.0 * s,
+                    ),
+                    4.0 * s,
+                    Color::new(0.11, 0.1, 0.24, 0.85),
+                );
+                render::world_text(&txt, p, 11.0 * s, Color::new(0.85, 0.88, 1.0, 1.0), false);
+            }
         }
     }
     // the sink: a hold ring while she washes

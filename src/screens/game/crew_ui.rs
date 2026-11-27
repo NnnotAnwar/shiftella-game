@@ -146,6 +146,12 @@ pub fn activity_text(loc: &Locale, content: &Content, a: &Activity) -> String {
                 .unwrap_or_default();
             loc.trf("crew.do.record_named", &[("item", &title)])
         }
+        Activity::Pastime { kind, with } => match with {
+            Some(name) if *kind == sim::Pastime::Chat => {
+                loc.trf("life.do.chat_with", &[("name", name)])
+            }
+            _ => loc.tr_owned(&format!("life.do.{}", kind.id())),
+        },
         Activity::Moment { id } => {
             let title = content
                 .handson
@@ -218,8 +224,13 @@ pub fn skill_word(loc: &Locale, v: f32) -> String {
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 enum Act {
-    Follow,
-    Break { resting: bool },
+    /// `on` = the camera follows this person now (the button reads "Stop following").
+    Follow {
+        on: bool,
+    },
+    Break {
+        resting: bool,
+    },
     Home,
     Rozpis,
     LetGo,
@@ -396,10 +407,10 @@ fn karolina_card(g: &GameScreen, loc: &Locale, content: &Content, s: &Staff) -> 
             }
             None => c.now = w.activity(s.id).map(|a| activity_text(loc, content, &a)),
         }
-        for (i, a) in plan.iter().enumerate().skip(1).take(3) {
+        // her whole queue (it holds at most `PLAYER_QUEUE_MAX`), each with its ×
+        for (i, a) in plan.iter().enumerate().skip(1) {
             c.next.push((activity_text(loc, content, a), Some(i)));
         }
-        c.next_more = plan.len().saturating_sub(4);
         let p = w.karolina_todo_parts(content);
         let mut chips = Vec::new();
         let mut add = |icon: Icon, n: u32, key: &str, number: bool| {
@@ -466,7 +477,9 @@ fn karolina_card(g: &GameScreen, loc: &Locale, content: &Content, s: &Staff) -> 
         }
     }
     if night {
-        c.actions.push(Act::Follow);
+        c.actions.push(Act::Follow {
+            on: g.follow == Some(AgentRef::Staff(s.id)),
+        });
     }
     c.actions.push(Act::Duties);
     c.actions.push(Act::Book);
@@ -558,7 +571,9 @@ fn helper_card(g: &GameScreen, loc: &Locale, content: &Content, s: &Staff) -> Ca
     );
     c.rel = relations_line(g, loc, s);
     if night && s.present() {
-        c.actions.push(Act::Follow);
+        c.actions.push(Act::Follow {
+            on: g.follow == Some(AgentRef::Staff(s.id)),
+        });
     }
     if on {
         let resting = matches!(s.task, Some(sim::Task::Break { .. }));
@@ -587,7 +602,8 @@ enum Clicked {
 
 fn act_label(loc: &Locale, a: Act) -> (Icon, String, String) {
     let (icon, key) = match a {
-        Act::Follow => (Icon::Search, "crew.act.follow"),
+        Act::Follow { on: false } => (Icon::Camera, "crew.act.follow"),
+        Act::Follow { on: true } => (Icon::Close, "hux.follow.stop"),
         Act::Break { .. } => (Icon::Cup, "crew.act.break"),
         Act::Home => (Icon::Home, "crew.act.home"),
         Act::Rozpis => (Icon::Calendar, "crew.act.rozpis"),
@@ -1251,6 +1267,7 @@ fn walk(
                         (crate::ui::ButtonKind::Secondary, *resting, *resting)
                     }
                     Act::LetGo => (crate::ui::ButtonKind::Danger, false, false),
+                    Act::Follow { on } => (crate::ui::ButtonKind::Secondary, *on, false),
                     _ => (crate::ui::ButtonKind::Secondary, false, false),
                 };
                 if act_button(
@@ -1675,9 +1692,10 @@ fn apply(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, c: &Card, k: Clicked) {
         Clicked::Unqueue(i) => {
             g.intent(&content, Intent::Unqueue(i));
         }
-        Clicked::Act(Act::Follow) => {
-            if let Some(head) = g.scene.head_of(AgentRef::Staff(c.id), g.time) {
-                g.cam_target = Some(head);
+        Clicked::Act(Act::Follow { on: true }) => g.set_follow(None),
+        Clicked::Act(Act::Follow { on: false }) => {
+            if g.scene.head_of(AgentRef::Staff(c.id), g.time).is_some() {
+                g.set_follow(Some(AgentRef::Staff(c.id)));
                 g.selected = Some(AgentRef::Staff(c.id));
             }
         }
@@ -1813,8 +1831,17 @@ mod tests {
             }
         }
         let before = g.world.staff_duties(h.id).to_vec();
-        let spare = Duty::ALL.iter().find(|d| !before.contains(d)).copied();
-        if let Some(d) = spare {
+        // (a duty they're skilled at would raise the capacity itself: take another one)
+        let night = g.world.night();
+        let me = g.world.staff_by_id(h.id).unwrap().clone();
+        let bonus = c.handson.tuning.capacity.skill_bonus_at;
+        let spare = Duty::ALL
+            .iter()
+            .find(|d| !before.contains(d) && me.skill(d.job(), night) < bonus)
+            .copied();
+        if let Some(d) = spare
+            && before.len() as u32 >= g.world.capacity(&c, h.id)
+        {
             assert!(!board::set_duty(&mut g, &c, h.id, d, true));
             assert_eq!(g.world.staff_duties(h.id), before.as_slice());
         }

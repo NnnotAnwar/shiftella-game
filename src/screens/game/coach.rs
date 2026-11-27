@@ -199,7 +199,7 @@ pub(super) fn trigger(g: &GameScreen, content: &crate::content::Content, id: &st
         }
         // the opening list as a whole: the rest of the ritual lives in the Shiftella app
         "checklist_open" => after("machine") && night && !busy,
-        // the closing list, before the handover note at 05:45
+        // the closing list (after last call), before the closing half hour
         "checklist_close" => !busy && night && g.world.minute() >= 440,
         "greet" => night && mirek(g).is_some_and(|(_, p)| !p.greeted),
         "take_order" => after("greet") && night && mirek(g).is_some(),
@@ -215,7 +215,8 @@ pub(super) fn trigger(g: &GameScreen, content: &crate::content::Content, id: &st
         "clear_table" => !busy && after("tip_coin") && dirty_table(g, content).is_some(),
         "moment" => !busy && night && moment_on(g, "m_fogged_window"),
         "speed" => g.anchors.iter().any(|a| a.0 == "hud.lull"),
-        "closing" => !busy && night && g.world.minute() >= 465,
+        // the doors closed at 06:00: the handover note and the window light
+        "closing" => !busy && night && g.world.in_closing(),
         "journal" => g.summary.is_some() && g.anchors.iter().any(|a| a.0 == "summary.polaroid"),
         "book" => !night,
         "experiment" => after("book") && g.hands.book.is_some(),
@@ -401,7 +402,7 @@ fn target(
         "jukebox" => {
             furniture_with(g, content, "music").and_then(|u| furniture_rect(g, ui, u, 0.9))
         }
-        "wash" => furniture_with(g, content, "dishes").and_then(|u| furniture_rect(g, ui, u, 0.4)),
+        "wash" => furniture_with(g, content, "sink").and_then(|u| furniture_rect(g, ui, u, 0.4)),
         "mop" => {
             let t = *g.world.dirt_spots().first()?;
             let c = world_to_ui(g, ui, vec2(t.0 as f32 + 0.5, t.1 as f32 + 0.5) * TILE);

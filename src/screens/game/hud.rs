@@ -104,22 +104,26 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             speed_click = Some(idx as u8);
         }
     }
-    // the evening's progress, 21:30 → 06:00: the preparation half hour (lavender, doors
-    // closed), the door tick at 22:00, train markers, dawn
+    // the evening's progress, 21:30 → 06:30: the preparation and the closing half hour
+    // (lavender, doors closed), the door ticks at 22:00 and 06:00, train markers, dawn
     let bar = Rect::new(r.x + 14.0, r.bottom() - 14.0, r.w - 28.0, 5.0);
-    let span = (sim::PREP_MINUTES + sim::NIGHT_MINUTES) as f32;
+    let span = sim::evening_span() as f32;
     let at = |m: i32| bar.x + bar.w * (m + sim::PREP_MINUTES as i32) as f32 / span;
     let prog = w.evening_progress();
     fill_rrect(bar, 2.5, Color::new(1.0, 1.0, 1.0, 0.08));
     let prep = Rect::new(bar.x, bar.y, at(0) - bar.x, bar.h);
     fill_rrect(prep, 2.5, with_a(t.indigo_300, 0.14));
+    let close_x = at(sim::NIGHT_MINUTES as i32);
+    let closing = Rect::new(close_x, bar.y, bar.right() - close_x, bar.h);
+    fill_rrect(closing, 2.5, with_a(t.indigo_300, 0.14));
     let fb = Rect::new(bar.x, bar.y, bar.w * prog, bar.h);
     if prog > 0.0 {
         fill_rrect(fb, 2.5, Paint::horizontal(bar, t.violet, t.indigo_300));
     }
-    let door_x = at(0);
-    draw::vline(door_x, bar.y - 2.0, bar.bottom() + 2.0, with_a(WHITE, 0.45));
-    let dawn = Rect::new(at(420), bar.y, bar.right() - at(420), bar.h);
+    for door_x in [at(0), close_x] {
+        draw::vline(door_x, bar.y - 2.0, bar.bottom() + 2.0, with_a(WHITE, 0.45));
+    }
+    let dawn = Rect::new(at(420), bar.y, close_x - at(420), bar.h);
     fill_rrect(
         dawn,
         2.5,
@@ -150,22 +154,48 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     }
 }
 
-/// Before the doors open (21:30–22:00): a small chip beside the atmosphere meter —
-/// "Doors at 22:00" and a one-click "Open now" (the clock jumps to 22:00).
+/// The two quiet halves: a chip beside the atmosphere meter. Before the doors open
+/// (21:30–22:00) "Doors at 22:00" + "Open the doors [O]"; at 21:59 the clock waits for her and
+/// the button turns primary ("The café is waiting for you"). In the closing half hour
+/// (06:00–06:30) "Closing up" + "Close up [O]" (the night ends at once); the same wait at 06:29.
 fn doors_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
-    if !g.world.in_prep() || g.world.playing_cutscene().is_some() {
+    let w = &g.world;
+    let (prep, closing) = (w.in_prep(), w.in_closing());
+    if !(prep || closing) || w.playing_cutscene().is_some() {
         return;
     }
+    let waiting = w.waiting_for_doors() || w.waiting_to_close();
     let t = ui.theme.clone();
     let loc = cx.loc;
-    let label = loc.tr("prep.hud.open_now");
-    let note = loc.tr("prep.hud.doors_at");
-    let b = Button::new(label)
-        .ghost()
+    let (label, note, tip) = if prep {
+        (
+            loc.tr("prep.hud.open_now"),
+            if waiting {
+                loc.tr("prep.hud.waiting")
+            } else {
+                loc.tr("prep.hud.doors_at")
+            },
+            loc.tr("prep.hud.open_now_tip"),
+        )
+    } else {
+        (
+            loc.tr("close.hud.close_up"),
+            if waiting {
+                loc.tr("close.hud.waiting")
+            } else {
+                loc.tr("close.hud.closing")
+            },
+            loc.tr("close.hud.close_up_tip"),
+        )
+    };
+    let key = crate::settings::keys::label(crate::settings::keys::Action::Doors);
+    let mut b = Button::new(label)
         .icon(Icon::Door)
-        .tooltip(loc.tr("prep.hud.open_now_tip"));
+        .shortcut(&key)
+        .tooltip(tip);
+    b = if waiting { b.primary() } else { b.secondary() };
     let bw = ui.button_width(&b);
-    let st = t.small().color(t.text_dim);
+    let st = t.small().color(if waiting { t.text } else { t.text_dim });
     let nw = ui.fonts.measure(note, &st);
     let size = crate::ui::handson::ATMO_SIZE;
     let r = Rect::new(
@@ -176,11 +206,21 @@ fn doors_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     );
     g.anchors.push(("hud.open_doors", r));
     ui.glass(r, &Glass::hud().radius(8.0));
+    if waiting {
+        // a soft breathing ring: this is the thing to press
+        let a = 0.25 + 0.2 * (ui.time() as f32 * 3.0).sin().abs();
+        draw::stroke_rrect(r, 8.0, 1.5, with_a(t.amber, a));
+    }
     ui.fonts
         .draw(note, r.x + 12.0, ui.fonts.baseline_in(r, &st), &st);
     let br = Rect::new(r.right() - bw - 4.0, r.y + 4.0, bw, r.h - 8.0);
     if ui.button("open_doors", br, &b).clicked {
-        let _ = g.command(cx.content, sim::Command::OpenDoors);
+        let cmd = if prep {
+            sim::Command::OpenDoors
+        } else {
+            sim::Command::CloseUp
+        };
+        let _ = g.command(cx.content, cmd);
     }
 }
 
@@ -634,10 +674,20 @@ pub fn bubble(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         g.bubble = None;
         return;
     }
-    let Some(head) = g.scene.head_of(b.agent, g.time) else {
+    let Some(mut head) = g.scene.head_of(b.agent, g.time) else {
         g.bubble = None;
         return;
     };
+    // Karolina's queue chips sit right over her head: her bubble goes above them
+    if g.world
+        .karolina()
+        .is_some_and(|k| b.agent == AgentRef::Staff(k.id))
+        && g.world.phase() == sim::Phase::Night
+        && !super::hands::karolina_acts(&g.world).is_empty()
+    {
+        let s = crate::render::world_icon_scale();
+        head.y -= (crate::render::QUEUE_CHIP + crate::render::QUEUE_LIFT) * s;
+    }
     let t = ui.theme.clone();
     let anchor = world_to_ui(g, ui, head);
     let style = t.body();

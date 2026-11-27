@@ -232,6 +232,7 @@ impl WorldScene {
     }
 
     fn rebuild_statics(&mut self, world: &World, content: &Content) {
+        crate::profile::count(crate::profile::Counter::Statics, 1);
         let g = world.grid();
         let vis = self.vis;
         let look = vis.look;
@@ -537,10 +538,30 @@ impl WorldScene {
         let views = world.furniture_views(content);
         let mut pieces: Vec<(String, Vec2, (u8, u8), FurnitureState)> =
             Vec::with_capacity(placed.len());
+        let sprites: Vec<String> = placed
+            .iter()
+            .map(|p| {
+                content
+                    .furniture_def(&p.def)
+                    .map(|d| d.sprite.clone())
+                    .unwrap_or_else(|| p.def.clone())
+            })
+            .collect();
+        let joins = crate::render::counter_joins(
+            &sprites
+                .iter()
+                .zip(&views)
+                .zip(placed)
+                .filter(|(_, p)| !self.hidden_furniture.contains(&p.uid))
+                .map(|((s, v), _)| (s.as_str(), v.tile, (v.size.0 as u8, v.size.1 as u8)))
+                .collect::<Vec<_>>(),
+        );
+        let mut joins = joins.into_iter();
         for (p, v) in placed.iter().zip(&views) {
             if self.hidden_furniture.contains(&p.uid) {
                 continue;
             }
+            let joins = joins.next().unwrap_or(0);
             let sprite = content
                 .furniture_def(&p.def)
                 .map(|d| d.sprite.clone())
@@ -551,6 +572,7 @@ impl WorldScene {
                 dirty: v.dirty,
                 t,
                 facing: wv::facing(v.facing),
+                joins,
             };
             pieces.push((sprite, origin, (v.size.0 as u8, v.size.1 as u8), st));
         }
@@ -651,6 +673,10 @@ impl WorldScene {
                     }
                 }
             }
+        }
+        // the helpers' pastime props (a cup and cloth, a broom, a glass of water…)
+        if cs.is_none() {
+            super::staff_life_view::push_props(world, people, &mut q, t);
         }
         // the scene's own actors
         let actor_poses: Vec<PersonPose> = cs
@@ -791,6 +817,7 @@ impl WorldScene {
             Vec::new()
         };
         let room = self.cafe_px();
+        let p_light = crate::profile::span(crate::profile::Sec::Lighting);
         let lighting = self.lighting.as_mut().expect("created above");
         lighting.coziness = if cs.is_some() { 0.6 } else { vis.coziness };
         lighting.begin(cam, ambient);
@@ -913,6 +940,7 @@ impl WorldScene {
             }
         }
         lighting.apply();
+        drop(p_light);
         lighting.draw_dust_motes(t);
         if look.festive > 0.01
             && let Some((win, cg)) = &self.garlands

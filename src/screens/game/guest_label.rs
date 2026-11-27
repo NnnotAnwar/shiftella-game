@@ -277,4 +277,26 @@ mod tests {
             }
         }
     }
+
+    /// Strangers are shown by who they are: every archetype has both forms in all languages.
+    #[test]
+    fn every_guest_kind_has_a_role_in_every_language() {
+        let root = env!("CARGO_MANIFEST_DIR");
+        let i = crate::settings::load_i18n(&format!("{root}/assets/i18n")).expect("i18n");
+        let c = crate::content::Content::load(&format!("{root}/assets/data")).expect("content");
+        for lang in [
+            crate::i18n::Lang::Cs,
+            crate::i18n::Lang::En,
+            crate::i18n::Lang::Uk,
+            crate::i18n::Lang::Ru,
+        ] {
+            let loc = Locale::new(&i, lang);
+            for g in &c.guests {
+                for f in [true, false] {
+                    let k = role_key(&g.id, f);
+                    assert!(loc.has(&k), "{k} in {lang:?}");
+                }
+            }
+        }
+    }
 }

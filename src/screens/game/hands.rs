@@ -56,6 +56,13 @@ pub enum Intent {
     Cancel,
     /// A queue chip over her head (0 = the current act when there is one).
     Unqueue(usize),
+    /// A checklist item (index into `content.app.checklists`) clicked anywhere — the app, the
+    /// ritual chip over its furniture: open → Karolina queues it; hers → cancelled.
+    Checklist(usize),
+    /// The queue strip: move a queued act (indexes into the sim's queue, current act excluded).
+    QueueMove { from: usize, to: usize },
+    /// The queue strip's "Clear all" (the current act goes on).
+    QueueClear,
     /// Held the sink (mouse or **E**) for `seconds` while she stands at it.
     WashHold { sink: u32, seconds: f32 },
     /// **E**: the nearest chore (a tip, a dirty table, the dishes, a dirt blot, the window).
@@ -257,6 +264,17 @@ pub struct Hands {
     pub press_equip: Option<u32>,
     /// Hold-chore bookkeeping (like the sink).
     pub equip_hold: Option<WashHold>,
+    /// Checklist items ticked tonight → `GameScreen::time` (the ritual chip shows a tick a
+    /// moment before it goes).
+    pub ritual_done: HashMap<String, f32>,
+    /// The checklist box under the mouse in the café (its hover text is drawn by the UI).
+    pub ritual_hover: Option<usize>,
+    /// The queue strip in the HUD is open (its key or a click on her chips toggles it).
+    pub queue_open: bool,
+    /// A queued act being dragged in the strip: (queue index, grab y offset).
+    pub queue_drag: Option<(usize, f32)>,
+    /// Real seconds the autoplayer has stood at the waiting clock (21:59 / 06:29).
+    pub door_wait: f32,
 }
 
 impl Hands {
@@ -306,47 +324,45 @@ pub fn cup_of(content: &Content, recipe_or_menu: &str) -> CupGlyph {
     }
 }
 
-/// The content mini-game of a recipe → the playable game and its variant id.
+/// The content mini-game of a recipe → the playable game and its variant id. Every content
+/// game is built now (SoupStir and MulledSpice too), so the recipe's own game and variant play:
+/// the cup on the card and the cup in the game are the same drink.
 pub fn playable(recipe: &RecipeDef, seed: u64) -> (MiniGameKind, String) {
-    let (kind, first) = recipe.playable_minigame(false);
-    let kind = match kind {
-        ContentGame::MilkFroth => MiniGameKind::MilkFroth,
-        ContentGame::LatteArt => MiniGameKind::LatteArt,
-        ContentGame::PourOver => MiniGameKind::PourOver,
-        ContentGame::TeaSteep => MiniGameKind::TeaSteep,
-        // the SHOULD games are not built yet: their recipes carry a MUST fallback
-        ContentGame::Plate | ContentGame::SoupStir | ContentGame::MulledSpice => {
-            MiniGameKind::Plate
-        }
-    };
-    // the main game picks one of its variants by seed; a fallback uses its own variant —
-    // except the soups, which plate their own bowl (česnečka, kulajda, borscht)
-    if recipe.minigame == ContentGame::SoupStir && kind == MiniGameKind::Plate {
-        let v = recipe
-            .variants
-            .first()
-            .map(String::as_str)
-            .unwrap_or("soup");
-        let set = crate::minigame::PlateSet::from_id(v).unwrap_or(crate::minigame::PlateSet::Soup);
-        return (kind, set.id().to_string());
-    }
-    let variant = if kind_matches(recipe.minigame, kind) && !recipe.variants.is_empty() {
-        recipe.variants[(seed % recipe.variants.len() as u64) as usize].clone()
+    let kind = minigame_kind(recipe.minigame);
+    let variant = if recipe.variants.is_empty() {
+        String::new()
     } else {
-        first.to_string()
+        recipe.variants[(seed % recipe.variants.len() as u64) as usize].clone()
     };
     (kind, variant)
 }
 
-fn kind_matches(c: ContentGame, k: MiniGameKind) -> bool {
-    matches!(
-        (c, k),
-        (ContentGame::MilkFroth, MiniGameKind::MilkFroth)
-            | (ContentGame::LatteArt, MiniGameKind::LatteArt)
-            | (ContentGame::PourOver, MiniGameKind::PourOver)
-            | (ContentGame::TeaSteep, MiniGameKind::TeaSteep)
-            | (ContentGame::Plate, MiniGameKind::Plate)
-    )
+/// The content enum → the mini-game enum (same names).
+pub fn minigame_kind(c: ContentGame) -> MiniGameKind {
+    match c {
+        ContentGame::MilkFroth => MiniGameKind::MilkFroth,
+        ContentGame::LatteArt => MiniGameKind::LatteArt,
+        ContentGame::PourOver => MiniGameKind::PourOver,
+        ContentGame::TeaSteep => MiniGameKind::TeaSteep,
+        ContentGame::Plate => MiniGameKind::Plate,
+        ContentGame::SoupStir => MiniGameKind::SoupStir,
+        ContentGame::MulledSpice => MiniGameKind::MulledSpice,
+    }
+}
+
+/// The latte patterns Karolina can pour tonight (night-unlocked basics, plus the ones
+/// moments and seasons gave her), in the content's order.
+pub fn latte_choices(content: &Content, w: &World) -> Vec<crate::minigame::LatteShape> {
+    let night = w.night();
+    content
+        .handson
+        .minigames
+        .latte_patterns
+        .iter()
+        .filter(|p| p.recipe.is_none())
+        .filter(|p| p.from_night.is_some_and(|n| night >= n) || w.lattes().contains(&p.id))
+        .filter_map(|p| crate::minigame::LatteShape::from_id(&p.id))
+        .collect()
 }
 
 /// The icon of a queued act.
@@ -481,9 +497,10 @@ fn greetable(content: &Content, w: &World, p: &Party) -> bool {
         && w.minute().saturating_sub(p.arrived) <= content.handson.tuning.greeting.window_minutes
 }
 
-/// The closing ritual's last item is due: the light in the window goes off at six.
+/// The closing ritual's last item is due: the light in the window goes off when she closes
+/// up (the closing half hour, or an empty café after last call).
 pub fn lights_off_due(g: &GameScreen) -> bool {
-    g.world.minute() >= 466
+    g.world.closing_time()
         && g.world
             .app()
             .checklist
@@ -681,6 +698,29 @@ impl GameScreen {
                     self.hand(content, Command::PlayerUnqueue { index: i })
                 }
             }
+            Intent::Checklist(i) => {
+                let Some(id) = content.app.checklists.get(i).map(|c| c.id.clone()) else {
+                    return false;
+                };
+                match self.world.checklist_mark(&id) {
+                    // the record is picked at the jukebox
+                    sim::ChecklistMark::Open if id == "record_on" => {
+                        self.intent(content, Intent::Jukebox)
+                    }
+                    sim::ChecklistMark::Open => self.hand(content, Command::TickChecklist { id }),
+                    sim::ChecklistMark::Taken { karolina: true, .. } => {
+                        match self.world.karolina_checklist_slot(&id) {
+                            Some(slot) => self.intent(content, Intent::Unqueue(slot)),
+                            None => false,
+                        }
+                    }
+                    _ => false,
+                }
+            }
+            Intent::QueueMove { from, to } => {
+                self.hand(content, Command::PlayerReorder { from, to })
+            }
+            Intent::QueueClear => self.hand(content, Command::PlayerClearQueue),
             Intent::Chore { front } => match self.next_chore(content) {
                 Some(i) => {
                     let i = match i {
@@ -837,7 +877,7 @@ impl GameScreen {
             && let Some(s) = w
                 .furniture()
                 .iter()
-                .find(|p| has_tag(content, w, p.uid, "dishes"))
+                .find(|p| has_tag(content, w, p.uid, "sink"))
             && !acts.iter().any(|a| matches!(a, PlayerAct::Wash { .. }))
         {
             return Some(Intent::Sink {
@@ -1125,8 +1165,22 @@ impl GameScreen {
             .recipes
             .get(recipe)
             .is_some_and(|s| s.practised);
+        let mut variation = Variation::from_variant_id(kind, &variant);
+        if kind == MiniGameKind::LatteArt && variation.shape.is_none() {
+            // choose the pattern before the pour: three of tonight's, picked by the seed
+            let mut all = latte_choices(content, &self.world);
+            let mut pick = Vec::new();
+            let mut s = seed;
+            while pick.len() < 3 && !all.is_empty() {
+                s = s
+                    .wrapping_mul(6364136223846793005)
+                    .wrapping_add(1442695040888963407);
+                pick.push(all.remove((s >> 33) as usize % all.len()));
+            }
+            variation = variation.choices(&pick);
+        }
         let params = MiniGameParams::new(seed)
-            .variant(Variation::from_variant_id(kind, &variant))
+            .variant(variation)
             .relaxed(self.relaxed)
             .regular(regular.as_deref())
             .practised(practised);
@@ -1220,6 +1274,9 @@ impl GameScreen {
     /// Hands-on events (called from `handle_event`).
     pub fn hands_event(&mut self, content: &Content, e: &SimEvent) {
         self.moment_event(content, e);
+        if let SimEvent::ChecklistTicked { id } = e {
+            self.hands.ritual_done.insert(id.clone(), self.time);
+        }
         match e {
             SimEvent::NightStarted { .. } => {
                 self.hands.tried_tonight = false;
@@ -1231,9 +1288,11 @@ impl GameScreen {
                 self.hands.incoming.clear();
                 self.hands.record_play = None;
                 self.hands.equip_hold = None;
+                self.hands.ritual_done.clear();
                 self.hands.press_equip = None;
             }
             SimEvent::NightEnded { .. } => {
+                self.rituals.open = None;
                 self.hands.moment = None;
                 self.hands.order = None;
                 self.hands.minigame = None;
@@ -1715,6 +1774,17 @@ impl GameScreen {
         }
         ap.cooldown = AUTOPLAY_REACT;
         self.hands.autoplay = Some(ap);
+        // the sim opened the phone (`SimEvent::OpenApp`, e.g. night 7's rozpis link): she
+        // glances at it and puts it away — open, it slows the night to a crawl for good
+        if self.panel == Some(Panel::App) && !self.automation {
+            self.panel = None;
+            return Some("phone");
+        }
+        // the doors: open them at 21:59 (close up at 06:29) once her hands are free — or
+        // as soon as the list is done, like a player would; after a short wait at the latest
+        if let Some(cmd) = self.autoplay_doors(content) {
+            return Some(cmd);
+        }
         // closing time: the handover note and the light at six go to the front of her hands
         // even before an open card (a late guest at 05:45 must not keep the lamp on)
         if self.world.minute() >= 466 {
@@ -1933,6 +2003,44 @@ impl GameScreen {
 }
 
 impl GameScreen {
+    /// The autoplayer at the doors (see `autoplay_step`): "open" / "close_up" when it pressed.
+    fn autoplay_doors(&mut self, content: &Content) -> Option<&'static str> {
+        let w = &self.world;
+        let idle = w.player().queue.is_empty() && w.player().current.is_none();
+        let waiting = w.waiting_for_doors() || w.waiting_to_close();
+        if !waiting {
+            self.hands.door_wait = 0.0;
+        }
+        let done = |k| {
+            content
+                .app
+                .checklists
+                .iter()
+                .filter(|c| c.list == k)
+                .all(|c| w.app().checklist.iter().any(|s| s.id == c.id && s.done))
+        };
+        let early = idle
+            && ((w.in_prep()
+                && w.prep_minute() >= 15
+                && done(crate::content::ChecklistKind::Opening))
+                || (w.in_closing()
+                    && w.close_minute() >= 2
+                    && (done(crate::content::ChecklistKind::Closing) || w.close_minute() >= 20)));
+        if waiting {
+            self.hands.door_wait += AUTOPLAY_REACT;
+        }
+        if !(early || (waiting && (idle || self.hands.door_wait > 12.0))) {
+            return None;
+        }
+        let (cmd, name) = if w.in_prep() {
+            (Command::OpenDoors, "open")
+        } else {
+            (Command::CloseUp, "close_up")
+        };
+        self.hands.door_wait = 0.0;
+        self.hand(content, cmd).then_some(name)
+    }
+
     /// The autoplayer's morning and day: keep the polaroid, let the sim's player-bot plan
     /// the day (hire on nights 3/5/9, the rozpis, payroll, themes), then open the café.
     pub fn autoplay_day(&mut self, content: &std::rc::Rc<Content>, dt: f32, wait: f32) {

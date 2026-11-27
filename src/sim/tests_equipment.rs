@@ -360,7 +360,8 @@ fn the_cake_dings_and_comes_out_in_slices() {
     while !matches!(w.equipment().cake, Cake::Ready { .. }) {
         ev.extend(ticks(&mut w, &c, 1));
         guard += 1;
-        assert!(guard < 10 * (k.bake_minutes + 2) * 2);
+        // (in the preparation a game minute is QUIET_TICKS_PER_MINUTE ticks)
+        assert!(guard < QUIET_TICKS_PER_MINUTE * (k.bake_minutes + 2) * 2);
     }
     assert!(ev.iter().any(|e| matches!(
         e,
@@ -406,13 +407,15 @@ fn closing_count_the_till_and_take_the_trash_out() {
     let mut c = content();
     c.handson.tuning.equipment.closing.cat_chance = 1.0;
     let mut w = story_night(&c, 2);
+    w.auto_doors = false;
     let register = uid_with(&w, &c, "register");
     let bin = uid_with(&w, &c, "trash");
-    // not before 05:00
+    // not while guests sit: closing time (the closing half hour from 06:00)
     to_minute(&mut w, &c, 120);
     assert_eq!(w.equipment_action(&c, bin), None);
     assert!(use_it(&mut w, &c, register, EquipAction::CountTill).is_err());
-    to_minute(&mut w, &c, c.handson.tuning.equipment.closing.from_minute);
+    to_minute(&mut w, &c, NIGHT_MINUTES);
+    assert!(w.in_closing());
     while !idle(&w) {
         let _ = w.apply(&c, Command::PlayerCancel);
         let _ = w.apply(&c, Command::PlayerUnqueue { index: 0 });

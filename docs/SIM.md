@@ -15,7 +15,8 @@ let mut world = World::new_story(&content, Difficulty::Cozy);          // fixed 
 ```rust
 // one tick = world.real_seconds_per_tick(&content) at ×1 (handson.ron: 0.13 s → a night is
 // 10.4 real minutes of sim; sim::REAL_SECONDS_PER_TICK_X1 is the default). Ask for it every
-// frame: during the preparation half hour it is × `prep_tick_scale` (0.7). While an overlay is open
+// frame: in the two quiet halves it is × `prep_tick_scale` (1.0), and their clock runs at
+// QUIET_TICKS_PER_MINUTE (25) ticks a game minute — ~1.6 real minutes a half. While an overlay is open
 // (order card, mini-game, book, moment card, phone app) multiply dt by
 // world.overlay_scale(&content) (Cozy 0.1, Classic 0.35) and clamp the speed to ×1.
 if !paused {
@@ -38,23 +39,52 @@ for e in world.drain_events() { audio.on(&e); ui.on(&e); cutscenes.on(&e); }
   (read-only; clones the world — fine per step, not per frame). Queued cutscenes start one after
   another (each emits its own `PlayCutscene`).
 * Day phase: planning (hire, build, schedule, prices). `world.start_night(&content)` (or
-  `Command::StartNight`) → **21:30, the preparation half hour** (see below), then 22:00.
-  At 06:00 the sim emits `NightEnded { summary }`, then (story) `NightEnd` cutscenes / payment, the ending check, and `DayStarted { night }` for the next night.
+  `Command::StartNight`) → **21:30, the preparation half hour** (see below), then 22:00 …
+  06:00 (`DoorsClosed`), **the closing half hour** (see below). When she closes up the sim
+  emits `NightEnded { summary }`, then (story) `NightEnd` cutscenes / payment, the ending check, and `DayStarted { night }` for the next night.
 * **The preparation half hour (21:30–22:00).** The night begins with the doors closed:
   `in_prep()` is true, `clock()` / `clock_label()` run 21:30 → 21:59, `minutes_since_open()`
   is −30 … −1, while the night clock (`minute()`, `tick_count()`, `night_progress()`) stands at
-  0 / 22:00. `PREP_TICKS` (300) prep ticks run only the quiet systems: Karolina's queue (every
-  checklist item, records, specials), the crew on tonight's rozpis walking in from 21:38
-  (`PREP_CREW_ARRIVES`, a couple of minutes apart; their opening `Either` items come first
-  while nobody waits), tutorial `At("21:xx")` steps, trains timetabled before 22:00 passing by
-  outside (`Nex 9047` at 21:47; nobody gets off). **No** guests, rushes, regulars, moments,
-  story beats, narrator events, needs or wages: the shift (and the timesheet) still starts
-  at 22:00, so everything keyed to 22:00 stays there. The last prep tick (or
-  `Command::OpenDoors`, "Open the doors now", only in prep) emits
-  `SimEvent::DoorsOpened { early_minutes }`; the next tick is 22:00's first minute. The opening
-  ritual deadline is still 22:30. `evening_progress()` is 0–1 over 21:30 → 06:00 (the HUD bar),
+  0 / 22:00. `PREP_TICKS` (750 = 30 × `QUIET_TICKS_PER_MINUTE` 25) prep ticks run only the
+  quiet systems: Karolina's queue (every checklist item, records, specials), the crew on
+  tonight's rozpis walking in at once (21:31–21:34, `PREP_CREW_ARRIVES`; their opening
+  `Either` items come first while nobody waits — the floor's `wipe_tables` is the dishes
+  helper's too — and the kitchen helper puts the soup on / the milk out / the cake in, never
+  an item or chore Karolina queued herself), tutorial `At("21:xx")` steps, trains timetabled
+  before 22:00 passing by outside (`Nex 9047` at 21:47; nobody gets off). **No** guests,
+  rushes, regulars, moments, story beats, narrator events, needs or wages: the shift (and the
+  timesheet) still starts at 22:00, so everything keyed to 22:00 stays there. **The clock
+  waits at 21:59** (`waiting_for_doors()`, `prep_left` stays 1; the quiet systems go on) until
+  `Command::OpenDoors` ("Open the doors", any time in prep) or the whole opening list is done
+  (then the doors open by themselves at 21:59): `SimEvent::DoorsOpened { early_minutes }`; the
+  next tick is 22:00's first minute. The opening ritual deadline is still 22:30.
+  `evening_progress()` is 0–1 over 21:30 → 06:30 (`evening_span()` minutes, the HUD bar),
   `prep_progress()` 0–1 over the half hour. Tests: `World::skip_prep` (cfg(test)) plays it
-  through.
+  through to the wait and opens the doors.
+* **Last call and closing (05:15–06:00).** `guests::LAST_CALL` = 435 (05:15): `spawn_party`
+  refuses anyone new from then on (walk-ins, train passengers, rushes, regulars, moments),
+  trains after it only pass. From `WRAP_UP` (05:45) eating parties pay and go, from
+  `WRAP_UP_LAST` (05:50) everyone (`Exit::Normal`: unserved pay nothing, no review, no
+  "left angry"); the storm night's stranded strangers stay (`stay_until` 06:00).
+  `closing_time()` = the closing half hour, or after last call in an already empty café:
+  the till (`cash_up` / `CountTill`), the group head (`clean_machine` / `CleanUp`), the trash
+  and the window light (`light_off_at_six`, "switch off the window light when you close up")
+  wait for it (`tool::CLOSING_TIME_ITEMS`, `World::checklist_item_open`); the other closing
+  items are open from 05:00 as before.
+* **The closing half hour (06:00–06:30).** At `NIGHT_TICKS` the doors close
+  (`SimEvent::DoorsClosed`): whoever is still inside pays and walks out (`guests::close_up`),
+  pending spawns are dropped. `in_closing()` is true, `doors_open()` false, `minute()` stands
+  at 480 (`night_progress()` 1), `clock()` runs 06:00 → 06:29, `minutes_since_open()` 480–509,
+  `close_minute()` / `close_progress()`. `CLOSE_TICKS` (750) closing ticks run the quiet
+  systems: Karolina's queue, helpers' closing items (rank first; a helper with nothing left
+  walks home), the register helper counts the till / the floor or dishes helper takes the
+  trash out (unless she has it in her hands), the appliances, the closing ritual, tutorial
+  `At("06:xx")`. No guests, story, narrator, needs or wages (the timesheet stays 22:00–06:00).
+  **The clock waits at 06:29** (`waiting_to_close()`) until `Command::CloseUp` ("Close up",
+  `WrongPhase` outside the closing half hour) or the whole closing list is done (then the
+  night ends by itself); either way `end_night` runs then — the closing extras/missed, the
+  handover, payments, the digest, the summary, `NightEnded`, the walk home and the polaroid
+  all come at that real end, once.
 * Headless: `world.run_night_headless(&content)` runs a whole night with **nobody behind the
   counter** (Karolina steps back: helpers do their duties, Cozy guests forgive). To play,
   use `sim::bot::PlayerBot::run_night` (§9).
@@ -67,7 +97,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | command | notes |
 |---|---|
 | `PlaceFurniture { def, x, y, rot }` | footprint, layer (rugs/stage/pendant lamps share tiles), money, unlocks, `unique`, never blocks the door / any piece (`BlocksPath`). Floors (`floor_*`) paint a tile. |
-| `MoveFurniture`, `RotateFurniture`, `RemoveFurniture` | not while in use (seat taken, station busy) → `InUse`; remove refunds 50 % |
+| `MoveFurniture`, `RotateFurniture`, `RemoveFurniture` | not while in use (seat taken, station busy, guests lined up at a register) → `InUse`; a solid piece never lands on someone standing there → `Occupied`; remove refunds 50 % |
 | `MoveGroup { moves: Vec<PieceMove { uid, x, y, rot }> }` | build mode's drag: all pieces are lifted, then put down (a table and its chairs may swap tiles); atomic — any `InUse` / `Occupied` / `BlocksPath` changes nothing; free; **one** undo step (`UndoOp::MoveGroupBack`) |
 | `SetFloor { x, y, floor }`, `SetFurnitureOn { uid, on }`, `SetMusic { on }` | lamps / jukebox / radio |
 | `Hire { candidate }`, `Fire { staff }` | candidates: `world.candidates()` (story persons from `hire_from_night`; sandbox: 3 generated, refreshed every 3 nights). The owner (`Staff::owner`, cast `player`) can't be fired. |
@@ -81,7 +111,9 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | `CutsceneFinished { id, choices }`, `Talk { guest }` | see §1 / §4 |
 | `BuySupplies { amount }`, `SetAutoRestock { target }`, `SetPrice { item, price }`, `SetMenuItem { item, on }`, `RenameCafe { name }` | |
 | `TickChecklist { id }` (night), `PostAnnouncement { id, args }`, `WriteHandover { text }` | at night ticking an item is Karolina's act (she walks to it); jobless items (`light_window`, `handover_note`, `light_off_at_six`) are hers alone |
-| `OpenDoors` | "Open the doors now": ends the preparation half hour early (only before 22:00 → `WrongPhase` otherwise); emits `DoorsOpened`, the clock jumps to 22:00 |
+| `Ritual { key, step: Start \| Done { perfect } \| LetGo }` | a hands-on ritual gesture over the piece of her **current** act (`key` = `ritual_key_now`; `Invalid` otherwise, `WrongPhase` by day): `Start` = she waits at the piece for it (≤ `rituals.patience_ticks` ticks of waiting), `Done` = the item completes on her next work tick (sooner than her own work; on her way: as she arrives), `LetGo` = she finishes it herself. See §10.8a |
+| `OpenDoors` | "Open the doors": ends the preparation half hour (only before 22:00 → `WrongPhase` otherwise; at 21:59 the clock waits for it); emits `DoorsOpened`, the clock jumps to 22:00 |
+| `CloseUp` | "Close up": ends the closing half hour and the night at once (only 06:00–06:30 → `WrongPhase` otherwise; at 06:29 the clock waits for it); what's left on the closing list counts as missed |
 | Karolina: `PlayerTakeOrder`, `PlayerBrew`, `PlayerUsual`, `PlayerHandOff`, `PlayerCancel`, `PlayerQueue`, `PlayerUnqueue`, `PlayerWashProgress`, `PlayerGreet` | §9.1 |
 | `PlayRecord { id, repeat }`, `RecordFinished { id }`, `SetAssistWishes { on }` | §9.6; accessibility hand-off |
 | `UseEquipment { uid, action }`, `EquipmentHold { seconds }` | v0.2 appliances (§11): a queued chore at a piece; holding speeds a hold chore |
@@ -92,9 +124,12 @@ floors, lamps, duties, draft shifts, prices, menu). The stack clears at phase ch
 
 ## 3. Queries (read-only)
 
-* Time: `phase()`, `night()`, `minute()` (since 22:00; 0 through the preparation), `tick_count()`,
-  `clock()` / `clock_label()` (21:00 in the day, 21:30→ in the preparation), `minutes_since_open()`
-  (signed: −30 at 21:30), `in_prep()`, `doors_open()`, `prep_minute()`, `prep_progress()`,
+* Time: `phase()`, `night()`, `minute()` (since 22:00; 0 through the preparation, 480 in the
+  closing half hour), `tick_count()`, `clock()` / `clock_label()` (21:00 in the day, 21:30→ in
+  the preparation, 06:00→06:29 in the closing half hour), `minutes_since_open()` (signed: −30
+  at 21:30, 480–509 after 06:00), `in_prep()`, `waiting_for_doors()`, `doors_open()`,
+  `in_closing()`, `waiting_to_close()`, `closing_time()`, `checklist_item_open(&c, id)`,
+  `prep_minute()`, `prep_progress()`, `close_minute()`, `close_progress()`,
   `evening_progress()`, `night_progress()` (for `render::ambient_for`), `weekday()`, `weather()`, `blackout()`, `music_on()`.
 * Map: `grid()` → `Grid { width: 30, height: 18 }` — rows 0–15 = `map::CAFE_LAYOUT` frame (cutscene
   spots match), rows 16–17 = street/sidewalk in front of the door. `tile(x, y) → TileInfo { kind:
@@ -158,7 +193,7 @@ Audio/UI: `GuestArrived`, `GuestTurnedAway`, `GuestLeft`, `OrderTaken`, `OrderRe
 `ChoiceResolved`, `EventHint` (Foresight), `Toast { key }`, `Hint { key }`, `BotMessage { msg, template,
 key: "app.bot.<t>", args }`, `Speech { speaker, agent, key }` (beat lines, arc lines on arrival),
 `PlayCutscene`, `EndingReached`, `NoteFound`, `ItemGained/Lost`, `FlagSet`, `RegularArrived`, `ArcAdvanced`,
-`ClockStop`, `GuestIntroduced { guest, key }` (§11), `DoorsOpened { early_minutes }` (22:00, the preparation is over), `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`,
+`ClockStop`, `GuestIntroduced { guest, key }` (§11), `DoorsOpened { early_minutes }` (22:00, the preparation is over), `DoorsClosed` (06:00, the closing half hour begins), `PaymentMade/Missed`, `CafeClosed`, `SchedulePublished`, `ChecklistTicked`, `RitualPerfect { list }` (§10.8a),
 `MenuUnlocked`, `FurnitureUnlocked`, `FurniturePlaced/Removed`, `DayStarted`, `NightStarted`, `NightEnded`.
 
 Appliances (§11): `EquipmentUsed { uid, action, by }`, `EquipmentCue { uid, cue: Bubbling | Ding |
@@ -183,17 +218,40 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   (tray ≤ 4); dishes = clear tables (+ their tip coins) → sink, wash; floor = mop, buckets;
   checklist items of the duty's job. Never wishes, regulars or Karolina's items. Speed =
   `(0.5 + skill×0.1) × helper_speed (0.85)` × trait `Speed` × event `WorkSpeed` × energy/mood ×
-  station slow-downs × hall mood. Karolina is driven by her queue only (§9.1).
+  station slow-downs × station helpers × hall mood. Karolina is driven by her queue only (§9.1).
+* **Idle life (`sim::life`):** a helper whose duties have nothing to do (`Task::Idle`) fills
+  the moment with a small pastime picked by their duties and place (`Staff::life: IdleLife`,
+  `Pastime`): wipe the counter / a free table, polish cups, stack saucers, check the pastries,
+  refill napkins / sugar, straighten chairs, sweep by the door, a sip of water, a chat with an
+  idle colleague, the phone (rarely), the window while a train passes, the station cat. Short
+  walks (the register helper stays within 3 tiles of the register, others 7), a few seconds to
+  a minute each, a 25–90 tick pause between. The work loop still looks for work every other
+  tick and drops the pastime at once (`life::stop`). Rolls come from a derived stream (never
+  `World::rng`); the only effect is −0.05 dirt on a wiped free table. Queries:
+  `helper_work()` → `HelperWork { staff, doing: HelperDoing::Task { id, menu } | Pastime, progress }`
+  (the small rings over helpers' heads; at the spot only, never Karolina), `pastime(id)`;
+  the card: `Activity::Pastime { kind, with }` → `life.do.<id>` / `life.do.chat_with`
+  (a helper without duties still says `crew.do.idle_no_duties`).
+* **Station helpers (`sim::companions`, tag `helps:<what>`):** pieces that do no work themselves
+  but speed up the station beside them (footprints touch, corners count; one is enough):
+  `dish_rack` beside a `sink` — washing × `RACK_WASH_MUL` (1.5; staff wash work ÷ 1.5,
+  Karolina's `PlayerWashProgress` × 1.5); `espresso_grinder` beside a `station:coffee` — brewing
+  × `GRINDER_BREW_MUL` (1.2, staff and Karolina). Away from it a helper shows idle
+  (`FurnitureView.active = false`). Dirty dishes only ever go to the `sink` (the rack is not a
+  second sink). Every appliance has its own job; removed duplicates load as their replacement
+  (`world::REMOVED_DEFS`: `counter_corner` → `bar_counter`, which joins its neighbours and turns
+  corners by itself).
 * **Guests:** arrivals per minute from `hour_weights × weekday_mult` of the town's pools × reputation ×
   weather × `GuestRate` (× 0.5 in the quiet hour); trains add passengers (Cozy: spread over
   `COZY_TRAIN_SPREAD` = 24 min); rushes from events. **Cozy: full hands** (0.2 polish) — while
   `guests::cozy_pressure` (`karolina_todo` + parties arriving / in the queue / waiting to order)
   ≥ `COZY_HOLD_PRESSURE` (3), a crowd party (`PendingSpawn.crowd`: train passengers, event-rush
   guests; a random walk-in is deferred into one) lingers outside a minute longer (≤
-  `COZY_HOLD_MAX` 60 min, none from 05:00), and the ones who waited come in one party a
-  minute (all in by `COZY_HOLD_LAST` 05:20, so the closing checklist still fits). The Cozy
-  train spread is cut so passengers are in by last call (05:40). Classic never holds. Seats are reserved on arrival (no seat →
-  they walk on). Plain parties queue at the register (or sit when the line is long); wish
+  `COZY_HOLD_MAX` 60 min, none from 04:40), and the ones who waited come in one party a
+  minute (all in by `COZY_HOLD_LAST` 05:10, before last call). The Cozy
+  train spread is cut so passengers are in by last call (05:15). Classic never holds. Seats are reserved on arrival, one chair per guest (no seat →
+  they walk on). Paths go around chairs and stools (`grid::SEAT`) unless there is no other way; a
+  guest with no way to the goal waits and retries (never walks through the furniture). Plain parties queue at the register (or sit when the line is long); wish
   parties always sit and wait for Karolina. Patience runs on the wait clock (§9.4); food waits
   get `FOOD_PATIENCE` 2.4× (Cozy `COZY_FOOD_PATIENCE` 3.0×). Satisfaction: wait times, item
   `mood_bonus`, quality, server traits, seat comfort, beauty, dirt, music, + the hands-on serve
@@ -212,8 +270,10 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   one arc stage per night while present. Notes by `found_when` (every 5 min + night end). Endings
   checked after night 30 or a Classic closure; `EndingReached(id)` + its cutscene, then the world is closed.
 * **Economy:** night start auto-restock (Classic: max 1 500 Kč on credit), ingredients consumed per
-  order, wages by minutes worked (vacation paid), story utilities 350 Kč/night, sandbox rent (+growth).
-  Sandbox Classic: `bankrupt_after` nights in the red → `CafeClosed`.
+  order, wages by minutes worked (vacation paid), story utilities 350 Kč/night, sandbox rent (+growth
+  `rent_growth_percent` every `rent_growth_every` nights, up to `rent_growth_max` × the town size's top starting rent).
+  Sandbox Classic: `bankrupt_after` nights in the red → `CafeClosed`; with the setup's
+  `allow_debt` off, Cozy / Carefree close after `story::NO_DEBT_BANKRUPT_AFTER` (3) too.
 
 ## 6. Saves
 
@@ -221,7 +281,10 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
 Caches (walk masks, paths) rebuild on the next tick (or call `rebuild_caches(&content)` before queries).
 Same seed + same commands ⇒ identical saves (tested, also with the player-bot).
 A save made in the preparation half hour keeps `prep_left` (ticks until the doors open) and
-continues identically; saves without the field (0.1.0) load with the doors open.
+continues identically; saves without the field (0.1.0) load with the doors open. A save in
+the closing half hour keeps `close_tick`. `flow` (`NIGHT_FLOW` = 1) marks the night-flow
+rules: 0.2.0 saves (no `flow`) load with `prep_left` rescaled from 10 to 25 ticks a minute
+(the same clock time) and a mid-night 0.2.0 save goes on into the closing half hour.
 
 **v1 → v2:** every new field is `#[serde(default)]`. On load a version-1 world gets helpers'
 duties from their priority-1 jobs (cleaning → dishes), Karolina's autopilot task dropped, and on
@@ -248,7 +311,9 @@ DRINK_WITH_FOOD_CHANCE, REVIEW_WEIGHT, story_ramp}`, `staff::{STAFF_SPEED, TRAY,
 `Difficulty { Cozy, Classic }`, `Mode`, `Phase`, `SandboxSetup`, `Town`, `Shift`, `LeaveKind`,
 `RequestStatus`, `Facing`/`Pose`/`SimEmote` (render mirrors), `LookRef`, `AgentView`, `FurnitureView`,
 `NightSummary`, `Task`, `StaffStatus`, `PartyState`, `PayrollWeek`, `Handover`, `BotMsg`;
-`sim::grid::DEFAULT_LAYOUT` (CAFE_LAYOUT + register/fridge/sink/lamp/decor letters + street) and
+`sim::grid::DEFAULT_LAYOUT` (CAFE_LAYOUT's hall + the bar: front counter with grinder, coffee
+machine and register (open at its left end), a three-tile walkway, the back line of stove,
+oven spot, fridge, sink + drying rack, bin and back-bar shelves against the front wall; + street) and
 `world::STORY_INSTITUTIONS` (the story station: taxi rank, hospital, college).
 
 ## 9. Hands-on: Karolina behind the counter (design/handson.md §1, §3, §10)
@@ -481,6 +546,33 @@ and the message stays open. New bot messages: `regular_tonight` / `regular_to_go
 `NightSummary.insights` (≤ 4 `Insight { key, args, link }`). Payroll: `SetTipSplit`, `PayBonus`,
 `GrantToil`, `SendPayroll { week }` → `PayrollSent { week, total, tips_to_crew }` (auto one day
 later); `tip_split(&c)`, `payroll_sent(week)`.
+
+### 10.8a Hands-on rituals (`sim::rituals`)
+When Karolina herself does a checklist item or an appliance chore, the UI may play a tiny
+gesture over the piece (`screens::game::rituals_ui`, the model in `minigame::ritual`; data:
+`handson.ron` → `rituals.gestures`, one `RitualGesture` per checklist id and per
+`equip.<action>` chore — `Cord`, `Needle { green }`, `Count { coins, total }`,
+`Strokes { count, look }`, `Shelf { items, look }`, `Drop { band }`, `Sort { coins }`,
+`Lines { count }`, `Slide { look }`, `Stir`; validation: every checklist item has one).
+`ritual_key(w, c, act)` / `World::ritual_key_now(c)`: `Checklist { id }` → `id` (while open);
+`Use { action }` → `equip.<action>` if it has its own gesture, else the item it ticks;
+`PlayRecord` → `record_on` while that item is open (a needle dropped by hand ticks `record_on`
+and drops the queued tick). The result enters only as `Command::Ritual` (§2): the state
+`hands.rituals` (`RitualState { hold, by_hand, rewarded }`, `#[serde(default)]`, reset at night
+start) holds the gesture in the player's hands and the items done by hand tonight (→ perfect).
+At the piece (stage 1 of `Checklist`, `PlayRecord`, `Use`) `rituals::gate` says *Normal* (no
+gesture: nothing changes), *Wait* (she stands there, `waited` counts up to `patience_ticks`,
+then the hold lets go) or *Finish* (work left = 0, `by_hand` recorded before the tick). A hold
+for an act that is no longer hers lets go by itself (`tidy`). Without the command nothing
+differs: the player-bot, `run_night_headless`, ×2/×3, helpers and ignored gestures complete
+with the same ticks (`sim_balance` 30 nights story Cozy/Classic: byte-identical output; tests
+in `tests_rituals`). A ritual completed with ≥ `rituals.perfect_min` (3) perfect gestures in
+its list runs its `perfect` Fx once (`shiftella.ron`: Opening `Coziness(+1)` tonight, Closing
+`StaffMood(1.5)`) → `SimEvent::RitualPerfect { list }` + toast `app.ritual.perfect.<list>`.
+The UI opens a card only at ×1, never under the autoplayer / automation (unless staged), over
+another card or panel, or for a piece off screen; pausing freezes it; a gesture's randomness
+(the float's sum, the coins to sort) comes from `minigame::ritual::seed_for(world seed, night,
+key)` — never the world's RNG. Seen first-time hints: `Settings::ritual_hints`.
 
 ### 10.9 Integration requests (T7)
 `TutorialShown { id }` / `SetTutorial { on }` (story `At(time)` steps run their `on_show` by
@@ -727,7 +819,7 @@ player-bot, which never does — plays the same night (tested: `noticing_and_fad
   (no `TrainPassing`, no passengers), random walk-ins stop (`guests::on_minute`), pending
   spawns hurry in within 6 minutes and anything else (lull walk-ins, event rushes, spawns past
   `platform_minutes`) is dropped. Regulars still come (`spawn_regular` is untouched). Every
-  non-regular party inside is **stranded** till `stay_until` (05:40): no `leave_by`, an
+  non-regular party inside is **stranded** till `stay_until` (06:00, the doors close): no `leave_by`, an
   eating party's `stay_left` ≥ the minutes left (+ `id % 6` so they go out a few minutes
   apart), a waiting party's patience floor 30 %.
 * **Chores:** `Command::StormBlankets` (Karolina walks to the register's access tile) and

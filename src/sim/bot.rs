@@ -17,6 +17,7 @@ use super::types::*;
 use super::world::*;
 use crate::content::Content;
 use crate::content::handson::Duty;
+use crate::content::world::ChecklistKind;
 
 /// Player-bot settings.
 #[derive(Debug, Clone, PartialEq)]
@@ -56,6 +57,9 @@ pub struct BotConfig {
     /// v0.2: uses the appliances now and then (`false` = never touches them, the
     /// "a no-equipment player still finishes the story" runs).
     pub equipment: bool,
+    /// Hands tonight's crew their duties every day ([`PlayerBot::delegate`]). `false` = a
+    /// player who never opens the duties panel: everyone keeps the hire card's one duty.
+    pub delegate: bool,
 }
 
 impl Default for BotConfig {
@@ -76,6 +80,7 @@ impl Default for BotConfig {
             attentive: true,
             build: true,
             equipment: true,
+            delegate: true,
         }
     }
 }
@@ -90,13 +95,19 @@ pub struct BotNight {
     pub same_kind_max: u32,
     /// Sim ticks that ran under an overlay, and the real seconds those overlays took.
     pub overlay_ticks: u32,
-    /// Ticks of the preparation half hour (they run at `prep_tick_scale`).
+    /// Ticks of the two quiet halves, the preparation and the closing half hour (they run at
+    /// `prep_tick_scale`).
     pub prep_ticks: u32,
+    /// Ticks of the closing half hour (06:00 → she closes up; part of `prep_ticks`).
+    pub closing_ticks: u32,
     pub overlay_seconds: f32,
     pub ticks: u32,
     pub max_rail: usize,
-    /// Real length of the night at ×1 (minutes): normal ticks × tick length + overlays.
+    /// Real length of the evening at ×1 (minutes): normal ticks × tick length + overlays +
+    /// the two quiet halves (`quiet_minutes`).
     pub real_minutes: f32,
+    /// …of which the preparation and the closing half hour (doors closed).
+    pub quiet_minutes: f32,
     /// T5: moments resolved, experiments tried, bot buttons pressed.
     pub moments: u32,
     pub experiments: u32,
@@ -119,7 +130,16 @@ pub struct PlayerBot {
     equip_plan: Vec<super::equipment::EquipAction>,
     /// The night `equip_plan` was rolled for (`step` alone plans too).
     equip_night: u32,
+    /// Ticks the clock has waited for her at 21:59 / 06:29 (she opens / closes up after a
+    /// short look around at most).
+    waited: u32,
+    /// Screenshots: never open the doors / close up (the picture shows the waiting clock).
+    pub hold_doors: bool,
 }
+
+/// The bot opens the doors at 21:59 (closes up at 06:29) once her hands are free, or after
+/// this many ticks of waiting at the latest — automation never hangs on the waiting clock.
+pub const BOT_WAIT_CAP: u32 = 150;
 
 impl PlayerBot {
     pub fn new(cfg: BotConfig) -> PlayerBot {
@@ -134,6 +154,8 @@ impl PlayerBot {
             cur: BotNight::default(),
             equip_plan: Vec::new(),
             equip_night: 0,
+            waited: 0,
+            hold_doors: false,
         }
     }
 
@@ -200,7 +222,9 @@ impl PlayerBot {
             }
         }
         let _ = w.apply(content, Command::PublishSchedule);
-        self.delegate(w, content);
+        if self.cfg.delegate {
+            self.delegate(w, content);
+        }
         // tonight's opening record: a starter, by the night
         let recs: Vec<String> = w.records_unlocked().iter().cloned().collect();
         if !recs.is_empty() {
@@ -298,6 +322,16 @@ impl PlayerBot {
 
     /// Plays the current night to 06:00 (starting it if it's day). Returns its events.
     pub fn run_night(&mut self, w: &mut World, content: &Content) -> Vec<SimEvent> {
+        self.run_night_watched(w, content, |_| {})
+    }
+
+    /// [`Self::run_night`], calling `watch` after every tick (QA measurements).
+    pub fn run_night_watched(
+        &mut self,
+        w: &mut World,
+        content: &Content,
+        mut watch: impl FnMut(&World),
+    ) -> Vec<SimEvent> {
         let mut out = Vec::new();
         if w.phase() == Phase::Day {
             self.day(w, content);
@@ -318,10 +352,14 @@ impl PlayerBot {
         while w.phase() == Phase::Night && !w.is_closed() && guard < NIGHT_TICKS * 3 {
             self.finish_scenes(w, content);
             self.step(w, content);
-            if w.in_prep() {
+            if w.in_prep() || w.in_closing() {
                 self.cur.prep_ticks += 1;
             }
+            if w.in_closing() {
+                self.cur.closing_ticks += 1;
+            }
             w.tick(content);
+            watch(w);
             self.cur.ticks += 1;
             out.extend(w.drain_events());
             guard += 1;
@@ -329,12 +367,14 @@ impl PlayerBot {
         self.finish_scenes(w, content);
         out.extend(w.drain_events());
         let tick_s = w.real_seconds_per_tick(content);
-        // the preparation half hour runs at `prep_tick_scale` of a tick
-        let prep_s = tick_s * content.handson.tuning.prep_tick_scale.clamp(0.3, 1.0);
+        // the quiet halves run at `prep_tick_scale` of a tick (by then it's day: the night
+        // tick length)
+        let prep_s = tick_s * content.handson.tuning.prep_tick_scale.clamp(0.3, 1.5);
         let plain = self
             .cur
             .ticks
             .saturating_sub(self.cur.overlay_ticks + self.cur.prep_ticks);
+        self.cur.quiet_minutes = self.cur.prep_ticks as f32 * prep_s / 60.0;
         self.cur.real_minutes = (plain as f32 * tick_s
             + self.cur.prep_ticks as f32 * prep_s
             + self.cur.overlay_seconds)
@@ -361,6 +401,32 @@ impl PlayerBot {
         self.cur.max_rail = self.cur.max_rail.max(w.ticket_rail(content).len());
         if self.equip_night != w.night() {
             self.plan_equipment(w.night());
+        }
+        // the clock waits at 21:59 / 06:29: open the doors / close up once her hands are free
+        // (and like a player she opens / closes up early once the list is done)
+        let idle = w.player().queue.is_empty() && w.player().current.is_none();
+        let list = |k| super::tool::list_done(w, content, k);
+        let early = idle
+            && ((w.in_prep() && w.prep_minute() >= 15 && list(ChecklistKind::Opening))
+                || (w.in_closing()
+                    && w.close_minute() >= 2
+                    && (list(ChecklistKind::Closing) || w.close_minute() >= 20)));
+        if !self.hold_doors && (w.waiting_for_doors() || w.waiting_to_close() || early) {
+            self.waited += 1;
+            if idle || self.waited > BOT_WAIT_CAP {
+                let cmd = if w.in_prep() {
+                    Command::OpenDoors
+                } else {
+                    Command::CloseUp
+                };
+                self.waited = 0;
+                if w.apply(content, cmd).is_ok() {
+                    self.cur.decisions += 1;
+                    return;
+                }
+            }
+        } else {
+            self.waited = 0;
         }
         if self.busy > 0 {
             self.busy -= 1;
@@ -400,7 +466,7 @@ impl PlayerBot {
         {
             return Some(0);
         }
-        if m >= 466 {
+        if m >= 466 || w.in_closing() {
             for id in ["handover_note", "light_off_at_six"] {
                 if w.app()
                     .checklist
@@ -942,8 +1008,11 @@ impl PlayerBot {
                     }
                     // (the last ten minutes before the doors open: whatever the crew hasn't
                     // started, she does herself)
+                    // (and in the closing half hour, what's still open after a while)
                     crate::content::handson::ChecklistOwner::Either(d) => {
-                        !helper_on(w, d) || w.in_prep() && w.prep_minute() >= 20
+                        !helper_on(w, d)
+                            || w.in_prep() && w.prep_minute() >= 20
+                            || w.in_closing() && w.close_minute() >= 12
                     }
                 })
                 .map(|c| c.id.clone())
@@ -1428,8 +1497,6 @@ pub fn build_for_guests(w: &mut World, content: &Content) {
         (3, "window_seat", 1, At::Hall),
         (3, "plant_small", 2, At::Hall),
         (4, "table_round", 10, At::Table),
-        (4, "espresso_grinder", 1, At::Bar),
-        (4, "dish_rack", 1, At::Bar),
         (5, "sofa", 1, At::Hall),
         (5, "coffee_machine", 2, At::Bar),
         (6, "table_round", 11, At::Table),
@@ -1580,6 +1647,7 @@ fn place_group(w: &mut World, content: &Content, def: &str, chairs: bool) -> boo
     let (sw, sh) = (d.size.0 as i32, d.size.1 as i32);
     let free = |w: &World, x: i32, y: i32| {
         w.grid().is_indoor_floor(x, y)
+            && !w.grid().room(x, y).staff_only()
             && w.grid().object_at(x, y).is_none()
             && w.grid()
                 .tile(x, y)

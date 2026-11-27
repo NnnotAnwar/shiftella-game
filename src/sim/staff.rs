@@ -107,6 +107,9 @@ fn blank_staff(id: u32) -> Staff {
         duties: Vec::new(),
         nights_worked: 0,
         duty_done: [0; 6],
+        life: None,
+        life_rest: 0,
+        work_total: 0.0,
     }
 }
 
@@ -428,7 +431,7 @@ fn staff_tiles(w: &World) -> Vec<(i32, i32)> {
     v
 }
 
-fn idle_tile(w: &World, content: &Content, idx: usize) -> (i32, i32) {
+pub(crate) fn idle_tile(w: &World, content: &Content, idx: usize) -> (i32, i32) {
     let s = &w.staff[idx];
     if (s.owner || duties::has_duty(s, Duty::Register))
         && let Some(t) = guests::registers(w, content).first().and_then(|(uid, _)| {
@@ -540,6 +543,8 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
     // Karolina is already inside at 21:30; helpers starting at 22:00 walk in during the
     // preparation half hour (`tick_staff`, from `PREP_CREW_ARRIVES`)
     for i in 0..w.staff.len() {
+        w.staff[i].life = None;
+        w.staff[i].life_rest = 0;
         let prep = w.prep_left > 0 && !w.staff[i].owner;
         if !prep && w.staff[i].status == (StaffStatus::Expected { minute: 0 }) {
             let t = idle_tile(w, content, i);
@@ -616,14 +621,31 @@ pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(
     let p = w.furniture_by_uid(uid)?;
     let d = content.furniture_def(&p.def)?;
     let tiles = grid::access_tiles(&w.grid, d, p);
+    // a side one can get to: a front tile walled in by other pieces (grandma's bookcase and
+    // bench around her marble table) sent every helper after it and back, all night
+    let reached = |t: &&(i32, i32)| w.grid.reached(t.0, t.1);
     tiles
         .iter()
+        .filter(reached)
         .find(|t| w.grid.room(t.0, t.1).staff_only())
+        .or(tiles.iter().find(reached))
+        .or(tiles.iter().find(|t| w.grid.room(t.0, t.1).staff_only()))
         .or(tiles.first())
         .copied()
 }
 
 pub(crate) fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32)> {
+    // beside the guest, not on the next chair (someone may sit down there) — unless only
+    // chairs are left
+    stand_next_to_in(w, t, from, true).or_else(|| stand_next_to_in(w, t, from, false))
+}
+
+fn stand_next_to_in(
+    w: &World,
+    t: (i32, i32),
+    from: (i32, i32),
+    avoid_seats: bool,
+) -> Option<(i32, i32)> {
     let mut best: Option<(i32, i32)> = None;
     for (dx, dy) in [
         (0, 1),
@@ -636,7 +658,10 @@ pub(crate) fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Optio
         (-1, -1),
     ] {
         let n = (t.0 + dx, t.1 + dy);
-        if !w.grid.walkable(n.0, n.1) {
+        if !w.grid.walkable(n.0, n.1)
+            || !w.grid.reached(n.0, n.1)
+            || (avoid_seats && w.grid.is_seat(n.0, n.1))
+        {
             continue;
         }
         // not on someone's seat
@@ -657,11 +682,6 @@ pub(crate) fn guest_seat_tile(w: &World, gid: u32) -> Option<(i32, i32)> {
     let g = w.guests.iter().find(|g| g.id == gid)?;
     let (uid, idx) = g.seat?;
     guests::seat_tile(w, uid, idx)
-}
-
-/// Dishes one wash takes (12; more with a dish rack / a second sink — purchases).
-fn wash_batch(w: &World, content: &Content) -> u32 {
-    (12.0 * super::purchases::wash_mul(w, content)).round() as u32
 }
 
 pub(crate) fn station_free(w: &World, content: &Content, tag: &str, staff: u32) -> Option<u32> {
@@ -866,12 +886,12 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
                 })
                 && let Some(goal) = station_access(w, content, sink.uid)
             {
+                // a drying rack beside the sink (sim::companions)
+                let rack = super::companions::station_mul(w, content, sink.uid);
                 out.push(Work {
                     task: Task::Wash { sink: sink.uid },
                     goal,
-                    // a dish rack / a second sink: faster (purchases)
-                    work: 4.0 * w.sink_dishes.min(wash_batch(w, content)) as f32
-                        / super::purchases::wash_mul(w, content),
+                    work: 4.0 * w.sink_dishes.min(12) as f32 / rack,
                     rank: 1,
                 });
             }
@@ -905,7 +925,7 @@ fn mop_work(w: &World, me: u32) -> Option<Work> {
     }
     let hall: Vec<(i32, i32)> = (0..w.grid.height)
         .flat_map(|y| (0..w.grid.width).map(move |x| (x, y)))
-        .filter(|t| w.grid.room(t.0, t.1) == Room::Hall && w.grid.walkable(t.0, t.1))
+        .filter(|t| w.grid.room(t.0, t.1) == Room::Hall && w.grid.reached(t.0, t.1))
         .filter(|t| w.grid.object_at(t.0, t.1).is_none())
         .collect();
     if hall.is_empty() {
@@ -928,8 +948,8 @@ fn checklist_works(w: &World, content: &Content, job: Job, duty: Duty) -> Vec<Wo
             continue;
         }
         let window = match c.list {
-            ChecklistKind::Opening => m < 120,
-            ChecklistKind::Closing => m >= 420,
+            ChecklistKind::Opening => m < 120 && !w.in_closing(),
+            ChecklistKind::Closing => super::tool::closing_item_open(w, &c.id),
         };
         if !window {
             continue;
@@ -951,7 +971,9 @@ fn checklist_works(w: &World, content: &Content, job: Job, duty: Duty) -> Vec<Wo
                 * TICKS_PER_MINUTE as f32
                 * super::tool::checklist_speed(w, content, &c.id),
             // before the doors open the opening items come first (nobody is waiting yet)
-            rank: if w.in_prep() && c.list == ChecklistKind::Opening {
+            rank: if (w.in_prep() && c.list == ChecklistKind::Opening)
+                || (w.in_closing() && c.list == ChecklistKind::Closing)
+            {
                 0
             } else {
                 5
@@ -990,6 +1012,10 @@ fn find_work(w: &World, content: &Content, idx: usize) -> Option<Work> {
     let here = s.tile();
     let mut best: Option<(i32, Work)> = None;
     let mut consider = |wk: Work| {
+        // a goal in a pocket nobody can walk to: picked, no path, dropped, picked again…
+        if w.grid.walkable(wk.goal.0, wk.goal.1) && !w.grid.reached(wk.goal.0, wk.goal.1) {
+            return;
+        }
         let score = wk.rank as i32 * 40 + grid::manhattan(here, wk.goal);
         if best.as_ref().is_none_or(|b| score < b.0) {
             best = Some((score, wk));
@@ -1067,6 +1093,7 @@ fn claim(w: &mut World, content: &Content, task: &Task, me: u32) {
 
 /// Drops the current task and releases its claims.
 pub(crate) fn abandon(w: &mut World, idx: usize) {
+    super::life::stop(w, idx);
     let me = w.staff[idx].id;
     let Some(task) = w.staff[idx].task.take() else {
         return;
@@ -1211,7 +1238,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
         // the early crew walks in a couple of minutes apart in the preparation (21:38–21:45);
         // the late ones (and later shifts) come by the night clock as before
         let arrives_now = |minute: u32, helper: u32| match prep {
-            Some(pm) => minute == 0 && pm >= PREP_CREW_ARRIVES + (helper * 2) % 8,
+            Some(pm) => minute == 0 && pm >= PREP_CREW_ARRIVES + helper % 4,
             None => m >= minute,
         };
         if !w.staff[idx].owner {
@@ -1226,6 +1253,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
                 w.staff[idx].status = StaffStatus::OnDuty;
                 w.staff[idx].task = Some(Task::Idle { tile: t });
                 go(w, idx, t);
+                super::life::rest(w, idx);
                 let id = w.staff[idx].id;
                 w.emit(SimEvent::StaffArrived { staff: id });
                 continue;
@@ -1279,11 +1307,13 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
         // choose something to do
         let idle = matches!(w.staff[idx].task, None | Some(Task::Idle { .. }));
         // (every other tick per person; the prep ticks count too — the night clock stands still)
-        let beat = w.tick + PREP_TICKS.saturating_sub(w.prep_left);
+        let beat = w.tick + PREP_TICKS.saturating_sub(w.prep_left) + w.close_tick;
         if idle && (beat + idx as u32).is_multiple_of(2) {
             if let Some(b) = wants_break(w, content, idx) {
                 start_break(w, idx, b);
             } else if let Some(wk) = find_work(w, content, idx) {
+                // real work: any pastime is dropped at once
+                super::life::stop(w, idx);
                 w.staff[idx].task = None;
                 let me = w.staff[idx].id;
                 claim(w, content, &wk.task, me);
@@ -1293,13 +1323,23 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
                 }
                 w.staff[idx].task = Some(wk.task);
                 w.staff[idx].work_left = wk.work;
+                w.staff[idx].work_total = wk.work;
                 if !go(w, idx, wk.goal) {
                     abandon(w, idx);
                 }
+            } else if w.in_closing() && w.close_minute() >= 1 {
+                // the closing half hour: their closing items are done — they go home
+                abandon(w, idx);
+                let edge = w.grid.street_edges()[0];
+                w.staff[idx].status = StaffStatus::Leaving;
+                w.staff[idx].task = Some(Task::Leave);
+                go(w, idx, edge);
+                continue;
             } else if w.staff[idx].task.is_none() {
                 let t = idle_tile(w, content, idx);
                 w.staff[idx].task = Some(Task::Idle { tile: t });
                 go(w, idx, t);
+                super::life::rest(w, idx);
             }
         }
         step_staff(w, content, idx);
@@ -1392,6 +1432,19 @@ fn wants_break(w: &World, content: &Content, idx: usize) -> Option<Task> {
 }
 
 fn step_staff(w: &mut World, content: &Content, idx: usize) {
+    if !matches!(w.staff[idx].task, Some(Task::Idle { .. })) {
+        w.staff[idx].life = None;
+    } else if !w.staff[idx].path.is_empty()
+        && let Some(l) = &mut w.staff[idx].life
+    {
+        // a long detour to a pastime is given up
+        l.walked += 1;
+        if l.walked > super::life::MAX_WALK {
+            w.staff[idx].life = None;
+            w.staff[idx].path.clear();
+            super::life::rest(w, idx);
+        }
+    }
     // movement
     if !w.staff[idx].path.is_empty() {
         let carrying = w.staff[idx].carrying.is_some();
@@ -1432,10 +1485,7 @@ fn step_staff(w: &mut World, content: &Content, idx: usize) {
         None => {
             w.staff[idx].pose = Pose::Idle;
         }
-        Some(Task::Idle { .. }) => {
-            w.staff[idx].pose = Pose::Idle;
-            w.staff[idx].facing = Facing::Up;
-        }
+        Some(Task::Idle { .. }) => super::life::step(w, content, idx),
         Some(Task::Break { until, eat }) => {
             w.staff[idx].pose = Pose::Idle;
             if w.minute() >= until {
@@ -1489,6 +1539,8 @@ fn step_staff(w: &mut World, content: &Content, idx: usize) {
                         }
                     }
                 }
+                // a grinder beside the machine (sim::companions)
+                speed *= super::companions::station_mul(w, content, *station);
                 if let Some(i) = w.items.iter_mut().find(|i| i.id == *item) {
                     i.state = ItemState::Preparing;
                     i.prep_left -= speed;
@@ -1594,15 +1646,11 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                 }
             }
             quality += w.staff[idx].skill(job, w.night) * 1.5;
-            let mut helper_q = content
+            let helper_q = content
                 .handson
                 .tuning
                 .helper_quality
                 .at(w.staff[idx].skill(job, w.night));
-            if job == Job::Bar {
-                // a better grind (purchases)
-                helper_q = (helper_q + super::purchases::quick_quality_bonus(w, content)).min(1.0);
-            }
             let mut name = String::new();
             if let Some(i) = w.items.iter_mut().find(|i| i.id == item) {
                 i.state = ItemState::Ready;
@@ -1668,6 +1716,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     extra: tray,
                 });
                 w.staff[idx].work_left = 3.0;
+                w.staff[idx].work_total = 3.0;
                 match target {
                     Some(t) if go(w, idx, t) => {}
                     _ => abandon(w, idx),
@@ -1705,7 +1754,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     .find(|p| {
                         content
                             .furniture_def(&p.def)
-                            .is_some_and(|d| d.has_tag("dishes"))
+                            .is_some_and(|d| d.has_tag("sink"))
                     })
                     .map(|p| p.uid);
                 let goal = sink.and_then(|s| station_access(w, content, s));
@@ -1715,6 +1764,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     dishes,
                 });
                 w.staff[idx].work_left = 2.0;
+                w.staff[idx].work_total = 2.0;
                 let moved = goal.is_some_and(|g| go(w, idx, g));
                 if !moved {
                     w.sink_dishes += dishes;
@@ -1730,10 +1780,8 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
             }
         }
         Task::Wash { .. } => {
-            let n = w.sink_dishes.min(wash_batch(w, content));
+            let n = w.sink_dishes.min(12);
             w.sink_dishes -= n;
-            let mul = super::purchases::wash_mul(w, content);
-            super::purchases::note_washed(w, n, mul);
             credit(w, idx, Duty::Dishes, n);
             w.sink_claim = None;
             w.staff[idx].task = None;

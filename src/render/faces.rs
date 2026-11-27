@@ -18,6 +18,8 @@ thread_local! {
 
 fn bake(look: &PersonLook) -> RenderTarget {
     let rt = render_target(SIDE, SIDE);
+    crate::profile::count(crate::profile::Counter::RenderTargets, 1);
+    crate::profile::count(crate::profile::Counter::FaceBakes, 1);
     rt.texture.set_filter(FilterMode::Linear);
     let s = SIDE as f32;
     let mut cam = Camera2D::from_display_rect(Rect::new(0.0, 0.0, s, s));

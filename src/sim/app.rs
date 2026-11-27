@@ -331,6 +331,77 @@ pub(crate) fn answer_time_off(w: &mut World, id: u32, approve: bool) -> Result<(
     Ok(())
 }
 
+/// Where a checklist item stands, as every screen shows it (the app, the ritual chip over its
+/// furniture, Karolina's card): open → taken (queued / on the way) → done.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChecklistMark {
+    /// Nobody has it yet: a click queues it for Karolina.
+    Open,
+    /// Someone has it: Karolina (`karolina`; `doing` = it is her current act) or a helper on
+    /// their way. A click on Karolina's cancels it.
+    Taken {
+        by: u32,
+        karolina: bool,
+        doing: bool,
+    },
+    /// Ticked: by whom and at which night minute.
+    Done {
+        by: Option<u32>,
+        minute: Option<u32>,
+    },
+}
+
+/// Is this act of Karolina's the checklist item `id` (the item itself, or the appliance chore
+/// that ticks it)?
+pub fn act_ticks(act: &super::hands::PlayerAct, id: &str) -> bool {
+    match act {
+        super::hands::PlayerAct::Checklist { id: i } => i == id,
+        super::hands::PlayerAct::Use { action, .. } => action.checklist() == Some(id),
+        _ => false,
+    }
+}
+
+impl World {
+    /// The state of checklist item `id` (`Open` for an unknown id or by day before the night).
+    pub fn checklist_mark(&self, id: &str) -> ChecklistMark {
+        let Some(c) = self.app.checklist.iter().find(|c| c.id == id) else {
+            return ChecklistMark::Open;
+        };
+        if c.done {
+            return ChecklistMark::Done {
+                by: c.by,
+                minute: c.minute,
+            };
+        }
+        let me = super::player::karolina_idx(self).map(|i| self.staff[i].id);
+        let slot = self.karolina_checklist_slot(id);
+        match (c.claim, slot) {
+            (_, Some(slot)) => ChecklistMark::Taken {
+                by: me.unwrap_or(0),
+                karolina: true,
+                doing: slot == 0 && self.hands.player.current.is_some(),
+            },
+            (Some(by), None) if Some(by) != me => ChecklistMark::Taken {
+                by,
+                karolina: false,
+                doing: false,
+            },
+            _ => ChecklistMark::Open,
+        }
+    }
+
+    /// Where checklist item `id` sits in Karolina's acts (0 = her current act when she has
+    /// one, then the queue — the order of the chips over her head), if she has it.
+    pub fn karolina_checklist_slot(&self, id: &str) -> Option<usize> {
+        let p = &self.hands.player;
+        p.current
+            .iter()
+            .map(|c| &c.act)
+            .chain(p.queue.iter())
+            .position(|a| act_ticks(a, id))
+    }
+}
+
 /// Satisfaction bonus for guests from opening checklist items done tonight.
 pub(crate) fn checklist_bonus(w: &World) -> f32 {
     w.app.checklist.iter().filter(|c| c.done).count() as f32 * 0.6
@@ -440,6 +511,7 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
         })
         .collect();
     w.tonight.checklist_total = w.app.checklist.len() as u32;
+    w.hands.rituals = Default::default();
     // a published, unchanged schedule makes the crew happy; last-minute edits don't
     let dirty = w.app.draft_dirty;
     for s in w.staff.iter_mut() {

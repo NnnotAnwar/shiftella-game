@@ -45,17 +45,7 @@ en {piece}: {n} drinks brewed side by side
 uk {piece}: {n} напоїв готувалися одночасно
 ru {piece}: {n} напитков готовились одновременно
 
-purchases.line.grinder
-cs {piece}: {n} rychlých nápojů chutnalo lépe
-en {piece}: {n} quick brews tasted better
-uk {piece}: {n} швидких напоїв смакували краще
-ru {piece}: {n} быстрых напитков вышли вкуснее
 
-purchases.line.washing
-cs {piece}: {n} kusů nádobí umytých rychleji
-en {piece}: {n} dishes washed faster
-uk {piece}: {n} одиниць посуду вимито швидше
-ru {piece}: {n} единиц посуды вымыто быстрее
 
 purchases.line.made
 cs {piece}: prodáno {n} · {money}
@@ -173,17 +163,7 @@ en Nothing gets made here without one
 uk Без нього тут нічого не приготуєш
 ru Без него здесь ничего не приготовишь
 
-purchases.card.grinder
-cs Rychlé nápoje: kvalita +{n} %
-en Quick brews: quality +{n} %
-uk Швидкі напої: якість +{n} %
-ru Быстрые напитки: качество +{n} %
 
-purchases.card.washing
-cs Mytí nádobí: o {n} % rychleji
-en Washing up: {n} % faster
-uk Миття посуду: на {n} % швидше
-ru Мытьё посуды: на {n} % быстрее
 
 purchases.card.unlocks
 cs Přidá do menu: {items}

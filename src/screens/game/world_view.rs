@@ -87,10 +87,25 @@ pub fn weather_key(w: Weather) -> &'static str {
 
 /// Pose for drawing (sitting people sit on their chair).
 pub fn person_pose(v: &AgentView, t: f32) -> PersonPose {
-    let f = facing(v.facing);
+    let mut f = facing(v.facing);
     let mut feet = vec2(v.feet.0, v.feet.1);
     if let Some((x, y)) = v.seat_tile {
         feet = render::sit_anchor(vec2(x as f32, y as f32) * TILE, f);
+    } else if v.pose == sim::Pose::Idle && v.look.staff {
+        // a helper standing still is never a statue: a slow weight shift and, every few
+        // seconds, a glance aside (each person on their own rhythm)
+        let ph = (v.look.seed % 997) as f32 * 0.37;
+        feet.x += (t * 0.45 + ph).sin() * 1.1;
+        let period = 6.5 + (v.look.seed % 5) as f32 * 0.6;
+        let cyc = (t + ph * 3.0) / period;
+        if cyc.fract() < 0.17 {
+            let left = (cyc.floor() as i64 + v.look.seed as i64).rem_euclid(2) == 0;
+            f = match f {
+                Facing::Left | Facing::Right => Facing::Down,
+                _ if left => Facing::Left,
+                _ => Facing::Right,
+            };
+        }
     }
     PersonPose {
         feet,
@@ -156,6 +171,10 @@ pub fn staff_doing(loc: &Locale, s: &Staff) -> String {
         St::WalkedOut => loc.tr_owned("ui.crew.status_walked_out"),
         St::Leaving => loc.tr_owned("ui.crew.status_leaving"),
         St::OnDuty => match &s.task {
+            Some(sim::Task::Idle { .. }) if !s.owner && s.life.is_some() => {
+                let k = s.life.as_ref().map_or("chat", |l| l.kind.id());
+                loc.tr_owned(&format!("life.do.{k}"))
+            }
             Some(t) => loc.tr_owned(&format!("ui.task.{}", t.id())),
             None => loc.tr_owned("ui.task.idle"),
         },

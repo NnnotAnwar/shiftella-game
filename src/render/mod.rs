@@ -99,6 +99,7 @@ pub mod faces;
 mod festive;
 mod furniture;
 mod handson;
+mod helper_ring;
 mod light;
 mod look;
 mod moments;
@@ -120,15 +121,19 @@ pub use festive::{
     draw_tip_jar,
 };
 pub use furniture::{
-    COUNTER_H, FURNITURE_IDS, FurnitureState, draw_furniture, furniture_lights, furniture_sort_key,
-    holo_flicker,
+    COUNTER_H, FURNITURE_IDS, FurnitureState, JOIN_E, JOIN_N, JOIN_S, JOIN_W, counter_joins,
+    draw_furniture, furniture_lights, furniture_sort_key, holo_flicker, joins_counter,
 };
 pub use handson::{
-    CupGlyph, LatteArt, OrderMark, QUEUE_CHIP, QueueIcon, TIP_COLLECT_SECS, TIP_SPAWN_SECS,
-    TasteIcon, TipCoin, draw_cup_glyph, draw_latte_art, draw_order_mark, draw_queue_chips,
-    draw_queue_icon, draw_rhythm_glow, draw_served_cup, draw_taste_icon, draw_tip_coin,
-    draw_tip_float, draw_wish_bubble, heart, icon_scale_for_zoom, marker_shapes, queue_chip_rects,
-    set_marker_shapes, set_world_icon_scale, sparkle, tip_coin_light, world_icon_scale,
+    CupGlyph, LatteArt, OrderMark, QUEUE_CHIP, QUEUE_LIFT, QueueIcon, TIP_COLLECT_SECS,
+    TIP_SPAWN_SECS, TasteIcon, TipCoin, draw_cup_glyph, draw_latte_art, draw_order_mark,
+    draw_queue_chips, draw_queue_icon, draw_rhythm_glow, draw_served_cup, draw_taste_icon,
+    draw_tip_coin, draw_tip_float, draw_wish_bubble, heart, icon_scale_for_zoom, marker_shapes,
+    queue_chip_rects, set_marker_shapes, set_world_icon_scale, sparkle, tip_coin_light,
+    world_icon_scale,
+};
+pub use helper_ring::{
+    HELPER_CHIP, HelperIcon, PastimeIcon, draw_helper_ring, draw_pastime_icon, draw_pastime_prop,
 };
 pub use light::{CozyGrade, Light, Lighting, ambient_blackout, ambient_for};
 pub use look::{

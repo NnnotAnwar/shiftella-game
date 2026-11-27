@@ -694,6 +694,10 @@ fn minigame(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
                 .with_guest(face, wish)
                 .with_text(MiniGameText::from_lookup(|k| loc.tr_owned(k)));
             mg.named = true;
+            // the first time a game type (or a new step) plays: its guide card
+            if g.hands.autoplay.is_none() {
+                mg.game.offer_guide(&cx.settings.minigame_guides);
+            }
         }
         g.hands.minigame = Some(mg);
     }
@@ -721,6 +725,11 @@ fn minigame(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) {
     };
     let area = ui.screen();
     mg.game.draw(ui, area);
+    let seen = mg.game.take_seen_guides();
+    if !seen.is_empty() {
+        cx.settings.minigame_guides.extend(seen);
+        let _ = cx.settings.save();
+    }
     let card = MiniGame::card_rect(area);
     for s in mg.game.drain_sounds() {
         let c = s.cue();
@@ -972,7 +981,7 @@ fn book(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             ingredients,
             desc: known.then(|| loc.tr_owned(&r.desc_key())),
             lore: known.then(|| loc.tr_owned(&r.lore_key())),
-            minigame: Some(loc.tr_owned(&r.playable_minigame(false).0.title_key())),
+            minigame: Some(loc.tr_owned(&r.minigame.title_key())),
             base_line: Some(format!(
                 "{} · {}",
                 loc.tr(&format!("menu.{}.name", r.base_item)),

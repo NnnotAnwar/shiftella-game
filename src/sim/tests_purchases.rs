@@ -367,7 +367,8 @@ fn a_second_coffee_machine_brews_in_parallel() {
     assert!(w.payoff_tonight().parallel.is_empty());
     // a second machine: Karolina brews on it while the first is busy
     let mut w = day(&c, 6);
-    let second = place(&mut w, &c, "coffee_machine", 22, 13, 2);
+    let (x, y) = free_bar_tile(&w, &c);
+    let second = place(&mut w, &c, "coffee_machine", x, y, 2);
     open(&mut w, &c);
     assert!(staff::station_access(&w, &c, second).is_some());
     w.furniture
@@ -386,32 +387,48 @@ fn a_second_coffee_machine_brews_in_parallel() {
 }
 
 #[test]
-fn a_grinder_lifts_quick_brews_a_dish_rack_washes_faster_an_oven_bakes() {
+fn an_oven_puts_cakes_on_the_menu_and_its_sales_are_counted() {
     let c = content();
     let mut w = day(&c, 6);
-    assert_eq!(purchases::quick_quality_bonus(&w, &c), 0.0);
-    assert_eq!(purchases::wash_mul(&w, &c), 1.0);
     let kolac = c.menu_item("kolac").unwrap();
     assert!(!guests::item_orderable(&w, &c, kolac), "no oven, no cakes");
     let oven = c.furniture_def("oven").unwrap();
     assert_eq!(w.piece_effect(&c, oven).unlocks, vec!["kolac".to_string()]);
-    place(&mut w, &c, "espresso_grinder", 22, 13, 2);
-    place(&mut w, &c, "dish_rack", 23, 13, 2);
-    place(&mut w, &c, "oven", 24, 13, 2);
-    assert!((purchases::quick_quality_bonus(&w, &c) - 0.08).abs() < 1e-5);
-    assert!((purchases::wash_mul(&w, &c) - 1.4).abs() < 1e-5);
+    let (x, y) = free_bar_tile(&w, &c);
+    place(&mut w, &c, "oven", x, y, 2);
     assert!(guests::item_orderable(&w, &c, kolac));
-    // a second grinder adds nothing (max 1)
-    place(&mut w, &c, "espresso_grinder", 25, 13, 2);
-    assert!((purchases::quick_quality_bonus(&w, &c) - 0.08).abs() < 1e-5);
-    // the counters
     open(&mut w, &c);
-    purchases::note_washed(&mut w, 10, 1.4);
-    assert_eq!(w.payoff_tonight().washed, 3);
     purchases::on_item_served(&mut w, &c, "kolac");
     purchases::on_item_served(&mut w, &c, "cappuccino");
     let price = w.price_of(&c, "kolac") as i64;
     assert_eq!(w.payoff_tonight().made["station:oven"], (1, price));
+}
+
+/// A free staff-floor tile on the machines' row (for a second appliance).
+fn free_bar_tile(w: &World, c: &Content) -> (i32, i32) {
+    let g = w.grid();
+    for y in (10..g.height - 2).rev() {
+        let machines = (0..g.width).any(|x| {
+            g.object_at(x, y).is_some_and(|u| {
+                w.furniture_by_uid(u)
+                    .and_then(|p| c.furniture_def(&p.def))
+                    .is_some_and(|d| d.tags.iter().any(|t| t.starts_with("station:")))
+            })
+        });
+        if !machines {
+            continue;
+        }
+        for x in 16..g.width - 1 {
+            if g.object_at(x, y).is_none()
+                && g.tile(x, y).is_some_and(|t| {
+                    t.kind == TileKind::Floor && matches!(t.room, Room::Bar | Room::Kitchen)
+                })
+            {
+                return (x, y);
+            }
+        }
+    }
+    panic!("no free tile behind the bar");
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -459,8 +476,6 @@ fn the_payoff_lines_add_up_and_survive_a_save() {
                 "purchases.line.tier" | "purchases.line.tier_rare" => {
                     assert_eq!(l.money, t.tier_tips)
                 }
-                "purchases.line.grinder" => assert_eq!(get("n"), Some(t.ground.to_string())),
-                "purchases.line.washing" => assert_eq!(get("n"), Some(t.washed.to_string())),
                 _ => {}
             }
             // every arg that names a key names a real one

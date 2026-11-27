@@ -321,6 +321,9 @@ pub enum SimEvent {
     DoorsOpened {
         early_minutes: u32,
     },
+    /// 06:00: the doors close (the sign flips back to "Closed"); the quiet closing half hour
+    /// begins. The night ends later (`NightEnded`) when she closes up.
+    DoorsClosed,
     NightEnded {
         summary: Box<NightSummary>,
     },
@@ -700,6 +703,11 @@ pub enum SimEvent {
     RitualComplete {
         list: ChecklistKind,
     },
+    /// A list done with enough perfect gestures of Karolina's (`sim::rituals`): its ritual's
+    /// small `perfect` extra ran (`app.ritual.perfect.<list>`).
+    RitualPerfect {
+        list: ChecklistKind,
+    },
     /// Last night's handover notes acted (`app.handover.option.<id>`).
     HandoverApplied {
         ids: Vec<String>,
@@ -996,6 +1004,9 @@ pub enum Command {
     /// "Open the doors now": ends the preparation half hour early (only before 22:00; the
     /// clock jumps to 22:00, everything keyed to 22:00 happens then).
     OpenDoors,
+    /// "Close up": ends the closing half hour (06:00–06:30) and the night at once; anything
+    /// left on the closing list counts as missed. `WrongPhase` outside the closing half hour.
+    CloseUp,
     // --- hands-on: Karolina behind the counter --------------------------------------------------
     /// Karolina walks over and takes the order (`guest` = any member or the party id). The
     /// party is claimed at once; error `InUse` if a helper already took it.
@@ -1031,6 +1042,14 @@ pub enum Command {
     PlayerUnqueue {
         index: usize,
     },
+    /// Move a queued act from `from` to `to` (indexes into `player().queue`; the current act
+    /// is not part of it).
+    PlayerReorder {
+        from: usize,
+        to: usize,
+    },
+    /// Drop every queued act (the current one goes on), releasing their claims.
+    PlayerClearQueue,
     /// Hold-to-wash released after `seconds` (real) at the sink: 2 dishes per second.
     PlayerWashProgress {
         sink: u32,
@@ -1170,6 +1189,14 @@ pub enum Command {
     /// the group head): `seconds` real seconds of holding speed it up.
     EquipmentHold {
         seconds: f32,
+    },
+    /// A ritual gesture over the piece Karolina is doing (`sim::rituals`): `key` =
+    /// `World::ritual_key_now`. `Start` = she waits at the piece for it, `Done { perfect }` =
+    /// the item completes now, `LetGo` = she finishes it herself. Errors `WrongPhase`,
+    /// `Invalid` (not the gesture of her current act).
+    Ritual {
+        key: String,
+        step: super::rituals::RitualStep,
     },
     /// Night only: a helper on the floor ends their shift now and walks home (wages follow
     /// the minutes worked; a tired helper is glad of it, mood +4). Errors: `WrongPhase` by

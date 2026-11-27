@@ -258,15 +258,17 @@ fn duty_and_schedule_edits_undo() {
         Err(CommandError::Invalid(_))
     ));
     let before = w.staff()[1].duties.clone();
-    w.apply(
-        &c,
-        Command::SetDuty {
-            staff: hire,
-            duty: before[0],
-            on: false,
-        },
-    )
-    .unwrap();
+    for d in &before {
+        w.apply(
+            &c,
+            Command::SetDuty {
+                staff: hire,
+                duty: *d,
+                on: false,
+            },
+        )
+        .unwrap();
+    }
     assert!(w.staff()[1].duties.is_empty());
     w.apply(
         &c,
@@ -281,8 +283,14 @@ fn duty_and_schedule_edits_undo() {
     w.undo(&c).unwrap();
     assert_eq!(w.app().draft[&owner][0], Shift::Full);
     assert!(!w.app().draft_dirty);
-    w.undo(&c).unwrap();
-    assert_eq!(w.staff()[1].duties, before);
+    for _ in &before {
+        w.undo(&c).unwrap();
+    }
+    let mut back = w.staff()[1].duties.clone();
+    back.sort_by_key(|d| d.job().index());
+    let mut want = before.clone();
+    want.sort_by_key(|d| d.job().index());
+    assert_eq!(back, want);
     // the old priorities grid still works as a shim onto duties
     w.apply(
         &c,
@@ -1032,6 +1040,7 @@ fn sixty_agents_tick_fast() {
     }
     w.start_night(&c);
     finish_cutscenes(&mut w, &c);
+    w.skip_prep(&c);
     w.debug_spawn_guests(&c, "students", 60, 5);
     let mut peak = 0;
     let t0 = std::time::Instant::now();

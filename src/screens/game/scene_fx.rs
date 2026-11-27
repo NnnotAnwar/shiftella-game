@@ -152,7 +152,9 @@ pub fn garland_progress(world: &World, content: &Content) -> f32 {
 
 /// The bar counter run (x0, x1, front y in world px).
 pub fn counter_span(world: &World, content: &Content) -> Option<(f32, f32, f32)> {
-    let mut span: Option<(i32, i32, i32)> = None;
+    // the front counter = the row of counter-height pieces with the register (else the one
+    // nearest the hall); the back bar and a counter's return down the side don't count
+    let mut rows: Vec<(i32, i32, i32, bool)> = Vec::new(); // (bottom row y, x0, x1, register)
     for p in world.furniture() {
         let Some(d) = content.furniture_def(&p.def) else {
             continue;
@@ -162,12 +164,20 @@ pub fn counter_span(world: &World, content: &Content) -> Option<(f32, f32, f32)>
         }
         let (w, h) = sim::grid::rotated_size(d, p.rot);
         let (x0, x1, y) = (p.x, p.x + w as i32, p.y + h as i32);
-        span = Some(match span {
-            None => (x0, x1, y),
-            Some((a, b, c)) => (a.min(x0), b.max(x1), c.max(y)),
-        });
+        let reg = d.has_tag("register");
+        match rows.iter_mut().find(|r| r.0 == y) {
+            Some(r) => {
+                r.1 = r.1.min(x0);
+                r.2 = r.2.max(x1);
+                r.3 |= reg;
+            }
+            None => rows.push((y, x0, x1, reg)),
+        }
     }
-    span.map(|(a, b, y)| (a as f32 * TILE, b as f32 * TILE, y as f32 * TILE - 8.0))
+    // a return down the side is a column of 1-wide rows: prefer the widest row with the till
+    rows.sort_by_key(|r| (!r.3, -(r.2 - r.1), r.0));
+    rows.first()
+        .map(|&(y, a, b, _)| (a as f32 * TILE, b as f32 * TILE, y as f32 * TILE - 8.0))
 }
 
 /// Grandma's garlands: over the back windows (warm bulbs) and along the counter (spruce).
@@ -257,7 +267,7 @@ pub fn draw_the_cat(feet: Vec2, pose: CatPose, t: f32, affection: f32) {
 fn lift_for(sprite: &str) -> f32 {
     match sprite {
         "jukebox" | "bookshelf" | "fridge" | "coat_rack" => 112.0,
-        "bar_counter" | "counter_corner" | "register" | "coffee_machine" => 92.0,
+        "bar_counter" | "register" | "coffee_machine" | "espresso_grinder" => 92.0,
         "radio" | "menu_holo_board" => 96.0,
         _ => crate::render::MARKER_LIFT,
     }

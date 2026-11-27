@@ -349,7 +349,7 @@ fn a_day_experiment_from_the_pantry() {
     assert!(note.key.starts_with("experiment."), "{}", note.key);
 }
 
-/// The soups plate their own bowl; the singular guest name; deep links open the panels.
+/// The soups stir their own pot; the singular guest name; deep links open the panels.
 #[test]
 fn soups_names_and_links() {
     let c = content();
@@ -357,10 +357,20 @@ fn soups_names_and_links() {
     let loc = Locale::new(&i, crate::i18n::Lang::En);
     let soup = c.handson.recipe("r_garlic_soup").unwrap();
     let (kind, v) = hands::playable(soup, 1);
-    assert_eq!(kind, crate::minigame::MiniGameKind::Plate);
-    assert_eq!(v, "garlic_soup");
+    assert_eq!(kind, crate::minigame::MiniGameKind::SoupStir);
+    assert_eq!(v, "garlic");
     let (_, v) = hands::playable(c.handson.recipe("r_borscht").unwrap(), 1);
     assert_eq!(v, "borscht");
+    let (kind, v) = hands::playable(c.handson.recipe("r_svarak").unwrap(), 1);
+    assert_eq!(
+        (kind, v.as_str()),
+        (crate::minigame::MiniGameKind::MulledSpice, "svarak")
+    );
+    let (kind, v) = hands::playable(c.handson.recipe("r_chai").unwrap(), 5);
+    assert_eq!(
+        (kind, v.as_str()),
+        (crate::minigame::MiniGameKind::TeaSteep, "chai")
+    );
     assert_eq!(world_view::guest_one(&loc, "travelers"), "Traveller");
     let mut g = GameScreen::new_story(&c, "cozy", true);
     g.follow_link(crate::content::handson::AppLink::Journal);
@@ -582,7 +592,7 @@ fn night_one_tutorial_starts_in_the_preparation_half_hour() {
     );
 }
 
-/// The HUD bar spans 21:30 → 06:00 and the door chip works ("Open now" → 22:00).
+/// The HUD bar spans 21:30 → 06:30 and the door chip works ("Open the doors" → 22:00).
 #[test]
 fn open_the_doors_from_the_hud_and_the_door_toast() {
     let c = content();
@@ -606,8 +616,54 @@ fn open_the_doors_from_the_hud_and_the_door_toast() {
         "ticker: doors open"
     );
     let p = g.world.evening_progress();
-    let want = sim::PREP_MINUTES as f32 / (sim::PREP_MINUTES + sim::NIGHT_MINUTES) as f32;
+    let want = sim::PREP_MINUTES as f32 / sim::evening_span() as f32;
     assert!((p - want).abs() < 1e-4, "{p}");
+}
+
+/// The closing half hour on screen: at 06:00 the sign flips back with a toast, the chip
+/// says "Close up" and closing up brings the morning summary.
+#[test]
+fn the_doors_close_at_six_and_close_up_brings_the_morning() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 2, Some(485), true);
+    assert!(g.world.in_closing(), "{}", g.world.clock_label());
+    assert_eq!(g.world.clock_label(), "06:05");
+    assert!(!g.world.doors_open(), "the sign says Closed");
+    assert!(g.world.guests_inside() == 0, "the café is empty");
+    // the light in the window goes off now (closing time), by the window click
+    // (or someone is already on her way to it)
+    let on_it = g
+        .world
+        .app()
+        .checklist
+        .iter()
+        .any(|c| c.id == "light_off_at_six" && c.claim.is_some());
+    assert!(super::hands::lights_off_due(&g) || on_it || !g.world.window_light_on(&c));
+    assert!(g.summary.is_none() && g.summary_pending.is_none());
+    g.command(&c, Command::CloseUp).unwrap();
+    g.drain_and_handle(&c, Some(&loc));
+    assert_eq!(g.world.phase(), sim::Phase::Day);
+    assert!(
+        g.summary.is_some() || g.summary_pending.is_some(),
+        "the morning summary comes now"
+    );
+    // and the toast at 06:00 (fresh night, run to the doors closing)
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 2, Some(479), true);
+    for _ in 0..40 {
+        g.world.tick(&c);
+        g.drain_and_handle(&c, Some(&loc));
+    }
+    assert!(g.world.in_closing());
+    assert!(
+        g.ticker
+            .iter()
+            .any(|t| t.text == loc.tr("close.toast.doors_closed.title")),
+        "ticker: doors closed"
+    );
 }
 
 /// v0.2 appliances: after the window, **E** reaches the appliances; a click on one queues
@@ -796,4 +852,42 @@ fn a_regular_goes_on_from_where_their_scene_left_them() {
         tile.1 < rows - 3,
         "Mirek stands inside where the scene left him, not back at the street: {tile:?}"
     );
+}
+
+/// Save / load of a late story (night 29: the full journal, the knowledge, the crew's
+/// history) stay well inside a frame budget's order of magnitude: the autosave runs on the
+/// main thread at the start of a day. Prints the timings and the file size
+/// (`cargo test --release save_and_load_times -- --nocapture`).
+#[test]
+fn save_and_load_times_of_a_late_story() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 29, None, true);
+    let dir = std::env::temp_dir().join(format!("shiftella-save-times-{}", crate::save::now()));
+    let store = SaveStore::at(&dir);
+    let t0 = std::time::Instant::now();
+    g.save(&c, &store, Slot::Manual(1)).unwrap();
+    let save = t0.elapsed();
+    let t1 = std::time::Instant::now();
+    let f = store.read(Slot::Manual(1)).unwrap();
+    let g2 = GameScreen::from_save(&c, &f).unwrap();
+    let load = t1.elapsed();
+    let size: u64 = std::fs::read_dir(&dir)
+        .unwrap()
+        .filter_map(|e| e.ok()?.metadata().ok())
+        .map(|m| m.len())
+        .sum();
+    println!(
+        "night 29: save {:.1} ms, load {:.1} ms, {} KB on disk",
+        save.as_secs_f64() * 1000.0,
+        load.as_secs_f64() * 1000.0,
+        size / 1024
+    );
+    assert_eq!(g2.world.night(), 29);
+    // generous bounds: a debug build on a loaded machine
+    assert!(save.as_secs_f64() < 5.0, "save took {save:?}");
+    assert!(load.as_secs_f64() < 5.0, "load took {load:?}");
+    let _ = std::fs::remove_dir_all(&dir);
 }

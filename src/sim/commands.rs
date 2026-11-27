@@ -69,7 +69,67 @@ pub(super) fn connectivity_ok(w: &World, content: &Content) -> bool {
             return false;
         }
     }
-    true
+    // (night building) nobody is walled in where they stand
+    let near = |p: (f32, f32)| {
+        let t = grid::px_to_tile(p);
+        let t = (
+            t.0.clamp(0, w.grid.width - 1),
+            t.1.clamp(0, w.grid.height - 1),
+        );
+        [(0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)]
+            .iter()
+            .any(|(dx, dy)| w.grid.idx(t.0 + dx, t.1 + dy).is_some_and(|i| reach[i]))
+    };
+    w.guests.iter().filter(|g| !g.gone).all(|g| near(g.pos))
+        && w.staff.iter().filter(|s| s.present()).all(|s| near(s.pos))
+}
+
+/// Somebody stands (or is about to stand) where a solid piece would go (building at night):
+/// refused, or they would stand inside the table and walk out through it.
+pub(super) fn people_in_the_way(
+    w: &World,
+    d: &FurnitureDef,
+    x: i32,
+    y: i32,
+    rot: u8,
+) -> Result<(), CommandError> {
+    if d.walkable {
+        return Ok(());
+    }
+    let fp = grid::footprint(d, x, y, rot);
+    let here = |p: (f32, f32)| fp.contains(&grid::px_to_tile(p));
+    // (or where they are walking to: the last step of a path may be entered even when it
+    // isn't walkable — a sofa seat — so a piece put there would be walked into)
+    let going = |path: &[(i32, i32)]| path.last().is_some_and(|t| fp.contains(t));
+    if w.guests
+        .iter()
+        .any(|g| !g.gone && (here(g.pos) || going(&g.path)))
+        || w.staff
+            .iter()
+            .any(|s| s.present() && (here(s.pos) || going(&s.path)))
+    {
+        return Err(CommandError::Occupied);
+    }
+    Ok(())
+}
+
+/// Every seat can be reached without climbing over another chair (someone may sit there).
+/// A build that breaks it is refused (`BlocksPath`); a layout that already broke it (an old
+/// save) isn't held against new builds.
+pub(super) fn seat_access_ok(w: &World, content: &Content) -> bool {
+    let reach = grid::reachable_off_seats(&w.grid, w.grid.entrance());
+    w.furniture.iter().all(|p| {
+        let Some(d) = content.furniture_def(&p.def).filter(|d| d.seats > 0) else {
+            return true;
+        };
+        let fp = grid::footprint(d, p.x, p.y, p.rot);
+        fp.iter().any(|&(x, y)| {
+            [(1, 0), (-1, 0), (0, 1), (0, -1)].iter().any(|(dx, dy)| {
+                let t = (x + dx, y + dy);
+                !fp.contains(&t) && w.grid.idx(t.0, t.1).is_some_and(|i| reach[i])
+            })
+        })
+    })
 }
 
 pub(crate) fn place_piece(
@@ -79,10 +139,12 @@ pub(crate) fn place_piece(
 ) -> Result<(), CommandError> {
     let d = def(content, &piece.def)?;
     grid::can_place(&w.grid, d, piece.x, piece.y, piece.rot, None)?;
+    people_in_the_way(w, d, piece.x, piece.y, piece.rot)?;
+    let seats_before = seat_access_ok(w, content);
     occupy(w, d, &piece, true);
     w.furniture.push(piece.clone());
     w.grid.rebuild(&w.furniture, content);
-    if !connectivity_ok(w, content) {
+    if !connectivity_ok(w, content) || seats_before && !seat_access_ok(w, content) {
         w.furniture.pop();
         occupy(w, d, &piece, false);
         w.grid.rebuild(&w.furniture, content);
@@ -122,8 +184,20 @@ pub(crate) fn place_free(
     place_piece(w, content, piece).is_ok()
 }
 
-pub(super) fn in_use(_w: &World, p: &Placed) -> bool {
-    p.user.is_some() || p.claim.is_some() || p.seat_by.iter().any(|s| s.is_some())
+pub(super) fn in_use(w: &World, p: &Placed) -> bool {
+    p.user.is_some()
+        || p.claim.is_some()
+        || p.seat_by.iter().any(|s| s.is_some())
+        || serving_queue(w, p.uid)
+}
+
+/// A register with guests lined up at it (or a party who chose it and is walking over): it
+/// can't be moved or removed under them — they would wait at a till that isn't there.
+pub(super) fn serving_queue(w: &World, uid: u32) -> bool {
+    w.queues.get(&uid).is_some_and(|q| !q.is_empty())
+        || w.parties
+            .iter()
+            .any(|p| p.register == Some(uid) && p.state != PartyState::Leaving)
 }
 
 fn remove_piece(w: &mut World, content: &Content, uid: u32) -> Result<Placed, CommandError> {
@@ -136,6 +210,8 @@ fn remove_piece(w: &mut World, content: &Content, uid: u32) -> Result<Placed, Co
         return Err(CommandError::InUse);
     }
     let p = w.furniture.remove(i);
+    // her queued chores at it go too
+    super::player::prune_queue(w);
     if let Some(d) = content.furniture_def(&p.def) {
         occupy(w, d, &p, false);
     }
@@ -174,6 +250,7 @@ impl World {
         }
         self.ensure_hands(content);
         self.grid.ensure_masks(&self.furniture, content);
+        self.refresh_taken();
         let furniture_cmd = matches!(
             cmd,
             Command::PlaceFurniture { .. }
@@ -264,6 +341,13 @@ impl World {
             }
             Command::RemoveFurniture { uid } => {
                 let p = remove_piece(self, content, uid)?;
+                // tip coins on a table taken away go into the jar now (else they stayed on a
+                // table nobody can reach till 06:00, and the lull director waited on them)
+                let (coins, rest): (Vec<_>, Vec<_>) = std::mem::take(&mut self.hands.tips)
+                    .into_iter()
+                    .partition(|t| t.table == uid);
+                self.hands.tips = rest;
+                super::player::collect_coins(self, content, coins, None);
                 let refund = (p.paid / 2) as i64;
                 self.econ.money += refund;
                 push_undo(
@@ -568,6 +652,9 @@ impl World {
             Command::Talk { guest } => super::story::talk(self, content, guest),
             Command::BuySupplies { amount } => super::economy::buy_supplies(self, amount),
             Command::SetAutoRestock { target } => {
+                if target.is_some_and(|t| !(0..=super::economy::MAX_SUPPLY_ORDER).contains(&t)) {
+                    return Err(CommandError::Invalid("restock target out of range".into()));
+                }
                 self.econ.auto_restock = target;
                 Ok(())
             }
@@ -720,6 +807,13 @@ impl World {
                 self.open_doors(content);
                 Ok(())
             }
+            Command::CloseUp => {
+                if !self.in_closing() {
+                    return Err(CommandError::WrongPhase);
+                }
+                self.close_up_now(content);
+                Ok(())
+            }
             Command::StartNight => {
                 if self.phase != Phase::Day {
                     return Err(CommandError::WrongPhase);
@@ -741,6 +835,8 @@ impl World {
             Command::PlayerCancel => super::player::cancel(self, content),
             Command::PlayerQueue { act, front } => super::player::queue(self, content, act, front),
             Command::PlayerUnqueue { index } => super::player::unqueue(self, content, index),
+            Command::PlayerReorder { from, to } => super::player::reorder(self, from, to),
+            Command::PlayerClearQueue => super::player::clear_queue(self, content),
             Command::PlayerWashProgress { sink, seconds } => {
                 super::player::wash_progress(self, content, sink, seconds)
             }
@@ -785,6 +881,7 @@ impl World {
                 false,
             ),
             Command::EquipmentHold { seconds } => super::equipment::hold(self, content, seconds),
+            Command::Ritual { key, step } => super::rituals::command(self, content, key, step),
             Command::Experiment { ingredients } => {
                 super::knowledge::validate(self, content, &ingredients)?;
                 if self.phase == Phase::Day {
@@ -879,6 +976,8 @@ impl World {
         }
         let d = def(content, &self.furniture[i].def)?;
         grid::can_place(&self.grid, d, x, y, rot, Some(uid))?;
+        people_in_the_way(self, d, x, y, rot)?;
+        let seats_before = seat_access_ok(self, content);
         let old = self.furniture[i].clone();
         occupy(self, d, &old, false);
         let mut new = old.clone();
@@ -888,7 +987,7 @@ impl World {
         occupy(self, d, &new, true);
         self.furniture[i] = new;
         self.grid.rebuild(&self.furniture, content);
-        if !connectivity_ok(self, content) {
+        if !connectivity_ok(self, content) || seats_before && !seat_access_ok(self, content) {
             let cur = self.furniture[i].clone();
             occupy(self, d, &cur, false);
             occupy(self, d, &old, true);

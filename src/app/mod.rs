@@ -13,11 +13,19 @@
 //!   build_drag|attic|backroom|requests|corner|before_after` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
-//!   story_marker|story_card|storm|storm_talk` (`SHIFTELLA_STORY=<id>`: the vignette put on a
+//!   story_marker|story_card|storm|storm_talk|hands_ux` (`SHIFTELLA_HUX=checklist|rituals|
+//!   queue|follow|gesture`: the checklist states, the queue strip with 8 acts, the follow chip,
+//!   a ritual gesture over its piece — `SHIFTELLA_GESTURE=<checklist id | equip.<chore>>`,
+//!   `SHIFTELLA_GESTURE_T=<s>` played that long first, default 21:40 with the list untouched;
+//!   `SHIFTELLA_STORY=<id>`: the vignette put on a
 //!   stranger when none came by itself; `SHIFTELLA_LINE=n`: the storm talk's line)
 //!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
 //!   (hands-on scenes are played to their moment by the autoplayer;
-//!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
+//!   `SHIFTELLA_MG=froth|chocolate|raf|encore|latte|flat_white|pour|turek|night_train|tonic|
+//!   tea|chai|linden|tatra|uzvar|rn333|plate|chlebicek|kolac|vera_kolac|medovnik|varenyky|
+//!   pirohy|buchty|soup|kulajda|borscht|svarak` (or any recipe id `r_…`) picks the game,
+//!   `SHIFTELLA_MG_T=<seconds>` plays it by autoplay that long first (the guide card shows on a
+//!   fresh settings file; list the read ones in `minigame_guides` to skip it),
 //!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
 //!   the enlarged polaroid, `SHIFTELLA_AUTOFILL=1` auto-fills the rozpis first)
 //! * `SHIFTELLA_AUTOPLAY=1|keys|skip` — Karolina plays the night by herself through the same
@@ -30,6 +38,8 @@
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
 //! * `SHIFTELLA_DIRT=0.4` — dirt blots on the floor; `SHIFTELLA_SETTINGS_TAB=0|1|2` — the
 //!   settings scene opens on General / Accessibility / Controls (package J, access).
+//! * `SHIFTELLA_COMBO=story_card,crew,photo,…` — opens several layers at once over the scene
+//!   (QA overlap shots; see `GameScreen::combo_layers`).
 //! * `SHIFTELLA_TEST_PANIC=1` — panic on purpose right after boot (checks the crash log,
 //!   [`crate::crashlog`]; nothing is saved).
 
@@ -288,6 +298,10 @@ impl App {
         if let Some(s) = env("SHIFTELLA_SPEED").and_then(|s| s.parse::<u8>().ok()) {
             g.set_speed(s);
         }
+        // SHIFTELLA_COMBO=story_card,crew,…: several layers over the scene at once
+        if let Some(list) = env("SHIFTELLA_COMBO") {
+            g.combo_layers(&list);
+        }
         Screen::Game(Box::new(g))
     }
 
@@ -436,7 +450,7 @@ impl App {
                 let m = minute.unwrap_or(match variant.as_str() {
                     "night" => 40,
                     "worn" => 60,
-                    "closing" => 430,
+                    "closing" => 485,
                     _ => -20,
                 });
                 let mut g = GameScreen::new_story(&content, "cozy", true);
@@ -462,6 +476,33 @@ impl App {
                 self.game(g)
             }
             // the character card (C): Karolina's, a helper's (also Classic and by day), hiring
+            // hands-ux shots: SHIFTELLA_HUX=checklist|rituals|queue|follow
+            "hands_ux" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let which = env("SHIFTELLA_HUX").unwrap_or_else(|| "queue".into());
+                let early = matches!(which.as_str(), "checklist" | "rituals" | "gesture");
+                let n = night.unwrap_or(if early { 1 } else { 8 });
+                let m = minute.unwrap_or(if which == "gesture" {
+                    -20
+                } else if early {
+                    2
+                } else {
+                    150
+                });
+                let mut g = GameScreen::new_story(&content, "cozy", true);
+                g.fast_forward(&content, &loc, n, Some(m), n > 1);
+                if which == "gesture" {
+                    // SHIFTELLA_GESTURE=<checklist id | equip.<chore>>, SHIFTELLA_GESTURE_T=<s>
+                    let key = env("SHIFTELLA_GESTURE").unwrap_or_else(|| "light_window".into());
+                    let secs = env("SHIFTELLA_GESTURE_T")
+                        .and_then(|t| t.parse::<f32>().ok())
+                        .unwrap_or(0.6);
+                    g.stage_ritual(&content, &loc, &key, secs);
+                } else {
+                    g.stage_hands_ux(&content, &which);
+                }
+                self.game(g)
+            }
             "crew_karolina" | "crew_helper" | "crew_classic" | "crew_day" | "crew_hire" => {
                 let loc = Locale::new(&self.i18n, lang);
                 let diff = if name == "crew_classic" {
@@ -508,17 +549,54 @@ impl App {
                             .or_else(|| g.hands.minigame.as_ref().map(|m| m.guest));
                         let recipe = match mg.as_deref() {
                             Some("froth") => Some("r_cappuccino"),
+                            Some("chocolate") => Some("r_hot_chocolate"),
+                            Some("raf") => Some("r_raf"),
+                            Some("encore") => Some("r_lori_encore"),
                             Some("latte") => Some("r_moon_latte"),
+                            Some("flat_white") => Some("r_oat_flat_white"),
                             Some("pour") => Some("r_black"),
+                            Some("turek") => Some("r_turek"),
+                            Some("night_train") => Some("r_night_train"),
+                            Some("tonic") => Some("r_espresso_tonic"),
                             Some("tea") => Some("r_lemon_tea"),
+                            Some("chai") => Some("r_chai"),
+                            Some("linden") => Some("r_linden_tea"),
+                            Some("tatra") => Some("r_tatra_tea"),
+                            Some("uzvar") => Some("r_uzvar"),
+                            Some("rn333") => Some("r_rn333_tea"),
                             Some("plate") => Some("r_topinka"),
+                            Some("chlebicek") => Some("r_chlebicek"),
+                            Some("kolac") => Some("r_kolac"),
+                            Some("vera_kolac") => Some("r_vera_kolac"),
+                            Some("medovnik") => Some("r_medovnik"),
+                            Some("varenyky") => Some("r_varenyky"),
+                            Some("pirohy") => Some("r_pirohy"),
+                            Some("buchty") => Some("r_buchty"),
                             Some("soup") => Some("r_garlic_soup"),
+                            Some("kulajda") => Some("r_kulajda"),
                             Some("borscht") => Some("r_borscht"),
+                            Some("svarak" | "mulled") => Some("r_svarak"),
+                            Some(r) if r.starts_with("r_") => Some(r),
                             _ => None,
                         };
                         if let (Some(guest), Some(r)) = (guest, recipe) {
                             g.hands.order = None;
                             g.start_minigame(&content, guest, r, false);
+                            // played a little by itself, for a mid-game picture
+                            let secs: f32 = env("SHIFTELLA_MG_T")
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0.0);
+                            if let Some(open) = g.hands.minigame.as_mut() {
+                                let dt = 1.0 / 60.0;
+                                for _ in 0..(secs / dt) as u32 {
+                                    let i = open.game.autoplay_input();
+                                    open.game.step(&i, dt);
+                                    // stop on the result card (it shows the stars and why)
+                                    if open.game.is_finished() {
+                                        break;
+                                    }
+                                }
+                            }
                         } else if g.hands.minigame.is_none()
                             && let Some(o) = g.hands.order.clone()
                             && let Some((r, _)) = g.world.best_matches(&content, o.guest).first()
@@ -900,6 +978,8 @@ pub async fn run() {
     // the crash log next to the saves (after SHIFTELLA_SAVES is final)
     crate::crashlog::init();
     crate::crashlog::info("startup");
+    crate::profile::init();
+    let boot_clock = std::time::Instant::now();
 
     // ── boot ──
     clear_background(crate::render::colors::NIGHT_0);
@@ -914,6 +994,12 @@ pub async fn run() {
     };
     crate::render::init_brand(fonts.face(crate::ui::Weight::Bold));
     let mut ui = Ui::new(fonts);
+    if shot.is_some() {
+        // the game already steps 1/60 s a frame in screenshot runs; the UI's clock too
+        ui.set_fixed_dt(Some(1.0 / 60.0));
+        // and the desktop cursor stays out of the invisible window (no stray hovers)
+        crate::platform::park_pointer();
+    }
     let mut settings = Settings::load();
     if let Some(l) = env("SHIFTELLA_LANG").and_then(|c| Lang::from_code(&c)) {
         settings.language = Some(l);
@@ -999,6 +1085,12 @@ pub async fn run() {
         None => app.menu(None),
     };
     crate::crashlog::info("boot done");
+    if crate::profile::on() {
+        eprintln!(
+            "profile: boot {:.0} ms (fonts, i18n, content, audio, first scene)",
+            boot_clock.elapsed().as_secs_f64() * 1000.0
+        );
+    }
     log_scene(&app);
     crate::crashlog::test_panic_if_asked();
 
@@ -1017,6 +1109,7 @@ pub async fn run() {
             (now - last_frame).as_secs_f32() * 1000.0,
         );
         last_frame = now;
+        let p_frame = crate::profile::span(crate::profile::Sec::Frame);
         if is_key_pressed(KeyCode::F3) {
             debug.on = !debug.on;
         }
@@ -1095,6 +1188,7 @@ pub async fn run() {
             crate::crashlog::info("quit");
             break;
         }
+        drop(p_frame);
         frame += 1;
         // SHIFTELLA_SHOT_EVERY=n: a numbered screenshot every n frames on the way (smoke runs)
         if let Some(path) = &shot
@@ -1119,6 +1213,7 @@ pub async fn run() {
             }
             img.export_png(path);
             println!("saved {path}");
+            crate::profile::frame_end(&profile_label(&app));
             if debug.on {
                 let (fps, avg, max) = debug.stats();
                 let t = times.unwrap_or_default();
@@ -1129,9 +1224,41 @@ pub async fn run() {
             }
             break;
         }
-        next_frame().await;
+        {
+            let _p = crate::profile::span(crate::profile::Sec::Present);
+            next_frame().await;
+        }
+        if crate::profile::on() {
+            crate::profile::frame_end(&profile_label(&app));
+        }
     }
+    crate::profile::finish();
     let _ = app.loc();
+}
+
+/// A short label of what is on screen for the profiler's CSV (`SHIFTELLA_PROFILE`).
+fn profile_label(app: &App) -> String {
+    match &app.screen {
+        Screen::Menu(_) => "menu".into(),
+        Screen::Credits(_) => "credits".into(),
+        Screen::Game(g) => {
+            let w = &g.world;
+            let what = if g.cutscene_playing() {
+                "cutscene".to_string()
+            } else if g.walk.is_open() {
+                "walk".to_string()
+            } else if g.summary.is_some() {
+                "summary".to_string()
+            } else if let Some(p) = g.panel {
+                format!("{p:?}").to_lowercase()
+            } else if w.phase() == sim::Phase::Day {
+                "day".to_string()
+            } else {
+                "night".to_string()
+            };
+            format!("n{} {what} x{}", w.night(), g.speed)
+        }
+    }
 }
 
 #[cfg(test)]

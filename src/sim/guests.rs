@@ -32,8 +32,16 @@ pub const REVIEW_WEIGHT: f32 = 0.003;
 pub const TRUST_FAST: f32 = 4.0;
 pub const TRUST_SERVED: f32 = 2.0;
 pub const TRUST_ANGRY: f32 = 2.0;
-/// No new walk-ins after this minute (05:40).
-pub const LAST_CALL: u32 = 460;
+/// Last call (05:15): nobody new comes in from this minute — no walk-ins, no train
+/// passengers, no event rushes, no regulars — so the café empties by 06:00.
+pub const LAST_CALL: u32 = 435;
+/// From 05:45 whoever is still eating is gently wrapped up: they pay and go (no review
+/// penalty, nobody "left angry")…
+pub const WRAP_UP: u32 = 465;
+/// …and from 05:50 the last ones still waiting go too (unserved: they pay nothing, no
+/// penalty, Cozy or Classic), so they are out of the door by 06:00. The storm night's
+/// stranded strangers stay till 06:00.
+pub const WRAP_UP_LAST: u32 = 470;
 /// Hall dirt above this is worth a mop.
 pub const MOP_DIRT: f32 = 0.12;
 /// Key of the line a forgiving Cozy guest leaves with ("I'll come back tomorrow.").
@@ -79,11 +87,10 @@ pub struct PendingSpawn {
 pub const COZY_HOLD_PRESSURE: u32 = 3;
 /// A party lingers for her hands at most this many minutes …
 pub const COZY_HOLD_MAX: u32 = 60;
-/// … nobody starts lingering from this minute on (05:00, when the closing checklist starts) …
-pub const COZY_HOLD_UNTIL: u32 = 420;
-/// … and the last ones who waited are in by this minute (05:20: the closing checklist still
-/// fits before 06:00).
-pub const COZY_HOLD_LAST: u32 = 440;
+/// … nobody starts lingering from this minute on (04:40) …
+pub const COZY_HOLD_UNTIL: u32 = 400;
+/// … and the last ones who waited are in by this minute (05:10, before last call).
+pub const COZY_HOLD_LAST: u32 = 430;
 
 // ---------------------------------------------------------------------------------------------
 // Menu availability
@@ -384,9 +391,11 @@ fn choose_seats(
             .max_by(|a, b| score(a).total_cmp(&score(b)))
             .copied()?;
         let mut v = vec![first];
+        // every seat but `first`, by seat (comparing the references compared the slots
+        // holding them, so `first` came back and a pair shared a chair)
         let mut rest: Vec<&SeatInfo> = free
             .iter()
-            .filter(|s| !std::ptr::eq(*s, &first))
+            .filter(|s| (s.uid, s.idx) != (first.uid, first.idx))
             .copied()
             .collect();
         rest.sort_by_key(|s| grid::manhattan(s.tile, first.tile));
@@ -418,7 +427,7 @@ pub(crate) fn registers(w: &World, content: &Content) -> Vec<(u32, (i32, i32))> 
         }
         if let Some(t) = grid::access_tiles(&w.grid, d, p)
             .into_iter()
-            .find(|t| w.grid.guest_ok(t.0, t.1))
+            .find(|t| w.grid.guest_ok(t.0, t.1) && !w.grid.is_seat(t.0, t.1))
         {
             v.push((p.uid, t));
         }
@@ -592,6 +601,10 @@ pub(crate) fn spawn_party(
     leave_by: Option<u32>,
     force_wish: bool,
 ) -> Option<u32> {
+    // last call (05:15) and the closed doors: nobody new comes in
+    if !w.doors_open() || w.minute() >= LAST_CALL {
+        return None;
+    }
     let arch = content.guest(archetype)?;
     let reg = regular.and_then(|r| content.regular(r));
     // the leader's order kind (regulars always wish; others by chance)
@@ -999,16 +1012,40 @@ pub(crate) fn set_goal(w: &mut World, gid: u32, goal: (i32, i32)) {
     let Some(i) = w.guests.iter().position(|g| g.id == gid) else {
         return;
     };
-    let from = w.guests[i].tile();
+    // (a member of a big party can spawn just past the street's last tile)
+    let t = w.guests[i].tile();
+    let from = (
+        t.0.clamp(0, w.grid.width - 1),
+        t.1.clamp(0, w.grid.height - 1),
+    );
     let path = w.paths.get(&w.grid, from, goal, true).or_else(|| {
         // fall back to staff mask (e.g. standing on a seat tile next to the bar)
         w.paths.get(&w.grid, from, goal, false)
     });
     let g = &mut w.guests[i];
     g.goal = Some(goal);
-    g.path = path.unwrap_or_else(|| vec![goal]);
-    g.pose = Pose::Walk;
+    match path {
+        Some(mut p) => {
+            if from != t {
+                p.insert(0, from);
+            }
+            g.path = p;
+            g.pose = Pose::Walk;
+        }
+        None => {
+            // no way there right now (a piece was just put in the way, a bucket under a
+            // leak): wait and try again (`tick_guests`) — never walk straight through the
+            // furniture (the old fallback `vec![goal]` did)
+            g.path.clear();
+            if g.pose != Pose::Sit {
+                g.pose = Pose::Idle;
+            }
+        }
+    }
 }
+
+/// Ticks between two tries of a guest who found no way to their goal.
+const REPATH_EVERY: u32 = 20;
 
 pub(crate) fn refresh_queue_goals(w: &mut World, content: &Content) {
     let regs: Vec<u32> = w.queues.keys().copied().collect();
@@ -1226,7 +1263,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
         due
     };
     for s in due {
-        if m < 478 {
+        if m < LAST_CALL {
             spawn_party(
                 w,
                 content,
@@ -1324,6 +1361,22 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             g.emote = Some((SimEmote::Coffee, tick + 30));
         }
         w.emit(SimEvent::GuestPatienceRefilled { party: pid });
+    }
+    // closing time: from 05:45 whoever is eating pays and goes, from 05:50 everybody (the
+    // storm night's stranded strangers stay till 06:00)
+    if m >= WRAP_UP {
+        let stranded = super::storm::line_closed(w);
+        for p in &w.parties {
+            if p.state == PartyState::Leaving
+                || leave.iter().any(|l| l.0 == p.id)
+                || (stranded && p.regular.is_none())
+            {
+                continue;
+            }
+            if p.state == PartyState::Eating || m >= WRAP_UP_LAST {
+                leave.push((p.id, Exit::Normal));
+            }
+        }
     }
     for (pid, exit) in leave {
         // a comfy seat: maybe one more round before they go (purchases)
@@ -1981,7 +2034,7 @@ fn party_table(w: &World, content: &Content, pi: usize) -> Option<u32> {
         .and_then(|s| s.table)
 }
 
-/// 06:00: everyone finishes up.
+/// 06:00 (the doors close) and the night's end: everyone still inside finishes up.
 pub(crate) fn close_up(w: &mut World, content: &Content) {
     let ids: Vec<(u32, PartyState)> = w.parties.iter().map(|p| (p.id, p.state)).collect();
     for (id, st) in ids {
@@ -2046,6 +2099,7 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
     let mut repath: Vec<u32> = Vec::new();
     let mut gone: Vec<u32> = Vec::new();
     let mut sat_down: Vec<(u32, (i32, i32))> = Vec::new();
+    let mut maybe_sit: Vec<(usize, (i32, i32))> = Vec::new();
     let edges = w.grid.street_edges();
     for i in 0..n {
         let g = &mut w.guests[i];
@@ -2053,7 +2107,16 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
             continue;
         }
         if g.path.is_empty() {
-            g.stuck_ticks = 0;
+            // not there yet and no way (see `set_goal`): try again now and then; the
+            // safety below still moves them after a long wait
+            if g.goal.is_some_and(|t| t != g.tile()) {
+                g.stuck_ticks += 1;
+                if g.stuck_ticks.is_multiple_of(REPATH_EVERY) {
+                    repath.push(g.id);
+                }
+            } else {
+                g.stuck_ticks = 0;
+            }
             continue;
         }
         let (vel, arrived, blocked) =
@@ -2072,12 +2135,30 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
         if arrived {
             let tile = g.tile();
             if g.seat.is_some() && g.goal == Some(tile) {
+                // sits only on the seat itself (decided below): a seated party's leader
+                // walking to the register keeps the seat but stands in the line
+                maybe_sit.push((i, tile));
+            } else if edges.contains(&tile) && g.goal == Some(tile) {
+                gone.push(g.id);
+            } else {
+                g.pose = Pose::Idle;
+            }
+        }
+    }
+    if !maybe_sit.is_empty() {
+        let seat_info = seats(w, content);
+        for (i, tile) in maybe_sit {
+            let g = &mut w.guests[i];
+            let on_seat = g.seat.is_some_and(|(uid, idx)| {
+                seat_info
+                    .iter()
+                    .any(|s| s.uid == uid && s.idx == idx && s.tile == tile)
+            });
+            if on_seat {
                 if g.pose != Pose::Sit {
                     sat_down.push((g.id, tile));
                 }
                 g.pose = Pose::Sit;
-            } else if edges.contains(&tile) && g.goal == Some(tile) {
-                gone.push(g.id);
             } else {
                 g.pose = Pose::Idle;
             }

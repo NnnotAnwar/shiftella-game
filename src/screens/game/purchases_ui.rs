@@ -101,12 +101,6 @@ pub fn card_lines(world: &World, content: &Content, loc: &Locale, d: &FurnitureD
         let line = match role {
             ApplianceRole::Parallel if acts => loc.tr_owned("purchases.card.parallel"),
             ApplianceRole::Parallel => loc.tr_owned("purchases.card.parallel_first"),
-            ApplianceRole::QuickQuality(q) if acts => {
-                loc.trf("purchases.card.grinder", &[("n", &pct(q))])
-            }
-            ApplianceRole::Washing(x) if acts => {
-                loc.trf("purchases.card.washing", &[("n", &pct(x))])
-            }
             ApplianceRole::Unlocks if !e.unlocks.is_empty() => {
                 let items: Vec<String> = e
                     .unlocks
@@ -116,7 +110,6 @@ pub fn card_lines(world: &World, content: &Content, loc: &Locale, d: &FurnitureD
                 loc.trf("purchases.card.unlocks", &[("items", &items.join(", "))])
             }
             ApplianceRole::Unlocks => String::new(),
-            _ => loc.tr_owned("purchases.card.no_more"),
         };
         if !line.is_empty() {
             out.push(line);

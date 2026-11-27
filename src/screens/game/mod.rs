@@ -13,6 +13,7 @@ mod build_cards;
 mod build_content_ui;
 mod build_overlay;
 mod build_themes;
+mod checklist_ui;
 pub mod coach;
 mod crew_ui;
 mod day;
@@ -20,6 +21,7 @@ mod duties;
 mod extras_ui;
 mod guest_label;
 pub mod hands;
+mod hands_hud;
 mod hands_ui;
 mod hands_view;
 mod hud;
@@ -30,9 +32,11 @@ mod pause;
 mod phone_app;
 mod photo_mode;
 mod purchases_ui;
+mod rituals_ui;
 pub mod scene;
 mod scene_fx;
 pub mod signature_ui;
+mod staff_life_view;
 mod stories_ui;
 pub mod tutorial;
 pub mod walk_home;
@@ -54,6 +58,7 @@ use crate::audio::{Audio, Sfx, Track};
 use crate::camera::WorldCamera;
 use crate::content::Content;
 use crate::cutscene::{CutscenePlayer, CutsceneStatus};
+use crate::profile;
 use crate::save::{SaveFile, SaveMeta, SaveStore, SessionExtra, Slot};
 use crate::settings::{Locale, Settings};
 use crate::ui::{
@@ -297,6 +302,8 @@ pub struct GameScreen {
     pub coach: coach::CoachState,
     /// A camera hint from the sim (a moment, a bot button): ease towards this world point.
     pub cam_target: Option<Vec2>,
+    /// The camera follows this person (the crew card's Follow; `hands_hud`).
+    pub follow: Option<AgentRef>,
     /// Polaroid photos (rendered from the journal's scene snapshots) and the journal's page.
     pub photos: journal_ui::Photos,
     /// Plain toasts on screen (newest last): their ids, a signature and when they came.
@@ -309,6 +316,8 @@ pub struct GameScreen {
     pub photo: photo_mode::PhotoMode,
     /// Little stories of strangers, the storm card and its 03:00 talk (design/v0.2.md H).
     pub stories: stories_ui::StoriesUi,
+    /// The little ritual gestures over a piece Karolina is doing (`rituals_ui`).
+    pub rituals: rituals_ui::RitualUi,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -390,12 +399,14 @@ impl GameScreen {
             latte_for: HashMap::new(),
             coach: coach::CoachState::default(),
             cam_target: None,
+            follow: None,
             photos: journal_ui::Photos::default(),
             recent_toasts: Default::default(),
             walk: Default::default(),
             sig: Default::default(),
             photo: Default::default(),
             stories: Default::default(),
+            rituals: Default::default(),
         }
     }
 
@@ -818,6 +829,14 @@ impl GameScreen {
                 self.push_ticker(Icon::Door, title.clone());
                 self.toast(ToastKind::Success, Icon::Door, title, Some(body));
             }
+            // 06:00: the sign flips back, the quiet closing half hour
+            SimEvent::DoorsClosed => {
+                self.scene.doors_opened_at = Some(self.time);
+                let title = tr("close.toast.doors_closed.title", &[]);
+                let body = tr("close.toast.doors_closed.body", &[]);
+                self.push_ticker(Icon::Door, title.clone());
+                self.toast(ToastKind::Info, Icon::Door, title, Some(body));
+            }
             SimEvent::NightEnded { summary } => {
                 self.summary_pending = Some(*summary);
                 self.panel = None;
@@ -1030,6 +1049,7 @@ impl GameScreen {
             SimEvent::DishBroken { .. } => audio.play_sfx_vol(Sfx::CupSaucer, 1.0),
             SimEvent::TrainPassing { .. } => audio.play_sfx(Sfx::TrainPass),
             SimEvent::DoorsOpened { .. } => audio.play_sfx_vol(Sfx::DoorBell, 0.9),
+            SimEvent::DoorsClosed => audio.play_sfx_vol(Sfx::DoorBell, 0.5),
             SimEvent::Blackout { on: true } => audio.play_sfx(Sfx::PowerOutage),
             SimEvent::ChoiceNeeded { .. } | SimEvent::EventStarted { .. } => {
                 audio.play_sfx_vol(Sfx::EventAlert, 0.8)
@@ -1234,11 +1254,18 @@ impl GameScreen {
         self.summary = None;
         self.summary_pending = None;
         if let Some(m) = minute {
+            bot.hold_doors = m < 0 || m >= sim::NIGHT_MINUTES as i32;
             self.world.start_night(content);
             let mut g = 0;
             // (minutes since 22:00: negative = the preparation half hour)
+            // (21:59 / 06:29: on until the clock waits there)
+            let wait_at = m == -1 || m == (sim::NIGHT_MINUTES + sim::CLOSE_MINUTES) as i32 - 1;
             while self.world.phase() == Phase::Night
-                && self.world.minutes_since_open() < m
+                && (self.world.minutes_since_open() < m
+                    || (wait_at
+                        && self.world.minutes_since_open() == m
+                        && !self.world.waiting_for_doors()
+                        && !self.world.waiting_to_close()))
                 && g < 20_000
             {
                 if let Some(id) = self.world.playing_cutscene().map(str::to_string) {
@@ -1250,7 +1277,19 @@ impl GameScreen {
                         },
                     );
                 }
-                bot.step(&mut self.world, content);
+                // (the bot never opens / closes up before the target time: a 21:59 or 06:10
+                // picture shows the waiting clock / the closing half hour)
+                if self.world.waiting_to_close() {
+                    break;
+                }
+                // `SHIFTELLA_DOORS=wait` (screenshots): she hasn't touched the opening / closing
+                // list yet, so at 21:59 / 06:29 the clock waits for her
+                let idle_prep = ((self.world.in_prep() && m < 0)
+                    || (self.world.in_closing() && m >= sim::NIGHT_MINUTES as i32))
+                    && std::env::var("SHIFTELLA_DOORS").is_ok_and(|v| v == "wait");
+                if !idle_prep {
+                    bot.step(&mut self.world, content);
+                }
                 self.world.tick(content);
                 self.scene.sim_steps += 1;
                 let evs = self.world.drain_events();
@@ -1287,10 +1326,16 @@ impl GameScreen {
         self.intro = false;
     }
 
-    /// Runs the current night to 06:00 and shows the morning summary.
+    /// Runs the current night to its end (the doors open at 21:59, she closes up at 06:29)
+    /// and shows the morning summary.
     pub fn run_to_morning(&mut self, content: &Rc<Content>, loc: &Locale) {
         let mut g = 0;
         while self.world.phase() == Phase::Night && g < 60_000 {
+            if self.world.waiting_for_doors() {
+                let _ = self.world.apply(content, Command::OpenDoors);
+            } else if self.world.waiting_to_close() {
+                let _ = self.world.apply(content, Command::CloseUp);
+            }
             if let Some(id) = self.world.playing_cutscene().map(str::to_string) {
                 let _ = self.world.apply(
                     content,
@@ -1321,6 +1366,38 @@ impl GameScreen {
         let _ = self.world.drain_events();
         self.summary = self.summary_pending.take();
         self.notices.clear();
+    }
+
+    /// Screenshot runs (`SHIFTELLA_COMBO=story_card,crew,…`): opens several layers at once
+    /// over whatever scene was built, to check how they overlap: `crew` (a helper's card),
+    /// `build`, `duties`, `app`, `journal` (panels — one at a time), `story_card` (the first
+    /// active story), `moment` (the first moment card), `book`, `photo` (the viewfinder),
+    /// `pause`, `summary` (the last night's summary).
+    pub fn combo_layers(&mut self, list: &str) {
+        for item in list.split(',').map(str::trim) {
+            match item {
+                "crew" => self.open_crew_card("helper"),
+                "build" => self.panel = Some(Panel::Build),
+                "duties" => self.panel = Some(Panel::Duties),
+                "app" => self.panel = Some(Panel::App),
+                "journal" => self.panel = Some(Panel::Journal),
+                "story_card" => {
+                    if let Some(g) = self.world.stories_active().first().map(|a| a.guest) {
+                        self.stories.card = Some(g);
+                    }
+                }
+                "moment" => {
+                    if let Some(id) = self.world.active_moments().first().map(|m| m.id.clone()) {
+                        self.open_moment(&id);
+                    }
+                }
+                "book" => self.open_book(None),
+                "photo" => self.photo.raise_for_shot(),
+                "pause" => self.pause = Some(Default::default()),
+                "summary" => self.summary = self.world.last_summary().cloned(),
+                _ => {}
+            }
+        }
     }
 
     /// Plays any cutscene by id (endings preview, tests) without the sim asking.
@@ -1389,16 +1466,20 @@ impl GameScreen {
         }
         let loc = cx.loc;
         // faces for avatars: baked before anything of this frame is drawn
+        let p_faces = profile::span(profile::Sec::Faces);
         self.register_faces(ui, &loc);
         hands_ui::faces(self, ui, content, &loc);
         build::faces(self, ui, content, &loc);
+        drop(p_faces);
         for e in std::mem::take(&mut self.deferred) {
             self.handle_event(content, e, Some(&loc));
         }
         // the walk home / the back step own the screen while they play
+        let p_walk = profile::span(profile::Sec::Walk);
         if walk_home::frame(self, ui, cx, dt) {
             return;
         }
+        drop(p_walk);
 
         // camera fits the café on the first frame
         if !self.cam_ready {
@@ -1409,6 +1490,7 @@ impl GameScreen {
         }
 
         // 1. cutscene or sim
+        let p_sim = profile::span(profile::Sec::Sim);
         self.relaxed = cx.settings.relaxed_minigames;
         let mut finished = None;
         if self.player.is_playing() {
@@ -1464,6 +1546,9 @@ impl GameScreen {
             }
         }
         self.drain_and_handle(content, Some(&loc));
+        drop(p_sim);
+        profile::count(profile::Counter::Ticks, ticks_run as u64);
+        let p_hands = profile::span(profile::Sec::Hands);
         if !self.player.is_playing() {
             for (sfx, vol) in self.hands_frame(content, dt) {
                 cx.audio.play_sfx_vol(sfx, vol);
@@ -1475,6 +1560,8 @@ impl GameScreen {
         }
         self.autosave_if_due(content, cx.store);
         self.update_audio(content, cx.audio);
+        drop(p_hands);
+        let p_refresh = profile::span(profile::Sec::Refresh);
         let anim_dt = if self.frozen() && !self.cutscene_playing() {
             dt * 0.35
         } else if self.overlay_open() {
@@ -1491,9 +1578,11 @@ impl GameScreen {
         // little icons over heads and on furniture stay readable when zoomed out
         crate::render::set_world_icon_scale(crate::render::icon_scale_for_zoom(self.cam.zoom));
         self.scene.refresh(&self.world, self.time, alpha);
+        drop(p_refresh);
 
         let t_sim = std::time::Instant::now();
         // 2. world
+        let p_world = profile::span(profile::Sec::World);
         if self.player.is_playing() {
             // story scenes play on the live café (its furniture, lamps, weather, people)
             self.scene
@@ -1505,10 +1594,14 @@ impl GameScreen {
                 && self.pause.is_none()
                 && !self.automation
                 && self.hands.minigame.is_none()
+                && !self.rituals.wants_keys()
                 && !ui.wants_keyboard()
                 && !(self.panel == Some(Panel::Crew) && crew_ui::arrows_held())
             {
-                self.cam.update();
+                let moved = self.cam.update();
+                self.follow_frame(moved, dt);
+            } else {
+                self.follow_frame(false, dt);
             }
             if let Some(tgt) = self.cam_target {
                 self.cam.center = self.cam.center.lerp(tgt, (dt * 2.5).min(1.0));
@@ -1537,7 +1630,9 @@ impl GameScreen {
             build::camera(self, dt);
             photo_mode::clamp_camera(self, Rect::new(0.0, 0.0, screen_width(), screen_height()));
             let cam = self.cam.to_camera2d();
-            let mouse_world = self.cam.screen_to_world(Vec2::from(mouse_position()));
+            let mouse_world = self
+                .cam
+                .screen_to_world(Vec2::from(crate::platform::pointer()));
             self.hovered = None;
             let mut pick = None;
             if !wants_mouse && self.pause.is_none() {
@@ -1560,6 +1655,7 @@ impl GameScreen {
             };
             self.scene
                 .draw(&self.world, content, &cam, t, sel, hov, &mut extra);
+            let _p_overlay = profile::span(profile::Sec::Overlay);
             let target = if wants_mouse || self.pause.is_some() || self.panel == Some(Panel::Build)
             {
                 None
@@ -1576,12 +1672,19 @@ impl GameScreen {
                 Some(hands_view::Target::Story(g)) => Some(g),
                 _ => None,
             };
+            self.hands.ritual_hover = match target {
+                Some(hands_view::Target::Checklist(i)) => Some(i),
+                _ => None,
+            };
             self.scene.sec_per_minute = self.world.real_seconds_per_tick(content) * 10.0;
+            // the viewfinder shows the café without the play marks (once a frame: a merge
+            // had left a second, unconditional call that drew them twice and into the
+            // viewfinder)
             if !self.photo.is_open() {
                 hands_view::draw_world(self, content, &loc, target, mouse_world);
+                staff_life_view::draw_world(self, content);
+                stories_ui::draw_world(self);
             }
-            hands_view::draw_world(self, content, &loc, target, mouse_world);
-            stories_ui::draw_world(self);
             if self.panel == Some(Panel::Build) {
                 build::draw_world_overlay(self, content, ghost.as_ref());
             }
@@ -1599,9 +1702,14 @@ impl GameScreen {
             }
         }
 
+        drop(p_world);
         let t_world = std::time::Instant::now();
         // 3. UI (photos for polaroids render first: they use their own camera)
-        journal_ui::prepare(self);
+        let _p_ui = profile::span(profile::Sec::Ui);
+        {
+            let _p = profile::span(profile::Sec::Photos);
+            journal_ui::prepare(self);
+        }
         ui.set_camera();
         self.anchors.clear();
         if self.player.is_playing() {
@@ -1623,8 +1731,12 @@ impl GameScreen {
             }
             // the left column under the meter first: the rail keeps clear of its anchors
             if self.world.phase() == Phase::Night && self.summary.is_none() {
-                walk_home::backstep_chip(self, ui, cx);
-                photo_mode::button(self, ui, cx);
+                // the crew card covers this column: its glass let the chips and the storm
+                // card show through (they come back when it closes)
+                if self.panel != Some(Panel::Crew) {
+                    walk_home::backstep_chip(self, ui, cx);
+                    photo_mode::button(self, ui, cx);
+                }
                 stories_ui::draw(self, ui, cx);
             }
             hands_ui::hud(self, ui, cx);
@@ -1635,6 +1747,15 @@ impl GameScreen {
             // after the HUD and the rail: the bubble keeps clear of them
             if !matches!(self.panel, Some(Panel::App | Panel::Duties)) {
                 hud::bubble(self, ui, cx);
+            }
+            hands_hud::queue_strip(self, ui, cx);
+            // a ritual gesture over the piece she is doing (only with nothing else open)
+            rituals_ui::frame(self, ui, cx, dt);
+            if self.follow.is_some() {
+                hands_hud::follow_chip(self, ui, cx);
+            }
+            if self.panel.is_none() {
+                checklist_ui::world_tip(self, ui, &loc, content);
             }
             match self.panel {
                 Some(Panel::Crew) => crew_ui::panel(self, ui, cx),
@@ -1652,6 +1773,7 @@ impl GameScreen {
                 day::planning(self, ui, cx);
             }
             hands_ui::overlays(self, ui, cx, dt);
+            stories_ui::card(self, ui, cx);
             signature_ui::overlays(self, ui, cx);
             photo_mode::frame_ui(self, ui, cx, dt);
             self.tutorial_update(cx);
@@ -1677,8 +1799,13 @@ impl GameScreen {
         if !self.player.is_playing() && self.hands.minigame.is_none() {
             self.draw_reading(ui, &loc);
         }
-        // toasts wait while a scene or a mini-game is on screen (the cup has her attention)
-        if !self.player.is_playing() && self.hands.minigame.is_none() && !self.stories.talk_open() {
+        // toasts wait while a scene or a mini-game is on screen (the cup has her attention),
+        // and while the camera is up (they covered the viewfinder's corner)
+        if !self.player.is_playing()
+            && self.hands.minigame.is_none()
+            && !self.stories.talk_open()
+            && !self.photo.is_open()
+        {
             self.flush_notices(ui, &loc);
             // the build panel sits over the dock: toasts rise above it
             let inset = if self.panel == Some(Panel::Build) {
@@ -1896,11 +2023,11 @@ impl GameScreen {
         }
         // right-click (not a camera drag): cancel the current act / drop a queued chip
         if is_mouse_button_pressed(MouseButton::Right) && !blocked {
-            self.hands.right_press = Some(Vec2::from(mouse_position()));
+            self.hands.right_press = Some(Vec2::from(crate::platform::pointer()));
         }
         if is_mouse_button_released(MouseButton::Right)
             && let Some(p0) = self.hands.right_press.take()
-            && p0.distance(Vec2::from(mouse_position())) < 6.0
+            && p0.distance(Vec2::from(crate::platform::pointer())) < 6.0
             && night
             && !blocked
             && self.panel != Some(Panel::Build)
@@ -1968,11 +2095,11 @@ impl GameScreen {
                 return;
             }
             Some(Target::Checklist(i)) => {
-                if let Some(it) = content.app.checklists.get(i) {
-                    let id = it.id.clone();
-                    if self.hand(content, Command::TickChecklist { id }) {
-                        self.hands.tut.bump("ritual_ticked");
-                    }
+                let open = content.app.checklists.get(i).is_some_and(|it| {
+                    self.world.checklist_mark(&it.id) == sim::ChecklistMark::Open
+                });
+                if self.intent(content, Intent::Checklist(i)) && open {
+                    self.hands.tut.bump("ritual_ticked");
                 }
                 return;
             }
@@ -2076,6 +2203,8 @@ impl GameScreen {
                 self.hands.records_open = false;
             } else if self.hands.order.is_some() {
                 self.hands.order = None;
+            } else if self.esc_stops_follow() {
+                // Esc stops following first (the card it came from stays open)
             } else if self.panel == Some(Panel::Build) && self.ui_state.build.active() {
                 self.ui_state.build.cancel();
             } else if self.panel == Some(Panel::Crew) {
@@ -2101,9 +2230,13 @@ impl GameScreen {
             if pressed(ui, A::Crew) {
                 toggle(&mut self.panel, Panel::Crew);
             }
-            // H = the duties board (P stays as the old priorities key while P is free)
+            // H = the duties board (P stays as the old priorities key while P is free; at
+            // night P is the camera even when it can't open now — build mode, a story card —
+            // and doesn't swap the open panel for the duties board)
+            let p_is_camera = self.world.phase() == Phase::Night
+                && crate::settings::keys::key(A::Photo) == KeyCode::P;
             if pressed(ui, A::Duties)
-                || (crate::settings::keys::legacy_duties_p() && ui.key(KeyCode::P))
+                || (crate::settings::keys::legacy_duties_p() && !p_is_camera && ui.key(KeyCode::P))
             {
                 toggle(&mut self.panel, Panel::Duties);
             }
@@ -2139,6 +2272,11 @@ impl GameScreen {
         }
         if ui.key(KeyCode::Home) {
             self.cam_ready = false;
+            self.set_follow(None);
+        }
+        // the queue strip opens / closes (Settings → Controls, default Q)
+        if pressed(ui, A::Queue) && self.world.phase() == Phase::Night {
+            self.hands.queue_open = !self.hands.queue_open;
         }
         if self.panel == Some(Panel::Build) {
             build::hotkeys(self, ui, content);
@@ -2167,6 +2305,14 @@ impl GameScreen {
             }
             if pressed(ui, A::Greet) {
                 self.intent(content, Intent::Greet);
+            }
+            // O: open the doors (the preparation) / close up (the closing half hour)
+            if pressed(ui, A::Doors) {
+                if self.world.in_prep() {
+                    let _ = self.command(content, Command::OpenDoors);
+                } else if self.world.in_closing() {
+                    let _ = self.command(content, Command::CloseUp);
+                }
             }
             // F: the nearest night moment's card
             if pressed(ui, A::Moment)
@@ -2260,6 +2406,10 @@ fn is_flow_event(e: &SimEvent) -> bool {
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_chaos;
+#[cfg(test)]
+mod tests_combos;
 
 #[cfg(test)]
 mod capitalize_tests {

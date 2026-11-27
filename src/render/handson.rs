@@ -1113,6 +1113,8 @@ pub fn icon_scale_for_zoom(zoom: f32) -> f32 {
 
 /// Chip size and gap in world pixels (× `world_icon_scale`).
 pub const QUEUE_CHIP: f32 = 16.0;
+/// Gap between her head (`emote_anchor`) and the chips' bottom (world px × icon scale).
+pub const QUEUE_LIFT: f32 = 3.0;
 const QUEUE_GAP: f32 = 3.0;
 
 /// World rects of `n` queue chips over `anchor` (`emote_anchor` of Karolina), left to right.
@@ -1123,7 +1125,8 @@ pub fn queue_chip_rects(anchor: Vec2, n: usize) -> Vec<Rect> {
     let (chip, gap) = (QUEUE_CHIP * s, QUEUE_GAP * s);
     let total = n as f32 * chip + (n.max(1) - 1) as f32 * gap;
     let x0 = anchor.x - total / 2.0;
-    let y = anchor.y - 14.0 * s - chip;
+    // just above her head (a speech bubble goes above the chips, never between)
+    let y = anchor.y - QUEUE_LIFT * s - chip;
     (0..n)
         .map(|i| Rect::new(x0 + i as f32 * (chip + gap), y, chip, chip))
         .collect()

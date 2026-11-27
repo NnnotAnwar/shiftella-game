@@ -1,6 +1,7 @@
 //! The preparation half hour before the doors open (21:30–22:00): no guests, the opening
-//! ritual is doable in peace, the crew walks in, the doors open at 22:00 (or earlier on
-//! request), saves mid-prep, older saves.
+//! ritual is doable in peace, the crew walks in at once and helps, the clock waits at 21:59
+//! until she opens the doors (or the opening list is done: they open by themselves), saves
+//! mid-prep, older saves.
 
 use super::*;
 use crate::content::Content;
@@ -22,6 +23,9 @@ fn ticks(w: &mut World, c: &Content, n: u32) -> Vec<SimEvent> {
     out
 }
 
+/// Game minutes of the preparation as ticks.
+const QM: u32 = QUIET_TICKS_PER_MINUTE;
+
 /// A story night `n` at 21:30 (cutscenes done), the tutorial off.
 fn story_evening(c: &Content, n: u32) -> World {
     let mut w = World::new_story(c, Difficulty::Cozy);
@@ -34,6 +38,8 @@ fn story_evening(c: &Content, n: u32) -> World {
     w.start_night(c);
     bot::finish_cutscenes(&mut w, c);
     w.drain_events();
+    // the clock waits at 21:59 for her (as in the game)
+    w.auto_doors = false;
     w
 }
 
@@ -56,10 +62,15 @@ fn the_night_begins_at_half_past_nine_with_the_doors_closed() {
     assert_eq!(w.minutes_since_open(), -30);
     assert_eq!(w.minute(), 0, "the night clock waits at 22:00");
     assert_eq!(w.evening_progress(), 0.0);
-    // the preparation runs a little quicker in real time
     let base = c.handson.tuning.real_seconds_per_tick_x1;
     let prep = w.real_seconds_per_tick(&c);
     assert!((prep - base * c.handson.tuning.prep_tick_scale).abs() < 1e-6);
+    // the owner: "time runs too fast for opening" — the half hour is 1.5–2 real minutes at ×1
+    let real = PREP_TICKS as f32 * prep / 60.0;
+    assert!(
+        (1.4..=2.0).contains(&real),
+        "the preparation takes {real:.2} real minutes"
+    );
 }
 
 #[test]
@@ -68,9 +79,10 @@ fn nobody_comes_in_before_the_doors_open_at_ten() {
     // a busy night with helpers, trains, regulars and events — all of it after 22:00
     for n in [1u32, 9, 18] {
         let mut w = story_evening(&c, n);
-        // even a burst of extra walk-ins asked for during the preparation waits
-        let ev = ticks(&mut w, &c, PREP_TICKS - 10);
+        // the preparation runs to 21:59, then the clock waits for her (nobody did the list)
+        let ev = ticks(&mut w, &c, PREP_TICKS + 40 * QM);
         assert!(w.in_prep(), "night {n}");
+        assert!(w.waiting_for_doors(), "night {n}: the clock waits at 21:59");
         assert_eq!(w.clock_label(), "21:59");
         for e in &ev {
             assert!(
@@ -89,10 +101,16 @@ fn nobody_comes_in_before_the_doors_open_at_ten() {
             );
         }
         assert!(w.parties().is_empty() && w.guests().is_empty());
-        let ev = ticks(&mut w, &c, 10);
+        assert_eq!(
+            w.minute(),
+            0,
+            "night {n}: the night clock still waits at 22:00"
+        );
+        w.apply(&c, Command::OpenDoors).unwrap();
         assert!(
-            ev.contains(&SimEvent::DoorsOpened { early_minutes: 0 }),
-            "night {n}: the doors open by themselves"
+            w.drain_events()
+                .contains(&SimEvent::DoorsOpened { early_minutes: 0 }),
+            "night {n}: she opens the doors at 21:59"
         );
         assert!(w.doors_open());
         assert_eq!(w.clock_label(), "22:00");
@@ -128,7 +146,10 @@ fn karolina_can_finish_the_opening_ritual_before_the_first_guests() {
     let mut todo = opening_ids(&c);
     let mut ready = None;
     let mut open = None;
-    for _ in 0..PREP_TICKS {
+    for _ in 0..PREP_TICKS * 2 {
+        if w.doors_open() {
+            break;
+        }
         if let Some(id) = todo.first().cloned() {
             let r = if id == "menu_board" {
                 let s = w.specials().to_vec();
@@ -157,13 +178,14 @@ fn karolina_can_finish_the_opening_ritual_before_the_first_guests() {
     }
     let ready = ready.expect("\"The café is ready.\" before the doors open");
     assert!(ready < 0, "ready at {ready} (before 22:00)");
+    // the list is done: at 21:59 the doors open by themselves (the clock jumps to 22:00)
     assert_eq!(open, Some(0));
     // the ritual's mood/coziness bonus is on for the night
     assert!(w.sys.tool.rituals[0]);
 }
 
 #[test]
-fn the_early_crew_walks_in_by_quarter_to_ten_and_takes_their_items() {
+fn the_crew_walks_in_at_half_past_nine_and_takes_their_items() {
     let c = content();
     let mut w = World::new_sandbox(&c, SandboxSetup::default());
     bot::finish_cutscenes(&mut w, &c);
@@ -171,6 +193,21 @@ fn the_early_crew_walks_in_by_quarter_to_ten_and_takes_their_items() {
     for id in ids {
         w.apply(&c, Command::Hire { candidate: id }).unwrap();
     }
+    // both new helpers work tonight (their own day-off wishes hash off their ids)
+    let wd = w.weekday;
+    let hired: Vec<u32> = w.staff().iter().rev().take(2).map(|s| s.id).collect();
+    for id in hired {
+        w.apply(
+            &c,
+            Command::SetShift {
+                staff: id,
+                weekday: wd,
+                shift: Shift::Full,
+            },
+        )
+        .unwrap();
+    }
+    w.apply(&c, Command::PublishSchedule).unwrap();
     for s in w.staff.iter_mut().filter(|s| !s.owner) {
         s.duties = vec![
             crate::content::handson::Duty::Bar,
@@ -197,8 +234,8 @@ fn the_early_crew_walks_in_by_quarter_to_ten_and_takes_their_items() {
     assert_eq!(helpers.len(), 2, "both helpers are on tonight's rozpis");
     let k = w.karolina().unwrap();
     assert!(k.on_duty(), "Karolina is inside at 21:30");
-    let ev = ticks(&mut w, &c, 16 * TICKS_PER_MINUTE);
-    assert_eq!(w.clock_label(), "21:46");
+    let ev = ticks(&mut w, &c, 5 * QM);
+    assert_eq!(w.clock_label(), "21:35");
     for id in &helpers {
         assert!(
             ev.contains(&SimEvent::StaffArrived { staff: *id }),
@@ -211,7 +248,7 @@ fn the_early_crew_walks_in_by_quarter_to_ten_and_takes_their_items() {
         );
     }
     // with nobody to serve, helpers do the opening items of their duties
-    ticks(&mut w, &c, 14 * TICKS_PER_MINUTE);
+    ticks(&mut w, &c, 14 * QM);
     let by_helper = w
         .app()
         .checklist
@@ -222,14 +259,14 @@ fn the_early_crew_walks_in_by_quarter_to_ten_and_takes_their_items() {
         by_helper > 0,
         "a helper ticked an opening item before 22:00"
     );
-    assert!(w.doors_open());
+    assert!(w.in_prep());
 }
 
 #[test]
 fn open_the_doors_now_jumps_to_ten() {
     let c = content();
     let mut w = story_evening(&c, 2);
-    ticks(&mut w, &c, 12 * TICKS_PER_MINUTE);
+    ticks(&mut w, &c, 12 * QM);
     assert_eq!(w.clock_label(), "21:42");
     w.apply(&c, Command::OpenDoors).unwrap();
     assert!(
@@ -252,14 +289,19 @@ fn open_the_doors_now_jumps_to_ten() {
 fn a_save_in_the_preparation_continues_identically() {
     let c = content();
     let mut w = story_evening(&c, 4);
-    ticks(&mut w, &c, 10 * TICKS_PER_MINUTE + 3);
+    ticks(&mut w, &c, 10 * QM + 3);
     assert_eq!(w.clock_label(), "21:40");
     let text = w.save_to_string().unwrap();
     let mut loaded = World::load_from_str(&text).unwrap();
+    loaded.auto_doors = false;
     assert!(loaded.in_prep());
     assert_eq!(loaded.clock_label(), "21:40");
-    ticks(&mut w, &c, 40 * TICKS_PER_MINUTE);
-    ticks(&mut loaded, &c, 40 * TICKS_PER_MINUTE);
+    for x in [&mut w, &mut loaded] {
+        ticks(x, &c, 30 * QM);
+        assert!(x.waiting_for_doors());
+        x.apply(&c, Command::OpenDoors).unwrap();
+        ticks(x, &c, 20 * TICKS_PER_MINUTE);
+    }
     assert_eq!(w.clock_label(), "22:20");
     assert_eq!(w.save_to_string(), loaded.save_to_string());
 }
@@ -331,6 +373,9 @@ fn mirek_comes_in_once_on_night_one_and_his_scene_plays_as_he_arrives() {
         let mut scene_at = None;
         let mut guard = 0;
         while w.minutes_since_open() < 180 && guard < 200_000 {
+            if w.waiting_for_doors() {
+                w.apply(&c, Command::OpenDoors).unwrap();
+            }
             w.tick(&c);
             if w.playing_cutscene() == Some("mirek_first") && scene_at.is_none() {
                 scene_at = Some(w.minutes_since_open());
@@ -360,5 +405,158 @@ fn mirek_comes_in_once_on_night_one_and_his_scene_plays_as_he_arrives() {
             "Mirek came in {} times by 01:00",
             mirek_parties.len()
         );
+    }
+}
+
+/// 0.2.0 saves taken in the preparation counted its ticks at the night's rate (10 a minute):
+/// they load at the same clock time and the clock then waits at 21:59 as now.
+#[test]
+fn a_preparation_save_from_0_2_0_keeps_its_clock_time() {
+    let c = content();
+    let mut w = story_evening(&c, 4);
+    ticks(&mut w, &c, 10 * QM);
+    assert_eq!(w.clock_label(), "21:40");
+    let text = w.save_to_string().unwrap();
+    assert!(text.contains(&format!("prep_left:{},", PREP_TICKS - 10 * QM)));
+    // what 0.2.0 wrote at 21:40: 200 ticks left of 300, no `close_tick` / `flow`
+    let old = text
+        .replace(
+            &format!("prep_left:{},", PREP_TICKS - 10 * QM),
+            "prep_left:200,",
+        )
+        .replace("close_tick:0,", "")
+        .replace("flow:1,", "");
+    assert!(!old.contains("flow:") && !old.contains("close_tick"));
+    let mut loaded = World::load_from_str(&old).unwrap();
+    loaded.auto_doors = false;
+    assert!(loaded.in_prep());
+    assert_eq!(loaded.clock_label(), "21:40");
+    ticks(&mut loaded, &c, 25 * QM);
+    assert!(loaded.waiting_for_doors(), "{}", loaded.clock_label());
+}
+
+/// The owner: "let the colleagues help with the opening too" — with a full crew the opening
+/// list is done well before 21:59 (Karolina only does her own three items), so she can open
+/// early.
+#[test]
+fn a_full_crew_finishes_the_opening_list_in_the_preparation() {
+    use crate::content::handson::Duty;
+    let c = content();
+    let mut w = World::new_sandbox(&c, SandboxSetup::default());
+    bot::finish_cutscenes(&mut w, &c);
+    w.sys.tutorial_off = true;
+    let ids: Vec<u32> = w.candidates().iter().map(|x| x.id).take(3).collect();
+    for id in ids {
+        w.apply(&c, Command::Hire { candidate: id }).unwrap();
+    }
+    let crew: Vec<Vec<Duty>> = vec![
+        vec![Duty::Bar, Duty::Serving],
+        vec![Duty::Kitchen, Duty::Register],
+        vec![Duty::Floor, Duty::Dishes],
+    ];
+    for (s, d) in w.staff.iter_mut().filter(|s| !s.owner).zip(crew) {
+        s.duties = d;
+    }
+    w.start_night(&c);
+    bot::finish_cutscenes(&mut w, &c);
+    w.drain_events();
+    // (the whole crew on tonight's rozpis, punctual)
+    for s in w.staff.iter_mut().filter(|s| !s.owner) {
+        s.status = StaffStatus::Expected { minute: 0 };
+        s.late_minutes = 0;
+    }
+    let k = w.karolina().unwrap().id;
+    // her own items: the window, the specials board, a record
+    w.apply(
+        &c,
+        Command::TickChecklist {
+            id: "light_window".into(),
+        },
+    )
+    .unwrap();
+    let sp = w.specials().to_vec();
+    w.apply(&c, Command::SetSpecials { recipes: sp }).unwrap();
+    w.apply(
+        &c,
+        Command::TickChecklist {
+            id: "record_on".into(),
+        },
+    )
+    .unwrap();
+    let mut done_at = None;
+    let mut kitchen = false;
+    for _ in 0..PREP_TICKS {
+        w.tick(&c);
+        for e in w.drain_events() {
+            if let SimEvent::EquipmentUsed { by: Some(b), .. } = e
+                && b != k
+            {
+                kitchen = true;
+            }
+        }
+        if done_at.is_none() && super::tool::list_done(&w, &c, ChecklistKind::Opening) {
+            done_at = Some(w.minutes_since_open());
+            break;
+        }
+        if w.waiting_for_doors() {
+            break;
+        }
+    }
+    let at = done_at.expect("the opening list is done in the preparation");
+    assert!(at <= -10, "the crew had the café ready by 21:50 ({at})");
+    let by_crew = w
+        .app()
+        .checklist
+        .iter()
+        .filter(|s| s.done && s.by.is_some_and(|b| b != k))
+        .count();
+    assert!(by_crew >= 3, "the crew did {by_crew} opening items");
+    assert!(
+        kitchen,
+        "the kitchen helper put the soup on / the milk out in the preparation"
+    );
+    // she can open early; nobody was paid for the preparation
+    assert!(w.in_prep());
+    w.apply(&c, Command::OpenDoors).unwrap();
+    assert!(w.staff().iter().all(|s| s.minutes_worked == 0));
+}
+
+/// An item Karolina queued herself is never taken by a helper holding its duty.
+#[test]
+fn helpers_never_take_an_item_karolina_queued() {
+    use crate::content::handson::Duty;
+    let c = content();
+    let mut w = World::new_sandbox(&c, SandboxSetup::default());
+    bot::finish_cutscenes(&mut w, &c);
+    w.sys.tutorial_off = true;
+    let id = w.candidates()[0].id;
+    w.apply(&c, Command::Hire { candidate: id }).unwrap();
+    for s in w.staff.iter_mut().filter(|s| !s.owner) {
+        s.duties = vec![Duty::Bar, Duty::Register, Duty::Kitchen];
+    }
+    w.start_night(&c);
+    bot::finish_cutscenes(&mut w, &c);
+    w.drain_events();
+    for s in w.staff.iter_mut().filter(|s| !s.owner) {
+        s.status = StaffStatus::Expected { minute: 0 };
+        s.late_minutes = 0;
+    }
+    let k = w.karolina().unwrap().id;
+    // she queues the helper's kinds of items herself, before the helper is even in
+    let mine = ["coffee_warmup", "count_float", "check_stock"];
+    for id in mine {
+        w.apply(&c, Command::TickChecklist { id: id.into() })
+            .unwrap();
+    }
+    for _ in 0..PREP_TICKS {
+        w.tick(&c);
+        if w.waiting_for_doors() {
+            break;
+        }
+    }
+    for id in mine {
+        let st = w.app().checklist.iter().find(|s| s.id == id).unwrap();
+        assert!(st.done, "{id} done");
+        assert_eq!(st.by, Some(k), "{id} is hers (she queued it)");
     }
 }

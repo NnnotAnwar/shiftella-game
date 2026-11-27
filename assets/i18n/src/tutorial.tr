@@ -131,10 +131,10 @@ uk Час — у твоєму темпі
 ru Время — в твоём темпе
 
 tutorial.time.body
-cs {Key.pause} pozastaví, {key.speed1}/{key.speed2}/{key.speed3} mění rychlost. Pruh pod hodinami ukazuje noc do 06:00, trojúhelníčky jsou vlaky — přivezou malý nával.
-en {Key.pause} pauses, {key.speed1}/{key.speed2}/{key.speed3} change the speed. The bar under the clock is the night until 06:00; the little marks are trains — each brings a small rush.
-uk {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — швидкість. Смуга під годинником — ніч до 06:00, трикутнички — поїзди: кожен привозить невеликий наплив.
-ru {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — скорость. Полоса под часами — ночь до 06:00, треугольнички — поезда: каждый привозит небольшой наплыв.
+cs {Key.pause} pozastaví, {key.speed1}/{key.speed2}/{key.speed3} mění rychlost. Pruh pod hodinami ukazuje večer od 21:30 do 06:30 — světlé konce jsou příprava a zavírání (dveře zavřené), trojúhelníčky jsou vlaky — přivezou malý nával.
+en {Key.pause} pauses, {key.speed1}/{key.speed2}/{key.speed3} change the speed. The bar under the clock is the evening, 21:30–06:30 — its pale ends are the preparation and the closing (doors closed); the little marks are trains — each brings a small rush.
+uk {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — швидкість. Смуга під годинником — вечір з 21:30 до 06:30: світлі краї — підготовка й закриття (двері зачинено), трикутнички — поїзди: кожен привозить невеликий наплив.
+ru {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — скорость. Полоса под часами — вечер с 21:30 до 06:30: светлые края — подготовка и закрытие (двери закрыты), треугольнички — поезда: каждый привозит небольшой наплыв.
 
 tutorial.guests.title
 cs Hosté
@@ -217,10 +217,10 @@ uk День і ніч
 ru День и ночь
 
 ui.help.rhythm.body
-cs Ve dne plánuješ (hodiny stojí). V noci od 22:00 do 06:00 kavárna běží. Ráno shrnutí a automatické uložení. Enter začne noc.
-en By day you plan (the clock stands still). At night, 22:00–06:00, the café runs. In the morning: a summary and an autosave. Enter starts the night.
-uk Удень плануєш (годинник стоїть). Уночі, з 22:00 до 06:00, кав'ярня працює. Уранці — підсумок і автозбереження. Enter починає ніч.
-ru Днём планируешь (часы стоят). Ночью, с 22:00 до 06:00, кафе работает. Утром — итоги и автосохранение. Enter начинает ночь.
+cs Ve dne plánuješ (hodiny stojí). V noci jsou dveře otevřené od 22:00 do 06:00: od 21:30 chystáš kavárnu (v 21:59 hodiny počkají, až otevřeš, {key.doors}), poslední objednávky v 5:15, po šesté v klidu zavřeš. Ráno shrnutí a automatické uložení. Enter začne noc.
+en By day you plan (the clock stands still). At night the doors are open 22:00–06:00: from 21:30 you get the café ready (at 21:59 the clock waits until you open the doors, {key.doors}), last call is 5:15, and after six you close up in peace. In the morning: a summary and an autosave. Enter starts the night.
+uk Удень плануєш (годинник стоїть). Уночі двері відчинені з 22:00 до 06:00: з 21:30 готуєш кав'ярню (о 21:59 годинник чекає, поки відчиниш, {key.doors}), останнє замовлення о 5:15, після шостої спокійно зачиняєш. Уранці — підсумок і автозбереження. Enter починає ніч.
+ru Днём планируешь (часы стоят). Ночью двери открыты с 22:00 до 06:00: с 21:30 готовишь кафе (в 21:59 часы ждут, пока откроешь, {key.doors}), последний заказ в 5:15, после шести спокойно закрываешься. Утром — итоги и автосохранение. Enter начинает ночь.
 
 ui.help.crew.title
 cs Personál ({key.crew})

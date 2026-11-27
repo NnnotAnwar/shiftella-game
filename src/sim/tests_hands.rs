@@ -258,10 +258,16 @@ fn a_quick_plain_brew_makes_the_round_and_carries_a_tray() {
 }
 
 #[test]
-fn the_queue_is_fifo_capped_at_five_and_can_be_reordered_and_cancelled() {
+fn the_queue_is_fifo_capped_at_eight_and_can_be_reordered_and_cancelled() {
     let c = content();
     let mut w = story_night(&c, 1, Difficulty::Cozy);
-    let spots: Vec<(i32, i32)> = (0..6).map(|k| (3 + k, 4)).collect();
+    let spots: Vec<(i32, i32)> = (3..12)
+        .flat_map(|y| (2..14).map(move |x| (x, y)))
+        .filter(|t| w.grid.walkable(t.0, t.1))
+        .take(9)
+        .collect();
+    assert_eq!(spots.len(), 9);
+    assert_eq!(PLAYER_QUEUE_MAX, 8);
     // the day refuses acts
     let mut day = World::new_story(&c, Difficulty::Cozy);
     assert_eq!(
@@ -274,7 +280,7 @@ fn the_queue_is_fifo_capped_at_five_and_can_be_reordered_and_cancelled() {
         ),
         Err(CommandError::WrongPhase)
     );
-    for t in &spots[..5] {
+    for t in &spots[..8] {
         w.apply(
             &c,
             Command::PlayerQueue {
@@ -288,36 +294,135 @@ fn the_queue_is_fifo_capped_at_five_and_can_be_reordered_and_cancelled() {
         w.apply(
             &c,
             Command::PlayerQueue {
-                act: PlayerAct::GoTo { tile: spots[5] },
+                act: PlayerAct::GoTo { tile: spots[8] },
                 front: true,
             },
         ),
         Err(CommandError::QueueFull)
     );
-    w.apply(&c, Command::PlayerUnqueue { index: 4 }).unwrap();
+    w.apply(&c, Command::PlayerUnqueue { index: 7 }).unwrap();
     w.apply(
         &c,
         Command::PlayerQueue {
-            act: PlayerAct::GoTo { tile: spots[5] },
+            act: PlayerAct::GoTo { tile: spots[8] },
             front: true,
         },
     )
     .unwrap();
     assert_eq!(
         w.player().queue.front(),
-        Some(&PlayerAct::GoTo { tile: spots[5] })
+        Some(&PlayerAct::GoTo { tile: spots[8] })
     );
     w.tick(&c);
     assert_eq!(
         w.player().current.as_ref().map(|a| a.act.clone()),
-        Some(PlayerAct::GoTo { tile: spots[5] }),
+        Some(PlayerAct::GoTo { tile: spots[8] }),
         "shift+click = do next"
     );
     w.apply(&c, Command::PlayerCancel).unwrap();
     assert!(w.player().current.is_none());
-    assert_eq!(w.player().queue.len(), 4);
+    assert_eq!(w.player().queue.len(), 7);
     assert!(w.apply(&c, Command::PlayerUnqueue { index: 9 }).is_err());
     assert!(w.apply(&c, Command::PlayerCancel).is_err());
+}
+
+#[test]
+fn the_queue_reorders_drops_one_and_clears_all() {
+    let c = content();
+    let mut w = story_night(&c, 1, Difficulty::Cozy);
+    let tiles: Vec<(i32, i32)> = (0..4).map(|k| (3 + k, 4)).collect();
+    // the first act starts at once; the other three wait in the queue
+    for t in &tiles {
+        w.apply(
+            &c,
+            Command::PlayerQueue {
+                act: PlayerAct::GoTo { tile: *t },
+                front: false,
+            },
+        )
+        .unwrap();
+    }
+    w.tick(&c);
+    let queued = |w: &World| -> Vec<PlayerAct> { w.player().queue.iter().cloned().collect() };
+    let go = |k: usize| PlayerAct::GoTo { tile: tiles[k] };
+    assert_eq!(queued(&w), vec![go(1), go(2), go(3)]);
+    // the last to the front, then back one step
+    w.apply(&c, Command::PlayerReorder { from: 2, to: 0 })
+        .unwrap();
+    assert_eq!(queued(&w), vec![go(3), go(1), go(2)]);
+    w.apply(&c, Command::PlayerReorder { from: 0, to: 1 })
+        .unwrap();
+    assert_eq!(queued(&w), vec![go(1), go(3), go(2)]);
+    assert!(
+        w.apply(&c, Command::PlayerReorder { from: 0, to: 3 })
+            .is_err()
+    );
+    assert!(
+        w.apply(&c, Command::PlayerReorder { from: 5, to: 0 })
+            .is_err()
+    );
+    // × drops one
+    w.apply(&c, Command::PlayerUnqueue { index: 1 }).unwrap();
+    assert_eq!(queued(&w), vec![go(1), go(2)]);
+    // Clear all: the queue empties, the current act goes on
+    w.apply(&c, Command::PlayerClearQueue).unwrap();
+    assert!(w.player().queue.is_empty());
+    assert_eq!(
+        w.player().current.as_ref().map(|a| a.act.clone()),
+        Some(go(0))
+    );
+    assert!(
+        w.apply(&c, Command::PlayerClearQueue).is_err(),
+        "nothing left"
+    );
+}
+
+#[test]
+fn a_checklist_item_reads_open_then_hers_then_done_and_a_click_can_cancel_it() {
+    let c = content();
+    let mut w = story_night(&c, 1, Difficulty::Cozy);
+    let id = "count_float";
+    assert_eq!(w.checklist_mark(id), ChecklistMark::Open);
+    w.apply(&c, Command::TickChecklist { id: id.into() })
+        .unwrap();
+    // queued: it says so (not done), and who has it
+    let me = w.karolina().unwrap().id;
+    assert!(matches!(
+        w.checklist_mark(id),
+        ChecklistMark::Taken { by, karolina: true, .. } if by == me
+    ));
+    let slot = w.karolina_checklist_slot(id).expect("in her hands");
+    // cancelled: open again, nobody holds it
+    if slot == 0 && w.player().current.is_some() {
+        w.apply(&c, Command::PlayerCancel).unwrap();
+    } else {
+        let qi = slot - usize::from(w.player().current.is_some());
+        w.apply(&c, Command::PlayerUnqueue { index: qi }).unwrap();
+    }
+    assert_eq!(w.checklist_mark(id), ChecklistMark::Open);
+    assert!(w.karolina_checklist_slot(id).is_none());
+    // queued again and walked to: done, with who and when
+    w.apply(&c, Command::TickChecklist { id: id.into() })
+        .unwrap();
+    w.tick(&c);
+    assert!(matches!(
+        w.checklist_mark(id),
+        ChecklistMark::Taken {
+            karolina: true,
+            doing: true,
+            ..
+        }
+    ));
+    for _ in 0..600 {
+        if matches!(w.checklist_mark(id), ChecklistMark::Done { .. }) {
+            break;
+        }
+        w.tick(&c);
+    }
+    assert!(matches!(
+        w.checklist_mark(id),
+        ChecklistMark::Done { by: Some(b), minute: Some(_) } if b == me
+    ));
 }
 
 #[test]
@@ -329,7 +434,9 @@ fn greeting_and_the_micro_acts_wash_and_mop() {
     w.apply(&c, Command::PlayerGreet { guest: pid }).unwrap();
     assert!(party(&w, pid).satisfaction > sat);
     assert!(w.apply(&c, Command::PlayerGreet { guest: pid }).is_err());
-    // wash: she walks to the sink, then each hold washes 2 dishes per second
+    // wash: she walks to the sink, then each hold washes 2 dishes per second (without the
+    // drying rack beside it — that one is `tests_bar`)
+    w.furniture.retain(|p| p.def != "dish_rack");
     w.sink_dishes = 9;
     let sink = w
         .furniture
@@ -411,8 +518,12 @@ fn capacity_limits_duties_and_grows_with_nights_and_skill() {
     w.staff[1].skills = [5.0; 5];
     w.staff[1].traits.clear();
     w.staff[1].nights_worked = 0;
-    assert_eq!(w.capacity(&c, id), 1);
-    assert_eq!(w.staff_duties(id).len(), 1, "the hire card's default duty");
+    assert_eq!(w.capacity(&c, id), 2);
+    assert_eq!(
+        w.staff_duties(id).len(),
+        2,
+        "the hire card's two default duties"
+    );
     let other = Duty::ALL
         .iter()
         .copied()
@@ -430,9 +541,9 @@ fn capacity_limits_duties_and_grows_with_nights_and_skill() {
         Err(CommandError::Capacity)
     );
     w.staff[1].nights_worked = 3;
-    assert_eq!(w.capacity(&c, id), 2);
+    assert_eq!(w.capacity(&c, id), 3);
     w.staff[1].skills[Duty::Floor.job().index()] = 8.0;
-    assert_eq!(w.capacity(&c, id), 2, "skill counts for held duties only");
+    assert_eq!(w.capacity(&c, id), 3, "never above the cap");
     w.apply(
         &c,
         Command::SetDuty {
@@ -1136,7 +1247,19 @@ fn a_mid_night_save_continues_identically_with_karolina_busy() {
     b.day(&mut w, &c);
     bot::finish_cutscenes(&mut w, &c);
     w.start_night(&c);
-    for _ in 0..1800 {
+    // (to 02:30, whatever the preparation took)
+    let mut guard = 0;
+    while (w.in_prep() || w.minute() < 150) && guard < 10_000 {
+        bot::finish_cutscenes(&mut w, &c);
+        b.step(&mut w, &c);
+        w.tick(&c);
+        guard += 1;
+    }
+    // a quiet moment is no test: go on until she's busy or guests are in
+    for _ in 0..3000 {
+        if w.player().current.is_some() || !w.parties().is_empty() {
+            break;
+        }
         bot::finish_cutscenes(&mut w, &c);
         b.step(&mut w, &c);
         w.tick(&c);

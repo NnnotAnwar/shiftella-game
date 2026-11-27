@@ -17,7 +17,7 @@ use crate::content::handson::{HallMood, MatchTier, MiniGameKind};
 /// shipped default.
 pub const REAL_SECONDS_PER_TICK_X1: f32 = 0.13;
 /// Karolina's action queue holds at most this many acts (current act not included).
-pub const PLAYER_QUEUE_MAX: usize = 5;
+pub const PLAYER_QUEUE_MAX: usize = 8;
 
 /// How Karolina makes a drink or a dish.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -189,7 +189,7 @@ impl ActiveAct {
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct PlayerState {
-    /// FIFO, at most [`PLAYER_QUEUE_MAX`].
+    /// FIFO (the player may reorder it), at most [`PLAYER_QUEUE_MAX`].
     pub queue: VecDeque<PlayerAct>,
     pub current: Option<ActiveAct>,
     /// Game minutes in a row with nothing meaningful to do (the lull director's clock).
@@ -372,6 +372,9 @@ pub struct HandsState {
     pub place_jukebox: bool,
     /// Tonight's appliances (v0.2): the warm machine, the soup pot, the cake, the tray…
     pub equip: super::equipment::EquipState,
+    /// Tonight's ritual gestures (`sim::rituals`): the one in the player's hands, the items
+    /// done by hand.
+    pub rituals: super::rituals::RitualState,
 }
 
 /// Who holds a ticket on the rail.

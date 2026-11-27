@@ -190,10 +190,10 @@ uk Зробити наступним
 ru Сделать следующим
 
 ui.queue.full
-cs Máš plné ruce — pět věcí naráz stačí.
-en Your hands are full — five things at once is plenty.
-uk Руки зайняті — п'ять справ одночасно цілком досить.
-ru Руки заняты — пять дел сразу вполне достаточно.
+cs Máš plné ruce — osm věcí naráz stačí. Frontu spravuješ vlevo dole ({key.queue}).
+en Your hands are full — eight things at once is plenty. Manage the queue bottom-left ({key.queue}).
+uk Руки зайняті — вісім справ одночасно цілком досить. Черга — ліворуч унизу ({key.queue}).
+ru Руки заняты — восемь дел сразу вполне достаточно. Очередь — слева внизу ({key.queue}).
 
 # --- tip jar ----------------------------------------------------------------------------------------
 ui.tipjar.tonight

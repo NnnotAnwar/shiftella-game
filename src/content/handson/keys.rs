@@ -159,4 +159,12 @@ pub const UI_KEYS: &[(&str, &[&str])] = &[
     ("ui.settings.assist_wishes", &[]),
     ("ui.settings.tutorial", &[]),
     ("ui.tutorial.got_it", &[]),
+    // ritual gestures (screens::game::rituals_ui)
+    ("ritual.let_go", &[]),
+    ("ritual.perfect", &[]),
+    ("ritual.too_much", &[]),
+    ("ritual.not_yet", &[]),
+    ("ritual.line.quiet", &[]),
+    ("ritual.line.thanks", &[]),
+    ("ritual.line.lamp", &[]),
 ];

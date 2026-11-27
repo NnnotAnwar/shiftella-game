@@ -34,6 +34,12 @@ fn main() {
             }
             w.start_night(&content);
         }
+        if w.waiting_for_doors() {
+            let _ = w.apply(&content, Command::OpenDoors);
+        } else if w.waiting_to_close() {
+            let _ = w.apply(&content, Command::CloseUp);
+            continue;
+        }
         let last = w.minute();
         w.tick(&content);
         let _ = w.drain_events();

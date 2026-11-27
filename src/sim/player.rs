@@ -1,5 +1,5 @@
 //! Karolina behind the counter (design/handson.md §1.1–§1.2): the player actor. The sim never
-//! assigns her work — she only does what the player queues (FIFO, at most 5): take orders,
+//! assigns her work — she only does what the player queues (FIFO, at most 8; reorderable): take orders,
 //! brew (quick or by hand), serve, clear, wash (hold), mop (swipe), collect tips, tick
 //! checklist items, put records on. She walks there herself (×1.4 staff speed) and works at a
 //! skill-independent speed.
@@ -167,6 +167,12 @@ fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerA
             }
         }
         PlayerAct::Checklist { id } => {
+            // the till, the group head and the window light wait for closing time
+            if !w.checklist_item_open(content, id) {
+                return Err(CommandError::Invalid(
+                    "not yet: that's for closing time".into(),
+                ));
+            }
             let c = w
                 .app
                 .checklist
@@ -393,9 +399,7 @@ fn brew_quality(w: &World, content: &Content, recipe: &str, mode: BrewMode, q: f
                 .filter(|(_, u)| u.is_none_or(|u| u > m))
                 .map(|(a, _)| a)
                 .sum();
-            // a better grind (purchases: the `grinder` tag)
-            let ground = super::purchases::quick_quality_bonus(w, content);
-            (base + add + ground).clamp(0.0, 1.0)
+            (base + add).clamp(0.0, 1.0)
         }
     }
 }
@@ -432,9 +436,6 @@ pub(crate) fn brew(
     let me = me(w);
     let t = &content.handson.tuning;
     let q = brew_quality(w, content, recipe, mode, quality);
-    if mode == BrewMode::Quick {
-        super::purchases::note_ground(w, content);
-    }
     let leader = w.parties[pi].leader().unwrap_or(0);
     let party_id = w.parties[pi].id;
     let for_wish = w.parties[pi].wish_open
@@ -749,6 +750,85 @@ pub(crate) fn unqueue(w: &mut World, content: &Content, index: usize) -> Result<
     Ok(())
 }
 
+/// `Command::PlayerReorder`.
+pub(crate) fn reorder(w: &mut World, from: usize, to: usize) -> Result<(), CommandError> {
+    let q = &mut w.hands.player.queue;
+    if from >= q.len() || to >= q.len() {
+        return Err(CommandError::Invalid("no such queued act".into()));
+    }
+    if from == to {
+        return Ok(());
+    }
+    if let Some(act) = q.remove(from) {
+        q.insert(to, act);
+    }
+    w.emit(SimEvent::PlayerQueueChanged);
+    Ok(())
+}
+
+/// `Command::PlayerClearQueue`.
+pub(crate) fn clear_queue(w: &mut World, content: &Content) -> Result<(), CommandError> {
+    if w.hands.player.queue.is_empty() {
+        return Err(CommandError::Invalid("nothing queued".into()));
+    }
+    while let Some(act) = w.hands.player.queue.pop_back() {
+        release_act(w, content, &act, 0, 0);
+    }
+    w.emit(SimEvent::PlayerQueueChanged);
+    Ok(())
+}
+
+/// Drops whatever Karolina has queued or is doing for a story / moment walk that matches
+/// `pred` (its guest left): the queued walk goes, the current one is cancelled.
+pub(crate) fn drop_walks(
+    w: &mut World,
+    content: &Content,
+    pred: impl Fn(&super::systems::WalkKind) -> bool,
+) {
+    // the current act first: its job is `walk_now` (working) or still in `walks` (walking)
+    let cur_tile = w.hands.player.current.as_ref().and_then(|c| match c.act {
+        PlayerAct::GoTo { tile } => Some((tile, c.stage)),
+        _ => None,
+    });
+    if let Some((tile, stage)) = cur_tile {
+        let hit = if stage == 0 {
+            w.sys
+                .moments
+                .walks
+                .iter()
+                .any(|j| j.tile == tile && pred(&j.kind))
+        } else {
+            w.sys
+                .moments
+                .walk_now
+                .as_ref()
+                .is_some_and(|j| pred(&j.kind))
+        };
+        if hit {
+            drop_current(w, content);
+        }
+    }
+    let tiles: Vec<(i32, i32)> = w
+        .sys
+        .moments
+        .walks
+        .iter()
+        .filter(|j| pred(&j.kind))
+        .map(|j| j.tile)
+        .collect();
+    for tile in tiles {
+        if let Some(i) = w
+            .hands
+            .player
+            .queue
+            .iter()
+            .position(|a| *a == PlayerAct::GoTo { tile })
+        {
+            let _ = unqueue(w, content, i);
+        }
+    }
+}
+
 /// `Command::PlayerWashProgress`: she must be standing at that sink.
 pub(crate) fn wash_progress(
     w: &mut World,
@@ -770,14 +850,13 @@ pub(crate) fn wash_progress(
     if !(seconds.is_finite() && seconds > 0.0) {
         return Err(CommandError::Invalid("seconds".into()));
     }
-    // a dish rack / a second sink: faster (purchases)
-    let mul = super::purchases::wash_mul(w, content);
+    // a drying rack beside the sink: the cups dry by themselves (sim::companions)
+    let rack = super::companions::station_mul(w, content, sink);
     let p = &mut w.hands.player;
-    p.wash_bank += seconds.min(30.0) * WASH_PER_SECOND * mul;
+    p.wash_bank += seconds.min(30.0) * WASH_PER_SECOND * rack;
     let n = (p.wash_bank.floor() as u32).min(w.sink_dishes);
     p.wash_bank -= n as f32;
     w.sink_dishes -= n;
-    super::purchases::note_washed(w, n, mul);
     if n > 0 {
         w.emit(SimEvent::Washed { dishes: n });
     }
@@ -945,6 +1024,13 @@ fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal
             at(staff::station_access(w, content, *table))
         }
         PlayerAct::Wash { sink } => at(staff::station_access(w, content, *sink)),
+        // a walk to a chair or a piece (a stranger's story, a moment at the jukebox) ends
+        // beside it, never on the chair someone may sit on or inside the furniture
+        PlayerAct::Mop { tile } | PlayerAct::GoTo { tile }
+            if w.grid.is_seat(tile.0, tile.1) || !w.grid.walkable(tile.0, tile.1) =>
+        {
+            at(staff::stand_next_to(w, *tile, here).or(Some(*tile)))
+        }
         PlayerAct::Mop { tile } | PlayerAct::GoTo { tile } => Goal::At(*tile),
         PlayerAct::Checklist { id } => Goal::At(checklist_anchor(w, content, id, here)),
         PlayerAct::PlayRecord { .. } => {
@@ -1095,6 +1181,8 @@ fn hand_over(w: &mut World, content: &Content, idx: usize, tray: &[u32]) {
 }
 
 pub(crate) fn tick(w: &mut World, content: &Content, idx: usize) {
+    prune_queue(w);
+    super::rituals::tidy(w, content);
     if !w.staff[idx].path.is_empty() {
         walk(w, content, idx);
         return;
@@ -1110,6 +1198,35 @@ pub(crate) fn tick(w: &mut World, content: &Content, idx: usize) {
         }
     }
     step(w, content, idx);
+}
+
+/// Queued acts whose target is gone (the party went home, the item was dropped, the piece
+/// was removed) leave her queue at once: before, they kept a slot (a full queue refused new
+/// clicks) and showed a chip for nobody until she reached them and dropped them.
+pub(crate) fn prune_queue(w: &mut World) {
+    if w.hands.player.queue.is_empty() {
+        return;
+    }
+    let mut q = std::mem::take(&mut w.hands.player.queue);
+    let before = q.len();
+    let piece = |uid: u32| w.furniture.iter().any(|f| f.uid == uid);
+    let item = |id: u32| w.items.iter().any(|i| i.id == id);
+    q.retain(|a| match a {
+        PlayerAct::TakeOrder { party } => w.parties.iter().any(|p| p.id == *party),
+        PlayerAct::Brew { item: i, .. } | PlayerAct::Serve { item: i, .. } => item(*i),
+        PlayerAct::ClearTable { table } | PlayerAct::CollectTip { table } => piece(*table),
+        PlayerAct::Wash { sink } => piece(*sink),
+        PlayerAct::Use { uid, .. } => piece(*uid),
+        PlayerAct::Checklist { .. }
+        | PlayerAct::Mop { .. }
+        | PlayerAct::GoTo { .. }
+        | PlayerAct::PlayRecord { .. } => true,
+    });
+    let changed = q.len() != before;
+    w.hands.player.queue = q;
+    if changed {
+        w.emit(SimEvent::PlayerQueueChanged);
+    }
 }
 
 /// One tick of the current act, standing at its spot.
@@ -1268,6 +1385,10 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                             }
                         }
                     }
+                    // a grinder beside the machine (sim::companions)
+                    if let Some(st) = cur.target {
+                        speed *= super::companions::station_mul(w, content, st);
+                    }
                     let mut done = false;
                     if let Some(i) = w.items.iter_mut().find(|i| i.id == next.0) {
                         i.state = ItemState::Preparing;
@@ -1345,7 +1466,7 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                         .find(|p| {
                             content
                                 .furniture_def(&p.def)
-                                .is_some_and(|d| d.has_tag("dishes"))
+                                .is_some_and(|d| d.has_tag("sink"))
                         })
                         .map(|p| p.uid);
                     let goal = sink.and_then(|s| staff::station_access(w, content, s));
@@ -1426,6 +1547,10 @@ fn step(w: &mut World, content: &Content, idx: usize) {
             ),
             _ => {
                 w.staff[idx].pose = Pose::Work;
+                // a ritual gesture in the player's hands (sim::rituals)
+                if !ritual_work(w, content) {
+                    return;
+                }
                 if work_tick(w, 1.0) {
                     super::app::tick_checklist(w, content, &id, Some(me));
                     finish(w);
@@ -1436,10 +1561,15 @@ fn step(w: &mut World, content: &Content, idx: usize) {
             0 => set_work(w, 1, NEEDLE_WORK),
             _ => {
                 w.staff[idx].pose = Pose::Work;
+                if !ritual_work(w, content) {
+                    return;
+                }
                 if work_tick(w, 1.0) {
                     if super::music::validate(w, &record).is_ok() {
                         super::music::set_record(w, content, record, repeat);
                     }
+                    // the needle dropped by hand: the opening's record item too
+                    super::rituals::record_dropped(w, content, me);
                     finish(w);
                 }
             }
@@ -1524,6 +1654,9 @@ fn use_step(
                 let here = w.staff[idx].tile();
                 let d = (p.x - here.0, p.y - here.1);
                 w.staff[idx].facing = Facing::from_delta(d.0 as f32, d.1 as f32);
+            }
+            if !ritual_work(w, content) {
+                return;
             }
             if !work_tick(w, work_speed(w, content, None)) {
                 return;
@@ -1620,6 +1753,22 @@ pub(crate) fn brew_quality_in(w: &mut World, guest: u32, quality: f32) -> Result
         .ok_or_else(|| CommandError::Invalid("no brew waits for a quality".into()))?;
     set_brew_quality(w, item, quality);
     Ok(())
+}
+
+/// A ritual gesture at the piece (`sim::rituals`): false = she waits for the player's
+/// gesture this tick; a finished gesture leaves no work (the item completes now). Without a
+/// gesture in the player's hands nothing changes.
+fn ritual_work(w: &mut World, content: &Content) -> bool {
+    match super::rituals::gate(w, content) {
+        super::rituals::Gate::Normal => true,
+        super::rituals::Gate::Wait => false,
+        super::rituals::Gate::Finish => {
+            if let Some(c) = w.hands.player.current.as_mut() {
+                c.work_left = 0.0;
+            }
+            true
+        }
+    }
 }
 
 /// Works one tick; true when the stage's work is done.

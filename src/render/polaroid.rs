@@ -240,6 +240,7 @@ impl SnapRenderer {
     /// edges, e.g. 720×540 for a 360×270 photo). Leaves the default camera active.
     pub fn render(&mut self, snap: &SceneSnap, w: u32, h: u32) -> RenderTarget {
         let rt = render_target(w.max(8), h.max(6));
+        crate::profile::count(crate::profile::Counter::RenderTargets, 1);
         rt.texture.set_filter(FilterMode::Linear);
         self.draw_scene_snap(snap, &rt);
         rt
@@ -341,10 +342,18 @@ impl SnapRenderer {
         with_decor(style, || {
             garlands.draw(snap.garlands, t);
             let mut q = RenderQueue::new();
+            let joins = super::furniture::counter_joins(
+                &snap
+                    .props
+                    .iter()
+                    .map(|p| (p.sprite.as_str(), p.tile, p.size))
+                    .collect::<Vec<_>>(),
+            );
             let states: Vec<FurnitureState> = snap
                 .props
                 .iter()
-                .map(|p| FurnitureState {
+                .zip(joins)
+                .map(|(p, joins)| FurnitureState {
                     active: if snap.blackout {
                         !is_lamp(&p.sprite)
                     } else {
@@ -353,6 +362,7 @@ impl SnapRenderer {
                     dirty: p.dirty,
                     t,
                     facing: p.facing,
+                    joins,
                 })
                 .collect();
             for (p, st) in snap.props.iter().zip(&states) {

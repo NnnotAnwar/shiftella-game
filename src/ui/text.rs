@@ -77,6 +77,8 @@ impl GlyphCache {
         // draw what's batched with the current atlas texture before it may be replaced
         push_camera_state();
         pop_camera_state();
+        crate::profile::count(crate::profile::Counter::Glyphs, missing.len() as u64);
+        crate::profile::count(crate::profile::Counter::GlyphFlushes, 1);
         font.populate_font_cache(&missing, phys);
         for c in missing {
             set.add(c);
