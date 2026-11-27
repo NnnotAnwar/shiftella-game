@@ -817,3 +817,21 @@ cs Rozpis se mění jednou týdně — další změny od noci {night}. Nové lid
 en The rozpis changes once a week — next changes from night {night}. New people can be added now.
 uk Розклад змінюється раз на тиждень — наступні зміни з ночі {night}. Нових людей можна додати одразу.
 ru График меняется раз в неделю — следующие изменения с ночи {night}. Новых людей можно добавить сразу.
+
+ui.read.story
+cs Příběh
+en The story
+uk Історія
+ru История
+
+ui.read.continue
+cs Pokračovat
+en Continue
+uk Далі
+ru Продолжить
+
+ui.read.next
+cs Další
+en Next
+uk Далі
+ru Дальше

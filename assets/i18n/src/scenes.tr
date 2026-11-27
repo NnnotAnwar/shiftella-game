@@ -80,10 +80,10 @@ uk Гаразд, бабусю. Тридцять ночей.
 ru Хорошо, бабушка. Тридцать ночей.
 
 scene.opening.14
-cs Rozsvítíš lampu v okně. Kdesi za kolejemi se zastaví liška a dívá se.
-en You switch on the lamp in the window. Somewhere beyond the tracks, a fox stops and looks.
-uk Ти вмикаєш лампу у вікні. Десь за коліями зупиняється лисиця й дивиться.
-ru Ты включаешь лампу в окне. Где-то за путями останавливается лиса и смотрит.
+cs Rozsvítíš lampu v okně. Kdesi u kolejí se zastaví nádražní kočka a dívá se.
+en You switch on the lamp in the window. Somewhere by the tracks, the station cat stops and looks.
+uk Ти вмикаєш лампу у вікні. Десь біля колій зупиняється вокзальна кицька й дивиться.
+ru Ты включаешь лампу в окне. Где-то у путей останавливается вокзальная кошка и смотрит.
 
 # --- scene mirek_first
 scene.mirek_first.01
@@ -1173,10 +1173,10 @@ uk У кав'ярні тихо. Кілька чашок, кілька стіль
 ru В кафе тихо. Несколько чашек, несколько стульев. Свет горит — и пока что ждать некого. Но ночь длинная, а район маленький.
 
 scene.ending_light.14
-cs Dojdeš k oknu. Venku se Holešovice probouzejí: první samořízená tramvaj, dron s rohlíky, liška na cestě domů.
-en You walk to the window. Outside, Holešovice is waking up: the first self-driving tram, a drone carrying bread, a fox on its way home.
-uk Ти підходиш до вікна. Надворі прокидаються Голешовиці: перший безпілотний трамвай, дрон із хлібом, лисиця, що йде додому.
-ru Ты подходишь к окну. Снаружи просыпаются Голешовице: первый беспилотный трамвай, дрон с хлебом, лиса, бредущая домой.
+cs Dojdeš k oknu. Venku se Holešovice probouzejí: první samořízená tramvaj, dron s rohlíky, nádražní kočka na cestě domů.
+en You walk to the window. Outside, Holešovice is waking up: the first self-driving tram, a drone carrying bread, the station cat on its way home.
+uk Ти підходиш до вікна. Надворі прокидаються Голешовиці: перший безпілотний трамвай, дрон із хлібом, вокзальна кицька, що йде додому.
+ru Ты подходишь к окну. Снаружи просыпаются Голешовице: первый беспилотный трамвай, дрон с хлебом, вокзальная кошка, бредущая домой.
 
 scene.ending_light.15
 cs Kavárna nejsou zdi. Jsou to ti, kdo chodí. Neprodávej je.

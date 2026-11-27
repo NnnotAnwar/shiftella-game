@@ -55,7 +55,7 @@ use crate::content::Content;
 use crate::cutscene::{CutscenePlayer, CutsceneStatus};
 use crate::save::{SaveFile, SaveMeta, SaveStore, SessionExtra, Slot};
 use crate::settings::{Locale, Settings};
-use crate::ui::{Icon, Toast, ToastAnchor, ToastId, ToastKind, Ui};
+use crate::ui::{Align, Button, Glass, Icon, Toast, ToastAnchor, ToastId, ToastKind, Ui, draw_icon};
 use scene::{Pick, WorldScene};
 use sim::{AgentRef, Command, NightSummary, Phase, SimEvent, World};
 use world_view::{self as wv, sim};
@@ -271,6 +271,9 @@ pub struct GameScreen {
     autosave_due: bool,
     /// Screenshot automation: ignore keyboard / mouse world input.
     pub automation: bool,
+    /// Story moments waiting to be read: while one is up the night holds (owner: "how am I
+    /// supposed to follow the story when it's a clicker?").
+    pub reading: std::collections::VecDeque<ReadCard>,
     /// Events with text that arrived without a locale (handled next frame).
     deferred: Vec<SimEvent>,
     /// Real seconds the 3:33 clock stop still holds the sim.
@@ -378,6 +381,7 @@ impl GameScreen {
             times: FrameTimes::default(),
             anchors: Vec::new(),
             automation: std::env::var("SHIFTELLA_SHOT").is_ok(),
+            reading: Default::default(),
             hands: hands::Hands::default(),
             relaxed: false,
             latte_for: HashMap::new(),
@@ -458,6 +462,52 @@ impl GameScreen {
             || self.walk.is_open()
             || self.photo.is_open()
             || self.stories.talk_open()
+            || !self.reading.is_empty()
+    }
+
+    /// The story card at the bottom: who says it, the text, "Continue" (click / Enter / Space).
+    fn draw_reading(&mut self, ui: &mut Ui, loc: &Locale) {
+        let Some(card) = self.reading.front().cloned() else {
+            return;
+        };
+        let t = ui.theme.clone();
+        let s = ui.screen();
+        let w = (s.w - 48.0).min(560.0);
+        let body = t.body().color(t.text);
+        let lines = ui.fonts.wrap(&card.text, w - 40.0, &body).len().max(1) as f32;
+        let h = 44.0 + lines * body.line_h() + 44.0;
+        let r = Rect::new((s.w - w) / 2.0, s.h - 64.0 - h - 8.0, w, h);
+        ui.glass(r, &Glass::panel());
+        draw_icon(card.icon, vec2(r.x + 22.0, r.y + 22.0), 14.0, t.amber);
+        ui.fonts
+            .draw(&card.title, r.x + 36.0, r.y + 27.0, &t.strong().color(t.text));
+        ui.fonts.draw_wrapped(
+            &card.text,
+            Rect::new(r.x + 20.0, r.y + 40.0, w - 40.0, lines * body.line_h() + 4.0),
+            &body,
+            Align::Left,
+            None,
+        );
+        let more = self.reading.len() > 1;
+        let label = loc.tr(if more { "ui.read.next" } else { "ui.read.continue" });
+        let b = Button::new(label).primary().shortcut("Enter");
+        let bw = ui.button_width(&b);
+        let br = Rect::new(r.right() - bw - 14.0, r.bottom() - 38.0, bw, 28.0);
+        let clicked = ui.button("read_continue", br, &b).clicked;
+        if clicked || ui.enter() || ui.key(KeyCode::Space) {
+            self.reading.pop_front();
+        }
+    }
+
+    /// Queues a story moment to read (the night holds until it's closed). Off for automation,
+    /// the autoplayer and unit tests, which never stop to read.
+    fn read_card(&mut self, icon: Icon, title: String, text: String) {
+        if cfg!(test) || self.automation || self.hands.autoplay.is_some() || text.is_empty() {
+            return;
+        }
+        if self.reading.len() < 6 {
+            self.reading.push_back(ReadCard { icon, title, text });
+        }
     }
 
     pub fn set_speed(&mut self, s: u8) {
@@ -835,7 +885,14 @@ impl GameScreen {
             }
             SimEvent::Hint { key } => {
                 let t = tr(&key, &[]);
-                self.toast(ToastKind::Info, Icon::Info, t, None);
+                if key.starts_with("story.") {
+                    // a story hint: read it with the night held
+                    self.push_ticker(Icon::Note, t.clone());
+                    let title = tr("ui.read.story", &[]);
+                    self.read_card(Icon::Note, title, t);
+                } else {
+                    self.toast(ToastKind::Info, Icon::Info, t, None);
+                }
             }
             SimEvent::BotMessage { key, args, .. } => {
                 let t = tr(&key, &args);
@@ -848,9 +905,14 @@ impl GameScreen {
                     "ui.ticker.note_found",
                     &[("n".into(), self.world.notes_found().len().to_string())],
                 );
-                let _ = id;
                 self.push_ticker(Icon::Note, t.clone());
-                self.toast(ToastKind::Event, Icon::Note, t, None);
+                // grandma's note itself, to read now (it stays in the book)
+                let text = tr(&format!("note.{id}.text"), &[]);
+                if text.starts_with("note.") {
+                    self.toast(ToastKind::Event, Icon::Note, t, None);
+                } else {
+                    self.read_card(Icon::Note, t, text);
+                }
             }
             SimEvent::PaymentMade { amount, .. } => {
                 let money = loc
@@ -913,9 +975,16 @@ impl GameScreen {
             SimEvent::Speech {
                 agent: Some(AgentRef::Guest(g)),
                 key,
-                ..
+                speaker,
             } => {
                 let text = tr(&key, &[]);
+                // a regular's story line (not small talk): held to be read
+                if key.starts_with("regular.") || key.starts_with("story.line.") {
+                    let who = tr(&format!("regular.{speaker}.name"), &[]);
+                    if !who.starts_with("regular.") {
+                        self.read_card(Icon::Heart, who, text.clone());
+                    }
+                }
                 if self.bubble.as_ref().is_none_or(|b| !b.pinned) {
                     self.bubble = Some(Bubble {
                         agent: AgentRef::Guest(g),
@@ -1579,6 +1648,10 @@ impl GameScreen {
             .map(|m| m.game.loops())
             .unwrap_or_default();
         cx.audio.set_loops(loops.steam, loops.trickle);
+        // a story moment to read: the night holds under it
+        if !self.player.is_playing() && self.hands.minigame.is_none() {
+            self.draw_reading(ui, &loc);
+        }
         // toasts wait while a scene or a mini-game is on screen (the cup has her attention)
         if !self.player.is_playing() && self.hands.minigame.is_none() && !self.stories.talk_open() {
             self.flush_notices(ui, &loc);
@@ -2182,4 +2255,12 @@ mod capitalize_tests {
         assert_eq!(capitalize_first("Already"), "Already");
         assert_eq!(capitalize_first(""), "");
     }
+}
+
+/// A story moment held on screen until it's read.
+#[derive(Debug, Clone)]
+pub struct ReadCard {
+    pub icon: Icon,
+    pub title: String,
+    pub text: String,
 }

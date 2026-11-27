@@ -175,7 +175,7 @@ fn schedule(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
                 loc.tr_owned("ui.app.published"),
                 None,
             ),
-            Err(sim::CommandError::Locked) => {
+            Err(e) if e == "Locked" => {
                 let next = (g.world.night().max(1) - 1) / 7 * 7 + 8;
                 g.toast(
                     crate::ui::ToastKind::Warning,
