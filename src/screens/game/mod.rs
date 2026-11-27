@@ -34,6 +34,7 @@ mod photo_mode;
 pub mod scene;
 mod scene_fx;
 pub mod signature_ui;
+mod staff_life_view;
 mod stories_ui;
 pub mod tutorial;
 pub mod walk_home;
@@ -1624,6 +1625,7 @@ impl GameScreen {
             // viewfinder)
             if !self.photo.is_open() {
                 hands_view::draw_world(self, content, &loc, target, mouse_world);
+                staff_life_view::draw_world(self, content);
                 stories_ui::draw_world(self);
             }
             if self.panel == Some(Panel::Build) {

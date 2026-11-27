@@ -146,6 +146,12 @@ pub fn activity_text(loc: &Locale, content: &Content, a: &Activity) -> String {
                 .unwrap_or_default();
             loc.trf("crew.do.record_named", &[("item", &title)])
         }
+        Activity::Pastime { kind, with } => match with {
+            Some(name) if *kind == sim::Pastime::Chat => {
+                loc.trf("life.do.chat_with", &[("name", name)])
+            }
+            _ => loc.tr_owned(&format!("life.do.{}", kind.id())),
+        },
         Activity::Moment { id } => {
             let title = content
                 .handson

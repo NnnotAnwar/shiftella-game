@@ -25,6 +25,7 @@ mod guests;
 mod hands;
 mod journal;
 mod knowledge;
+mod life;
 mod logic;
 mod moments;
 mod music;
@@ -61,6 +62,8 @@ mod tests_build_ux;
 mod tests_equipment;
 #[cfg(test)]
 mod tests_hands;
+#[cfg(test)]
+mod tests_life;
 #[cfg(test)]
 mod tests_names;
 #[cfg(test)]
@@ -100,6 +103,7 @@ pub use equipment::{
 pub use grid::{Floor, Grid, Placed, Room, TILE, TileInfo, TileKind};
 pub use guests::{FORGIVEN_KEY, LAST_CALL};
 pub use hands::*;
+pub use life::{HelperDoing, HelperWork, IdleLife, Pastime};
 pub use moments::CatView;
 pub use names::{Extra, Garment, Persona, StrangerLook, stranger_look};
 pub use orders::PLAIN_CREDIT;

@@ -651,6 +651,10 @@ impl WorldScene {
                 }
             }
         }
+        // the helpers' pastime props (a cup and cloth, a broom, a glass of water…)
+        if cs.is_none() {
+            super::staff_life_view::push_props(world, people, &mut q, t);
+        }
         // the scene's own actors
         let actor_poses: Vec<PersonPose> = cs
             .map(|p| p.actors.iter().map(|a| a.pose(t)).collect())
