@@ -402,7 +402,7 @@ pub fn click(
         }
         g.ui_state.build.press = Some(Press {
             uid,
-            at: Vec2::from(mouse_position()),
+            at: Vec2::from(crate::platform::pointer()),
             tile: tile_of(mouse),
         });
     }
@@ -489,7 +489,7 @@ pub fn frame(g: &mut GameScreen, ui: &mut Ui, content: &Rc<Content>, loc: &Local
     }
     let down = is_mouse_button_down(MouseButton::Left);
     if let Some(p) = g.ui_state.build.press {
-        let now = Vec2::from(mouse_position());
+        let now = Vec2::from(crate::platform::pointer());
         if !down {
             g.ui_state.build.press = None;
             start_drag(g, content, ui, p, true);
@@ -618,7 +618,7 @@ pub fn camera(g: &mut GameScreen, dt: f32) {
     }
     // holding a piece at the edge of the view: pan towards it
     if g.ui_state.build.holding() && !g.automation {
-        let m = Vec2::from(mouse_position());
+        let m = Vec2::from(crate::platform::pointer());
         let edge = 36.0;
         let mut dir = Vec2::ZERO;
         if m.y > free.bottom() - edge && m.y < panel_top {

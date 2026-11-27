@@ -916,6 +916,12 @@ pub async fn run() {
     };
     crate::render::init_brand(fonts.face(crate::ui::Weight::Bold));
     let mut ui = Ui::new(fonts);
+    if shot.is_some() {
+        // the game already steps 1/60 s a frame in screenshot runs; the UI's clock too
+        ui.set_fixed_dt(Some(1.0 / 60.0));
+        // and the desktop cursor stays out of the invisible window (no stray hovers)
+        crate::platform::park_pointer();
+    }
     let mut settings = Settings::load();
     if let Some(l) = env("SHIFTELLA_LANG").and_then(|c| Lang::from_code(&c)) {
         settings.language = Some(l);

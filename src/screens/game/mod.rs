@@ -1442,7 +1442,7 @@ impl GameScreen {
             build::camera(self, dt);
             photo_mode::clamp_camera(self);
             let cam = self.cam.to_camera2d();
-            let mouse_world = self.cam.screen_to_world(Vec2::from(mouse_position()));
+            let mouse_world = self.cam.screen_to_world(Vec2::from(crate::platform::pointer()));
             self.hovered = None;
             let mut pick = None;
             if !wants_mouse && self.pause.is_none() {
@@ -1803,11 +1803,11 @@ impl GameScreen {
         }
         // right-click (not a camera drag): cancel the current act / drop a queued chip
         if is_mouse_button_pressed(MouseButton::Right) && !blocked {
-            self.hands.right_press = Some(Vec2::from(mouse_position()));
+            self.hands.right_press = Some(Vec2::from(crate::platform::pointer()));
         }
         if is_mouse_button_released(MouseButton::Right)
             && let Some(p0) = self.hands.right_press.take()
-            && p0.distance(Vec2::from(mouse_position())) < 6.0
+            && p0.distance(Vec2::from(crate::platform::pointer())) < 6.0
             && night
             && !blocked
             && self.panel != Some(Panel::Build)
