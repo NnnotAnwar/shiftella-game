@@ -634,7 +634,14 @@ fn the_doors_close_at_six_and_close_up_brings_the_morning() {
     assert!(!g.world.doors_open(), "the sign says Closed");
     assert!(g.world.guests_inside() == 0, "the café is empty");
     // the light in the window goes off now (closing time), by the window click
-    assert!(super::hands::lights_off_due(&g) || !g.world.window_light_on(&c));
+    // (or someone is already on her way to it)
+    let on_it = g
+        .world
+        .app()
+        .checklist
+        .iter()
+        .any(|c| c.id == "light_off_at_six" && c.claim.is_some());
+    assert!(super::hands::lights_off_due(&g) || on_it || !g.world.window_light_on(&c));
     assert!(g.summary.is_none() && g.summary_pending.is_none());
     g.command(&c, Command::CloseUp).unwrap();
     g.drain_and_handle(&c, Some(&loc));
