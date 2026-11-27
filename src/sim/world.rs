@@ -1876,6 +1876,7 @@ impl World {
         super::journal::on_night_end(self, content);
         self.tonight.insights = super::tool::insights(self, content);
         self.tonight.coziness_avg = super::atmos::night_avg(self);
+        super::fridge::on_night_end(self, content);
         self.tonight.payoff = super::purchases::lines(self, content);
         for s in self.staff.iter_mut() {
             if !s.owner && s.minutes_worked > 0 {

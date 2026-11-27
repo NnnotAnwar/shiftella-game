@@ -1,0 +1,59 @@
+# The fridge keeps the stock (sim::fridge): the morning's lines in "What the café gave you
+# tonight", the build card, the planning card and the pantry. `{money}` arrives already
+# formatted ("120 Kč", a loss as "−84 Kč"); `{l}` is litres (abbreviated, no plural forms).
+
+purchases.line.fridge_saved
+cs Druhá lednice: nic se nezkazilo · ušetřeno {money}
+en Second fridge: nothing spoiled · saved {money}
+uk Другий холодильник: нічого не зіпсувалося · заощаджено {money}
+ru Второй холодильник: ничего не испортилось · сэкономлено {money}
+
+purchases.line.fridge_saved_part
+cs Druhá lednice udržela v chladu zboží za {money}
+en Second fridge: kept {money} of fresh stock cold
+uk Другий холодильник зберіг у холоді запаси на {money}
+ru Второй холодильник сохранил в холоде запасы на {money}
+
+purchases.line.spoiled_full
+cs Zkazilo se {l} l mléka — lednice byla plná · {money}
+en {l} l of milk went off — the fridge was full · {money}
+uk Скисло {l} л молока — холодильник був повний · {money}
+ru Скисло {l} л молока — холодильник был полон · {money}
+
+purchases.line.spoiled_worn
+cs Zkazilo se {l} l mléka — opotřebovaná lednice pojme méně · {money}
+en {l} l of milk went off — the worn fridge holds less · {money}
+uk Скисло {l} л молока — зношений холодильник тримає менше · {money}
+ru Скисло {l} л молока — изношенный холодильник держит меньше · {money}
+
+purchases.line.spoiled_failed
+cs Zkazilo se {l} l mléka — lednice v noci vypověděla službu · {money}
+en {l} l of milk went off — the fridge gave out tonight · {money}
+uk Скисло {l} л молока — холодильник уночі відмовив · {money}
+ru Скисло {l} л молока — холодильник ночью отказал · {money}
+
+# --- the build card -----------------------------------------------------------------------------
+purchases.card.fridge
+cs Místo na čerstvé zboží: {now} → {with} · přes noc se zkazí méně
+en Room for fresh stock: {now} → {with} · less goes off overnight
+uk Місце для свіжих запасів: {now} → {with} · за ніч псується менше
+ru Место для свежих запасов: {now} → {with} · за ночь портится меньше
+
+# --- the planning card and the pantry ------------------------------------------------------------
+fridge.plan.label
+cs Lednice (čerstvé)
+en Fridge (fresh)
+uk Холодильник (свіже)
+ru Холодильник (свежее)
+
+fridge.plan.worn
+cs Lednice (opotřebovaná)
+en Fridge (worn)
+uk Холодильник (зношений)
+ru Холодильник (изношен)
+
+fridge.pantry
+cs Lednice {fresh} / {cap}
+en Fridge {fresh} / {cap}
+uk Холодильник {fresh} / {cap}
+ru Холодильник {fresh} / {cap}

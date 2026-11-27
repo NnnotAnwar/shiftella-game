@@ -39,7 +39,7 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     };
     let night = g.world.night();
     let story = g.world.mode() == Mode::Story;
-    let h = (s.h - 88.0 - 60.0).min(470.0);
+    let h = (s.h - 88.0 - 60.0).min(510.0);
     let pr = Rect::new(x, 88.0, w, h);
     g.anchors.push(("day.panel", pr));
     ui.glass(pr, &Glass::panel());
@@ -173,6 +173,31 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         );
         y += 20.0;
     }
+    // the fridge: fresh stock / the room for it (sim::fridge)
+    let fr = g.world.fridge(content);
+    if fr.pieces > 0 {
+        let label = if fr.worn() {
+            "fridge.plan.worn"
+        } else {
+            "fridge.plan.label"
+        };
+        row(
+            ui,
+            y,
+            loc.tr(label),
+            &format!(
+                "{} / {}",
+                crate::i18n::format_int(loc.lang, fr.fresh),
+                format_money(loc.lang, fr.capacity)
+            ),
+            if fr.over() || fr.worn() {
+                t.amber
+            } else {
+                t.text
+            },
+        );
+        y += 20.0;
+    }
     hline(c.x, c.right(), y + 4.0, t.divider);
     y += 12.0;
     // yesterday
@@ -203,18 +228,28 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             .filter(|r| r.visits_story_night(night) && !r.id.starts_with("guest_anwar"))
             .map(|r| loc.tr_owned(&r.name_key()))
             .collect();
-        if !regs.is_empty() {
+        // what still has to fit below: the header, the trains and crew lines, the buttons
+        let room = c.bottom() - 72.0 - 4.0 - y - 18.0 - 44.0;
+        let rows_max = if room >= 26.0 + 30.0 {
+            2
+        } else if room >= 30.0 {
+            1
+        } else {
+            0
+        };
+        if !regs.is_empty() && rows_max > 0 {
             ui.fonts
                 .draw(loc.tr("ui.plan.regulars"), c.x, y + 12.0, &t.micro());
             y += 18.0;
-            // at most two rows of chips; the rest fold into "+n" (the card has a fixed height)
+            // at most two rows of chips (one on a short card); the rest fold into "+n" (the
+            // card has a fixed height)
             let mut x = c.x;
             let mut row = 0;
             let total = regs.len();
             for (i, n) in regs.iter().enumerate() {
                 let cw = ui.chip_width(n, true);
                 let more_w = ui.chip_width("+9", false) + 6.0;
-                let last_row = row == 1;
+                let last_row = row + 1 == rows_max;
                 let fits = x + cw <= c.right()
                     && (!last_row || i + 1 == total || x + cw + more_w <= c.right());
                 if !fits {
@@ -231,6 +266,17 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 x = r.right() + 6.0;
             }
             y += 30.0;
+        } else if !regs.is_empty() {
+            // a short card: one line of names
+            draw_icon(Icon::Heart, vec2(c.x + 6.0, y + 9.0), 12.0, t.violet_400);
+            ui.fonts.draw_fit(
+                &regs.join(", "),
+                Rect::new(c.x + 18.0, y, c.w - 18.0, 18.0),
+                &t.small().color(t.text),
+                Align::Left,
+                0.8,
+            );
+            y += 22.0;
         }
     }
     // trains
@@ -534,7 +580,15 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         );
         y += 18.0;
         for l in &sm.payoff {
-            draw_icon(Icon::Sparkle, vec2(c.x + 7.0, y + 8.0), 11.0, t.amber);
+            // the fridge's lines carry a snowflake; what went off is dimmed
+            let (icon, color) = if l.key.starts_with("purchases.line.spoiled") {
+                (Icon::Snowflake, t.text_dim)
+            } else if l.key.starts_with("purchases.line.fridge") {
+                (Icon::Snowflake, t.amber)
+            } else {
+                (Icon::Sparkle, t.amber)
+            };
+            draw_icon(icon, vec2(c.x + 7.0, y + 8.0), 11.0, color);
             ui.fonts.draw_fit(
                 &payoff_text(&loc, l),
                 Rect::new(c.x + 18.0, y, c.w - 18.0, 16.0),

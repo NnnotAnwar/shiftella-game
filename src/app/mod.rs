@@ -19,7 +19,8 @@
 //!   `SHIFTELLA_GESTURE_T=<s>` played that long first, default 21:40 with the list untouched;
 //!   `SHIFTELLA_STORY=<id>`: the vignette put on a
 //!   stranger when none came by itself; `SHIFTELLA_LINE=n`: the storm talk's line)
-//!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
+//!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states;
+//!   `SHIFTELLA_FRIDGE=full|worn` on `day` / `summary`: an overfull or worn fridge)
 //!   (hands-on scenes are played to their moment by the autoplayer;
 //!   `SHIFTELLA_MG=froth|chocolate|raf|encore|latte|flat_white|pour|turek|night_train|tonic|
 //!   tea|chai|linden|tatra|uzvar|rn333|plate|chlebicek|kolac|vera_kolac|medovnik|varenyky|
@@ -230,6 +231,19 @@ impl DebugOverlay {
 
 fn env(name: &str) -> Option<String> {
     std::env::var(name).ok().filter(|s| !s.trim().is_empty())
+}
+
+/// `SHIFTELLA_FRIDGE=full|worn` (the `day` and `summary` scenes): more fresh stock than the
+/// fridge holds (`full`), and grandma's fridge worn as well (`worn`, wear 0.5) — so the
+/// planning card's fridge row and the morning's "went off" line show (`sim::fridge`).
+fn fridge_setup(g: &mut GameScreen, content: &Content) {
+    let Some(v) = env("SHIFTELLA_FRIDGE") else {
+        return;
+    };
+    g.world.debug_set_supplies(4200);
+    if v == "worn" {
+        g.world.debug_set_wear(content, "station:fridge", 0.5);
+    }
 }
 
 /// `SHIFTELLA_TIME=HH:MM` as minutes since 22:00; 21:30–21:59 (the preparation half hour
@@ -745,6 +759,7 @@ impl App {
                 let n = night.unwrap_or(2);
                 let mut g = story_at(n, None, &self.i18n, lang);
                 g.summary = None;
+                fridge_setup(&mut g, &content);
                 self.game(g)
             }
             // package C: grandma's attic, the back room, requests, a corner, before / after
@@ -830,6 +845,7 @@ impl App {
             "summary" => {
                 let n = night.unwrap_or(1);
                 let mut g = story_at(n, Some(479), &self.i18n, lang);
+                fridge_setup(&mut g, &content);
                 g.run_to_morning(&content, &Locale::new(&self.i18n, lang));
                 self.game(g)
             }

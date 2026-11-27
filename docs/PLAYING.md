@@ -188,6 +188,16 @@ to finish the story.
   description and the exact numbers. Locked cards say how they unlock ("From night 6",
   "When you invite Lori to play"). A face and *"Filip is waiting"* mark a piece a regular
   asked for (the tab shows an amber count too).
+* **The fridge keeps the stock.** About 40 % of the supplies are fresh (milk, cream, the
+  cake, the chlebíček) and live in the fridge; grandma's fridge holds about 1 100 Kč of them.
+  Whatever is beyond that at 6 in the morning partly goes off — the morning summary says so
+  (*"11 l of milk went off — the worn fridge holds less"*). A worn fridge holds less (defrost it
+  when it sputters), the morning after it gave out it holds half, and the closing fridge check
+  saves a little. A **second fridge** doubles the room (its card says *Room for fresh stock:
+  1 100 → 2 200*) and the summary counts what it kept (*"Second fridge: nothing spoiled · saved
+  450 Kč"*). The planning card shows the fridge now (*Fridge (fresh) 940 / 1 100 Kč*, amber
+  when it's worn or over full), and so does the kitchen shelf in the pantry. With the usual
+  restock and a fridge in good repair nothing goes off.
 * **Moving**: press on a placed piece and drag it — a table takes its chairs along. **R**
   turns the whole group. It's free and **Ctrl+Z** puts it back. A piece somebody uses (a
   guest on the chair, a helper at the machine) says so and stays put.
@@ -578,6 +588,10 @@ shows a ritual gesture over its piece (default night 1 at 21:40, `light_window`;
 `SHIFTELLA_DOORS=wait` so the list is still open, `SHIFTELLA_TIME=06:05` for a closing item);
 `SHIFTELLA_GESTURE_T=<s>` plays it by script that long first (never to the end). A fresh
 `SHIFTELLA_SETTINGS` file shows the first-time hint.
+
+`SHIFTELLA_FRIDGE=full|worn` on `SHIFTELLA_SCENE=day|summary` puts 4 200 Kč in stock (and
+wears grandma's fridge to 0.5 with `worn`): the planning card's fridge row turns amber and
+the morning summary shows what went off.
 
 `SHIFTELLA_SCENE=equipment SHIFTELLA_EQUIP=prep|night|worn|closing` plays the appliances to a
 picture: the preparation (soup on, milk out, the cake baking, the machine warming up), the

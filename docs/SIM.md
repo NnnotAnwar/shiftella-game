@@ -958,3 +958,25 @@ night start); `Party.extra_seat` / `Party.rounds` and `NightSummary.payoff` are 
   new after night 20. `sim_headless … --no-build` plays the never-building player
   and prints `earned (revenue + tips)` and the furniture. `income_mul` Cozy / Carefree 1.6 → 1.7, Classic 1.55 → 1.65.
   Tests: `tests_purchases.rs` (a building bot earns ≥ +8 % over a full Cozy story).
+* **The fridge keeps the stock** (`sim::fridge`, `purchases.ron` → `fridge`, `FridgeDef`, every
+  field defaulted). The supplies stay one Kč pool; `fresh_share` (0.4) of it is fresh (milk,
+  cream, cake, the chlebíček's fillings). Each piece tagged `station:fridge` holds `per_piece`
+  (1 100 Kč) × its condition = `1 − wear_loss (0.8) × wear`, ≥ `min_condition` (0.3); when
+  `fail_event` (`fridge_fail`) fired tonight the most worn one × `failed_mul` (0.5). In
+  `end_night`, after the closing list is final and before the morning's lines
+  (`fridge::on_night_end`): `spoiled = (fresh − room)⁺ × spoil (0.5)`, × `check_mul` (0.6) when
+  `check_item` (`fridge_check`) is done; `supplies −= spoiled` (the restock pays for it the next
+  evening, so the ledger stays honest). `saved` = what the first fridge alone would have lost
+  minus `spoiled` (≥ 2 fridges). No RNG. State: `PayoffTally.fridge: FridgeNight { fresh,
+  capacity, pieces, spoiled, saved, checked, cause: Full | Worn | Failed }` (defaulted; reset at
+  night start, so it stays readable all day). Lines: `purchases.line.fridge_saved` /
+  `fridge_saved_part` (`money` = saved) and `purchases.line.spoiled_full|worn|failed`
+  (`{l}` litres = spoiled / `litre` 25, `money` = −spoiled; the summary draws them with a
+  snowflake). Queries: `World::fridge(&c) → FridgeView { fresh, capacity, pieces, condition }`
+  (`worn()`, `over()`: the planning card's *Fridge (fresh) N / room* row, the pantry's kitchen
+  shelf heading), `World::fridge_last_night()`, `PieceEffect.fridge = Some((room now, with))`
+  (`purchases.card.fridge`). Grandma's café is neutral: one fridge in good repair holds the
+  3 000 Kč auto-restock less a night's use, so the player-bot (which keeps the auto-restock
+  and does the fridge check) loses almost nothing — `sim_balance 30 story cozy|classic 8`:
+  4 / 78 Kč a run, spoilage on 2 % / 12 % of the nights (Classic wears twice as fast); money at
+  the end within ~100 Kč per seed, payments 40/0 and 36/4 as before. Tests: `tests_fridge.rs`.

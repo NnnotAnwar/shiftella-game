@@ -39,6 +39,9 @@ pub struct PurchasesData {
     pub tiers: Vec<TierDef>,
     pub appliances: Vec<ApplianceDef>,
     pub summary_max: usize,
+    /// The fridge keeps the stock (`sim::fridge`).
+    #[serde(default)]
+    pub fridge: super::fridge::FridgeDef,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -128,6 +131,7 @@ pub fn data() -> &'static PurchasesData {
                 tiers: Vec::new(),
                 appliances: Vec::new(),
                 summary_max: 0,
+                fridge: Default::default(),
             }
         })
     })
@@ -176,6 +180,8 @@ pub struct PayoffTally {
     pub tier_minutes: [u32; 5],
     /// Rare guests the tier drew in.
     pub rare_guests: u32,
+    /// The fridge at 06:00: what went off, what a second fridge saved (`sim::fridge`).
+    pub fridge: super::fridge::FridgeNight,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -752,6 +758,8 @@ pub(crate) fn lines(w: &World, content: &Content) -> Vec<PayoffLine> {
             },
         ));
     }
+    // the fridge: what a second one saved, what went off
+    out.extend(super::fridge::lines(w));
     if t.turned_away > 0 {
         // a soft hint, always last
         out.push((
@@ -800,6 +808,8 @@ pub struct PieceEffect {
     pub role: Option<(ApplianceRole, bool)>,
     /// Menu items the piece puts on the menu (an `Unlocks` tag).
     pub unlocks: Vec<String>,
+    /// A fridge: the room for fresh stock now → with it (Kč).
+    pub fridge: Option<(i64, i64)>,
 }
 
 impl World {
@@ -873,6 +883,7 @@ impl World {
                 break;
             }
         }
+        e.fridge = super::fridge::card_room(self, content, def);
         e
     }
 }
