@@ -67,6 +67,30 @@ impl<T> IndexMut<usize> for ResourceManager<T> {
     }
 }
 
+/// [shiftella patch] Per-process GL work counters (read by the game's frame profiler,
+/// `SHIFTELLA_PROFILE`): buffer uploads, uploaded bytes, draw calls. Relaxed atomics, a few
+/// nanoseconds per draw call.
+pub mod stats {
+    use std::sync::atomic::{AtomicU64, Ordering};
+    pub static BUFFER_UPDATES: AtomicU64 = AtomicU64::new(0);
+    pub static BUFFER_BYTES: AtomicU64 = AtomicU64::new(0);
+    pub static DRAW_CALLS: AtomicU64 = AtomicU64::new(0);
+    pub static VERTICES: AtomicU64 = AtomicU64::new(0);
+    #[inline]
+    pub(crate) fn add(c: &AtomicU64, n: u64) {
+        c.fetch_add(n, Ordering::Relaxed);
+    }
+    /// (buffer updates, bytes, draw calls, vertices uploaded) since the start.
+    pub fn read() -> (u64, u64, u64, u64) {
+        (
+            BUFFER_UPDATES.load(Ordering::Relaxed),
+            BUFFER_BYTES.load(Ordering::Relaxed),
+            DRAW_CALLS.load(Ordering::Relaxed),
+            VERTICES.load(Ordering::Relaxed),
+        )
+    }
+}
+
 pub mod date {
     #[cfg(not(target_arch = "wasm32"))]
     pub fn now() -> f64 {

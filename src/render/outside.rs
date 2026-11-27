@@ -2,7 +2,8 @@
 //! the platform edge, rails, a train, fog and city lights. Plus rain,
 //! drops on the glass and the holographic sign.
 //!
-//! All stateless: the picture is a function of time `t` (handy for screenshots).
+//! All stateless: the picture is a function of time `t` (handy for screenshots); the static
+//! pavement is only recorded once per street rect (`draw_pavement`).
 
 use std::cell::OnceCell;
 
@@ -108,6 +109,80 @@ pub fn outside_lights(rect_world: Rect) -> Vec<Light> {
         x += 5.0 * TILE;
     }
     v
+}
+
+/// The pavement behind the café: a band of cobbles with wet highlights. Static, so it is
+/// recorded once per street rect (≈ 1700 little rounded stones, ~45k vertices) and the
+/// meshes are replayed every frame — the same triangles in the same order.
+fn draw_pavement(r: Rect, wy0: f32, wy1: f32) {
+    rect_v(
+        r.x,
+        wy0,
+        r.w,
+        wy1 - wy0,
+        Color::from_hex(0x3a3352),
+        Color::from_hex(0x2e2842),
+    );
+    let stone = 16.0;
+    let mut row = 0;
+    let mut yy = wy0 + 2.0;
+    while yy < wy1 {
+        let off = if row % 2 == 0 { 0.0 } else { stone / 2.0 };
+        let mut xx = r.x - off;
+        let mut k = 0;
+        while xx < r.x + r.w {
+            let v = hash2(row, k);
+            let col = mix(Color::from_hex(0x4a4266), Color::from_hex(0x5a5078), v);
+            rrect_v(
+                xx + 1.0,
+                yy + 1.0,
+                stone - 2.0,
+                stone * 0.7 - 2.0,
+                3.0,
+                col,
+                shade(col, 0.8),
+            );
+            // wet highlight
+            if v > 0.6 {
+                line(
+                    xx + 3.0,
+                    yy + 2.5,
+                    xx + stone - 6.0,
+                    yy + 2.5,
+                    1.0,
+                    alpha(c::LAVENDER_RIM, 0.35),
+                );
+            }
+            xx += stone;
+            k += 1;
+        }
+        yy += stone * 0.7;
+        row += 1;
+    }
+}
+
+thread_local! {
+    /// Recorded pavements by street rect (the café, a cutscene, a polaroid may differ).
+    static PAVEMENTS: std::cell::RefCell<Vec<([u32; 4], Vec<macroquad::models::Mesh>)>> =
+        const { std::cell::RefCell::new(Vec::new()) };
+}
+
+fn draw_pavement_cached(r: Rect, wy0: f32, wy1: f32) {
+    let key = [r.x, r.y, r.w, r.h].map(f32::to_bits);
+    PAVEMENTS.with(|p| {
+        let mut p = p.borrow_mut();
+        if !p.iter().any(|(k, _)| *k == key) {
+            if p.len() >= 4 {
+                p.remove(0);
+            }
+            p.push((key, record(|| draw_pavement(r, wy0, wy1))));
+        }
+        if let Some((_, meshes)) = p.iter().find(|(k, _)| *k == key) {
+            for m in meshes {
+                macroquad::models::draw_mesh(m);
+            }
+        }
+    });
 }
 
 /// The street behind the café in the world rect `rect_world` (bottom = the café's back wall).
@@ -352,52 +427,9 @@ pub fn draw_outside(rect_world: Rect, t: f32) {
         Color::from_hex(0x4a4566),
     );
 
-    // ── pavement: cobbles
+    // ── pavement: cobbles (static: recorded once, see `draw_pavement`)
     let (wy0, wy1) = b.sidewalk;
-    rect_v(
-        r.x,
-        wy0,
-        r.w,
-        wy1 - wy0,
-        Color::from_hex(0x3a3352),
-        Color::from_hex(0x2e2842),
-    );
-    let stone = 16.0;
-    let mut row = 0;
-    let mut yy = wy0 + 2.0;
-    while yy < wy1 {
-        let off = if row % 2 == 0 { 0.0 } else { stone / 2.0 };
-        let mut xx = r.x - off;
-        let mut k = 0;
-        while xx < r.x + r.w {
-            let v = hash2(row, k);
-            let col = mix(Color::from_hex(0x4a4266), Color::from_hex(0x5a5078), v);
-            rrect_v(
-                xx + 1.0,
-                yy + 1.0,
-                stone - 2.0,
-                stone * 0.7 - 2.0,
-                3.0,
-                col,
-                shade(col, 0.8),
-            );
-            // wet highlight
-            if v > 0.6 {
-                draw_line(
-                    xx + 3.0,
-                    yy + 2.5,
-                    xx + stone - 6.0,
-                    yy + 2.5,
-                    1.0,
-                    alpha(c::LAVENDER_RIM, 0.35),
-                );
-            }
-            xx += stone;
-            k += 1;
-        }
-        yy += stone * 0.7;
-        row += 1;
-    }
+    draw_pavement_cached(r, wy0, wy1);
     // puddles with reflections and rings from the drops
     let mut pi = 0u32;
     let mut pxx = r.x + 40.0;

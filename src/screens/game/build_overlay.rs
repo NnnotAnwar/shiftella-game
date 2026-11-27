@@ -185,7 +185,7 @@ pub fn world(g: &GameScreen, content: &Content, ghost: Option<&Ghost>) {
         }
     }
     if st.demolish {
-        let m = g.cam.screen_to_world(Vec2::from(mouse_position()));
+        let m = g.cam.screen_to_world(Vec2::from(crate::platform::pointer()));
         if let Some(uid) = super::build::piece_at(&g.world, content, m)
             && let Some(p) = g.world.furniture_by_uid(uid)
             && let Some(def) = content.furniture_def(&p.def)

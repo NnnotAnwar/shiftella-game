@@ -332,6 +332,7 @@ impl Buf {
         if self.v.is_empty() {
             return;
         }
+        crate::profile::count(crate::profile::Counter::UiVerts, self.v.len() as u64);
         draw_mesh(&Mesh {
             vertices: self.v,
             indices: self.i,

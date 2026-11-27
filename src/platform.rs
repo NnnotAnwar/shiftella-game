@@ -209,3 +209,22 @@ mod macos {
         });
     }
 }
+
+static POINTER_PARKED: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Screenshot runs: the real desktop cursor no longer reaches the (invisible) window's UI or
+/// world — it would hover whatever it happens to be over and make two runs of the same scene
+/// differ. The pointer is then parked far off-screen.
+pub fn park_pointer() {
+    POINTER_PARKED.store(true, std::sync::atomic::Ordering::Relaxed);
+}
+
+/// The mouse position in window points (`macroquad::input::mouse_position`), or far
+/// off-screen in a screenshot run ([`park_pointer`]).
+pub fn pointer() -> (f32, f32) {
+    if POINTER_PARKED.load(std::sync::atomic::Ordering::Relaxed) {
+        (-10_000.0, -10_000.0)
+    } else {
+        macroquad::input::mouse_position()
+    }
+}

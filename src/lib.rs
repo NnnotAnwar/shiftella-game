@@ -13,6 +13,7 @@ pub mod map;
 pub mod minigame;
 pub mod palette;
 pub mod platform;
+pub mod profile;
 pub mod render;
 pub mod save;
 pub mod screens;

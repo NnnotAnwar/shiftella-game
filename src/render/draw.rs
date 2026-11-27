@@ -92,6 +92,83 @@ thread_local! {
     static POINTS: RefCell<Vec<Vec2>> = RefCell::new(Vec::with_capacity(128));
 }
 
+thread_local! {
+    /// While [`record`] runs: the brushes' meshes go here instead of to the screen.
+    static RECORDING: RefCell<Option<Vec<Mesh>>> = const { RefCell::new(None) };
+}
+
+/// Size limits of one recorded mesh: below macroquad's per-draw-call capacities (also its
+/// defaults, 10000 vertices / 5000 indices), so a replayed mesh is never clamped.
+const REC_VERTICES: usize = 4000;
+const REC_INDICES: usize = 4800;
+
+/// Draws a brush mesh, or appends it to the recording.
+fn submit(m: &Mesh) {
+    let recorded = RECORDING.with(|r| {
+        let mut r = r.borrow_mut();
+        let Some(chunks) = r.as_mut() else {
+            return false;
+        };
+        let full = chunks.last().is_none_or(|c| {
+            c.vertices.len() + m.vertices.len() > REC_VERTICES
+                || c.indices.len() + m.indices.len() > REC_INDICES
+        });
+        if full {
+            chunks.push(Mesh {
+                vertices: Vec::with_capacity(REC_VERTICES),
+                indices: Vec::with_capacity(REC_INDICES),
+                texture: None,
+            });
+        }
+        let c = chunks.last_mut().expect("pushed above");
+        let base = c.vertices.len() as u16;
+        c.vertices.extend_from_slice(&m.vertices);
+        c.indices.extend(m.indices.iter().map(|i| i + base));
+        true
+    });
+    if !recorded {
+        crate::profile::count(crate::profile::Counter::BrushVerts, m.vertices.len() as u64);
+        draw_mesh(m);
+    }
+}
+
+/// Records what `f` paints with this module's brushes (and [`line`]) as a few big meshes
+/// instead of drawing it. Drawing them with `draw_mesh`, in order, gives exactly the same
+/// triangles, colours and order as running `f` — for static scenery that is built from
+/// thousands of little shapes every frame (the cobbles behind the café). Only for code that
+/// uses nothing but these brushes (no textures, no macroquad shapes).
+pub fn record(f: impl FnOnce()) -> Vec<Mesh> {
+    let outer = RECORDING.with(|r| r.borrow_mut().replace(Vec::new()));
+    f();
+    let out = RECORDING.with(|r| std::mem::replace(&mut *r.borrow_mut(), outer));
+    out.unwrap_or_default()
+}
+
+/// A line `thickness` wide: the very vertices of macroquad's `draw_line`, but recordable
+/// (see [`record`]).
+pub fn line(x1: f32, y1: f32, x2: f32, y2: f32, thickness: f32, color: Color) {
+    let (dx, dy) = (x2 - x1, y2 - y1);
+    let (nx, ny) = (-dy, dx);
+    let tlen = (nx * nx + ny * ny).sqrt() / (thickness * 0.5);
+    if tlen < f32::EPSILON {
+        return;
+    }
+    let (tx, ty) = (nx / tlen, ny / tlen);
+    SCRATCH.with(|m| {
+        let mut m = m.borrow_mut();
+        m.vertices.clear();
+        m.indices.clear();
+        m.vertices.extend_from_slice(&[
+            Vertex::new(x1 + tx, y1 + ty, 0., 0., 0., color),
+            Vertex::new(x1 - tx, y1 - ty, 0., 0., 0., color),
+            Vertex::new(x2 + tx, y2 + ty, 0., 0., 0., color),
+            Vertex::new(x2 - tx, y2 - ty, 0., 0., 0., color),
+        ]);
+        m.indices.extend_from_slice(&[0, 1, 2, 2, 1, 3]);
+        submit(&m);
+    });
+}
+
 fn vtx(p: Vec2, c: Color) -> Vertex {
     Vertex::new(p.x, p.y, 0.0, 0.0, 0.0, c)
 }
@@ -115,7 +192,7 @@ fn fan(center: Vec2, rim: &[Vec2], color_at: impl Fn(Vec2, bool) -> Color) {
             m.indices.push(1 + i);
             m.indices.push(1 + (i + 1) % n);
         }
-        draw_mesh(&m);
+        submit(&m);
     });
 }
 
@@ -283,7 +360,7 @@ pub fn radial(cx: f32, cy: f32, rx: f32, ry: f32, inner: Color, outer: Color) {
                     .extend_from_slice(&[a0 + i, b0 + i, b0 + j, a0 + i, b0 + j, a0 + j]);
             }
         }
-        draw_mesh(&m);
+        submit(&m);
     });
 }
 
@@ -314,7 +391,7 @@ pub fn quad(p: [Vec2; 4], c: [Color; 4]) {
             m.vertices.push(vtx(p[i], c[i]));
         }
         m.indices.extend_from_slice(&[0, 1, 2, 0, 2, 3]);
-        draw_mesh(&m);
+        submit(&m);
     });
 }
 
@@ -414,6 +491,36 @@ pub fn glow_line(a: Vec2, b: Vec2, thick: f32, c: Color) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_recording_keeps_every_triangle_in_order_within_the_chunk_limits() {
+        // 600 little stones and lines: more than one chunk
+        let meshes = record(|| {
+            for i in 0..600 {
+                let x = i as f32 * 16.0;
+                rrect_v(x, 0.0, 14.0, 9.2, 3.0, WHITE, BLACK);
+                line(x, 2.0, x + 10.0, 2.0, 1.0, WHITE);
+            }
+        });
+        assert!(meshes.len() > 1, "split into chunks");
+        let (mut v, mut i) = (0, 0);
+        for m in &meshes {
+            assert!(m.vertices.len() <= REC_VERTICES && m.indices.len() <= REC_INDICES);
+            assert!(m.indices.iter().all(|&k| (k as usize) < m.vertices.len()));
+            assert!(m.texture.is_none());
+            v += m.vertices.len();
+            i += m.indices.len();
+        }
+        // a stone: centre + 24 rim points, 24 triangles; a line: a quad
+        assert_eq!(v, 600 * (25 + 4));
+        assert_eq!(i, 600 * (24 * 3 + 6));
+        // the first stone's centre is the first vertex, the first line follows the stone
+        let first = &meshes[0];
+        assert_eq!(first.vertices[0].position.x, 7.0);
+        assert_eq!(first.indices[72..78], [25, 26, 27, 27, 26, 28]);
+        // recording is over: nothing is left switched on
+        assert!(RECORDING.with(|r| r.borrow().is_none()));
+    }
 
     #[test]
     fn mix_endpoints() {
