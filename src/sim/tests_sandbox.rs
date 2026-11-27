@@ -21,7 +21,7 @@ fn ron_len<T: serde::Serialize>(v: &T) -> usize {
     ron::to_string(v).map(|s| s.len()).unwrap_or(0)
 }
 
-fn setup(c: &Content, seed: u64, diff: Difficulty, variant: &str) -> SandboxSetup {
+pub(super) fn setup(c: &Content, seed: u64, diff: Difficulty, variant: &str) -> SandboxSetup {
     let places = &c.sandbox.town_names.places;
     let mut s = SandboxSetup {
         seed,
@@ -49,6 +49,10 @@ fn setup(c: &Content, seed: u64, diff: Difficulty, variant: &str) -> SandboxSetu
         "chaotic" | "quiet" | "stormy" => s.character = Some(variant.into()),
         "norain" => {
             s.options.insert("rain_every_night".into(), false);
+        }
+        // the «Challenge» mode (sim::challenge; tests_challenge)
+        "challenge" => {
+            s.options.insert(super::challenge::OPTION.into(), true);
         }
         _ => {}
     }
@@ -140,7 +144,7 @@ fn row(w: &World, c: &Content, ev: &[SimEvent], tick_us: f64, head: &str) -> Str
 
 const HEADER: &str = "seed,diff,variant,night,money,debt,rent,rep,cozy,arrived,served,left,forgiven,turned,maxq,idle,revenue,tips,wages,sup_cost,sup_stock,helpers,exh_min,min_mood,avg_mood,min_en,avg_en,walked,hired,fired,stuck,events,max_wear,avg_wear,dirt,phase,season,weather,storm,told,attic_offer,attic_owned,backroom,sig,photos,journal,log,summaries,save,b_sys,b_hands,b_build,b_stories,b_story,b_narr,b_app,b_staff,b_walk,b_cand,tick_us,nan";
 
-fn diff_of(s: &str) -> Difficulty {
+pub(super) fn diff_of(s: &str) -> Difficulty {
     match s {
         "classic" => Difficulty::Classic,
         "relaxed" | "carefree" => Difficulty::Relaxed,
@@ -148,7 +152,7 @@ fn diff_of(s: &str) -> Difficulty {
     }
 }
 
-fn bot_for(seed: u64, diff: Difficulty) -> bot::PlayerBot {
+pub(super) fn bot_for(seed: u64, diff: Difficulty) -> bot::PlayerBot {
     bot::PlayerBot::new(bot::BotConfig {
         seed,
         // SBX_NO_DELEGATE=1: a player who never touches the duties (hire-card duty only)
@@ -192,7 +196,7 @@ fn run(
     (w, b)
 }
 
-fn seeds_from_env() -> Vec<u64> {
+pub(super) fn seeds_from_env() -> Vec<u64> {
     let s = std::env::var("SBX_SEEDS").unwrap_or_else(|_| "1-30".into());
     match s.split_once('-') {
         Some((a, b)) => (a.parse().unwrap()..=b.parse().unwrap()).collect(),

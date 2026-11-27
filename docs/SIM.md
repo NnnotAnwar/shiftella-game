@@ -293,6 +293,7 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   `rent_growth_percent` every `rent_growth_every` nights, up to `rent_growth_max` × the town size's top starting rent).
   Sandbox Classic: `bankrupt_after` nights in the red → `CafeClosed`; with the setup's
   `allow_debt` off, Cozy / Carefree close after `story::NO_DEBT_BANKRUPT_AFTER` (3) too.
+  The sandbox «Challenge» mode replaces the rent growth and adds its own closing (§15).
 
 ## 6. Saves
 
@@ -1036,3 +1037,60 @@ night start); `Party.extra_seat` / `Party.rounds` and `NightSummary.payoff` are 
   and does the fridge check) loses almost nothing — `sim_balance 30 story cozy|classic 8`:
   4 / 78 Kč a run, spoilage on 2 % / 12 % of the nights (Classic wears twice as fast); money at
   the end within ~100 Kč per seed, payments 40/0 and 36/4 as before. Tests: `tests_fridge.rs`.
+
+## 15. Sandbox «Challenge» (`sim::challenge`, data `sandbox.ron` → `challenge`)
+
+The sandbox setup's **Mode**: Endless (the default — everything above, unchanged) or Challenge,
+stored as the town option `challenge` (`SandboxSetup::options`, `sim::challenge::OPTION`), so it
+survives saves. Progress lives in `World::challenge: ChallengeState` (`#[serde(default)]`;
+`season == 0` = Endless). Every hook is the identity while no season runs, and nothing new draws
+from the world RNG (rival names: `Rng::new(seed ^ hash("challenge:rival:<season>"))`).
+
+* **Seasons** = the sandbox calendar's 30 nights (`season_nights`; `Town::season` turns with them).
+  `on_day_start` (from `begin_day`) starts season 1 on night 1 and the next on nights 31, 61, …
+* **Money.** From season 2, each season: rent × (1 + `rent_inflation` %) (whole 10 Kč, no
+  `rent_growth_max` cap; the difficulty's 10-night growth is off in Challenge), supply prices
+  (`supply_index`: the restock pays index × the stock it tops up, a manual buy gets amount / index
+  of stock) and wages (`wage_index`, × the night's wage bill) × (1 + `supply_inflation` /
+  `wage_inflation` %). The **season goal** = `goal_per_night` × 30 × (1 + `goal_size_weight` ×
+  (town size − 1)) × `goal_mul[difficulty]` × (1 + `goal_growth` %)^(season − 1), whole 1 000 Kč;
+  `earned` counts revenue + tips. At the season's last night: met → strikes 0, missed → strike;
+  `strikes_to_close` (2) in a row → `ChallengeEnd::Strikes`. Below −`debt_limit_rents` × rent for
+  `debt_nights` (3) nights in a row → `ChallengeEnd::Debt` (whatever «Allow going into debt»
+  says; Classic's own `bankrupt_after` still applies). `story::on_night_end` then closes the café
+  (`CafeClosed`); the game screen asks for the ending `challenge` → `screens::credits` shows the
+  final page from `world.challenge_report()` (seasons survived = seasons finished, minus the one
+  that closed it; nights; best night; guests; money earned) and the seed's record
+  (`Settings::challenge_records`, `record_challenge`).
+* **Rivals.** From `competitor_from_season` (2) one opens per season up to `competitors_max` (3),
+  named from `competitor_names[town]` (or `*`). At night start (`on_night_start`): strengths =
+  coziness level ≥ `counter_coziness_level`, reputation ≥ `counter_reputation`, the house drink,
+  ≥ `counter_regulars` regulars with trust ≥ `counter_regular_trust`; `loss` = `competitor_share`
+  × rivals × (1 − `counter_cut` × strengths) → `guests::arrival_rate` × (1 − loss). At night end
+  each rival wears `rival_reputation_drain` × (loss / loss without strengths) reputation off.
+* **Nights.** `storyteller()` per season past the first: random-event rate × (1 + `event_rate` %
+  × k), Bad events (and `scaled_events`: the inspection) × (1 + `bad_weight` % × k), good share
+  × (1 − `good_share_cut` % × k), tension budget + `tension_add` × k, one more Bad in a row every
+  `bad_in_row_every` seasons, breathing room × (1 − `breath_cut` %)^k; appliance wear × (1 +
+  `wear` % × k) (k = season − 1).
+* **Shown:** bot messages `challenge_start` / `_season` / `_rival` / `_goal_met` / `_goal_missed`
+  / `_debt` (toasts), `NightSummary::challenge` lines (`challenge.line.*`: rivals' toll,
+  strengths, goal progress, season result, debt) in the morning summary and the phone digest,
+  the planning card (goal, nights left, strikes, rivals), the log. Queries:
+  `world.challenge(&c) -> Option<ChallengeView>`, `challenge_state()`, `challenge_report()`.
+
+Balance (`SBX_SEEDS=1-10 SBX_DIFF=cozy|classic cargo test --release --lib
+sim::tests_challenge::curve -- --ignored --nocapture`, the sandbox player-bot, 10 seeds):
+
+| Cozy | goal | earned | met | money end | rep | rent | rivals | walk-ins lost | bad events |
+|---|---|---|---|---|---|---|---|---|---|
+| season 1 | 192 k | 236 k | 100 % | 35 k | 98.1 | 2 100 | 0 | 0 % | 14 |
+| season 2 | 227 k | 264 k | 90 % | 104 k | 99.3 | 2 630 | 1 | 6.5 % | 18 |
+| season 3 | 267 k | 261 k | 30 % | 130 k | 98.0 | 3 280 | 2 | 12.6 % | 18 |
+| season 4 | 310 k | 253 k | 0 % | 107 k | 94.6 | 4 040 | 3 | 19.1 % | 23 |
+| season 5 | 365 k | 274 k | 0 % | 76 k | 95.3 | 5 130 | 3 | 16.7 % | 31 |
+
+Cozy: 126 nights on average (90–150, ≈ 4.2 seasons); every run closes on strikes. Classic
+(`goal_mul` 1.2): 81 nights (60–120, ≈ 2.7 seasons); money peaks in season 3 (20 k → 71 k →
+111 k → 101 k), reputation in season 2 (97.9 → 91.5 by season 4). Endless (the old sandbox,
+6 seeds, 150 nights) ends Cozy runs at ~220–420 k with reputation 100. Tests: `sim::tests_challenge`.

@@ -10,7 +10,8 @@
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
 //!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
-//!   build_drag|attic|backroom|requests|corner|before_after|to_go` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
+//!   build_drag|attic|backroom|requests|corner|before_after|to_go|challenge_summary|
+//!   challenge_final` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
 //!   story_marker|story_card|storm|storm_talk|auto_pause|hands_ux` (`auto_pause`: the night paused
@@ -362,7 +363,16 @@ impl App {
         match name {
             "language" => self.menu(Some(MenuPage::Language)),
             "newgame" => self.menu(Some(MenuPage::NewGame)),
-            "sandbox_setup" => self.menu(Some(MenuPage::Sandbox)),
+            "sandbox_setup" => {
+                let mut s = self.menu(Some(MenuPage::Sandbox));
+                // SHIFTELLA_SB_MODE=challenge: the setup with the Challenge mode picked
+                if env("SHIFTELLA_SB_MODE").as_deref() == Some("challenge")
+                    && let Screen::Menu(m) = &mut s
+                {
+                    m.set_sandbox_challenge(true);
+                }
+                s
+            }
             "settings" => {
                 // SHIFTELLA_SETTINGS_TAB=0|1|2: General / Accessibility / Controls
                 if let Some(t) = env("SHIFTELLA_SETTINGS_TAB").and_then(|t| t.parse().ok()) {
@@ -895,6 +905,40 @@ impl App {
                 Some("full".into()),
                 true,
             ))),
+            // the sandbox «Challenge»: a morning with the rivals' line (`SHIFTELLA_NIGHT`,
+            // default 40, Cozy), or the final page after the player-bot played the run to its
+            // end (Classic, `SHIFTELLA_SEED`)
+            "challenge_summary" | "challenge_final" => {
+                let final_page = name == "challenge_final";
+                let mut s = sim::SandboxSetup {
+                    seed: env("SHIFTELLA_SEED")
+                        .and_then(|s| s.parse().ok())
+                        .unwrap_or(2039),
+                    difficulty: if final_page {
+                        sim::Difficulty::Classic
+                    } else {
+                        sim::Difficulty::Cozy
+                    },
+                    ..Default::default()
+                };
+                s.options.insert(sim::challenge::OPTION.into(), true);
+                let mut g = GameScreen::new_sandbox(&content, s);
+                g.extra.opening_seen = Some(Vec::new());
+                let loc = Locale::new(&self.i18n, lang);
+                if final_page {
+                    g.fast_forward(&content, &loc, 2000, None, true);
+                    let report = g.world.challenge_report();
+                    let mut c = Credits::new(&self.ui, Some("challenge".into()), None, false);
+                    if let Some(r) = report {
+                        c = c.with_challenge(r, Some(2));
+                    }
+                    Screen::Credits(Box::new(c))
+                } else {
+                    g.fast_forward(&content, &loc, night.unwrap_or(40), Some(479), true);
+                    g.run_to_morning(&content, &loc);
+                    self.game(g)
+                }
+            }
             "sandbox" => {
                 let mut g = GameScreen::new_sandbox(
                     &content,
@@ -970,9 +1014,21 @@ impl App {
                 {
                     let _ = g.save(&self.content, &self.store, Slot::Auto);
                 }
+                // a «Challenge» run: its final page, and the seed's record kept in the settings
+                let report = match &self.screen {
+                    Screen::Game(g) => g.world.challenge_report(),
+                    _ => None,
+                };
                 self.audio.set_music(Some(Track::Calm));
-                self.screen =
-                    Screen::Credits(Box::new(Credits::new(&self.ui, ending, variant, epilogue)));
+                let mut credits = Credits::new(&self.ui, ending, variant, epilogue);
+                if let Some(r) = report {
+                    let best = self.settings.record_challenge(r.seed, r.seasons_survived);
+                    if std::env::var("SHIFTELLA_SHOT").is_err() {
+                        let _ = self.settings.save();
+                    }
+                    credits = credits.with_challenge(r, best);
+                }
+                self.screen = Screen::Credits(Box::new(credits));
             }
         }
         r

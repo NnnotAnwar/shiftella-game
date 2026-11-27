@@ -195,7 +195,7 @@ pub fn tr_args(loc: &Locale, key: &str, args: &[(String, String)]) -> String {
                 loc.tr_owned(&menu_key)
             } else if matches!(
                 k.as_str(),
-                "revenue" | "amount" | "money" | "tips" | "price" | "total"
+                "revenue" | "amount" | "money" | "tips" | "price" | "total" | "goal"
             ) && let Ok(n) = v.parse::<i64>()
             {
                 // the sim passes plain numbers: show them as money ("4 299 Kč")
@@ -236,6 +236,9 @@ pub fn sandbox_setup(s: &crate::screens::menu::SandboxSetup) -> sim::SandboxSetu
     options.insert("rain_every_night".to_string(), s.rain_every_night);
     options.insert("pause_on_events".to_string(), s.pause_on_events);
     options.insert("allow_debt".to_string(), s.allow_debt);
+    if s.challenge {
+        options.insert(sim::challenge::OPTION.to_string(), true);
+    }
     sim::SandboxSetup {
         seed: s.seed,
         difficulty: difficulty_from_id(&s.difficulty),

@@ -17,6 +17,26 @@ pub(crate) fn restock(w: &mut World, _content: &Content) {
         && w.econ.supplies < target
     {
         let need = target - w.econ.supplies;
+        // Challenge: supply prices rose — the same stock costs `index` × as much
+        if let Some(index) = super::challenge::supply_index(w) {
+            let cost = (need as f32 * index).round() as i64;
+            let pay = if w.difficulty.gentle() {
+                cost
+            } else {
+                cost.min(w.econ.money.max(0) + CLASSIC_OVERDRAFT)
+            };
+            if pay > 0 {
+                w.econ.money -= pay;
+                w.econ.supplies += if pay == cost {
+                    need
+                } else {
+                    (pay as f32 / index).floor() as i64
+                };
+                w.tonight.supplies += pay;
+            }
+            w.tonight.supplies += std::mem::take(&mut w.econ.day_supplies);
+            return;
+        }
         // Cozy lets you go a little into the red for food; Classic buys what it can afford.
         let afford = if w.difficulty.gentle() {
             need
@@ -44,7 +64,11 @@ pub(crate) fn buy_supplies(w: &mut World, amount: i64) -> Result<(), CommandErro
         });
     }
     w.econ.money -= amount;
-    w.econ.supplies += amount;
+    // Challenge: dearer supplies — the money buys less stock
+    w.econ.supplies += match super::challenge::supply_index(w) {
+        Some(index) => (amount as f32 / index).floor() as i64,
+        None => amount,
+    };
     if w.phase == Phase::Night {
         w.tonight.supplies += amount;
     } else {
@@ -155,6 +179,10 @@ pub(crate) fn on_night_end(w: &mut World, _content: &Content) {
         }
         wages += (s.wage as f32 * hours / 8.0).round() as i64;
         s.hours_week += hours;
+    }
+    // Challenge: wages rose with the seasons
+    if let Some(index) = super::challenge::wage_index(w) {
+        wages = (wages as f32 * index).round() as i64;
     }
     w.econ.money -= wages;
     w.tonight.wages = wages;

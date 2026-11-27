@@ -293,6 +293,9 @@ pub struct NightSummary {
     /// Purchases: "What the café gave you tonight" (`sim::purchases`, ≤ `summary_max` lines).
     #[serde(default)]
     pub payoff: Vec<super::purchases::PayoffLine>,
+    /// Sandbox «Challenge»: the season goal, the rivals' toll, a strike (`sim::challenge`).
+    #[serde(default)]
+    pub challenge: Vec<super::purchases::PayoffLine>,
 }
 
 /// What an experiment in the pantry gave (handson.md §4.4); keys from `experiment.*`.

@@ -226,6 +226,7 @@ fn the_sandbox_option_survives_save_and_load() {
         rain_every_night: false,
         pause_on_events: true,
         allow_debt: true,
+        challenge: false,
     };
     let s = wv::sandbox_setup(&form);
     assert_eq!(s.options.get("pause_on_events"), Some(&true));

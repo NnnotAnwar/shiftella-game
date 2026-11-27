@@ -86,6 +86,13 @@
         (id: "payment_done", kind: PaymentReminder, placeholders: ["amount", "debt"]),
         (id: "payment_missed_soft", kind: PaymentReminder),
         (id: "payment_missed_hard", kind: PaymentReminder),
+        // sandbox «Challenge» (sim::challenge): a new season, a rival, the season goal, debt
+        (id: "challenge_start", kind: PaymentReminder, placeholders: ["goal", "nights", "max"]),
+        (id: "challenge_season", kind: PaymentReminder, placeholders: ["season", "goal", "amount", "percent"]),
+        (id: "challenge_rival", kind: Story, placeholders: ["name"]),
+        (id: "challenge_goal_met", kind: PaymentReminder, placeholders: ["season", "money", "goal"]),
+        (id: "challenge_goal_missed", kind: PaymentReminder, placeholders: ["season", "money", "goal", "strikes", "max"]),
+        (id: "challenge_debt", kind: PaymentReminder, placeholders: ["amount", "nights"]),
         (id: "announcement_posted", kind: Announcement, placeholders: ["title"]),
         (id: "train_delay", kind: Story, placeholders: ["train", "minutes"],
          actions: [(id: "get_ready", handler: ApplyMoment("m_delay_board")), (id: "noted")]),

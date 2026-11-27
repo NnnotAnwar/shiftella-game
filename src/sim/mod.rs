@@ -15,6 +15,7 @@ pub mod bot;
 mod build_content;
 mod build_ux;
 mod build_wishes;
+pub mod challenge;
 mod commands;
 pub mod companions;
 mod corners;
@@ -69,6 +70,8 @@ mod tests_build;
 #[cfg(test)]
 mod tests_build_ux;
 #[cfg(test)]
+mod tests_challenge;
+#[cfg(test)]
 mod tests_closing;
 #[cfg(test)]
 mod tests_combos;
@@ -114,6 +117,7 @@ pub use backroom::{BACK_COLS, BackRoomView};
 pub use build_content::{BackRoomState, BuildState, WishProgress};
 pub use build_ux::{InUseReason, PieceMove};
 pub use build_wishes::{BuildRequest, BuildRequestStatus, BuildWho, BuildWish};
+pub use challenge::{ChallengeEnd, ChallengeReport, ChallengeView, Strength};
 pub use corners::CornerView;
 pub use crew::{Activity, Feeling, Feelings, IdleWhy, ShiftTonight, TaskFor, TodoParts};
 pub use equipment::{

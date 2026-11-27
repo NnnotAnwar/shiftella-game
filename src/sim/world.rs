@@ -905,6 +905,9 @@ pub struct World {
     /// Purchases that matter: tonight's tally of what the bought pieces did (`sim::purchases`).
     #[serde(default)]
     pub(crate) pay: super::purchases::PayoffState,
+    /// The sandbox «Challenge» mode: seasons, goal, rivals (`sim::challenge`; Endless: empty).
+    #[serde(default)]
+    pub(crate) challenge: super::challenge::ChallengeState,
     #[serde(skip)]
     pub(crate) events: Vec<SimEvent>,
     #[serde(skip)]
@@ -996,6 +999,7 @@ impl World {
             sig: Default::default(),
             stories: Default::default(),
             pay: Default::default(),
+            challenge: Default::default(),
             events: Vec::new(),
             paths: PathCache::default(),
         }
@@ -1446,8 +1450,9 @@ impl World {
         if self.mode == Mode::Sandbox && self.night > 1 && (self.night - 1).is_multiple_of(30) {
             self.town.season = (self.town.season + 1) % 4;
         }
-        // Rent growth (sandbox).
+        // Rent growth (sandbox; Challenge raises it every season instead, uncapped).
         if self.mode == Mode::Sandbox
+            && !super::challenge::enabled(self)
             && let Some(d) = content.difficulty(self.difficulty.id())
             && d.rent_growth_every > 0
             && self.night > 1
@@ -1464,6 +1469,7 @@ impl World {
                 None => grown,
             };
         }
+        super::challenge::on_day_start(self, content);
         // Repair overnight: slowdowns end, very worn stuff is serviced a little.
         for s in self.staff.iter_mut() {
             s.status = StaffStatus::OffDuty;
@@ -1569,6 +1575,7 @@ impl World {
         self.sys.fx.tonight_reset();
         super::journal::on_night_start(self, content);
         super::moments::on_night_start(self, content);
+        super::challenge::on_night_start(self, content);
         super::economy::restock(self, content);
         super::story::roll_weather(self, content);
         super::app::on_night_start(self, content);
@@ -1890,6 +1897,7 @@ impl World {
         super::story::on_night_end_early(self, content);
         super::app::on_night_end(self, content);
         super::economy::on_night_end(self, content);
+        super::challenge::on_night_end(self, content);
         self.narrator.later.clear();
         self.narrator.pending.clear();
         super::narrator::on_night_end(self, content);

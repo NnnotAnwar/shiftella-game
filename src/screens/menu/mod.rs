@@ -72,6 +72,8 @@ pub struct SandboxSetup {
     pub rain_every_night: bool,
     pub pause_on_events: bool,
     pub allow_debt: bool,
+    /// The «Challenge» mode (harder every season, `sim::challenge`); off = Endless.
+    pub challenge: bool,
 }
 
 /// Turns a typed seed into a number: plain digits parse directly, anything else is hashed
@@ -132,6 +134,8 @@ struct SandboxForm {
     rain: bool,
     pause: bool,
     debt: bool,
+    /// 0 Endless (the default), 1 Challenge.
+    mode: usize,
 }
 
 pub struct MainMenu {
@@ -207,6 +211,7 @@ impl MainMenu {
                 rain: opt("rain_every_night", true),
                 pause: settings.pause_on_events || opt("pause_on_events", false),
                 debt: opt("allow_debt", true),
+                mode: 0,
             },
             audio: vec![
                 AudioRequest::Music {
@@ -227,6 +232,11 @@ impl MainMenu {
 
     pub fn page(&self) -> MenuPage {
         self.page
+    }
+
+    /// The sandbox setup's mode (screenshots: `SHIFTELLA_SB_MODE=challenge`).
+    pub fn set_sandbox_challenge(&mut self, on: bool) {
+        self.form.mode = usize::from(on);
     }
 
     /// Jump to a page (e.g. `Settings` from the in-game pause menu, or demos).
@@ -798,7 +808,7 @@ impl MainMenu {
         let s = ui.screen();
         let th = ui.theme.clone();
         let w = (s.w - 48.0).min(640.0);
-        let h = 486.0;
+        let h = 546.0;
         let p = Rect::new((s.w - w) / 2.0, ((s.h - h) / 2.0).max(16.0), w, h);
         ui.glass(p, &Glass::panel().solid().radius(14.0));
         let (body, closed) = ui.panel_header(p, loc.tr("ui.sandbox.title"), None, None);
@@ -874,6 +884,33 @@ impl MainMenu {
             &mut self.form.difficulty,
         );
         y += 44.0;
+
+        // mode: Endless (calm, as ever) or Challenge (harder every season)
+        label(ui, y, loc.tr("ui.sandbox.mode"));
+        let modes = [
+            loc.tr_owned("ui.sandbox.mode.endless"),
+            loc.tr_owned("ui.sandbox.mode.challenge"),
+        ];
+        let refs: Vec<&str> = modes.iter().map(String::as_str).collect();
+        ui.segmented(
+            "sb_mode",
+            Rect::new(cx, y + 2.0, cw.min(300.0), 28.0),
+            &refs,
+            &mut self.form.mode,
+        );
+        let mdesc = if self.form.mode == 1 {
+            "ui.sandbox.mode.challenge_desc"
+        } else {
+            "ui.sandbox.mode.endless_desc"
+        };
+        let used = ui.fonts.draw_wrapped(
+            loc.tr(mdesc),
+            Rect::new(cx, y + 34.0, cw, (hs.line_h() * 2.0).max(32.0)),
+            &hs,
+            Align::Left,
+            Some(2),
+        );
+        y += 42.0 + used.max(hs.line_h());
 
         // night character: stepped slider + chip
         label(ui, y, loc.tr("ui.sandbox.night_character"));
@@ -978,6 +1015,7 @@ impl MainMenu {
                 rain_every_night: self.form.rain,
                 pause_on_events: self.form.pause,
                 allow_debt: self.form.debt,
+                challenge: self.form.mode == 1,
             }));
         }
         None
