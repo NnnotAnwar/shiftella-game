@@ -27,6 +27,18 @@ en New seats: {guests} guests found a place, about {drawn} more walked in · {mo
 uk Нові місця: {guests} гостей знайшли де сісти, ще близько {drawn} зайшли · {money}
 ru Новые места: {guests} гостей нашли где сесть, ещё около {drawn} зашли · {money}
 
+purchases.line.seats_found
+cs Nová místa: {guests} hostů si mělo kam sednout · {money}
+en New seats: {guests} guests found a place · {money}
+uk Нові місця: {guests} гостей знайшли де сісти · {money}
+ru Новые места: {guests} гостей нашли где сесть · {money}
+
+purchases.line.seats_drawn
+cs Nová místa: díky nim přišlo asi o {drawn} hostů víc
+en New seats: about {drawn} more guests walked in
+uk Нові місця: завдяки ним зайшло ще близько {drawn} гостей
+ru Новые места: благодаря им зашло ещё около {drawn} гостей
+
 purchases.line.comfy
 cs {piece}: hosté zůstali o {min} min déle · +{money} spropitné
 en {piece}: guests stayed {min} min longer · +{money} tips

@@ -1643,6 +1643,8 @@
     "purchases.line.no_seat": "No free seat: {n}× they went on — more seats would keep them",
     "purchases.line.parallel": "{piece}: {n} drinks brewed side by side",
     "purchases.line.seats": "New seats: {guests} guests found a place, about {drawn} more walked in · {money}",
+    "purchases.line.seats_drawn": "New seats: about {drawn} more guests walked in",
+    "purchases.line.seats_found": "New seats: {guests} guests found a place · {money}",
     "purchases.line.spoiled_failed": "{l} l of milk went off — the fridge gave out tonight · {money}",
     "purchases.line.spoiled_full": "{l} l of milk went off — the fridge was full · {money}",
     "purchases.line.spoiled_worn": "{l} l of milk went off — the worn fridge holds less · {money}",

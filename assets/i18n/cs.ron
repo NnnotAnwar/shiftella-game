@@ -1643,6 +1643,8 @@
     "purchases.line.no_seat": "Žádné volné místo: {n}× šli dál — víc míst by je udrželo",
     "purchases.line.parallel": "{piece}: {n} nápojů se připravovalo souběžně",
     "purchases.line.seats": "Nová místa: {guests} hostů si mělo kam sednout, asi {drawn} přišlo navíc · {money}",
+    "purchases.line.seats_drawn": "Nová místa: díky nim přišlo asi o {drawn} hostů víc",
+    "purchases.line.seats_found": "Nová místa: {guests} hostů si mělo kam sednout · {money}",
     "purchases.line.spoiled_failed": "Zkazilo se {l} l mléka — lednice v noci vypověděla službu · {money}",
     "purchases.line.spoiled_full": "Zkazilo se {l} l mléka — lednice byla plná · {money}",
     "purchases.line.spoiled_worn": "Zkazilo se {l} l mléka — opotřebovaná lednice pojme méně · {money}",

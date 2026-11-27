@@ -489,7 +489,14 @@ fn the_payoff_lines_add_up_and_survive_a_save() {
             let get = |k: &str| l.args.iter().find(|a| a.0 == k).map(|a| a.1.clone());
             match l.key.as_str() {
                 "purchases.line.no_seat" => assert_eq!(get("n"), Some(t.turned_away.to_string())),
-                "purchases.line.seats" => assert_eq!(l.money, t.extra_money),
+                "purchases.line.seats" | "purchases.line.seats_found" => {
+                    assert_eq!(l.money, t.extra_money);
+                    assert_ne!(get("guests"), Some("0".into()), "no '0 guests found a place'");
+                }
+                "purchases.line.seats_drawn" => {
+                    assert_ne!(get("drawn"), Some("0".into()));
+                    assert_eq!(t.extra_parties, 0);
+                }
                 "purchases.line.tier" | "purchases.line.tier_rare" => {
                     assert_eq!(l.money, t.tier_tips)
                 }

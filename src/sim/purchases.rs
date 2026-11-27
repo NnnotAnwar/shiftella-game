@@ -722,16 +722,29 @@ pub(crate) fn lines(w: &World, content: &Content) -> Vec<PayoffLine> {
     let mut out: Vec<(f32, PayoffLine)> = Vec::new();
     // new seats
     let drawn = t.drawn.round() as u32;
-    if t.extra_parties > 0 || drawn > 0 {
+    // (only what really happened: no "0 guests found a place · 0 Kč")
+    let seats_line = match (t.extra_parties > 0, drawn > 0) {
+        (true, true) => Some((
+            "purchases.line.seats",
+            vec![
+                arg("guests", t.extra_guests),
+                arg("drawn", drawn),
+                arg("money", t.extra_money),
+            ],
+        )),
+        (true, false) => Some((
+            "purchases.line.seats_found",
+            vec![arg("guests", t.extra_guests), arg("money", t.extra_money)],
+        )),
+        (false, true) => Some(("purchases.line.seats_drawn", vec![arg("drawn", drawn)])),
+        (false, false) => None,
+    };
+    if let Some((key, args)) = seats_line {
         out.push((
             t.extra_money as f32 + drawn as f32 * 60.0,
             PayoffLine {
-                key: "purchases.line.seats".into(),
-                args: vec![
-                    arg("guests", t.extra_guests),
-                    arg("drawn", drawn),
-                    arg("money", t.extra_money),
-                ],
+                key: key.into(),
+                args,
                 money: t.extra_money,
             },
         ));

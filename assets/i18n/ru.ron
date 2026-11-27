@@ -1643,6 +1643,8 @@
     "purchases.line.no_seat": "Не было места: {n}× ушли дальше — больше мест их бы удержало",
     "purchases.line.parallel": "{piece}: {n} напитков готовились одновременно",
     "purchases.line.seats": "Новые места: {guests} гостей нашли где сесть, ещё около {drawn} зашли · {money}",
+    "purchases.line.seats_drawn": "Новые места: благодаря им зашло ещё около {drawn} гостей",
+    "purchases.line.seats_found": "Новые места: {guests} гостей нашли где сесть · {money}",
     "purchases.line.spoiled_failed": "Скисло {l} л молока — холодильник ночью отказал · {money}",
     "purchases.line.spoiled_full": "Скисло {l} л молока — холодильник был полон · {money}",
     "purchases.line.spoiled_worn": "Скисло {l} л молока — изношенный холодильник держит меньше · {money}",
