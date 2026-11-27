@@ -143,7 +143,8 @@
     (id: "clock_333", kind: Uncanny, severity: 1, trigger: Auto, min_night: 4,
      // every story night with the light on (the 3:33 guest); in sandbox only now and then
      conditions: [TimeBetween("03:33", "03:34"), WindowLightOn, Any([Mode(Story), Chance(0.15)])],
-     effects: [ClockStop(seconds: 60.0)]),
+     // a short held breath, not a minute of a frozen café (owner, 2026-11-27)
+     effects: [ClockStop(seconds: 6.0)]),
     (id: "phantom_horn", kind: Uncanny, severity: 1, weight: 10.0, cooldown: 2,
      conditions: [TimeBetween("02:00", "04:00")],
      effects: [TraitMood("light_sleeper", 5.0), TraitMood("anxious", -5.0)]),

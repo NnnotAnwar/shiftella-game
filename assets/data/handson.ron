@@ -64,7 +64,8 @@
     experiment_minutes: 2,
     margin_note_every: 3,
     thanks_chance: (guest: 0.12, regular: 0.25, min_match: 0.8, min_quality: 0.7),
-    capacity: (base: 1, after_nights: 3, skill_bonus_at: 7.0, trait_bonus: "hard_worker", max: 3),
+    // a helper holds two duties from the start (owner: "why can't they do several things?")
+    capacity: (base: 2, after_nights: 3, skill_bonus_at: 7.0, trait_bonus: "hard_worker", max: 3),
     player_energy: (classic_drain_mul: 0.5, mug_below: 25.0, mug_restore: 40.0),
     quiet_hour: (
         from: "03:00", to: "04:00",

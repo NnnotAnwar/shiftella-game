@@ -53,7 +53,10 @@ pub(crate) fn default_duties(content: &Content, archetype: &str) -> Vec<Duty> {
         Job::Cleaning => Duty::Dishes,
         j => Duty::for_job(j),
     });
-    vec![d]
+    // a second duty that always has something to do, so a new helper never just stands
+    // there (capacity starts at 2): the dishes, or the floor for whoever already washes up
+    let second = if d == Duty::Dishes { Duty::Floor } else { Duty::Dishes };
+    vec![d, second]
 }
 
 /// Save v1 → v2: every priority-1 job becomes a duty (cleaning → dishes).
