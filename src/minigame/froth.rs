@@ -1,7 +1,11 @@
 //! MilkFroth (§2.1): hold LMB / Space to steam the milk in a glass pitcher. The
 //! temperature needle climbs a dial; foam rises while steaming and gets an extra puff of
 //! air on every re-press (pulsing). Let go when the needle sits in the amber band.
-//! Quality: `0.75 × clamp(1 − |T − T_target| / tol) + 0.25 × clamp(1 − |foam − target| / 0.3)`.
+//! Quality: `w × clamp(1 − |T − T_target| / tol) + (1 − w) × clamp(1 − |foam − target| / foam_tol)`
+//! (w = 0.75). Each drink is itself: espresso or cocoa in the cup, milk or cream in the jug,
+//! a thick / silky / light foam line; Raf gets a vanilla drop first, Lori's encore a chili pinch
+//! over the cup last (a swinging drop, its share of the quality from the content row). The
+//! target drifts a little every play.
 
 use std::f32::consts::PI;
 
@@ -9,7 +13,10 @@ use macroquad::prelude::*;
 
 use super::paint::{contact_shadow, ellipse_arc, with_alpha};
 use super::score::{self, widen};
-use super::{Common, Ctx, FrothTuning, Hint, MgInput, MiniGameSound};
+use super::{
+    Common, Ctx, FrothDrink, FrothDrop, FrothTuning, Hint, MgInput, MiniGameSound, MiniGameText,
+    Rng,
+};
 use crate::render::draw as rd;
 use crate::ui::draw::{self, Paint, fill_convex, fill_rrect, glow_circle};
 use crate::ui::{Align, Ui, approach};
@@ -43,8 +50,27 @@ struct Puff {
     r: f32,
 }
 
+/// The swinging drop (vanilla over the jug first, chili over the cup last).
+#[derive(Clone, Copy, Debug, PartialEq)]
+enum DropState {
+    /// Not yet swinging (chili waits for the milk).
+    Waiting,
+    Swinging {
+        since: f32,
+    },
+    Dropped {
+        acc: f32,
+        at: f32,
+    },
+}
+
 pub(crate) struct Froth {
     tu: FrothTuning,
+    drop: Option<(FrothDrop, f32)>,
+    drop_state: DropState,
+    swing_phase: f32,
+    swing_speed: f32,
+    cup_x: f32,
     common: Common,
     temp: f32,
     foam: f32,
@@ -76,10 +102,25 @@ fn dial_angle(temp: f32) -> f32 {
     (160.0 + 220.0 * u).to_radians()
 }
 
+const DROP_SWING: f32 = 50.0;
+const DROP_Y: f32 = 34.0;
+
 impl Froth {
-    pub fn new(tu: FrothTuning, common: Common) -> Froth {
+    pub fn new(rng: &mut Rng, mut tu: FrothTuning, common: Common) -> Froth {
+        // a little drift every play: the band and the foam line are never in the same place
+        tu.t_target = (tu.t_target + rng.range(-1.5, 1.5)).round();
+        tu.foam = (tu.foam + rng.range(-0.04, 0.04)).clamp(0.15, 0.9);
+        let drop = tu.drop;
         Froth {
             tu,
+            drop,
+            drop_state: match drop {
+                Some((FrothDrop::Vanilla, _)) => DropState::Swinging { since: 0.3 },
+                _ => DropState::Waiting,
+            },
+            swing_phase: rng.range(0.0, std::f32::consts::TAU),
+            swing_speed: rng.range(1.4, 1.9),
+            cup_x: 78.0 + rng.range(-8.0, 8.0),
             common,
             temp: T_START,
             foam: 0.0,
@@ -94,8 +135,80 @@ impl Froth {
             was_in_band: false,
             puffs: Vec::new(),
             spawn_acc: 0.0,
-            rng: super::Rng::new(0x5EED_F207),
+            rng: Rng::new(rng.next_u64()),
             t: 0.0,
+        }
+    }
+
+    /// Where the drop swings (x), and over what (the jug for vanilla, the cup for chili).
+    fn drop_center(&self) -> f32 {
+        match self.drop {
+            Some((FrothDrop::Chili, _)) => self.cup_x,
+            _ => JUG_X,
+        }
+    }
+
+    fn drop_x(&self, t: f32) -> f32 {
+        let amp = if matches!(self.drop, Some((FrothDrop::Chili, _))) {
+            DROP_SWING * 0.8
+        } else {
+            DROP_SWING
+        };
+        self.drop_center() + (t * self.swing_speed + self.swing_phase).sin() * amp
+    }
+
+    fn drop_acc(&self) -> f32 {
+        match self.drop_state {
+            DropState::Dropped { acc, .. } => acc,
+            _ => 1.0,
+        }
+    }
+
+    fn drop_pending(&self) -> bool {
+        self.drop.is_some() && !matches!(self.drop_state, DropState::Dropped { .. })
+    }
+
+    fn temp_score(&self, relaxed: bool) -> f32 {
+        (1.0 - (self.temp - self.tu.t_target).abs() / (self.tu.tol * widen(relaxed)))
+            .clamp(0.0, 1.0)
+    }
+
+    fn foam_score(&self, relaxed: bool) -> f32 {
+        (1.0 - (self.foam - self.tu.foam).abs() / (self.tu.foam_tol * widen(relaxed)))
+            .clamp(0.0, 1.0)
+    }
+
+    pub fn steps(&self) -> Vec<&'static str> {
+        match self.drop {
+            Some((FrothDrop::Vanilla, _)) => vec!["milk_froth.vanilla"],
+            Some((FrothDrop::Chili, _)) => vec!["milk_froth.chili"],
+            None => Vec::new(),
+        }
+    }
+
+    pub fn preview(&self, relaxed: bool) -> f32 {
+        self.quality(relaxed)
+    }
+
+    pub fn advice(&self, relaxed: bool) -> &'static str {
+        let w = self.tu.t_weight;
+        let dt = w * (1.0 - self.temp_score(relaxed));
+        let df = (1.0 - w) * (1.0 - self.foam_score(relaxed));
+        let dd = self
+            .drop
+            .map_or(0.0, |(_, dw)| dw * (1.0 - self.drop_acc()));
+        if dd > dt && dd > df {
+            "minigame.why.drop"
+        } else if df > dt {
+            if self.foam < self.tu.foam {
+                "minigame.why.froth.foam_low"
+            } else {
+                "minigame.why.froth.foam_high"
+            }
+        } else if self.temp < self.tu.t_target {
+            "minigame.why.froth.cold"
+        } else {
+            "minigame.why.froth.hot"
         }
     }
 
@@ -118,30 +231,64 @@ impl Froth {
     }
 
     fn quality(&self, relaxed: bool) -> f32 {
-        score::froth(
+        let q = score::froth_weighted(
             self.temp,
             self.tu.t_target,
             self.tu.tol,
             self.foam,
             self.tu.foam,
+            self.tu.foam_tol,
+            self.tu.t_weight,
             relaxed,
-        )
+        );
+        match self.drop {
+            Some((_, w)) => (1.0 - w) * q + w * self.drop_acc(),
+            None => q,
+        }
     }
 
     /// Released in or above the band (the gesture is over).
     pub fn finished_gesture(&self) -> bool {
-        !self.holding && self.temp >= self.band(self.common.relaxed).0
+        !self.holding && self.temp >= self.band(self.common.relaxed).0 && !self.drop_pending()
+    }
+
+    /// The swinging drop: click / Space while it hangs over the middle.
+    fn step_drop(&mut self, ctx: &mut Ctx, input: &MgInput) {
+        if let DropState::Swinging { since } = self.drop_state
+            && ctx.t > since + 0.25
+        {
+            let auto = !self.common.relaxed && ctx.t > since + 7.0;
+            if input.pressed || input.hold_pressed || auto {
+                let x = self.drop_x(ctx.t);
+                let acc = score::lemon(x - self.drop_center(), ctx.relaxed);
+                self.drop_state = DropState::Dropped { acc, at: ctx.t };
+                ctx.sounds.push(MiniGameSound::Pour);
+                if acc > 0.6 {
+                    ctx.sounds.push(MiniGameSound::Cue);
+                }
+            }
+        }
     }
 
     pub fn step(&mut self, ctx: &mut Ctx, input: &MgInput, dt: f32) -> Option<f32> {
         self.t = ctx.t;
-        if input.pressed {
+        let swinging = matches!(self.drop_state, DropState::Swinging { .. });
+        if swinging {
+            self.step_drop(ctx, input);
+            // the vanilla goes in before the steam: no steaming while it swings
+            if matches!(self.drop, Some((FrothDrop::Vanilla, _))) {
+                self.temp = (self.temp - 0.4 * dt).max(T_START);
+                self.step_puffs(dt);
+                return None;
+            }
+        }
+        if input.pressed && !swinging {
             self.mouse_hold = true;
         }
         if input.released || !input.down {
             self.mouse_hold = false;
         }
-        let want = self.mouse_hold || input.hold;
+        let want = !swinging && (self.mouse_hold || input.hold);
         if want {
             if !self.holding {
                 ctx.sounds.push(MiniGameSound::Froth);
@@ -159,7 +306,12 @@ impl Froth {
         } else {
             self.holding = false;
             self.released_for += dt;
-            self.temp = (self.temp - 0.4 * dt).max(T_START);
+            // the jug waits on the counter while the chili swings: it keeps its warmth
+            if self.drop_state == DropState::Waiting
+                || matches!(self.drop, Some((FrothDrop::Vanilla, _)))
+            {
+                self.temp = (self.temp - 0.4 * dt).max(T_START);
+            }
         }
         self.foam = self.foam.clamp(0.0, 1.2);
         self.peak = self.peak.max(self.temp);
@@ -173,12 +325,29 @@ impl Froth {
         self.in_band = approach(self.in_band, if inside { 1.0 } else { 0.0 }, dt, 0.08);
         self.step_puffs(dt);
 
+        // chili: once the milk is done, the pinch swings over the cup
+        let milk_done = self.temp >= lo && self.released_for > 0.6;
+        if self.drop_state == DropState::Waiting
+            && self.drop.is_some()
+            && (milk_done || (self.common.relaxed && input.confirm && self.temp >= lo))
+        {
+            self.drop_state = DropState::Swinging { since: ctx.t };
+            return None;
+        }
+        let drop_wait = match self.drop_state {
+            DropState::Dropped { at, .. } => ctx.t - at < 0.6,
+            DropState::Waiting => false,
+            DropState::Swinging { .. } => true,
+        };
         let finish = if self.common.relaxed {
-            input.confirm
+            input.confirm && !matches!(self.drop_state, DropState::Swinging { .. })
         } else {
-            let settled = self.temp >= lo && self.released_for > 0.6;
             let scalded = self.temp > hi + 12.0;
-            settled || scalded || ctx.t > MAX_T || (input.confirm && self.temp > T_START + 5.0)
+            let max_t = MAX_T + if self.drop.is_some() { 5.0 } else { 0.0 };
+            (milk_done && !drop_wait && !self.drop_pending())
+                || (scalded && !self.drop_pending())
+                || ctx.t > max_t
+                || (input.confirm && self.temp > T_START + 5.0 && !self.drop_pending())
         };
         if finish {
             self.holding = false;
@@ -221,6 +390,27 @@ impl Froth {
     }
 
     pub fn autoplay(&self, t: f32, keyboard: bool) -> MgInput {
+        if let DropState::Swinging { since } = self.drop_state {
+            let now = t > since + 0.35 && (self.drop_x(t) - self.drop_center()).abs() < 3.0;
+            return if keyboard {
+                MgInput {
+                    hold_pressed: now,
+                    ..Default::default()
+                }
+            } else {
+                MgInput {
+                    pointer: Some(vec2(self.drop_center(), 120.0)),
+                    pressed: now,
+                    ..Default::default()
+                }
+            };
+        }
+        if self.drop_state == DropState::Waiting
+            && self.drop.is_some()
+            && self.peak >= self.tu.t_target - 0.4
+        {
+            return MgInput::default();
+        }
         let stop = self.tu.t_target - 0.4;
         let mut hold = t > 0.7 && self.peak < stop && (!self.started || self.released_for < 0.3);
         // pulse when the foam would fall short of the target
@@ -246,6 +436,17 @@ impl Froth {
 
     pub fn hint(&self) -> Hint<'static> {
         let done = self.common.relaxed;
+        if matches!(self.drop_state, DropState::Swinging { .. }) {
+            return Hint {
+                key: match self.drop {
+                    Some((FrothDrop::Chili, _)) => "minigame.milk_froth.prompt.chili",
+                    _ => "minigame.milk_froth.prompt.vanilla",
+                },
+                emphasis: (self.drop_x(self.t) - self.drop_center()).abs() < 12.0,
+                keys: &["Space"],
+                done: false,
+            };
+        }
         if self.holding && self.in_band > 0.5 {
             Hint {
                 key: "minigame.milk_froth.prompt.release",
@@ -273,13 +474,18 @@ impl Froth {
         }
     }
 
-    pub fn draw(&self, ui: &mut Ui, o: Vec2, t: f32) {
+    pub fn draw(&self, ui: &mut Ui, o: Vec2, t: f32, _text: &MiniGameText) {
         let th = ui.theme.clone();
         let x = o.x + JUG_X;
         let bottom = o.y + JUG_BOTTOM;
         let top = bottom - JUG_H;
 
-        draw_espresso(o + vec2(78.0, JUG_BOTTOM), t);
+        draw_cup(
+            o + vec2(self.cup_x, JUG_BOTTOM),
+            t,
+            self.tu.drink,
+            self.chili_on(),
+        );
         contact_shadow(vec2(x + 4.0, bottom + 2.0), HW_BOTTOM + 26.0, 13.0, 0.55);
 
         // back of the glass
@@ -342,8 +548,8 @@ impl Froth {
             &milk_poly,
             Paint::vertical(
                 Rect::new(x, o.y + y_of(milk_top), 1.0, y_of(0.0) - y_of(milk_top)),
-                draw::mix(hex(0xf3ecdf), hex(0xf3e2c8), warm),
-                draw::mix(hex(0xdccfbd), hex(0xd6bf9f), warm),
+                draw::mix(self.milk_top(), hex(0xf3e2c8), warm),
+                draw::mix(self.milk_bottom(), hex(0xd6bf9f), warm),
             ),
         );
         if level > milk_top + 0.005 {
@@ -446,6 +652,89 @@ impl Froth {
         }
 
         self.draw_dial(ui, o + DIAL_C, t);
+        self.draw_drop(o, t);
+    }
+
+    fn chili_on(&self) -> bool {
+        matches!(
+            (self.drop, self.drop_state),
+            (Some((FrothDrop::Chili, _)), DropState::Dropped { .. })
+        )
+    }
+
+    fn milk_top(&self) -> Color {
+        match self.tu.drink {
+            // Raf: cream with vanilla — ivory
+            FrothDrink::Raf => hex(0xf8eccb),
+            _ => hex(0xf3ecdf),
+        }
+    }
+
+    fn milk_bottom(&self) -> Color {
+        match self.tu.drink {
+            FrothDrink::Raf => hex(0xe6d2a6),
+            _ => hex(0xdccfbd),
+        }
+    }
+
+    /// The swinging vanilla bottle / chili pinch on its thread, then falling.
+    fn draw_drop(&self, o: Vec2, t: f32) {
+        let Some((kind, _)) = self.drop else {
+            return;
+        };
+        let (x, y) = match self.drop_state {
+            DropState::Waiting => return,
+            DropState::Swinging { .. } => {
+                let x = self.drop_x(t);
+                draw::line(
+                    vec2(o.x + self.drop_center(), o.y - 4.0),
+                    vec2(o.x + x, o.y + DROP_Y - 10.0),
+                    1.0,
+                    Color::new(1.0, 0.98, 0.9, 0.6),
+                );
+                // the aim marker straight over the middle
+                let pulse = 0.5 + 0.5 * (t * 3.0).sin();
+                let cx = o.x + self.drop_center();
+                draw::line(
+                    vec2(cx, o.y + DROP_Y + 18.0),
+                    vec2(cx, o.y + DROP_Y + 32.0),
+                    2.0,
+                    Color::new(1.0, 0.85, 0.5, 0.4 + 0.3 * pulse),
+                );
+                (x, DROP_Y)
+            }
+            DropState::Dropped { at, .. } => {
+                let k = ((t - at) / 0.45).clamp(0.0, 1.0);
+                if k >= 1.0 {
+                    return;
+                }
+                let x = self.drop_center();
+                (x, DROP_Y + 90.0 * k * k)
+            }
+        };
+        let p = vec2(o.x + x, o.y + y);
+        match kind {
+            FrothDrop::Vanilla => {
+                // a little amber bottle with a dark pod inside
+                let b = Rect::new(p.x - 7.0, p.y - 10.0, 14.0, 20.0);
+                fill_rrect(b, 4.0, Paint::vertical(b, hex(0xe9b766), hex(0xa8671f)));
+                fill_rrect(
+                    Rect::new(p.x - 4.0, p.y - 15.0, 8.0, 6.0),
+                    2.0,
+                    hex(0x5b3a2a),
+                );
+                draw::line(p + vec2(0.0, -6.0), p + vec2(1.0, 7.0), 2.0, hex(0x3a2216));
+            }
+            FrothDrop::Chili => {
+                // a pinch of red flakes
+                for i in 0..9u32 {
+                    let a = rd::hash01(i * 7 + 1) * std::f32::consts::TAU;
+                    let r = rd::hash01(i * 3 + 2).sqrt() * 7.0;
+                    draw::fill_circle(p + vec2(a.cos(), a.sin()) * r, 1.8, hex(0xd2402a));
+                }
+                draw::fill_circle(p, 2.2, hex(0xf06a3a));
+            }
+        }
     }
 
     fn draw_dial(&self, ui: &mut Ui, c: Vec2, t: f32) {
@@ -631,8 +920,14 @@ fn hex(h: u32) -> Color {
     Color::from_hex(h)
 }
 
-/// The espresso waiting for its milk (side view, 3/4 top).
-fn draw_espresso(base: Vec2, t: f32) {
+/// The cup waiting for its milk (side view, 3/4 top): espresso crema, or cocoa.
+fn draw_cup(base: Vec2, t: f32, drink: FrothDrink, chili: bool) {
+    let cocoa = matches!(drink, FrothDrink::Chocolate | FrothDrink::Encore);
+    let (c0, c1) = if cocoa {
+        (hex(0x7a4126), hex(0x3c1c10))
+    } else {
+        (hex(0xb07540), hex(0x6a3a20))
+    };
     contact_shadow(base + vec2(3.0, 1.0), 46.0, 9.0, 0.5);
     // saucer
     rd::ellipse_v(
@@ -664,14 +959,14 @@ fn draw_espresso(base: Vec2, t: f32) {
     );
     // rim + crema
     rd::ellipse(base.x, body.y + 1.0, w / 2.0, 6.0, hex(0xf6f2fb));
-    rd::ellipse_v(
-        base.x,
-        body.y + 1.5,
-        w / 2.0 - 3.5,
-        4.2,
-        hex(0xb07540),
-        hex(0x6a3a20),
-    );
+    rd::ellipse_v(base.x, body.y + 1.5, w / 2.0 - 3.5, 4.2, c0, c1);
+    if chili {
+        for i in 0..8u32 {
+            let px = base.x - 12.0 + rd::hash01(i * 5 + 3) * 24.0;
+            let py = body.y + 0.5 + rd::hash01(i * 11 + 1) * 3.0;
+            draw::fill_circle(vec2(px, py), 1.2, hex(0xd2402a));
+        }
+    }
     rd::ellipse(
         base.x - 5.0,
         body.y + 0.5,

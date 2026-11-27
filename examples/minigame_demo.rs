@@ -1,6 +1,6 @@
 //! Brewing mini-games over a dark café backdrop. `cargo run --example minigame_demo`
 //!
-//! * `SHIFTELLA_MG=froth|latte|pour|tea|plate` (default `latte`), `SHIFTELLA_SHAPE=heart|rosetta|
+//! * `SHIFTELLA_MG=froth|latte|pour|tea|plate|stir|mulled` (default `latte`), `SHIFTELLA_SHAPE=heart|rosetta|
 //!   tulip|leaf|swan|snowflake|moon|train|cat|note|heart_l`, `SHIFTELLA_PLATE=medovnik|soup|topinka`,
 //!   `SHIFTELLA_TEA=black|green|herbal|fruit`,
 //!   `SHIFTELLA_TOUCH=extra_foam|light_foam|strong|mild|cinnamon|honey`, `SHIFTELLA_SEED=n`,
@@ -42,6 +42,9 @@ fn load_text(lang: Lang) -> MiniGameText {
     let src = include_str!("../assets/i18n/src/minigame.tr");
     let mut tables: shiftella_game::i18n::source::Tables = Default::default();
     shiftella_game::i18n::source::parse_into(&mut tables, src, "minigame.tr").expect("minigame.tr");
+    let src2 = include_str!("../assets/i18n/src/minigames2.tr");
+    shiftella_game::i18n::source::parse_into(&mut tables, src2, "minigames2.tr")
+        .expect("minigames2.tr");
     let table = tables[lang.index()].clone();
     MiniGameText::from_lookup(|k| table.get(k).cloned().unwrap_or_else(|| k.to_string()))
 }
@@ -69,8 +72,12 @@ impl Setup {
         if let Some(s) = env("SHIFTELLA_SHAPE").and_then(|s| LatteShape::from_id(&s)) {
             variation.shape = Some(s);
         }
-        variation.plate = env("SHIFTELLA_PLATE").and_then(|s| PlateSet::from_id(&s));
-        variation.tea_kind = env("SHIFTELLA_TEA").and_then(|s| TeaKind::from_id(&s));
+        if let Some(p) = env("SHIFTELLA_PLATE").and_then(|s| PlateSet::from_id(&s)) {
+            variation.plate = Some(p);
+        }
+        if let Some(k) = env("SHIFTELLA_TEA").and_then(|s| TeaKind::from_id(&s)) {
+            variation.tea_kind = Some(k);
+        }
         variation.touch = env("SHIFTELLA_TOUCH").and_then(|s| RegularTouch::from_id(&s));
         Setup {
             kind,
@@ -97,6 +104,8 @@ impl Setup {
                 MiniGameKind::PourOver => "Night filter",
                 MiniGameKind::TeaSteep => "Grandma's tea",
                 MiniGameKind::Plate => "Midnight snack",
+                MiniGameKind::SoupStir => "Grandma's soup",
+                MiniGameKind::MulledSpice => "Mulled wine",
             }
             .to_string()
         });

@@ -3,7 +3,7 @@
 
 use macroquad::prelude::*;
 
-use super::{Game, Hint, MiniGame, MiniGameKind, PAD, STAGE_SIZE, score::Rating};
+use super::{Hint, MiniGame, MiniGameKind, PAD, STAGE_SIZE, score::Rating};
 use crate::render::draw as rd;
 use crate::ui::draw::{self, Paint, fill_convex, fill_rrect, glow_circle, stroke_rrect};
 use crate::ui::{Align, Button, Glass, Icon, RectExt, Ui, draw_icon, ease_out};
@@ -33,6 +33,8 @@ pub(crate) fn ellipse_arc(c: Vec2, rx: f32, ry: f32, a0: f32, a1: f32) -> Vec<Ve
 pub(crate) struct CardOut {
     pub skip: bool,
     pub done: bool,
+    /// "?" clicked: reopen the guide.
+    pub help: bool,
 }
 
 fn kind_icon(k: MiniGameKind) -> Icon {
@@ -42,11 +44,19 @@ fn kind_icon(k: MiniGameKind) -> Icon {
         MiniGameKind::PourOver => Icon::Coffee,
         MiniGameKind::TeaSteep => Icon::Cup,
         MiniGameKind::Plate => Icon::ChefHat,
+        MiniGameKind::SoupStir => Icon::Bowl,
+        MiniGameKind::MulledSpice => Icon::Anise,
     }
 }
 
 /// Card, header (guest chip + wish, recipe title) and footer (prompt, Done, Skip).
-pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardOut {
+pub(crate) fn card(
+    ui: &mut Ui,
+    card: Rect,
+    mg: &MiniGame,
+    hint: &Hint,
+    detail_key: Option<&str>,
+) -> CardOut {
     let t = ui.theme.clone();
     draw::shadow_rrect(
         card.grow(18.0),
@@ -72,8 +82,20 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
     draw_icon(kind_icon(mg.kind), tile.center(), 16.0, t.text_on_accent);
     let x = tile.right() + 10.0;
 
-    // right side of the header: regular's touch chip, practised star
+    // right side of the header: "?", the live star bar, regular's touch chip, practised star
     let mut right = card.right() - PAD;
+    let mut help = false;
+    if mg.finish.is_none() && mg.guide.is_none() {
+        let b = Button::new("?").secondary();
+        let r = Rect::new(right - 26.0, tile.center_y() - 13.0, 26.0, 26.0);
+        help = ui.button(("minigame_help", mg.kind.id()), r, &b).clicked;
+        right = r.x - 8.0;
+    }
+    if mg.guide.is_none() {
+        let r = Rect::new(right - 92.0, tile.y, 92.0, 28.0);
+        star_meter(ui, r, mg.preview_quality(), text);
+        right = r.x - 8.0;
+    }
     if mg.practised {
         let label = text.get("minigame.practised");
         let w = ui.chip_width(label, true);
@@ -91,12 +113,6 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
     }
     let avail = (right - x).max(40.0);
 
-    let detail_key = match &mg.game {
-        Game::Latte(_) => mg.variation.shape.map(|s| s.key()),
-        Game::Tea(_) => mg.variation.tea_kind.map(|s| s.key()),
-        Game::Plate(_) => mg.variation.plate.map(|s| s.key()),
-        _ => None,
-    };
     let kind_key = mg.kind.title_key();
     let kind_name = text.get(&kind_key);
     let title = if mg.title.is_empty() {
@@ -127,7 +143,7 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
         let ds = t.small();
         let rest = avail - w - 8.0;
         if rest > 30.0 {
-            let d = format!("· {}", text.get(&k));
+            let d = format!("· {}", text.get(k));
             let ds = ui.fonts.fit_width(&d, rest, &ds);
             let d = ui.fonts.ellipsize(&d, rest, &ds).into_owned();
             ui.fonts.draw(&d, x + w + 6.0, card.y + 38.0, &ds);
@@ -206,7 +222,57 @@ pub(crate) fn card(ui: &mut Ui, card: Rect, mg: &MiniGame, hint: &Hint) -> CardO
             0.8,
         );
     }
-    CardOut { skip, done }
+    CardOut { skip, done, help }
+}
+
+/// The live 1–2–3 star bar: fills with the quality the cup would get now; the 2nd and 3rd
+/// star light at [`super::STAR_MARKS`].
+pub(crate) fn star_meter(ui: &mut Ui, r: Rect, q: f32, text: &super::MiniGameText) {
+    let t = ui.theme.clone();
+    let stars = super::stars_for(q);
+    for i in 0..3u32 {
+        let lit = i < stars;
+        let c = vec2(r.x + 10.0 + i as f32 * 15.0, r.y + 8.0);
+        if lit {
+            glow_circle(c, 9.0, with_alpha(t.amber, 0.25));
+        }
+        draw_icon(
+            Icon::Star,
+            c,
+            11.0,
+            if lit {
+                t.amber
+            } else {
+                with_alpha(t.text_disabled, 0.7)
+            },
+        );
+    }
+    let label = text.get("minigame.stars.now");
+    let ls = t.micro();
+    let lw = ui.fonts.measure(label, &ls);
+    if lw < r.w - 52.0 {
+        ui.fonts.draw(label, r.right() - lw, r.y + 12.0, &ls);
+    }
+    let bar = Rect::new(r.x + 2.0, r.y + 20.0, r.w - 4.0, 5.0);
+    fill_rrect(bar, 2.5, Color::new(1.0, 1.0, 1.0, 0.1));
+    let k = q.clamp(0.0, 1.0);
+    if k > 0.01 {
+        let f = bar.with_w((bar.w * k).max(5.0));
+        fill_rrect(
+            f,
+            2.5,
+            Paint::horizontal(f, with_alpha(t.indigo_300, 0.9), t.amber),
+        );
+    }
+    for m in super::STAR_MARKS {
+        let x = bar.x + bar.w * m;
+        draw::line(
+            vec2(x, bar.y - 2.0),
+            vec2(x, bar.bottom() + 2.0),
+            1.2,
+            Color::new(1.0, 1.0, 1.0, 0.55),
+        );
+    }
 }
 
 /// Dark warm counter with an amber lamp pool and a lavender rim from the window.
@@ -318,6 +384,8 @@ pub(crate) fn result_chip(
     quality: f32,
     age: f32,
     text: &super::MiniGameText,
+    advice: &str,
+    flourish: bool,
 ) {
     let t = ui.theme.clone();
     let veil = ease_out(age / 0.4);
@@ -334,6 +402,7 @@ pub(crate) fn result_chip(
     let st = t.h1();
     let w = (ui.fonts.measure(word, &st) + 44.0).max(150.0);
     let h = 70.0;
+    let w = w.max(170.0);
     // in the right-hand column, so the finished drink stays visible
     let cx = stage.right() - 12.0 - w / 2.0;
     let cy = stage.center_y();
@@ -372,6 +441,30 @@ pub(crate) fn result_chip(
         &st,
         Align::Center,
     );
+    // why this many stars (one line under the chip)
+    let why = text.get(advice);
+    let ws = t.small().size(12.0).color(t.text);
+    let wr = Rect::new(r.x - 14.0, r.bottom() + 6.0, r.w + 28.0, 34.0);
+    let lines = ui.fonts.wrap(why, wr.w - 12.0, &ws);
+    let wh = lines.len().min(2) as f32 * ws.line_h() + 8.0;
+    fill_rrect(wr.with_h(wh), 8.0, Color::new(0.06, 0.04, 0.14, 0.72));
+    ui.fonts.draw_lines(
+        &lines,
+        Rect::new(wr.x + 6.0, wr.y + 4.0, wr.w - 12.0, wh),
+        &ws,
+        Align::Center,
+        Some(2),
+        usize::MAX,
+    );
+    if flourish {
+        let fl = text.get("minigame.flourish.hit");
+        ui.fonts.draw_in(
+            fl,
+            Rect::new(r.x, r.y - 22.0, r.w, 18.0),
+            &t.small_medium().color(t.amber),
+            Align::Center,
+        );
+    }
     draw::pop_alpha();
 }
 

@@ -240,7 +240,10 @@ fn keyboard_intents_reach_the_sim() {
         .iter()
         .find(|p| p.id == t.party)
         .is_some_and(|p| p.order_claim.is_some());
-    assert!(claimed, "Enter on the rail sent Karolina to take the order: {t:?}");
+    assert!(
+        claimed,
+        "Enter on the rail sent Karolina to take the order: {t:?}"
+    );
 }
 
 // ───────────────────────── T8: the world's systems on screen ─────────────────────────
@@ -346,7 +349,7 @@ fn a_day_experiment_from_the_pantry() {
     assert!(note.key.starts_with("experiment."), "{}", note.key);
 }
 
-/// The soups plate their own bowl; the singular guest name; deep links open the panels.
+/// The soups stir their own pot; the singular guest name; deep links open the panels.
 #[test]
 fn soups_names_and_links() {
     let c = content();
@@ -354,10 +357,20 @@ fn soups_names_and_links() {
     let loc = Locale::new(&i, crate::i18n::Lang::En);
     let soup = c.handson.recipe("r_garlic_soup").unwrap();
     let (kind, v) = hands::playable(soup, 1);
-    assert_eq!(kind, crate::minigame::MiniGameKind::Plate);
-    assert_eq!(v, "garlic_soup");
+    assert_eq!(kind, crate::minigame::MiniGameKind::SoupStir);
+    assert_eq!(v, "garlic");
     let (_, v) = hands::playable(c.handson.recipe("r_borscht").unwrap(), 1);
     assert_eq!(v, "borscht");
+    let (kind, v) = hands::playable(c.handson.recipe("r_svarak").unwrap(), 1);
+    assert_eq!(
+        (kind, v.as_str()),
+        (crate::minigame::MiniGameKind::MulledSpice, "svarak")
+    );
+    let (kind, v) = hands::playable(c.handson.recipe("r_chai").unwrap(), 5);
+    assert_eq!(
+        (kind, v.as_str()),
+        (crate::minigame::MiniGameKind::TeaSteep, "chai")
+    );
     assert_eq!(world_view::guest_one(&loc, "travelers"), "Traveller");
     let mut g = GameScreen::new_story(&c, "cozy", true);
     g.follow_link(crate::content::handson::AppLink::Journal);
@@ -397,7 +410,13 @@ fn three_autoplayed_nights_touch_the_systems() {
             [true, true],
             "night {}: opening and closing; open items {:?}",
             g.world.night(),
-            g.world.app().checklist.iter().filter(|c| !c.done).map(|c| c.id.clone()).collect::<Vec<_>>()
+            g.world
+                .app()
+                .checklist
+                .iter()
+                .filter(|c| !c.done)
+                .map(|c| c.id.clone())
+                .collect::<Vec<_>>()
         );
     }
     g.autoplay_day(&c, 1.0, 0.0);
@@ -759,15 +778,19 @@ fn people_are_drawn_walking_during_the_preparation_half_hour() {
         g.scene.refresh(&g.world, i as f32 / 30.0, 0.5);
         let now = karolina(&g);
         let step = ((now.0 - last.0).powi(2) + (now.1 - last.1).powi(2)).sqrt();
-        assert!(step < 1.5 * crate::map::TILE, "a jump of {step} px in one frame");
+        assert!(
+            step < 1.5 * crate::map::TILE,
+            "a jump of {step} px in one frame"
+        );
         moved += step;
         last = now;
     }
     assert!(g.world.in_prep(), "still the preparation");
-    assert!(moved > 0.5 * crate::map::TILE, "drawn Karolina walked {moved} px");
+    assert!(
+        moved > 0.5 * crate::map::TILE,
+        "drawn Karolina walked {moved} px"
+    );
 }
-
-
 
 /// 0.2.0 bug: Mirek walked in in his scene, then popped back to the street and walked in a
 /// second time. After a scene, a regular it played goes on from where the scene left them.
@@ -788,7 +811,13 @@ fn a_regular_goes_on_from_where_their_scene_left_them() {
     let mut guard = 0;
     while g.cutscene_playing() && guard < 20_000 {
         g.player.fast_forward(&loc, 0.5);
-        if let Some(end) = g.player.actors.iter().find(|a| a.id == "mirek").map(|a| a.pos) {
+        if let Some(end) = g
+            .player
+            .actors
+            .iter()
+            .find(|a| a.id == "mirek")
+            .map(|a| a.pos)
+        {
             let _ = end;
         }
         g.finish_cutscene_now(&c, &loc);
@@ -800,7 +829,12 @@ fn a_regular_goes_on_from_where_their_scene_left_them() {
         .iter()
         .find(|p| p.regular.as_deref() == Some("mirek"))
         .and_then(|p| p.leader())
-        .and_then(|l| g.world.guest_views().into_iter().find(|v| v.agent == sim::AgentRef::Guest(l)))
+        .and_then(|l| {
+            g.world
+                .guest_views()
+                .into_iter()
+                .find(|v| v.agent == sim::AgentRef::Guest(l))
+        })
         .expect("Mirek is in the café");
     let tile = (
         (mirek.feet.0 / crate::map::TILE).floor() as i32,

@@ -19,7 +19,11 @@
 //!   stranger when none came by itself; `SHIFTELLA_LINE=n`: the storm talk's line)
 //!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states)
 //!   (hands-on scenes are played to their moment by the autoplayer;
-//!   `SHIFTELLA_MG=froth|latte|pour|tea|plate|soup|borscht` picks the game,
+//!   `SHIFTELLA_MG=froth|chocolate|raf|encore|latte|flat_white|pour|turek|night_train|tonic|
+//!   tea|chai|linden|tatra|uzvar|rn333|plate|chlebicek|kolac|vera_kolac|medovnik|varenyky|
+//!   pirohy|buchty|soup|kulajda|borscht|svarak` (or any recipe id `r_…`) picks the game,
+//!   `SHIFTELLA_MG_T=<seconds>` plays it by autoplay that long first (the guide card shows on a
+//!   fresh settings file; list the read ones in `minigame_guides` to skip it),
 //!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
 //!   the enlarged polaroid, `SHIFTELLA_AUTOFILL=1` auto-fills the rozpis first)
 //! * `SHIFTELLA_AUTOPLAY=1|keys|skip` — Karolina plays the night by herself through the same
@@ -528,17 +532,54 @@ impl App {
                             .or_else(|| g.hands.minigame.as_ref().map(|m| m.guest));
                         let recipe = match mg.as_deref() {
                             Some("froth") => Some("r_cappuccino"),
+                            Some("chocolate") => Some("r_hot_chocolate"),
+                            Some("raf") => Some("r_raf"),
+                            Some("encore") => Some("r_lori_encore"),
                             Some("latte") => Some("r_moon_latte"),
+                            Some("flat_white") => Some("r_oat_flat_white"),
                             Some("pour") => Some("r_black"),
+                            Some("turek") => Some("r_turek"),
+                            Some("night_train") => Some("r_night_train"),
+                            Some("tonic") => Some("r_espresso_tonic"),
                             Some("tea") => Some("r_lemon_tea"),
+                            Some("chai") => Some("r_chai"),
+                            Some("linden") => Some("r_linden_tea"),
+                            Some("tatra") => Some("r_tatra_tea"),
+                            Some("uzvar") => Some("r_uzvar"),
+                            Some("rn333") => Some("r_rn333_tea"),
                             Some("plate") => Some("r_topinka"),
+                            Some("chlebicek") => Some("r_chlebicek"),
+                            Some("kolac") => Some("r_kolac"),
+                            Some("vera_kolac") => Some("r_vera_kolac"),
+                            Some("medovnik") => Some("r_medovnik"),
+                            Some("varenyky") => Some("r_varenyky"),
+                            Some("pirohy") => Some("r_pirohy"),
+                            Some("buchty") => Some("r_buchty"),
                             Some("soup") => Some("r_garlic_soup"),
+                            Some("kulajda") => Some("r_kulajda"),
                             Some("borscht") => Some("r_borscht"),
+                            Some("svarak" | "mulled") => Some("r_svarak"),
+                            Some(r) if r.starts_with("r_") => Some(r),
                             _ => None,
                         };
                         if let (Some(guest), Some(r)) = (guest, recipe) {
                             g.hands.order = None;
                             g.start_minigame(&content, guest, r, false);
+                            // played a little by itself, for a mid-game picture
+                            let secs: f32 = env("SHIFTELLA_MG_T")
+                                .and_then(|v| v.parse().ok())
+                                .unwrap_or(0.0);
+                            if let Some(open) = g.hands.minigame.as_mut() {
+                                let dt = 1.0 / 60.0;
+                                for _ in 0..(secs / dt) as u32 {
+                                    let i = open.game.autoplay_input();
+                                    open.game.step(&i, dt);
+                                    // stop on the result card (it shows the stars and why)
+                                    if open.game.is_finished() {
+                                        break;
+                                    }
+                                }
+                            }
                         } else if g.hands.minigame.is_none()
                             && let Some(o) = g.hands.order.clone()
                             && let Some((r, _)) = g.world.best_matches(&content, o.guest).first()

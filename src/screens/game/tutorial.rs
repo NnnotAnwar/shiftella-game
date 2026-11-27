@@ -402,10 +402,11 @@ fn edge_point(r: Rect, p: Vec2, dir: Vec2) -> Vec2 {
 }
 
 /// Sections of the "How to play" page: (icon, i18n id).
-const HELP: [(Icon, &str); 10] = [
+const HELP: [(Icon, &str); 11] = [
     (Icon::Sun, "rhythm"),
     (Icon::Coffee, "hands"),
     (Icon::Cup, "brewing"),
+    (Icon::Star, "minigames"),
     (Icon::Crew, "crew"),
     (Icon::Phone, "app"),
     (Icon::Priorities, "duties"),

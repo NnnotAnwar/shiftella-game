@@ -8,10 +8,24 @@ use super::logic::Cond;
 use super::recipes::MiniGameKind;
 
 /// Tea colour families understood by `src/minigame` (`TeaKind::from_id`).
-pub const TEA_KINDS: &[&str] = &["black", "green", "herbal", "fruit"];
+pub const TEA_KINDS: &[&str] = &[
+    "black", "green", "herbal", "fruit", "linden", "mountain", "uzvar",
+];
 
 /// Plate dish sets understood by `src/minigame` (`PlateSet::from_id`).
-pub const PLATE_DISHES: &[&str] = &["medovnik", "soup", "topinka"];
+pub const PLATE_DISHES: &[&str] = &[
+    "medovnik",
+    "soup",
+    "topinka",
+    "garlic_soup",
+    "borscht",
+    "chlebicek",
+    "kolac",
+    "vera_kolac",
+    "varenyky",
+    "pirohy",
+    "buchty",
+];
 
 /// Shared rules for every mini-game (§2.0).
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
@@ -154,6 +168,15 @@ pub struct TeaSteepTuning {
     /// Chai: "pour the warm milk" hold at the end.
     #[serde(default)]
     pub milk_hold: bool,
+    /// A spoonful of honey dropped like the lemon (linden, Tatra tea, uzvar).
+    #[serde(default)]
+    pub honey: bool,
+    /// Chai: spices added in the recipe card's order before steeping.
+    #[serde(default)]
+    pub spices: u32,
+    /// Chai simmers in a pan.
+    #[serde(default)]
+    pub pan: bool,
     /// Colour family (`src/minigame` `TeaKind`): one of [`TEA_KINDS`].
     pub tea_kind: String,
     pub seconds: (f32, f32),
@@ -190,7 +213,7 @@ pub struct PlateTuning {
     pub seconds: (f32, f32),
 }
 
-/// SoupStir (SHOULD): `q = 0.6 × time_in_zone + 0.4 × mean(add timing)`.
+/// SoupStir: `q = 0.6 × time_in_zone + 0.4 × mean(add timing)`.
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct SoupStirTuning {
@@ -204,7 +227,7 @@ pub struct SoupStirTuning {
     pub seconds: (f32, f32),
 }
 
-/// MulledSpice (SHOULD): `q = 0.5 × spices + 0.5 × band_time / band_s`.
+/// MulledSpice: `q = 0.5 × spices + 0.5 × band_time / band_s`.
 #[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct MulledSpiceTuning {
