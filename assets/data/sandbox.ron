@@ -50,4 +50,61 @@
         "pause_on_events": false,
         "allow_debt": true,
     },
+    // The «Challenge» mode (setup: Endless / Challenge; town option "challenge"). Every
+    // season (30 nights) money, rivals and the nights get harder; two missed season goals in
+    // a row (or deep debt) close the café. Endless never reads this. See sim::challenge.
+    // Balance (sim::tests_challenge::curve, player-bot, 10 seeds): Cozy closes after ~126
+    // nights (90–150, ≈ 4 seasons), Classic ~81 (60–120); money peaks in season 3, reputation
+    // in season 2 (docs/SIM.md §15).
+    challenge: (
+        season_nights: 30,
+        rent_inflation: 25.0,
+        supply_inflation: 20.0,
+        wage_inflation: 20.0,
+        goal_per_night: 6500.0,
+        goal_size_weight: 0.25,
+        goal_growth: 18.0,
+        goal_mul: {"cozy": 1.0, "relaxed": 0.9, "classic": 1.2},
+        strikes_to_close: 2,
+        debt_limit_rents: 10.0,
+        debt_nights: 3,
+        competitor_from_season: 2,
+        competitors_max: 3,
+        competitor_share: 0.10,
+        counter_cut: 0.15,
+        counter_coziness_level: 4,
+        counter_reputation: 80.0,
+        counter_regulars: 3,
+        counter_regular_trust: 40.0,
+        rival_reputation_drain: 1.0,
+        event_rate: 15.0,
+        bad_weight: 25.0,
+        good_share_cut: 8.0,
+        tension_add: 8.0,
+        bad_in_row_every: 2,
+        breath_cut: 12.0,
+        wear: 15.0,
+        // not Bad, but harder all the same: weighted like the Bad events
+        scaled_events: ["health_inspection"],
+        // rival cafés by town (proper nouns, never translated); "*" for any other town
+        competitor_names: {
+            "*": ["Café Kompas", "Espresso Express", "Kavárna Mlýnek", "Bean Station", "Café Plechovka", "Night Owl Coffee"],
+            "Praha-Holešovice": ["Kavárna Tržnice", "Café Vltava Loft", "Holešky Roasters"],
+            "Praha-Smíchov": ["Smíchovská pražírna", "Café Anděl", "Bistro Na Knížecí"],
+            "Praha-Karlín": ["Karlín Coffee Lab", "Café Invalidovna", "Kavárna Pobřežní"],
+            "Praha-Vršovice": ["Café Kodaňská", "Vršovický koutek", "Kavárna Čechovka"],
+            "Brno": ["Café Špilberk", "Brněnská pražírna", "Kavárna Zelňák"],
+            "Ostrava": ["Café Stodolní", "Ostravská kávovarna", "Kafe Vítkovice"],
+            "Plzeň": ["Café Na Spilce", "Plzeňský šálek", "Kavárna Radbuza"],
+            "Olomouc": ["Café Horní náměstí", "Olomoucký tvarůžek", "Kavárna Morava"],
+            "Bratislava": ["Kaviareň Dunaj", "Café Hrad", "Kaviareň Obchodná"],
+            "Košice": ["Kaviareň Hlavná", "Café Dóm", "Košická kávovňa"],
+            "Vienna": ["Café Westbahnhof", "Kaffeehaus Gürtel", "Café Donaukanal"],
+            "Linz": ["Café Lentos", "Linzer Kaffeebar", "Café Hauptplatz"],
+            "Kraków": ["Kawiarnia Rynek", "Café Kazimierz", "Kawiarnia Wawel"],
+            "Wrocław": ["Kawiarnia Odra", "Café Nadodrze", "Kawiarnia Ratusz"],
+            "Dresden": ["Café Elbufer", "Kaffeehaus Neustadt", "Café Altmarkt"],
+            "Lviv": ["Kaviarnia Rynok", "Café Opera", "Lvivska Kava"],
+        },
+    ),
 )

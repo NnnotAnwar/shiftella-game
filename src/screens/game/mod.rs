@@ -859,7 +859,13 @@ impl GameScreen {
             }
             SimEvent::CafeClosed => {
                 if self.world.mode() == sim::Mode::Sandbox {
-                    self.ending = Some("closed".into());
+                    // a «Challenge» run gets its final page (screens::credits)
+                    let id = if self.world.challenge_report().is_some() {
+                        "challenge"
+                    } else {
+                        "closed"
+                    };
+                    self.ending = Some(id.into());
                 }
             }
             SimEvent::GuestArrived {

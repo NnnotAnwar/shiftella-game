@@ -135,6 +135,53 @@ fn story_reaches_an_ending_and_asks_for_credits() {
     assert!(g.extra.ending_played);
 }
 
+/// Sandbox «Challenge»: a second missed season goal closes the café; the morning summary
+/// carries the season lines, then the game asks for the Challenge's final page.
+#[test]
+fn a_challenge_run_closes_and_asks_for_its_final_page() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut s = sim::SandboxSetup {
+        seed: 31,
+        ..Default::default()
+    };
+    s.options.insert(sim::challenge::OPTION.into(), true);
+    let mut g = GameScreen::new_sandbox(&c, s);
+    g.automation = false;
+    assert!(g.world.challenge(&c).is_some());
+    // the season's last night, one strike already, a goal out of reach
+    g.world.night = 60;
+    g.world.challenge.strikes = 1;
+    g.world.challenge.goal = 10_000_000;
+    g.start_night(&c);
+    let mut exit = None;
+    let mut lines = Vec::new();
+    let mut guard = 0;
+    while exit.is_none() && guard < 40_000 {
+        if g.cutscene_playing() {
+            g.finish_cutscene_now(&c, &loc);
+        }
+        if let Some(sm) = g.summary.take() {
+            lines = sm.challenge.clone();
+        }
+        g.advance(&c, TICK_SECONDS * 4.0, Some(&loc));
+        exit = g.exit();
+        guard += 1;
+    }
+    assert!(
+        lines.iter().any(|l| l.key == "challenge.line.goal_missed"),
+        "{lines:?}"
+    );
+    match exit {
+        Some(GameExit::Credits { ending, .. }) => assert_eq!(ending.as_deref(), Some("challenge")),
+        other => panic!("expected the final page, got {other:?}"),
+    }
+    let r = g.world.challenge_report().unwrap();
+    assert_eq!(r.reason, Some(sim::ChallengeEnd::Strikes));
+    assert_eq!(r.seasons_survived, 0);
+}
+
 /// Night 1 played end to end through the same intents as the mouse and keyboard
 /// (the autoplayer): orders taken, mini-games played, cups served, tips collected, tables
 /// cleared — and the morning comes.

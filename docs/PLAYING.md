@@ -50,6 +50,29 @@ warm, pay off the debt — or let the café go, gently. Nothing here is meant to
 Story mode has 30 nights and exactly two endings — «Light in the Window» and «Last Train».
 Sandbox is endless, with a random town from a seed you can share.
 
+### Sandbox modes: Endless or Challenge
+
+The sandbox setup has a **Mode** choice. **Endless** (the default) is the calm sandbox as it
+always was: the café runs for as long as you like. **Challenge** gets harder every season
+(30 nights) so a run has an end:
+
+* **Money.** From season 2 the rent goes up every season (no ceiling), and so do supply prices
+  and wages. Each season has a **goal** — the takings (revenue + tips) to reach over its 30
+  nights, bigger every season and for a bigger town. The planning card shows the goal, the
+  nights left and your strikes; the morning summary shows how far you've got. Miss the goal
+  and it's a **strike**; two strikes in a row and the café closes. Sinking deeper than ten
+  nights of rent into the red for three nights in a row closes it too.
+* **Rivals.** From season 2 a rival café opens nearby every season (up to three). Each takes
+  a share of the walk-ins and wears your reputation down a little — the morning summary says
+  how many guests they took. Your strengths win guests back: a cosy hall (coziness level 4+),
+  four stars, your own drink on the menu and three regulars who trust you each cut the loss.
+* **Nights.** The storyteller grows rougher: more events, more breakdowns, outages, sick calls
+  and inspections, less breathing room between them; the appliances wear faster.
+
+The bot announces each season, each rival and each goal met or missed. When the café closes you
+get a final page: seasons survived, nights, the best night, guests and money earned, and the
+record for that seed (kept in the settings).
+
 ## Behind the counter
 
 | Do this | Mouse | Keyboard |

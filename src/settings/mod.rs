@@ -194,6 +194,8 @@ pub struct Settings {
     /// Ritual gestures whose one-line hint has been seen (`cord`, `needle`, …;
     /// `screens::game::rituals_ui`). Each hint shows once.
     pub ritual_hints: std::collections::BTreeSet<String>,
+    /// Sandbox «Challenge»: the most seasons survived per seed (the seed number as text).
+    pub challenge_records: std::collections::BTreeMap<String, u32>,
 }
 
 impl Default for Settings {
@@ -214,6 +216,7 @@ impl Default for Settings {
             keys: keys::KeyBindings::default(),
             minigame_guides: Default::default(),
             ritual_hints: Default::default(),
+            challenge_records: Default::default(),
         }
     }
 }
@@ -274,6 +277,18 @@ impl Settings {
                 None
             }
         }
+    }
+
+    /// Records a finished Challenge run; returns the seed's best before it.
+    pub fn record_challenge(&mut self, seed: u64, seasons: u32) -> Option<u32> {
+        let e = self.challenge_records.entry(seed.to_string());
+        let before = match &e {
+            std::collections::btree_map::Entry::Occupied(o) => Some(*o.get()),
+            std::collections::btree_map::Entry::Vacant(_) => None,
+        };
+        let v = e.or_insert(0);
+        *v = (*v).max(seasons);
+        before
     }
 
     pub fn from_ron(text: &str) -> Result<Settings, String> {
@@ -374,6 +389,7 @@ mod tests {
             },
             minigame_guides: ["tea_steep".to_string(), "flourish".to_string()].into(),
             ritual_hints: ["cord".to_string()].into(),
+            challenge_records: [("2039".to_string(), 4)].into(),
         };
         let back = Settings::from_ron(&s.to_ron()).unwrap();
         assert_eq!(back, s);

@@ -1,0 +1,214 @@
+# The sandbox «Challenge» mode (sim::challenge): the setup's mode choice, the bot's season
+# messages, the morning lines, the planning card and the final page. Money placeholders
+# (`{money}`, `{goal}`, `{amount}`) arrive formatted ("12 000 Kč"); counts stay after a colon
+# so no plural forms are needed. Rival café names are proper nouns (sandbox.ron).
+
+ui.sandbox.mode
+cs Režim
+en Mode
+uk Режим
+ru Режим
+
+ui.sandbox.mode.endless
+cs Nekonečný
+en Endless
+uk Безкінечний
+ru Бесконечный
+
+ui.sandbox.mode.challenge
+cs Výzva
+en Challenge
+uk Виклик
+ru Испытание
+
+ui.sandbox.mode.endless_desc
+cs Klidná hra: kavárna běží, dokud chceš.
+en Calm: the café runs for as long as you like.
+uk Спокійна гра: кав'ярня працює, скільки забажаєш.
+ru Спокойная игра: кафе работает, сколько захочешь.
+
+ui.sandbox.mode.challenge_desc
+cs Každá sezóna je těžší: ceny, konkurence, divoké noci. Dva nesplněné cíle sezóny a kavárna zavře.
+en Harder every season: prices, rivals, rough nights. Miss two season goals in a row and the café closes.
+uk Щосезону важче: ціни, конкуренти, неспокійні ночі. Два невиконані цілі сезону поспіль — і кав'ярня зачиняється.
+ru Каждый сезон труднее: цены, конкуренты, беспокойные ночи. Две проваленные цели сезона подряд — и кафе закрывается.
+
+app.bot.challenge_start
+cs Výzva začíná! Cíl první sezóny: tržby {goal} za {nights} nocí. Nesplněné cíle sezóny po sobě: {max} — a kavárna zavře.
+en The challenge begins! Season one goal: {goal} in takings over {nights} nights. Miss {max} goals in a row and the café closes.
+uk Виклик починається! Ціль першого сезону: виручка {goal} за {nights} ночей. Не виконаєте ціль сезону {max} рази поспіль — кав'ярня зачиниться.
+ru Испытание начинается! Цель первого сезона: выручка {goal} за {nights} ночей. Не выполните цель сезона {max} раза подряд — кафе закроется.
+
+app.bot.challenge_season
+cs Začíná sezóna {season}. Cíl: {goal}. Nájem je teď {amount} za noc, zboží a mzdy podražily o {percent} %.
+en Season {season} begins. Goal: {goal}. Rent is now {amount} a night; supplies and wages went up {percent} %.
+uk Починається сезон {season}. Ціль: {goal}. Оренда тепер {amount} за ніч, товари й зарплати подорожчали на {percent} %.
+ru Начинается сезон {season}. Цель: {goal}. Аренда теперь {amount} за ночь, товары и зарплаты подорожали на {percent} %.
+
+app.bot.challenge_rival
+cs Kousek od nás se otevřel nový podnik: {name}. Přetáhne nám část hostů. Útulnost, čtyři hvězdy, vlastní nápoj a štamgasti je udrží u nás.
+en A rival opened just down the street: {name}. It will take some of our walk-ins. Coziness, four stars, our own drink and the regulars keep guests with us.
+uk Неподалік відкрився конкурент — «{name}». Він переманить частину гостей. Затишок, чотири зірки, власний напій і завсідники втримають їх у нас.
+ru Неподалёку открылся конкурент — «{name}». Он переманит часть гостей. Уют, четыре звезды, свой напиток и завсегдатаи удержат их у нас.
+
+app.bot.challenge_goal_met
+cs Cíl sezóny {season} splněn: {money} z {goal}. Pěkná práce!
+en Season {season} goal met: {money} of {goal}. Well done!
+uk Ціль сезону {season} виконано: {money} з {goal}. Чудова робота!
+ru Цель сезона {season} выполнена: {money} из {goal}. Отличная работа!
+
+app.bot.challenge_goal_missed
+cs Cíl sezóny {season} nesplněn: {money} z {goal}. Prohřešky: {strikes} z {max}.
+en Season {season} goal missed: {money} of {goal}. Strikes: {strikes} of {max}.
+uk Ціль сезону {season} не виконано: {money} з {goal}. Промахи: {strikes} з {max}.
+ru Цель сезона {season} не выполнена: {money} из {goal}. Промахи: {strikes} из {max}.
+
+app.bot.challenge_debt
+cs Jsme hluboko v minusu (pod {amount}). Ještě pár nocí tak (celkem {nights}) a banka účet zavře.
+en We're deep in the red (below {amount}). A few more nights like this ({nights} in all) and the bank closes the account.
+uk Ми глибоко в мінусі (нижче {amount}). Ще кілька таких ночей (усього {nights}) — і банк закриє рахунок.
+ru Мы глубоко в минусе (ниже {amount}). Ещё несколько таких ночей (всего {nights}) — и банк закроет счёт.
+
+challenge.line.rival
+cs Podnik {name} nám přetáhl hosty: asi {guests} (−{percent} %)
+en {name} took about {guests} of our guests (−{percent} %)
+uk Конкурент «{name}» переманив гостей: близько {guests} (−{percent} %)
+ru Конкурент «{name}» переманил гостей: около {guests} (−{percent} %)
+
+challenge.line.rivals
+cs Podnik {name} a další (+{more}) nám přetáhli hosty: asi {guests} (−{percent} %)
+en {name} and {more} more rivals took about {guests} of our guests (−{percent} %)
+uk «{name}» та ще {more} переманили гостей: близько {guests} (−{percent} %)
+ru «{name}» и ещё {more} переманили гостей: около {guests} (−{percent} %)
+
+challenge.line.strengths
+cs Naše přednosti ({n} ze 4) si udržely {percent} % z nich
+en Our strengths ({n} of 4) kept {percent} % of them with us
+uk Наші переваги ({n} з 4) втримали {percent} % з них
+ru Наши сильные стороны ({n} из 4) удержали {percent} % из них
+
+challenge.line.goal
+cs Cíl sezóny {season}: {money} z {goal} · zbývá nocí: {nights}
+en Season {season} goal: {money} of {goal} · nights left: {nights}
+uk Ціль сезону {season}: {money} з {goal} · залишилось ночей: {nights}
+ru Цель сезона {season}: {money} из {goal} · осталось ночей: {nights}
+
+challenge.line.goal_met
+cs Cíl sezóny {season} splněn: {money} z {goal}!
+en Season {season} goal met: {money} of {goal}!
+uk Ціль сезону {season} виконано: {money} з {goal}!
+ru Цель сезона {season} выполнена: {money} из {goal}!
+
+challenge.line.goal_missed
+cs Cíl sezóny {season} nesplněn: {money} z {goal} · prohřešky: {strikes} z {max}
+en Season {season} goal missed: {money} of {goal} · strikes: {strikes} of {max}
+uk Ціль сезону {season} не виконано: {money} з {goal} · промахи: {strikes} з {max}
+ru Цель сезона {season} не выполнена: {money} из {goal} · промахи: {strikes} из {max}
+
+challenge.line.debt
+cs Pod hranicí dluhu ({amount}): noc {n} z {max}
+en Below the debt limit ({amount}): night {n} of {max}
+uk Нижче межі боргу ({amount}): ніч {n} з {max}
+ru Ниже предела долга ({amount}): ночь {n} из {max}
+
+challenge.log.season
+cs Začala sezóna {season} · cíl {goal}
+en Season {season} began · goal {goal}
+uk Почався сезон {season} · ціль {goal}
+ru Начался сезон {season} · цель {goal}
+
+challenge.log.rival
+cs Otevřela konkurence: {name}
+en A rival opened: {name}
+uk Відкрився конкурент: {name}
+ru Открылся конкурент: {name}
+
+challenge.summary.title
+cs Výzva · sezóna {season}
+en Challenge · season {season}
+uk Виклик · сезон {season}
+ru Испытание · сезон {season}
+
+challenge.plan.goal
+cs Cíl sezóny {season}
+en Season {season} goal
+uk Ціль сезону {season}
+ru Цель сезона {season}
+
+challenge.plan.left
+cs Zbývá nocí: {nights} · prohřešky: {strikes} z {max}
+en Nights left: {nights} · strikes: {strikes} of {max}
+uk Залишилось ночей: {nights} · промахи: {strikes} з {max}
+ru Осталось ночей: {nights} · промахи: {strikes} из {max}
+
+challenge.plan.rivals
+cs Konkurence: {n} · hostů méně o {percent} %
+en Rivals: {n} · walk-ins −{percent} %
+uk Конкурентів: {n} · гостей менше на {percent} %
+ru Конкурентов: {n} · гостей меньше на {percent} %
+
+challenge.final.kicker
+cs Výzva skončila
+en The challenge is over
+uk Виклик завершено
+ru Испытание окончено
+
+challenge.final.reason.strikes
+cs Dvě sezóny po sobě pod cílem — majitel budovy nájem neprodloužil.
+en Two seasons in a row below the goal — the landlord didn't renew the lease.
+uk Два сезони поспіль нижче цілі — власник будівлі не продовжив оренду.
+ru Два сезона подряд ниже цели — владелец здания не продлил аренду.
+
+challenge.final.reason.debt
+cs Dluh byl příliš hluboký — banka účet zavřela.
+en The debt went too deep — the bank closed the account.
+uk Борг став надто глибоким — банк закрив рахунок.
+ru Долг стал слишком глубоким — банк закрыл счёт.
+
+challenge.final.seasons
+cs Přežité sezóny: {n}
+en Seasons survived: {n}
+uk Пережито сезонів: {n}
+ru Пережито сезонов: {n}
+
+challenge.final.nights
+cs Odehrané noci: {n}
+en Nights played: {n}
+uk Зіграно ночей: {n}
+ru Сыграно ночей: {n}
+
+challenge.final.best_night
+cs Nejlepší noc: {money}
+en Best night: {money}
+uk Найкраща ніч: {money}
+ru Лучшая ночь: {money}
+
+challenge.final.guests
+cs Obsloužení hosté: {n}
+en Guests served: {n}
+uk Обслужено гостей: {n}
+ru Обслужено гостей: {n}
+
+challenge.final.earned
+cs Vyděláno celkem: {money}
+en Money earned: {money}
+uk Зароблено загалом: {money}
+ru Заработано всего: {money}
+
+challenge.final.record
+cs Rekord tohoto seedu — přežité sezóny: {n}
+en Record for this seed — seasons survived: {n}
+uk Рекорд цього сіда — пережито сезонів: {n}
+ru Рекорд этого сида — пережито сезонов: {n}
+
+challenge.final.new_record
+cs Nový rekord tohoto seedu!
+en A new record for this seed!
+uk Новий рекорд цього сіда!
+ru Новый рекорд этого сида!
+
+challenge.final.back
+cs Zpět do menu
+en Back to the menu
+uk Назад до меню
+ru Вернуться в меню

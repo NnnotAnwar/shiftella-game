@@ -173,6 +173,49 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         );
         y += 20.0;
     }
+    // sandbox «Challenge»: the season goal, nights left and strikes, the rivals
+    if let Some(ch) = g.world.challenge(content) {
+        let on_track = ch.earned >= ch.goal;
+        row(
+            ui,
+            y,
+            &loc.trf("challenge.plan.goal", &[("season", &ch.season.to_string())]),
+            &format!(
+                "{} / {}",
+                crate::i18n::format_int(loc.lang, ch.earned),
+                format_money(loc.lang, ch.goal)
+            ),
+            if on_track { t.emerald_400 } else { t.amber },
+        );
+        y += 20.0;
+        let mut txt = loc.trf(
+            "challenge.plan.left",
+            &[
+                ("nights", &ch.nights_left.to_string()),
+                ("strikes", &ch.strikes.to_string()),
+                ("max", &ch.strikes_max.to_string()),
+            ],
+        );
+        if !ch.rivals.is_empty() {
+            txt.push_str(" · ");
+            txt.push_str(&loc.trf(
+                "challenge.plan.rivals",
+                &[
+                    ("n", &ch.rivals.len().to_string()),
+                    ("percent", &format!("{:.0}", ch.loss * 100.0)),
+                ],
+            ));
+        }
+        ui.fonts.draw_fit(
+            &txt,
+            Rect::new(c.x, y, c.w, 16.0),
+            &t.small()
+                .color(if ch.strikes > 0 { t.amber } else { t.text_dim }),
+            Align::Left,
+            0.75,
+        );
+        y += 20.0;
+    }
     // the fridge: fresh stock / the room for it (sim::fridge)
     let fr = g.world.fridge(content);
     if fr.pieces > 0 {
@@ -418,6 +461,10 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         0.0
     } else {
         24.0 + 18.0 * sm.payoff.len() as f32
+    } + if sm.challenge.is_empty() {
+        0.0
+    } else {
+        24.0 + 18.0 * sm.challenge.len() as f32
     };
     let (w, h) = (440.0 + pw, (430.0 + pay_h).min(s.h - 24.0));
     let pr = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0 - 10.0, w, h);
@@ -591,6 +638,46 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
             draw_icon(icon, vec2(c.x + 7.0, y + 8.0), 11.0, color);
             ui.fonts.draw_fit(
                 &payoff_text(&loc, l),
+                Rect::new(c.x + 18.0, y, c.w - 18.0, 16.0),
+                &t.small().color(t.text),
+                Align::Left,
+                0.8,
+            );
+            y += 18.0;
+        }
+    }
+    // sandbox «Challenge»: the season goal, the rivals' toll, a strike
+    if !sm.challenge.is_empty() {
+        hline(c.x, c.right(), y + 2.0, t.divider);
+        y += 8.0;
+        // (the night's own season: after its last night the next one has already begun)
+        let season = (sm.night.max(1) - 1) / cx.content.sandbox.challenge.season_nights.max(1) + 1;
+        ui.fonts.draw(
+            &loc.trf(
+                "challenge.summary.title",
+                &[("season", &season.to_string())],
+            )
+            .to_uppercase(),
+            c.x,
+            y + 12.0,
+            &t.micro(),
+        );
+        y += 18.0;
+        for l in &sm.challenge {
+            let (icon, color) = if l.key.ends_with("missed") || l.key.ends_with("debt") {
+                (Icon::Warning, t.red_400)
+            } else if l.key.ends_with("goal_met") {
+                (Icon::Star, t.emerald_400)
+            } else if l.key.contains("rival") {
+                (Icon::Door, t.amber)
+            } else if l.key.ends_with("strengths") {
+                (Icon::Heart, t.violet_400)
+            } else {
+                (Icon::Calendar, t.indigo_300)
+            };
+            draw_icon(icon, vec2(c.x + 7.0, y + 8.0), 11.0, color);
+            ui.fonts.draw_fit(
+                &wv::tr_args(&loc, &l.key, &l.args),
                 Rect::new(c.x + 18.0, y, c.w - 18.0, 16.0),
                 &t.small().color(t.text),
                 Align::Left,

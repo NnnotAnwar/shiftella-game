@@ -2,9 +2,11 @@
 
 use macroquad::prelude::*;
 
+use crate::i18n::{format_int, format_money};
 use crate::screens::menu::{Backdrop, draw_wordmark, wordmark_width};
 use crate::settings::Locale;
-use crate::ui::{Align, Glass, Icon, RectExt, TextStyle, Ui, Weight, draw_icon};
+use crate::sim::ChallengeReport;
+use crate::ui::{Align, Button, Glass, Icon, RectExt, TextStyle, Ui, Weight, draw_icon};
 
 /// Seconds the scroll takes before it settles on the last card.
 const SCROLL_SECONDS: f32 = 46.0;
@@ -26,6 +28,9 @@ pub struct Credits {
     pub variant: Option<String>,
     /// The optional "Answer" epilogue was reached.
     pub epilogue: bool,
+    /// A sandbox «Challenge» run ended: its final page (the report, the seed's best seasons
+    /// before this run) instead of the scroll.
+    pub challenge: Option<(ChallengeReport, Option<u32>)>,
 }
 
 impl Credits {
@@ -41,7 +46,134 @@ impl Credits {
             ending,
             variant,
             epilogue,
+            challenge: None,
         }
+    }
+
+    /// The final page of a Challenge run: `best` = the seed's record before it.
+    pub fn with_challenge(mut self, report: ChallengeReport, best: Option<u32>) -> Credits {
+        self.challenge = Some((report, best));
+        self
+    }
+
+    /// The Challenge's final page: why it closed, the run in numbers, the seed's record.
+    fn challenge_frame(&mut self, ui: &mut Ui, loc: &Locale) -> bool {
+        let Some((r, best)) = self.challenge.clone() else {
+            return true;
+        };
+        let s = ui.screen();
+        let t = ui.theme.clone();
+        let w = (s.w - 32.0).min(460.0);
+        let h = 404.0;
+        let p = Rect::new((s.w - w) / 2.0, ((s.h - h) / 2.0).max(12.0), w, h);
+        ui.glass(p, &Glass::panel().solid().radius(14.0));
+        let c = p.inset(22.0);
+        let cx = c.x + c.w / 2.0;
+        let mut y = c.y;
+        ui.fonts.draw_centered(
+            &loc.tr("challenge.final.kicker").to_uppercase(),
+            cx,
+            y + 12.0,
+            &t.micro().color(t.indigo_300),
+        );
+        y += 22.0;
+        ui.fonts.draw_centered(
+            loc.tr("ui.credits.closed_title"),
+            cx,
+            y + 26.0,
+            &t.display().size(26.0),
+        );
+        y += 40.0;
+        let reason = r
+            .reason
+            .map(|x| format!("challenge.final.reason.{}", x.id()))
+            .unwrap_or_else(|| "ui.credits.closed_text".into());
+        y += ui.fonts.draw_wrapped(
+            loc.tr(&reason),
+            Rect::new(c.x, y, c.w, 40.0),
+            &t.small().color(t.text),
+            Align::Center,
+            Some(2),
+        );
+        y += 12.0;
+        crate::ui::draw::hline(c.x, c.right(), y, t.divider);
+        y += 10.0;
+        let rows: [(Icon, String); 5] = [
+            (
+                Icon::Calendar,
+                loc.trf(
+                    "challenge.final.seasons",
+                    &[("n", &r.seasons_survived.to_string())],
+                ),
+            ),
+            (
+                Icon::Moon,
+                loc.trf("challenge.final.nights", &[("n", &r.nights.to_string())]),
+            ),
+            (
+                Icon::Star,
+                loc.trf(
+                    "challenge.final.best_night",
+                    &[("money", &format_money(loc.lang, r.best_night))],
+                ),
+            ),
+            (
+                Icon::Heart,
+                loc.trf(
+                    "challenge.final.guests",
+                    &[("n", &format_int(loc.lang, r.guests as i64))],
+                ),
+            ),
+            (
+                Icon::Sparkle,
+                loc.trf(
+                    "challenge.final.earned",
+                    &[("money", &format_money(loc.lang, r.earned))],
+                ),
+            ),
+        ];
+        for (icon, txt) in rows {
+            draw_icon(icon, vec2(c.x + 12.0, y + 11.0), 14.0, t.amber);
+            ui.fonts.draw_in(
+                &txt,
+                Rect::new(c.x + 30.0, y, c.w - 30.0, 22.0),
+                &TextStyle::new(15.0, Weight::Medium, t.text),
+                Align::Left,
+            );
+            y += 26.0;
+        }
+        y += 6.0;
+        crate::ui::draw::hline(c.x, c.right(), y, t.divider);
+        y += 10.0;
+        let record = best.map_or(r.seasons_survived, |b| b.max(r.seasons_survived));
+        if best.is_none_or(|b| r.seasons_survived > b) {
+            ui.fonts.draw_centered(
+                loc.tr("challenge.final.new_record"),
+                cx,
+                y + 14.0,
+                &t.strong().color(t.amber),
+            );
+            y += 22.0;
+        }
+        ui.fonts.draw_centered(
+            &loc.trf("challenge.final.record", &[("n", &record.to_string())]),
+            cx,
+            y + 14.0,
+            &t.small(),
+        );
+        let b = Button::new(loc.tr("challenge.final.back"))
+            .primary()
+            .icon(Icon::Home)
+            .shortcut("Enter");
+        let bw = ui.button_width(&b).max(180.0);
+        let clicked = ui
+            .button(
+                "challenge_done",
+                Rect::new(cx - bw / 2.0, c.bottom() - 34.0, bw, 34.0),
+                &b,
+            )
+            .clicked;
+        clicked || ui.esc() || ui.enter()
     }
 
     fn lines(&self, loc: &Locale) -> Vec<Line> {
@@ -114,6 +246,9 @@ impl Credits {
         let s = ui.screen();
         let theme = ui.theme.clone();
         draw_rectangle(0.0, 0.0, s.w, s.h, Color::new(0.04, 0.03, 0.09, 0.5));
+        if self.challenge.is_some() {
+            return self.challenge_frame(ui, loc);
+        }
         let lines = self.lines(loc);
         let total: f32 = lines.iter().map(Self::line_h).sum();
         let p = (self.t / SCROLL_SECONDS).min(1.0);

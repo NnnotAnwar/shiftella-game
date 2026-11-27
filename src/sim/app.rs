@@ -772,6 +772,10 @@ pub fn digest_lines(summary: &NightSummary) -> Vec<(String, Vec<(String, String)
     if summary.guests_served < 10 {
         v.push(("app.digest.quiet".into(), Vec::new()));
     }
+    // sandbox «Challenge»: the season goal, the rivals (`challenge.line.*`)
+    for l in &summary.challenge {
+        v.push((l.key.clone(), l.args.clone()));
+    }
     v
 }
 

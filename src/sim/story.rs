@@ -280,7 +280,8 @@ pub(crate) fn on_night_end(w: &mut World, content: &Content) -> bool {
                 .and_then(|d| d.bankrupt_after)
                 .or((!allow_debt).then_some(NO_DEBT_BANKRUPT_AFTER))
                 .is_some_and(|n| w.econ.nights_in_red >= n);
-            if bankrupt {
+            // Challenge: two missed season goals in a row, or too deep in debt
+            if bankrupt || super::challenge::closes(w) {
                 w.closed = true;
                 w.emit(SimEvent::CafeClosed);
                 return true;

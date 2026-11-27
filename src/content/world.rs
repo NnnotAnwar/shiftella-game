@@ -484,6 +484,103 @@ pub struct SandboxDef {
     pub rent: (u32, u32),
     /// Defaults for the setup checkboxes.
     pub options: HashMap<String, bool>,
+    /// The «Challenge» sandbox mode (`sim::challenge`): what gets harder each season.
+    #[serde(default)]
+    pub challenge: ChallengeDef,
+}
+
+/// Sandbox «Challenge» tuning (`sandbox.ron` → `challenge`, `sim::challenge`). Endless (the
+/// default mode) never reads it. Percentages are per season and compound.
+#[derive(Debug, Clone, Deserialize)]
+#[serde(default)]
+pub struct ChallengeDef {
+    /// Nights in a season (the sandbox calendar's season, `Town::season`).
+    pub season_nights: u32,
+    /// Rent, supply prices and wages: + percent at the start of every season after the first
+    /// (no `rent_growth_max` cap; the difficulty's 10-night rent growth is replaced by this).
+    pub rent_inflation: f32,
+    pub supply_inflation: f32,
+    pub wage_inflation: f32,
+    /// The season goal (revenue + tips over the season): Kč a night in season 1 for a town of
+    /// size 1.0, × `1 + goal_size_weight × (size − 1)`, × the difficulty's `goal_mul`,
+    /// + `goal_growth` percent a season (compounding).
+    pub goal_per_night: f32,
+    pub goal_size_weight: f32,
+    pub goal_growth: f32,
+    /// Per difficulty id (missing = 1.0).
+    pub goal_mul: HashMap<String, f32>,
+    /// Missed goals in a row before the café closes.
+    pub strikes_to_close: u32,
+    /// Closing over money: below −(`debt_limit_rents` × tonight's rent) for `debt_nights`
+    /// nights in a row (whatever «Allow going into debt» says).
+    pub debt_limit_rents: f32,
+    pub debt_nights: u32,
+    /// Rivals: the first opens in this season, then one a season up to `competitors_max`.
+    pub competitor_from_season: u32,
+    pub competitors_max: u32,
+    /// Share of the walk-ins each open rival takes.
+    pub competitor_share: f32,
+    /// Each of the café's strengths (coziness level, reputation, its own drink, regulars)
+    /// wins back this share of what the rivals take.
+    pub counter_cut: f32,
+    pub counter_coziness_level: u32,
+    /// Reputation 0–100 (80 = four stars).
+    pub counter_reputation: f32,
+    /// Regulars with at least `counter_regular_trust` trust.
+    pub counter_regulars: u32,
+    pub counter_regular_trust: f32,
+    /// Reputation a night each rival wears off (guests compare), after the strengths' cut.
+    pub rival_reputation_drain: f32,
+    /// The storyteller per season after the first: + percent random-event rate, + percent
+    /// Bad-event weight, − percent good share, + tension budget, + one Bad event in a row
+    /// every `bad_in_row_every` seasons, − percent breathing room; appliance wear + percent.
+    pub event_rate: f32,
+    pub bad_weight: f32,
+    pub good_share_cut: f32,
+    pub tension_add: f32,
+    pub bad_in_row_every: u32,
+    pub breath_cut: f32,
+    pub wear: f32,
+    /// Events that aren't Bad but scale with the Bad ones (the health inspection).
+    pub scaled_events: Vec<String>,
+    /// Rival café names (proper nouns, never translated) by town name; `*` = any town.
+    pub competitor_names: HashMap<String, Vec<String>>,
+}
+
+impl Default for ChallengeDef {
+    fn default() -> Self {
+        ChallengeDef {
+            season_nights: 30,
+            rent_inflation: 25.0,
+            supply_inflation: 20.0,
+            wage_inflation: 20.0,
+            goal_per_night: 6500.0,
+            goal_size_weight: 0.25,
+            goal_growth: 18.0,
+            goal_mul: HashMap::new(),
+            strikes_to_close: 2,
+            debt_limit_rents: 10.0,
+            debt_nights: 3,
+            competitor_from_season: 2,
+            competitors_max: 3,
+            competitor_share: 0.10,
+            counter_cut: 0.15,
+            counter_coziness_level: 4,
+            counter_reputation: 80.0,
+            counter_regulars: 3,
+            counter_regular_trust: 40.0,
+            rival_reputation_drain: 1.0,
+            event_rate: 15.0,
+            bad_weight: 25.0,
+            good_share_cut: 8.0,
+            tension_add: 8.0,
+            bad_in_row_every: 2,
+            breath_cut: 12.0,
+            wear: 15.0,
+            scaled_events: vec!["health_inspection".into()],
+            competitor_names: HashMap::new(),
+        }
+    }
 }
 
 impl SandboxDef {

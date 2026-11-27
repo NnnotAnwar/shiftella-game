@@ -138,7 +138,9 @@ fn random_events(w: &mut World, content: &Content) {
             .unwrap_or((1.0, 3, false)),
         Mode::Sandbox => (1.0, 3, false),
     };
-    let mut p = ch.base_rate * nar.curve_at(now) * act_mult;
+    // Challenge: the nights get harder each season (the identity in Endless)
+    let hard = super::challenge::storyteller(w, content);
+    let mut p = ch.base_rate * nar.curve_at(now) * act_mult * hard.rate;
     // fewer random rolls once the night already had plenty
     if w.narrator.random_tonight >= ch.events_per_night.1 {
         p *= 0.15;
@@ -157,7 +159,7 @@ fn random_events(w: &mut World, content: &Content) {
     let breath = w
         .narrator
         .last_bad
-        .is_some_and(|lb| m < lb + ch.breath_minutes);
+        .is_some_and(|lb| m < lb + (ch.breath_minutes as f32 * hard.breath).round() as u32);
     let mut cands: Vec<(usize, f32, EffectCtx)> = Vec::new();
     for (i, e) in content.events.iter().enumerate() {
         if e.trigger != EventTrigger::Random || e.weight <= 0.0 {
@@ -174,8 +176,8 @@ fn random_events(w: &mut World, content: &Content) {
         }
         if e.kind == EventKind::Bad
             && (breath
-                || w.narrator.bad_in_row >= ch.max_bad_in_row
-                || w.narrator.tension + e.severity as f32 * 10.0 > ch.max_tension
+                || w.narrator.bad_in_row >= ch.max_bad_in_row + hard.bad_in_row
+                || w.narrator.tension + e.severity as f32 * 10.0 > ch.max_tension + hard.tension
                 || (nar.calm_before_payment && tomorrow_payment && e.severity >= 3))
         {
             continue;
@@ -201,6 +203,9 @@ fn random_events(w: &mut World, content: &Content) {
         if e.kind == EventKind::Good && poverty {
             weight *= 2.0;
         }
+        if e.kind == EventKind::Bad || hard.also.contains(&e.id) {
+            weight *= hard.bad;
+        }
         if weight > 0.0 {
             cands.push((i, weight, ctx));
         }
@@ -209,7 +214,7 @@ fn random_events(w: &mut World, content: &Content) {
         return;
     }
     // good share
-    if !force_good && w.rng.chance(ch.good_share) {
+    if !force_good && w.rng.chance(ch.good_share * hard.good_share) {
         let goods: Vec<(usize, f32, EffectCtx)> = cands
             .iter()
             .filter(|c| content.events[c.0].kind == EventKind::Good)
@@ -403,9 +408,10 @@ pub(crate) fn on_night_end(w: &mut World, content: &Content) {
         .difficulty(w.difficulty.id())
         .map(|d| d.wear_mul)
         .unwrap_or(1.0);
+    let challenge_wear = super::challenge::wear_mul(w, content);
     for p in w.furniture.iter_mut() {
         if let Some(d) = content.furniture_def(&p.def) {
-            p.wear = (p.wear + d.wear_per_night * wear_mul).min(1.0);
+            p.wear = (p.wear + d.wear_per_night * wear_mul * challenge_wear).min(1.0);
         }
     }
 }

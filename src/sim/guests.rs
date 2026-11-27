@@ -1309,7 +1309,17 @@ fn arrival_rate(w: &World, content: &Content, hour: usize) -> f32 {
         .filter(|m| m.kind == ModKind::GuestRate)
         .map(|m| m.mul)
         .product();
-    BASE_PARTIES_PER_HOUR / 60.0 * shape * rep * weather * story_ramp * mods * quiet * w.town.size
+    // Challenge: rival cafés take a share of the walk-ins (exactly 1.0 in Endless)
+    let rivals = super::challenge::demand_mul(w);
+    BASE_PARTIES_PER_HOUR / 60.0
+        * shape
+        * rep
+        * weather
+        * story_ramp
+        * mods
+        * quiet
+        * w.town.size
+        * rivals
 }
 
 pub(crate) fn pick_archetype(w: &mut World, content: &Content, hour: usize) -> Option<String> {
