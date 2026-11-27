@@ -52,6 +52,10 @@ impl PhotoMode {
     pub fn is_open(&self) -> bool {
         self.finder.is_some() || self.pending
     }
+    /// Screenshot runs: raise the camera once the café camera is placed.
+    pub fn raise_for_shot(&mut self) {
+        self.pending = true;
+    }
     /// A print is developing on screen (its photo has to be rendered).
     pub fn developing(&self) -> bool {
         self.print.is_some()
@@ -92,6 +96,9 @@ fn can_open(g: &GameScreen) -> bool {
         && !g.hands.overlay()
         && !g.sig.open
         && g.panel != Some(Panel::Build)
+        // a stranger's story card is a card like a moment's; the storm talk holds the café
+        && g.stories.card.is_none()
+        && !g.stories.talk_open()
 }
 
 /// Raises the camera (or says the film is used up).

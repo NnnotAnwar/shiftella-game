@@ -670,7 +670,8 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     let c = cfg(content).clone();
     let t = now(w);
     let m = w.minute();
-    // 22:00: delegated kitchen chores
+    // 22:00: delegated kitchen chores (what Karolina didn't do and isn't on her way to do:
+    // a chore in her hands stays hers, with its by-hand effect)
     if t == 0
         && let Some(helper) = helper_with(w, Duty::Kitchen)
     {
@@ -679,11 +680,13 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             && power
             && any_on_menu(w, content, &c.soup.items)
             && let Some(stove) = first_with(w, content, EquipKind::Stove)
+            && !in_hands(w, stove, EquipAction::SoupOn)
         {
             complete(w, content, stove, EquipAction::SoupOn, Some(helper));
         }
         if !w.hands.equip.milk_done
             && let Some(fridge) = first_with(w, content, EquipKind::Fridge)
+            && !in_hands(w, fridge, EquipAction::Milk)
         {
             complete(w, content, fridge, EquipAction::Milk, Some(helper));
         }
@@ -691,6 +694,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             && power
             && any_on_menu(w, content, &c.cake.items)
             && let Some(oven) = first_with(w, content, EquipKind::Oven)
+            && !in_hands(w, oven, EquipAction::Bake)
         {
             complete(w, content, oven, EquipAction::Bake, Some(helper));
         }

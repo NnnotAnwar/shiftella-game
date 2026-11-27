@@ -30,6 +30,8 @@
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
 //! * `SHIFTELLA_DIRT=0.4` — dirt blots on the floor; `SHIFTELLA_SETTINGS_TAB=0|1|2` — the
 //!   settings scene opens on General / Accessibility / Controls (package J, access).
+//! * `SHIFTELLA_COMBO=story_card,crew,photo,…` — opens several layers at once over the scene
+//!   (QA overlap shots; see `GameScreen::combo_layers`).
 //! * `SHIFTELLA_TEST_PANIC=1` — panic on purpose right after boot (checks the crash log,
 //!   [`crate::crashlog`]; nothing is saved).
 
@@ -287,6 +289,10 @@ impl App {
         }
         if let Some(s) = env("SHIFTELLA_SPEED").and_then(|s| s.parse::<u8>().ok()) {
             g.set_speed(s);
+        }
+        // SHIFTELLA_COMBO=story_card,crew,…: several layers over the scene at once
+        if let Some(list) = env("SHIFTELLA_COMBO") {
+            g.combo_layers(&list);
         }
         Screen::Game(Box::new(g))
     }

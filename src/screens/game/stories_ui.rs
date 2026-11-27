@@ -491,9 +491,20 @@ pub fn persona_arg_text(loc: &Locale, v: &str) -> Option<String> {
     )
 }
 
-/// The open story card and the storm card (night UI, after the HUD).
+/// The storm card (night UI, the left column after the HUD).
 pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
-    storm_card(g, ui, cx);
+    // (under the crew card, which covers the left column, the storm card waits)
+    if g.panel != Some(super::Panel::Crew) {
+        storm_card(g, ui, cx);
+    }
+}
+
+/// The open story card — with the other cards, above the panels (like a moment's card; drawn
+/// with the HUD it sat under an open crew card and showed through its glass).
+pub fn card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
+    if g.world.phase() != sim::Phase::Night || g.summary.is_some() {
+        return;
+    }
     let Some(guest) = g.stories.card else {
         return;
     };
