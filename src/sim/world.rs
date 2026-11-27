@@ -1286,6 +1286,15 @@ impl World {
         self.phase == Phase::Day || self.story.playing.is_some() || self.closed
     }
 
+    /// Where the sandbox rent stops growing: `mul` × the highest starting rent of a town this
+    /// size (`new_sandbox`: `lo + (hi − lo) × (0.6 t + 0.2)`), whole 10 Kč.
+    pub(crate) fn sandbox_rent_cap(&self, content: &Content, mul: f32) -> i64 {
+        let (lo, hi) = content.sandbox.rent;
+        let t = ((self.town.size - 0.6) / 0.9).clamp(0.0, 1.0);
+        let top = lo as f32 + (hi - lo) as f32 * (t * 0.6 + 0.2);
+        ((top * mul / 10.0).round() * 10.0) as i64
+    }
+
     /// Called when a new day (planning phase) for `self.night` begins.
     pub(crate) fn begin_day(&mut self, content: &Content) {
         self.phase = Phase::Day;
@@ -1317,8 +1326,8 @@ impl World {
             let grown = self.econ.rent as f32 * (1.0 + d.rent_growth_percent / 100.0);
             let grown = ((grown / 10.0).round() * 10.0) as i64;
             // capped (never lowered: an old save above the cap keeps its rent)
-            self.econ.rent = match d.rent_growth_cap {
-                Some(cap) => grown.min(cap).max(self.econ.rent),
+            self.econ.rent = match d.rent_growth_max {
+                Some(mul) => grown.min(self.sandbox_rent_cap(content, mul)).max(self.econ.rent),
                 None => grown,
             };
         }

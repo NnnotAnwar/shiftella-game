@@ -656,12 +656,24 @@ fn a_boxed_in_front_tile_does_not_stall_the_helpers() {
 
 /// The sandbox rent grew 5 % every 10 nights for ever: 2 200 Kč on night 1, ~3 600 on night
 /// 100, ~9 500 on night 300, and every long Cozy / Classic game ended in the red (Cozy seed 43:
-/// −445 000 Kč on night 300). It now stops at `rent_growth_cap`.
+/// −445 000 Kč on night 300). It now stops at `rent_growth_max` × the town's top starting
+/// rent (a fixed 4 200 Kč cap still sank a village café, seed 42: −104 000 by night 300).
 #[test]
 fn sandbox_rent_growth_stops_at_the_cap() {
     let c = content();
-    let cap = c.difficulty("cozy").unwrap().rent_growth_cap.unwrap();
+    let mul = c.difficulty("cozy").unwrap().rent_growth_max.unwrap();
     let mut w = World::new_sandbox(&c, SandboxSetup::default());
+    let start = w.econ.rent;
+    let cap = w.sandbox_rent_cap(&c, mul);
+    assert!(start < cap && cap < start * 2, "start {start} cap {cap}");
+    let (lo, hi) = (c.sandbox.rent.0 as i64, c.sandbox.rent.1 as i64);
+    for (size, range) in [(0.6, (lo, lo + (hi - lo) / 5)), (1.5, (lo, hi))] {
+        w.town.size = size;
+        let top = w.sandbox_rent_cap(&c, 1.0);
+        assert!(top >= range.0 && top <= range.1, "size {size}: top {top}");
+    }
+    w.town.size = 1.0;
+    let cap = w.sandbox_rent_cap(&c, mul);
     w.econ.rent = cap - 100;
     w.night = 21;
     w.begin_day(&c);
@@ -696,7 +708,11 @@ fn three_hundred_nights_stay_sane() {
             stalled += u.stalled;
             on += u.on;
             seasons.insert(w.town.season);
-            let cap = c.difficulty(diff.id()).unwrap().rent_growth_cap.unwrap_or(i64::MAX);
+            let cap = c
+                .difficulty(diff.id())
+                .unwrap()
+                .rent_growth_max
+                .map_or(i64::MAX, |m| w.sandbox_rent_cap(&c, m));
             assert!(w.econ.rent <= cap, "{diff:?} rent {}", w.econ.rent);
             assert!(w.reputation().is_finite() && w.dirt.is_finite());
         }

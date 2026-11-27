@@ -213,7 +213,7 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   checked after night 30 or a Classic closure; `EndingReached(id)` + its cutscene, then the world is closed.
 * **Economy:** night start auto-restock (Classic: max 1 500 Kč on credit), ingredients consumed per
   order, wages by minutes worked (vacation paid), story utilities 350 Kč/night, sandbox rent (+growth
-  `rent_growth_percent` every `rent_growth_every` nights, up to `rent_growth_cap`).
+  `rent_growth_percent` every `rent_growth_every` nights, up to `rent_growth_max` × the town size's top starting rent).
   Sandbox Classic: `bankrupt_after` nights in the red → `CafeClosed`; with the setup's
   `allow_debt` off, Cozy / Carefree close after `story::NO_DEBT_BANKRUPT_AFTER` (3) too.
 
