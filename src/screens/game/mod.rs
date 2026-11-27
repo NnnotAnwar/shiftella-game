@@ -1483,10 +1483,11 @@ impl GameScreen {
                 _ => None,
             };
             self.scene.sec_per_minute = self.world.real_seconds_per_tick(content) * 10.0;
+            // (once: a merge left a second, unguarded call that drew every hover ring, tent
+            // card and door sign twice — and into the photo-mode viewfinder)
             if !self.photo.is_open() {
                 hands_view::draw_world(self, content, &loc, target, mouse_world);
             }
-            hands_view::draw_world(self, content, &loc, target, mouse_world);
             stories_ui::draw_world(self);
             if self.panel == Some(Panel::Build) {
                 build::draw_world_overlay(self, content, ghost.as_ref());
