@@ -350,6 +350,27 @@ the modifiers) can't be taken. **Reset keys** brings the defaults back. Every ke
 follows: the keycaps on the dock and the panels, the speed tooltips, How to play and the tutorial
 lines. The old **P** for the duties board keeps working by day while P belongs to the camera.
 
+## Pause on important events
+
+**Settings → General → Pause on important events** (off by default; the sandbox setup has the
+same box, and a sandbox café keeps it in its save — either one turns it on). When it is on, the
+night pauses itself — the same pause as **Space** — when something needs you, and a small chip
+under the top bar says why, with its icon: *Paused: Thunderstorm*. **Space** or the chip's
+**Continue** plays on at the speed you had.
+
+What pauses: a bad event starting (the storm, a power cut, the fridge, a student party… — the
+serious ones; small bad events only when they ask for an answer), a regular walking in with a
+new part of their story to tell, a stranger with a little story, a helper falling ill or walking
+out, a phone message that needs an answer (a swap or time-off request, a late or sick call, low
+stock), the café running out of supplies, and on **Classic** a guest about to give up and leave
+unhappy.
+
+It never nags: at most one auto-pause per 15 minutes of the night, never by day, and never over a
+story scene, a story card you are reading, a mini-game, a ritual gesture, the walk home or photo
+mode — those already hold the night. Something that happens meanwhile pauses right after the
+mini-game / gesture / menu closes (within a few minutes), not after a scene or a story card.
+If you paused yourself, nothing changes.
+
 ## Accessibility
 
 **Settings → Accessibility**:
@@ -593,3 +614,6 @@ sets the sky, `SHIFTELLA_NIGHT` the season.
 its card. `SHIFTELLA_SCENE=storm` plays night 29 to 01:20 with the blankets and the soup asked
 for (the Snowed-in card, the toasts); `storm_talk` to the 03:00 talk, `SHIFTELLA_LINE=n` its
 line (0 = the narration).
+`SHIFTELLA_SCENE=auto_pause` plays story night 3 (or `SHIFTELLA_NIGHT`) to `SHIFTELLA_TIME`
+(default 00:30), starts `SHIFTELLA_EVENT=<id>` (default `storm`) and shows the night auto-paused
+for it with its reason chip (automation never pauses by itself).

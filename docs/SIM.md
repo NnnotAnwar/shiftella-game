@@ -180,6 +180,12 @@ floors, lamps, duties, draft shifts, prices, menu). The stack clears at phase ch
 * App: `app()` → `AppState { draft, published, draft_dirty, week, swaps, time_off, handovers,
   announcements, checklist, inbox, payroll }`; `sim::digest_lines(&summary)` → `(app.digest.<id>, args)`.
 * Narrator: `pending_choices()`, `tension()`, `event_log()` (`LogEntry { night, minute, key, args }`).
+* Attention (`sim::attention`, for the screens' "Pause on important events"):
+  `parties_losing_patience()` (Classic only: waiting parties under `PATIENCE_NEARLY_OUT` = 15 %
+  of their patience, at least 2 minutes — they leave unhappy soon; gentle difficulties → empty),
+  `out_of_supplies(&c)` (the cheapest unlocked, on-menu item costs more than the supplies left),
+  `sandbox_pauses_on_events()` (the sandbox setup's `pause_on_events` option in
+  `town.options`, kept in the save; always `false` in the story).
 * Appliances (§11): `equipment()` (`EquipState`), `equipment_kind(&c, uid)`,
   `equipment_action(&c, uid)` (what a click does now), `equipment_views(&c)` (`EquipView`).
 

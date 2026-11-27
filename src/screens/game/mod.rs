@@ -8,6 +8,7 @@
 
 mod app_tool;
 mod attic_ui;
+mod auto_pause;
 mod build;
 mod build_cards;
 mod build_content_ui;
@@ -318,6 +319,8 @@ pub struct GameScreen {
     pub stories: stories_ui::StoriesUi,
     /// The little ritual gestures over a piece Karolina is doing (`rituals_ui`).
     pub rituals: rituals_ui::RitualUi,
+    /// "Pause on important events": the reason chip, the cooldown (`auto_pause`).
+    pub auto: auto_pause::AutoPause,
 }
 
 /// CPU time of the last frame's parts (the F3 debug overlay).
@@ -407,6 +410,7 @@ impl GameScreen {
             photo: Default::default(),
             stories: Default::default(),
             rituals: Default::default(),
+            auto: Default::default(),
         }
     }
 
@@ -595,6 +599,7 @@ impl GameScreen {
                 }
             }
         }
+        self.auto_pause_watch(content);
         // a queued summary shows once no cutscene is on screen
         if !self.cutscene_playing()
             && self.world.playing_cutscene().is_none()
@@ -796,6 +801,7 @@ impl GameScreen {
                 _ => String::from("?"),
             }
         };
+        self.auto_pause_event(content, &e);
         self.hands_event(content, &e);
         self.extras_event(content, &e);
         self.build_content_event(content, &e, loc);
@@ -1232,6 +1238,8 @@ impl GameScreen {
         minute: Option<i32>,
         hire: bool,
     ) {
+        // the bot plays these nights: no auto-pause on the way
+        self.auto.driving = true;
         let mut guard = 0;
         // past nights are played by the sim's player-bot (a calm player: by hand for the
         // regulars, moments, the jar, a polaroid every morning), so a late night looks like
@@ -1324,11 +1332,13 @@ impl GameScreen {
             p
         };
         self.intro = false;
+        self.auto.driving = false;
     }
 
     /// Runs the current night to its end (the doors open at 21:59, she closes up at 06:29)
     /// and shows the morning summary.
     pub fn run_to_morning(&mut self, content: &Rc<Content>, loc: &Locale) {
+        self.auto.driving = true;
         let mut g = 0;
         while self.world.phase() == Phase::Night && g < 60_000 {
             if self.world.waiting_for_doors() {
@@ -1366,6 +1376,7 @@ impl GameScreen {
         let _ = self.world.drain_events();
         self.summary = self.summary_pending.take();
         self.notices.clear();
+        self.auto.driving = false;
     }
 
     /// Screenshot runs (`SHIFTELLA_COMBO=story_card,crew,…`): opens several layers at once
@@ -1492,6 +1503,7 @@ impl GameScreen {
         // 1. cutscene or sim
         let p_sim = profile::span(profile::Sec::Sim);
         self.relaxed = cx.settings.relaxed_minigames;
+        self.auto.setting = cx.settings.pause_on_events;
         let mut finished = None;
         if self.player.is_playing() {
             if let CutsceneStatus::Finished { id, choices } = self.player.update(ui, &loc, dt) {
@@ -1539,7 +1551,12 @@ impl GameScreen {
                 for e in evs {
                     self.handle_event(content, e, Some(&loc));
                 }
-                if self.cutscene_playing() || self.world.playing_cutscene().is_some() {
+                self.auto_pause_watch(content);
+                // (an auto-pause stops the stepping at once too)
+                if self.speed == 0
+                    || self.cutscene_playing()
+                    || self.world.playing_cutscene().is_some()
+                {
                     self.acc = 0.0;
                     break;
                 }
@@ -1754,6 +1771,7 @@ impl GameScreen {
             if self.follow.is_some() {
                 hands_hud::follow_chip(self, ui, cx);
             }
+            auto_pause::chip(self, ui, cx);
             if self.panel.is_none() {
                 checklist_ui::world_tip(self, ui, &loc, content);
             }
@@ -2406,6 +2424,8 @@ fn is_flow_event(e: &SimEvent) -> bool {
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_auto_pause;
 #[cfg(test)]
 mod tests_chaos;
 #[cfg(test)]
