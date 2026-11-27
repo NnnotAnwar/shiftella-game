@@ -67,7 +67,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | command | notes |
 |---|---|
 | `PlaceFurniture { def, x, y, rot }` | footprint, layer (rugs/stage/pendant lamps share tiles), money, unlocks, `unique`, never blocks the door / any piece (`BlocksPath`). Floors (`floor_*`) paint a tile. |
-| `MoveFurniture`, `RotateFurniture`, `RemoveFurniture` | not while in use (seat taken, station busy) → `InUse`; remove refunds 50 % |
+| `MoveFurniture`, `RotateFurniture`, `RemoveFurniture` | not while in use (seat taken, station busy, guests lined up at a register) → `InUse`; a solid piece never lands on someone standing there → `Occupied`; remove refunds 50 % |
 | `MoveGroup { moves: Vec<PieceMove { uid, x, y, rot }> }` | build mode's drag: all pieces are lifted, then put down (a table and its chairs may swap tiles); atomic — any `InUse` / `Occupied` / `BlocksPath` changes nothing; free; **one** undo step (`UndoOp::MoveGroupBack`) |
 | `SetFloor { x, y, floor }`, `SetFurnitureOn { uid, on }`, `SetMusic { on }` | lamps / jukebox / radio |
 | `Hire { candidate }`, `Fire { staff }` | candidates: `world.candidates()` (story persons from `hire_from_night`; sandbox: 3 generated, refreshed every 3 nights). The owner (`Staff::owner`, cast `player`) can't be fired. |
@@ -192,8 +192,9 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   guests; a random walk-in is deferred into one) lingers outside a minute longer (≤
   `COZY_HOLD_MAX` 60 min, none from 05:00), and the ones who waited come in one party a
   minute (all in by `COZY_HOLD_LAST` 05:20, so the closing checklist still fits). The Cozy
-  train spread is cut so passengers are in by last call (05:40). Classic never holds. Seats are reserved on arrival (no seat →
-  they walk on). Plain parties queue at the register (or sit when the line is long); wish
+  train spread is cut so passengers are in by last call (05:40). Classic never holds. Seats are reserved on arrival, one chair per guest (no seat →
+  they walk on). Paths go around chairs and stools (`grid::SEAT`) unless there is no other way; a
+  guest with no way to the goal waits and retries (never walks through the furniture). Plain parties queue at the register (or sit when the line is long); wish
   parties always sit and wait for Karolina. Patience runs on the wait clock (§9.4); food waits
   get `FOOD_PATIENCE` 2.4× (Cozy `COZY_FOOD_PATIENCE` 3.0×). Satisfaction: wait times, item
   `mood_bonus`, quality, server traits, seat comfort, beauty, dirt, music, + the hands-on serve

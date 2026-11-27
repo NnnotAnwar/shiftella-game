@@ -1463,6 +1463,7 @@ impl World {
         }
         self.ensure_hands(content);
         self.grid.ensure_masks(&self.furniture, content);
+        self.refresh_taken();
         if self.prep_left > 0 {
             self.prep_tick(content);
             return;
@@ -1815,10 +1816,22 @@ impl World {
         }
     }
 
+    /// The seats people sit on, for the walk masks (derived state: the same after a load).
+    pub(crate) fn refresh_taken(&mut self) {
+        let tiles: Vec<(i32, i32)> = self
+            .guests
+            .iter()
+            .filter(|g| g.pose == Pose::Sit && g.seat.is_some())
+            .map(|g| g.tile())
+            .collect();
+        self.grid.set_taken(tiles);
+    }
+
     /// Call once after loading if you need queries before the first tick.
     pub fn rebuild_caches(&mut self, content: &Content) {
         self.ensure_hands(content);
         self.grid.rebuild(&self.furniture, content);
+        self.refresh_taken();
     }
 
     // -----------------------------------------------------------------------------------------

@@ -7,6 +7,9 @@ use crate::content::{Content, PaymentRule};
 
 /// Classic: the supplier still delivers this much on credit when money is short.
 pub const CLASSIC_OVERDRAFT: i64 = 1500;
+/// The most one supply order (and the auto-restock target) may be: well above anything a
+/// night uses, far below where the till's numbers would overflow.
+pub const MAX_SUPPLY_ORDER: i64 = 100_000;
 
 /// Night start: top up ingredients to the auto-restock target.
 pub(crate) fn restock(w: &mut World, _content: &Content) {
@@ -31,8 +34,8 @@ pub(crate) fn restock(w: &mut World, _content: &Content) {
 
 /// Manual purchase (day phase or night).
 pub(crate) fn buy_supplies(w: &mut World, amount: i64) -> Result<(), CommandError> {
-    if amount <= 0 {
-        return Err(CommandError::Invalid("amount must be positive".into()));
+    if amount <= 0 || amount > MAX_SUPPLY_ORDER {
+        return Err(CommandError::Invalid("amount out of range".into()));
     }
     if w.econ.money < amount && w.difficulty == Difficulty::Classic {
         return Err(CommandError::NotEnoughMoney {

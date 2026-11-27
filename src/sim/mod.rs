@@ -83,6 +83,8 @@ mod tests_access;
 mod tests_combos;
 #[cfg(test)]
 mod tests_sandbox;
+#[cfg(test)]
+pub(crate) mod chaos;
 
 pub use app::digest_lines;
 pub use attic::{AtticOffer, AtticView};

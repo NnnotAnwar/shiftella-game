@@ -363,8 +363,8 @@ fn choose_seats(
             .max_by(|a, b| score(a).total_cmp(&score(b)))
             .copied()?;
         let mut v = vec![first];
-        // every seat but `first` (by its identity: comparing the references themselves
-        // compared the slots holding them, so `first` came back and a pair shared a chair)
+        // every seat but `first`, by seat (comparing the references compared the slots
+        // holding them, so `first` came back and a pair shared a chair)
         let mut rest: Vec<&SeatInfo> = free
             .iter()
             .filter(|s| (s.uid, s.idx) != (first.uid, first.idx))
@@ -399,7 +399,7 @@ pub(crate) fn registers(w: &World, content: &Content) -> Vec<(u32, (i32, i32))> 
         }
         if let Some(t) = grid::access_tiles(&w.grid, d, p)
             .into_iter()
-            .find(|t| w.grid.guest_ok(t.0, t.1))
+            .find(|t| w.grid.guest_ok(t.0, t.1) && !w.grid.is_seat(t.0, t.1))
         {
             v.push((p.uid, t));
         }
@@ -959,16 +959,40 @@ pub(crate) fn set_goal(w: &mut World, gid: u32, goal: (i32, i32)) {
     let Some(i) = w.guests.iter().position(|g| g.id == gid) else {
         return;
     };
-    let from = w.guests[i].tile();
+    // (a member of a big party can spawn just past the street's last tile)
+    let t = w.guests[i].tile();
+    let from = (
+        t.0.clamp(0, w.grid.width - 1),
+        t.1.clamp(0, w.grid.height - 1),
+    );
     let path = w.paths.get(&w.grid, from, goal, true).or_else(|| {
         // fall back to staff mask (e.g. standing on a seat tile next to the bar)
         w.paths.get(&w.grid, from, goal, false)
     });
     let g = &mut w.guests[i];
     g.goal = Some(goal);
-    g.path = path.unwrap_or_else(|| vec![goal]);
-    g.pose = Pose::Walk;
+    match path {
+        Some(mut p) => {
+            if from != t {
+                p.insert(0, from);
+            }
+            g.path = p;
+            g.pose = Pose::Walk;
+        }
+        None => {
+            // no way there right now (a piece was just put in the way, a bucket under a
+            // leak): wait and try again (`tick_guests`) — never walk straight through the
+            // furniture (the old fallback `vec![goal]` did)
+            g.path.clear();
+            if g.pose != Pose::Sit {
+                g.pose = Pose::Idle;
+            }
+        }
+    }
 }
+
+/// Ticks between two tries of a guest who found no way to their goal.
+const REPATH_EVERY: u32 = 20;
 
 pub(crate) fn refresh_queue_goals(w: &mut World, content: &Content) {
     let regs: Vec<u32> = w.queues.keys().copied().collect();
@@ -1974,6 +1998,7 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
     let mut repath: Vec<u32> = Vec::new();
     let mut gone: Vec<u32> = Vec::new();
     let mut sat_down: Vec<(u32, (i32, i32))> = Vec::new();
+    let mut maybe_sit: Vec<(usize, (i32, i32))> = Vec::new();
     let edges = w.grid.street_edges();
     for i in 0..n {
         let g = &mut w.guests[i];
@@ -1981,7 +2006,16 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
             continue;
         }
         if g.path.is_empty() {
-            g.stuck_ticks = 0;
+            // not there yet and no way (see `set_goal`): try again now and then; the
+            // safety below still moves them after a long wait
+            if g.goal.is_some_and(|t| t != g.tile()) {
+                g.stuck_ticks += 1;
+                if g.stuck_ticks.is_multiple_of(REPATH_EVERY) {
+                    repath.push(g.id);
+                }
+            } else {
+                g.stuck_ticks = 0;
+            }
             continue;
         }
         let (vel, arrived, blocked) =
@@ -2000,12 +2034,30 @@ pub(crate) fn tick_guests(w: &mut World, content: &Content) {
         if arrived {
             let tile = g.tile();
             if g.seat.is_some() && g.goal == Some(tile) {
+                // sits only on the seat itself (decided below): a seated party's leader
+                // walking to the register keeps the seat but stands in the line
+                maybe_sit.push((i, tile));
+            } else if edges.contains(&tile) && g.goal == Some(tile) {
+                gone.push(g.id);
+            } else {
+                g.pose = Pose::Idle;
+            }
+        }
+    }
+    if !maybe_sit.is_empty() {
+        let seat_info = seats(w, content);
+        for (i, tile) in maybe_sit {
+            let g = &mut w.guests[i];
+            let on_seat = g.seat.is_some_and(|(uid, idx)| {
+                seat_info
+                    .iter()
+                    .any(|s| s.uid == uid && s.idx == idx && s.tile == tile)
+            });
+            if on_seat {
                 if g.pose != Pose::Sit {
                     sat_down.push((g.id, tile));
                 }
                 g.pose = Pose::Sit;
-            } else if edges.contains(&tile) && g.goal == Some(tile) {
-                gone.push(g.id);
             } else {
                 g.pose = Pose::Idle;
             }

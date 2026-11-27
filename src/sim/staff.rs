@@ -630,6 +630,17 @@ pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(
 }
 
 pub(crate) fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32)> {
+    // beside the guest, not on the next chair (someone may sit down there) — unless only
+    // chairs are left
+    stand_next_to_in(w, t, from, true).or_else(|| stand_next_to_in(w, t, from, false))
+}
+
+fn stand_next_to_in(
+    w: &World,
+    t: (i32, i32),
+    from: (i32, i32),
+    avoid_seats: bool,
+) -> Option<(i32, i32)> {
     let mut best: Option<(i32, i32)> = None;
     for (dx, dy) in [
         (0, 1),
@@ -642,7 +653,10 @@ pub(crate) fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Optio
         (-1, -1),
     ] {
         let n = (t.0 + dx, t.1 + dy);
-        if !w.grid.walkable(n.0, n.1) || !w.grid.reached(n.0, n.1) {
+        if !w.grid.walkable(n.0, n.1)
+            || !w.grid.reached(n.0, n.1)
+            || (avoid_seats && w.grid.is_seat(n.0, n.1))
+        {
             continue;
         }
         // not on someone's seat

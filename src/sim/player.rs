@@ -932,6 +932,13 @@ fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal
             at(staff::station_access(w, content, *table))
         }
         PlayerAct::Wash { sink } => at(staff::station_access(w, content, *sink)),
+        // a walk to a chair or a piece (a stranger's story, a moment at the jukebox) ends
+        // beside it, never on the chair someone may sit on or inside the furniture
+        PlayerAct::Mop { tile } | PlayerAct::GoTo { tile }
+            if w.grid.is_seat(tile.0, tile.1) || !w.grid.walkable(tile.0, tile.1) =>
+        {
+            at(staff::stand_next_to(w, *tile, here).or(Some(*tile)))
+        }
         PlayerAct::Mop { tile } | PlayerAct::GoTo { tile } => Goal::At(*tile),
         PlayerAct::Checklist { id } => Goal::At(checklist_anchor(w, content, id, here)),
         PlayerAct::PlayRecord { .. } => {
@@ -1081,6 +1088,7 @@ fn hand_over(w: &mut World, content: &Content, idx: usize, tray: &[u32]) {
 }
 
 pub(crate) fn tick(w: &mut World, content: &Content, idx: usize) {
+    prune_queue(w);
     if !w.staff[idx].path.is_empty() {
         walk(w, content, idx);
         return;
@@ -1096,6 +1104,35 @@ pub(crate) fn tick(w: &mut World, content: &Content, idx: usize) {
         }
     }
     step(w, content, idx);
+}
+
+/// Queued acts whose target is gone (the party went home, the item was dropped, the piece
+/// was removed) leave her queue at once: before, they kept a slot (a full queue refused new
+/// clicks) and showed a chip for nobody until she reached them and dropped them.
+pub(crate) fn prune_queue(w: &mut World) {
+    if w.hands.player.queue.is_empty() {
+        return;
+    }
+    let mut q = std::mem::take(&mut w.hands.player.queue);
+    let before = q.len();
+    let piece = |uid: u32| w.furniture.iter().any(|f| f.uid == uid);
+    let item = |id: u32| w.items.iter().any(|i| i.id == id);
+    q.retain(|a| match a {
+        PlayerAct::TakeOrder { party } => w.parties.iter().any(|p| p.id == *party),
+        PlayerAct::Brew { item: i, .. } | PlayerAct::Serve { item: i, .. } => item(*i),
+        PlayerAct::ClearTable { table } | PlayerAct::CollectTip { table } => piece(*table),
+        PlayerAct::Wash { sink } => piece(*sink),
+        PlayerAct::Use { uid, .. } => piece(*uid),
+        PlayerAct::Checklist { .. }
+        | PlayerAct::Mop { .. }
+        | PlayerAct::GoTo { .. }
+        | PlayerAct::PlayRecord { .. } => true,
+    });
+    let changed = q.len() != before;
+    w.hands.player.queue = q;
+    if changed {
+        w.emit(SimEvent::PlayerQueueChanged);
+    }
 }
 
 /// One tick of the current act, standing at its spot.
