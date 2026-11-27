@@ -107,6 +107,9 @@ fn blank_staff(id: u32) -> Staff {
         duties: Vec::new(),
         nights_worked: 0,
         duty_done: [0; 6],
+        life: None,
+        life_rest: 0,
+        work_total: 0.0,
     }
 }
 
@@ -410,7 +413,7 @@ fn staff_tiles(w: &World) -> Vec<(i32, i32)> {
     v
 }
 
-fn idle_tile(w: &World, content: &Content, idx: usize) -> (i32, i32) {
+pub(crate) fn idle_tile(w: &World, content: &Content, idx: usize) -> (i32, i32) {
     let s = &w.staff[idx];
     if (s.owner || duties::has_duty(s, Duty::Register))
         && let Some(t) = guests::registers(w, content).first().and_then(|(uid, _)| {
@@ -522,6 +525,8 @@ pub(crate) fn on_night_start(w: &mut World, content: &Content) {
     // Karolina is already inside at 21:30; helpers starting at 22:00 walk in during the
     // preparation half hour (`tick_staff`, from `PREP_CREW_ARRIVES`)
     for i in 0..w.staff.len() {
+        w.staff[i].life = None;
+        w.staff[i].life_rest = 0;
         let prep = w.prep_left > 0 && !w.staff[i].owner;
         if !prep && w.staff[i].status == (StaffStatus::Expected { minute: 0 }) {
             let t = idle_tile(w, content, i);
@@ -1041,6 +1046,7 @@ fn claim(w: &mut World, task: &Task, me: u32) {
 
 /// Drops the current task and releases its claims.
 pub(crate) fn abandon(w: &mut World, idx: usize) {
+    super::life::stop(w, idx);
     let me = w.staff[idx].id;
     let Some(task) = w.staff[idx].task.take() else {
         return;
@@ -1200,6 +1206,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
                 w.staff[idx].status = StaffStatus::OnDuty;
                 w.staff[idx].task = Some(Task::Idle { tile: t });
                 go(w, idx, t);
+                super::life::rest(w, idx);
                 let id = w.staff[idx].id;
                 w.emit(SimEvent::StaffArrived { staff: id });
                 continue;
@@ -1258,6 +1265,8 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
             if let Some(b) = wants_break(w, content, idx) {
                 start_break(w, idx, b);
             } else if let Some(wk) = find_work(w, content, idx) {
+                // real work: any pastime is dropped at once
+                super::life::stop(w, idx);
                 w.staff[idx].task = None;
                 let me = w.staff[idx].id;
                 claim(w, &wk.task, me);
@@ -1267,6 +1276,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
                 }
                 w.staff[idx].task = Some(wk.task);
                 w.staff[idx].work_left = wk.work;
+                w.staff[idx].work_total = wk.work;
                 if !go(w, idx, wk.goal) {
                     abandon(w, idx);
                 }
@@ -1274,6 +1284,7 @@ pub(crate) fn tick_staff(w: &mut World, content: &Content) {
                 let t = idle_tile(w, content, idx);
                 w.staff[idx].task = Some(Task::Idle { tile: t });
                 go(w, idx, t);
+                super::life::rest(w, idx);
             }
         }
         step_staff(w, content, idx);
@@ -1366,6 +1377,19 @@ fn wants_break(w: &World, content: &Content, idx: usize) -> Option<Task> {
 }
 
 fn step_staff(w: &mut World, content: &Content, idx: usize) {
+    if !matches!(w.staff[idx].task, Some(Task::Idle { .. })) {
+        w.staff[idx].life = None;
+    } else if !w.staff[idx].path.is_empty()
+        && let Some(l) = &mut w.staff[idx].life
+    {
+        // a long detour to a pastime is given up
+        l.walked += 1;
+        if l.walked > super::life::MAX_WALK {
+            w.staff[idx].life = None;
+            w.staff[idx].path.clear();
+            super::life::rest(w, idx);
+        }
+    }
     // movement
     if !w.staff[idx].path.is_empty() {
         let carrying = w.staff[idx].carrying.is_some();
@@ -1406,10 +1430,7 @@ fn step_staff(w: &mut World, content: &Content, idx: usize) {
         None => {
             w.staff[idx].pose = Pose::Idle;
         }
-        Some(Task::Idle { .. }) => {
-            w.staff[idx].pose = Pose::Idle;
-            w.staff[idx].facing = Facing::Up;
-        }
+        Some(Task::Idle { .. }) => super::life::step(w, content, idx),
         Some(Task::Break { until, eat }) => {
             w.staff[idx].pose = Pose::Idle;
             if w.minute() >= until {
@@ -1638,6 +1659,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     extra: tray,
                 });
                 w.staff[idx].work_left = 3.0;
+                w.staff[idx].work_total = 3.0;
                 match target {
                     Some(t) if go(w, idx, t) => {}
                     _ => abandon(w, idx),
@@ -1685,6 +1707,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     dishes,
                 });
                 w.staff[idx].work_left = 2.0;
+                w.staff[idx].work_total = 2.0;
                 let moved = goal.is_some_and(|g| go(w, idx, g));
                 if !moved {
                     w.sink_dishes += dishes;

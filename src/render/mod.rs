@@ -99,6 +99,7 @@ pub mod faces;
 mod festive;
 mod furniture;
 mod handson;
+mod helper_ring;
 mod light;
 mod look;
 mod moments;
@@ -129,6 +130,9 @@ pub use handson::{
     draw_queue_icon, draw_rhythm_glow, draw_served_cup, draw_taste_icon, draw_tip_coin,
     draw_tip_float, draw_wish_bubble, heart, icon_scale_for_zoom, marker_shapes, queue_chip_rects,
     set_marker_shapes, set_world_icon_scale, sparkle, tip_coin_light, world_icon_scale,
+};
+pub use helper_ring::{
+    HELPER_CHIP, HelperIcon, PastimeIcon, draw_helper_ring, draw_pastime_icon, draw_pastime_prop,
 };
 pub use light::{CozyGrade, Light, Lighting, ambient_blackout, ambient_for};
 pub use look::{

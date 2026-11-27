@@ -184,6 +184,19 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   checklist items of the duty's job. Never wishes, regulars or Karolina's items. Speed =
   `(0.5 + skill×0.1) × helper_speed (0.85)` × trait `Speed` × event `WorkSpeed` × energy/mood ×
   station slow-downs × hall mood. Karolina is driven by her queue only (§9.1).
+* **Idle life (`sim::life`):** a helper whose duties have nothing to do (`Task::Idle`) fills
+  the moment with a small pastime picked by their duties and place (`Staff::life: IdleLife`,
+  `Pastime`): wipe the counter / a free table, polish cups, stack saucers, check the pastries,
+  refill napkins / sugar, straighten chairs, sweep by the door, a sip of water, a chat with an
+  idle colleague, the phone (rarely), the window while a train passes, the station cat. Short
+  walks (the register helper stays within 3 tiles of the register, others 7), a few seconds to
+  a minute each, a 25–90 tick pause between. The work loop still looks for work every other
+  tick and drops the pastime at once (`life::stop`). Rolls come from a derived stream (never
+  `World::rng`); the only effect is −0.05 dirt on a wiped free table. Queries:
+  `helper_work()` → `HelperWork { staff, doing: HelperDoing::Task { id, menu } | Pastime, progress }`
+  (the small rings over helpers' heads; at the spot only, never Karolina), `pastime(id)`;
+  the card: `Activity::Pastime { kind, with }` → `life.do.<id>` / `life.do.chat_with`
+  (a helper without duties still says `crew.do.idle_no_duties`).
 * **Guests:** arrivals per minute from `hour_weights × weekday_mult` of the town's pools × reputation ×
   weather × `GuestRate` (× 0.5 in the quiet hour); trains add passengers (Cozy: spread over
   `COZY_TRAIN_SPREAD` = 24 min); rushes from events. **Cozy: full hands** (0.2 polish) — while

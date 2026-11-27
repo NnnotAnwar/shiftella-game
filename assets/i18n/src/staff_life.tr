@@ -1,0 +1,92 @@
+# Staff idle life (sim::life): what a helper does with a free moment — the crew card's "Now"
+# line and the crew list. `{name}` = a colleague's first name.
+
+life.do.wipe_counter
+cs Utírá pult
+en Wiping the counter
+uk Протирає стійку
+ru Протирает стойку
+
+life.do.polish_cups
+cs Leští hrnky
+en Polishing cups
+uk Полірує чашки
+ru Полирует чашки
+
+life.do.stack_saucers
+cs Rovná podšálky
+en Stacking saucers
+uk Складає блюдця
+ru Складывает блюдца
+
+life.do.check_pastry
+cs Kontroluje zákusky
+en Checking the pastries
+uk Перевіряє випічку
+ru Проверяет выпечку
+
+life.do.refill_napkins
+cs Doplňuje ubrousky
+en Refilling the napkins
+uk Доповнює серветки
+ru Пополняет салфетки
+
+life.do.wipe_table
+cs Utírá volný stůl
+en Wiping a free table
+uk Протирає вільний столик
+ru Протирает свободный столик
+
+life.do.straighten_chairs
+cs Rovná židle
+en Straightening the chairs
+uk Розставляє стільці
+ru Расставляет стулья
+
+life.do.refill_sugar
+cs Doplňuje cukr
+en Refilling the sugar
+uk Досипає цукор
+ru Досыпает сахар
+
+life.do.sweep
+cs Zametá u dveří
+en Sweeping by the door
+uk Підмітає біля дверей
+ru Подметает у двери
+
+life.do.sip_water
+cs Napije se vody
+en Having a sip of water
+uk П'є трохи води
+ru Пьёт немного воды
+
+life.do.chat
+cs Povídá si s kolegou
+en Having a chat
+uk Балакає з колегою
+ru Болтает с коллегой
+
+life.do.chat_with
+cs Povídá si · {name}
+en Chatting with {name}
+uk Балакає · {name}
+ru Болтает · {name}
+
+life.do.phone
+cs Mrkne do telefonu
+en Glancing at the phone
+uk Зазирає в телефон
+ru Заглядывает в телефон
+
+life.do.window
+cs Kouká na vlak
+en Watching the train go by
+uk Дивиться на потяг
+ru Смотрит на поезд
+
+life.do.pet_cat
+cs Hladí kočku
+en Petting the cat
+uk Гладить кицьку
+ru Гладит кошку

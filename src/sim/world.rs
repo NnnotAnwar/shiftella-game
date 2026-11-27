@@ -197,6 +197,16 @@ pub struct Staff {
     /// Tasks finished tonight per duty (`Duty::ALL` order) — the morning digest credits.
     #[serde(default)]
     pub duty_done: [u32; 6],
+    /// A small pastime while the duties have nothing to do (`sim::life`; only with
+    /// `Task::Idle`).
+    #[serde(default)]
+    pub life: Option<super::life::IdleLife>,
+    /// The next pastime starts at this beat (`life::beat`): a moment of just standing.
+    #[serde(default)]
+    pub life_rest: u32,
+    /// The work units the current task started with (`work_left` counts down): its ring.
+    #[serde(default)]
+    pub work_total: f32,
 }
 
 impl Staff {
@@ -1175,6 +1185,9 @@ impl World {
             duties: Vec::new(),
             nights_worked: 0,
             duty_done: [0; 6],
+            life: None,
+            life_rest: 0,
+            work_total: 0.0,
         };
         self.push_staff(s);
     }

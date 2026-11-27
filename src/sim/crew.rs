@@ -51,6 +51,12 @@ pub enum Activity {
     Idle {
         why: IdleWhy,
     },
+    /// A small pastime while the duties have nothing to do (`life.do.<kind>`); `with` = the
+    /// first name of the colleague of a chat (a proper noun).
+    Pastime {
+        kind: super::life::Pastime,
+        with: Option<String>,
+    },
     /// Resting until this minute.
     Break {
         until: u32,
@@ -130,6 +136,7 @@ impl Activity {
                 IdleWhy::BeforeDoors => "idle_prep",
                 IdleWhy::NothingQueued => "idle_queue",
             },
+            Activity::Pastime { .. } => "pastime",
             Activity::Break { eat: true, .. } => "break_eat",
             Activity::Break { .. } => "break",
             Activity::TakeOrder {
@@ -166,6 +173,7 @@ impl Activity {
                 | Activity::WalkedOut
                 | Activity::GoingHome
                 | Activity::Idle { .. }
+                | Activity::Pastime { .. }
                 | Activity::Break { .. }
                 | Activity::Planning
         )
@@ -516,6 +524,15 @@ pub(crate) fn activity(w: &World, idx: usize) -> Activity {
         StaffStatus::WalkedOut => Activity::WalkedOut,
         StaffStatus::Leaving => Activity::GoingHome,
         StaffStatus::OnDuty => match &s.task {
+            // a helper with duties fills a free moment (one with none still says "give me one")
+            Some(Task::Idle { .. }) if !s.duties.is_empty() && s.life.is_some() => {
+                let l = s.life.as_ref().expect("checked");
+                let with = l
+                    .with
+                    .and_then(|id| w.staff.iter().find(|o| o.id == id))
+                    .map(|o| o.name.split(' ').next().unwrap_or(&o.name).to_string());
+                Activity::Pastime { kind: l.kind, with }
+            }
             None | Some(Task::Idle { .. }) => Activity::Idle {
                 why: if s.duties.is_empty() {
                     IdleWhy::NoDuties
@@ -994,7 +1011,7 @@ mod tests {
                         assert!(matches!(a, Activity::Break { .. }))
                     }
                     (StaffStatus::OnDuty, None | Some(Task::Idle { .. })) => {
-                        assert!(matches!(a, Activity::Idle { .. }))
+                        assert!(matches!(a, Activity::Idle { .. } | Activity::Pastime { .. }))
                     }
                     (StaffStatus::OffDuty, _) => {
                         assert!(matches!(a, Activity::OffTonight | Activity::OnLeave))
