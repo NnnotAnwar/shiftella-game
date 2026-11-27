@@ -645,8 +645,14 @@ fn messages(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     for m in inbox.iter().rev() {
         let txt = wv::tr_args(&loc, &format!("app.bot.{}", m.template), &m.args);
         let lines = ui.fonts.wrap(&txt, wrap_w, &style).len().max(1) as f32;
-        let acts = has_actions(cx, &m.template) && m.answered.is_none();
-        heights.push(lines * 16.0 + 40.0 + if acts { 32.0 } else { 0.0 });
+        // room for the buttons, or for the chip of the answer once one was chosen
+        let acts = has_actions(cx, &m.template);
+        let foot = match (acts, m.answered.is_some()) {
+            (true, false) => 32.0,
+            (true, true) => 28.0,
+            _ => 0.0,
+        };
+        heights.push(lines * style.line_h().max(16.0) + 40.0 + foot);
     }
     let total: f32 = heights.iter().sum::<f32>() + heights.len() as f32 * 8.0;
     let sa = ui.begin_scroll("inbox", r, total);

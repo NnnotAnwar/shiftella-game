@@ -303,7 +303,7 @@ fn a_good_answer_warms_the_guest_tells_the_name_and_makes_a_polaroid() {
     assert!(
         h.args
             .iter()
-            .any(|(k, v)| k == "name" && v.starts_with("persona:"))
+            .any(|(k, v)| k == "name" && v.starts_with("guest.") && v.contains(".role."))
     );
     assert_eq!(
         w.stories().answered,

@@ -17,20 +17,30 @@ use sim::{AgentRef, Extra, Garment, SimEvent, World};
 pub const RAIL_LABEL_W: f32 = 56.0;
 const RAIL_LABEL_PT: f32 = 9.0;
 
-/// The guest's label: a regular's name, a known stranger's name, or the description.
+/// The guest's label: a regular's name, a stranger by who they are ("Cabbie", "Passenger" —
+/// owner, 2026-11-27: no names, no descriptions for strangers).
 pub fn label(w: &World, loc: &Locale, guest: u32) -> String {
     let party = w.party_of_guest(guest);
     if let Some(r) = party.and_then(|p| p.regular.as_ref()) {
         return loc.tr_owned(&format!("regular.{r}.name"));
     }
+    let arch = party.map(|p| p.archetype.as_str()).unwrap_or_default();
     match w.persona(guest) {
-        Some(p) if p.known => p.name_in(loc.lang.code()).to_string(),
-        Some(p) => loc.tr_owned(&p.desc_key()),
-        None => {
-            let arch = party.map(|p| p.archetype.as_str()).unwrap_or_default();
-            super::world_view::guest_one(loc, arch)
+        Some(p) => {
+            let key = role_key(arch, p.female);
+            if loc.has(&key) {
+                loc.tr_owned(&key)
+            } else {
+                super::world_view::guest_one(loc, arch)
+            }
         }
+        None => super::world_view::guest_one(loc, arch),
     }
+}
+
+/// `guest.<archetype>.role.<f|m>`.
+pub fn role_key(archetype: &str, female: bool) -> String {
+    format!("guest.{archetype}.role.{}", if female { "f" } else { "m" })
 }
 
 /// [`label`] with the rest of a stranger's party for its leader: "Tereza + 2".
@@ -57,25 +67,25 @@ pub fn party_label(w: &World, loc: &Locale, guest: u32) -> String {
     }
 }
 
-/// The 1–2 word form for a ticket chip: the name once known, else the description's short
-/// form — or the plain visual one ("V kabátě") when that doesn't fit the chip.
+/// The label for a ticket chip: the role, or its short form when the role doesn't fit.
 pub fn rail_label(ui: &Ui, w: &World, loc: &Locale, guest: u32) -> String {
-    let Some(p) = w.persona(guest).filter(|p| !p.known) else {
-        return label(w, loc, guest);
-    };
+    let full = label(w, loc, guest);
     let style = TextStyle::new(RAIL_LABEL_PT, Weight::Medium, WHITE);
-    let mut shortest: Option<(f32, String)> = None;
-    for key in [p.short_key(), p.alt_short_key()] {
-        let s = loc.tr_owned(&key);
-        let wd = ui.fonts.measure(&s, &style);
-        if wd <= RAIL_LABEL_W {
-            return s;
-        }
-        if shortest.as_ref().is_none_or(|(b, _)| wd < *b) {
-            shortest = Some((wd, s));
-        }
+    if ui.fonts.measure(&full, &style) <= RAIL_LABEL_W {
+        return full;
     }
-    shortest.map(|s| s.1).unwrap_or_default()
+    let party = w.party_of_guest(guest);
+    if party.is_some_and(|p| p.regular.is_some()) {
+        return full;
+    }
+    let arch = party.map(|p| p.archetype.as_str()).unwrap_or_default();
+    match w.persona(guest) {
+        Some(p) => {
+            let short = format!("{}.short", role_key(arch, p.female));
+            if loc.has(&short) { loc.tr_owned(&short) } else { full }
+        }
+        None => full,
+    }
 }
 
 /// A description in the middle of a sentence (the log line): lower-case first letter.
@@ -169,35 +179,8 @@ pub fn stranger_look(seed: u64, archetype: &str) -> PersonLook {
 impl GameScreen {
     /// `SimEvent::GuestIntroduced`: the line over their head ("I'm Tereza, thank you!") — after
     /// a reaction shown a moment ago — and a line in tonight's log.
-    pub(super) fn names_event(&mut self, e: &SimEvent, loc: Option<&Locale>) {
-        let SimEvent::GuestIntroduced { guest, key } = e else {
-            return;
-        };
-        let (Some(loc), Some(p)) = (loc, self.world.persona(*guest).cloned()) else {
-            return;
-        };
-        let name = p.name_in(loc.lang.code()).to_string();
-        let line = loc.trf(key, &[("name", &name)]);
-        let agent = AgentRef::Guest(*guest);
-        let pinned = self.bubble.as_ref().is_some_and(|b| b.pinned);
-        if !pinned {
-            let text = match &self.bubble {
-                Some(b) if b.agent == agent && b.until - self.time > 4.0 => {
-                    format!("{} {line}", super::resolve_text(loc, &b.text))
-                }
-                _ => line,
-            };
-            self.bubble = Some(Bubble {
-                agent,
-                text,
-                talk: None,
-                pinned: false,
-                until: self.time + 6.0,
-            });
-        }
-        let desc = lower_first(loc.tr(&p.desc_key()));
-        let log = loc.trf("stranger.log.met", &[("name", &name), ("desc", &desc)]);
-        self.push_ticker(Icon::User, log);
+    pub(super) fn names_event(&mut self, _e: &SimEvent, _loc: Option<&Locale>) {
+        // strangers no longer introduce themselves (owner, 2026-11-27): nothing to show
     }
 }
 

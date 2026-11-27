@@ -921,6 +921,38 @@ pub(crate) fn spawn_regular(w: &mut World, content: &Content, id: &str, visit: O
     );
 }
 
+/// A scene played this regular as an actor and left them on `tile`: the real guest goes on
+/// from there (walking to their seat / place in the queue), so nobody pops back to where they
+/// stood before the scene.
+pub(crate) fn scene_handoff(w: &mut World, regular: &str, tile: (i32, i32)) {
+    let Some(pid) = w
+        .parties
+        .iter()
+        .find(|p| p.regular.as_deref() == Some(regular) && p.state != PartyState::Leaving)
+        .map(|p| p.id)
+    else {
+        return;
+    };
+    let Some(leader) = w.parties.iter().find(|p| p.id == pid).and_then(|p| p.leader()) else {
+        return;
+    };
+    if !(w.grid.guest_ok(tile.0, tile.1) || w.grid.walkable(tile.0, tile.1)) {
+        return;
+    }
+    let Some(i) = w.guests.iter().position(|g| g.id == leader) else {
+        return;
+    };
+    if w.guests[i].tile() == tile {
+        return;
+    }
+    w.guests[i].pos = grid::tile_center(tile);
+    w.guests[i].stuck_ticks = 0;
+    match w.guests[i].goal {
+        Some(goal) => set_goal(w, leader, goal),
+        None => w.guests[i].pose = Pose::Idle,
+    }
+}
+
 pub(crate) fn set_goal(w: &mut World, gid: u32, goal: (i32, i32)) {
     let Some(i) = w.guests.iter().position(|g| g.id == gid) else {
         return;

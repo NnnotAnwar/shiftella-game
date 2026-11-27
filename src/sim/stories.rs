@@ -517,9 +517,18 @@ fn resolve(w: &mut World, content: &Content, guest: u32, answer: &str) {
         good: ans.good,
     });
     if ans.good {
+        // the caption names them by who they are ("the cabbie"), a translation key the
+        // screens resolve (strangers have no names on screen)
+        let arch = w
+            .party_of_guest(guest)
+            .map(|p| p.archetype.clone())
+            .unwrap_or_default();
         let args = w
             .persona(guest)
-            .map(|p| vec![("name".to_string(), persona_arg(p))])
+            .map(|p| {
+                let g = if p.female { "f" } else { "m" };
+                vec![("name".to_string(), format!("guest.{arch}.role.{g}"))]
+            })
             .unwrap_or_default();
         let score = data().journal_score;
         polaroid(

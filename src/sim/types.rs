@@ -939,6 +939,12 @@ pub enum Command {
         id: String,
         choices: Vec<usize>,
     },
+    /// After a scene: the regular the scene played walks on from where the scene left them
+    /// (`tile`) instead of popping back to where they were before it (or walking in twice).
+    SceneHandoff {
+        regular: String,
+        tile: (i32, i32),
+    },
     /// "Talk" on a regular: plays their talk cutscene for tonight (see `World::talk_available`).
     Talk {
         guest: u32,

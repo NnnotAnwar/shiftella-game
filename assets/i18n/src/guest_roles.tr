@@ -1,0 +1,194 @@
+# Strangers are shown by who they are (owner, 2026-11-27): guest.<archetype>.role.<f|m>,
+# and an optional .short for the ticket rail when the word is long.
+
+guest.travelers.role.f
+cs Cestující
+en Passenger
+uk Пасажирка
+ru Пассажирка
+
+guest.travelers.role.m
+cs Cestující
+en Passenger
+uk Пасажир
+ru Пассажир
+
+guest.taxi_drivers.role.f
+cs Taxikářka
+en Cabbie
+uk Таксистка
+ru Таксистка
+
+guest.taxi_drivers.role.m
+cs Taxikář
+en Cabbie
+uk Таксист
+ru Таксист
+
+guest.nurses.role.f
+cs Sestřička
+en Nurse
+uk Медсестра
+ru Медсестра
+
+guest.nurses.role.m
+cs Zdravotník
+en Nurse
+uk Медбрат
+ru Медбрат
+
+guest.students.role.f
+cs Studentka
+en Student
+uk Студентка
+ru Студентка
+
+guest.students.role.m
+cs Student
+en Student
+uk Студент
+ru Студент
+
+guest.insomniacs.role.f
+cs Noční sova
+en Night owl
+uk Полуночниця
+ru Полуночница
+
+guest.insomniacs.role.m
+cs Noční pták
+en Night owl
+uk Полуночник
+ru Полуночник
+
+guest.train_crew.role.f
+cs Průvodčí
+en Conductor
+uk Провідниця
+ru Проводница
+
+guest.train_crew.role.m
+cs Průvodčí
+en Conductor
+uk Провідник
+ru Проводник
+
+guest.drone_operators.role.f
+cs Operátorka dronů
+en Drone pilot
+uk Операторка дронів
+ru Оператор дронов
+
+guest.drone_operators.role.f.short
+cs Operátorka
+en Drone pilot
+uk Операторка
+ru Оператор
+
+guest.drone_operators.role.m
+cs Operátor dronů
+en Drone pilot
+uk Оператор дронів
+ru Оператор дронов
+
+guest.drone_operators.role.m.short
+cs Operátor
+en Drone pilot
+uk Оператор
+ru Оператор
+
+guest.shift_workers.role.f
+cs Dělnice
+en Shift worker
+uk Робітниця
+ru Работница
+
+guest.shift_workers.role.f.short
+cs Dělnice
+en Worker
+uk Робітниця
+ru Работница
+
+guest.shift_workers.role.m
+cs Dělník
+en Shift worker
+uk Робітник
+ru Рабочий
+
+guest.shift_workers.role.m.short
+cs Dělník
+en Worker
+uk Робітник
+ru Рабочий
+
+guest.clubbers.role.f
+cs Z klubu
+en Clubber
+uk Тусовщиця
+ru Тусовщица
+
+guest.clubbers.role.m
+cs Z klubu
+en Clubber
+uk Тусовщик
+ru Тусовщик
+
+guest.patrol.role.f
+cs Policistka
+en Police officer
+uk Поліцейська
+ru Полицейская
+
+guest.patrol.role.f.short
+cs Policistka
+en Officer
+uk Поліцейська
+ru Полицейская
+
+guest.patrol.role.m
+cs Policista
+en Police officer
+uk Поліцейський
+ru Полицейский
+
+guest.patrol.role.m.short
+cs Policista
+en Officer
+uk Поліцейський
+ru Полицейский
+
+guest.truckers.role.f
+cs Řidička kamionu
+en Trucker
+uk Далекобійниця
+ru Дальнобойщица
+
+guest.truckers.role.f.short
+cs Řidička
+en Trucker
+uk Водійка
+ru Водитель
+
+guest.truckers.role.m
+cs Řidič kamionu
+en Trucker
+uk Далекобійник
+ru Дальнобойщик
+
+guest.truckers.role.m.short
+cs Řidič
+en Trucker
+uk Водій
+ru Водитель
+
+guest.night_wanderer.role.f
+cs Chodkyně
+en Passer-by
+uk Перехожа
+ru Прохожая
+
+guest.night_wanderer.role.m
+cs Chodec
+en Passer-by
+uk Перехожий
+ru Прохожий

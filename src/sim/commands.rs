@@ -538,6 +538,10 @@ impl World {
             Command::BotAction { msg, action } => {
                 super::app::bot_action(self, content, msg, &action)
             }
+            Command::SceneHandoff { regular, tile } => {
+                super::guests::scene_handoff(self, &regular, tile);
+                Ok(())
+            }
             Command::CutsceneFinished { id, choices } => {
                 super::story::finish_cutscene(self, content, &id, &choices)
             }

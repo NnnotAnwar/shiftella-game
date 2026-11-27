@@ -927,6 +927,8 @@ impl GameScreen {
     /// Hold chores (warm up, purge, clean the group head): `holding` = the mouse on the
     /// appliance or **E** is down now. Like the sink: the held seconds go to the sim.
     pub fn equip_input(&mut self, content: &Content, holding: bool, dt: f32) {
+        // paused (or the café held): a hold chore waits too
+        let holding = holding && self.speed > 0 && !self.frozen();
         let at = self
             .world
             .player()
@@ -1655,6 +1657,8 @@ impl GameScreen {
 
     /// Hold-to-wash: `holding` = the button (mouse on the sink, or **E**) is down now.
     pub fn wash_input(&mut self, content: &Content, holding: bool, dt: f32) {
+        // paused (or the café held by a card / scene): the dishes wait too
+        let holding = holding && self.speed > 0 && !self.frozen();
         let at_sink = self
             .world
             .player()

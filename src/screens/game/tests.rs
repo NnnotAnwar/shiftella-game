@@ -728,3 +728,48 @@ fn people_are_drawn_walking_during_the_preparation_half_hour() {
     assert!(moved > 0.5 * crate::map::TILE, "drawn Karolina walked {moved} px");
 }
 
+
+
+/// 0.2.0 bug: Mirek walked in in his scene, then popped back to the street and walked in a
+/// second time. After a scene, a regular it played goes on from where the scene left them.
+#[test]
+fn a_regular_goes_on_from_where_their_scene_left_them() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.start_night(&c);
+    let mut guard = 0;
+    while g.world.playing_cutscene() != Some("mirek_first") && guard < 200_000 {
+        g.advance(&c, 1.0 / 30.0, Some(&loc));
+        guard += 1;
+    }
+    assert_eq!(g.world.playing_cutscene(), Some("mirek_first"));
+    // play the scene through like a player would (actors walk to their spots)
+    let mut guard = 0;
+    while g.cutscene_playing() && guard < 20_000 {
+        g.player.fast_forward(&loc, 0.5);
+        if let Some(end) = g.player.actors.iter().find(|a| a.id == "mirek").map(|a| a.pos) {
+            let _ = end;
+        }
+        g.finish_cutscene_now(&c, &loc);
+        guard += 1;
+    }
+    let mirek = g
+        .world
+        .parties()
+        .iter()
+        .find(|p| p.regular.as_deref() == Some("mirek"))
+        .and_then(|p| p.leader())
+        .and_then(|l| g.world.guest_views().into_iter().find(|v| v.agent == sim::AgentRef::Guest(l)))
+        .expect("Mirek is in the café");
+    let tile = (
+        (mirek.feet.0 / crate::map::TILE).floor() as i32,
+        (mirek.feet.1 / crate::map::TILE).floor() as i32,
+    );
+    let rows = g.world.grid().height;
+    assert!(
+        tile.1 < rows - 3,
+        "Mirek stands inside where the scene left him, not back at the street: {tile:?}"
+    );
+}

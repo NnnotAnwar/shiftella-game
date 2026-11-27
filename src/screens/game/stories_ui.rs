@@ -468,12 +468,9 @@ fn talk_still_on(g: &GameScreen, speakers: &[u32]) -> bool {
             .all(|s| g.world.guests().iter().any(|x| x.id == *s && !x.gone))
 }
 
-/// A guest's name in the player's language (the description while unknown).
+/// How a guest is called on screen (a regular's name, else who they are).
 fn name_of(w: &sim::World, loc: &Locale, guest: u32) -> String {
-    match w.persona(guest) {
-        Some(p) if p.known => p.name_in(loc.lang.code()).to_string(),
-        _ => super::guest_label::label(w, loc, guest),
-    }
+    super::guest_label::label(w, loc, guest)
 }
 
 /// `persona:<Latin>|<uk>|<ru>` (a sim arg, e.g. a polaroid caption) → the name in `loc`'s

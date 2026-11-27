@@ -631,9 +631,23 @@ impl GameScreen {
             self.autosave_due = true;
             return;
         }
+        // where the scene left its regulars (still on stage, not gone through a door)
+        let handoff: Vec<(String, (i32, i32))> = self
+            .player
+            .actors
+            .iter()
+            .filter(|a| !a.gone && !a.exit_on_arrive && content.regular(&a.id).is_some())
+            .map(|a| {
+                let t = crate::map::TILE;
+                (a.id.clone(), ((a.pos.x / t).floor() as i32, (a.pos.y / t).floor() as i32))
+            })
+            .collect();
         let _ = self
             .world
             .apply(content, Command::CutsceneFinished { id, choices });
+        for (regular, tile) in handoff {
+            let _ = self.world.apply(content, Command::SceneHandoff { regular, tile });
+        }
         self.drain_and_handle(content, None);
         // the next queued scene may already be waiting
         if !self.player.is_playing()

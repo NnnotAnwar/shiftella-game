@@ -521,11 +521,13 @@ pub(crate) fn on_night_end(w: &mut World, content: &Content) {
                 vec![("name".to_string(), format!("regular.{r}.name"))],
             ));
         }
+        // the helper who did the most tonight signs it; on a night alone, Karolina herself
         let star = w
             .staff
             .iter()
             .filter(|s| s.tasks_done > 0)
             .max_by_key(|s| s.tasks_done)
+            .or_else(|| w.staff.iter().find(|s| s.owner))
             .map(|s| s.name.clone())
             .unwrap_or_default();
         lines.push((
