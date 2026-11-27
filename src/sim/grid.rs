@@ -172,10 +172,19 @@ pub struct Grid {
     /// Bumped on every change; path caches key on it.
     #[serde(skip)]
     pub version: u32,
+    /// Seat tiles somebody sits on right now (`World::refresh_taken`): nobody else walks
+    /// across or stands there.
+    #[serde(skip)]
+    taken: Vec<(i32, i32)>,
 }
 
 pub const WALK: u8 = 1;
 pub const GUEST_OK: u8 = 2;
+/// A seat of a walkable seat piece (chair, stool): people may cross it when there is no
+/// other way, but paths and standing spots go around it (someone may be sitting there).
+pub const SEAT: u8 = 4;
+/// A seat someone sits on (see [`Grid::set_taken`]).
+pub const TAKEN: u8 = 8;
 
 impl Grid {
     pub fn idx(&self, x: i32, y: i32) -> Option<usize> {
@@ -211,6 +220,12 @@ impl Grid {
         })
     }
 
+    /// The tile of a walkable seat (a chair, a stool): see [`SEAT`].
+    pub fn is_seat(&self, x: i32, y: i32) -> bool {
+        self.idx(x, y)
+            .is_some_and(|i| self.walk.get(i).copied().unwrap_or(0) & SEAT != 0)
+    }
+
     pub fn is_indoor_floor(&self, x: i32, y: i32) -> bool {
         self.tile(x, y).is_some_and(|t| t.kind == TileKind::Floor)
     }
@@ -218,9 +233,11 @@ impl Grid {
     /// Recomputes walk masks. `defs` resolves a furniture uid to its walkability.
     pub fn rebuild(&mut self, furniture: &[Placed], content: &Content) {
         let mut walkable_obj: HashMap<u32, bool> = HashMap::new();
+        let mut seat_obj: HashMap<u32, bool> = HashMap::new();
         for p in furniture {
-            let w = content.furniture_def(&p.def).is_some_and(|d| d.walkable);
-            walkable_obj.insert(p.uid, w);
+            let d = content.furniture_def(&p.def);
+            walkable_obj.insert(p.uid, d.is_some_and(|d| d.walkable));
+            seat_obj.insert(p.uid, d.is_some_and(|d| d.seats > 0));
         }
         self.walk = vec![0; self.tiles.len()];
         for i in 0..self.tiles.len() {
@@ -240,9 +257,48 @@ impl Grid {
             if w != 0 && !t.room.staff_only() {
                 w |= GUEST_OK;
             }
+            if w != 0
+                && let Some(uid) = self.objects[i]
+                && seat_obj.get(&uid).copied().unwrap_or(false)
+            {
+                w |= SEAT;
+            }
             self.walk[i] = w;
         }
+        for &(x, y) in &self.taken {
+            if let Some(i) = self.idx(x, y) {
+                self.walk[i] |= TAKEN;
+            }
+        }
         self.version = self.version.wrapping_add(1);
+    }
+
+    /// Marks the seats people sit on (path caches see a new version when it changed).
+    pub fn set_taken(&mut self, mut tiles: Vec<(i32, i32)>) {
+        tiles.sort_unstable();
+        tiles.dedup();
+        if tiles == self.taken || self.walk.len() != self.tiles.len() {
+            self.taken = tiles;
+            return;
+        }
+        for &(x, y) in &self.taken {
+            if let Some(i) = self.idx(x, y) {
+                self.walk[i] &= !TAKEN;
+            }
+        }
+        for &(x, y) in &tiles {
+            if let Some(i) = self.idx(x, y) {
+                self.walk[i] |= TAKEN;
+            }
+        }
+        self.taken = tiles;
+        self.version = self.version.wrapping_add(1);
+    }
+
+    /// Somebody sits on this tile.
+    pub fn is_taken(&self, x: i32, y: i32) -> bool {
+        self.idx(x, y)
+            .is_some_and(|i| self.walk.get(i).copied().unwrap_or(0) & TAKEN != 0)
     }
 
     pub fn ensure_masks(&mut self, furniture: &[Placed], content: &Content) {
@@ -318,6 +374,7 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
         blocked: vec![false; n],
         walk: Vec::new(),
         version: 0,
+        taken: Vec::new(),
     };
     // First pass: terrain + rooms.
     for (y, row) in rows.iter().enumerate() {
@@ -469,14 +526,23 @@ pub fn access_tiles(grid: &Grid, def: &FurnitureDef, p: &Placed) -> Vec<(i32, i3
         Facing::Right => (1, 0),
     };
     let mut out: Vec<(i32, i32)> = Vec::new();
+    let mut seats: Vec<(i32, i32)> = Vec::new();
     for dir in [front, (0, 1), (0, -1), (1, 0), (-1, 0)] {
         for &(x, y) in &fp {
             let t = (x + dir.0, y + dir.1);
             if !fp.contains(&t) && grid.walkable(t.0, t.1) && !out.contains(&t) {
-                out.push(t);
+                // a chair beside it is the last choice: someone may sit there
+                if grid.is_seat(t.0, t.1) {
+                    if !seats.contains(&t) {
+                        seats.push(t);
+                    }
+                } else {
+                    out.push(t);
+                }
             }
         }
     }
+    out.extend(seats);
     out
 }
 
@@ -528,6 +594,15 @@ pub fn can_place(
 
 /// Flood fill from `start` over walkable tiles.
 pub fn reachable(grid: &Grid, start: (i32, i32)) -> Vec<bool> {
+    reachable_by(grid, start, false)
+}
+
+/// The same without walking over chairs and stools ([`SEAT`] tiles).
+pub fn reachable_off_seats(grid: &Grid, start: (i32, i32)) -> Vec<bool> {
+    reachable_by(grid, start, true)
+}
+
+fn reachable_by(grid: &Grid, start: (i32, i32), off_seats: bool) -> Vec<bool> {
     let mut seen = vec![false; grid.tiles.len()];
     let mut stack = vec![start];
     if let Some(i) = grid.idx(start.0, start.1) {
@@ -539,6 +614,7 @@ pub fn reachable(grid: &Grid, start: (i32, i32)) -> Vec<bool> {
             if let Some(i) = grid.idx(nx, ny)
                 && !seen[i]
                 && grid.walkable(nx, ny)
+                && !(off_seats && grid.is_seat(nx, ny))
             {
                 seen[i] = true;
                 stack.push((nx, ny));
@@ -561,6 +637,22 @@ pub fn find_path(
     to: (i32, i32),
     guest: bool,
 ) -> Option<Vec<(i32, i32)>> {
+    // around the chairs (someone may sit there) when there is a way; across a free chair
+    // otherwise; over someone's chair only when nothing else leads there (an old layout
+    // where a chair is reached through another — new builds can't do that)
+    find_path_in(grid, from, to, guest, 2)
+        .or_else(|| find_path_in(grid, from, to, guest, 1))
+        .or_else(|| find_path_in(grid, from, to, guest, 0))
+}
+
+fn find_path_in(
+    grid: &Grid,
+    from: (i32, i32),
+    to: (i32, i32),
+    guest: bool,
+    // 2 = around every chair, 1 = around the taken ones, 0 = anywhere walkable
+    avoid: u8,
+) -> Option<Vec<(i32, i32)>> {
     if from == to {
         return Some(Vec::new());
     }
@@ -570,6 +662,9 @@ pub fn find_path(
     let pass = |x: i32, y: i32| -> bool {
         if (x, y) == to {
             return true;
+        }
+        if avoid >= 1 && grid.is_taken(x, y) || avoid >= 2 && grid.is_seat(x, y) {
+            return false;
         }
         if guest {
             grid.guest_ok(x, y)

@@ -15,8 +15,10 @@
         wear_mul: 0.5,
         need_decay_mul: 0.8,
         // T9: 1.35 → 1.5 so an average player makes all five story payments with room to spare
-        // (sandbox bills × sim::guests::SANDBOX_INCOME_MUL).
-        income_mul: 1.5,
+        // (sandbox bills × sim::guests::SANDBOX_INCOME_MUL). QA 0.2.1: 1.5 → 1.6 — a party of
+        // three no longer squeezes onto two chairs (a seating bug gave the hall extra room), so
+        // more parties find no seat; this keeps the story's money where it was tuned.
+        income_mul: 1.6,
         // sandbox only: the landlord notices a busy café
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
@@ -32,7 +34,7 @@
         bad_review_mul: 0.7,
         wear_mul: 0.5,
         need_decay_mul: 0.8,
-        income_mul: 1.5,
+        income_mul: 1.6,
         rent_growth_percent: 0.0,
         rent_growth_every: 0,
     ),

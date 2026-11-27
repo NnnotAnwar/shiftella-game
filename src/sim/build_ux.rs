@@ -58,6 +58,7 @@ pub(crate) fn move_pieces(
     }
     let saved_furniture = w.furniture.clone();
     let saved_objects = w.grid.objects.clone();
+    let seats_before = super::commands::seat_access_ok(w, content);
     let saved_rugs = w.grid.rugs.clone();
     let restore = |w: &mut World| {
         w.furniture = saved_furniture.clone();
@@ -95,7 +96,9 @@ pub(crate) fn move_pieces(
             }
         };
         let rot = m.rot % 4;
-        if let Err(e) = grid::can_place(&w.grid, d, m.x, m.y, rot, None) {
+        if let Err(e) = grid::can_place(&w.grid, d, m.x, m.y, rot, None)
+            .and_then(|_| super::commands::people_in_the_way(w, d, m.x, m.y, rot))
+        {
             restore(w);
             return Err(e);
         }
@@ -107,7 +110,9 @@ pub(crate) fn move_pieces(
         w.furniture[i] = p;
     }
     w.grid.rebuild(&w.furniture, content);
-    if !super::commands::connectivity_ok(w, content) {
+    if !super::commands::connectivity_ok(w, content)
+        || seats_before && !super::commands::seat_access_ok(w, content)
+    {
         restore(w);
         return Err(CommandError::BlocksPath);
     }
@@ -219,7 +224,10 @@ impl World {
         let p = self.furniture_by_uid(uid)?;
         if p.seat_by.iter().any(|s| s.is_some()) {
             Some(InUseReason::Seated)
-        } else if p.user.is_some() || p.claim.is_some() {
+        } else if p.user.is_some()
+            || p.claim.is_some()
+            || super::commands::serving_queue(self, uid)
+        {
             Some(InUseReason::Busy)
         } else {
             None

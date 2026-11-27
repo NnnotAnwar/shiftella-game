@@ -2148,6 +2148,8 @@ fn is_flow_event(e: &SimEvent) -> bool {
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_chaos;
 
 #[cfg(test)]
 mod capitalize_tests {
