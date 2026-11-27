@@ -166,7 +166,8 @@ pub struct Grid {
     pub rugs: Vec<Option<u32>>,
     /// Tiles blocked by events (bucket under a leak).
     pub blocked: Vec<bool>,
-    /// bit0 = walkable, bit1 = guests allowed. Rebuilt from the above.
+    /// bit0 = walkable, bit1 = guests allowed, bit2 = reached from the door. Rebuilt from the
+    /// above.
     #[serde(skip)]
     walk: Vec<u8>,
     /// Bumped on every change; path caches key on it.
@@ -176,6 +177,8 @@ pub struct Grid {
 
 pub const WALK: u8 = 1;
 pub const GUEST_OK: u8 = 2;
+/// Reachable from the entrance (rebuilt with the masks).
+pub const REACH: u8 = 4;
 
 impl Grid {
     pub fn idx(&self, x: i32, y: i32) -> Option<usize> {
@@ -242,7 +245,27 @@ impl Grid {
             }
             self.walk[i] = w;
         }
+        // walkable tiles the door leads to (a walkable pocket boxed in by furniture is not)
+        // (a bucket on the entrance tile: every walkable tile counts, as before)
+        let start = self.entrance();
+        let reach = if self.walkable(start.0, start.1) {
+            reachable(self, start)
+        } else {
+            vec![true; self.tiles.len()]
+        };
+        for (i, r) in reach.into_iter().enumerate() {
+            if r && self.walk[i] & WALK != 0 {
+                self.walk[i] |= REACH;
+            }
+        }
         self.version = self.version.wrapping_add(1);
+    }
+
+    /// A walkable tile one can walk to from the door. A tile walled in by furniture (the
+    /// placement check only keeps every *piece* reachable) is walkable but not reached.
+    pub fn reached(&self, x: i32, y: i32) -> bool {
+        self.idx(x, y)
+            .is_some_and(|i| self.walk.get(i).copied().unwrap_or(0) & REACH != 0)
     }
 
     pub fn ensure_masks(&mut self, furniture: &[Placed], content: &Content) {

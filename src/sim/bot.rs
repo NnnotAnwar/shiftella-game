@@ -56,6 +56,9 @@ pub struct BotConfig {
     /// v0.2: uses the appliances now and then (`false` = never touches them, the
     /// "a no-equipment player still finishes the story" runs).
     pub equipment: bool,
+    /// Hands tonight's crew their duties every day ([`PlayerBot::delegate`]). `false` = a
+    /// player who never opens the duties panel: everyone keeps the hire card's one duty.
+    pub delegate: bool,
 }
 
 impl Default for BotConfig {
@@ -76,6 +79,7 @@ impl Default for BotConfig {
             attentive: true,
             build: true,
             equipment: true,
+            delegate: true,
         }
     }
 }
@@ -199,7 +203,9 @@ impl PlayerBot {
             }
         }
         let _ = w.apply(content, Command::PublishSchedule);
-        self.delegate(w, content);
+        if self.cfg.delegate {
+            self.delegate(w, content);
+        }
         // tonight's opening record: a starter, by the night
         let recs: Vec<String> = w.records_unlocked().iter().cloned().collect();
         if !recs.is_empty() {
@@ -297,6 +303,16 @@ impl PlayerBot {
 
     /// Plays the current night to 06:00 (starting it if it's day). Returns its events.
     pub fn run_night(&mut self, w: &mut World, content: &Content) -> Vec<SimEvent> {
+        self.run_night_watched(w, content, |_| {})
+    }
+
+    /// [`Self::run_night`], calling `watch` after every tick (QA measurements).
+    pub fn run_night_watched(
+        &mut self,
+        w: &mut World,
+        content: &Content,
+        mut watch: impl FnMut(&World),
+    ) -> Vec<SimEvent> {
         let mut out = Vec::new();
         if w.phase() == Phase::Day {
             self.day(w, content);
@@ -321,6 +337,7 @@ impl PlayerBot {
                 self.cur.prep_ticks += 1;
             }
             w.tick(content);
+            watch(w);
             self.cur.ticks += 1;
             out.extend(w.drain_events());
             guard += 1;

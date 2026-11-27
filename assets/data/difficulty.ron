@@ -20,6 +20,10 @@
         // sandbox only: the landlord notices a busy café
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
+        // QA 0.2.x: the landlord stops at 1.6 × a town that size's top starting rent (a village
+        // ~3 200 Kč, a district town ~4 150) — uncapped it passed 9 000 Kč by night 300 and
+        // every long game went broke
+        rent_growth_max: 1.6,
     ),
     (
         // Accessibility (0.2 package J): Cozy with no money pressure — every instalment of the
@@ -52,6 +56,7 @@
         income_mul: 1.55,
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
+        rent_growth_max: 1.6,
         bankrupt_after: 3,
     ),
 ]
