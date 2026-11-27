@@ -589,7 +589,11 @@ pub fn camera(g: &mut GameScreen, dt: f32) {
         if let Some(z) = st.zoom_before.take() {
             g.cam.zoom = z;
         }
-        g.scene.clamp_camera(&mut g.cam);
+        // under the photo viewfinder its own clamp rules (the frame may reach the café's ends,
+        // which the overview clamp would pull back to the middle)
+        if !g.photo.is_open() {
+            g.scene.clamp_camera(&mut g.cam);
+        }
         return;
     }
     // the top HUD floats over the back wall: frame from just under the clock card

@@ -368,15 +368,23 @@ pub fn draw_world(
                 Color::new(0.65, 0.7, 1.0, 0.55 + 0.3 * pulse),
             );
         };
+        // under the whole piece (a big 2×2 table too), as wide as it is
         let at = |uid: u32| {
-            g.world
-                .furniture_by_uid(uid)
-                .map(|p| vec2(p.x as f32 + 0.5, p.y as f32 + 0.75) * TILE)
+            let p = g.world.furniture_by_uid(uid)?;
+            let (w, h) = content
+                .furniture_def(&p.def)
+                .map(|d| sim::grid::rotated_size(d, p.rot))
+                .unwrap_or((1, 1));
+            let (w, h) = (w.max(1) as f32, h.max(1) as f32);
+            Some((
+                vec2(p.x as f32 + w / 2.0, p.y as f32 + h - 0.25) * TILE,
+                30.0 * w.min(2.5),
+            ))
         };
         match h {
             Target::Sink(u) | Target::Table(u) | Target::Jukebox(u) | Target::Equip(u) => {
-                if let Some(c) = at(u) {
-                    ring(c, 30.0);
+                if let Some((c, rx)) = at(u) {
+                    ring(c, rx);
                 }
             }
             Target::Lamp(u) => {

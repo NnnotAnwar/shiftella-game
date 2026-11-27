@@ -1441,7 +1441,7 @@ impl GameScreen {
             }
             // build mode keeps the hall above its panel (else the scene's own clamp)
             build::camera(self, dt);
-            photo_mode::clamp_camera(self);
+            photo_mode::clamp_camera(self, Rect::new(0.0, 0.0, screen_width(), screen_height()));
             let cam = self.cam.to_camera2d();
             let mouse_world = self.cam.screen_to_world(Vec2::from(mouse_position()));
             self.hovered = None;

@@ -126,8 +126,9 @@ fn close(g: &mut GameScreen) {
     }
 }
 
-/// Keeps the viewfinder near where it opened (call right after the camera's own input).
-pub fn clamp_camera(g: &mut GameScreen) {
+/// Keeps the viewfinder's frame inside the café (call right after the camera's own input).
+/// `s` = the screen rect (logical points).
+pub fn clamp_camera(g: &mut GameScreen, s: Rect) {
     if g.photo.pending {
         g.photo.pending = false;
         g.photo.finder = Some(Finder {
@@ -141,9 +142,26 @@ pub fn clamp_camera(g: &mut GameScreen) {
     };
     let r = signature::data().photo;
     g.cam.zoom = g.cam.zoom.clamp(f.zoom * r.zoom.0, f.zoom * r.zoom.1);
-    let pan = r.pan_tiles * TILE;
-    let d = g.cam.center - f.center;
-    g.cam.center = f.center + vec2(d.x.clamp(-pan, pan), d.y.clamp(-pan, pan));
+    // the viewfinder may go anywhere over the café (owner: "let me shoot the left or the right
+    // part"): keep the framed area inside the café's bounds, not near where it opened
+    let fr = finder_rect(s);
+    let z = g.cam.zoom.max(0.01);
+    let off = (fr.center() - s.center()) / z;
+    let half = fr.size() / z / 2.0;
+    let b = g.scene.bounds();
+    let fit = |c: f32, lo: f32, hi: f32, h: f32| {
+        if hi - lo <= 2.0 * h {
+            (lo + hi) / 2.0
+        } else {
+            c.clamp(lo + h, hi - h)
+        }
+    };
+    let framed = g.cam.center + off;
+    let framed = vec2(
+        fit(framed.x, b.x, b.right(), half.x),
+        fit(framed.y, b.y, b.bottom(), half.y),
+    );
+    g.cam.center = framed - off;
 }
 
 /// Esc / P while the camera is up. True when photo mode had the keyboard.
@@ -494,13 +512,24 @@ mod tests {
         open(&mut g, &loc);
         assert!(g.photo.is_open());
         assert!(g.frozen(), "the café holds still under the viewfinder");
-        // the viewfinder stays near where it opened
-        g.cam.zoom = before.1 * 10.0;
-        g.cam.center += vec2(50.0 * TILE, 0.0);
-        clamp_camera(&mut g);
+        // the viewfinder can go to either end of the café, but not past it
+        let screen = Rect::new(0.0, 0.0, 1280.0, 720.0);
         let r = signature::data().photo;
+        g.cam.zoom = before.1 * 10.0;
+        clamp_camera(&mut g, screen);
         assert!((g.cam.zoom - before.1 * r.zoom.1).abs() < 1e-3);
-        assert!((g.cam.center.x - before.0.x - r.pan_tiles * TILE).abs() < 1e-3);
+        let b = g.scene.bounds();
+        for dx in [-500.0 * TILE, 500.0 * TILE] {
+            g.cam.center = before.0 + vec2(dx, 0.0);
+            clamp_camera(&mut g, screen);
+            let fr = finder_rect(screen);
+            let framed = g.cam.center + (fr.center() - screen.center()) / g.cam.zoom;
+            let half = fr.w / g.cam.zoom / 2.0;
+            assert!(framed.x - half >= b.x - 0.5 && framed.x + half <= b.right() + 0.5);
+            // and it really reaches that end, not just a few tiles from the start
+            let end = if dx < 0.0 { b.x + half } else { b.right() - half };
+            assert!((framed.x - end).abs() < 1.0, "reaches the {} end", if dx < 0.0 { "left" } else { "right" });
+        }
         close(&mut g);
         assert!(!g.photo.is_open() && !g.frozen());
         assert_eq!((g.cam.center, g.cam.zoom), before, "back where she was looking");
