@@ -264,6 +264,13 @@ impl World {
             }
             Command::RemoveFurniture { uid } => {
                 let p = remove_piece(self, content, uid)?;
+                // tip coins on a table taken away go into the jar now (else they stayed on a
+                // table nobody can reach till 06:00, and the lull director waited on them)
+                let (coins, rest): (Vec<_>, Vec<_>) = std::mem::take(&mut self.hands.tips)
+                    .into_iter()
+                    .partition(|t| t.table == uid);
+                self.hands.tips = rest;
+                super::player::collect_coins(self, content, coins, None);
                 let refund = (p.paid / 2) as i64;
                 self.econ.money += refund;
                 push_undo(

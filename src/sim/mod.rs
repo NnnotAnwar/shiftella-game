@@ -79,6 +79,8 @@ mod tests_t10;
 mod tests_walk;
 #[cfg(test)]
 mod tests_access;
+#[cfg(test)]
+mod tests_combos;
 
 pub use app::digest_lines;
 pub use attic::{AtticOffer, AtticView};

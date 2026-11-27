@@ -363,9 +363,11 @@ fn choose_seats(
             .max_by(|a, b| score(a).total_cmp(&score(b)))
             .copied()?;
         let mut v = vec![first];
+        // every seat but `first` (by its identity: comparing the references themselves
+        // compared the slots holding them, so `first` came back and a pair shared a chair)
         let mut rest: Vec<&SeatInfo> = free
             .iter()
-            .filter(|s| !std::ptr::eq(*s, &first))
+            .filter(|s| (s.uid, s.idx) != (first.uid, first.idx))
             .copied()
             .collect();
         rest.sort_by_key(|s| grid::manhattan(s.tile, first.tile));

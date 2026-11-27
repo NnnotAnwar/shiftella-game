@@ -1215,6 +1215,38 @@ impl GameScreen {
         self.notices.clear();
     }
 
+    /// Screenshot runs (`SHIFTELLA_COMBO=story_card,crew,…`): opens several layers at once
+    /// over whatever scene was built, to check how they overlap: `crew` (a helper's card),
+    /// `build`, `duties`, `app`, `journal` (panels — one at a time), `story_card` (the first
+    /// active story), `moment` (the first moment card), `book`, `photo` (the viewfinder),
+    /// `pause`, `summary` (the last night's summary).
+    pub fn combo_layers(&mut self, list: &str) {
+        for item in list.split(',').map(str::trim) {
+            match item {
+                "crew" => self.open_crew_card("helper"),
+                "build" => self.panel = Some(Panel::Build),
+                "duties" => self.panel = Some(Panel::Duties),
+                "app" => self.panel = Some(Panel::App),
+                "journal" => self.panel = Some(Panel::Journal),
+                "story_card" => {
+                    if let Some(g) = self.world.stories_active().first().map(|a| a.guest) {
+                        self.stories.card = Some(g);
+                    }
+                }
+                "moment" => {
+                    if let Some(id) = self.world.active_moments().first().map(|m| m.id.clone()) {
+                        self.open_moment(&id);
+                    }
+                }
+                "book" => self.open_book(None),
+                "photo" => self.photo.raise_for_shot(),
+                "pause" => self.pause = Some(Default::default()),
+                "summary" => self.summary = self.world.last_summary().cloned(),
+                _ => {}
+            }
+        }
+    }
+
     /// Plays any cutscene by id (endings preview, tests) without the sim asking.
     pub fn play_scene(&mut self, content: &Rc<Content>, id: &str) {
         if let Some(def) = content.cutscene(id) {
@@ -1469,11 +1501,13 @@ impl GameScreen {
                 _ => None,
             };
             self.scene.sec_per_minute = self.world.real_seconds_per_tick(content) * 10.0;
+            // the viewfinder shows the café without the play marks (once a frame: a merge
+            // had left a second, unconditional call that drew them twice and into the
+            // viewfinder)
             if !self.photo.is_open() {
                 hands_view::draw_world(self, content, &loc, target, mouse_world);
+                stories_ui::draw_world(self);
             }
-            hands_view::draw_world(self, content, &loc, target, mouse_world);
-            stories_ui::draw_world(self);
             if self.panel == Some(Panel::Build) {
                 build::draw_world_overlay(self, content, ghost.as_ref());
             }
@@ -1515,8 +1549,12 @@ impl GameScreen {
             }
             // the left column under the meter first: the rail keeps clear of its anchors
             if self.world.phase() == Phase::Night && self.summary.is_none() {
-                walk_home::backstep_chip(self, ui, cx);
-                photo_mode::button(self, ui, cx);
+                // the crew card covers this column: its glass let the chips and the storm
+                // card show through (they come back when it closes)
+                if self.panel != Some(Panel::Crew) {
+                    walk_home::backstep_chip(self, ui, cx);
+                    photo_mode::button(self, ui, cx);
+                }
                 stories_ui::draw(self, ui, cx);
             }
             hands_ui::hud(self, ui, cx);
@@ -1544,6 +1582,7 @@ impl GameScreen {
                 day::planning(self, ui, cx);
             }
             hands_ui::overlays(self, ui, cx, dt);
+            stories_ui::card(self, ui, cx);
             signature_ui::overlays(self, ui, cx);
             photo_mode::frame_ui(self, ui, cx, dt);
             self.tutorial_update(cx);
@@ -1565,8 +1604,13 @@ impl GameScreen {
             .map(|m| m.game.loops())
             .unwrap_or_default();
         cx.audio.set_loops(loops.steam, loops.trickle);
-        // toasts wait while a scene or a mini-game is on screen (the cup has her attention)
-        if !self.player.is_playing() && self.hands.minigame.is_none() && !self.stories.talk_open() {
+        // toasts wait while a scene or a mini-game is on screen (the cup has her attention),
+        // and while the camera is up (they covered the viewfinder's corner)
+        if !self.player.is_playing()
+            && self.hands.minigame.is_none()
+            && !self.stories.talk_open()
+            && !self.photo.is_open()
+        {
             self.flush_notices(ui, &loc);
             // the build panel sits over the dock: toasts rise above it
             let inset = if self.panel == Some(Panel::Build) {
@@ -1989,9 +2033,15 @@ impl GameScreen {
             if pressed(ui, A::Crew) {
                 toggle(&mut self.panel, Panel::Crew);
             }
-            // H = the duties board (P stays as the old priorities key while P is free)
+            // H = the duties board (P stays as the old priorities key while P is free; at
+            // night P is the camera even when it can't open now — build mode, a story card —
+            // and doesn't swap the open panel for the duties board)
+            let p_is_camera = self.world.phase() == Phase::Night
+                && crate::settings::keys::key(A::Photo) == KeyCode::P;
             if pressed(ui, A::Duties)
-                || (crate::settings::keys::legacy_duties_p() && ui.key(KeyCode::P))
+                || (crate::settings::keys::legacy_duties_p()
+                    && !p_is_camera
+                    && ui.key(KeyCode::P))
             {
                 toggle(&mut self.panel, Panel::Duties);
             }
@@ -2148,6 +2198,8 @@ fn is_flow_event(e: &SimEvent) -> bool {
 
 #[cfg(test)]
 mod tests;
+#[cfg(test)]
+mod tests_combos;
 
 #[cfg(test)]
 mod capitalize_tests {
