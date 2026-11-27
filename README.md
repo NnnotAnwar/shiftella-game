@@ -48,13 +48,22 @@ out why she never switched off the light in the window.
 - **Your hands on the machines.** Warm up the coffee machine before the doors open, put a pot of
   kulajda on the stove, bake grandma's medovník, pull a tray of coffees ahead of a train, purge the
   machine when it starts to sputter, count the till and take the trash out at six.
-- **Strangers with a story.** Every guest is first "a woman in a long coat" — greet them and they
-  tell you their name. Some carry a little story: waiting for a call, the last train gone, a first
+- **Strangers with a story.** A guest is who they are tonight — a taxi driver, a passenger off the
+  late train, a passer-by. Some carry a little story: waiting for a call, the last train gone, a first
   pay cheque. Notice it and answer by hand. One December night a snowstorm closes the line and
   everyone stays till morning.
 - **Build it your way.** Drag tables with their chairs, see the coziness change before you place a
   piece, form reading nooks and window spots, answer the regulars' wishes, buy from grandma's attic
   and reopen the back room. Compose the café's own drink and chalk its name on the board.
+- **Calm halves of the night.** The clock waits at 21:59 until you open the doors, last call is
+  at 05:15, and the café empties by six for a quiet closing half hour — with the crew helping at
+  both ends. Story moments hold the night until you have read them.
+- **Rituals and recipes by hand.** Pull the window lamp's cord, count the float, drop the needle
+  on a record; every recipe plays its own mini-game (masala chai with its spices in order, kulajda
+  stirred on the stove, svařák spiced by the card) with a guide to three stars.
+- **What you buy matters.** More seats bring more guests, a sofa keeps them for a second round,
+  a cosier hall earns better tips and rarer guests, and the morning summary shows what each piece
+  gave you. Off duty the crew wipes the counter, polishes cups and pets the station cat.
 - **A life outside the café.** Walk home at dawn through Holešovice (the river, the park, the
   bakery or the tram), step out on the back step for a breath with the station cat, and take
   photos of the night.
