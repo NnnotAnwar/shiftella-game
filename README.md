@@ -92,7 +92,9 @@ out why she never switched off the light in the window.
 
 - **Story mode** — 30 nights (7 Nov – 6 Dec 2039), seven regulars with their own arcs, grandma's ten
   notes, cutscenes, and **two endings**: «Light in the Window» and «Last Train».
-- **Sandbox** — endless nights in Prague, Brno, Vienna, Kraków… from a shareable seed.
+- **Sandbox** — endless nights in Prague, Brno, Vienna, Kraków… from a shareable seed, or a
+  **Challenge**: every 30-night season the rent and prices rise, rival cafés open nearby and
+  the season goal grows — how many seasons can you keep the lights on?
 - **Cozy by default** — nothing to fail, guests wait and forgive. **Carefree** plays like Cozy with no
   debt to pay at all. **Classic** makes the payments matter.
 - **Four languages** — Čeština, English, Українська, Русский.
