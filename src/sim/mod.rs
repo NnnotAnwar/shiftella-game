@@ -69,6 +69,8 @@ mod tests_names;
 #[cfg(test)]
 mod tests_polish;
 #[cfg(test)]
+mod tests_closing;
+#[cfg(test)]
 mod tests_prep;
 #[cfg(test)]
 mod tests_qa;
@@ -152,7 +154,8 @@ pub(crate) fn trains_tick(w: &mut World, content: &Content) {
         });
         let n =
             (w.rng.range_u32(t.guests.0, t.guests.1) as f32 * guests::story_ramp(w)).round() as u32;
-        if n > 0 {
+        // after last call (05:15) the train only passes: nobody gets off for the café
+        if n > 0 && m + 3 < guests::LAST_CALL {
             let start = w.rng.range_u32(3, 6);
             let mut left = n;
             let group = content.guest(&t.guest).map(|g| g.group).unwrap_or((1, 2));
@@ -244,8 +247,8 @@ impl World {
         } else {
             REAL_SECONDS_PER_TICK_X1
         };
-        if self.in_prep() {
-            v * t.prep_tick_scale.clamp(0.3, 1.0)
+        if self.in_prep() || self.in_closing() {
+            v * t.prep_tick_scale.clamp(0.3, 1.5)
         } else {
             v
         }

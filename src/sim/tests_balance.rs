@@ -20,7 +20,9 @@ struct Run {
     forgiven: u32,
     unhappy: u32,
     minigames: Vec<u32>,
+    /// The night with the doors open (the quiet halves left out: `quiet_minutes`).
     real_minutes: Vec<f32>,
+    quiet_minutes: Vec<f32>,
     peaks: Vec<u32>,
     medians: Vec<u32>,
     idle: u32,
@@ -53,7 +55,8 @@ fn play(w: &mut World, c: &Content, seed: u64, nights: u32, plan: Vec<u32>) -> R
             .count() as u32;
         r.unhappy += s.guests_left_unhappy;
         r.minigames.push(s.minigames);
-        r.real_minutes.push(bn.real_minutes);
+        r.real_minutes.push(bn.real_minutes - bn.quiet_minutes);
+        r.quiet_minutes.push(bn.quiet_minutes);
         r.peaks.push(s.todo_peak);
         r.medians.push(s.todo_median);
         r.idle += s.karolina_idle_minutes;
@@ -93,7 +96,11 @@ fn story_act_one_on_cozy_is_a_calm_full_evening() {
             "seed {seed}: {:?}",
             r.minigames
         );
-        // 12–14 real minutes at ×1 (a little slack per night)
+        // 12–14 real minutes at ×1 with the doors open (a little slack per night); the quiet
+        // halves (0.2.1: slower on purpose, ~1.6 min each at most; the bot opens and closes
+        // up as soon as its lists are done) add about 1–3.5 minutes
+        let quiet = mean_f(&r.quiet_minutes);
+        assert!((0.7..=3.6).contains(&quiet), "seed {seed}: quiet halves {quiet:.1} min");
         let len = mean_f(&r.real_minutes);
         assert!((11.8..=14.2).contains(&len), "seed {seed}: {len:.1} min");
         assert!(
@@ -134,7 +141,9 @@ fn a_cozy_story_pays_off_grandmas_debt_with_room_to_spare() {
     let mg = mean_u(&r.minigames);
     assert!((8.0..=14.0).contains(&mg), "mini-games {:?}", r.minigames);
     let len = mean_f(&r.real_minutes);
-    assert!((12.0..=14.2).contains(&len), "{len:.1} min");
+    assert!((12.0..=14.2).contains(&len), "{len:.1} min (doors open)");
+    let quiet = mean_f(&r.quiet_minutes);
+    assert!((0.7..=3.6).contains(&quiet), "quiet halves {quiet:.1} min");
     // a kind player befriends the station cat over a story (naming at 10)
     let cat = w
         .story()

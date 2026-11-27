@@ -328,6 +328,7 @@ fn send_on_break_command() {
                 Err(CommandError::WrongPhase)
             );
             w.start_night(&c);
+            w.skip_prep(&c);
             for _ in 0..30 * TICKS_PER_MINUTE {
                 w.tick(&c);
             }

@@ -1,0 +1,57 @@
+# The night flow (0.2.1): the clock waits at 21:59 for the doors, last call at 05:15, the doors
+# close at 06:00 and the quiet closing half hour (06:00–06:30) ends when she closes up.
+# Karolina is addressed in the second person (feminine forms in cs/uk/ru).
+
+prep.hud.waiting
+cs Kavárna čeká na tebe
+en The café is waiting for you
+uk Кав'ярня чекає на тебе
+ru Кафе ждёт тебя
+
+close.toast.doors_closed.title
+cs Zavřeno — čas uklidit
+en Doors closed — time to close up
+uk Зачинено — час прибрати
+ru Закрыто — пора прибраться
+
+close.toast.doors_closed.body
+cs Poslední hosté jdou domů. Spočítej pokladnu, vyčisti hlavu kávovaru, vynes koš, napiš předávku a zhasni okno — pak „Zavřít“ ({key.doors}).
+en The last guests are on their way home. Count the till, clean the group head, take the trash out, write the handover note and switch off the window light — then Close up ({key.doors}).
+uk Останні гості йдуть додому. Порахуй касу, почисти групу кавоварки, винеси сміття, напиши передачу зміни й вимкни світло у вікні — тоді «Зачинити» ({key.doors}).
+ru Последние гости идут домой. Пересчитай кассу, почисти группу кофемашины, вынеси мусор, напиши передачу смены и выключи свет в окне — потом «Закрыть» ({key.doors}).
+
+close.hud.closing
+cs Zavíráme
+en Closing up
+uk Зачиняємось
+ru Закрываемся
+
+close.hud.waiting
+cs Klid — zavři, až budeš hotová
+en All quiet — close up when you're done
+uk Тихо — зачиняй, коли закінчиш
+ru Тихо — закрывайся, когда закончишь
+
+close.hud.close_up
+cs Zavřít
+en Close up
+uk Зачинити
+ru Закрыть
+
+close.hud.close_up_tip
+cs Ukončit noc hned — co zbývá na seznamu na zavření, se počítá jako nesplněné. V 6:29 hodiny počkají; se splněným seznamem noc skončí sama.
+en End the night now — whatever is left on the closing list counts as missed. At 6:29 the clock waits for you; with the closing list done the night ends by itself.
+uk Завершити ніч зараз — усе, що лишилося у списку на закриття, рахується як невиконане. О 6:29 годинник чекає на тебе; коли список виконано, ніч скінчиться сама.
+ru Закончить ночь сейчас — всё, что осталось в списке на закрытие, считается невыполненным. В 6:29 часы ждут тебя; когда список выполнен, ночь закончится сама.
+
+access.action.doors
+cs Otevřít dveře / Zavřít
+en Open the doors / Close up
+uk Відчинити двері / Зачинити
+ru Открыть двери / Закрыть
+
+ui.app.checklist.doing
+cs {name} na tom dělá
+en {name} is on it
+uk {name} вже робить
+ru {name} уже делает

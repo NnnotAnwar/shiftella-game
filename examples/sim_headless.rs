@@ -14,7 +14,7 @@ use std::time::Instant;
 
 use shiftella_game::content::Content;
 use shiftella_game::sim::bot::{BotConfig, PlayerBot, finish_cutscenes};
-use shiftella_game::sim::{Difficulty, Phase, SandboxSetup, World};
+use shiftella_game::sim::{Command, Difficulty, Phase, SandboxSetup, World};
 
 fn main() {
     let args: Vec<String> = std::env::args().collect();
@@ -100,6 +100,13 @@ fn main() {
                     finish_cutscenes(&mut world, &content);
                     if stress && world.minute() == 60 && world.tick_count() % 10 == 0 {
                         world.debug_spawn_guests(&content, "students", 60, 10);
+                    }
+                    // nobody behind the counter: open at 21:59, close up at 06:29
+                    if world.waiting_for_doors() {
+                        let _ = world.apply(&content, Command::OpenDoors);
+                    } else if world.waiting_to_close() {
+                        let _ = world.apply(&content, Command::CloseUp);
+                        continue;
                     }
                     world.tick(&content);
                     world.drain_events();

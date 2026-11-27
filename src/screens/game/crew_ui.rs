@@ -1831,8 +1831,17 @@ mod tests {
             }
         }
         let before = g.world.staff_duties(h.id).to_vec();
-        let spare = Duty::ALL.iter().find(|d| !before.contains(d)).copied();
-        if let Some(d) = spare {
+        // (a duty they're skilled at would raise the capacity itself: take another one)
+        let night = g.world.night();
+        let me = g.world.staff_by_id(h.id).unwrap().clone();
+        let bonus = c.handson.tuning.capacity.skill_bonus_at;
+        let spare = Duty::ALL
+            .iter()
+            .find(|d| !before.contains(d) && me.skill(d.job(), night) < bonus)
+            .copied();
+        if let Some(d) = spare
+            && before.len() as u32 >= g.world.capacity(&c, h.id)
+        {
             assert!(!board::set_duty(&mut g, &c, h.id, d, true));
             assert_eq!(g.world.staff_duties(h.id), before.as_slice());
         }

@@ -273,6 +273,8 @@ pub struct Hands {
     pub queue_open: bool,
     /// A queued act being dragged in the strip: (queue index, grab y offset).
     pub queue_drag: Option<(usize, f32)>,
+    /// Real seconds the autoplayer has stood at the waiting clock (21:59 / 06:29).
+    pub door_wait: f32,
 }
 
 impl Hands {
@@ -497,9 +499,10 @@ fn greetable(content: &Content, w: &World, p: &Party) -> bool {
         && w.minute().saturating_sub(p.arrived) <= content.handson.tuning.greeting.window_minutes
 }
 
-/// The closing ritual's last item is due: the light in the window goes off at six.
+/// The closing ritual's last item is due: the light in the window goes off when she closes
+/// up (the closing half hour, or an empty café after last call).
 pub fn lights_off_due(g: &GameScreen) -> bool {
-    g.world.minute() >= 466
+    g.world.closing_time()
         && g.world
             .app()
             .checklist
@@ -1764,6 +1767,11 @@ impl GameScreen {
             self.panel = None;
             return Some("phone");
         }
+        // the doors: open them at 21:59 (close up at 06:29) once her hands are free — or
+        // as soon as the list is done, like a player would; after a short wait at the latest
+        if let Some(cmd) = self.autoplay_doors(content) {
+            return Some(cmd);
+        }
         // closing time: the handover note and the light at six go to the front of her hands
         // even before an open card (a late guest at 05:45 must not keep the lamp on)
         if self.world.minute() >= 466 {
@@ -1982,6 +1990,42 @@ impl GameScreen {
 }
 
 impl GameScreen {
+    /// The autoplayer at the doors (see `autoplay_step`): "open" / "close_up" when it pressed.
+    fn autoplay_doors(&mut self, content: &Content) -> Option<&'static str> {
+        let w = &self.world;
+        let idle = w.player().queue.is_empty() && w.player().current.is_none();
+        let waiting = w.waiting_for_doors() || w.waiting_to_close();
+        if !waiting {
+            self.hands.door_wait = 0.0;
+        }
+        let done = |k| {
+            content
+                .app
+                .checklists
+                .iter()
+                .filter(|c| c.list == k)
+                .all(|c| w.app().checklist.iter().any(|s| s.id == c.id && s.done))
+        };
+        let early = idle
+            && ((w.in_prep() && w.prep_minute() >= 15 && done(crate::content::ChecklistKind::Opening))
+                || (w.in_closing()
+                    && w.close_minute() >= 2
+                    && (done(crate::content::ChecklistKind::Closing) || w.close_minute() >= 20)));
+        if waiting {
+            self.hands.door_wait += AUTOPLAY_REACT;
+        }
+        if !(early || (waiting && (idle || self.hands.door_wait > 12.0))) {
+            return None;
+        }
+        let (cmd, name) = if w.in_prep() {
+            (Command::OpenDoors, "open")
+        } else {
+            (Command::CloseUp, "close_up")
+        };
+        self.hands.door_wait = 0.0;
+        self.hand(content, cmd).then_some(name)
+    }
+
     /// The autoplayer's morning and day: keep the polaroid, let the sim's player-bot plan
     /// the day (hire on nights 3/5/9, the rozpis, payroll, themes), then open the café.
     pub fn autoplay_day(&mut self, content: &std::rc::Rc<Content>, dt: f32, wait: f32) {

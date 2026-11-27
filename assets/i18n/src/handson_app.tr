@@ -721,10 +721,10 @@ uk Решта ритуалів відкриття — у Shiftella ({key.app}): 
 ru Остальные ритуалы открытия — в Shiftella ({key.app}): отметки на лампе, холодильнике, кассе. До 22:00 закрыто, я успею спокойно; всё до 22:30 — и кафе готово.
 
 tutorial.checklist_close
-cs Čas pořádně zavřít: nádobí, kávovar, pokladna, lednice ({key.app}). Po poctivém zavření je zítřejší otevření dvakrát rychlejší.
-en Time to close properly: dishes, the machine, the till, the fridge ({key.app}). A tidy close makes tomorrow's opening twice as quick.
-uk Час зачинитися як слід: посуд, кавоварка, каса, холодильник ({key.app}). Після охайного закриття завтра відкриюся вдвічі швидше.
-ru Пора закрыться как следует: посуда, кофемашина, касса, холодильник ({key.app}). После аккуратного закрытия завтра откроюсь вдвое быстрее.
+cs Poslední objednávky byly v 5:15 — čas pořádně zavřít: nádobí a lednici hned, pokladnu a kávovar, až bude prázdno ({key.app}). Po poctivém zavření je zítřejší otevření dvakrát rychlejší.
+en Last call was at 5:15 — time to close properly: the dishes and the fridge now, the till and the machine once the café is empty ({key.app}). A tidy close makes tomorrow's opening twice as quick.
+uk Останнє замовлення було о 5:15 — час зачинитися як слід: посуд і холодильник зараз, касу й кавоварку — коли стане порожньо ({key.app}). Після охайного закриття завтра відкриюся вдвічі швидше.
+ru Последний заказ был в 5:15 — пора закрыться как следует: посуду и холодильник сейчас, кассу и кофемашину — когда опустеет ({key.app}). После аккуратного закрытия завтра откроюсь вдвое быстрее.
 
 tutorial.greet
 cs To je Mirek. Babiččin nejstarší štamgast. Zamávat neuškodí.
@@ -781,10 +781,10 @@ uk Тихо. Можна пустити годинник трохи швидше.
 ru Тихо. Можно пустить часы чуть быстрее.
 
 tutorial.closing
-cs Vzkaz pro zítřejší já, a v šest zhasnout.
-en A note for tomorrow's me, then lights off at six.
-uk Записка для завтрашньої себе, а о шостій — вимкнути світло.
-ru Записка для завтрашней себя, а в шесть — погасить свет.
+cs Dveře jsou zavřené. Vzkaz pro zítřejší já, zhasnout okno — a pak „Zavřít“ ({key.doors}).
+en The doors are closed. A note for tomorrow's me, the window light off — then Close up ({key.doors}).
+uk Двері зачинено. Записка для завтрашньої себе, світло у вікні — і «Зачинити» ({key.doors}).
+ru Двери закрыты. Записка для завтрашней себя, свет в окне — и «Закрыть» ({key.doors}).
 
 tutorial.journal
 cs Babička měla za pokladnou krabici fotek. Budu si jednu vést taky. ({key.journal})

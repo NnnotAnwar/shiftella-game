@@ -43,7 +43,7 @@
         age: 38,
         base: "nurses",
         first_night: 3,
-        visits: [(from: "02:00", to: "02:30"), (from: "05:40", to: "06:00")],
+        visits: [(from: "02:00", to: "02:30"), (from: "04:50", to: "05:30")],
         orders: ["cappuccino", "garlic_soup"],
         patience_minutes: 6.0,
         absent_if: [Flag("hana_left")],

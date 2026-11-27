@@ -64,7 +64,7 @@ pub(crate) fn on_checklist_done(w: &mut World, content: &Content, id: &str) {
     check_rituals(w, content);
 }
 
-fn list_done(w: &World, content: &Content, list: ChecklistKind) -> bool {
+pub(crate) fn list_done(w: &World, content: &Content, list: ChecklistKind) -> bool {
     content
         .app
         .checklists
@@ -109,14 +109,45 @@ fn apply_missed(w: &mut World, content: &Content, list: ChecklistKind) {
     }
 }
 
-/// Who may do a checklist item: Karolina only, or a helper holding the duty.
+/// Who may do a checklist item: Karolina only, or a helper holding the duty (the floor's
+/// items are the dishes helper's too: wiping the tables before the doors open).
 pub(crate) fn helper_may(content: &Content, id: &str, duty: crate::content::handson::Duty) -> bool {
-    content
-        .app
-        .checklists
-        .iter()
-        .find(|c| c.id == id)
-        .is_some_and(|c| matches!(c.owner(), ChecklistOwner::Either(d) if d == duty))
+    use crate::content::handson::Duty;
+    content.app.checklists.iter().find(|c| c.id == id).is_some_and(|c| {
+        matches!(c.owner(), ChecklistOwner::Either(d)
+            if d == duty || (d == Duty::Floor && duty == Duty::Dishes && c.list == ChecklistKind::Opening))
+    })
+}
+
+/// Closing-list items that wait for closing time ([`World::closing_time`]: the closing half
+/// hour, or after last call in an empty café) — the till, the group head, the window light.
+/// The others (the dishes, the fridge, the handover note) are open from 05:00.
+pub const CLOSING_TIME_ITEMS: &[&str] = &["cash_up", "clean_machine", "light_off_at_six"];
+
+/// Can a closing-list item be done now?
+pub(crate) fn closing_item_open(w: &World, id: &str) -> bool {
+    if w.phase != Phase::Night || w.in_prep() {
+        return false;
+    }
+    if CLOSING_TIME_ITEMS.contains(&id) {
+        w.closing_time()
+    } else {
+        w.in_closing() || w.minute() >= 420
+    }
+}
+
+impl World {
+    /// Is this checklist item open now? Opening items until they're done (before 05:00);
+    /// closing items by [`CLOSING_TIME_ITEMS`] (closing time) or from 05:00.
+    pub fn checklist_item_open(&self, content: &Content, id: &str) -> bool {
+        let Some(def) = content.app.checklists.iter().find(|c| c.id == id) else {
+            return false;
+        };
+        match def.list {
+            ChecklistKind::Opening => self.phase == Phase::Night && !self.in_closing(),
+            ChecklistKind::Closing => closing_item_open(self, id),
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -337,6 +368,15 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     }
     // the handover suggestions are ready from 05:00
     if m == 420 {
+        w.sys.tool.suggestions = suggestions(w, content);
+    }
+}
+
+/// Each minute of the closing half hour (06:00–06:30): the closing ritual can complete, the
+/// handover suggestions stay fresh.
+pub(crate) fn on_closing_minute(w: &mut World, content: &Content) {
+    check_rituals(w, content);
+    if w.sys.tool.suggestions.is_empty() {
         w.sys.tool.suggestions = suggestions(w, content);
     }
 }

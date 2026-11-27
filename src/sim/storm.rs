@@ -8,7 +8,7 @@
 //! * **`cancel_at` (00:50):** the station announces it and @shiftella_bot writes
 //!   (`StormCancelled`). From then on the line is closed: trains don't come, nobody new walks in
 //!   (people already on the platform still come over for `platform_minutes`); regulars still
-//!   walk over — they live nearby. Every stranger inside stays till `stay_until` (05:40): they
+//!   walk over — they live nearby. Every stranger inside stays till `stay_until` (06:00, the doors close): they
 //!   don't run out of patience and don't leave after their meal.
 //! * **Karolina's care (one click each):** `Command::StormBlankets` (she fetches the blankets
 //!   from behind the counter and tucks everyone in) and `Command::StormSoup` (a big pot on the

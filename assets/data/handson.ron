@@ -5,9 +5,12 @@
     // ×1: 0.13 real s per tick → 10.4 real minutes of sim (×2: 5.2, ×3: 3.5); with the order
     // cards and 6–14 mini-games a night at ×1 is 12–14 real minutes (T9, sim_balance).
     real_seconds_per_tick_x1: 0.13,
-    // The preparation half hour (21:30–22:00, doors closed, no guests) runs a little quicker:
-    // ×0.7 → ~27 real seconds at ×1 (the evening stays ~12–14 real minutes); ×2/×3 work too.
-    prep_tick_scale: 0.7,
+    // The two quiet halves (the preparation 21:30–22:00 and the closing half hour 06:00–06:30,
+    // doors closed, no guests) run their clock slower (sim::QUIET_TICKS_PER_MINUTE = 25 ticks a
+    // game minute, people move at the usual pace): ×1.0 → ~1.6 real minutes per half at ×1
+    // (the owner: "time runs too fast for opening and closing"). The clock then waits at 21:59
+    // / 06:29 for her. ×2/×3 work too.
+    prep_tick_scale: 1.0,
     // Sim dt × this while the order card, a mini-game, the book or a moment card is open.
     // Cozy 0.25: the room still drifts on a little, the night doesn't stretch past 14 minutes.
     overlay_scale: (cozy: 0.25, classic: 0.35),
@@ -156,7 +159,9 @@
         // grandma's medovník: ding → take it out → slices without waiting tonight
         cake: (items: ["medovnik", "kolac"], bake_minutes: 12, slices: 8, helper_slices: 4,
                prep_mul: 0.05, helper_after: 10, until_minute: 120),
-        // from 05:00: count the till, take the trash out (sometimes the station cat is there)
-        closing: (from_minute: 420, trash_dirt: 0.03, cat_chance: 0.35),
+        // the closing half hour (06:00–06:30) — or from last call (05:15) once the café is
+        // empty: count the till, clean the group head, take the trash out (sometimes the
+        // station cat is there)
+        closing: (from_minute: 435, trash_dirt: 0.03, cat_chance: 0.35),
     ),
 )

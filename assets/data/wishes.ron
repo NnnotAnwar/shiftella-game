@@ -49,7 +49,7 @@
          when: [Any([Flag("mirek_keys_taken"), Flag("mirek_daughter_called")])]),
         // --- Hana ---------------------------------------------------------------------------------
         (id: "hana.twelve_minutes", want: [Warm, Quick], who: ["hana"], when: [TimeBetween("02:00", "02:30")]),
-        (id: "hana.blanket", want: [Comforting, Filling, Warm], who: ["hana"], when: [TimeBetween("05:40", "06:00")]),
+        (id: "hana.blanket", want: [Comforting, Filling, Warm], who: ["hana"], when: [TimeBetween("04:50", "05:30")]),
         // --- Vera ---------------------------------------------------------------------------------
         (id: "vera.properly", want: [Mild, Warm], avoid: [Sweet], who: ["vera"],
          favourite: ["r_lemon_tea", "r_linden_tea"], strict: true),

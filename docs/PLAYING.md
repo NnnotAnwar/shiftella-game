@@ -1,7 +1,7 @@
 # Playing Shiftella
 
 You inherit grandma Lida's night café, Café Nocturne, next to Praha-Holešovice station in Prague.
-Its doors open at 22:00 and it closes at 06:00. Keep the light in the window on, keep the regulars
+Its doors open at 22:00 and close at 06:00. Keep the light in the window on, keep the regulars
 warm, pay off the debt — or let the café go, gently. Nothing here is meant to stress you.
 
 ## The rhythm
@@ -15,18 +15,35 @@ warm, pay off the debt — or let the café go, gently. Nothing here is meant to
    opening list in peace — light the window, warm up the machine, check the fridge, wipe the
    tables, count the float, chalk tonight's specials, put on a record (Shiftella **T** →
    checklists, or click the little boxes over the furniture — the window lamp, the machine,
-   the fridge, a table, the till, the counter, the jukebox). Helpers on tonight's rozpis walk in around
-   21:40 and do the items of their duties. The whole list by 22:30 → *"The café is ready."*
-   (crew mood +2, coziness +2 tonight). The half hour runs a little quicker than the night
-   (about 27 seconds at ×1); ×2/×3 work, and **Open now** beside the coziness meter opens the
-   doors at once (the clock jumps to 22:00). A freight train passes by outside at 21:47.
+   the fridge, a table, the till, the counter, the jukebox). Helpers on tonight's rozpis walk in right
+   away (21:31–21:34) and help: they take the opening items of their duties (bar → warm up the
+   machine, register → count the float, kitchen → the stock check, the soup on, the milk out,
+   the cake in; floor / dishes → wipe the tables) — never one you queued yourself; the
+   checklist shows who is on what. With a full crew the café is ready well before 21:59. The
+   whole list by 22:30 → *"The café is ready."* (crew mood +2, coziness +2 tonight). The half
+   hour's clock runs slower than the night's (about 1.6 real minutes at ×1; people move at the
+   usual pace) and **the clock waits at 21:59** until you open: **Open the doors** (**O**)
+   beside the coziness meter opens them any time (the clock jumps to 22:00); with the opening
+   list done the doors open by themselves at 21:59. No guest ever comes in before. A freight
+   train passes by outside at 21:47.
 3. **22:00 — the doors open** (a bell, the sign flips to *Open*, toast *Doors open*) and the
    night goes on as always: guests, trains, regulars, Mirek's early visit on night 1 at 22:04.
-4. **Night — you work behind the counter.** Karolina does the café's real work herself:
+   **Last call is 05:15**: nobody new comes in after it (walk-ins, train passengers, rushes,
+   regulars). From 05:45 whoever is still eating pays and goes, from 05:50 everybody — nobody
+   leaves unhappy for it (Cozy or Classic).
+4. **06:00 — the doors close** (the sign flips back to *Closed*, toast *Doors closed — time to
+   close up*). The café is empty; the closing half hour (06:00–06:30) is as quiet as the
+   preparation: count the till, clean the group head, take the trash out, write the handover
+   note and **switch off the window light** — the crew does the closing items of their duties
+   and goes home when they're done. **Close up** (**O**) ends the night at once (whatever is
+   left counts as missed); at 06:29 the clock waits for you, and with the closing list done the
+   night ends by itself. The till, the group head and the window light are for closing time
+   (or after last call once the café is already empty). Wages still count 22:00–06:00.
+5. **Night — you work behind the counter.** Karolina does the café's real work herself:
    greet guests, take their orders, read their wishes, brew, serve, pick up the tips, clear,
    wash up and mop. Helpers (from night 3) only do the duties you give them. Events pop up as
    toasts; some have buttons (they wait while paused, and fall back to a default after a while).
-5. **Morning.** A short summary of the night: guests, revenue, tips, wages, costs, reputation,
+6. **Morning** (when you close up). A short summary of the night: guests, revenue, tips, wages, costs, reputation,
    grandma's notes found — and the night's polaroid developing beside it. Then the next day
    begins (and the game autosaves).
 
@@ -47,6 +64,7 @@ Sandbox is endless, with a random town from a seed you can share.
 | Put a record on | click grandma's jukebox | **V** (then **← →**, **Enter**) |
 | Use an appliance (warm the machine up, put the soup on, take the cake out…) | click it (hold on a *hold* chore) | **E**, then hold **E** |
 | Switch a lamp on / off | click it (a pendant: its shade) | — |
+| Open the doors (21:30–21:59) / Close up (06:00–06:30) | the chip beside the coziness meter | **O** |
 | Do it next instead of last | **Shift**+click | **Shift**+key |
 | Cancel what she's doing | right-click (or a chip over her head) | **Backspace** |
 
@@ -96,12 +114,12 @@ to finish the story.
 | Coffee machine | the preparation | **Warm it up** (*hold*): it hisses, its little lamp lights — the opening item done by hand |
 | | at night | **Pull a tray ahead** (before a train): the next 3 plain coffees are ready at once (they go cold after 40 min) |
 | | worn (it sputters) | **Purge it** (*hold*): the wear is gone and the slow-down it caused ends — free, no service call |
-| | from 05:00 | **Clean the group head** (*hold*): the closing item by hand |
+| | closing time (06:00–06:30, or an empty café after 05:15) | **Clean the group head** (*hold*): the closing item by hand |
 | Stove | the preparation (until 00:00) | **Put a pot of soup on**: soups are a little quicker all night; now and then the pot bubbles — **Stir the pot** and soups are much quicker for half an hour (left alone it just keeps warm) |
 | Oven (once bought) | the preparation (until 00:00) | **Bake grandma's medovník**: a timer dings after ~12 min — **Take the cake out** and 8 slices go out without waiting (a helper takes it out later, with fewer slices) |
 | Fridge | the preparation (until 23:00) | **Take the milk out**: the first 5 milky drinks are quicker; also ticks the stock check. With nothing to do, a click opens the pantry |
-| Register | from 05:00 | **Count the till**: the closing item, with tonight's takings, guests and tips |
-| Trash bin | from 05:00 | **Take the trash out**: Karolina steps out of the door for a moment — sometimes the station cat is waiting by the bins |
+| Register | closing time | **Count the till**: the closing item, with tonight's takings, guests and tips (the register helper does it otherwise) |
+| Trash bin | closing time | **Take the trash out**: Karolina steps out of the door for a moment — sometimes the station cat is waiting by the bins (the floor / dishes helper does it otherwise) |
 | Lamps | any time | on / off: the light and the coziness change; the window lamp keeps its opening and six-o'clock rituals |
 
 ## Little moments, the cat and the atmosphere
@@ -121,7 +139,7 @@ to finish the story.
   cosy halls make guests happier, more patient and more generous.
 * **Rituals** — opening items (light the window, warm up the machine, check the stock, wipe the
   tables, count the float, the specials board, a record) and closing items (dishes, clean the
-  machine, cash up, the fridge, the handover note, lights off at six) show a small checkbox
+  machine, cash up, the fridge, the handover note, the window light off when you close up) show a small checkbox
   chip on their furniture. Click the chip — or tick them in the app — and Karolina does them;
   helpers do the ones of their duty. A whole list done gives the night a little glow
   ("The café is ready.", "Closed properly.").
@@ -215,7 +233,8 @@ at a time, never during a rush, never the same story twice in a game (22 of them
 (in the sandbox, now and then on a snowy winter night). It snows hard from the start; at
 00:50 the station announces that every night train is cancelled until 06:00 and
 @shiftella_bot writes. From then on no train comes and no stranger walks in (regulars still
-do — they live nearby), and everyone already inside stays till morning. A small **Snowed in**
+do — they live nearby), and everyone already inside stays till morning: at 06:00 the doors open
+for them and they walk out into the snow, then the closing half hour runs as usual. A small **Snowed in**
 card under the atmosphere meter says how many stay and offers two one-click chores:
 **Blankets for all** (grandma's plaids from under the counter — you'll see everyone tucked in)
 and **A pot of soup** (the big pot on the stove, a bowl for everyone). At 03:00 the stranded
@@ -388,10 +407,11 @@ the clock crawls.
 * **Messages** — @shiftella_bot. The buttons act in the café (reserve a regular's seat,
   remind me before Radek's train, ask someone to cover, order by drone…). A button that can't
   act right now says why and the message stays open. (The bot never does clock-ins.)
-* **Board** — announcements; at closing (from 05:00) pick up to two handover notes for
+* **Board** — announcements; at closing (from 05:00, and in the closing half hour) pick up to two handover notes for
   tomorrow — each one does something next night.
-* **Checklists** — the opening and closing rituals, with whose job each item is. The
-  opening list fits in the preparation half hour (21:30–22:00) before the first guests.
+* **Checklists** — the opening and closing rituals, with whose job each item is and who is on
+  it right now. The opening list fits in the preparation half hour (21:30–22:00) before the
+  first guests, the closing list in the closing half hour (06:00–06:30).
   Every item reads the same here and on its box in the café: an **empty box** = open (a click
   sends Karolina); a **clock** = she has it queued / is on her way ("Karolina · on her way" —
   a second click cancels it); a **person** = a helper is on it; a **tick**, struck through, with
@@ -405,7 +425,8 @@ the clock crawls.
 ## Saving
 
 * Autosave: at the start of every day and when you quit. A save made in the preparation
-  half hour loads there (doors still closed); 0.1.0 saves load as before.
+  half hour loads there (doors still closed), one in the closing half hour there too; 0.1.0
+  and 0.2.0 saves load as before (a 0.2.0 night goes on into the new closing half hour).
 * Three manual slots in the pause menu (**Esc** → Save game / Load game).
 * **Continue** in the main menu loads the most recent save.
 * Files: `~/Library/Application Support/Shiftella/saves/` (fallback `./saves/`).
@@ -447,8 +468,8 @@ Times are UTC; `+12.3s` is the time since the start of that run.
 
 * The first two nights are yours alone; the first helper can start on night 3 (crew panel).
 * Give each helper one clear duty first (dishes is a good start) — the guests stay yours.
-* The night bar runs 21:30 → 06:00: the faint first stretch is the preparation (doors
-  closed), the white tick is 22:00.
+* The night bar runs 21:30 → 06:30: the faint stretches at both ends are the preparation and
+  the closing half hour (doors closed), the white ticks are 22:00 and 06:00.
 * Trains bring small rushes (the markers on the night progress bar). Quick-brew the plain
   tickets and keep the wishes for by hand. On Cozy, when your hands are full, the next
   passengers (and walk-ins) wait outside a little and then come in one party at a time — never
@@ -516,8 +537,11 @@ filled), `signature_board` (night 8, 00:30, the chalkboard by the counter), `pho
 `SHIFTELLA_OPEN=<slot>` enlarges a night, `SHIFTELLA_SHOWN=<n>` picks its photo).
 `SHIFTELLA_SIG_NAME` names the drink; `SHIFTELLA_NIGHT` / `SHIFTELLA_TIME` as usual.
 
-`SHIFTELLA_TIME=HH:MM` also takes the preparation half hour: `21:30`–`21:59` start the night
-before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`).
+`SHIFTELLA_TIME=HH:MM` also takes the two quiet halves: `21:30`–`21:59` start the night
+before the doors open (e.g. `SHIFTELLA_SCENE=night SHIFTELLA_NIGHT=1 SHIFTELLA_TIME=21:40`),
+`06:00`–`06:29` the closing half hour after the doors closed (`06:29`: the waiting clock).
+`SHIFTELLA_DOORS=wait` leaves the opening / closing list to the crew, so `21:59` / `06:29` show
+the clock waiting for the doors / for "Close up".
 
 `SHIFTELLA_SCENE=equipment SHIFTELLA_EQUIP=prep|night|worn|closing` plays the appliances to a
 picture: the preparation (soup on, milk out, the cake baking, the machine warming up), the
