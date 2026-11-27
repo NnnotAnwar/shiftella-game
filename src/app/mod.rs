@@ -13,7 +13,8 @@
 //!   build_drag|attic|backroom|requests|corner|before_after|to_go` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
-//!   story_marker|story_card|storm|storm_talk|hands_ux` (`SHIFTELLA_HUX=checklist|rituals|
+//!   story_marker|story_card|storm|storm_talk|auto_pause|hands_ux` (`auto_pause`: the night paused
+//!   itself for `SHIFTELLA_EVENT=<id>`, default `storm`, and shows why) (`SHIFTELLA_HUX=checklist|rituals|
 //!   queue|follow|gesture`: the checklist states, the queue strip with 8 acts, the follow chip,
 //!   a ritual gesture over its piece — `SHIFTELLA_GESTURE=<checklist id | equip.<chore>>`,
 //!   `SHIFTELLA_GESTURE_T=<s>` played that long first, default 21:40 with the list untouched;
@@ -470,6 +471,20 @@ impl App {
                     g.world.tick(&content);
                     sim::bot::finish_cutscenes(&mut g.world, &content);
                 }
+                self.game(g)
+            }
+            // "Pause on important events": the night paused itself for a bad event
+            // (`SHIFTELLA_EVENT=<id>`, default the storm), its reason chip under the top bar
+            "auto_pause" => {
+                let loc = Locale::new(&self.i18n, lang);
+                let mut g = story_at(
+                    night.unwrap_or(3),
+                    Some(minute.unwrap_or(150)),
+                    &self.i18n,
+                    lang,
+                );
+                let ev = env("SHIFTELLA_EVENT").unwrap_or_else(|| "storm".into());
+                g.stage_auto_pause(&content, &loc, &ev);
                 self.game(g)
             }
             // v0.2 appliances: SHIFTELLA_EQUIP=prep (21:40, the default) | night | worn | closing

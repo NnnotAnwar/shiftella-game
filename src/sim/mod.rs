@@ -8,6 +8,7 @@
 
 mod app;
 mod atmos;
+mod attention;
 mod attic;
 mod backroom;
 pub mod bot;
@@ -107,6 +108,7 @@ mod tests_t10;
 mod tests_walk;
 
 pub use app::{ChecklistMark, act_ticks, digest_lines};
+pub use attention::PATIENCE_NEARLY_OUT;
 pub use attic::{AtticOffer, AtticView};
 pub use backroom::{BACK_COLS, BackRoomView};
 pub use build_content::{BackRoomState, BuildState, WishProgress};

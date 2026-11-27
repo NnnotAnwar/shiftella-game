@@ -1,0 +1,62 @@
+# "Pause on important events" (Settings → Gameplay, the sandbox setup): the chip under the
+# top bar when the night paused itself, and why (src/screens/game/auto_pause.rs).
+
+ui.autopause.chip
+cs Pauza: {reason}
+en Paused: {reason}
+uk Пауза: {reason}
+ru Пауза: {reason}
+
+ui.autopause.continue
+cs Pokračovat
+en Continue
+uk Продовжити
+ru Продолжить
+
+ui.autopause.regular
+cs {name} je tu a chce si promluvit
+en {name} is here and wants to talk
+uk {name} тут і хоче поговорити
+ru {name} здесь и хочет поговорить
+
+ui.autopause.story
+cs Neznámý host má svůj příběh
+en A stranger has a little story
+uk Незнайомий гість має свою історію
+ru У незнакомого гостя есть история
+
+ui.autopause.patience
+cs Host už dlouho čeká a brzy odejde
+en A guest has waited too long and will leave soon
+uk Гість довго чекає і скоро піде
+ru Гость долго ждёт и скоро уйдёт
+
+ui.autopause.staff_sick
+cs {name} hlásí nemoc
+en {name} is ill
+uk {name} повідомляє про хворобу
+ru {name} сообщает о болезни
+
+ui.autopause.staff_quit
+cs {name} odchází z práce
+en {name} walked out
+uk {name} іде з роботи
+ru {name} уходит с работы
+
+ui.autopause.message
+cs Zpráva čeká na odpověď
+en A message needs your answer
+uk Повідомлення чекає на відповідь
+ru Сообщение ждёт ответа
+
+ui.autopause.low_stock
+cs Dochází zásoby
+en Supplies are running low
+uk Закінчуються запаси
+ru Заканчиваются запасы
+
+ui.autopause.supplies_out
+cs Zásoby došly
+en The café ran out of supplies
+uk Запаси скінчилися
+ru Запасы закончились
