@@ -68,16 +68,25 @@ out why she never switched off the light in the window.
   bakery or the tram), step out on the back step for a breath with the station cat, and take
   photos of the night.
 
+![A busy night at Café Nocturne](docs/screenshots/02-night.png)
+
 | | |
 |---|---|
-| ![Order card](docs/screenshots/02-order-card.png) | ![Pour-over mini-game](docs/screenshots/03-minigame.png) |
-| *Mirek's order: what he wants, the best matches, "the usual?"* | *Brewing by hand — a slow pour-over* |
-| ![Recipe book](docs/screenshots/04-recipe-book.png) | ![Morning summary with a polaroid](docs/screenshots/05-morning-polaroid.png) |
-| *Grandma's recipe book, with her notes in the margins* | *The morning after: the night's polaroid develops* |
-| ![The Shiftella app](docs/screenshots/06-shiftella-app.png) | ![A cutscene on the platform](docs/screenshots/07-cutscene.png) |
-| *The in-game Shiftella app — the weekly rozpis as a light puzzle* | *Arriving at Holešovice on the last train* |
+| ![Order card](docs/screenshots/03-order-card.png) | ![Masala chai mini-game](docs/screenshots/04-minigame-chai.png) |
+| *A passenger's order: brew it by hand or quickly* | *Masala chai — spices in the card's order, steep to colour, milk to the mark* |
+| ![Counting the float](docs/screenshots/05-ritual.png) | ![Recipe book](docs/screenshots/06-recipe-book.png) |
+| *Opening rituals by hand: count the float before the doors open* | *Grandma's recipe book, with her notes in the margins* |
+| ![Morning summary](docs/screenshots/07-morning.png) | ![The Shiftella app](docs/screenshots/08-shiftella-app.png) |
+| *The morning after: the night's polaroid and what the café gave you* | *The in-game Shiftella app — the weekly rozpis* |
+| ![Crew card](docs/screenshots/09-crew-card.png) | ![Build mode](docs/screenshots/10-build.png) |
+| *A helper's card: duties, mood, what they're doing right now* | *Build mode: a reading nook and a listening corner form* |
+| ![Snowed in](docs/screenshots/11-storm-night.png) | ![Walk home](docs/screenshots/12-walk-home.png) |
+| *The storm night: the line is closed, everyone stays till morning* | *Walking home at dawn along the snowy embankment* |
 
-![An Advent night in the café](docs/screenshots/08-advent-night.png)
+![The clock waits for you at 21:59](docs/screenshots/13-doors-wait.png)
+*21:59 — the café is ready and the clock waits until you open the doors.*
+
+![An Advent night in the café](docs/screenshots/14-advent-night.png)
 
 ## Features
 
