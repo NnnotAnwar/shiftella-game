@@ -106,7 +106,10 @@ fn pastimes_only_when_nothing_to_do_and_dropped_at_once() {
             }
         }
     }
-    assert!(seen.len() >= 3, "a few different pastimes in a night: {seen:?}");
+    assert!(
+        seen.len() >= 3,
+        "a few different pastimes in a night: {seen:?}"
+    );
 }
 
 #[test]
@@ -120,12 +123,26 @@ fn dishes_and_dirt_interrupt_a_pastime_within_a_few_ticks() {
         for (i, on) in [(me, Some(duty)), (other, None)] {
             let id = w.staff[i].id;
             for d in w.staff[i].duties.clone() {
-                w.apply(&c, Command::SetDuty { staff: id, duty: d, on: false })
-                    .unwrap();
+                w.apply(
+                    &c,
+                    Command::SetDuty {
+                        staff: id,
+                        duty: d,
+                        on: false,
+                    },
+                )
+                .unwrap();
             }
             if let Some(d) = on {
-                w.apply(&c, Command::SetDuty { staff: id, duty: d, on: true })
-                    .unwrap();
+                w.apply(
+                    &c,
+                    Command::SetDuty {
+                        staff: id,
+                        duty: d,
+                        on: true,
+                    },
+                )
+                .unwrap();
             }
         }
         // a calm café: nothing to wash, a clean floor
@@ -251,7 +268,12 @@ fn work_over_nights(c: &Content, off: bool, seed: u64, nights: u32) -> (u64, u32
         let _ = w.drain_events();
     }
     OFF.with(|x| x.set(false));
-    let done = w.staff.iter().filter(|s| !s.owner).map(|s| s.tasks_done).sum();
+    let done = w
+        .staff
+        .iter()
+        .filter(|s| !s.owner)
+        .map(|s| s.tasks_done)
+        .sum();
     (busy, served, parties, done)
 }
 
@@ -271,8 +293,14 @@ fn helpers_do_no_less_real_work_with_pastimes() {
         on = (on.0 + b.0, on.1 + b.1, on.2 + b.3);
     }
     eprintln!("real-work ticks / served / helper tasks done: off {off:?} → on {on:?}");
-    assert!(on.2 as f64 >= off.2 as f64 * 0.95, "tasks done {on:?} vs {off:?}");
-    assert!(on.1 as f64 >= off.1 as f64 * 0.95, "served {on:?} vs {off:?}");
+    assert!(
+        on.2 as f64 >= off.2 as f64 * 0.95,
+        "tasks done {on:?} vs {off:?}"
+    );
+    assert!(
+        on.1 as f64 >= off.1 as f64 * 0.95,
+        "served {on:?} vs {off:?}"
+    );
 }
 
 #[test]

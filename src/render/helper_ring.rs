@@ -66,9 +66,20 @@ pub fn draw_helper_ring(anchor: Vec2, icon: HelperIcon, progress: f32, t: f32) {
     let a = if pastime { 0.72 } else { 0.9 };
     soft_shadow(c0.x, c0.y + 3.0 * s, 8.0 * s, 5.0 * s, 0.22 * a);
     // a dim glass disc with a faint rim
-    draw_circle(c0.x, c0.y, r + 1.2 * s, alpha(Color::from_hex(0x15132c), 0.8 * a));
+    draw_circle(
+        c0.x,
+        c0.y,
+        r + 1.2 * s,
+        alpha(Color::from_hex(0x15132c), 0.8 * a),
+    );
     draw_circle(c0.x, c0.y, r, alpha(Color::from_hex(0x242046), 0.92 * a));
-    draw_circle_lines(c0.x, c0.y, r + 1.2 * s, 0.8 * s, alpha(c::LAVENDER_RIM, 0.25 * a));
+    draw_circle_lines(
+        c0.x,
+        c0.y,
+        r + 1.2 * s,
+        0.8 * s,
+        alpha(c::LAVENDER_RIM, 0.25 * a),
+    );
     match icon {
         HelperIcon::Task(q) => draw_queue_icon(c0, 8.0 * s, q, t),
         HelperIcon::Pastime(p) => draw_pastime_icon(c0, 8.0 * s, p, t),
@@ -121,7 +132,14 @@ pub fn draw_pastime_icon(c0: Vec2, size: f32, icon: PastimeIcon, t: f32) {
             );
             for i in 0..2 {
                 let y = c0.y - 0.8 * u + i as f32 * 2.0 * u;
-                draw_line(c0.x - 3.0 * u, y, c0.x + 3.0 * u, y, 0.6 * u, alpha(WHITE, 0.6));
+                draw_line(
+                    c0.x - 3.0 * u,
+                    y,
+                    c0.x + 3.0 * u,
+                    y,
+                    0.6 * u,
+                    alpha(WHITE, 0.6),
+                );
             }
             // a swipe
             let k = (t * 3.0).sin() * 1.5 * u;
@@ -171,7 +189,13 @@ pub fn draw_pastime_icon(c0: Vec2, size: f32, icon: PastimeIcon, t: f32) {
             }
         }
         PastimeIcon::Pastry => {
-            ellipse(c0.x, c0.y + 1.0 * u, 4.8 * u, 3.0 * u, Color::from_hex(0xd08b4c));
+            ellipse(
+                c0.x,
+                c0.y + 1.0 * u,
+                4.8 * u,
+                3.0 * u,
+                Color::from_hex(0xd08b4c),
+            );
             ellipse(c0.x, c0.y, 4.0 * u, 2.2 * u, Color::from_hex(0xe9b06a));
             for i in -1..=1 {
                 draw_line(
@@ -204,9 +228,30 @@ pub fn draw_pastime_icon(c0: Vec2, size: f32, icon: PastimeIcon, t: f32) {
         }
         PastimeIcon::Chair => {
             let col = c::WOOD_LIGHT;
-            draw_line(c0.x - 2.5 * u, c0.y - 4.0 * u, c0.x - 2.5 * u, c0.y + 4.0 * u, 1.1 * u, col);
-            draw_line(c0.x - 2.5 * u, c0.y + 0.5 * u, c0.x + 3.0 * u, c0.y + 0.5 * u, 1.3 * u, col);
-            draw_line(c0.x + 3.0 * u, c0.y + 0.5 * u, c0.x + 3.0 * u, c0.y + 4.0 * u, 1.1 * u, col);
+            draw_line(
+                c0.x - 2.5 * u,
+                c0.y - 4.0 * u,
+                c0.x - 2.5 * u,
+                c0.y + 4.0 * u,
+                1.1 * u,
+                col,
+            );
+            draw_line(
+                c0.x - 2.5 * u,
+                c0.y + 0.5 * u,
+                c0.x + 3.0 * u,
+                c0.y + 0.5 * u,
+                1.3 * u,
+                col,
+            );
+            draw_line(
+                c0.x + 3.0 * u,
+                c0.y + 0.5 * u,
+                c0.x + 3.0 * u,
+                c0.y + 4.0 * u,
+                1.1 * u,
+                col,
+            );
         }
         PastimeIcon::Sugar => {
             rrect_v(
@@ -224,7 +269,7 @@ pub fn draw_pastime_icon(c0: Vec2, size: f32, icon: PastimeIcon, t: f32) {
         PastimeIcon::Broom => {
             let sway = (t * 4.0).sin() * 0.25;
             let top = c0 + vec2(2.5 * u + sway * 2.0 * u, -4.5 * u);
-            let bot = c0 + vec2(-1.0 * u, 2.0 * u);
+            let bot = c0 + vec2(-u, 2.0 * u);
             draw_line(top.x, top.y, bot.x, bot.y, 0.9 * u, c::WOOD_LIGHT);
             poly(
                 &[
@@ -329,7 +374,14 @@ pub fn draw_pastime_icon(c0: Vec2, size: f32, icon: PastimeIcon, t: f32) {
                 0.5 * u,
                 c::AMBER,
             );
-            draw_line(c0.x, c0.y - 3.2 * u, c0.x, c0.y + 3.2 * u, 0.6 * u, c::WOOD_DARK);
+            draw_line(
+                c0.x,
+                c0.y - 3.2 * u,
+                c0.x,
+                c0.y + 3.2 * u,
+                0.6 * u,
+                c::WOOD_DARK,
+            );
         }
         PastimeIcon::Paw => {
             let col = Color::from_hex(0xf0c9a0);
@@ -366,7 +418,14 @@ pub fn draw_pastime_prop(feet: Vec2, facing: Facing, k: f32, icon: PastimeIcon, 
                 c::CREAM,
                 shade(c::CREAM, 0.75),
             );
-            rrect(hand.x - 4.5, hand.y + 0.5, 9.0, 2.4, 1.0, Color::from_hex(0x9fd6e6));
+            rrect(
+                hand.x - 4.5,
+                hand.y + 0.5,
+                9.0,
+                2.4,
+                1.0,
+                Color::from_hex(0x9fd6e6),
+            );
         }
         PastimeIcon::Saucers => {
             for i in 0..3 {
@@ -377,7 +436,14 @@ pub fn draw_pastime_prop(feet: Vec2, facing: Facing, k: f32, icon: PastimeIcon, 
         }
         PastimeIcon::Cloth => {
             let k2 = (t * 5.0).sin() * 2.0;
-            rrect(hand.x - 3.5 + k2, hand.y - 1.0, 7.0, 3.5, 1.2, Color::from_hex(0x9fd6e6));
+            rrect(
+                hand.x - 3.5 + k2,
+                hand.y - 1.0,
+                7.0,
+                3.5,
+                1.2,
+                Color::from_hex(0x9fd6e6),
+            );
         }
         PastimeIcon::Water => {
             poly(
@@ -402,7 +468,14 @@ pub fn draw_pastime_prop(feet: Vec2, facing: Facing, k: f32, icon: PastimeIcon, 
         PastimeIcon::Phone => {
             let p = hand + vec2(0.0, -4.0);
             rrect(p.x - 2.4, p.y - 3.6, 4.8, 7.2, 1.0, c::GRAPHITE);
-            rrect(p.x - 1.7, p.y - 2.9, 3.4, 5.6, 0.5, Color::from_hex(0x8fd3ff));
+            rrect(
+                p.x - 1.7,
+                p.y - 2.9,
+                3.4,
+                5.6,
+                0.5,
+                Color::from_hex(0x8fd3ff),
+            );
             glow(p.x, p.y - 2.0, 9.0, alpha(Color::from_hex(0x8fd3ff), 0.22));
         }
         PastimeIcon::Broom => {
@@ -421,7 +494,15 @@ pub fn draw_pastime_prop(feet: Vec2, facing: Facing, k: f32, icon: PastimeIcon, 
             );
         }
         PastimeIcon::Napkin | PastimeIcon::Sugar => {
-            rrect_v(hand.x - 3.0, hand.y - 3.0, 6.0, 4.5, 1.2, WHITE, shade(WHITE, 0.8));
+            rrect_v(
+                hand.x - 3.0,
+                hand.y - 3.0,
+                6.0,
+                4.5,
+                1.2,
+                WHITE,
+                shade(WHITE, 0.8),
+            );
         }
         _ => {}
     }

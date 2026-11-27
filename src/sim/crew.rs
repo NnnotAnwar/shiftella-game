@@ -1011,7 +1011,10 @@ mod tests {
                         assert!(matches!(a, Activity::Break { .. }))
                     }
                     (StaffStatus::OnDuty, None | Some(Task::Idle { .. })) => {
-                        assert!(matches!(a, Activity::Idle { .. } | Activity::Pastime { .. }))
+                        assert!(matches!(
+                            a,
+                            Activity::Idle { .. } | Activity::Pastime { .. }
+                        ))
                     }
                     (StaffStatus::OffDuty, _) => {
                         assert!(matches!(a, Activity::OffTonight | Activity::OnLeave))

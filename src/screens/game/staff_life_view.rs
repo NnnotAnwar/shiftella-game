@@ -35,7 +35,11 @@ pub fn helper_icon(content: &Content, d: &HelperDoing) -> HelperIcon {
     match d {
         HelperDoing::Pastime(p) => HelperIcon::Pastime(pastime_icon(*p)),
         HelperDoing::Task { id, menu } => {
-            let cup = || menu.as_deref().map(|m| cup_of(content, m)).unwrap_or_default();
+            let cup = || {
+                menu.as_deref()
+                    .map(|m| cup_of(content, m))
+                    .unwrap_or_default()
+            };
             HelperIcon::Task(match *id {
                 "take_order" => QueueIcon::TakeOrder,
                 "prepare" => QueueIcon::Brew(cup()),
@@ -52,7 +56,12 @@ pub fn helper_icon(content: &Content, d: &HelperDoing) -> HelperIcon {
 
 /// The props of the helpers' pastimes (cup and cloth, broom, glass, phone…), drawn over the
 /// people (call right after the scene, before the lighting-independent overlays).
-pub fn push_props(world: &sim::World, people: &[sim::AgentView], q: &mut render::RenderQueue, t: f32) {
+pub fn push_props(
+    world: &sim::World,
+    people: &[sim::AgentView],
+    q: &mut render::RenderQueue,
+    t: f32,
+) {
     if world.phase() != Phase::Night {
         return;
     }

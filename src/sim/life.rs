@@ -199,7 +199,9 @@ pub(crate) fn stop(w: &mut World, idx: usize) {
             w.staff[idx].emote = None;
         }
         if l.kind == Pastime::Chat
-            && let Some(o) = l.with.and_then(|id| w.staff.iter().position(|s| s.id == id))
+            && let Some(o) = l
+                .with
+                .and_then(|id| w.staff.iter().position(|s| s.id == id))
             && w.staff[o]
                 .life
                 .as_ref()
@@ -242,7 +244,9 @@ pub(crate) fn step(w: &mut World, content: &Content, idx: usize) {
         return;
     }
     if l.kind == Pastime::Chat {
-        let partner = l.with.and_then(|id| w.staff.iter().position(|s| s.id == id));
+        let partner = l
+            .with
+            .and_then(|id| w.staff.iter().position(|s| s.id == id));
         let Some(o) = partner.filter(|&o| free_for_life(&w.staff[o])) else {
             finish(w, idx);
             return;
@@ -310,15 +314,15 @@ fn finish(w: &mut World, idx: usize) {
                 p.dirt = (p.dirt - 0.05).max(0.0);
             }
         }
-        Pastime::PetCat => {
-            if w.staff[idx].emote.is_none() {
-                w.staff[idx].emote = Some((SimEmote::Heart, w.tick + 16));
-            }
+        Pastime::PetCat if w.staff[idx].emote.is_none() => {
+            w.staff[idx].emote = Some((SimEmote::Heart, w.tick + 16));
         }
         _ => {}
     }
     if l.kind == Pastime::Chat
-        && let Some(o) = l.with.and_then(|id| w.staff.iter().position(|s| s.id == id))
+        && let Some(o) = l
+            .with
+            .and_then(|id| w.staff.iter().position(|s| s.id == id))
         && w.staff[o]
             .life
             .as_ref()
@@ -480,7 +484,16 @@ fn taken(w: &World, idx: usize) -> Vec<(i32, i32)> {
 /// A free floor tile next to `t` (no object, nobody on it), nearest to `from`.
 fn beside(w: &World, t: (i32, i32), from: (i32, i32), avoid: &[(i32, i32)]) -> Option<(i32, i32)> {
     let mut best: Option<(i32, i32)> = None;
-    for (dx, dy) in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (-1, 1), (1, -1), (-1, -1)] {
+    for (dx, dy) in [
+        (0, 1),
+        (0, -1),
+        (1, 0),
+        (-1, 0),
+        (1, 1),
+        (-1, 1),
+        (1, -1),
+        (-1, -1),
+    ] {
         let n = (t.0 + dx, t.1 + dy);
         if !w.grid.walkable(n.0, n.1)
             || !w.grid.is_indoor_floor(n.0, n.1)
@@ -685,7 +698,11 @@ fn spot_for(
             let mut best: Option<((i32, i32), (i32, i32))> = None;
             for y in 0..w.grid.height {
                 for x in 0..w.grid.width {
-                    if !w.grid.tile(x, y).is_some_and(|t| t.kind == TileKind::Window) {
+                    if !w
+                        .grid
+                        .tile(x, y)
+                        .is_some_and(|t| t.kind == TileKind::Window)
+                    {
                         continue;
                     }
                     let n = (x, y + 1);
@@ -755,9 +772,11 @@ fn helper_work(w: &World, s: &Staff) -> Option<HelperWork> {
                 return None;
             }
             let menu = match t {
-                Task::Prepare { item, .. } | Task::Serve { item, .. } => {
-                    w.items.iter().find(|i| i.id == *item).map(|i| i.menu.clone())
-                }
+                Task::Prepare { item, .. } | Task::Serve { item, .. } => w
+                    .items
+                    .iter()
+                    .find(|i| i.id == *item)
+                    .map(|i| i.menu.clone()),
                 _ => None,
             };
             let p = 1.0 - s.work_left.max(0.0) / s.work_total;
