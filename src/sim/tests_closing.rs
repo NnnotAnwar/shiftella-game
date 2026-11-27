@@ -238,8 +238,10 @@ fn close_up_ends_the_night_at_once_and_the_morning_comes_once() {
     // night 7: a payment night in the story? whatever it is, the morning happens once, after
     // the doors closed
     let (mut w, mut b, mut ev) = story_at(&c, 7, 0);
+    // (a full crew with two duties each can finish the closing list within minutes: close up
+    // a minute in)
     ev.extend(play_until(&mut w, &c, &mut b, |w| w.in_closing()));
-    ev.extend(play_until(&mut w, &c, &mut b, |w| w.close_minute() >= 5));
+    ev.extend(play_until(&mut w, &c, &mut b, |w| !w.in_closing() || w.close_minute() >= 1));
     assert!(w.in_closing());
     let before = w.summaries().len();
     let closed_at = ev.iter().position(|(_, e)| *e == SimEvent::DoorsClosed).unwrap();

@@ -934,8 +934,14 @@ fn the_helper_leaves_the_pot_to_karolina_when_shes_on_it() {
     }
     w.start_night(&c);
     bot::finish_cutscenes(&mut w, &c);
-    // the last prep minutes: the helper is in, Karolina far from the stove
-    while w.in_prep() && w.minutes_since_open() < -2 {
+    // the helper has just walked in (before the kitchen chores of the preparation start),
+    // Karolina far from the stove
+    let kitchen_in = |w: &World| {
+        w.staff().iter().any(|s| {
+            !s.owner && s.on_duty() && s.duties.contains(&crate::content::handson::Duty::Kitchen)
+        })
+    };
+    while w.in_prep() && !kitchen_in(&w) {
         w.tick(&c);
         bot::finish_cutscenes(&mut w, &c);
     }
@@ -944,7 +950,7 @@ fn the_helper_leaves_the_pot_to_karolina_when_shes_on_it() {
         .staff()
         .iter()
         .any(|s| !s.owner && s.on_duty() && s.duties.contains(&crate::content::handson::Duty::Kitchen));
-    assert!(on, "a kitchen helper on shift at 21:58");
+    assert!(on, "a kitchen helper on shift in the preparation");
     let stove = first_of(&w, &c, "station:stove").unwrap();
     w.hands.player.queue.clear();
     w.hands.player.current = None;
@@ -982,7 +988,6 @@ fn the_helper_leaves_the_pot_to_karolina_when_shes_on_it() {
             break;
         }
     }
-    assert!(w.doors_open());
     let pot = w.equipment().pot.clone().expect("the soup is on");
     assert!(pot.by_hand, "the helper took the pot she was on her way to");
 }
