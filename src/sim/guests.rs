@@ -326,9 +326,11 @@ fn choose_seats(
     {
         return Some(vec![(s.uid, s.idx, s.tile)]);
     }
+    // (and not the way out of a nook one of the crew is in: she'd climb over the guest)
+    let gates = super::staff::gates_in_use(w);
     let free: Vec<&SeatInfo> = all
         .iter()
-        .filter(|s| s.free && !held(s) && reachable(s.tile))
+        .filter(|s| s.free && !held(s) && reachable(s.tile) && !gates.contains(&s.tile))
         .collect();
     if free.len() < n {
         return None;

@@ -396,3 +396,59 @@ fn to_go_spots_are_always_inside_the_cafe() {
         }
     }
 }
+
+/// 0.2.4 (the two leftover chaos finds): a nook's way in is the chair in front of it…
+#[test]
+fn a_nook_knows_the_chair_that_is_its_way_in() {
+    let c = content();
+    let mut next = 1;
+    let (mut g, f) = grid::parse_layout(
+        "######\n#..h.#\n#..###\n#....#\n#DD###\n======",
+        &c,
+        &mut next,
+    );
+    g.rebuild(&f, &c);
+    assert_eq!(g.nook_gates((4, 1)), vec![(3, 1)]);
+    assert!(g.nook_gates((1, 1)).is_empty(), "clear floor has no gate");
+    assert!(g.nook_gates((3, 1)).is_empty(), "a chair is no nook");
+}
+
+/// …and while Karolina works in there, no guest sits down on it: she climbed out over the
+/// guest who did.
+#[test]
+fn nobody_sits_down_in_the_way_out_of_a_nook_she_works_in() {
+    let c = content();
+    let build = |c: &Content| {
+        let mut w = night(c, 3);
+        // the north-east corner (28,1) walled in by two tables, its way in a chair
+        place(&mut w, c, "table_round", (27, 1)).unwrap();
+        place(&mut w, c, "table_round", (27, 2)).unwrap();
+        place(&mut w, c, "chair", (28, 2)).unwrap();
+        assert_eq!(w.grid.nook_gates((28, 1)), vec![(28, 2)]);
+        w
+    };
+    let gate_taken = |w: &mut World, c: &Content| {
+        for _ in 0..40 {
+            let _ = guests::spawn_party(w, c, "students", 1, None, 1.0, 1.0, &[], None, true);
+        }
+        w.guests
+            .iter()
+            .filter_map(|g| g.seat)
+            .any(|(u, k)| guests::seat_tile(w, u, k) == Some((28, 2)))
+    };
+    // without her in there the chair fills up like any other
+    let mut w = build(&c);
+    assert!(gate_taken(&mut w, &c), "the chair is a seat like any other");
+    // with her in the nook nobody picks it
+    let mut w = build(&c);
+    let k = karolina(&w);
+    w.staff[k].path.clear();
+    w.staff[k].pos = grid::tile_center((28, 1));
+    assert_eq!(staff::gates_in_use(&w), vec![(28, 2)]);
+    assert!(!gate_taken(&mut w, &c), "a guest sat down in her way out");
+    // …nor while she walks there
+    let mut w = build(&c);
+    let k = karolina(&w);
+    w.staff[k].path = vec![(28, 1)];
+    assert!(!gate_taken(&mut w, &c), "a guest sat down in her way in");
+}

@@ -350,6 +350,57 @@ impl Grid {
             .is_some_and(|i| self.walk.get(i).copied().unwrap_or(0) & GUEST_CLEAR != 0)
     }
 
+    /// The chairs one crosses to get into or out of the nook around `t` — a floor tile
+    /// reached only over a chair (not [`CLEAR`]); empty for clear floor and for a seat. The
+    /// nook's floor is followed through its chairs into a nook behind them, never from one
+    /// chair to the next (a table's row of chairs isn't one way in).
+    pub fn nook_gates(&self, t: (i32, i32)) -> Vec<(i32, i32)> {
+        if !self.walkable(t.0, t.1) || self.clear(t.0, t.1) || self.is_seat(t.0, t.1) {
+            return Vec::new();
+        }
+        let Some(start) = self.idx(t.0, t.1) else {
+            return Vec::new();
+        };
+        let mut seen = vec![false; self.tiles.len()];
+        seen[start] = true;
+        let mut stack = vec![t];
+        let mut gates = Vec::new();
+        let mut steps = 0;
+        while let Some((x, y)) = stack.pop() {
+            steps += 1;
+            if steps > 400 {
+                break;
+            }
+            let from_seat = self.is_seat(x, y);
+            for dy in -1..=1 {
+                for dx in -1..=1 {
+                    let (nx, ny) = (x + dx, y + dy);
+                    let Some(i) = self.idx(nx, ny) else {
+                        continue;
+                    };
+                    if seen[i] || !self.walkable(nx, ny) || self.clear(nx, ny) {
+                        continue;
+                    }
+                    let seat = self.is_seat(nx, ny);
+                    // floor ↔ chair only (4-way into the floor, any way onto a chair)
+                    if from_seat && (seat || dx != 0 && dy != 0) {
+                        continue;
+                    }
+                    if !from_seat && !seat && dx != 0 && dy != 0 {
+                        continue;
+                    }
+                    seen[i] = true;
+                    if seat {
+                        gates.push((nx, ny));
+                    }
+                    stack.push((nx, ny));
+                }
+            }
+        }
+        gates.sort_unstable();
+        gates
+    }
+
     /// Marks the seats people sit on (path caches see a new version when it changed).
     pub fn set_taken(&mut self, mut tiles: Vec<(i32, i32)>) {
         tiles.sort_unstable();

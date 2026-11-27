@@ -654,6 +654,17 @@ pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(
             .filter_map(|&t| pick(t))
             .min_by_key(|t| (t.1, t.0))
     };
+    // a nook's spot only while nobody sits or is headed to sit on its way in (0.2.4 chaos
+    // find: she cleared a table in a nook behind two chairs, a guest sat down on one, and
+    // she climbed out over them); while she's in there, guests leave those chairs alone
+    // (`gates_in_use`)
+    let claimed = claimed_seats(w);
+    let open = |t: &&(i32, i32)| {
+        w.grid
+            .nook_gates(**t)
+            .iter()
+            .all(|g| !w.grid.is_taken(g.0, g.1) && !claimed.contains(g))
+    };
     tiles
         .iter()
         .filter(clear)
@@ -665,6 +676,15 @@ pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(
             tiles
                 .iter()
                 .filter(reached)
+                .filter(open)
+                .find(staff)
+                .or(tiles.iter().filter(reached).find(open))
+                .copied()
+        })
+        .or_else(|| {
+            tiles
+                .iter()
+                .filter(reached)
                 .find(staff)
                 .or(tiles.iter().find(reached))
                 .or(tiles.iter().find(staff))
@@ -672,6 +692,28 @@ pub(crate) fn station_access(w: &World, content: &Content, uid: u32) -> Option<(
                 .copied()
         })
         .or_else(|| corner(&|t| stand_next_to_in(w, t, from, true)))
+}
+
+/// The seat tiles guests sit on or walk to.
+fn claimed_seats(w: &World) -> Vec<(i32, i32)> {
+    w.guests
+        .iter()
+        .filter_map(|g| g.seat)
+        .filter_map(|(uid, k)| guests::seat_tile(w, uid, k))
+        .collect()
+}
+
+/// The chairs that are the way out of a nook somebody of the crew stands in or walks to
+/// ([`grid::Grid::nook_gates`]): no guest picks them meanwhile (0.2.4 chaos find).
+pub(crate) fn gates_in_use(w: &World) -> Vec<(i32, i32)> {
+    let mut v = Vec::new();
+    for s in w.staff.iter().filter(|s| s.present()) {
+        v.extend(w.grid.nook_gates(s.tile()));
+        if let Some(&goal) = s.path.last() {
+            v.extend(w.grid.nook_gates(goal));
+        }
+    }
+    v
 }
 
 pub(crate) fn stand_next_to(w: &World, t: (i32, i32), from: (i32, i32)) -> Option<(i32, i32)> {
