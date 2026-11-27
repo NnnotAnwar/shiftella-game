@@ -171,6 +171,21 @@ fn the_early_crew_walks_in_by_quarter_to_ten_and_takes_their_items() {
     for id in ids {
         w.apply(&c, Command::Hire { candidate: id }).unwrap();
     }
+    // both new helpers work tonight (their own day-off wishes hash off their ids)
+    let wd = w.weekday;
+    let hired: Vec<u32> = w.staff().iter().rev().take(2).map(|s| s.id).collect();
+    for id in hired {
+        w.apply(
+            &c,
+            Command::SetShift {
+                staff: id,
+                weekday: wd,
+                shift: Shift::Full,
+            },
+        )
+        .unwrap();
+    }
+    w.apply(&c, Command::PublishSchedule).unwrap();
     for s in w.staff.iter_mut().filter(|s| !s.owner) {
         s.duties = vec![
             crate::content::handson::Duty::Bar,

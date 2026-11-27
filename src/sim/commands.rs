@@ -722,7 +722,7 @@ impl World {
             Command::PlayerQueue { act, front } => super::player::queue(self, content, act, front),
             Command::PlayerUnqueue { index } => super::player::unqueue(self, content, index),
             Command::PlayerWashProgress { sink, seconds } => {
-                super::player::wash_progress(self, sink, seconds)
+                super::player::wash_progress(self, content, sink, seconds)
             }
             Command::PlayerGreet { guest } => super::player::greet(self, content, guest),
             Command::PlayRecord { id, repeat } => super::player::queue(

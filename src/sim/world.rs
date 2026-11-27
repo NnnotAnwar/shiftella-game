@@ -14,6 +14,8 @@ use crate::content::{ClockTime, Content, Job, Weather, Weekday};
 /// Save format version. 2 = the hands-on update (Karolina, duties, wishes, jukebox); version 1
 /// saves still load (`World::load_from_str` migrates them).
 pub const SAVE_VERSION: u32 = 2;
+/// Furniture defs removed from the catalogue → what an old save's piece becomes on load.
+pub const REMOVED_DEFS: &[(&str, &str)] = &[("counter_corner", "bar_counter")];
 pub const TICKS_PER_MINUTE: u32 = 10;
 pub const NIGHT_MINUTES: u32 = 480;
 pub const NIGHT_TICKS: u32 = NIGHT_MINUTES * TICKS_PER_MINUTE;
@@ -1765,8 +1767,24 @@ impl World {
             }
         }
         world.version = SAVE_VERSION;
+        world.migrate_defs();
         super::names::ensure_all(&mut world);
         Ok(world)
+    }
+
+    /// Furniture ids that left the catalogue load as their replacement (same footprint), so
+    /// old cafés keep every piece: the corner counter became the self-joining bar counter.
+    fn migrate_defs(&mut self) {
+        for p in self.furniture.iter_mut() {
+            if let Some(&(_, to)) = REMOVED_DEFS.iter().find(|(from, _)| *from == p.def) {
+                p.def = to.to_string();
+            }
+        }
+        for (from, to) in REMOVED_DEFS {
+            if self.story.unlocked_furniture.remove(*from) {
+                self.story.unlocked_furniture.insert(to.to_string());
+            }
+        }
     }
 
     fn migrate_v1(&mut self) {
@@ -2056,11 +2074,22 @@ impl World {
                 } else {
                     powered
                 };
+                // a helper (drying rack, grinder) only works beside its station
+                let active = if def.is_some_and(|d| super::companions::helps(d).is_some()) {
+                    powered && super::companions::helper_working(self, content, p.uid)
+                } else {
+                    active
+                };
+                let mut dirty = (p.dirt + p.dishes as f32 * 0.2).min(1.0);
+                if def.is_some_and(|d| d.has_tag("sink")) {
+                    // the dirty pile waiting at the sink
+                    dirty = dirty.max((self.sink_dishes as f32 / 12.0).min(1.0));
+                }
                 let size = def.map(|d| grid::rotated_size(d, p.rot)).unwrap_or((1, 1));
                 FurnitureView {
                     uid: p.uid,
                     active,
-                    dirty: (p.dirt + p.dishes as f32 * 0.2).min(1.0),
+                    dirty,
                     facing: p.facing(),
                     tile: (p.x, p.y),
                     size,

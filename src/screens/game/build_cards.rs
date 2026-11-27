@@ -84,6 +84,12 @@ fn station(d: &FurnitureDef) -> Option<&str> {
         .or_else(|| d.has_tag("sink").then_some("sink"))
         .or_else(|| d.has_tag("register").then_some("register"))
         .or_else(|| d.has_tag("drone").then_some("drone"))
+        .or_else(|| d.has_tag("trash").then_some("trash"))
+}
+
+/// A station helper (`helps:*`): the station it speeds up (as a station kind) and how much.
+fn helper(d: &FurnitureDef) -> Option<(&'static str, f32)> {
+    sim::companions::helps(d).map(|(tag, mul)| (tag.strip_prefix("station:").unwrap_or(tag), mul))
 }
 
 fn station_icon(kind: &str) -> Icon {
@@ -95,6 +101,7 @@ fn station_icon(kind: &str) -> Icon {
         "sink" => Icon::Dishes,
         "register" => Icon::CashRegister,
         "drone" => Icon::Plane,
+        "trash" => Icon::Broom,
         _ => Icon::Build,
     }
 }
@@ -150,6 +157,13 @@ fn chips(loc: &Locale, t: &Theme, d: &FurnitureDef) -> Vec<Chip> {
             color: t.emerald_400,
         });
     }
+    if let Some((kind, mul)) = helper(d) {
+        v.push(Chip {
+            icon: station_icon(kind),
+            text: format!("×{}", num(loc, mul)),
+            color: t.emerald_400,
+        });
+    }
     if d.has_tag("power_socket") || d.needs_power && !d.has_tag("music") {
         v.push(Chip {
             icon: Icon::Bolt,
@@ -199,6 +213,12 @@ fn tooltip(
     }
     if let Some(s) = station(d) {
         lines.push(loc.tr_owned(&format!("bux.tip.station.{s}")));
+    }
+    if let Some((kind, mul)) = helper(d) {
+        lines.push(loc.trf(&format!("bar.tip.helps.{kind}"), &[("n", &n(mul))]));
+    }
+    if d.has_tag("counter") && d.category == BuildCategory::Counters {
+        lines.push(loc.tr_owned("bar.tip.counter"));
     }
     if d.has_tag("power_socket") {
         lines.push(loc.tr_owned("bux.tip.socket"));

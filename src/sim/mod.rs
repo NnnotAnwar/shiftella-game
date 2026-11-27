@@ -15,6 +15,7 @@ mod build_content;
 mod build_ux;
 mod build_wishes;
 mod commands;
+pub mod companions;
 mod corners;
 mod crew;
 mod duties;
@@ -51,6 +52,8 @@ mod xlogic;
 mod tests;
 #[cfg(test)]
 mod tests_balance;
+#[cfg(test)]
+mod tests_bar;
 #[cfg(test)]
 mod tests_build;
 #[cfg(test)]

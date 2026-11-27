@@ -26,7 +26,80 @@ pub struct FurnitureState {
     /// Animation time, s.
     pub t: f32,
     /// Where the piece "faces" (a chair: where the sitter looks). Default `Down`.
+    /// A `bar_counter`: where its guests are (see `draw_counter`).
     pub facing: Facing,
+    /// Counter-height neighbours it joins up with ([`JOIN_N`] | [`JOIN_E`] | [`JOIN_S`] |
+    /// [`JOIN_W`], see [`counter_joins`]): a run of `bar_counter`s reads as one counter.
+    pub joins: u8,
+}
+
+/// [`FurnitureState::joins`] bits.
+pub const JOIN_N: u8 = 1;
+pub const JOIN_E: u8 = 2;
+pub const JOIN_S: u8 = 4;
+pub const JOIN_W: u8 = 8;
+
+/// Pieces at counter height that a counter joins up with (they stand on the same worktop).
+pub fn joins_counter(sprite: &str) -> bool {
+    matches!(
+        sprite,
+        "bar_counter"
+            | "register"
+            | "coffee_machine"
+            | "espresso_grinder"
+            | "sink"
+            | "dish_rack"
+            | "stove"
+            | "oven"
+    )
+}
+
+/// A piece for [`counter_joins`]: its sprite, top-left tile and size in tiles.
+pub type JoinPiece<'a> = (&'a str, (i32, i32), (u8, u8));
+
+/// The join bits of each piece: `(sprite, top-left tile, size in tiles)` → for a counter-height
+/// piece, which sides touch another counter-height piece; 0 for everything else.
+pub fn counter_joins(pieces: &[JoinPiece]) -> Vec<u8> {
+    let mut at = std::collections::HashSet::new();
+    for (sprite, (x, y), (w, h)) in pieces {
+        if joins_counter(sprite) {
+            for dy in 0..(*h).max(1) as i32 {
+                for dx in 0..(*w).max(1) as i32 {
+                    at.insert((x + dx, y + dy));
+                }
+            }
+        }
+    }
+    pieces
+        .iter()
+        .map(|(sprite, (x, y), (w, h))| {
+            if !joins_counter(sprite) {
+                return 0;
+            }
+            let (w, h) = ((*w).max(1) as i32, (*h).max(1) as i32);
+            let side = |tiles: &mut dyn Iterator<Item = (i32, i32)>| {
+                let mut hit = false;
+                for t in tiles {
+                    hit |= at.contains(&t);
+                }
+                hit
+            };
+            let mut j = 0;
+            if side(&mut (0..w).map(|dx| (x + dx, y - 1))) {
+                j |= JOIN_N;
+            }
+            if side(&mut (0..h).map(|dy| (x + w, y + dy))) {
+                j |= JOIN_E;
+            }
+            if side(&mut (0..w).map(|dx| (x + dx, y + h))) {
+                j |= JOIN_S;
+            }
+            if side(&mut (0..h).map(|dy| (x - 1, y + dy))) {
+                j |= JOIN_W;
+            }
+            j
+        })
+        .collect()
 }
 
 impl Default for FurnitureState {
@@ -36,18 +109,18 @@ impl Default for FurnitureState {
             dirty: 0.0,
             t: 0.0,
             facing: Facing::Down,
+            joins: 0,
         }
     }
 }
 
 /// Every id `draw_furniture` can draw (the contract with the content data).
-pub const FURNITURE_IDS: [&str; 36] = [
+pub const FURNITURE_IDS: [&str; 35] = [
     "table_round_2",
     "table_square_4",
     "chair",
     "stool",
     "bar_counter",
-    "counter_corner",
     "coffee_machine",
     "espresso_grinder",
     "stove",
@@ -331,6 +404,238 @@ fn mess(cx: f32, cy: f32, rx: f32, ry: f32, dirty: f32, seed: u32) {
     }
 }
 
+// ───────────────────────── the bar counter ─────────────────────────
+
+/// One `bar_counter` tile. Neighbouring counter-height pieces (`state.joins`) make one
+/// continuous worktop: no end caps or front faces between them, rounded ends only where the
+/// run stops. `state.facing` says where the guests are: `Down` = the front counter (open shelves
+/// with cups, glasses and jars towards the camera — the staff side — and the guests' raised
+/// ledge along the far edge); `Up` = a back bar against a wall (the same shelves, no ledge);
+/// `Left` / `Right` = a return down the side (the ledge on the hall side, a plain end panel).
+fn draw_counter(o: Vec2, w: f32, d: f32, state: &FurnitureState, seed: u32, props: bool) {
+    let j = state.joins;
+    let (jn, je, js, jw) = (
+        j & JOIN_N != 0,
+        j & JOIN_E != 0,
+        j & JOIN_S != 0,
+        j & JOIN_W != 0,
+    );
+    let h = COUNTER_H;
+    let brass = Color::from_hex(0xd9a85c);
+    // the footprint on the floor: inset where the run ends, flush where it joins
+    let x0 = if jw { o.x - 0.5 } else { o.x + 1.0 };
+    let x1 = if je { o.x + w + 0.5 } else { o.x + w - 1.0 };
+    let y0 = if jn { o.y } else { o.y + 6.0 };
+    let y1 = if js { o.y + d } else { o.y + d - 4.0 };
+    let fw = x1 - x0;
+    if !js {
+        soft_shadow(
+            (x0 + x1) / 2.0 + 3.0,
+            y1 - 8.0,
+            fw * 0.6,
+            12.0,
+            0.38,
+        );
+    }
+    // ── front face (towards the camera) ──
+    if !js {
+        let fy = y1 - h;
+        match state.facing {
+            Facing::Down | Facing::Up => {
+                // staff side: an open shelf unit
+                rect_v(x0, fy, fw, h, c::WOOD_PLUM, shade(c::WOOD_PLUM, 0.62));
+                let (ix, iw) = (x0 + if jw { 2.0 } else { 4.0 }, fw - if jw || je { 4.0 } else { 8.0 });
+                let recess = shade(c::WOOD_PLUM, 0.36);
+                rect_v(ix, fy + 3.0, iw, h - 9.0, shade(recess, 1.25), recess);
+                // the shelf board
+                let sy = fy + 3.0 + (h - 9.0) * 0.5;
+                draw_line(ix, sy, ix + iw, sy, 1.6, shade(c::WOOD_LIGHT, 0.8));
+                let kind = hash(seed ^ 0x51) % 4;
+                for (row, base) in [(0u32, sy - 0.8), (1, fy + h - 6.8)] {
+                    let n = 3;
+                    for k in 0..n {
+                        let px = ix + iw * (k as f32 + 0.5) / n as f32;
+                        match (kind + row) % 4 {
+                            // cups upside down
+                            0 => rrect_v(
+                                px - 4.5,
+                                base - 6.0,
+                                9.0,
+                                6.0,
+                                2.0,
+                                c::CREAM,
+                                shade(c::CREAM, 0.78),
+                            ),
+                            // glasses
+                            1 => {
+                                rrect_v(
+                                    px - 3.0,
+                                    base - 8.0,
+                                    6.0,
+                                    8.0,
+                                    1.5,
+                                    Color::new(0.82, 0.84, 1.0, 0.55),
+                                    Color::new(0.6, 0.62, 0.85, 0.45),
+                                );
+                                draw_line(px - 1.5, base - 7.0, px - 1.5, base - 2.0, 0.8, alpha(WHITE, 0.5));
+                            }
+                            // jars of beans / tea
+                            2 => {
+                                rrect_v(
+                                    px - 3.5,
+                                    base - 8.0,
+                                    7.0,
+                                    8.0,
+                                    2.0,
+                                    Color::new(0.85, 0.88, 1.0, 0.5),
+                                    Color::new(0.6, 0.62, 0.8, 0.5),
+                                );
+                                draw_rectangle(px - 2.5, base - 5.0, 5.0, 4.5, if k % 2 == 0 {
+                                    Color::from_hex(0x5a3424)
+                                } else {
+                                    Color::from_hex(0x7a8a3a)
+                                });
+                                draw_rectangle(px - 3.5, base - 9.5, 7.0, 2.0, c::WOOD_DARK);
+                            }
+                            // a stack of saucers
+                            _ => {
+                                for q in 0..3 {
+                                    ellipse_v(
+                                        px,
+                                        base - 1.5 - q as f32 * 2.0,
+                                        4.5,
+                                        1.4,
+                                        c::CREAM,
+                                        shade(c::CREAM, 0.8),
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+                // plinth
+                rect_v(x0, y1 - 5.0, fw, 5.0, shade(c::WOOD_PLUM, 0.42), shade(c::WOOD_PLUM, 0.3));
+            }
+            Facing::Left | Facing::Right => {
+                // the end of a return: a plain panel with one inset
+                rect_v(x0, fy, fw, h, c::WOOD_PLUM, shade(c::WOOD_PLUM, 0.6));
+                rrect_v(
+                    x0 + 6.0,
+                    fy + 5.0,
+                    fw - 12.0,
+                    h - 12.0,
+                    2.0,
+                    shade(c::WOOD_PLUM, 0.85),
+                    shade(c::WOOD_PLUM, 0.7),
+                );
+                rect_v(x0, y1 - 5.0, fw, 5.0, shade(c::WOOD_PLUM, 0.42), shade(c::WOOD_PLUM, 0.3));
+            }
+        }
+    }
+    // ── the worktop ──
+    let top_y = y0 - h - 2.0;
+    let top_h = y1 - y0 + 2.0;
+    let top = tint_light(c::WOOD_LIGHT, 0.12);
+    let rr: f32 = if j == 0 { 5.0 } else { 1.5 };
+    rrect_v(x0 - 0.5, top_y, fw + 1.0, top_h, rr, top, c::WOOD_LIGHT);
+    if !js {
+        // the lit front edge
+        draw_line(
+            x0 + 1.0,
+            y1 - h,
+            x1 - 1.0,
+            y1 - h,
+            2.0,
+            alpha(tint_light(c::WOOD_LIGHT, 0.5), 0.8),
+        );
+    }
+    if !jn {
+        draw_line(x0, top_y + 1.0, x1, top_y + 1.0, 1.2, alpha(c::LAVENDER_RIM, 0.35));
+    }
+    // the guests' raised ledge along the customer edge
+    let ledge = shade(c::WOOD_DARK, 1.15);
+    match state.facing {
+        Facing::Down if !jn => {
+            rect_v(x0 - 0.5, top_y - 5.0, fw + 1.0, 4.0, tint_light(ledge, 0.25), ledge);
+            rect_v(x0 - 0.5, top_y - 1.0, fw + 1.0, 4.0, shade(ledge, 0.8), shade(ledge, 0.6));
+            draw_line(x0, top_y - 1.0, x1, top_y - 1.0, 1.1, alpha(brass, 0.75));
+        }
+        Facing::Right if !jw => {
+            rect_v(x0 - 0.5, top_y - 5.0, 6.0, top_h + 1.0, tint_light(ledge, 0.25), ledge);
+            if !js {
+                rect_v(x0 - 0.5, y1 - h - 4.0, 6.0, 4.0, shade(ledge, 0.8), shade(ledge, 0.6));
+            }
+        }
+        Facing::Left if !je => {
+            rect_v(x1 - 5.5, top_y - 5.0, 6.0, top_h + 1.0, tint_light(ledge, 0.25), ledge);
+            if !js {
+                rect_v(x1 - 5.5, y1 - h - 4.0, 6.0, 4.0, shade(ledge, 0.8), shade(ledge, 0.6));
+            }
+        }
+        _ => {}
+    }
+    // ── a few things on top (by tile, so it never flickers) ──
+    let cx = (x0 + x1) / 2.0;
+    let ty = top_y + top_h * 0.55;
+    if props && state.dirty <= 0.05 {
+        match hash(seed ^ 0xb4) % 6 {
+            // a stack of cups
+            0 => {
+                for q in 0..3 {
+                    let y = ty - q as f32 * 5.0;
+                    rrect_v(cx - 5.0, y - 5.0, 10.0, 5.0, 2.0, c::CREAM, shade(c::CREAM, 0.78));
+                }
+            }
+            // a glass cake dome
+            1 => {
+                ellipse(cx, ty, 11.0, 3.5, shade(c::STEEL_LIGHT, 0.85));
+                rrect_v(cx - 7.0, ty - 7.0, 14.0, 6.0, 2.0, Color::from_hex(0xe8b9a0), Color::from_hex(0xb7765a));
+                ellipse_v(cx, ty - 7.0, 9.5, 9.0, Color::new(0.9, 0.92, 1.0, 0.25), Color::new(0.8, 0.82, 1.0, 0.18));
+                draw_line(cx - 5.0, ty - 13.0, cx - 6.5, ty - 6.0, 1.0, alpha(WHITE, 0.5));
+            }
+            // a sugar jar and a napkin holder
+            2 => {
+                rrect_v(cx - 9.0, ty - 9.0, 7.0, 9.0, 2.0, Color::new(0.9, 0.92, 1.0, 0.55), Color::new(0.7, 0.72, 0.9, 0.5));
+                draw_rectangle(cx - 9.0, ty - 10.5, 7.0, 2.0, c::STEEL);
+                rect_v(cx + 2.0, ty - 8.0, 8.0, 8.0, c::STEEL_LIGHT, c::STEEL);
+                draw_rectangle(cx + 3.0, ty - 11.0, 6.0, 4.0, WHITE);
+            }
+            // two bottles of syrup
+            3 => {
+                for (k, col) in [(0.0, Color::from_hex(0x8a3a4a)), (8.0, Color::from_hex(0xc88a3a))] {
+                    let bx = cx - 6.0 + k;
+                    rrect_v(bx - 3.0, ty - 12.0, 6.0, 12.0, 2.0, tint_light(col, 0.2), col);
+                    draw_rectangle(bx - 1.2, ty - 16.0, 2.4, 4.5, shade(col, 0.8));
+                    draw_line(bx - 1.5, ty - 10.0, bx - 1.5, ty - 3.0, 0.8, alpha(WHITE, 0.45));
+                }
+            }
+            _ => {}
+        }
+    }
+    if props {
+        mess(cx, ty - 2.0, fw * 0.35, top_h * 0.3, state.dirty, seed);
+    }
+}
+
+/// The base of an appliance that stands on the bar: part of the counter run when it joins
+/// one (the same worktop and shelves), else its own unit.
+#[allow(clippy::too_many_arguments)]
+fn on_counter_base(
+    o: Vec2,
+    w: f32,
+    d: f32,
+    state: &FurnitureState,
+    seed: u32,
+    front: Color,
+    top: Color,
+) {
+    if state.joins != 0 {
+        draw_counter(o, w, d, state, seed, false);
+    } else {
+        counter_base(o, w, d, front, top);
+    }
+}
+
 // ───────────────────────── drawing ─────────────────────────
 
 /// Draw a piece. `tile_origin` — the top-left of its footprint in world pixels,
@@ -471,78 +776,9 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 decor().textile,
             );
         }
-        "bar_counter" | "counter_corner" => {
-            let corner = sprite == "counter_corner";
-            let (x, y0, dd) = (o.x, o.y + 6.0, d - 10.0);
-            let r = if corner { 6.0 } else { 1.2 };
-            soft_shadow(cx + 3.0, y0 + dd * 0.7, w * 0.6, dd * 0.5, 0.42);
-            rrect_v(
-                x,
-                y0 + dd - COUNTER_H - r,
-                w,
-                COUNTER_H + r,
-                r,
-                c::WOOD_PLUM,
-                shade(c::WOOD_PLUM, 0.6),
-            );
-            // vertical slats
-            let n = (w / 10.0) as i32;
-            for i in 1..n {
-                let lx = x + i as f32 * w / n as f32;
-                draw_line(
-                    lx,
-                    y0 + dd - COUNTER_H + 3.0,
-                    lx,
-                    y0 + dd - 5.0,
-                    1.0,
-                    alpha(shade(c::WOOD_PLUM, 0.6), 0.7),
-                );
-            }
-            // brass foot rail
-            draw_line(
-                x + 2.0,
-                y0 + dd - 8.0,
-                x + w - 2.0,
-                y0 + dd - 8.0,
-                2.0,
-                Color::from_hex(0xd9a85c),
-            );
-            rrect_v(
-                x - 1.0,
-                y0 - COUNTER_H - 2.0,
-                w + 2.0,
-                dd + 2.0,
-                r,
-                tint_light(c::WOOD_LIGHT, 0.12),
-                c::WOOD_LIGHT,
-            );
-            draw_line(
-                x + r,
-                y0 + dd - COUNTER_H,
-                x + w - r,
-                y0 + dd - COUNTER_H,
-                2.0,
-                alpha(tint_light(c::WOOD_LIGHT, 0.5), 0.8),
-            );
-            draw_line(
-                x,
-                y0 - COUNTER_H - 1.0,
-                x + w,
-                y0 - COUNTER_H - 1.0,
-                1.2,
-                alpha(c::LAVENDER_RIM, 0.35),
-            );
-            mess(
-                cx,
-                y0 + dd * 0.5 - COUNTER_H,
-                w * 0.35,
-                dd * 0.3,
-                state.dirty,
-                seed,
-            );
-        }
+        "bar_counter" => draw_counter(o, w, d, state, seed, true),
         "coffee_machine" => {
-            counter_base(o, w, d, c::STEEL_DARK, c::STEEL_LIGHT);
+            on_counter_base(o, w, d, state, seed, c::STEEL_DARK, c::STEEL_LIGHT);
             let top = o.y + 6.0 + (d - 10.0) * 0.45 - COUNTER_H;
             let (mw, mh) = (w * 0.72, 30.0);
             let mx = cx - mw / 2.0;
@@ -601,7 +837,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             }
         }
         "espresso_grinder" => {
-            counter_base(o, w, d, c::STEEL_DARK, c::STEEL_LIGHT);
+            on_counter_base(o, w, d, state, seed, c::STEEL_DARK, c::STEEL_LIGHT);
             let top = o.y + 6.0 + (d - 10.0) * 0.45 - COUNTER_H;
             soft_shadow(cx, top + 2.0, 12.0, 5.0, 0.4);
             rrect_v(
@@ -624,15 +860,18 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
                 Color::new(0.85, 0.88, 1.0, 0.45),
                 Color::new(0.6, 0.62, 0.8, 0.5),
             );
-            poly(
-                &[
-                    vec2(cx - 9.0, top - 36.0),
-                    vec2(cx + 9.0, top - 36.0),
-                    vec2(cx + 5.0, top - 25.0),
-                    vec2(cx - 5.0, top - 25.0),
-                ],
-                Color::from_hex(0x5a3424),
-            );
+            // beans in the hopper only beside a coffee machine (sim::companions)
+            if state.active {
+                poly(
+                    &[
+                        vec2(cx - 9.0, top - 36.0),
+                        vec2(cx + 9.0, top - 36.0),
+                        vec2(cx + 5.0, top - 25.0),
+                        vec2(cx - 5.0, top - 25.0),
+                    ],
+                    Color::from_hex(0x5a3424),
+                );
+            }
             ellipse(cx, top - 44.0, 11.0, 3.0, Color::from_hex(0x3a3550));
             draw_line(
                 cx - 6.0,
@@ -830,7 +1069,8 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
         "dish_rack" => {
             counter_base(o, w, d, c::WOOD_PLUM, c::STEEL_LIGHT);
             let top_y = o.y + 6.0 + (d - 10.0) * 0.5 - COUNTER_H;
-            let n = 3 + (state.dirty * 4.0) as i32;
+            // clean plates drying — only beside a sink (sim::companions), else it stands empty
+            let n = if state.active { 4 } else { 0 };
             for i in 0..n {
                 let px = o.x + 12.0 + i as f32 * (w - 24.0) / (n - 1).max(1) as f32;
                 ellipse_v(px, top_y - 9.0, 3.0, 10.0, c::CREAM, shade(c::CREAM, 0.75));
@@ -841,7 +1081,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             }
         }
         "register" => {
-            counter_base(o, w, d, c::WOOD_PLUM, tint_light(c::WOOD_LIGHT, 0.05));
+            on_counter_base(o, w, d, state, seed, c::WOOD_PLUM, tint_light(c::WOOD_LIGHT, 0.05));
             let top = o.y + 6.0 + (d - 10.0) * 0.5 - COUNTER_H;
             soft_shadow(cx, top + 2.0, 16.0, 5.0, 0.4);
             rrect_v(

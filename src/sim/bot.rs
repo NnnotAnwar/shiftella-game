@@ -1409,6 +1409,7 @@ fn place_group(w: &mut World, content: &Content, def: &str, chairs: bool) -> boo
     let (sw, sh) = (d.size.0 as i32, d.size.1 as i32);
     let free = |w: &World, x: i32, y: i32| {
         w.grid().is_indoor_floor(x, y)
+            && !w.grid().room(x, y).staff_only()
             && w.grid().object_at(x, y).is_none()
             && w.grid()
                 .tile(x, y)

@@ -391,6 +391,16 @@ impl CafeScene {
         let level = self.light_level();
         let mut q = RenderQueue::new();
         let mut states = Vec::with_capacity(self.furniture.len());
+        let joins = crate::render::counter_joins(
+            &self
+                .furniture
+                .iter()
+                .map(|p| {
+                    let tile = ((p.origin.x / TILE) as i32, (p.origin.y / TILE) as i32);
+                    (p.sprite, tile, p.size)
+                })
+                .collect::<Vec<_>>(),
+        );
         for (i, p) in self.furniture.iter().enumerate() {
             let lamp_on = self.lamp[i] > 0.5;
             let st = FurnitureState {
@@ -402,6 +412,7 @@ impl CafeScene {
                 dirty: p.dirty,
                 t,
                 facing: p.facing,
+                joins: joins[i],
             };
             states.push(st);
             q.push_furniture(p.sprite, p.origin, p.size, st);
@@ -553,15 +564,7 @@ fn build_furniture(map: &Map) -> Vec<Piece> {
                     v.push(Piece::at("chair", fx, fy, (1, 1)).facing(f));
                 }
                 Tile::Counter => {
-                    let left = map.get(x.wrapping_sub(1), y) != Some(Tile::Counter);
-                    let right = map.get(x + 1, y) != Some(Tile::Counter);
-                    let id = if x == 19 {
-                        "register"
-                    } else if left || right {
-                        "counter_corner"
-                    } else {
-                        "bar_counter"
-                    };
+                    let id = if x == 19 { "register" } else { "bar_counter" };
                     v.push(Piece::at(id, fx, fy, (1, 1)));
                 }
                 Tile::CoffeeMachine => {

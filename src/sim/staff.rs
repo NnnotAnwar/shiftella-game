@@ -843,10 +843,12 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
                 })
                 && let Some(goal) = station_access(w, content, sink.uid)
             {
+                // a drying rack beside the sink (sim::companions)
+                let rack = super::companions::station_mul(w, content, sink.uid);
                 out.push(Work {
                     task: Task::Wash { sink: sink.uid },
                     goal,
-                    work: 4.0 * w.sink_dishes.min(12) as f32,
+                    work: 4.0 * w.sink_dishes.min(12) as f32 / rack,
                     rank: 1,
                 });
             }
@@ -1463,6 +1465,8 @@ fn step_staff(w: &mut World, content: &Content, idx: usize) {
                         }
                     }
                 }
+                // a grinder beside the machine (sim::companions)
+                speed *= super::companions::station_mul(w, content, *station);
                 if let Some(i) = w.items.iter_mut().find(|i| i.id == *item) {
                     i.state = ItemState::Preparing;
                     i.prep_left -= speed;
@@ -1675,7 +1679,7 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     .find(|p| {
                         content
                             .furniture_def(&p.def)
-                            .is_some_and(|d| d.has_tag("dishes"))
+                            .is_some_and(|d| d.has_tag("sink"))
                     })
                     .map(|p| p.uid);
                 let goal = sink.and_then(|s| station_access(w, content, s));

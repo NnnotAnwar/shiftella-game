@@ -191,7 +191,7 @@ pub fn target(
         if def_has(content, w, uid, "music") {
             return Some(Target::Jukebox(uid));
         }
-        if night && def_has(content, w, uid, "dishes") && w.sink_dishes() > 0 {
+        if night && def_has(content, w, uid, "sink") && w.sink_dishes() > 0 {
             return Some(Target::Sink(uid));
         }
         if night && def_has(content, w, uid, "table") {

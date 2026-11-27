@@ -37,12 +37,15 @@
          appear: [NightAtLeast(3)],
          done: [HasFurnitureTag("coats")],
          reward: [TargetStaffMood(10.0), TargetRelationship(4.0)]),
-        (id: "cook_rack", who: Staff("cook"), def: "dish_rack",
-         done: [HasFurniture("dish_rack")],
+        // the default bar already has the drying rack and the grinder (sim::grid::DEFAULT_LAYOUT):
+        // the cook asks for the oven, the barista for a second machine for the rushes
+        (id: "cook_oven", who: Staff("cook"), def: "oven",
+         appear: [NightAtLeast(2)],
+         done: [HasFurniture("oven")],
          reward: [TargetStaffMood(10.0), TargetRelationship(4.0)]),
-        (id: "barista_grinder", who: Staff("barista"), def: "espresso_grinder",
+        (id: "barista_machine", who: Staff("barista"), def: "coffee_machine",
          appear: [NightAtLeast(4)],
-         done: [HasFurniture("espresso_grinder")],
+         done: [FurnitureTagCount("station:coffee", 2)],
          reward: [TargetStaffMood(10.0), TargetRelationship(4.0)]),
         // --- guests -----------------------------------------------------------------------------
         (id: "students_sockets", who: Guests("students"), tag: "power_socket",

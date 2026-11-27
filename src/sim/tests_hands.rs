@@ -329,7 +329,9 @@ fn greeting_and_the_micro_acts_wash_and_mop() {
     w.apply(&c, Command::PlayerGreet { guest: pid }).unwrap();
     assert!(party(&w, pid).satisfaction > sat);
     assert!(w.apply(&c, Command::PlayerGreet { guest: pid }).is_err());
-    // wash: she walks to the sink, then each hold washes 2 dishes per second
+    // wash: she walks to the sink, then each hold washes 2 dishes per second (without the
+    // drying rack beside it — that one is `tests_bar`)
+    w.furniture.retain(|p| p.def != "dish_rack");
     w.sink_dishes = 9;
     let sink = w
         .furniture
@@ -1137,6 +1139,15 @@ fn a_mid_night_save_continues_identically_with_karolina_busy() {
     bot::finish_cutscenes(&mut w, &c);
     w.start_night(&c);
     for _ in 0..1800 {
+        bot::finish_cutscenes(&mut w, &c);
+        b.step(&mut w, &c);
+        w.tick(&c);
+    }
+    // a quiet moment is no test: go on until she's busy or guests are in
+    for _ in 0..3000 {
+        if w.player().current.is_some() || !w.parties().is_empty() {
+            break;
+        }
         bot::finish_cutscenes(&mut w, &c);
         b.step(&mut w, &c);
         w.tick(&c);

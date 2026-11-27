@@ -837,7 +837,7 @@ impl GameScreen {
             && let Some(s) = w
                 .furniture()
                 .iter()
-                .find(|p| has_tag(content, w, p.uid, "dishes"))
+                .find(|p| has_tag(content, w, p.uid, "sink"))
             && !acts.iter().any(|a| matches!(a, PlayerAct::Wash { .. }))
         {
             return Some(Intent::Sink {

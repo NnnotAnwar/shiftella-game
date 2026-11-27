@@ -745,7 +745,12 @@ pub(crate) fn unqueue(w: &mut World, content: &Content, index: usize) -> Result<
 }
 
 /// `Command::PlayerWashProgress`: she must be standing at that sink.
-pub(crate) fn wash_progress(w: &mut World, sink: u32, seconds: f32) -> Result<(), CommandError> {
+pub(crate) fn wash_progress(
+    w: &mut World,
+    content: &Content,
+    sink: u32,
+    seconds: f32,
+) -> Result<(), CommandError> {
     let at_sink = w
         .hands
         .player
@@ -760,8 +765,10 @@ pub(crate) fn wash_progress(w: &mut World, sink: u32, seconds: f32) -> Result<()
     if !(seconds.is_finite() && seconds > 0.0) {
         return Err(CommandError::Invalid("seconds".into()));
     }
+    // a drying rack beside the sink: the cups dry by themselves (sim::companions)
+    let rack = super::companions::station_mul(w, content, sink);
     let p = &mut w.hands.player;
-    p.wash_bank += seconds.min(30.0) * WASH_PER_SECOND;
+    p.wash_bank += seconds.min(30.0) * WASH_PER_SECOND * rack;
     let n = (p.wash_bank.floor() as u32).min(w.sink_dishes);
     p.wash_bank -= n as f32;
     w.sink_dishes -= n;
@@ -1254,6 +1261,10 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                             }
                         }
                     }
+                    // a grinder beside the machine (sim::companions)
+                    if let Some(st) = cur.target {
+                        speed *= super::companions::station_mul(w, content, st);
+                    }
                     let mut done = false;
                     if let Some(i) = w.items.iter_mut().find(|i| i.id == next.0) {
                         i.state = ItemState::Preparing;
@@ -1331,7 +1342,7 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                         .find(|p| {
                             content
                                 .furniture_def(&p.def)
-                                .is_some_and(|d| d.has_tag("dishes"))
+                                .is_some_and(|d| d.has_tag("sink"))
                         })
                         .map(|p| p.uid);
                     let goal = sink.and_then(|s| staff::station_access(w, content, s));
