@@ -728,3 +728,41 @@ fn people_are_drawn_walking_during_the_preparation_half_hour() {
     assert!(moved > 0.5 * crate::map::TILE, "drawn Karolina walked {moved} px");
 }
 
+
+/// Save / load of a late story (night 29: the full journal, the knowledge, the crew's
+/// history) stay well inside a frame budget's order of magnitude: the autosave runs on the
+/// main thread at the start of a day. Prints the timings and the file size
+/// (`cargo test --release save_and_load_times -- --nocapture`).
+#[test]
+fn save_and_load_times_of_a_late_story() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 29, None, true);
+    let dir = std::env::temp_dir().join(format!("shiftella-save-times-{}", crate::save::now()));
+    let store = SaveStore::at(&dir);
+    let t0 = std::time::Instant::now();
+    g.save(&c, &store, Slot::Manual(1)).unwrap();
+    let save = t0.elapsed();
+    let t1 = std::time::Instant::now();
+    let f = store.read(Slot::Manual(1)).unwrap();
+    let g2 = GameScreen::from_save(&c, &f).unwrap();
+    let load = t1.elapsed();
+    let size: u64 = std::fs::read_dir(&dir)
+        .unwrap()
+        .filter_map(|e| e.ok()?.metadata().ok())
+        .map(|m| m.len())
+        .sum();
+    println!(
+        "night 29: save {:.1} ms, load {:.1} ms, {} KB on disk",
+        save.as_secs_f64() * 1000.0,
+        load.as_secs_f64() * 1000.0,
+        size / 1024
+    );
+    assert_eq!(g2.world.night(), 29);
+    // generous bounds: a debug build on a loaded machine
+    assert!(save.as_secs_f64() < 5.0, "save took {save:?}");
+    assert!(load.as_secs_f64() < 5.0, "load took {load:?}");
+    let _ = std::fs::remove_dir_all(&dir);
+}
