@@ -103,22 +103,10 @@ uk Барна стійка
 ru Барная стойка
 
 furniture.bar_counter.desc
-cs Za dlaždici. Lidin byl z jednoho kusu dubu.
-en Per tile. Lida's was a single piece of oak.
-uk За клітинку. Лідина була з цілого дуба.
-ru За клетку. У Лиды была из цельного дуба.
-
-furniture.counter_corner.name
-cs Rohový pult
-en Corner counter
-uk Кутова стійка
-ru Угловая стойка
-
-furniture.counter_corner.desc
-cs Aby pult mohl zahnout za roh.
-en So the counter can turn a corner.
-uk Щоб стійка могла повернути за ріг.
-ru Чтобы стойка могла завернуть за угол.
+cs Za dlaždici; sousední díly se spojí do jednoho pultu a zahnou za roh. Lidin byl z jednoho kusu dubu.
+en Per tile; neighbouring pieces join into one counter and turn corners. Lida's was a single piece of oak.
+uk За клітинку; сусідні частини з'єднуються в одну стійку й повертають за ріг. Лідина була з цілого дуба.
+ru За клетку; соседние части соединяются в одну стойку и заворачивают за угол. У Лиды была из цельного дуба.
 
 furniture.register.name
 cs Pokladna
@@ -151,10 +139,10 @@ uk Кавомолка
 ru Кофемолка
 
 furniture.espresso_grinder.desc
-cs Čerstvě namletá vůně, která láká z nástupiště.
-en A freshly ground scent that lures people in from the platform.
-uk Аромат свіжого помелу, що вабить із перону.
-ru Аромат свежего помола, который манит с перрона.
+cs Postav ho vedle kávovaru: káva jde rychleji a voní až na nástupiště.
+en Put it beside the coffee machine: coffee goes faster, and you can smell it on the platform.
+uk Постав її біля кавоварки: кава готується швидше й пахне аж на пероні.
+ru Поставь её рядом с кофемашиной: кофе готовится быстрее и пахнет до самого перрона.
 
 furniture.stove.name
 cs Sporák
@@ -199,22 +187,22 @@ uk Мийка
 ru Мойка
 
 furniture.sink.desc
-cs Bez něj se hrnky nemyjí samy. Bohužel.
-en Cups won't wash themselves without it. Sadly.
-uk Без неї чашки самі не помиються. На жаль.
-ru Без неё чашки сами не помоются. Увы.
+cs Sem se nosí špinavé nádobí a tady se myje. Bez něj se hrnky nemyjí samy. Bohužel.
+en Dirty dishes come here and get washed here. Cups won't wash themselves without it. Sadly.
+uk Сюди несуть брудний посуд і тут його миють. Без неї чашки самі не помиються. На жаль.
+ru Сюда несут грязную посуду и здесь её моют. Без неё чашки сами не помоются. Увы.
 
 furniture.dish_rack.name
 cs Odkapávač
-en Dish rack
+en Drying rack
 uk Сушарка для посуду
 ru Сушка для посуды
 
 furniture.dish_rack.desc
-cs Víc místa na čisté nádobí.
-en More room for clean dishes.
-uk Більше місця для чистого посуду.
-ru Больше места для чистой посуды.
+cs Postav ho vedle dřezu: hrnky oschnou samy a mytí jde rychleji. Nádobí se do něj nenosí.
+en Put it beside the sink: the cups dry by themselves and washing goes faster. Dirty dishes don't go here.
+uk Постав її біля мийки: чашки сохнуть самі, і миття йде швидше. Брудний посуд сюди не носять.
+ru Поставь её рядом с мойкой: чашки сохнут сами, и мытьё идёт быстрее. Грязную посуду сюда не носят.
 
 furniture.drone_dock.name
 cs Dok pro drony
@@ -235,10 +223,10 @@ uk Смітник
 ru Мусорное ведро
 
 furniture.trash_bin.desc
-cs Méně papírků na podlaze.
-en Fewer napkins on the floor.
-uk Менше серветок на підлозі.
-ru Меньше салфеток на полу.
+cs Méně papírků na podlaze. Ráno se vynáší ke kontejnerům (a někdy tam čeká kočka).
+en Fewer napkins on the floor. Taken out to the big bins in the morning (sometimes the cat waits there).
+uk Менше серветок на підлозі. Вранці його виносять до контейнерів (часом там чекає кіт).
+ru Меньше салфеток на полу. Утром его выносят к контейнерам (иногда там ждёт кот).
 
 furniture.menu_holo_board.name
 cs Holo tabule s menu

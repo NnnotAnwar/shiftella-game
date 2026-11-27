@@ -121,8 +121,8 @@ pub use festive::{
     draw_tip_jar,
 };
 pub use furniture::{
-    COUNTER_H, FURNITURE_IDS, FurnitureState, draw_furniture, furniture_lights, furniture_sort_key,
-    holo_flicker,
+    COUNTER_H, FURNITURE_IDS, FurnitureState, JOIN_E, JOIN_N, JOIN_S, JOIN_W, counter_joins,
+    draw_furniture, furniture_lights, furniture_sort_key, holo_flicker, joins_counter,
 };
 pub use handson::{
     CupGlyph, LatteArt, OrderMark, QUEUE_CHIP, QUEUE_LIFT, QueueIcon, TIP_COLLECT_SECS,

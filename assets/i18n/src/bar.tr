@@ -1,0 +1,28 @@
+# The bar's pieces and what each one is for (sim::companions, render::draw_counter): the build
+# card's hover lines. Every appliance has its own job: the sink washes, the drying rack beside it
+# makes washing faster, the grinder beside the coffee machine makes coffee faster, the bin takes
+# the night's rubbish out. Karolina is addressed in the second person (feminine forms).
+
+bar.tip.helps.sink
+cs Vedle dřezu: mytí ×{n} — hrnky na něm oschnou samy
+en Beside the sink: washing ×{n} — the cups dry on it by themselves
+uk Біля мийки: миття ×{n} — чашки на ній сохнуть самі
+ru Рядом с мойкой: мытьё ×{n} — чашки на ней сохнут сами
+
+bar.tip.helps.coffee
+cs Vedle kávovaru: káva ×{n} — pokaždé čerstvě namleto
+en Beside the coffee machine: coffee ×{n} — freshly ground every time
+uk Біля кавоварки: кава ×{n} — щоразу свіжий помел
+ru Рядом с кофемашиной: кофе ×{n} — каждый раз свежий помол
+
+bar.tip.counter
+cs Pult se spojí se sousedy do jednoho; hosté si přes něj objednávají
+en Joins its neighbours into one counter; guests order across it
+uk Стійка з'єднується з сусідніми в одну; гості замовляють через неї
+ru Стойка соединяется с соседними в одну; гости заказывают через неё
+
+bux.tip.station.trash
+cs Pracovní místo: vynést odpadky (ráno)
+en Work station: taking the rubbish out (in the morning)
+uk Робоче місце: винести сміття (вранці)
+ru Рабочее место: вынести мусор (утром)

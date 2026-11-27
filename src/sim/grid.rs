@@ -17,11 +17,18 @@ pub const TILE: f32 = 64.0;
 /// Default café: `map::CAFE_LAYOUT` with furniture letters made concrete, plus the street.
 ///
 /// `#` wall · `W` window · `D` door · `.` hall floor (wood) · `,` staff floor (tile) ·
-/// `=` street · `T` table_round · `h` chair (faces the table) · `C` bar_counter · `R` register ·
-/// `M` coffee_machine · `S` stove (2×1) · `F` fridge · `K` sink · `t` trash_bin ·
-/// `l` floor_lamp (the window light) · `p` plant_tall · `g` grandma_photo · `b` bookshelf ·
-/// `j` grandma Lida's jukebox (handson.md §10.1).
-/// Every table also gets a `pendant_lamp` (tag `light`) hanging over it.
+/// `=` street · `T` table_round · `h` chair (faces the table) · `l` floor_lamp (the window
+/// light) · `p` plant_tall · `g` grandma_photo · `b` bookshelf · `j` grandma Lida's jukebox
+/// (handson.md §10.1). Every table also gets a `pendant_lamp` (tag `light`) hanging over it.
+///
+/// The bar (rows 10–14, x 16–28) is a small night café's: the **front counter** (row 10) faces
+/// the hall — `C` bar_counter, `G` espresso_grinder beside `M` the coffee machine, `R` the
+/// register (guests queue along row 9 to its left). Behind it a three-tile walkway; against the
+/// front wall the **back line** (row 14): `S` stove (2×1), a free spot for the oven, `F` fridge,
+/// `K` sink with `r` its drying rack, `t` bin, then the back-bar shelves (`B`). Staff come in
+/// through the flap at the right end of the counter (row 10, x 27–28) or past its open left
+/// end (x 16, rows 11–14 — a counter return there made every trip to the left tables longer
+/// and cost the Classic bot its final payment). `c` = a return (guests to the west).
 pub const DEFAULT_LAYOUT: &str = "\
 ####WWWW######WWWW######WWWW##
 #p....l......g...............#
@@ -33,11 +40,11 @@ pub const DEFAULT_LAYOUT: &str = "\
 #............................#
 #..hTh.....hTh..............j#
 #............................#
-#...............CCCCCCCCCRC,,#
+#...............CCCCCCGMCRC,,#
 #...............,,,,,,,,,,,,,#
 #...............,,,,,,,,,,,,,#
-#...............SSFKtM,,,,,,,#
-#.........p.....,,,,,,,,,,,,,#
+#...............,,,,,,,,,,,,,#
+#.........p.....,SS,FKrtBBB,,#
 #DD###########################
 ==============================
 ==============================";
@@ -403,7 +410,7 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
     for (y, row) in rows.iter().enumerate() {
         for x in 0..width as usize {
             let c = row.get(x).copied().unwrap_or('#');
-            let staff_floor = c == ',' || "CRMSFKt".contains(c) && y >= 10;
+            let staff_floor = c == ',' || "CcBGRMSFKrt".contains(c) && y >= 10;
             let tile = match c {
                 '#' => TileInfo {
                     kind: TileKind::Wall,
@@ -428,7 +435,7 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
                 _ if staff_floor => TileInfo {
                     kind: TileKind::Floor,
                     floor: Floor::Tile,
-                    room: if x <= 19 { Room::Kitchen } else { Room::Bar },
+                    room: if y >= 13 { Room::Kitchen } else { Room::Bar },
                 },
                 _ => TileInfo {
                     kind: TileKind::Floor,
@@ -492,15 +499,21 @@ pub fn parse_layout(layout: &str, content: &Content, next_uid: &mut u32) -> (Gri
                     let right = row.get(x + 1) == Some(&'T');
                     place(&mut grid, "chair", xi, y, if right { 3 } else { 1 });
                 }
+                // a counter's `rot` = where its guests are: 0 the front counter (guests across
+                // it, beyond the camera), 2 a back bar (no guests), 3 a return (guests west)
                 'C' => place(&mut grid, "bar_counter", xi, y, 0),
+                'c' => place(&mut grid, "bar_counter", xi, y, 3),
+                'B' => place(&mut grid, "bar_counter", xi, y, 2),
                 'R' => place(&mut grid, "register", xi, y, 0),
-                'M' => place(&mut grid, "coffee_machine", xi, y, 2),
+                'G' => place(&mut grid, "espresso_grinder", xi, y, 0),
+                'M' => place(&mut grid, "coffee_machine", xi, y, 0),
                 'S' => {
                     place(&mut grid, "stove", xi, y, 2);
                     x += 1; // 2×1
                 }
                 'F' => place(&mut grid, "fridge", xi, y, 2),
                 'K' => place(&mut grid, "sink", xi, y, 2),
+                'r' => place(&mut grid, "dish_rack", xi, y, 2),
                 't' => place(&mut grid, "trash_bin", xi, y, 2),
                 'l' => place(&mut grid, "floor_lamp", xi, y, 0),
                 'p' => place(&mut grid, "plant_tall", xi, y, 0),

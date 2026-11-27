@@ -832,7 +832,7 @@ impl World {
             Command::PlayerReorder { from, to } => super::player::reorder(self, from, to),
             Command::PlayerClearQueue => super::player::clear_queue(self, content),
             Command::PlayerWashProgress { sink, seconds } => {
-                super::player::wash_progress(self, sink, seconds)
+                super::player::wash_progress(self, content, sink, seconds)
             }
             Command::PlayerGreet { guest } => super::player::greet(self, content, guest),
             Command::PlayRecord { id, repeat } => super::player::queue(

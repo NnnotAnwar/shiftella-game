@@ -182,15 +182,7 @@ fn build_furniture(map: &Map, stress: bool) -> Vec<Piece> {
                     v.push(Piece::at("chair", fx, fy, (1, 1)).facing(f));
                 }
                 Tile::Counter => {
-                    let left = map.get(x - 1, y) != Some(Tile::Counter);
-                    let right = map.get(x + 1, y) != Some(Tile::Counter);
-                    let id = if x == 19 {
-                        "register"
-                    } else if left || right {
-                        "counter_corner"
-                    } else {
-                        "bar_counter"
-                    };
+                    let id = if x == 19 { "register" } else { "bar_counter" };
                     v.push(Piece::at(id, fx, fy, (1, 1)));
                 }
                 Tile::CoffeeMachine => {
@@ -758,6 +750,7 @@ async fn main() {
                 dirty: p.dirty,
                 t,
                 facing: p.facing,
+                ..Default::default()
             };
             states.push(st);
             q.push_furniture(p.sprite, p.origin, p.size, st);

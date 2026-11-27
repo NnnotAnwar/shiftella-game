@@ -402,7 +402,7 @@ fn target(
         "jukebox" => {
             furniture_with(g, content, "music").and_then(|u| furniture_rect(g, ui, u, 0.9))
         }
-        "wash" => furniture_with(g, content, "dishes").and_then(|u| furniture_rect(g, ui, u, 0.4)),
+        "wash" => furniture_with(g, content, "sink").and_then(|u| furniture_rect(g, ui, u, 0.4)),
         "mop" => {
             let t = *g.world.dirt_spots().first()?;
             let c = world_to_ui(g, ui, vec2(t.0 as f32 + 0.5, t.1 as f32 + 0.5) * TILE);

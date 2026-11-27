@@ -217,7 +217,7 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   (tray ≤ 4); dishes = clear tables (+ their tip coins) → sink, wash; floor = mop, buckets;
   checklist items of the duty's job. Never wishes, regulars or Karolina's items. Speed =
   `(0.5 + skill×0.1) × helper_speed (0.85)` × trait `Speed` × event `WorkSpeed` × energy/mood ×
-  station slow-downs × hall mood. Karolina is driven by her queue only (§9.1).
+  station slow-downs × station helpers × hall mood. Karolina is driven by her queue only (§9.1).
 * **Idle life (`sim::life`):** a helper whose duties have nothing to do (`Task::Idle`) fills
   the moment with a small pastime picked by their duties and place (`Staff::life: IdleLife`,
   `Pastime`): wipe the counter / a free table, polish cups, stack saucers, check the pastries,
@@ -231,6 +231,15 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   (the small rings over helpers' heads; at the spot only, never Karolina), `pastime(id)`;
   the card: `Activity::Pastime { kind, with }` → `life.do.<id>` / `life.do.chat_with`
   (a helper without duties still says `crew.do.idle_no_duties`).
+* **Station helpers (`sim::companions`, tag `helps:<what>`):** pieces that do no work themselves
+  but speed up the station beside them (footprints touch, corners count; one is enough):
+  `dish_rack` beside a `sink` — washing × `RACK_WASH_MUL` (1.5; staff wash work ÷ 1.5,
+  Karolina's `PlayerWashProgress` × 1.5); `espresso_grinder` beside a `station:coffee` — brewing
+  × `GRINDER_BREW_MUL` (1.2, staff and Karolina). Away from it a helper shows idle
+  (`FurnitureView.active = false`). Dirty dishes only ever go to the `sink` (the rack is not a
+  second sink). Every appliance has its own job; removed duplicates load as their replacement
+  (`world::REMOVED_DEFS`: `counter_corner` → `bar_counter`, which joins its neighbours and turns
+  corners by itself).
 * **Guests:** arrivals per minute from `hour_weights × weekday_mult` of the town's pools × reputation ×
   weather × `GuestRate` (× 0.5 in the quiet hour); trains add passengers (Cozy: spread over
   `COZY_TRAIN_SPREAD` = 24 min); rushes from events. **Cozy: full hands** (0.2 polish) — while
@@ -301,7 +310,9 @@ DRINK_WITH_FOOD_CHANCE, REVIEW_WEIGHT, story_ramp}`, `staff::{STAFF_SPEED, TRAY,
 `Difficulty { Cozy, Classic }`, `Mode`, `Phase`, `SandboxSetup`, `Town`, `Shift`, `LeaveKind`,
 `RequestStatus`, `Facing`/`Pose`/`SimEmote` (render mirrors), `LookRef`, `AgentView`, `FurnitureView`,
 `NightSummary`, `Task`, `StaffStatus`, `PartyState`, `PayrollWeek`, `Handover`, `BotMsg`;
-`sim::grid::DEFAULT_LAYOUT` (CAFE_LAYOUT + register/fridge/sink/lamp/decor letters + street) and
+`sim::grid::DEFAULT_LAYOUT` (CAFE_LAYOUT's hall + the bar: front counter with grinder, coffee
+machine and register (open at its left end), a three-tile walkway, the back line of stove,
+oven spot, fridge, sink + drying rack, bin and back-bar shelves against the front wall; + street) and
 `world::STORY_INSTITUTIONS` (the story station: taxi rank, hospital, college).
 
 ## 9. Hands-on: Karolina behind the counter (design/handson.md §1, §3, §10)

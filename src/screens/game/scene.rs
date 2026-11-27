@@ -536,10 +536,30 @@ impl WorldScene {
         let views = world.furniture_views(content);
         let mut pieces: Vec<(String, Vec2, (u8, u8), FurnitureState)> =
             Vec::with_capacity(placed.len());
+        let sprites: Vec<String> = placed
+            .iter()
+            .map(|p| {
+                content
+                    .furniture_def(&p.def)
+                    .map(|d| d.sprite.clone())
+                    .unwrap_or_else(|| p.def.clone())
+            })
+            .collect();
+        let joins = crate::render::counter_joins(
+            &sprites
+                .iter()
+                .zip(&views)
+                .zip(placed)
+                .filter(|(_, p)| !self.hidden_furniture.contains(&p.uid))
+                .map(|((s, v), _)| (s.as_str(), v.tile, (v.size.0 as u8, v.size.1 as u8)))
+                .collect::<Vec<_>>(),
+        );
+        let mut joins = joins.into_iter();
         for (p, v) in placed.iter().zip(&views) {
             if self.hidden_furniture.contains(&p.uid) {
                 continue;
             }
+            let joins = joins.next().unwrap_or(0);
             let sprite = content
                 .furniture_def(&p.def)
                 .map(|d| d.sprite.clone())
@@ -550,6 +570,7 @@ impl WorldScene {
                 dirty: v.dirty,
                 t,
                 facing: wv::facing(v.facing),
+                joins,
             };
             pieces.push((sprite, origin, (v.size.0 as u8, v.size.1 as u8), st));
         }
