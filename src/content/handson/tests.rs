@@ -43,14 +43,15 @@ fn the_promised_amounts() {
     // v0.2 package I adds the by-name house-drink wishes (1 generic + 6 personal)
     let by_name = |w: &&super::WishDef| w.favourite.iter().any(|f| f == super::SIGNATURE_RECIPE);
     assert_eq!(h.wishes.wishes.iter().filter(by_name).count(), 7);
-    assert_eq!(h.wishes.wishes.len(), 44 + 7);
+    // purchases: + 3 "like home" wishes of the top coziness tier
+    assert_eq!(h.wishes.wishes.len(), 44 + 7 + 3);
     assert_eq!(
         h.wishes
             .wishes
             .iter()
             .filter(|w| w.regular().is_some() && !by_name(w))
             .count(),
-        17
+        17 + 3
     );
     let must_moments: Vec<&str> = h
         .moments
@@ -345,7 +346,9 @@ fn small_formulas() {
     assert_eq!(h.tuning.moment_budget(1), (1, 3));
     let cz = &h.decor.coziness;
     assert_eq!(cz.level(10.0), 1);
-    assert_eq!(cz.level(80.0), 5);
+    // purchases: the tiers sit at 30 / 50 / 70 / 85 (grandma's hall ≈ 64, Pleasant)
+    assert_eq!(cz.level(80.0), 4);
+    assert_eq!(cz.level(85.0), 5);
     assert!((cz.effects.patience.at(100.0) - 1.3).abs() < 1e-6);
     let cat = &h.extras.cat;
     assert_eq!(cat.level_at(5), 4);

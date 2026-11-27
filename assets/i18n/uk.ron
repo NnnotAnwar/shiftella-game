@@ -1630,6 +1630,8 @@
     "purchases.guest.hard": "твердий стілець — довго не всидять",
     "purchases.line.comfy": "{piece}: гості лишалися на {min} хв довше · +{money} чайових",
     "purchases.line.comfy_rounds": "{piece}: на {min} хв довше, {rounds}× ще по одній · +{money} чайових",
+    "purchases.line.comfy_rounds_stay": "{piece}: на {min} хв довше, {rounds}× ще по одній",
+    "purchases.line.comfy_stay": "{piece}: гості лишалися на {min} хв довше",
     "purchases.line.hard_seat": "{piece}: гості йшли на {min} хв раніше",
     "purchases.line.made": "{piece}: продано {n} · {money}",
     "purchases.line.no_seat": "Не було місця: {n}× пішли далі — більше місць їх би втримало",

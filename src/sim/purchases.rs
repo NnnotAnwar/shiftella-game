@@ -672,12 +672,12 @@ pub(crate) fn lines(w: &World, content: &Content) -> Vec<PayoffLine> {
         } else {
             0.0
         };
-        let key = if !comfy {
-            "purchases.line.hard_seat"
-        } else if s.rounds > 0 {
-            "purchases.line.comfy_rounds"
-        } else {
-            "purchases.line.comfy"
+        let key = match (comfy, s.rounds > 0, s.tips > 0) {
+            (false, _, _) => "purchases.line.hard_seat",
+            (true, true, true) => "purchases.line.comfy_rounds",
+            (true, true, false) => "purchases.line.comfy_rounds_stay",
+            (true, false, true) => "purchases.line.comfy",
+            (true, false, false) => "purchases.line.comfy_stay",
         };
         out.push((
             s.tips.abs() as f32 + s.stay_minutes.abs() * 2.0 + s.rounds as f32 * 70.0,

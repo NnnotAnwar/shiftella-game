@@ -924,8 +924,8 @@ every curve: a player who never builds plays the old numbers and draws nothing e
 world RNG. State: `World.pay: PayoffState` (`#[serde(default)]`; tonight's tally, reset at
 night start); `Party.extra_seat` / `Party.rounds` and `NightSummary.payoff` are defaulted too.
 
-* **Seats → guests.** Random walk-ins × `seat_draw` = (hall seats / 16)^0.8, clamped 0.7–1.6
-  (24 seats ≈ ×1.38, 32 ≈ ×1.6). A party with something to order and no seat goes on
+* **Seats → guests.** Random walk-ins × `seat_draw` = (hall seats / 16)^0.65, clamped 0.7–1.5
+  (24 seats ≈ ×1.30, 32 ≈ ×1.5; Cozy: not while her hands are full). A party with something to order and no seat goes on
   (`GuestTurnedAway`) + toast `purchases.toast.no_seat` (at most every 40 min). A party that
   only found room on a bought piece (grandma's own seats had none) is `extra_seat`.
   `choose_seats`: a free table-less piece (sofa, window seat, armchair) now competes with the
@@ -943,17 +943,18 @@ night start); `Party.extra_seat` / `Party.rounds` and `NightSummary.payoff` are 
   what the tier gives and what the next brings.
 * **Appliances by tag** (`free` = grandma's count): `station:coffee` / `station:stove`
   `Parallel` (a second one: two at once — `station_free` hands Karolina or a helper the free
-  one; counted when work starts while the other is busy); `grinder` (espresso grinder)
-  `QuickQuality(+0.08)` for quick brews and helpers' bar items; `dishes` (dish rack, a second
-  sink) `Washing(+40 %)` per extra piece — Karolina's wash rate, the helpers' wash work and
-  batch; `station:oven` `Unlocks` (cakes on the menu at all).
+  one; counted when work starts while the other is busy); `station:oven` `Unlocks` (cakes on
+  the menu at all). The grinder and the drying rack beside their stations stay
+  `sim::companions`' (no second speed-up here).
 * **The morning.** `NightSummary.payoff: Vec<PayoffLine { key, args, money }>` (≤ 5,
   `purchases.line.*`; `@key` args are names, `money` is Kč), shown as "What the café gave you
   tonight" in the summary. `World::piece_effect(&c, def)` → the build card's numbers
   (seats now → with, about +N guests a night; the comfort point; the appliance role; what an
   oven puts on the menu).
 * **Player-bot.** `bot::build_for_guests` (attentive, `build`, not `thrifty`): one purchase a
-  day, the first affordable on the list — tables with chairs, window seat, plants, grinder, dish rack, sofa, a second coffee machine (with a
-  helper), floor lamps, armchairs, a table of four, the oven — keeping the next ten nights'
-  (seven nights) payments plus a cushion. `sim_headless … --no-build` plays the never-building player and
-  prints `earned (revenue + tips)`. Tests: `tests_purchases.rs`.
+  day, the first affordable on the list — tables with chairs, a window seat, plants, a sofa,
+  a second coffee machine (with a helper), floor lamps, armchairs, a table of four, the oven —
+  keeping the next ten nights' payments (Classic seven) plus a cushion (Cozy 2 500, Classic 8 000), nothing
+  new after night 20. `sim_headless … --no-build` plays the never-building player
+  and prints `earned (revenue + tips)` and the furniture. `income_mul` Cozy / Carefree 1.6 → 1.7, Classic 1.55 → 1.65.
+  Tests: `tests_purchases.rs` (a building bot earns ≥ +8 % over a full Cozy story).

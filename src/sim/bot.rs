@@ -1469,10 +1469,18 @@ pub fn build_extras(w: &mut World, content: &Content) {
 /// a day, the first on the list that fits the budget) — tables with chairs, a window seat, a
 /// grinder and a dish rack, a sofa and a second coffee machine once a helper is behind the
 /// bar, plants and lamps, armchairs, a big table, the oven — never touching the money for the
-/// debt payments of the next seven nights (and a cushion on top).
+/// debt payments of the next ten nights (Classic seven) and a cushion; nothing new after night 20.
 pub fn build_for_guests(w: &mut World, content: &Content) {
+    // late in the story a new piece wouldn't pay for itself before the end
+    let classic = w.difficulty() == Difficulty::Classic;
+    if w.mode() == Mode::Story && w.night() > 20 {
+        return;
+    }
+    // the payments ahead stay untouched: the next ten nights (Classic, where every piece has
+    // to pay for itself sooner, the next seven)
+    let ahead = if classic { 7 } else { 10 };
     let due: i64 = if w.mode() == Mode::Story {
-        (w.night()..w.night() + 7)
+        (w.night()..w.night() + ahead)
             .filter_map(|n| content.story.payment_on(n))
             .map(|p| p.amount)
             .sum::<i64>()
@@ -1480,7 +1488,6 @@ pub fn build_for_guests(w: &mut World, content: &Content) {
     } else {
         0
     };
-    let classic = w.difficulty() == Difficulty::Classic;
     let cushion = if classic { 8_000 } else { 2_500 };
     let count = |w: &World, def: &str| w.furniture().iter().filter(|p| p.def == def).count();
     let helpers = w.staff().iter().filter(|s| !s.owner).count();

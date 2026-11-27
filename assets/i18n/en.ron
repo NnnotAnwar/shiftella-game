@@ -1630,6 +1630,8 @@
     "purchases.guest.hard": "hard stool — won't stay long",
     "purchases.line.comfy": "{piece}: guests stayed {min} min longer · +{money} tips",
     "purchases.line.comfy_rounds": "{piece}: {min} min longer, {rounds}× one more round · +{money} tips",
+    "purchases.line.comfy_rounds_stay": "{piece}: {min} min longer, {rounds}× one more round",
+    "purchases.line.comfy_stay": "{piece}: guests stayed {min} min longer",
     "purchases.line.hard_seat": "{piece}: guests left {min} min sooner",
     "purchases.line.made": "{piece}: {n} sold · {money}",
     "purchases.line.no_seat": "No free seat: {n}× they went on — more seats would keep them",

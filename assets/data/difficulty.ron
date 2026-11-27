@@ -18,7 +18,9 @@
         // (sandbox bills × sim::guests::SANDBOX_INCOME_MUL). QA 0.2.1: 1.5 → 1.6 — a party of
         // three no longer squeezes onto two chairs (a seating bug gave the hall extra room), so
         // more parties find no seat; this keeps the story's money where it was tuned.
-        income_mul: 1.6,
+        // purchases 0.2.1: 1.6 → 1.7 — with the bar and last call at 05:15 a non-builder ended
+        // with 0.8k–20k; now ~10k–20k, and a player who buys furniture still keeps ≥ 5k.
+        income_mul: 1.7,
         // sandbox only: the landlord notices a busy café
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
@@ -38,7 +40,7 @@
         bad_review_mul: 0.7,
         wear_mul: 0.5,
         need_decay_mul: 0.8,
-        income_mul: 1.6,
+        income_mul: 1.7,
         rent_growth_percent: 0.0,
         rent_growth_every: 0,
     ),
@@ -55,7 +57,9 @@
         bad_review_mul: 1.0,
         wear_mul: 1.0,
         need_decay_mul: 1.0,
-        income_mul: 1.55,
+        // purchases (0.2.1 bar + honest seating): 1.55 → 1.65 so about half of the bot's runs
+        // make the final 30 000 again (sim_balance 30 story classic 8)
+        income_mul: 1.65,
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
         rent_growth_max: 1.6,

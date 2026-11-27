@@ -33,6 +33,18 @@ en {piece}: {min} min longer, {rounds}× one more round · +{money} tips
 uk {piece}: на {min} хв довше, {rounds}× ще по одній · +{money} чайових
 ru {piece}: на {min} мин дольше, {rounds}× ещё по одной · +{money} чаевых
 
+purchases.line.comfy_stay
+cs {piece}: hosté zůstali o {min} min déle
+en {piece}: guests stayed {min} min longer
+uk {piece}: гості лишалися на {min} хв довше
+ru {piece}: гости оставались на {min} мин дольше
+
+purchases.line.comfy_rounds_stay
+cs {piece}: o {min} min déle, {rounds}× ještě jedna runda
+en {piece}: {min} min longer, {rounds}× one more round
+uk {piece}: на {min} хв довше, {rounds}× ще по одній
+ru {piece}: на {min} мин дольше, {rounds}× ещё по одной
+
 purchases.line.hard_seat
 cs {piece}: hosté odcházeli o {min} min dřív
 en {piece}: guests left {min} min sooner

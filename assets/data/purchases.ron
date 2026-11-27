@@ -8,10 +8,10 @@
         // hall seats in grandma's café: walk-ins × 1.0 here
         base: 16,
         // walk-ins × (hall seats / base) ^ exponent, clamped — more seats, more guests, with
-        // diminishing returns (24 seats ≈ ×1.38, 32 ≈ ×1.6)
-        exponent: 0.8,
+        // diminishing returns (24 seats ≈ ×1.30, 32 ≈ ×1.5)
+        exponent: 0.65,
         min_draw: 0.7,
-        max_draw: 1.6,
+        max_draw: 1.5,
         // "No free seat — they went on": at most one toast per this many minutes
         toast_gap: 40,
     ),

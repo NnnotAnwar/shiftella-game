@@ -1208,8 +1208,13 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
         && !super::storm::line_closed(w)
         && let Some(hour) = crate::content::ClockTime::from_minutes_since_open(m).open_hour_index()
     {
-        // more seats, more passers-by step in (purchases; 1.0 in grandma's café)
-        let draw = super::purchases::seat_draw(w, content);
+        // more seats, more passers-by step in (purchases; 1.0 in grandma's café) — on Cozy
+        // only while Karolina's hands aren't full (a bigger café never floods her)
+        let draw = if full_hands {
+            1.0
+        } else {
+            super::purchases::seat_draw(w, content)
+        };
         let rate = arrival_rate(w, content, hour) * draw;
         super::purchases::note_draw(w, rate, draw);
         if w.rng.chance(rate)

@@ -1630,6 +1630,8 @@
     "purchases.guest.hard": "tvrdá stolička — dlouho nevydrží",
     "purchases.line.comfy": "{piece}: hosté zůstali o {min} min déle · +{money} spropitné",
     "purchases.line.comfy_rounds": "{piece}: o {min} min déle, {rounds}× ještě jedna runda · +{money} spropitné",
+    "purchases.line.comfy_rounds_stay": "{piece}: o {min} min déle, {rounds}× ještě jedna runda",
+    "purchases.line.comfy_stay": "{piece}: hosté zůstali o {min} min déle",
     "purchases.line.hard_seat": "{piece}: hosté odcházeli o {min} min dřív",
     "purchases.line.made": "{piece}: prodáno {n} · {money}",
     "purchases.line.no_seat": "Žádné volné místo: {n}× šli dál — víc míst by je udrželo",
