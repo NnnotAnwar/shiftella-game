@@ -438,7 +438,7 @@ fn her_texts_exist_in_four_languages() {
     let mut all = vec![
         r.name_key(),
         r.bio_key(),
-        "wish.guest_kseniia.oat".to_string(),
+        "wish.guest_kseniia.espresso".to_string(),
         "journal.caption.kseniia".to_string(),
         EGG.to_string(),
         EGG_AMBIENT.to_string(),

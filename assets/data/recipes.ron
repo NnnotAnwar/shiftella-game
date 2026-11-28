@@ -45,6 +45,8 @@
         // --- starters (known on night 1) ----------------------------------------------------------
         (id: "r_black", base_item: "black_coffee", tags: [Warm, Bitter, Strong, Quick],
          minigame: PourOver, variants: ["classic"], ingredients: ["espresso"]),
+        (id: "r_double_espresso", base_item: "black_coffee", price_add: 15, cost_add: 5, tags: [Warm, Bitter, Strong, Quick],
+         minigame: PourOver, variants: ["classic"], ingredients: ["espresso"], experimentable: false),
         (id: "r_cappuccino", base_item: "cappuccino", tags: [Warm, Mild, Comforting],
          minigame: MilkFroth, variants: ["cappuccino"], ingredients: ["espresso", "milk"], art_finish: true),
         (id: "r_lemon_tea", base_item: "lemon_tea", tags: [Warm, Mild, Fresh, Quick],

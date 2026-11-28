@@ -87,7 +87,7 @@
         (id: "guest_333.two_sugars", want: [Warm, Sweet, Mild], who: ["guest_333"],
          favourite: ["r_rn333_tea"], favourite_items: ["lemon_tea"]),
         (id: "guest_anwar.oat", want: [Warm, Mild], who: ["guest_anwar"], favourite: ["r_oat_flat_white"]),
-        (id: "guest_kseniia.oat", want: [Warm, Mild], who: ["guest_kseniia"], favourite: ["r_oat_flat_white"]),
+        (id: "guest_kseniia.espresso", want: [Strong, Bitter], who: ["guest_kseniia"], favourite: ["r_double_espresso"]),
     ],
     // Lines that name a dish (i18n key → menu items / recipes): a guest only says one while the
     // café can make one of them tonight — a recipe known, its item on the menu and its station
@@ -102,6 +102,7 @@
         "wish.lori.one_song": ["hot_chocolate"],
         "wish.guest_333.two_sugars": ["lemon_tea"],
         "wish.guest_anwar.oat": ["oat_flat_white"],
+        "wish.guest_kseniia.espresso": ["r_double_espresso"],
         "wish.house_special": ["r_signature"],
         "wish.mirek.house_special": ["r_signature"],
         "wish.hana.house_special": ["r_signature"],
@@ -113,6 +114,7 @@
         "regular.filip.line.0b": ["black_coffee"],
         "regular.vera.line.3a": ["grandma_kulajda"],
         "regular.guest_anwar.ambient.coffee": ["oat_flat_white"],
+        "regular.guest_kseniia.ambient.coffee": ["r_double_espresso"],
     },
     reactions: (
         generic_per_tier: 5,

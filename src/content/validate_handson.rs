@@ -410,11 +410,15 @@ fn recipes(v: &mut Ctx, c: &Content) {
                 ));
             }
         }
-        let set = r.ingredient_set();
-        if let Some((_, other)) = sets.iter().find(|(s, _)| *s == set) {
-            v.push(format!("{ctx}: same ingredient set as `{other}`"));
+        // an exact pantry match must find one recipe; one that can't be found by experimenting
+        // (a starter like the double espresso) may share its set
+        if r.experimentable {
+            let set = r.ingredient_set();
+            if let Some((_, other)) = sets.iter().find(|(s, _)| *s == set) {
+                v.push(format!("{ctx}: same ingredient set as `{other}`"));
+            }
+            sets.push((set, &r.id));
         }
-        sets.push((set, &r.id));
         if r.variants.is_empty() {
             v.push(format!("{ctx}: needs at least one mini-game variant"));
         }
@@ -455,7 +459,8 @@ fn recipes(v: &mut Ctx, c: &Content) {
             }
             RecipeUnlock::Starter | RecipeUnlock::Experiment => {}
         }
-        if !r.experimentable && r.gated_hint.is_none() {
+        // (a starter is known from night 1: nothing is ever gated)
+        if !r.experimentable && r.gated_hint.is_none() && r.unlock != RecipeUnlock::Starter {
             v.push(format!("{ctx}: not experimentable — needs a gated_hint"));
         }
         if r.unlock == RecipeUnlock::Experiment && !r.experimentable {

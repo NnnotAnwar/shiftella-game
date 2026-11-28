@@ -270,7 +270,7 @@
         sandbox_nights: [3, 15, 20],
         look_preset: "kseniia",
         visits: [(from: "02:40", to: "03:50")],
-        orders: ["oat_flat_white"],
+        orders: ["black_coffee"],
         patience_minutes: 20.0,
         look: (body: "slim", height: 0.98, hair: ["lob"], hair_colors: ["#B4532A"],
                outfit: "jacket", outfit_colors: ["#3A3442"], accessories: ["earrings"]),

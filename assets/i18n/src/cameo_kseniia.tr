@@ -11,10 +11,10 @@ uk Ксенія
 ru Ксения
 
 regular.guest_kseniia.bio
-cs Vede výtvarný ateliér ve staré továrně v Holešovicích. Chodí po půl třetí, s barvou na rukávu a vtipem v záloze. Objedná si ovesné flat white — „hloupý zvyk po bývalém“.
-en Runs an art studio in an old factory in Holešovice. Comes in after half past two, paint on her sleeve and a joke ready. Orders an oat flat white — "a silly habit from my ex".
-uk Керує мистецькою студією на старій фабриці в Голешовицях. Приходить після пів на третю, з фарбою на рукаві й жартом напоготові. Замовляє вівсяний флет вайт — «дурна звичка від колишнього».
-ru Руководит арт-студией на старой фабрике в Голешовице. Приходит после половины третьего, с краской на рукаве и шуткой наготове. Заказывает флэт уайт на овсяном — «дурацкая привычка от бывшего».
+cs Vede výtvarný ateliér ve staré továrně v Holešovicích. Chodí po půl třetí, s barvou na rukávu a vtipem v záloze. Pije dvojité espresso — „jednoduché je pro lidi se soukromým životem“.
+en Runs an art studio in an old factory in Holešovice. Comes in after half past two, paint on her sleeve and a joke ready. Drinks a double espresso — "a single is for people with a private life".
+uk Керує мистецькою студією на старій фабриці в Голешовицях. Приходить після пів на третю, з фарбою на рукаві й жартом напоготові. П'є подвійний еспресо — «одинарний — для тих, у кого є особисте життя».
+ru Руководит арт-студией на старой фабрике в Голешовице. Приходит после половины третьего, с краской на рукаве и шуткой наготове. Пьёт двойной эспрессо — «одинарный — для тех, у кого есть личная жизнь».
 
 regular.guest_kseniia.ambient.rain
 cs Déšť? Skvělé. Lidi zůstanou déle a tváří se, že kvůli umění.
@@ -53,10 +53,10 @@ uk Тихо. Добре — хоч трохи можна не бути чарі�
 ru Тихо. Хорошо — хоть немного можно не быть обаятельной.
 
 regular.guest_kseniia.ambient.coffee
-cs Ovesné flat white. Hloupý zvyk po bývalém. Jediný, který jsem si nechala.
-en Oat flat white. A silly habit from my ex. The only one I kept.
-uk Вівсяний флет вайт. Дурна звичка від колишнього. Єдина, яку я залишила.
-ru Флэт уайт на овсяном. Дурацкая привычка от бывшего. Единственная, которую я оставила.
+cs Dvojité espresso. Jednoduché je pro lidi, kteří mají soukromý život.
+en A double espresso. A single is for people with a private life.
+uk Подвійний еспресо. Одинарний — для тих, у кого є особисте життя.
+ru Двойной эспрессо. Одинарный — для тех, у кого есть личная жизнь.
 
 regular.guest_kseniia.ambient.paint
 cs Ta barva na rukávu? Moje modré období. Trvá už tři roky.
@@ -70,11 +70,11 @@ en You tie your apron tighter when you're tired. I notice things. Occupational h
 uk Коли ти втомлена, тугіше зав'язуєш фартух. Я помічаю такі речі. Професійна деформація.
 ru Когда ты устаёшь, туже завязываешь фартук. Я замечаю такие вещи. Профессиональная деформация.
 
-wish.guest_kseniia.oat
-cs Ovesné flat white, prosím. Hloupý zvyk po bývalém — ale dobrý.
-en An oat flat white, please. A silly habit from my ex — but a good one.
-uk Вівсяний флет вайт, будь ласка. Дурна звичка від колишнього — але добра.
-ru Флэт уайт на овсяном, пожалуйста. Дурацкая привычка от бывшего — но хорошая.
+wish.guest_kseniia.espresso
+cs Dvojité espresso, prosím. Bez cukru a bez otázek.
+en A double espresso, please. No sugar, no questions.
+uk Подвійний еспресо, будь ласка. Без цукру і без питань.
+ru Двойной эспрессо, пожалуйста. Без сахара и без вопросов.
 
 journal.caption.kseniia
 cs Vzácný host. Barva na rukávu a vtip v záloze.
@@ -255,10 +255,10 @@ uk Залежить від того, хто чекає.
 ru Смотря кто ждёт.
 
 scene.kseniia_talk_20.04
-cs Objednal za mě, ani se nezeptal. Ovesné flat white. Pamatoval si to. Hrozně otravné.
-en He ordered for me without asking. An oat flat white. He remembered. Very annoying.
-uk Замовив за мене, навіть не спитав. Вівсяний флет вайт. Запам'ятав. Страшенно дратує.
-ru Заказал за меня, даже не спросил. Флэт уайт на овсяном. Запомнил. Ужасно раздражает.
+cs Objednal mi, aniž by se zeptal. Dvojité espresso. Pamatoval si to. Strašně otravné.
+en He ordered for me without asking. A double espresso. He remembered. Very annoying.
+uk Замовив за мене, навіть не спитав. Подвійний еспресо. Запам'ятав. Жахливо дратує.
+ru Заказал за меня, даже не спросил. Двойной эспрессо. Запомнил. Ужасно раздражает.
 
 scene.kseniia_talk_20.05
 cs Uvidíme.
@@ -285,10 +285,10 @@ uk Ти в порядку?
 ru Ты в порядке?
 
 scene.kseniia_talk_20.09
-cs Jsem. Ovesné mléko si ale nechám. Dobré zvyky můžou přežít lidi, od kterých je máš.
-en I'm fine. The oat milk stays, though. Good habits can outlive the people who gave them to you.
-uk Так. А от вівсяне молоко лишу. Добрі звички можуть пережити людей, від яких вони тобі дісталися.
-ru В порядке. А вот овсяное молоко оставлю. Хорошие привычки могут пережить людей, от которых они тебе достались.
+cs Jsem v pohodě. Dvojité espresso si nechám. Bylo moje dřív než on.
+en I'm fine. The double espresso stays, though. It was mine before he was.
+uk Я в порядку. А подвійний еспресо залишу. Він був моїм ще до нього.
+ru В порядке. А вот двойной эспрессо оставлю. Он был моим ещё до него.
 
 scene.kseniia_talk_20.10
 cs Z burratové fronty žádné zprávy. I to je zpráva.

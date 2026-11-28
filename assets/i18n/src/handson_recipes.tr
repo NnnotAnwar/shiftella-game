@@ -21,6 +21,24 @@ en Pour slowly. Nobody who comes at night is in a hurry, even when they say they
 uk Лий повільно. Хто приходить уночі, той не поспішає, навіть коли каже інакше.
 ru Лей медленно. Кто приходит ночью, тот не спешит, даже если говорит иначе.
 
+recipe.r_double_espresso.name
+cs Dvojité espresso
+en Double espresso
+uk Подвійний еспресо
+ru Двойной эспрессо
+
+recipe.r_double_espresso.desc
+cs Dvě dávky, malý šálek, žádné řeči.
+en Two shots, a small cup, no small talk.
+uk Дві порції, маленька чашка, жодних розмов.
+ru Две порции, маленькая чашка, никаких разговоров.
+
+recipe.r_double_espresso.lore
+cs Pro ty, kdo mají před sebou ještě dlouhou noc. Nebo dlouhý den.
+en For those with a long night still ahead. Or a long day.
+uk Для тих, у кого попереду ще довга ніч. Або довгий день.
+ru Для тех, у кого впереди ещё долгая ночь. Или долгий день.
+
 recipe.r_cappuccino.name
 cs Cappuccino
 en Cappuccino

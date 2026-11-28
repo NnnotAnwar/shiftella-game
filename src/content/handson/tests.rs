@@ -27,8 +27,8 @@ fn the_promised_amounts() {
     assert_eq!(h.recipes.ingredients.len(), 28);
     assert_eq!(
         h.recipes.recipes.iter().filter(|r| must(r)).count(),
-        22,
-        "16 base + 6 specials"
+        23,
+        "17 base (incl. the double espresso) + 6 specials"
     );
     assert_eq!(
         h.recipes
@@ -38,12 +38,13 @@ fn the_promised_amounts() {
             .count(),
         6
     );
-    assert_eq!(h.starter_recipes().count(), 6);
+    // + the double espresso (Kseniia's order)
+    assert_eq!(h.starter_recipes().count(), 7);
     // handson.md §3.4 lists 27 generic + 17 personal rows (its "43" footnote miscounts);
     // v0.2 package I adds the by-name house-drink wishes (1 generic + 6 personal)
     let by_name = |w: &&super::WishDef| w.favourite.iter().any(|f| f == super::SIGNATURE_RECIPE);
     assert_eq!(h.wishes.wishes.iter().filter(by_name).count(), 7);
-    // purchases: + 3 "like home" wishes of the top coziness tier; + Kseniia's oat flat white
+    // purchases: + 3 "like home" wishes of the top coziness tier; + Kseniia's double espresso
     assert_eq!(h.wishes.wishes.len(), 44 + 7 + 3 + 1);
     assert_eq!(
         h.wishes
