@@ -34,9 +34,12 @@ fn builtin_keys() -> Vec<String> {
         "ui.unit.minutes_short",
         "ui.unit.hours_short",
         "ui.unit.hours_minutes_short",
+        "story_ui.journal.notes",
+        "story_ui.journal.not_found",
     ] {
         keys.push(k.to_string());
     }
+    keys.extend(crate::cutscene::locked::KEYS.iter().map(|k| k.to_string()));
     keys
 }
 
@@ -81,6 +84,9 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
     for n in &s.nights {
         keys.push(n.title_key());
         keys.push(n.hint_key());
+    }
+    for f in &s.night_fallbacks {
+        keys.extend(f.title.iter().chain(&f.hint).cloned());
     }
     for a in &s.acts {
         keys.push(format!("story.act.{}.title", a.act));
@@ -159,7 +165,8 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
                 keys.push(text_key.clone())
             }
             CutsceneStep::Choice { options } => {
-                keys.extend(options.iter().map(|o| o.label_key.clone()))
+                keys.extend(options.iter().map(|o| o.label_key.clone()));
+                keys.extend(options.iter().filter_map(|o| o.locked_hint.clone()));
             }
             _ => {}
         });
@@ -634,6 +641,19 @@ pub(super) fn validate(c: &Content, i18n: &I18n) -> Vec<String> {
     let numbers: BTreeSet<u32> = s.notes.iter().map(|n| n.number).collect();
     if numbers != (1..=s.notes.len() as u32).collect() {
         out.push("story: notes must be numbered 1..N".into());
+    }
+    for f in &s.night_fallbacks {
+        let ctx = format!("story night {} fallback", f.night);
+        if !nights.contains(&f.night) {
+            out.push(format!("{ctx}: unknown night"));
+        }
+        if f.needs.is_empty() {
+            out.push(format!("{ctx}: `needs` is empty (it would never apply)"));
+        }
+        if f.title.is_none() && f.hint.is_none() {
+            out.push(format!("{ctx}: neither `title` nor `hint` is set"));
+        }
+        visit_conditions(&f.needs, &mut |x| ix.check(x, i18n, &ctx, &mut out));
     }
     for n in &s.notes {
         let ctx = format!("note `{}`", n.id);

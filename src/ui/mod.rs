@@ -80,7 +80,9 @@ pub mod toast;
 pub mod widgets;
 
 pub use context::{Response, Ui, UiSound, approach, ease, ease_out};
-pub use dialogue::{DialogueBox, DialogueLabels, DialogueLine, DialogueResponse, HistoryLine};
+pub use dialogue::{
+    ChoiceItem, DialogueBox, DialogueLabels, DialogueLine, DialogueResponse, HistoryLine,
+};
 pub use draw::{Paint, Shadow};
 pub use glass::{Elevation, Glass, draw_glass};
 pub use icons::{Icon, draw_icon};

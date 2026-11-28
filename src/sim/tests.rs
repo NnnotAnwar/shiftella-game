@@ -1110,3 +1110,64 @@ fn sixty_agents_tick_fast() {
     // generous bound for debug builds (release: see `sim_headless --stress`)
     assert!(per_tick < 0.02, "{:.3} ms per tick", per_tick * 1e3);
 }
+
+#[test]
+fn night_title_falls_back_when_its_scene_is_not_ready() {
+    let c = content();
+    let mut w = World::new_story(&c, Difficulty::Cozy);
+    w.sys.tutorial_off = true;
+    w.night = 14;
+    w.begin_day(&c);
+    finish_cutscenes(&mut w, &c);
+    let primary = (
+        "story.night.14.title".to_string(),
+        "story.night.14.hint".to_string(),
+    );
+    let fallback = (
+        "story_ui.night.14.title".to_string(),
+        "story_ui.night.14.hint".to_string(),
+    );
+    // Vera's arc hasn't started: "The second payment", not "The recipe book"
+    assert_eq!(w.night_text_keys(&c, 14), Some(fallback.clone()));
+    // the stage is ready: the scene's title
+    w.story.counters.insert("arc.vera".into(), 1);
+    w.story.trust.insert("vera".into(), 30.0);
+    assert_eq!(w.night_text_keys(&c, 14), Some(primary.clone()));
+    // a night without fallbacks keeps its own keys
+    assert_eq!(
+        w.night_text_keys(&c, 13).map(|k| k.0),
+        Some("story.night.13.title".to_string())
+    );
+    // 22:00 records what the night started with; later changes don't rewrite it (journal)
+    w.story.counters.insert("arc.vera".into(), 0);
+    w.start_night(&c);
+    finish_cutscenes(&mut w, &c);
+    w.story.counters.insert("arc.vera".into(), 2);
+    assert_eq!(w.night_text_keys(&c, 14), Some(fallback));
+    // two fallbacks on one night: the first whose `needs` fails wins; one without a title
+    // keeps the night's own title
+    let mut c2 = c.clone();
+    let fb = |needs, hint: &str| crate::content::NightFallback {
+        night: 27,
+        needs,
+        title: None,
+        hint: Some(hint.to_string()),
+    };
+    c2.story.night_fallbacks.push(fb(
+        vec![crate::content::Condition::ArcAtLeast("vera".into(), 3)],
+        "first",
+    ));
+    c2.story.night_fallbacks.push(fb(
+        vec![crate::content::Condition::NotesFoundAtLeast(6)],
+        "second",
+    ));
+    let hint = |w: &World| w.night_text_keys(&c2, 27).map(|k| k.1);
+    w.story.counters.insert("arc.vera".into(), 3);
+    assert_eq!(hint(&w), Some("second".to_string()));
+    w.story.counters.insert("arc.vera".into(), 0);
+    assert_eq!(hint(&w), Some("first".to_string()));
+    assert_eq!(
+        w.night_text_keys(&c2, 27).map(|k| k.0),
+        Some("story.night.27.title".to_string())
+    );
+}

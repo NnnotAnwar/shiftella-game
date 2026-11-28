@@ -1,0 +1,186 @@
+# Story UI: why a scene choice is locked (greyed out with a reason), night title / hint
+# fallbacks (story.ron night_fallbacks) and Lida's notes page in the journal.
+
+# --- locked choices: generic reasons ({what} = names, already translated) -------------------
+
+story_ui.locked.generic
+cs Teď to nejde
+en Not possible right now
+uk Зараз це неможливо
+ru Сейчас это невозможно
+
+story_ui.locked.furniture
+cs Chce to v kavárně: {what}
+en Needs in the café: {what}
+uk Потрібно в кав'ярні: {what}
+ru Нужно в кафе: {what}
+
+story_ui.locked.furniture_any
+cs Chce to v kavárně správný kus nábytku
+en Needs the right furniture in the café
+uk Потрібні відповідні меблі в кав'ярні
+ru Нужна подходящая мебель в кафе
+
+story_ui.locked.trait
+cs Chce to na směně kolegu: {what}
+en Needs a colleague on shift: {what}
+uk Потрібен колега на зміні: {what}
+ru Нужен коллега на смене: {what}
+
+story_ui.locked.staff
+cs Chce to na směně: {what}
+en Needs on shift: {what}
+uk Потрібен на зміні: {what}
+ru Нужен на смене: {what}
+
+story_ui.locked.money
+cs Na to teď nejsou peníze
+en Not enough money
+uk Не вистачає грошей
+ru Не хватает денег
+
+story_ui.locked.trust
+cs {what} ti ještě tolik nevěří
+en {what} doesn't trust you enough yet
+uk {what} ще не настільки тобі довіряє
+ru {what} пока не настолько тебе доверяет
+
+story_ui.locked.item
+cs Chce to: {what}
+en Needs: {what}
+uk Потрібно: {what}
+ru Нужно: {what}
+
+story_ui.locked.menu
+cs Chce to na menu: {what}
+en Needs on the menu: {what}
+uk Потрібно в меню: {what}
+ru Нужно в меню: {what}
+
+# --- locked choices: authored reasons (<label_key>.locked) ---------------------------------
+
+scene.hana_asleep.05.locked
+cs Chce to v kavárně křeslo a stojací lampu
+en Needs an armchair and a floor lamp in the café
+uk Потрібні крісло й торшер у кав'ярні
+ru Нужны кресло и торшер в кафе
+
+scene.filip_exam.03.locked
+cs Chce to na směně někoho laskavého nebo upovídaného
+en Needs a kind or chatty colleague on shift
+uk Потрібен на зміні добрий або балакучий колега
+ru Нужен на смене добрый или болтливый коллега
+
+# --- locked moment options (moments.ron locked_hint) ----------------------------------------
+
+story_ui.moment.needs_stage
+cs Chce to pódium
+en Needs a stage
+uk Потрібна сцена
+ru Нужна сцена
+
+story_ui.moment.needs_waltz
+cs Chce to desku s valčíkem
+en Needs the waltz record
+uk Потрібна платівка з вальсом
+ru Нужна пластинка с вальсом
+
+# --- night title / hint fallbacks (the announced scene isn't ready) -------------------------
+
+story_ui.night.08.title
+cs Nové tváře
+en New faces
+uk Нові обличчя
+ru Новые лица
+
+story_ui.night.08.hint
+cs Hlásí se noví lidé. Mirek má rád, když je káva rychle na stole.
+en New people are applying. Mirek likes his coffee on the table fast.
+uk Зголошуються нові люди. Мірек любить, коли кава швидко на столі.
+ru Приходят новые люди. Мирек любит, когда кофе быстро на столе.
+
+story_ui.night.12.title
+cs Po koncertě
+en After the concert
+uk Після концерту
+ru После концерта
+
+story_ui.night.12.hint
+cs Kolem jedenácté přijde dav z koncertu. Hana z nemocnice je unavená — rychlá káva by jí pomohla.
+en Around eleven, the concert crowd. Hana from the hospital is worn out — a quick coffee would help.
+uk Близько одинадцятої прийде натовп після концерту. Гана з лікарні втомлена — швидка кава їй допомогла б.
+ru Около одиннадцати придёт толпа после концерта. Гана из больницы устала — быстрый кофе ей бы помог.
+
+story_ui.night.14.title
+cs Druhá splátka
+en The second payment
+uk Другий платіж
+ru Второй платёж
+
+story_ui.night.14.hint
+cs V šest druhá splátka. Vera si všimne každé drobky na stole.
+en The second payment at six. Vera notices every crumb on the table.
+uk О шостій другий платіж. Віра помічає кожну крихту на столі.
+ru В шесть второй платёж. Вера замечает каждую крошку на столе.
+
+story_ui.night.15.title
+cs Mlha
+en Fog
+uk Туман
+ru Туман
+
+story_ui.night.15.hint
+cs Mlha. Ve 3:33 by měl být stůl u okna volný.
+en Fog. At 3:33, the window table should be free.
+uk Туман. О 3:33 столик біля вікна має бути вільним.
+ru Туман. В 3:33 столик у окна должен быть свободен.
+
+story_ui.night.20.title
+cs Plno
+en A full house
+uk Повна зала
+ru Полный зал
+
+story_ui.night.20.hint
+cs Po desáté dav z koncertu. Mirek se kolem jedenácté stejně zastaví.
+en After ten, the concert crowd. Mirek will still drop by around eleven.
+uk Після десятої — натовп після концерту. Мірек однаково зазирне близько одинадцятої.
+ru После десяти — толпа после концерта. Мирек всё равно заглянет около одиннадцати.
+
+story_ui.night.26.title
+cs Po bouřce
+en After the storm
+uk Після грози
+ru После грозы
+
+story_ui.night.26.hint
+cs Někdo z týmu si chce vybrat náhradní volno. Mrkni do aplikace.
+en Someone on the crew wants time off in lieu. Check the app.
+uk Хтось із команди хоче взяти відгул. Зазирни в застосунок.
+ru Кто-то из команды хочет взять отгул. Загляни в приложение.
+
+story_ui.night.28.title
+cs Čtvrtá splátka
+en The fourth payment
+uk Четвертий платіж
+ru Четвёртый платёж
+
+story_ui.night.28.hint
+cs V šest čtvrtá splátka. Počítej.
+en The fourth payment at six. Count carefully.
+uk О шостій четвертий платіж. Рахуй.
+ru В шесть четвёртый платёж. Считай.
+
+# --- journal: Lida's notes page --------------------------------------------------------------
+
+story_ui.journal.notes
+cs Lidiny vzkazy
+en Lida's notes
+uk Записки Ліди
+ru Записки Лиды
+
+story_ui.journal.not_found
+cs Zatím nenalezeno
+en Not found yet
+uk Ще не знайдено
+ru Пока не найдено

@@ -2147,6 +2147,24 @@ pub fn journal_labels(l: Lang) -> JournalLabels {
                 "Следующая · →",
             ],
         ),
+        notes: s(
+            l,
+            [
+                "Lida's notes",
+                "Lidiny vzkazy",
+                "Записки Ліди",
+                "Записки Лиды",
+            ],
+        ),
+        not_found: s(
+            l,
+            [
+                "Not found yet",
+                "Zatím nenalezeno",
+                "Ще не знайдено",
+                "Пока не найдено",
+            ],
+        ),
     }
 }
 

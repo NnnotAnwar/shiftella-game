@@ -825,7 +825,10 @@ fn journal_page(ui: &mut Ui, d: &mut Demo) {
         ui,
         "journal",
         r,
-        &JournalView { entries },
+        &JournalView {
+            entries,
+            notes: Vec::new(),
+        },
         &mock::journal_labels(l),
         &mut d.journal_st,
     ) {

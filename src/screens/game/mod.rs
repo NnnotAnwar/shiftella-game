@@ -707,6 +707,13 @@ impl GameScreen {
         self.bubble = None;
     }
 
+    /// `SHIFTELLA_SCENE=cutscene_choice`: plays scene `id` over the live café up to its first
+    /// choice (locked options greyed out with their reason). Returns whether a choice is up.
+    pub fn stage_cutscene_choice(&mut self, content: &Rc<Content>, loc: &Locale, id: &str) -> bool {
+        self.start_cutscene(content, id);
+        self.player.fast_forward_to_choice(loc, 180.0)
+    }
+
     /// The player finished a scene (or a test fast-forwarded it).
     pub fn cutscene_finished(&mut self, content: &Rc<Content>, id: String, choices: Vec<usize>) {
         if self.intro {

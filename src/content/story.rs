@@ -56,6 +56,20 @@ pub struct StoryNight {
     pub beats: Vec<Beat>,
 }
 
+/// A night's planning title / hint that depend on a floating arc stage get a fallback: when
+/// `needs` doesn't hold (checked live on the day screen, recorded when the night starts),
+/// `title` / `hint` replace `story.night.NN.title` / `.hint` (each optional: `None` keeps the
+/// primary one). Several fallbacks per night: the first whose `needs` fails wins.
+#[derive(Debug, Clone, Deserialize)]
+pub struct NightFallback {
+    pub night: u32,
+    pub needs: Vec<Condition>,
+    #[serde(default)]
+    pub title: Option<String>,
+    #[serde(default)]
+    pub hint: Option<String>,
+}
+
 impl StoryNight {
     pub fn title_key(&self) -> String {
         format!("story.night.{:02}.title", self.night)
@@ -156,6 +170,31 @@ pub struct StoryDef {
     /// The story calendar (dates of the 30 nights, named days).
     #[serde(default)]
     pub calendar: Option<StoryCalendar>,
+    /// Night title / hint fallbacks (see [`NightFallback`]).
+    #[serde(default)]
+    pub night_fallbacks: Vec<NightFallback>,
+}
+
+impl StoryDef {
+    /// The fallbacks of `night`, in order (indexes into `night_fallbacks`).
+    pub fn fallbacks_of(&self, night: u32) -> impl Iterator<Item = (usize, &NightFallback)> {
+        self.night_fallbacks
+            .iter()
+            .enumerate()
+            .filter(move |(_, f)| f.night == night)
+    }
+
+    /// The title and hint keys of `night` given the fallback in use (`None` = the primary).
+    pub fn night_text_keys(&self, night: u32, fallback: Option<usize>) -> Option<(String, String)> {
+        let n = self.night(night)?;
+        let fb = fallback.and_then(|i| self.night_fallbacks.get(i));
+        Some((
+            fb.and_then(|f| f.title.clone())
+                .unwrap_or_else(|| n.title_key()),
+            fb.and_then(|f| f.hint.clone())
+                .unwrap_or_else(|| n.hint_key()),
+        ))
+    }
 }
 
 /// A calendar date.
@@ -330,9 +369,26 @@ pub struct ChoiceOption {
     pub effects: Vec<Effect>,
     #[serde(default)]
     pub set_flag: Option<String>,
-    /// Only offered when these hold.
+    /// Only offered when these hold. A failing option is still shown, greyed out and not
+    /// selectable, with a one-line reason (see [`ChoiceOption::locked_hint`]).
     #[serde(default)]
     pub conditions: Vec<Condition>,
+    /// Text key of the reason shown under a locked option. Without it the player uses
+    /// `<label_key>.locked` when that key exists, else a reason derived from the failing
+    /// condition ("Needs: Armchair"), else `story_ui.locked.generic`.
+    #[serde(default)]
+    pub locked_hint: Option<String>,
+    /// Opt out of the greyed-out display: a failing option is hidden instead (alternatives
+    /// that exclude each other, e.g. two endings of one scene — not content to unlock).
+    #[serde(default)]
+    pub hidden_when_locked: bool,
+}
+
+impl ChoiceOption {
+    /// The conventional reason key (`<label_key>.locked`), used when `locked_hint` is unset.
+    pub fn conventional_hint_key(&self) -> String {
+        format!("{}.locked", self.label_key)
+    }
 }
 
 /// One step of a cutscene. Steps run in order; a step finishes before the next starts, except

@@ -11,11 +11,14 @@ use crate::content::{
 use crate::map::{Map, TILE};
 use crate::render::{Expression, draw_portrait};
 use crate::settings::Locale;
-use crate::ui::{DialogueBox, DialogueLabels, DialogueLine, RectExt, TextStyle, Ui, Weight};
+use crate::ui::{
+    ChoiceItem, DialogueBox, DialogueLabels, DialogueLine, RectExt, TextStyle, Ui, Weight,
+};
 
 use super::actors::{Actor, find_path, tile_feet};
 use super::cards::{self, PhoneLabels};
 use super::cast::{Cast, expression};
+use super::locked::{self, LockReason};
 use super::scene::{CafeScene, OVERVIEW_CENTER};
 use super::staging::{self, Op, Stage, TRAIN_STOP};
 
@@ -83,7 +86,7 @@ enum Active {
         t: f32,
     },
     Choice {
-        options: Vec<(usize, ChoiceOption)>,
+        options: Vec<Shown>,
         t: f32,
     },
     Timer(f32),
@@ -104,6 +107,15 @@ enum Active {
         key: String,
         t: f32,
     },
+}
+
+/// An option on screen: its index in the data, the option, and why it's locked (greyed out,
+/// not selectable) when its conditions fail.
+#[derive(Debug, Clone)]
+struct Shown {
+    index: usize,
+    opt: ChoiceOption,
+    locked: Option<LockReason>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -524,10 +536,9 @@ impl CutscenePlayer {
                 Some(Active::Choice { t, options }) if *t > 1.2 => {
                     let want = picks.get(next).copied();
                     next += 1;
-                    Some(
-                        want.and_then(|w| options.iter().position(|(i, _)| *i == w))
-                            .unwrap_or(0),
-                    )
+                    let open = |o: &Shown| o.locked.is_none();
+                    want.and_then(|w| options.iter().position(|o| o.index == w && open(o)))
+                        .or_else(|| options.iter().position(open))
                 }
                 _ => None,
             };
@@ -542,6 +553,21 @@ impl CutscenePlayer {
             t += dt;
         }
         self.auto_advance = auto;
+    }
+
+    /// Auto-plays up to `seconds` of the scene until a choice is on screen (screenshots of a
+    /// choice). Returns whether one is.
+    pub fn fast_forward_to_choice(&mut self, loc: &Locale, seconds: f32) -> bool {
+        let auto = self.auto_advance;
+        self.auto_advance = true;
+        let dt = 1.0 / 30.0;
+        let mut t = 0.0;
+        while t < seconds && self.playing && !matches!(self.active, Some(Active::Choice { .. })) {
+            self.step(loc, dt, StepInput::default());
+            t += dt;
+        }
+        self.auto_advance = auto;
+        matches!(self.active, Some(Active::Choice { .. }))
     }
 
     fn tick_world(&mut self, dt: f32) {
@@ -678,10 +704,11 @@ impl CutscenePlayer {
             None | Some(Active::Text { .. }) => true,
             Some(Active::Choice { options, t }) => {
                 *t += dt;
+                // a locked option is on screen but can't be answered (whatever the input)
                 if let Some(i) = input.choice
-                    && i < options.len()
+                    && let Some(o) = options.get(i).filter(|o| o.locked.is_none())
                 {
-                    let (index, opt) = options[i].clone();
+                    let (index, opt) = (o.index, o.opt.clone());
                     self.pick(index, &opt);
                     return true;
                 }
@@ -888,7 +915,7 @@ impl CutscenePlayer {
         }
     }
 
-    fn begin_step(&mut self, _loc: &Locale, step: CutsceneStep) {
+    fn begin_step(&mut self, loc: &Locale, step: CutsceneStep) {
         match step {
             CutsceneStep::Narration { text_key } => {
                 self.last_line = Some((None, Expression::Neutral, text_key.clone()));
@@ -914,15 +941,28 @@ impl CutscenePlayer {
                 });
             }
             CutsceneStep::Choice { options } => {
-                let shown: Vec<(usize, ChoiceOption)> = options
+                let shown: Vec<Shown> = options
                     .into_iter()
                     .enumerate()
-                    .filter(|(_, o)| {
-                        let conds = o.conditions.clone();
-                        self.check(&conds)
+                    .filter_map(|(index, opt)| {
+                        let failing: Vec<Condition> = opt
+                            .conditions
+                            .iter()
+                            .filter(|c| !self.check(std::slice::from_ref(c)))
+                            .cloned()
+                            .collect();
+                        if !failing.is_empty() && opt.hidden_when_locked {
+                            return None;
+                        }
+                        let locked = (!failing.is_empty()).then(|| {
+                            let refs: Vec<&Condition> = failing.iter().collect();
+                            locked::reason(&opt, &refs, |k| loc.has(k))
+                        });
+                        Some(Shown { index, opt, locked })
                     })
                     .collect();
-                if !shown.is_empty() {
+                // nothing to answer: the step passes (a choice of locked options only is skipped)
+                if shown.iter().any(|o| o.locked.is_none()) {
                     self.active = Some(Active::Choice {
                         options: shown,
                         t: 0.0,
@@ -1274,7 +1314,11 @@ impl CutscenePlayer {
             Some(Active::Choice { options, .. }) => {
                 let labels_txt: Vec<String> = options
                     .iter()
-                    .map(|(_, o)| loc.tr_owned(&o.label_key))
+                    .map(|o| loc.tr_owned(&o.opt.label_key))
+                    .collect();
+                let reasons: Vec<Option<String>> = options
+                    .iter()
+                    .map(|o| o.locked.as_ref().map(|r| r.text(loc)))
                     .collect();
                 let above = match &self.last_line {
                     Some((Some(sp), expr, key)) => {
@@ -1293,11 +1337,18 @@ impl CutscenePlayer {
                     }
                     _ => Rect::new(screen.w / 2.0 - 300.0, screen.h - bar_h - 60.0, 600.0, 40.0),
                 };
-                let refs: Vec<&str> = labels_txt.iter().map(String::as_str).collect();
-                input.choice = ui.choice_list(
+                let items: Vec<ChoiceItem> = labels_txt
+                    .iter()
+                    .zip(&reasons)
+                    .map(|(label, why)| ChoiceItem {
+                        label,
+                        locked: why.as_deref(),
+                    })
+                    .collect();
+                input.choice = ui.choice_list_items(
                     ("cutscene_choice", self.outcome.choices.len()),
                     above,
-                    &refs,
+                    &items,
                 );
             }
             Some(Active::Note { id, .. }) => {
@@ -1475,6 +1526,8 @@ mod tests {
             effects: vec![Effect::Money(-10)],
             set_flag: flag.map(str::to_string),
             conditions: conds,
+            locked_hint: None,
+            hidden_when_locked: false,
         }
     }
 
@@ -1562,15 +1615,13 @@ mod tests {
             ],
         ));
         p.step(&loc, 0.1, StepInput::default());
-        // the hidden option is not offered: shown index 1 is data index 2
-        let status = p.step(
-            &loc,
-            0.1,
-            StepInput {
-                choice: Some(1),
-                ..Default::default()
-            },
-        );
+        // the locked option is on screen (greyed) but answering it does nothing
+        let pick = |i| StepInput {
+            choice: Some(i),
+            ..Default::default()
+        };
+        assert_eq!(p.step(&loc, 0.1, pick(1)), CutsceneStatus::Playing);
+        let status = p.step(&loc, 0.1, pick(2));
         let CutsceneStatus::Finished { choices, .. } = status else {
             panic!("should finish, got {status:?}");
         };
@@ -1582,6 +1633,88 @@ mod tests {
         assert!(o.effects.contains(&Effect::GiveItem("old_coin".into())));
         assert!(o.effects.contains(&Effect::Money(-10)));
         assert_eq!(p.drain_effects().len(), o.effects.len());
+    }
+
+    #[test]
+    fn a_locked_option_is_shown_with_its_reason_but_never_chosen() {
+        let (mut p, i18n, _) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        p.set_condition_check(|c| !matches!(c, Condition::HasFurniture(_)));
+        let mut hinted = opt(
+            "scene.hana_asleep.04",
+            None,
+            vec![Condition::HasFurniture("radio".into())],
+        );
+        hinted.locked_hint = Some("scene.hana_asleep.05.locked".into());
+        p.start(&def(
+            "l",
+            vec![CutsceneStep::Choice {
+                options: vec![
+                    opt(
+                        "scene.hana_asleep.05",
+                        Some("corner"),
+                        vec![
+                            Condition::HasFurniture("armchair".into()),
+                            Condition::HasFurniture("floor_lamp".into()),
+                        ],
+                    ),
+                    opt(
+                        "scene.x.none",
+                        None,
+                        vec![Condition::HasFurniture("armchair".into())],
+                    ),
+                    hinted,
+                    opt("scene.hana_asleep.03", Some("woken"), vec![]),
+                    {
+                        let mut alt =
+                            opt("scene.alt", None, vec![Condition::HasFurniture("x".into())]);
+                        alt.hidden_when_locked = true;
+                        alt
+                    },
+                ],
+            }],
+        ));
+        p.step(&loc, 0.1, StepInput::default());
+        let Some(Active::Choice { options, .. }) = &p.active else {
+            panic!("asks");
+        };
+        // locked options stay on screen; a `hidden_when_locked` alternative doesn't
+        assert_eq!(options.len(), 4, "locked options stay on screen");
+        let keys: Vec<Option<&str>> = options
+            .iter()
+            .map(|o| o.locked.as_ref().map(|r| r.key.as_str()))
+            .collect();
+        assert_eq!(
+            keys,
+            vec![
+                // the authored reason by convention (`<label>.locked`)
+                Some("scene.hana_asleep.05.locked"),
+                // no text authored: derived from the condition
+                Some(locked::FURNITURE),
+                // explicit `locked_hint`
+                Some("scene.hana_asleep.05.locked"),
+                None,
+            ]
+        );
+        let derived = options[1].locked.as_ref().unwrap().text(&loc);
+        assert!(derived.contains("Armchair"), "{derived}");
+        // neither a click / number key (choice index) on a locked row picks it
+        for i in 0..3 {
+            let st = p.step(
+                &loc,
+                0.1,
+                StepInput {
+                    choice: Some(i),
+                    ..Default::default()
+                },
+            );
+            assert_eq!(st, CutsceneStatus::Playing, "locked row {i} was picked");
+        }
+        // the fast-forward (autoplay) skips locked options too
+        p.fast_forward_with(&loc, 5.0, &[0]);
+        assert_eq!(p.outcome().choices.len(), 1);
+        assert_eq!(p.outcome().choices[0].index, 3);
+        assert_eq!(p.outcome().flags, vec!["woken".to_string()]);
     }
 
     #[test]

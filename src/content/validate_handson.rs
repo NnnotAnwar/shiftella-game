@@ -588,6 +588,9 @@ fn moments(v: &mut Ctx, c: &Content) {
             let octx = format!("{ctx} option `{}`", o.id);
             v.fx(&o.effects, &octx);
             v.conds(&o.show_if, &octx);
+            if o.locked_hint.is_some() && o.show_if.is_empty() {
+                v.push(format!("{octx}: `locked_hint` without `show_if`"));
+            }
             if let Some(Interaction::QuickBrews { recipe, .. }) = &o.interaction
                 && !v.hx.recipes.contains(recipe.as_str())
             {
@@ -1209,6 +1212,7 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
         k.extend([m.title_key(), m.text_key()]);
         for o in &m.options {
             k.extend([m.option_key(&o.id), m.result_key(&o.id)]);
+            k.extend(o.locked_hint.clone());
         }
         if !m.on_expire.is_empty() {
             k.push(m.expired_key());

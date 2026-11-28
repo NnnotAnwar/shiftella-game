@@ -500,6 +500,10 @@ pub struct StoryState {
     pub payments_processed: u32,
     /// Talk cutscenes played (also in `played`).
     pub talks: BTreeSet<String>,
+    /// The title / hint fallback each story night started with (index into
+    /// `story.night_fallbacks`; `None` = the primary title / hint).
+    #[serde(default)]
+    pub night_texts: BTreeMap<u32, Option<usize>>,
 }
 
 /// How a pending `Later` effect list is found again in content (effects aren't serialisable).
@@ -2192,6 +2196,38 @@ impl World {
     }
     pub fn notes_found(&self) -> &[String] {
         &self.story.notes
+    }
+    /// Title and hint keys of story night `night`, with its fallback (`NightFallback`): as
+    /// recorded when that night started; before it, as things stand now; an older night
+    /// without a record keeps the primary text.
+    pub fn night_text_keys(&self, content: &Content, night: u32) -> Option<(String, String)> {
+        let fb = match self.story.night_texts.get(&night) {
+            Some(f) => *f,
+            None if night >= self.night => self.live_night_fallback(content, night),
+            None => None,
+        };
+        content.story.night_text_keys(night, fb)
+    }
+    /// Sets a story counter (screenshots: `arc.<regular>` is the arc stage).
+    pub fn debug_set_counter(&mut self, name: &str, value: i32) {
+        self.story.counters.insert(name.to_string(), value);
+    }
+    /// The first fallback of `night` whose `needs` fail now.
+    pub(crate) fn live_night_fallback(&self, content: &Content, night: u32) -> Option<usize> {
+        let mut rng = self.rng.clone();
+        content
+            .story
+            .fallbacks_of(night)
+            .find(|(_, f)| {
+                !super::logic::all_with(
+                    self,
+                    content,
+                    &f.needs,
+                    &mut EffectCtx::default(),
+                    &mut rng,
+                )
+            })
+            .map(|(i, _)| i)
     }
     pub fn ending(&self) -> Option<&str> {
         self.story.ending.as_deref()

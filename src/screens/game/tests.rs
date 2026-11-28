@@ -1124,3 +1124,38 @@ fn the_stranger_who_leaves_in_his_scene_is_gone_after_it() {
         assert!(!present(&g), "he came back");
     }
 }
+
+#[test]
+fn journal_shows_a_riddle_for_an_unfound_note() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.finish_cutscene_now(&c, &loc);
+    g.world.story.notes = vec!["note_01".to_string()];
+    let slips = super::journal_ui::note_slips(&g.world, &c, &loc);
+    assert_eq!(slips.len(), 10);
+    assert_eq!(
+        slips.iter().map(|s| s.number).collect::<Vec<_>>(),
+        (1..=10).collect::<Vec<_>>()
+    );
+    let found = &slips[0];
+    let riddle = &slips[1];
+    assert!(found.found);
+    assert_eq!(found.place, "Under the register");
+    assert!(found.text.starts_with("Don't switch off"), "{}", found.text);
+    // note 2 isn't found on day 1: its place reads as a riddle, the text stays hidden
+    assert!(!riddle.found);
+    assert_eq!(
+        riddle.place,
+        "In the cupboard behind the counter, once everything is spotless"
+    );
+    assert!(riddle.text.is_empty());
+    // every riddle is translated in every language (no raw keys)
+    for lang in crate::i18n::Lang::ALL {
+        let l = Locale::new(&i, lang);
+        for s in super::journal_ui::note_slips(&g.world, &c, &l) {
+            assert!(!s.place.starts_with("note."), "{lang:?}: {}", s.place);
+        }
+    }
+}

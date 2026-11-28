@@ -18,6 +18,7 @@
 pub mod actors;
 pub mod cards;
 pub mod cast;
+pub mod locked;
 mod player;
 pub mod scene;
 pub mod staging;

@@ -236,9 +236,37 @@ pub struct JournalEntry {
     pub extras: Vec<PolaroidView>,
 }
 
+/// One of Lída's notes on the journal's last page.
+#[derive(Clone, Debug)]
+pub struct NoteSlip {
+    pub number: u32,
+    pub found: bool,
+    /// Found: where it was found. Not yet: the same line read as a riddle (where to look).
+    pub place: String,
+    /// Found: the note itself (shown shortened). Empty while not found.
+    pub text: String,
+}
+
 #[derive(Clone, Debug)]
 pub struct JournalView {
     pub entries: Vec<JournalEntry>,
+    /// Lída's notes (story mode): an extra last page. Empty = no notes page.
+    pub notes: Vec<NoteSlip>,
+}
+
+impl JournalView {
+    /// Pages of polaroids (six a page).
+    pub fn photo_pages(&self) -> usize {
+        self.entries.len().div_ceil(PER_PAGE).max(1)
+    }
+    /// All pages: the photos, then the notes page (when there are notes).
+    pub fn pages(&self) -> usize {
+        self.photo_pages() + usize::from(!self.notes.is_empty())
+    }
+    /// The page index of the notes page.
+    pub fn notes_page(&self) -> Option<usize> {
+        (!self.notes.is_empty()).then(|| self.photo_pages())
+    }
 }
 
 #[derive(Clone, Debug, Default)]
@@ -251,6 +279,10 @@ pub struct JournalLabels {
     pub close: String,
     pub prev: String,
     pub next: String,
+    /// "Lída's notes" (the notes page title and the header chip's tooltip).
+    pub notes: String,
+    /// The line under an unfound note's riddle ("Not found yet").
+    pub not_found: String,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -345,8 +377,47 @@ pub fn journal(
     {
         action = Some(JournalAction::Close);
     }
-    let pages = v.entries.len().div_ceil(PER_PAGE).max(1);
+    let pages = v.pages();
     st.page = st.page.min(pages - 1);
+    // header chip: the notes found so far; a click opens the notes page
+    if let Some(np) = v.notes_page() {
+        let found = v.notes.iter().filter(|n| n.found).count();
+        let label = format!("{found}/{}", v.notes.len());
+        let cs = TextStyle::new(12.0, Weight::SemiBold, cream);
+        let cw = ui.fonts.measure(&label, &cs) + 30.0;
+        let chip = Rect::new(close.x - 8.0 - cw, head.y + 3.0, cw, 24.0);
+        let resp = ui.interact(id.with("notes_chip"), chip);
+        let on = st.page == np;
+        fill_rrect(
+            chip,
+            12.0,
+            Color::new(
+                1.0,
+                0.95,
+                0.85,
+                if on { 0.22 } else { 0.10 + 0.08 * resp.hover_t },
+            ),
+        );
+        draw_icon(
+            Icon::Note,
+            vec2(chip.x + 13.0, chip.center_y()),
+            12.0,
+            cream,
+        );
+        ui.fonts.draw_in(
+            &label,
+            Rect::new(chip.x + 22.0, chip.y, chip.w - 26.0, chip.h),
+            &cs,
+            Align::Center,
+        );
+        ui.tooltip(&resp, &l.notes);
+        if resp.clicked && !on {
+            ui.sound(UiSound::Click);
+            st.turn = 1.0;
+            st.page = np;
+            st.open = None;
+        }
+    }
 
     // page turn: slide + fade
     st.turn = crate::ui::approach(st.turn, 0.0, ui.dt(), 0.09);
@@ -370,6 +441,9 @@ pub fn journal(
         Color::new(0.7, 0.9, 0.85, 0.5),
     ];
     let mut clicked = None;
+    if Some(st.page) == v.notes_page() {
+        notes_page(ui, grid.translate(vec2(shift, 0.0)), &v.notes, l, cream);
+    }
     for (k, e) in v.entries.iter().enumerate().skip(start).take(PER_PAGE) {
         let slot = k - start;
         let (cx, cy) = ((slot % 3) as f32, (slot / 3) as f32);
@@ -619,4 +693,86 @@ pub fn journal(
         }
     }
     action
+}
+
+/// The notes page: ten slips in two columns. A found note shows where it was and the start
+/// of its text; an unfound one shows that place as a riddle (where to look, and when).
+fn notes_page(ui: &mut Ui, grid: Rect, notes: &[NoteSlip], l: &JournalLabels, cream: Color) {
+    let ts = TextStyle::new(14.0, Weight::Bold, cream);
+    super::common::draw_handwritten(ui, &l.notes, grid.x + 4.0, grid.y + 16.0, &ts);
+    let rows = notes.len().div_ceil(2).max(1);
+    let top = grid.y + 26.0;
+    let gap = 8.0;
+    let slip_h = ((grid.bottom() - top - gap * (rows - 1) as f32) / rows as f32).min(76.0);
+    let slip_w = (grid.w - gap) / 2.0;
+    let paper = Color::from_hex(0xF3E9D2);
+    let ink = Color::from_hex(0x3B2F4A);
+    for (i, n) in notes.iter().enumerate() {
+        let (col, row) = ((i / rows) as f32, (i % rows) as f32);
+        let r = Rect::new(
+            grid.x + col * (slip_w + gap),
+            top + row * (slip_h + gap),
+            slip_w,
+            slip_h,
+        );
+        let badge = vec2(r.x + 16.0, r.y + 16.0);
+        let body = Rect::new(r.x + 32.0, r.y + 6.0, r.w - 40.0, r.h - 10.0);
+        if n.found {
+            shadow_rrect(
+                r,
+                3.0,
+                draw::Shadow::new(0.0, 2.0, 6.0, 0.0, Color::new(0.0, 0.0, 0.0, 0.3)),
+            );
+            fill_rrect(r, 3.0, paper);
+            draw::fill_circle(badge, 9.0, with_a(ink, 0.12));
+            ui.fonts.draw_in(
+                &n.number.to_string(),
+                Rect::new(badge.x - 9.0, badge.y - 9.0, 18.0, 18.0),
+                &TextStyle::new(11.0, Weight::Bold, ink),
+                Align::Center,
+            );
+            ui.fonts.draw_in(
+                &n.place,
+                Rect::new(body.x, body.y, body.w, 14.0),
+                &TextStyle::new(10.5, Weight::SemiBold, with_a(ink, 0.6)),
+                Align::Left,
+            );
+            let hs = TextStyle::new(12.0, Weight::Medium, ink);
+            let lines = ((body.h - 16.0) / hs.line_h()).floor().max(1.0) as usize;
+            super::common::draw_handwritten_block(
+                ui,
+                &n.text,
+                Rect::new(body.x, body.y + 16.0, body.w, body.h - 16.0),
+                &hs,
+                Align::Left,
+                lines,
+            );
+        } else {
+            fill_rrect(r, 3.0, Color::new(0.0, 0.0, 0.0, 0.12));
+            dashed_rrect(r, 3.0, 1.2, 5.0, with_a(cream, 0.45));
+            draw::fill_circle(badge, 9.0, Color::new(1.0, 1.0, 1.0, 0.08));
+            ui.fonts.draw_in(
+                "?",
+                Rect::new(badge.x - 9.0, badge.y - 9.0, 18.0, 18.0),
+                &TextStyle::new(12.0, Weight::Bold, with_a(cream, 0.8)),
+                Align::Center,
+            );
+            ui.fonts.draw_in(
+                &format!("{} · {}", n.number, l.not_found),
+                Rect::new(body.x, body.y, body.w, 14.0),
+                &TextStyle::new(10.5, Weight::SemiBold, with_a(cream, 0.55)),
+                Align::Left,
+            );
+            let hs = TextStyle::new(12.0, Weight::Medium, with_a(cream, 0.92));
+            let lines = ((body.h - 16.0) / hs.line_h()).floor().max(1.0) as usize;
+            super::common::draw_handwritten_block(
+                ui,
+                &n.place,
+                Rect::new(body.x, body.y + 16.0, body.w, body.h - 16.0),
+                &hs,
+                Align::Left,
+                lines,
+            );
+        }
+    }
 }

@@ -9,7 +9,7 @@
 //!   crew_karolina|crew_helper|crew_classic|crew_day|crew_hire|
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
-//!   journal|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
+//!   journal|cutscene_choice|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
 //!   build_drag|attic|backroom|requests|corner|before_after|to_go|challenge_summary|
 //!   challenge_final` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
@@ -30,8 +30,9 @@
 //!   pirohy|buchty|soup|kulajda|borscht|svarak` (or any recipe id `r_…`) picks the game,
 //!   `SHIFTELLA_MG_T=<seconds>` plays it by autoplay that long first (the guide card shows on a
 //!   fresh settings file; list the read ones in `minigame_guides` to skip it),
-//!   `SHIFTELLA_MOMENT=<id>` the moment, `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page /
-//!   the enlarged polaroid, `SHIFTELLA_AUTOFILL=1` auto-fills the rozpis first)
+//!   `SHIFTELLA_MOMENT=<id>` the moment (`SHIFTELLA_FORCE=1`: spawned at once), `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page
+//!   (the last one is Lida's notes) / the enlarged polaroid, `SHIFTELLA_CUTSCENE=<id>` the scene
+//!   `cutscene_choice` plays up to its choice, `SHIFTELLA_AUTOFILL=1` auto-fills the rozpis first)
 //! * `SHIFTELLA_AUTOPLAY=1|keys|skip` — Karolina plays the night by herself through the same
 //!   intents as the mouse and keyboard (`keys`: mini-games by keyboard, `skip`: every
 //!   mini-game skipped);
@@ -44,6 +45,7 @@
 //!   `SHIFTELLA_MOOD_TIPS=<Kč>`, `SHIFTELLA_HABITS_SCROLL=1` (`GameScreen::stage_by_hand`)
 //! * `SHIFTELLA_LANG=cs|en|uk|ru`, `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`,
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
+//! * `SHIFTELLA_COUNTER=arc.vera=0,…` on `day`: story counters set first.
 //! * `SHIFTELLA_DIRT=0.4` — dirt blots on the floor; `SHIFTELLA_SETTINGS_TAB=0|1|2` — the
 //!   settings scene opens on General / Accessibility / Controls (package J, access).
 //! * `SHIFTELLA_COMBO=story_card,crew,photo,…` — opens several layers at once over the scene
@@ -714,6 +716,13 @@ impl App {
                 });
                 let mut g = story_at(n, Some(minute.unwrap_or(5)), &self.i18n, lang);
                 let want = env("SHIFTELLA_MOMENT");
+                // `SHIFTELLA_FORCE=1`: the moment appears at once (its conditions aside)
+                if env("SHIFTELLA_FORCE").is_some()
+                    && let Some(w) = &want
+                    && !g.world.debug_spawn_moment(&content, w)
+                {
+                    eprintln!("moments: `{w}` couldn't appear");
+                }
                 let want_c = want.clone();
                 g.play_headless(&content, &loc, 1500.0, &move |g| {
                     g.world.active_moments().iter().any(|m| {
@@ -774,6 +783,21 @@ impl App {
                 }
                 self.game(g)
             }
+            // a scene up to its choice (`SHIFTELLA_CUTSCENE=<id>`, default Hana asleep on
+            // night 12): locked options greyed out with their reason
+            "cutscene_choice" => {
+                let id = env("SHIFTELLA_CUTSCENE").unwrap_or_else(|| "hana_asleep".into());
+                let n = night.unwrap_or(match id.as_str() {
+                    "filip_exam" => 18,
+                    _ => 12,
+                });
+                let loc = Locale::new(&self.i18n, lang);
+                let mut g = story_at(n, Some(minute.unwrap_or(240)), &self.i18n, lang);
+                if !g.stage_cutscene_choice(&content, &loc, &id) {
+                    eprintln!("cutscene_choice: `{id}` has no choice to show");
+                }
+                self.game_instant_text(g, shot)
+            }
             "polaroid" => {
                 let n = night.unwrap_or(5);
                 let mut g = story_at(n, Some(479), &self.i18n, lang);
@@ -807,6 +831,15 @@ impl App {
                 let n = night.unwrap_or(2);
                 let mut g = story_at(n, None, &self.i18n, lang);
                 g.summary = None;
+                // `SHIFTELLA_COUNTER=arc.vera=0,…`: story counters set first (a night title's
+                // fallback when its arc stage isn't ready)
+                for kv in env("SHIFTELLA_COUNTER").unwrap_or_default().split(',') {
+                    if let Some((k, v)) = kv.split_once('=')
+                        && let Ok(v) = v.parse()
+                    {
+                        g.world.debug_set_counter(k, v);
+                    }
+                }
                 fridge_setup(&mut g, &content);
                 self.game(g)
             }

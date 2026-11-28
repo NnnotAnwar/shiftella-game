@@ -64,7 +64,7 @@ pub use duties::{
     DutiesAction, DutiesLabels, DutiesState, DutiesView, HelperRow, duties_board, duties_board_size,
 };
 pub use journal::{
-    JOURNAL_SIZE, JournalAction, JournalEntry, JournalLabels, JournalState, JournalView,
+    JOURNAL_SIZE, JournalAction, JournalEntry, JournalLabels, JournalState, JournalView, NoteSlip,
     PolaroidView, journal, polaroid, polaroid_size,
 };
 pub use moment::{
