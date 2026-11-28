@@ -711,8 +711,12 @@ pub fn ambient_line_for(w: &World, content: &Content, guest: u32) -> Option<Stri
     rng.pick(&pool).map(|s| s.to_string())
 }
 
-/// An unplayed `Talk` cutscene for this guest's regular tonight.
+/// An unplayed `Talk` cutscene for this guest's regular tonight (not once they're on their way
+/// out of the door).
 pub fn talk_available(w: &World, content: &Content, guest: u32) -> Option<String> {
+    if w.guests.iter().any(|g| g.id == guest && g.gone) {
+        return None;
+    }
     let r = regular_of_guest(w, content, guest)?;
     content
         .cutscenes

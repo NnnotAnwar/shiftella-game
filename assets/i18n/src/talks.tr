@@ -1,0 +1,716 @@
+# Talk dialogues of the regulars (assets/data/talks.ron): one per act, opened with "Talk".
+# uk/ru: regulars say ты/ти to Karolina, Radek says вы/ви; Karolina says вы/ви to Mirek, Vera
+# and Radek, ты/ти to Hana, Filip and Lori. cs: Karolina vyká Mirkovi, Veře a Radkovi.
+# No NONSTOP before night 3 (Mirek and Hana in act I can come earlier: only a tease).
+
+# --- Mirek, act I: little Karolina; his coffee before the door shuts
+scene.talk_mirek_1.01
+cs Sedávala jsi tady na té stoličce a počítala kostky cukru. A pak jsi to, co jsi napočítala, snědla.
+en You used to sit on that stool and count the sugar cubes. Then eat whatever you'd counted.
+uk Ти колись сиділа на цьому стільчику й рахувала грудочки цукру. А потім з'їдала все, що нарахувала.
+ru Ты когда-то сидела на этом табурете и считала кусочки сахара. А потом съедала всё, что насчитала.
+
+scene.talk_mirek_1.02
+cs Na stoličku si pamatuju. Na vás ne, promiňte.
+en I remember the stool. Not you, sorry.
+uk Стільчик пам'ятаю. А вас — ні, вибачте.
+ru Табурет помню. А вас — нет, простите.
+
+scene.talk_mirek_1.03
+cs Na taxikáře si nikdo nepamatuje. To k tomu patří.
+en Nobody remembers taxi drivers. That's the job.
+uk Таксистів ніхто не пам'ятає. Така робота.
+ru Таксистов никто не помнит. Работа такая.
+
+scene.talk_mirek_1.04
+cs Lida mi stavěla kafe na pult dřív, než se za mnou zavřely dveře. Staří chlapi nesnášejí čekání. Ale to jsem neřekl.
+en Lida had my coffee on the counter before the door shut behind me. Old men hate waiting. You didn't hear it from me.
+uk Ліда ставила мені каву на прилавок раніше, ніж за мною зачинялися двері. Старі не люблять чекати. Тільки я цього не казав.
+ru Лида ставила мне кофе на прилавок раньше, чем за мной закрывалась дверь. Старики не любят ждать. Только я этого не говорил.
+
+scene.talk_mirek_1.05
+cs Černá, než se zavřou dveře. Rozumím.
+en Black, before the door shuts. Got it.
+uk Чорна, поки не зачинилися двері. Зрозуміла.
+ru Чёрный, пока не закрылась дверь. Поняла.
+
+# --- Mirek, act II: the board in big letters; the window table after half past three
+scene.talk_mirek_2.01
+cs Lida psala menu na tu tabuli velkými písmeny. „Kvůli turistům," říkala. Turistu jsme tu neměli ani jednoho.
+en Lida wrote that board in big letters. "For the tourists," she said. We never once had a tourist.
+uk Ліда писала меню на тій дошці великими літерами. «Для туристів», — казала. Жодного туриста в нас зроду не було.
+ru Лида писала меню на той доске крупными буквами. «Для туристов», — говорила. Ни одного туриста у нас отродясь не было.
+
+scene.talk_mirek_2.02
+cs A od půl čtvrté nechávala stůl u okna volný. „Je obsazeno." Kým, to jsem se nikdy neptal.
+en And from half past three she kept the window table empty. "It's taken." Taken by whom, I never asked.
+uk А з пів на четверту вона тримала столик біля вікна вільним. «Зайнято». Ким — я так і не спитав.
+ru А с половины четвёртого она держала столик у окна свободным. «Занято». Кем — я так и не спросил.
+
+scene.talk_mirek_2.03
+cs Jako malá jsem myslela, že je pro duchy.
+en When I was little, I thought it was for ghosts.
+uk Коли я була мала, думала, що він для привидів.
+ru В детстве я думала, что он для привидений.
+
+scene.talk_mirek_2.04
+cs Duchové taky nedávají dýško. Stejně ho nech volný. Zvyk je taky slušnost.
+en Ghosts don't tip either. Keep it empty anyway. Habit is a kind of manners.
+uk Привиди теж чайових не дають. Однаково тримай його вільним. Звичка — теж ввічливість.
+ru Привидения тоже чаевых не дают. Всё равно держи его свободным. Привычка — тоже вежливость.
+
+# --- Mirek, act III: the keys, and whom he'd hand them to
+scene.talk_mirek_3.01
+cs Moje dcera Jana chce moje klíčky. Prý jezdím, jako by mi obrubníky dlužily peníze.
+en My daughter Jana wants my keys. Says I drive like the kerbs owe me money.
+uk Моя донька Яна хоче забрати в мене ключі. Каже, я їжджу так, ніби бордюри мені щось винні.
+ru Моя дочь Яна хочет забрать у меня ключи. Говорит, я езжу так, будто бордюры мне что-то должны.
+
+scene.talk_mirek_3.05
+cs Od té noci u nemocnice chodím pěšky. Kolena to nesnášejí. Svědomí si to pochvaluje.
+en Since that night by the hospital I've been walking. My knees hate it. My conscience approves.
+uk Після тієї ночі біля лікарні я ходжу пішки. Коліна це ненавидять. А совість — схвалює.
+ru После той ночи у больницы я хожу пешком. Колени это ненавидят. А совесть — одобряет.
+
+scene.talk_mirek_3.02
+cs Některé věci nosím moc dlouho, místo abych je předal. Některé váží víc než klíčky.
+en Some things I've carried far too long instead of handing them over. Some weigh more than keys.
+uk Деякі речі я ношу надто довго, замість того щоб віддати. Деякі важать більше, ніж ключі.
+ru Некоторые вещи я ношу слишком долго, вместо того чтобы отдать. Некоторые весят больше, чем ключи.
+
+scene.talk_mirek_3.03
+cs Můžete je předat mně. Dám na ně pozor.
+en You can hand them to me. I'll keep them safe.
+uk Можете віддати їх мені. Я їх збережу.
+ru Можете отдать их мне. Я их сберегу.
+
+scene.talk_mirek_3.04
+cs Předal bych je někomu, komu věřím. Pracuju na seznamu. Jsi na něm.
+en I'd hand them to someone I trust. I'm working on the list. You're on it.
+uk Я віддав би їх тому, кому довіряю. Я ще складаю список. Ти в ньому є.
+ru Я бы отдал их тому, кому доверяю. Я ещё составляю список. Ты в нём есть.
+
+# --- Mirek, act IV: after the storm (or the sale); before or after he told her
+scene.talk_mirek_4.01
+cs V bouřce zhaslo celé město, a tvoje lampa ne. Lida by se tím chlubila do omrzení.
+en The whole town went dark in the storm, and your lamp didn't. Lida would be unbearable about it.
+uk У грозу згасло все місто, а твоя лампа — ні. Ліда хизувалася б цим без кінця.
+ru В грозу погас весь город, а твоя лампа — нет. Лида хвасталась бы этим без конца.
+
+scene.talk_mirek_4.05
+cs Takže tu bude stříbrná cedule. Nebudu dělat, že se mi to líbí.
+en So there'll be a silver sign. I won't pretend I like it.
+uk Отже, тут буде срібна вивіска. Не вдаватиму, що мені це подобається.
+ru Значит, тут будет серебристая вывеска. Не стану делать вид, что мне это нравится.
+
+scene.talk_mirek_4.02
+cs Musím ti něco říct. Dnes ne. Pusa se ještě rozhoduje.
+en There's something I ought to tell you. Not tonight. My mouth is still deciding.
+uk Я маю тобі дещо сказати. Не сьогодні. Язик ще вирішує.
+ru Мне нужно тебе кое-что сказать. Не сегодня. Язык ещё решает.
+
+scene.talk_mirek_4.06
+cs Co jsem ti to řekl, spím. Ne moc. Víc než za šedesát let.
+en Since I told you, I sleep. Not much. More than in sixty years.
+uk Відколи я тобі розповів, я сплю. Небагато. Більше, ніж за шістдесят років.
+ru С тех пор как я тебе рассказал, я сплю. Немного. Больше, чем за шестьдесят лет.
+
+scene.talk_mirek_4.03
+cs Černá káva, lampa svítí. Jako každou noc.
+en Black coffee, lamp on. Same as every night.
+uk Чорна кава, лампа світить. Як щоночі.
+ru Чёрный кофе, лампа горит. Как каждую ночь.
+
+scene.talk_mirek_4.04
+cs Jako to dělala ona.
+en Like she made it.
+uk Як робила вона.
+ru Как делала она.
+
+# --- Hana, act I: six minutes; "not new to nights"
+scene.talk_hana_1.01
+cs Šest minut. Pět, když nejede výtah. Nikdy nejede.
+en Six minutes. Five, if the lift is broken. It's always broken.
+uk Шість хвилин. П'ять, якщо ліфт зламаний. А він завжди зламаний.
+ru Шесть минут. Пять, если лифт сломан. А он всегда сломан.
+
+scene.talk_hana_1.02
+cs Tak to budu mít hotové dřív, než si sedneš.
+en Then I'll have it ready before you sit down.
+uk Тоді все буде готово ще до того, як ти сядеш.
+ru Тогда всё будет готово ещё до того, как ты сядешь.
+
+scene.talk_hana_1.03
+cs Slibuješ? Robot-sanitář taky slibuje. Pak poděkuje a narazí do zdi.
+en Promise? The robot porter promises too. Then it says thank you and drives into a wall.
+uk Обіцяєш? Робот-санітар теж обіцяє. А потім каже «дякую» і в'їжджає в стіну.
+ru Обещаешь? Робот-санитар тоже обещает. А потом говорит «спасибо» и въезжает в стену.
+
+scene.talk_hana_1.04
+cs Jsi v nočních nová? Máš na to obličej. Šedý, ale vzhůru.
+en New to nights? You've got the face for it. Grey, but awake.
+uk Ти новенька в нічних змінах? Обличчя в тебе якраз таке. Сіре, але не сонне.
+ru Ты новенькая в ночных сменах? Лицо у тебя как раз такое. Серое, но не сонное.
+
+scene.talk_hana_1.05
+cs Noci pro mě nejsou nic nového. Lidi ano.
+en Nights aren't new to me. People are.
+uk Ночі мені не новина. Новина — люди.
+ru Ночи мне не в новинку. В новинку — люди.
+
+# --- Hana, act II: the armchair under the lamp in the staff room
+scene.talk_hana_2.01
+cs V sesterně máme jedno křeslo. Pod lampou. Kdo tam dorazí první, spí.
+en There's one armchair in our staff room. Under a lamp. Whoever gets there first sleeps.
+uk У нашій сестринській є одне крісло. Під лампою. Хто перший дійде, той і спить.
+ru У нас в сестринской одно кресло. Под лампой. Кто первый дошёл, тот и спит.
+
+scene.talk_hana_2.02
+cs A kdo tam dorazí první?
+en And who gets there first?
+uk І хто доходить першим?
+ru И кто доходит первым?
+
+scene.talk_hana_2.03
+cs Nikdy já. Já v tu chvíli vždycky někoho držím za ruku.
+en Never me. I'm always holding somebody's hand at the time.
+uk Ніколи не я. Я в цей час завжди когось тримаю за руку.
+ru Никогда не я. Я в это время всегда кого-нибудь держу за руку.
+
+scene.talk_hana_2.04
+cs Jestli sem někdy dáš křeslo, dej k němu stojací lampu. Stočila bych se v jejím kruhu jako kočka.
+en If you ever put an armchair in here, put a floor lamp by it. I'd curl up in its circle like a cat.
+uk Якщо колись поставиш тут крісло, постав біля нього торшер. Я б згорнулася в його колі, як кішка.
+ru Если когда-нибудь поставишь здесь кресло, поставь рядом торшер. Я бы свернулась в его круге, как кошка.
+
+scene.talk_hana_2.05
+cs Budu na to myslet.
+en I'll keep it in mind.
+uk Я запам'ятаю.
+ru Я запомню.
+
+scene.talk_hana_2.06
+cs To tvoje křeslo pod lampou je nebezpečné. Sedla jsem si na vteřinu a přišla o čtyři minuty.
+en That armchair under your lamp is dangerous. I sat down for one second and lost four minutes.
+uk Те твоє крісло під лампою небезпечне. Я присіла на секунду — і втратила чотири хвилини.
+ru Это твоё кресло под лампой опасное. Присела на секунду — и потеряла четыре минуты.
+
+# --- Hana, act III: Dresden; Karolina's Brno; a small choice
+scene.talk_hana_3.01
+cs Drážďany zase psaly.
+en Dresden wrote again.
+uk Дрезден знову написав.
+ru Дрезден снова написал.
+
+scene.talk_hana_3.06
+cs Chce mě klinika v Drážďanech. Někdo našel můj životopis. Asi robot.
+en A clinic in Dresden wants me. Somebody found my CV. A robot, probably.
+uk Мене кличе клініка в Дрездені. Хтось знайшов моє резюме. Мабуть, робот.
+ru Меня зовёт клиника в Дрездене. Кто-то нашёл моё резюме. Наверное, робот.
+
+scene.talk_hana_3.02
+cs Dvakrát tolik peněz, v sesterně opravdové postele. A tady znám každého. I ten výtah.
+en Twice the money, real beds in the staff room. And here I know everyone. Even the lift.
+uk Удвічі більше грошей, справжні ліжка в сестринській. А тут я знаю всіх. Навіть ліфт.
+ru Вдвое больше денег, настоящие кровати в сестринской. А здесь я знаю всех. Даже лифт.
+
+scene.talk_hana_3.03
+cs Já odešla z Brna, protože tam nikdo nepotřeboval, abych byla vzhůru. Jen obrazovky.
+en I left Brno because nobody there needed me awake. Only the screens did.
+uk Я поїхала з Брна, бо там нікому не треба було, щоб я не спала. Тільки екранам.
+ru Я уехала из Брно, потому что там никому не было нужно, чтобы я не спала. Только экранам.
+
+scene.talk_hana_3.04
+cs Říct jí, co by ti chybělo
+en Tell her what you'd miss
+uk Сказати, за чим сумуватимеш
+ru Сказать, по чему будешь скучать
+
+scene.talk_hana_3.05
+cs Říct jí, že je to na ní
+en Tell her it's her call
+uk Сказати, що вирішувати їй
+ru Сказать, что решать ей
+
+scene.talk_hana_3.07
+cs Jsi stejná jako tvoje babička. Ta taky nikomu neříkala, co má dělat. Jen nechala svítit lampu.
+en You're as bad as your grandma. She never told anyone what to do either. She just left the lamp on.
+uk Ти така сама, як твоя бабуся. Вона теж нікому не казала, що робити. Просто лишала лампу ввімкненою.
+ru Ты такая же, как твоя бабушка. Она тоже никому не говорила, что делать. Просто оставляла лампу гореть.
+
+# --- Hana, act IV: before or after her decision
+scene.talk_hana_4.01
+cs Drážďany chtějí odpověď do konce týdne. Pořád ji odkládám u tvého pultu.
+en Dresden wants an answer this week. I keep putting it off at your counter.
+uk Дрезден чекає відповіді до кінця тижня. А я все відкладаю її за твоїм прилавком.
+ru Дрезден ждёт ответа до конца недели. А я всё откладываю его у твоей стойки.
+
+scene.talk_hana_4.05
+cs Takže. Zůstávám. Drážďany to beze mě přežijí. Oddělení ne.
+en So. I'm staying. Dresden will survive without me. The ward wouldn't.
+uk Отже. Я лишаюся. Дрезден без мене переживе. А відділення — ні.
+ru Итак. Я остаюсь. Дрезден без меня переживёт. А отделение — нет.
+
+scene.talk_hana_4.02
+cs Robot-sanitář mi dneska poděkoval. Nikdo jiný ne.
+en The robot porter said thank you tonight. Nobody else did.
+uk Робот-санітар сьогодні сказав мені «дякую». Більше ніхто.
+ru Робот-санитар сегодня сказал мне «спасибо». Больше никто.
+
+scene.talk_hana_4.03
+cs Tak ode mě taky: děkuju. Za všechny noci, které nikdo nevidí.
+en Then from me, too: thank you. For all the nights nobody sees.
+uk Тоді й від мене: дякую. За всі ночі, яких ніхто не бачить.
+ru Тогда и от меня: спасибо. За все ночи, которых никто не видит.
+
+scene.talk_hana_4.04
+cs No ne. Celá Lida.
+en Look at you. Lida all over.
+uk Ти диви. Уся в Ліду.
+ru Ну надо же. Вся в Лиду.
+
+# --- Vera, act I: clean tables, three nights in a row
+scene.talk_vera_1.01
+cs Sedni si, dítě. Ne — nejdřív ho otři. Pak si sedni.
+en Sit down, child. No — wipe it first. Then sit.
+uk Сідай, дитино. Ні — спершу витри. Потім сідай.
+ru Садись, дитя. Нет — сначала протри. Потом садись.
+
+scene.talk_vera_1.02
+cs Vy opravdu kontrolujete každý stůl, že?
+en You really do check every table, don't you?
+uk Ви справді перевіряєте кожен стіл, так?
+ru Вы правда проверяете каждый стол, да?
+
+scene.talk_vera_1.03
+cs Lida je utírala dřív, než vystydl šálek. Tři noci po sobě čisté stoly — a možná se s tebou i začnu bavit.
+en Lida wiped them before the cup went cold. Three nights of clean tables in a row, and I might even start talking to you.
+uk Ліда витирала їх раніше, ніж холонула чашка. Три ночі поспіль чисті столи — і я, може, навіть почну з тобою розмовляти.
+ru Лида вытирала их раньше, чем остывала чашка. Три ночи подряд чистые столы — и я, может, даже начну с тобой разговаривать.
+
+scene.talk_vera_1.04
+cs To je slib?
+en Is that a promise?
+uk Це обіцянка?
+ru Это обещание?
+
+scene.talk_vera_1.05
+cs To je tajenka. Vylušti si ji.
+en It's a crossword clue. Work it out.
+uk Це питання з кросворда. Розгадуй.
+ru Это вопрос из кроссворда. Разгадывай.
+
+# --- Vera, act II: Mum and Lida, two cats on one fence; the kulajda
+scene.talk_vera_2.01
+cs Mračíš se úplně jako máma. Ta u tohohle stolu trucovala, když jí bylo sedm.
+en You frown just like your mother. She used to sulk at this very table, aged seven.
+uk Ти хмуришся точнісінько як твоя мама. Вона дулася за цим самим столом, коли їй було сім.
+ru Ты хмуришься в точности как твоя мама. Она дулась за этим самым столом, когда ей было семь.
+
+scene.talk_vera_2.02
+cs Máma o tomhle místě nikdy nemluví.
+en Mum never talks about this place.
+uk Мама ніколи не говорить про це місце.
+ru Мама никогда не говорит об этом месте.
+
+scene.talk_vera_2.03
+cs Samozřejmě že ne. Ona a Lida — dvě kočky na jednom plotě. Ani jedna nechtěla seskočit první.
+en Of course not. She and Lida — two cats on one fence. Neither would jump down first.
+uk Ще б пак. Вона й Ліда — дві кішки на одному паркані. Жодна не хотіла зістрибнути першою.
+ru Ещё бы. Она и Лида — две кошки на одном заборе. Ни одна не хотела спрыгнуть первой.
+
+scene.talk_vera_2.04
+cs Lida vařila v neděli kulajdu. Za jeden talíř bych dala svoji křížovkářskou propisku.
+en Lida made kulajda on Sundays. I'd trade my crossword pen for one more bowl.
+uk Ліда по неділях варила кулайду. За ще одну тарілку я б віддала свою кросвордну ручку.
+ru Лида по воскресеньям варила кулайду. За ещё одну тарелку я бы отдала свою ручку для кроссвордов.
+
+scene.talk_vera_2.05
+cs Teď máš její knížku. Stránka s fleckem od kopru — to je kulajda. Jen tak říkám.
+en You've got her book now. The page with the dill stain — that's the kulajda. I'm only saying.
+uk Тепер у тебе її книжка. Сторінка з плямою від кропу — це кулайда. Я просто кажу.
+ru Теперь у тебя её книга. Страница с пятном от укропа — это кулайда. Я просто говорю.
+
+# --- Vera, act III: the radio and someone who knows radios; a spotless café at dawn
+scene.talk_vera_3.01
+cs Lida mívala na té polici staré rádio. Kdysi jí ho opravil někdo, na kom jí záleželo, a nikoho jiného k němu nepustila.
+en Lida had an old radio on that shelf. Someone who mattered fixed it once, and she never let anyone else near it.
+uk У Ліди на тій полиці стояло старе радіо. Колись його полагодив хтось, хто був їй дорогий, і більше вона нікого до нього не підпускала.
+ru У Лиды на той полке стояло старое радио. Когда-то его починил человек, который был ей дорог, и больше она никого к нему не подпускала.
+
+scene.talk_vera_3.02
+cs Jestli tam zase nějaké dáš, najdi někoho, kdo rozumí rádiím. Staré věci mluví, když poslouchá ten pravý.
+en If you put one there again, find someone who knows radios. Old things talk, if the right person listens.
+uk Якщо знову поставиш туди радіо, знайди когось, хто тямить у радіо. Старі речі говорять, якщо слухає правильна людина.
+ru Если снова поставишь туда радио, найди того, кто разбирается в радио. Старые вещи говорят, если слушает нужный человек.
+
+scene.talk_vera_3.03
+cs Vy jste dnes samá hádanka, paní Vero.
+en You're all riddles tonight, Mrs Vera.
+uk Ви сьогодні самі загадки, пані Віро.
+ru Вы сегодня сплошные загадки, пани Вера.
+
+scene.talk_vera_3.04
+cs A Lida schovávala lístečky jako veverka oříšky. Ať je to tu před svítáním jako klícka, dítě. Svá tajemství si nechávala na svítání.
+en And Lida hid notes like a squirrel hides nuts. Get this place spotless before dawn, child. She saved her secrets for dawn.
+uk А Ліда ховала записочки, як білка горіхи. Наведи тут лад до світанку, дитино. Свої таємниці вона приберігала на світанок.
+ru А Лида прятала записки, как белка орехи. Наведи здесь чистоту до рассвета, дитя. Свои тайны она приберегала на рассвет.
+
+scene.talk_vera_3.05
+cs Jako klícka před svítáním. Ano, paní Vero.
+en Spotless before sunrise. Yes, Mrs Vera.
+uk До світанку все блищатиме. Так, пані Віро.
+ru К рассвету всё будет блестеть. Да, пани Вера.
+
+# --- Vera, act IV (after her story of Jindra): somebody has to call first
+scene.talk_vera_4.01
+cs Tak teď už víš o Jindrovi. Nedělej ten obličej. Jsem stará, ne ze skla.
+en So now you know about Jindra. Don't make that face. I'm old, not made of glass.
+uk Тепер ти знаєш про Їндру. Не роби такого обличчя. Я стара, а не скляна.
+ru Теперь ты знаешь про Йиндру. Не делай такое лицо. Я старая, а не стеклянная.
+
+scene.talk_vera_4.02
+cs Kdy jsi naposledy volala mámě ty? Ne ona tobě.
+en When did you last call your mother? You, not her.
+uk Коли ти востаннє сама дзвонила мамі? Не вона тобі.
+ru Когда ты в последний раз сама звонила маме? Не она тебе.
+
+scene.talk_vera_4.03
+cs …Vždycky volá ona. Já to jen zvednu.
+en …She always calls first. I just pick up.
+uk …Вона завжди дзвонить перша. Я просто беру слухавку.
+ru …Она всегда звонит первая. Я просто беру трубку.
+
+scene.talk_vera_4.04
+cs Tak jsi na řadě ty. Vaše rodina je ze stejně tvrdohlavého těsta jako my všichni. Někdo musí jít první, dítě.
+en Then it's your turn. Your family is made of the same stubborn stuff as the rest of us. Somebody has to go first, child.
+uk Тоді твоя черга. Ваша родина з того самого впертого тіста, що й усі ми. Хтось мусить піти першим, дитино.
+ru Тогда твоя очередь. Ваша семья из того же упрямого теста, что и все мы. Кто-то должен пойти первым, дитя.
+
+scene.talk_vera_4.05
+cs …Po směně.
+en …After the shift.
+uk …Після зміни.
+ru …После смены.
+
+scene.talk_vera_4.06
+cs Po směně. To říkala Lida taky. Šedesát let.
+en After the shift. That's what Lida said, too. For sixty years.
+uk Після зміни. Ліда теж так казала. Шістдесят років.
+ru После смены. Лида тоже так говорила. Шестьдесят лет.
+
+# --- Filip, act I: a table with a socket; Karolina's screens
+scene.talk_filip_1.01
+cs Zásuvka u topení funguje, jen když držíš zástrčku. Držím ji už hodinu.
+en The socket by the radiator only works if you hold the plug in. I've been holding it for an hour.
+uk Розетка біля батареї працює, тільки якщо тримати вилку. Я тримаю її вже годину.
+ru Розетка у батареи работает, только если держать вилку. Я держу её уже час.
+
+scene.talk_filip_1.02
+cs Stůl se zásuvkou. Víc student nepotřebuje. Tedy ještě kafe a zázrak.
+en A table with a socket. That's all a student needs. That, coffee, and a miracle.
+uk Стіл із розеткою. Більше студентові нічого не треба. Ну, ще кава і диво.
+ru Стол с розеткой. Больше студенту ничего не надо. Ну, ещё кофе и чудо.
+
+scene.talk_filip_1.03
+cs Začneme tou zásuvkou.
+en Let's start with the socket.
+uk Почнімо з розетки.
+ru Начнём с розетки.
+
+scene.talk_filip_1.06
+cs Ten stůl se zásuvkou je to nejlepší, co se mému studiu stalo. Neříkej to profesorům.
+en That socket table is the best thing that's happened to my degree. Don't tell my professors.
+uk Цей стіл із розеткою — найкраще, що сталося з моїм навчанням. Тільки не кажи викладачам.
+ru Этот стол с розеткой — лучшее, что случилось с моей учёбой. Только не говори преподавателям.
+
+scene.talk_filip_1.04
+cs Co jsi dělala předtím? Tebe snad nic nepřekvapí.
+en What did you do before this? Nothing seems to surprise you.
+uk А що ти робила раніше? Тебе, здається, ніщо не дивує.
+ru А чем ты занималась раньше? Тебя, кажется, ничто не удивляет.
+
+scene.talk_filip_1.05
+cs Noci. Před obrazovkami. Jako ty, jen bez zkoušek.
+en Nights. In front of screens. Like you, minus the exams.
+uk Ночі. Перед екранами. Як ти, тільки без іспитів.
+ru Ночи. Перед экранами. Как ты, только без экзаменов.
+
+# --- Filip, act II: someone to just sit there; why Karolina quit; a small choice
+scene.talk_filip_2.01
+cs Když se zaseknu, nepotřebuju, aby mi někdo něco vysvětloval. Stačí, když si ke mně někdo sedne. Jako lampa, jen s tepem.
+en When I'm stuck, I don't need anyone to explain anything. I just need someone to sit there. Like a lamp, but with a pulse.
+uk Коли я застрягаю, мені не треба, щоб хтось щось пояснював. Досить, щоб хтось просто посидів поруч. Як лампа, тільки з пульсом.
+ru Когда я застреваю, мне не нужно, чтобы кто-то что-то объяснял. Достаточно, чтобы кто-то просто посидел рядом. Как лампа, только с пульсом.
+
+scene.talk_filip_2.02
+cs Proč jsi vlastně s těmi obrazovkami sekla?
+en Why did you quit the screens, anyway?
+uk А чого ти взагалі кинула ті екрани?
+ru А почему ты вообще бросила эти экраны?
+
+scene.talk_filip_2.03
+cs Tři roky jsem hlídala čtyřicet prázdných obchodů. Jednou v noci jsem se přistihla, že mávám do kamery. Tak jsem skončila.
+en I watched forty empty shops for three years. One night I caught myself waving at a camera. So I quit.
+uk Три роки я пильнувала сорок порожніх магазинів. Одної ночі спіймала себе на тому, що махаю камері. І звільнилася.
+ru Три года я присматривала за сорока пустыми магазинами. Однажды ночью поймала себя на том, что машу камере. И уволилась.
+
+scene.talk_filip_2.04
+cs Vyzkoušet ho z entropie
+en Quiz him on entropy
+uk Поганяти його з ентропії
+ru Погонять его по энтропии
+
+scene.talk_filip_2.05
+cs Donutit ho dát si pauzu
+en Make him take a break
+uk Змусити його зробити перерву
+ru Заставить его сделать перерыв
+
+scene.talk_filip_2.06
+cs Entropie roste tak jako tak. Díky.
+en Entropy is rising either way. Thanks.
+uk Ентропія росте хоч так, хоч так. Дякую.
+ru Энтропия растёт в любом случае. Спасибо.
+
+# --- Filip, act III: before or after the failed exam; failing properly
+scene.talk_filip_3.01
+cs Blíží se zkouška. Třetí pokus. Prosím, neříkej nic povzbudivého, je to pak horší.
+en The exam's coming. Third attempt. Please don't say anything encouraging — it makes it worse.
+uk Іспит на носі. Третя спроба. Тільки не кажи нічого підбадьорливого — від цього гірше.
+ru Экзамен на носу. Третья попытка. Только не говори ничего ободряющего — от этого хуже.
+
+scene.talk_filip_3.05
+cs Čeká mě opravák. Tvůj stůl už umí termodynamiku líp než já.
+en The resit's coming up. Your table knows thermodynamics better than I do by now.
+uk Попереду перескладання. Твій стіл уже знає термодинаміку краще за мене.
+ru Впереди пересдача. Твой стол уже знает термодинамику лучше меня.
+
+scene.talk_filip_3.02
+cs Rupla jsi někdy něco? Ale pořádně?
+en Have you ever failed something? Properly?
+uk Ти колись щось провалювала? По-справжньому?
+ru Ты когда-нибудь что-то проваливала? По-настоящему?
+
+scene.talk_filip_3.03
+cs Tři roky svého života, skoro. Pořád jsem na opraváku.
+en Three years of my life, almost. I'm still on the resit.
+uk Три роки свого життя, майже. Досі на перескладанні.
+ru Три года своей жизни, почти. До сих пор на пересдаче.
+
+scene.talk_filip_3.04
+cs Tak jsme ze stejného ročníku. Podržím ti místo u zásuvky.
+en Then we're in the same year. I'll save you a seat by the socket.
+uk Тоді ми з одного курсу. Я займу тобі місце біля розетки.
+ru Тогда мы с одного курса. Я займу тебе место у розетки.
+
+# --- Filip, act IV: before or after the cake; is she staying?
+scene.talk_filip_4.01
+cs Výsledky budou tenhle týden. Nemůžu jíst, nemůžu spát. Můžu jen pít tvoje kafe.
+en Results come out this week. I can't eat, can't sleep. I can only drink your coffee.
+uk Результати цього тижня. Не можу їсти, не можу спати. Можу тільки пити твою каву.
+ru Результаты на этой неделе. Не могу есть, не могу спать. Могу только пить твой кофе.
+
+scene.talk_filip_4.05
+cs Pořád chodím, i s dvojkou. Zvyk. A nejlepší zásuvka v Praze.
+en Still coming, even with a B. Habit. And the best socket in Prague.
+uk Усе одно ходжу, навіть із «добре». Звичка. І найкраща розетка в Празі.
+ru Всё равно хожу, даже с четвёркой. Привычка. И лучшая розетка в Праге.
+
+scene.talk_filip_4.02
+cs Zůstaneš? Po třicáté noci?
+en Are you staying? After the thirtieth?
+uk Ти залишишся? Після тридцятої ночі?
+ru Ты останешься? После тридцатой ночи?
+
+scene.talk_filip_4.03
+cs Zeptej se mě v šest ráno po poslední noci. Pořád to řeším.
+en Ask me at six on the last morning. I'm still working it out.
+uk Спитай мене о шостій ранку після останньої ночі. Я ще думаю.
+ru Спроси меня в шесть утра после последней ночи. Я ещё думаю.
+
+scene.talk_filip_4.04
+cs Inženýrská odpověď. Respekt.
+en An engineer's answer. Respect.
+uk Інженерна відповідь. Поважаю.
+ru Инженерный ответ. Уважаю.
+
+# --- Radek, act II: one minute for the coffee; the screens and the signals
+scene.talk_radek_2.01
+cs Pět minut, říkal jsem. Čtyři z nich je cesta. Takže na kafe zbývá jedna.
+en Five minutes, I said. Four of them are the walk. So the coffee gets one.
+uk П'ять хвилин, я казав. Чотири з них — дорога. Тож на каву лишається одна.
+ru Пять минут, я говорил. Четыре из них — дорога. Так что на кофе остаётся одна.
+
+scene.talk_radek_2.02
+cs Jedna minuta. Výzva přijata.
+en One minute. Challenge accepted.
+uk Одна хвилина. Виклик прийнято.
+ru Одна минута. Вызов принят.
+
+scene.talk_radek_2.03
+cs Z dopravní kanceláře vidím tvoje okno. Jediné světlo na mé tabuli, které není moje.
+en From the dispatcher's office I can see your window. The only light on my board that isn't mine.
+uk З диспетчерської видно ваше вікно. Єдиний вогник на моєму табло, який не мій.
+ru Из диспетчерской видно ваше окно. Единственный огонёк на моём табло, который не мой.
+
+scene.talk_radek_2.04
+cs Kdysi jsem z obrazovky svítila čtyřiceti obchodům. Ani jeden nevěděl, že tam jsem.
+en I used to keep forty shops lit from a screen. Not one of them knew I was there.
+uk Колись я з екрана тримала світло в сорока магазинах. Жоден не знав, що я є.
+ru Когда-то я с экрана держала свет в сорока магазинах. Ни один не знал, что я есть.
+
+scene.talk_radek_2.05
+cs Návěstidla vědí, že tam jsem. Blikají. Beru to jako zamávání.
+en The signals know I'm there. They blink. I take it as a wave.
+uk Семафори знають, що я є. Блимають. Я вважаю, що це вони мені махають.
+ru Семафоры знают, что я есть. Мигают. Я считаю, что это они мне машут.
+
+# --- Radek, act III: his last shift on Tuesday (night 23); his father's pencil
+scene.talk_radek_3.01
+cs V úterý mám poslední službu. Měj v jednu otevřeno, jo? Poslední kafe si z automatu nedám.
+en Tuesday is my last shift. Be open at one, will you? I won't take my last coffee from a machine.
+uk У вівторок — моя остання зміна. Будьте відчинені о першій, гаразд? Останню каву я з автомата пити не буду.
+ru Во вторник — моя последняя смена. Будьте открыты в час, ладно? Последний кофе я из автомата пить не стану.
+
+scene.talk_radek_3.06
+cs Dneska mám poslední službu. Dobře, že máš otevřeno. Poslední kafe si z automatu nedám.
+en Tonight's my last shift. Good thing you're open. I won't take my last coffee from a machine.
+uk Сьогодні моя остання зміна. Добре, що ви відчинені. Останню каву я з автомата пити не буду.
+ru Сегодня моя последняя смена. Хорошо, что вы открыты. Последний кофе я из автомата пить не стану.
+
+scene.talk_radek_3.02
+cs V té kanceláři dělal i můj táta. Všechno si psal tužkou. Každé zpoždění, každou laskavost.
+en My dad worked that office too. He wrote everything down in pencil. Every delay, every favour.
+uk У тій диспетчерській працював і мій тато. Усе записував олівцем. Кожне запізнення, кожну послугу.
+ru В той диспетчерской работал и мой отец. Всё записывал карандашом. Каждую задержку, каждую любезность.
+
+scene.talk_radek_3.03
+cs Budu ho mít připravené. Černou s sebou.
+en I'll have it ready. Black, to go.
+uk Я все приготую. Чорна, з собою.
+ru Я всё приготовлю. Чёрный, с собой.
+
+scene.talk_radek_3.04
+cs Ne s sebou. To poslední vypiju vsedě.
+en Not to go. The last one I'll drink sitting down.
+uk Не з собою. Останню я вип'ю сидячи.
+ru Не с собой. Последний я выпью сидя.
+
+# --- Radek, act IV: retired; the lamp to the last night
+scene.talk_radek_4.01
+cs V důchodu. Pořád se v jednu probudím a sahám po vysílačce.
+en Retired. I still wake up at one and reach for the radio.
+uk На пенсії. А досі прокидаюся о першій і тягнуся до рації.
+ru На пенсии. А всё ещё просыпаюсь в час и тянусь к рации.
+
+scene.talk_radek_4.02
+cs Nový systém tvrdí, že ve 3:33 žádný vlak nejede. Nikdy nejel. Počítače toho napovídají.
+en The new system says there's no train at 3:33. Never was. Computers say a lot of things.
+uk Нова система каже, що о 3:33 жодного поїзда немає. І ніколи не було. Комп'ютери багато чого кажуть.
+ru Новая система говорит, что в 3:33 никакого поезда нет. И никогда не было. Компьютеры много чего говорят.
+
+scene.talk_radek_4.03
+cs A co říkáte vy?
+en And what do you say?
+uk А що кажете ви?
+ru А что говорите вы?
+
+scene.talk_radek_4.04
+cs Já říkám: nech lampu svítit. Až do poslední noci. Pro jistotu.
+en I say keep your lamp on. Right to the last night. Just in case.
+uk Я кажу: тримайте лампу ввімкненою. До останньої ночі. Про всяк випадок.
+ru Я говорю: держите лампу включённой. До последней ночи. На всякий случай.
+
+# --- Lori, act II: she comes when it pours; a corner with a rug; a small choice
+scene.talk_lori_2.01
+cs Za sucha zní nástupiště jako kartotéka. Déšť z něj udělá katedrálu. Proto chodím, jen když leje.
+en On dry nights the platform sounds like a filing cabinet. Rain turns it into a cathedral. That's why I only come when it pours.
+uk У суху ніч перон звучить як шафа з паперами. Дощ робить із нього собор. Тому я приходжу, тільки коли ллє.
+ru В сухую ночь перрон звучит как картотечный шкаф. Дождь превращает его в собор. Поэтому я прихожу, только когда льёт.
+
+scene.talk_lori_2.02
+cs Dej mi kout s kobercem a zahraju pořádně. Muzikanti jsou jako kočky: koberec, a zůstaneme.
+en Give me a corner with a rug and I'd play properly. Musicians are like cats: give us a rug, and we stay.
+uk Дай мені куточок із килимком — і я заграю як слід. Музиканти як кішки: є килимок — лишаємося.
+ru Дай мне уголок с ковриком — и я сыграю по-настоящему. Музыканты как кошки: есть коврик — остаёмся.
+
+scene.talk_lori_2.06
+cs Ten tvůj kout s kobercem je nejlepší pódium, jaké jsem kdy měla. Neříkej to Rudolfinu.
+en That rug corner of yours is the best stage I've ever had. Don't tell the Rudolfinum.
+uk Твій куточок із килимком — найкраща сцена, яка в мене була. Тільки не кажи Рудольфінуму.
+ru Твой уголок с ковриком — лучшая сцена, какая у меня была. Только не говори Рудольфинуму.
+
+scene.talk_lori_2.03
+cs Poprosit o písničku o dešti
+en Ask for a song about rain
+uk Попросити пісню про дощ
+ru Попросить песню про дождь
+
+scene.talk_lori_2.04
+cs Poprosit o jednu pro paní Veru
+en Ask for one for Mrs Vera
+uk Попросити пісню для пані Віри
+ru Попросить песню для пани Веры
+
+scene.talk_lori_2.05
+cs Bude. Splatná v horké čokoládě, jako obvykle.
+en Coming up. Payable in hot chocolate, as usual.
+uk Буде. Оплата гарячим шоколадом, як завжди.
+ru Будет. Оплата горячим шоколадом, как обычно.
+
+# --- Lori, act III: a whole evening on a big rain; forty empty shops as a song
+scene.talk_lori_3.01
+cs Až zase pořádně zaprší, chtěla bych hrát doopravdy. Celý večer, ne jednu písničku za čokoládu.
+en Next time there's a big rain, I'd like to play properly. A whole evening, not one song for a chocolate.
+uk Наступного разу, як буде злива, я хотіла б заграти по-справжньому. Цілий вечір, а не одну пісню за шоколад.
+ru В следующий раз, когда будет ливень, я хотела бы сыграть по-настоящему. Целый вечер, а не одну песню за шоколад.
+
+scene.talk_lori_3.02
+cs Někde s kobercem, ať kytara ví, že je na pódiu.
+en Somewhere with a rug, so the guitar knows it's on a stage.
+uk Десь із килимком, щоб гітара знала, що вона на сцені.
+ru Где-нибудь с ковриком, чтобы гитара знала, что она на сцене.
+
+scene.talk_lori_3.05
+cs Tvůj kout s kobercem už trénuje. Poznám to.
+en Your rug corner's been practising. I can tell.
+uk Твій куточок із килимком уже репетирує. Я це відчуваю.
+ru Твой уголок с ковриком уже репетирует. Я чувствую.
+
+scene.talk_lori_3.03
+cs Tři roky jsem řídila čtyřicet obchodů, ve kterých nikdo nebyl. Plný sál by byl něco nového.
+en For three years I ran forty shops with nobody in them. A full house would be something new.
+uk Три роки я керувала сорока магазинами, в яких нікого не було. Повна зала — це було б щось нове.
+ru Три года я управляла сорока магазинами, в которых никого не было. Полный зал — это было бы что-то новое.
+
+scene.talk_lori_3.04
+cs To je smutná písnička. Napíšu ji. Honorář v čokoládě.
+en That's a sad song. I'll write it. Royalties in chocolate.
+uk Це сумна пісня. Я її напишу. Гонорар — шоколадом.
+ru Это грустная песня. Я её напишу. Гонорар — шоколадом.
+
+# --- Lori, act IV: storms; the last night
+scene.talk_lori_4.01
+cs Miluju bouřky. Celé nádraží ztichne a slyšíš každou kapku na střeše.
+en I love storms. The whole station goes quiet, and you can hear every drop on the roof.
+uk Я люблю грози. Увесь вокзал затихає, і чутно кожну краплю на даху.
+ru Я люблю грозы. Весь вокзал затихает, и слышно каждую каплю на крыше.
+
+scene.talk_lori_4.02
+cs Zahraješ poslední noc?
+en Will you play on the last night?
+uk Заграєш в останню ніч?
+ru Сыграешь в последнюю ночь?
+
+scene.talk_lori_4.03
+cs Jen když bude pršet. Nehraju, dokud nebe nebubnuje.
+en Only if it rains. I don't play unless the sky's on drums.
+uk Тільки якщо буде дощ. Я не граю, поки небо не сяде за барабани.
+ru Только если будет дождь. Я не играю, пока небо не сядет за барабаны.
+
+scene.talk_lori_4.04
+cs Tak či tak — díky, žes mě pustila z deště dovnitř. To je taky písnička.
+en Either way — thanks for letting me in out of the rain. That's a song too.
+uk Хай там як — дякую, що пустила мене під дах у дощ. Це теж пісня.
+ru Как бы там ни было — спасибо, что пустила меня под крышу в дождь. Это тоже песня.

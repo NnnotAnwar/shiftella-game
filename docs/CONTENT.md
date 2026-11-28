@@ -107,6 +107,7 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | narrator.ron | `NarratorDef` | night curve, witching hour, story act pacing |
 | story.ron | `StoryDef` | 30 nights, payments, 10 notes, **2 endings** + the optional "Answer" extra, declared flags/vars/counters/items |
 | cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 45 cutscenes (43 story + 2 Anwar talks), 8 cast members (`mum` is a voice on the phone, no portrait), named map spots |
+| talks.ron | `Vec<CutsceneDef>` (appended to `cutscenes.ron`'s) | 22 talk dialogues of the regulars, one per act each (§9); texts in `talks.tr` |
 | shiftella.ron | `ShiftellaApp` | announcements, checklists, bot templates, digest / payroll / handover lines |
 | trains.ron | `TrainLine` | stations Adamov → … → Praha-Holešovice (home), 5 night trains incl. `Rn 333` + the `Nex 9047` freight at 21:47 (a train before 22:00 only passes by in the preparation half hour, nobody gets off) |
 | difficulty.ron | `Vec<DifficultyDef>` | `cozy` (default), `classic` |
@@ -261,6 +262,15 @@ languages; placeholder parity. Hands-on: see §10.12.
   Shown as a small speech bubble, no cutscene. (Arc-stage `lines` remain the generic per-stage bubbles.)
 * **Talk:** `CutsceneTrigger::Talk { regular, night: Option<u32> }`. Offer a "Talk" action on the regular while an
   unplayed talk cutscene matches (`night: None` = any night); choosing it plays the cutscene. Usable for any regular.
+* **Act talks (`talks.ron`):** one short talk per act for each of the six story regulars who comes in that act
+  (Radek and Lori have none in act I: 22 in all), `Talk { regular, night: None }` with `conditions: [Mode(Story),
+  NightBetween(act window)]` (Radek's act III one ends on night 23, his last shift). Each plays once, so a talk missed in
+  its act is gone. They carry soft hints for the hidden conditions (fast coffee, clean tables, the window table after
+  3:30, armchair + floor lamp, the socket, the rug corner, rain, the radio and someone who knows radios, a spotless café
+  at dawn, Radek's last shift, the lamp to the last night) and Karolina's past; `If` steps keep them true before and
+  after the arc scene of that act. Effects: `Trust(regular, 3)` only. They never auto-pause the night (only a talk
+  pinned to a night does: Anwar's). `SHIFTELLA_SCENE=talk SHIFTELLA_CUTSCENE=<id> SHIFTELLA_T=<s>` shows one in
+  progress.
 * **Visit schedule:** `story_nights` / `sandbox_nights` (non-empty → only on those nights; `sandbox_visit_rule(n)`),
   `sandbox_chance` (random per-night roll when `sandbox_nights` is empty; 0 = never), `look_preset` (render preset id).
 * Condition `TrainNear(minutes)`: a train arrives within ±N minutes.

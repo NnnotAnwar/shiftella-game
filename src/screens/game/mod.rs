@@ -39,6 +39,7 @@ mod scene_fx;
 pub mod signature_ui;
 mod staff_life_view;
 mod stories_ui;
+pub mod talk_shot;
 pub mod tutorial;
 pub mod walk_home;
 pub mod world_view;

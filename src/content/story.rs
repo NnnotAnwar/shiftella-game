@@ -505,6 +505,13 @@ pub struct CutsceneLib {
     pub cutscenes: Vec<CutsceneDef>,
 }
 
+/// `cutscenes.ron` plus the regulars' talk dialogues of `talks.ron` (a list of cutscenes, kept in
+/// their own file) appended after it.
+pub fn with_talks(mut lib: CutsceneLib, talks: Vec<CutsceneDef>) -> CutsceneLib {
+    lib.cutscenes.extend(talks);
+    lib
+}
+
 impl CutsceneLib {
     pub fn get(&self, id: &str) -> Option<&CutsceneDef> {
         self.cutscenes.iter().find(|c| c.id == id)

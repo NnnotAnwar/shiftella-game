@@ -1,0 +1,371 @@
+// Talk dialogues of the regulars: one short talk per act for each regular who comes in that act
+// (Radek from night 9 and Lori from night 11 have none in act I). Loaded after cutscenes.ron and
+// appended to its cutscenes (same `CutsceneDef` format, see docs/CONTENT.md §9).
+//
+// The player opens one with "Talk" on a present regular (bubble / lull hint); each plays once,
+// only inside its act (NightBetween = story.ron acts: I 1–7, II 8–16, III 17–24, IV 25–30), so
+// a talk missed in its act is gone. They carry soft hints for the hidden conditions and bits of
+// Karolina's past (no NONSTOP before night 3's back-step call). Effects: a little trust only.
+// Texts: assets/i18n/src/talks.tr (scene.<id>.<nn>).
+#![enable(implicit_some)]
+[
+    // ───────────────────────── Mirek ─────────────────────────
+    (
+        // little Karolina at the counter; hint: his coffee fast (stage 1)
+        id: "talk_mirek_1",
+        trigger: Talk(regular: "mirek", night: None),
+        conditions: [Mode(Story), NightBetween(1, 7)],
+        steps: [
+            Camera(focus: Actor("mirek"), zoom: 1.6),
+            Line(speaker: "mirek", expression: Smile, text_key: "scene.talk_mirek_1.01"),
+            Line(speaker: "player", expression: Thinking, text_key: "scene.talk_mirek_1.02"),
+            Line(speaker: "mirek", expression: Neutral, text_key: "scene.talk_mirek_1.03"),
+            Line(speaker: "mirek", expression: Thinking, text_key: "scene.talk_mirek_1.04"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_mirek_1.05"),
+            Apply(effects: [Trust("mirek", 3.0)]),
+        ],
+    ),
+    (
+        // hints: his eyes (the board), the window table kept free from half past three
+        id: "talk_mirek_2",
+        trigger: Talk(regular: "mirek", night: None),
+        conditions: [Mode(Story), NightBetween(8, 16)],
+        steps: [
+            Camera(focus: Actor("mirek"), zoom: 1.6),
+            Line(speaker: "mirek", expression: Neutral, text_key: "scene.talk_mirek_2.01"),
+            Line(speaker: "mirek", expression: Thinking, text_key: "scene.talk_mirek_2.02"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_mirek_2.03"),
+            Line(speaker: "mirek", expression: Neutral, text_key: "scene.talk_mirek_2.04"),
+            Apply(effects: [Trust("mirek", 3.0)]),
+        ],
+    ),
+    (
+        // hint: the keys, and that he'd hand them to someone he trusts (stage 3 → 4)
+        id: "talk_mirek_3",
+        trigger: Talk(regular: "mirek", night: None),
+        conditions: [Mode(Story), NightBetween(17, 24)],
+        steps: [
+            Camera(focus: Actor("mirek"), zoom: 1.6),
+            If(conditions: [ArcAtLeast("mirek", 3)],
+               then: [Line(speaker: "mirek", expression: Sad, text_key: "scene.talk_mirek_3.05")],
+               otherwise: [Line(speaker: "mirek", expression: Neutral, text_key: "scene.talk_mirek_3.01")]),
+            Line(speaker: "mirek", expression: Thinking, text_key: "scene.talk_mirek_3.02"),
+            Line(speaker: "player", expression: Neutral, text_key: "scene.talk_mirek_3.03"),
+            Line(speaker: "mirek", expression: Smile, text_key: "scene.talk_mirek_3.04"),
+            Apply(effects: [Trust("mirek", 3.0)]),
+        ],
+    ),
+    (
+        // after the storm / the sale; before or after the confession
+        id: "talk_mirek_4",
+        trigger: Talk(regular: "mirek", night: None),
+        conditions: [Mode(Story), NightBetween(25, 30)],
+        steps: [
+            Camera(focus: Actor("mirek"), zoom: 1.6),
+            If(conditions: [VarIs("offer", "accepted")],
+               then: [Line(speaker: "mirek", expression: Sad, text_key: "scene.talk_mirek_4.05")],
+               otherwise: [Line(speaker: "mirek", expression: Laugh, text_key: "scene.talk_mirek_4.01")]),
+            If(conditions: [ArcAtLeast("mirek", 4)],
+               then: [Line(speaker: "mirek", expression: Neutral, text_key: "scene.talk_mirek_4.06")],
+               otherwise: [Line(speaker: "mirek", expression: Thinking, text_key: "scene.talk_mirek_4.02")]),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_mirek_4.03"),
+            Line(speaker: "mirek", expression: Smile, text_key: "scene.talk_mirek_4.04"),
+            Apply(effects: [Trust("mirek", 3.0)]),
+        ],
+    ),
+    // ───────────────────────── Hana ─────────────────────────
+    (
+        // hint: her cappuccino ready fast (stage 1); Karolina "not new to nights"
+        id: "talk_hana_1",
+        trigger: Talk(regular: "hana", night: None),
+        conditions: [Mode(Story), NightBetween(1, 7)],
+        steps: [
+            Camera(focus: Actor("hana"), zoom: 1.6),
+            Line(speaker: "hana", expression: Tired, text_key: "scene.talk_hana_1.01"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_hana_1.02"),
+            Line(speaker: "hana", expression: Laugh, text_key: "scene.talk_hana_1.03"),
+            Line(speaker: "hana", expression: Neutral, text_key: "scene.talk_hana_1.04"),
+            Line(speaker: "player", expression: Thinking, text_key: "scene.talk_hana_1.05"),
+            Apply(effects: [Trust("hana", 3.0)]),
+        ],
+    ),
+    (
+        // hint: an armchair with a floor lamp (the quiet corner of hana_asleep)
+        id: "talk_hana_2",
+        trigger: Talk(regular: "hana", night: None),
+        conditions: [Mode(Story), NightBetween(8, 16)],
+        steps: [
+            Camera(focus: Actor("hana"), zoom: 1.6),
+            Line(speaker: "hana", expression: Tired, text_key: "scene.talk_hana_2.01"),
+            Line(speaker: "player", expression: Neutral, text_key: "scene.talk_hana_2.02"),
+            Line(speaker: "hana", expression: Smile, text_key: "scene.talk_hana_2.03"),
+            If(conditions: [HasFurniture("armchair"), HasFurniture("floor_lamp")],
+               then: [Line(speaker: "hana", expression: Laugh, text_key: "scene.talk_hana_2.06")],
+               otherwise: [Line(speaker: "hana", expression: Thinking, text_key: "scene.talk_hana_2.04"),
+                           Line(speaker: "player", expression: Smile, text_key: "scene.talk_hana_2.05")]),
+            Apply(effects: [Trust("hana", 3.0)]),
+        ],
+    ),
+    (
+        // Dresden; Karolina's Brno; a small choice (both just trust)
+        id: "talk_hana_3",
+        trigger: Talk(regular: "hana", night: None),
+        conditions: [Mode(Story), NightBetween(17, 24)],
+        steps: [
+            Camera(focus: Actor("hana"), zoom: 1.6),
+            If(conditions: [ArcAtLeast("hana", 3)],
+               then: [Line(speaker: "hana", expression: Thinking, text_key: "scene.talk_hana_3.01")],
+               otherwise: [Line(speaker: "hana", expression: Surprised, text_key: "scene.talk_hana_3.06")]),
+            Line(speaker: "hana", expression: Neutral, text_key: "scene.talk_hana_3.02"),
+            Line(speaker: "player", expression: Neutral, text_key: "scene.talk_hana_3.03"),
+            Choice(options: [
+                (label_key: "scene.talk_hana_3.04", effects: [Trust("hana", 3.0)]),
+                (label_key: "scene.talk_hana_3.05", effects: [Trust("hana", 3.0)]),
+            ]),
+            Line(speaker: "hana", expression: Smile, text_key: "scene.talk_hana_3.07"),
+        ],
+    ),
+    (
+        // before or after her decision (she is gone if she left)
+        id: "talk_hana_4",
+        trigger: Talk(regular: "hana", night: None),
+        conditions: [Mode(Story), NightBetween(25, 30)],
+        steps: [
+            Camera(focus: Actor("hana"), zoom: 1.6),
+            If(conditions: [Flag("hana_stays")],
+               then: [Line(speaker: "hana", expression: Smile, text_key: "scene.talk_hana_4.05")],
+               otherwise: [Line(speaker: "hana", expression: Thinking, text_key: "scene.talk_hana_4.01")]),
+            Line(speaker: "hana", expression: Tired, text_key: "scene.talk_hana_4.02"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_hana_4.03"),
+            Line(speaker: "hana", expression: Laugh, text_key: "scene.talk_hana_4.04"),
+            Apply(effects: [Trust("hana", 3.0)]),
+        ],
+    ),
+    // ───────────────────────── Vera ─────────────────────────
+    (
+        // hint: clean tables, three nights in a row (stage 1)
+        id: "talk_vera_1",
+        trigger: Talk(regular: "vera", night: None),
+        conditions: [Mode(Story), NightBetween(1, 7)],
+        steps: [
+            Camera(focus: Actor("vera"), zoom: 1.6),
+            Line(speaker: "vera", expression: Neutral, text_key: "scene.talk_vera_1.01"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_vera_1.02"),
+            Line(speaker: "vera", expression: Thinking, text_key: "scene.talk_vera_1.03"),
+            Line(speaker: "player", expression: Surprised, text_key: "scene.talk_vera_1.04"),
+            Line(speaker: "vera", expression: Smile, text_key: "scene.talk_vera_1.05"),
+            Apply(effects: [Trust("vera", 3.0)]),
+        ],
+    ),
+    (
+        // Mum and Lida, too proud to speak first; hint: the kulajda (stage 3)
+        id: "talk_vera_2",
+        trigger: Talk(regular: "vera", night: None),
+        conditions: [Mode(Story), NightBetween(8, 16)],
+        steps: [
+            Camera(focus: Actor("vera"), zoom: 1.6),
+            Line(speaker: "vera", expression: Neutral, text_key: "scene.talk_vera_2.01"),
+            Line(speaker: "player", expression: Sad, text_key: "scene.talk_vera_2.02"),
+            Line(speaker: "vera", expression: Thinking, text_key: "scene.talk_vera_2.03"),
+            If(conditions: [ArcAtLeast("vera", 2)],
+               then: [Line(speaker: "vera", expression: Smile, text_key: "scene.talk_vera_2.05")],
+               otherwise: [Line(speaker: "vera", expression: Sad, text_key: "scene.talk_vera_2.04")]),
+            Apply(effects: [Trust("vera", 3.0)]),
+        ],
+    ),
+    (
+        // hints: the radio + someone who knows radios (note_09); a spotless café at dawn (note_02)
+        id: "talk_vera_3",
+        trigger: Talk(regular: "vera", night: None),
+        conditions: [Mode(Story), NightBetween(17, 24)],
+        steps: [
+            Camera(focus: Actor("vera"), zoom: 1.6),
+            Line(speaker: "vera", expression: Thinking, text_key: "scene.talk_vera_3.01"),
+            Line(speaker: "vera", expression: Neutral, text_key: "scene.talk_vera_3.02"),
+            Line(speaker: "player", expression: Surprised, text_key: "scene.talk_vera_3.03"),
+            Line(speaker: "vera", expression: Smile, text_key: "scene.talk_vera_3.04"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_vera_3.05"),
+            Apply(effects: [Trust("vera", 3.0)]),
+        ],
+    ),
+    (
+        // after her story of Jindra: someone has to call first
+        id: "talk_vera_4",
+        trigger: Talk(regular: "vera", night: None),
+        conditions: [Mode(Story), NightBetween(25, 30), ArcAtLeast("vera", 4)],
+        steps: [
+            Camera(focus: Actor("vera"), zoom: 1.6),
+            Line(speaker: "vera", expression: Neutral, text_key: "scene.talk_vera_4.01"),
+            Line(speaker: "vera", expression: Thinking, text_key: "scene.talk_vera_4.02"),
+            Line(speaker: "player", expression: Sad, text_key: "scene.talk_vera_4.03"),
+            Line(speaker: "vera", expression: Neutral, text_key: "scene.talk_vera_4.04"),
+            Line(speaker: "player", expression: Thinking, text_key: "scene.talk_vera_4.05"),
+            Line(speaker: "vera", expression: Sad, text_key: "scene.talk_vera_4.06"),
+            Apply(effects: [Trust("vera", 3.0)]),
+        ],
+    ),
+    // ───────────────────────── Filip ─────────────────────────
+    (
+        // hint: a table with a socket (stage 1); Karolina's screens
+        id: "talk_filip_1",
+        trigger: Talk(regular: "filip", night: None),
+        conditions: [Mode(Story), NightBetween(1, 7)],
+        steps: [
+            Camera(focus: Actor("filip"), zoom: 1.6),
+            If(conditions: [HasFurnitureTag("power_socket")],
+               then: [Line(speaker: "filip", expression: Laugh, text_key: "scene.talk_filip_1.06")],
+               otherwise: [Line(speaker: "filip", expression: Tired, text_key: "scene.talk_filip_1.01"),
+                           Line(speaker: "filip", expression: Neutral, text_key: "scene.talk_filip_1.02"),
+                           Line(speaker: "player", expression: Smile, text_key: "scene.talk_filip_1.03")]),
+            Line(speaker: "filip", expression: Thinking, text_key: "scene.talk_filip_1.04"),
+            Line(speaker: "player", expression: Neutral, text_key: "scene.talk_filip_1.05"),
+            Apply(effects: [Trust("filip", 3.0)]),
+        ],
+    ),
+    (
+        // hint: when he's stuck, someone just sitting with him (filip_exam "Sit with him");
+        // why Karolina quit; a small choice (both just trust)
+        id: "talk_filip_2",
+        trigger: Talk(regular: "filip", night: None),
+        conditions: [Mode(Story), NightBetween(8, 16)],
+        steps: [
+            Camera(focus: Actor("filip"), zoom: 1.6),
+            Line(speaker: "filip", expression: Thinking, text_key: "scene.talk_filip_2.01"),
+            Line(speaker: "filip", expression: Neutral, text_key: "scene.talk_filip_2.02"),
+            Line(speaker: "player", expression: Thinking, text_key: "scene.talk_filip_2.03"),
+            Choice(options: [
+                (label_key: "scene.talk_filip_2.04", effects: [Trust("filip", 3.0)]),
+                (label_key: "scene.talk_filip_2.05", effects: [Trust("filip", 3.0)]),
+            ]),
+            Line(speaker: "filip", expression: Laugh, text_key: "scene.talk_filip_2.06"),
+        ],
+    ),
+    (
+        // before or after the failed exam
+        id: "talk_filip_3",
+        trigger: Talk(regular: "filip", night: None),
+        conditions: [Mode(Story), NightBetween(17, 24)],
+        steps: [
+            Camera(focus: Actor("filip"), zoom: 1.6),
+            If(conditions: [ArcAtLeast("filip", 2)],
+               then: [Line(speaker: "filip", expression: Tired, text_key: "scene.talk_filip_3.05")],
+               otherwise: [Line(speaker: "filip", expression: Tired, text_key: "scene.talk_filip_3.01")]),
+            Line(speaker: "filip", expression: Thinking, text_key: "scene.talk_filip_3.02"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_filip_3.03"),
+            Line(speaker: "filip", expression: Smile, text_key: "scene.talk_filip_3.04"),
+            Apply(effects: [Trust("filip", 3.0)]),
+        ],
+    ),
+    (
+        // before or after the cake; is she staying?
+        id: "talk_filip_4",
+        trigger: Talk(regular: "filip", night: None),
+        conditions: [Mode(Story), NightBetween(25, 30)],
+        steps: [
+            Camera(focus: Actor("filip"), zoom: 1.6),
+            If(conditions: [ArcAtLeast("filip", 4)],
+               then: [Line(speaker: "filip", expression: Smile, text_key: "scene.talk_filip_4.05")],
+               otherwise: [Line(speaker: "filip", expression: Tired, text_key: "scene.talk_filip_4.01")]),
+            Line(speaker: "filip", expression: Neutral, text_key: "scene.talk_filip_4.02"),
+            Line(speaker: "player", expression: Thinking, text_key: "scene.talk_filip_4.03"),
+            Line(speaker: "filip", expression: Laugh, text_key: "scene.talk_filip_4.04"),
+            Apply(effects: [Trust("filip", 3.0)]),
+        ],
+    ),
+    // ───────────────────────── Radek (from night 9) ─────────────────────────
+    (
+        // hint: his coffee fast (stage 1); the screens that never wave back
+        id: "talk_radek_2",
+        trigger: Talk(regular: "radek", night: None),
+        conditions: [Mode(Story), NightBetween(8, 16)],
+        steps: [
+            Camera(focus: Actor("radek"), zoom: 1.6),
+            Line(speaker: "radek", expression: Neutral, text_key: "scene.talk_radek_2.01"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_radek_2.02"),
+            Line(speaker: "radek", expression: Thinking, text_key: "scene.talk_radek_2.03"),
+            Line(speaker: "player", expression: Neutral, text_key: "scene.talk_radek_2.04"),
+            Line(speaker: "radek", expression: Smile, text_key: "scene.talk_radek_2.05"),
+            Apply(effects: [Trust("radek", 3.0)]),
+        ],
+    ),
+    (
+        // hint: his last shift is Tuesday (night 23) — be open at one; his father's pencil.
+        // Up to night 23 only: on 24 his last shift is behind him (talk_radek_4's matter).
+        id: "talk_radek_3",
+        trigger: Talk(regular: "radek", night: None),
+        conditions: [Mode(Story), NightBetween(17, 23)],
+        steps: [
+            Camera(focus: Actor("radek"), zoom: 1.6),
+            If(conditions: [NightAtLeast(23)],
+               then: [Line(speaker: "radek", expression: Tired, text_key: "scene.talk_radek_3.06")],
+               otherwise: [Line(speaker: "radek", expression: Neutral, text_key: "scene.talk_radek_3.01")]),
+            Line(speaker: "radek", expression: Thinking, text_key: "scene.talk_radek_3.02"),
+            Line(speaker: "player", expression: Smile, text_key: "scene.talk_radek_3.03"),
+            Line(speaker: "radek", expression: Smile, text_key: "scene.talk_radek_3.04"),
+            Apply(effects: [Trust("radek", 3.0)]),
+        ],
+    ),
+    (
+        // retired; hint: keep the lamp on to the last night (3:33 on night 30)
+        id: "talk_radek_4",
+        trigger: Talk(regular: "radek", night: None),
+        conditions: [Mode(Story), NightBetween(25, 30)],
+        steps: [
+            Camera(focus: Actor("radek"), zoom: 1.6),
+            Line(speaker: "radek", expression: Tired, text_key: "scene.talk_radek_4.01"),
+            Line(speaker: "radek", expression: Thinking, text_key: "scene.talk_radek_4.02"),
+            Line(speaker: "player", expression: Neutral, text_key: "scene.talk_radek_4.03"),
+            Line(speaker: "radek", expression: Smile, text_key: "scene.talk_radek_4.04"),
+            Apply(effects: [Trust("radek", 3.0)]),
+        ],
+    ),
+    // ───────────────────────── Lori (from night 11, only in the rain) ─────────────────────────
+    (
+        // hints: she comes when it rains; a rug corner for a stage (stage 2); a small choice
+        id: "talk_lori_2",
+        trigger: Talk(regular: "lori", night: None),
+        conditions: [Mode(Story), NightBetween(8, 16)],
+        steps: [
+            Camera(focus: Actor("lori"), zoom: 1.6),
+            Line(speaker: "lori", expression: Smile, text_key: "scene.talk_lori_2.01"),
+            If(conditions: [HasFurnitureTag("stage")],
+               then: [Line(speaker: "lori", expression: Laugh, text_key: "scene.talk_lori_2.06")],
+               otherwise: [Line(speaker: "lori", expression: Thinking, text_key: "scene.talk_lori_2.02")]),
+            Choice(options: [
+                (label_key: "scene.talk_lori_2.03", effects: [Trust("lori", 3.0)]),
+                (label_key: "scene.talk_lori_2.04", effects: [Trust("lori", 3.0)]),
+            ]),
+            Line(speaker: "lori", expression: Smile, text_key: "scene.talk_lori_2.05"),
+        ],
+    ),
+    (
+        // hint: a whole evening of hers on a big rain (stage 3); a song about forty empty shops
+        id: "talk_lori_3",
+        trigger: Talk(regular: "lori", night: None),
+        conditions: [Mode(Story), NightBetween(17, 24)],
+        steps: [
+            Camera(focus: Actor("lori"), zoom: 1.6),
+            Line(speaker: "lori", expression: Thinking, text_key: "scene.talk_lori_3.01"),
+            If(conditions: [HasFurnitureTag("stage")],
+               then: [Line(speaker: "lori", expression: Laugh, text_key: "scene.talk_lori_3.05")],
+               otherwise: [Line(speaker: "lori", expression: Neutral, text_key: "scene.talk_lori_3.02")]),
+            Line(speaker: "player", expression: Neutral, text_key: "scene.talk_lori_3.03"),
+            Line(speaker: "lori", expression: Smile, text_key: "scene.talk_lori_3.04"),
+            Apply(effects: [Trust("lori", 3.0)]),
+        ],
+    ),
+    (
+        // storms; will she play on the last night
+        id: "talk_lori_4",
+        trigger: Talk(regular: "lori", night: None),
+        conditions: [Mode(Story), NightBetween(25, 30)],
+        steps: [
+            Camera(focus: Actor("lori"), zoom: 1.6),
+            Line(speaker: "lori", expression: Smile, text_key: "scene.talk_lori_4.01"),
+            Line(speaker: "player", expression: Neutral, text_key: "scene.talk_lori_4.02"),
+            Line(speaker: "lori", expression: Laugh, text_key: "scene.talk_lori_4.03"),
+            Line(speaker: "lori", expression: Smile, text_key: "scene.talk_lori_4.04"),
+            Apply(effects: [Trust("lori", 3.0)]),
+        ],
+    ),
+]
