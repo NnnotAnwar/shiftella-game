@@ -160,7 +160,9 @@ fn the_storm_night_plays_one_scene_at_a_time_in_order() {
         );
     }
     // the night isn't one wall of scenes: the confession and Šindelář are hours apart
-    assert!(n25.len() <= 7, "{n25:?}");
+    // (talks are opened by the player, so they don't count)
+    let story: Vec<_> = n25.iter().filter(|id| !id.starts_with("talk_")).collect();
+    assert!(story.len() <= 7, "{n25:?}");
 }
 
 #[test]
