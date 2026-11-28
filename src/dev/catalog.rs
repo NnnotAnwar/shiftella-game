@@ -156,6 +156,8 @@ pub const OPENERS: &[Opener] = &[
         &[("SHIFTELLA_NIGHT", "5")],
     ),
     o(NIGHT, "Anwar's visit (night 9)", "night9_anwar", &[]),
+    o(NIGHT, "Kseniia (night 3)", "kseniia", &[]),
+    o(NIGHT, "Sofas & armchairs (every facing)", "seats", &[]),
     o(NIGHT, "Moment card", "moments", &[]),
     o(NIGHT, "Garlands (night 21)", "garlands", &[]),
     o(NIGHT, "Station cat (night 12)", "cat", &[]),
@@ -246,6 +248,18 @@ pub const OPENERS: &[Opener] = &[
         &[("SHIFTELLA_AUTOFILL", "1")],
     ),
     o(APP, "App · Requests", "app", &[("SHIFTELLA_APP_TAB", "1")]),
+    o(
+        APP,
+        "App · answered & too late (Requests)",
+        "app_resolved",
+        &[("SHIFTELLA_APP_TAB", "1")],
+    ),
+    o(
+        APP,
+        "App · answered & too late (Bot)",
+        "app_resolved",
+        &[("SHIFTELLA_APP_TAB", "2")],
+    ),
     o(APP, "App · Bot", "app", &[("SHIFTELLA_APP_TAB", "2")]),
     o(APP, "App · Board", "app", &[("SHIFTELLA_APP_TAB", "3")]),
     o(
@@ -327,6 +341,18 @@ pub const OPENERS: &[Opener] = &[
         "Follow chip",
         "hands_ux",
         &[("SHIFTELLA_HUX", "follow")],
+    ),
+    o(
+        RITUALS,
+        "Closing · guests still in",
+        "hands_ux",
+        &[("SHIFTELLA_HUX", "closing")],
+    ),
+    o(
+        RITUALS,
+        "Closing · app list with reasons",
+        "hands_ux",
+        &[("SHIFTELLA_HUX", "closing_app")],
     ),
     o(
         RITUALS,
