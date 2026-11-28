@@ -999,3 +999,61 @@ fn save_and_load_times_of_a_late_story() {
     assert!(load.as_secs_f64() < 5.0, "load took {load:?}");
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+/// 0.2.5 (a player's report): the opening's gestures were a race — Karolina did the item
+/// herself before the player could begin (her own work at the piece is under a second), and a
+/// gesture finished while she was still on her way opened again from the start. Now the card
+/// holds her from the moment it shows, and a finished one stays shut for that act.
+#[test]
+fn an_opening_gesture_waits_for_the_player_and_never_starts_over() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let hints = std::collections::BTreeSet::new();
+    // the window is a walk away, the warm-up and the float are right by her
+    for id in ["light_window", "coffee_warmup", "count_float"] {
+        let mut g = GameScreen::new_story(&c, "cozy", true);
+        g.start_night(&c);
+        g.rituals.staged = true;
+        g.world
+            .apply(&c, sim::Command::TickChecklist { id: id.into() })
+            .unwrap();
+        let dt = 1.0 / 30.0;
+        let (mut opens, mut was_open, mut shown) = (0, false, 0.0f32);
+        for _ in 0..(40.0 / dt) as u32 {
+            if g.cutscene_playing() {
+                g.finish_cutscene_now(&c, &loc);
+            }
+            rituals_ui::sync(&mut g, &c, &loc, &hints, false);
+            let open = g.rituals.open.is_some();
+            if open && !was_open {
+                opens += 1;
+                shown = 0.0;
+            }
+            was_open = open;
+            // a player who looks for two seconds, then plays it
+            let input = match g.rituals.open.as_ref() {
+                Some(o) if shown >= 2.0 => o.gesture.autoplay_input(),
+                _ => Default::default(),
+            };
+            shown += dt;
+            rituals_ui::step(&mut g, &c, &input, dt);
+            g.advance(&c, dt, Some(&loc));
+            if matches!(g.world.checklist_mark(id), sim::ChecklistMark::Done { .. }) {
+                break;
+            }
+        }
+        assert!(
+            matches!(g.world.checklist_mark(id), sim::ChecklistMark::Done { .. }),
+            "{id} done"
+        );
+        assert!(
+            g.world.ritual_by_hand(id).is_some(),
+            "{id}: the player's gesture did it, not her own work"
+        );
+        assert_eq!(
+            opens, 1,
+            "{id}: the card opened once, it never started over"
+        );
+    }
+}

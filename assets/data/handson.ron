@@ -167,8 +167,9 @@
     // Hands-on rituals (sim::rituals, screens::game::rituals_ui): when Karolina herself does a
     // checklist item (or an appliance chore) and the player watches at ×1, a tiny gesture plays
     // over the piece instead of a progress ring. Never needed: ignored, at ×2/×3, by the
-    // autoplayer or a helper it completes on its own with the same ticks. Once the player has
-    // started a gesture she waits for it at most `patience_ticks`; a finished gesture finishes
+    // autoplayer or a helper it completes on its own with the same ticks. Once the card shows
+    // (0.2.5: before, only once the player touched it) she waits at the piece for it at most
+    // `patience_ticks`, then does it herself; a finished gesture finishes
     // the item at once. `perfect_min` perfect gestures in a list → that ritual's `perfect`
     // reward (shiftella.ron). Keys: checklist ids, or `equip.<action>` for appliance chores (a
     // chore without its own entry uses the gesture of the item it ticks: the warm-up, the

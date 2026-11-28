@@ -4,12 +4,15 @@
 //! with its gesture (`minigame::ritual`): pull the cord, hold the needle in the green, count
 //! the float… The player may play it, or not:
 //!
-//! * the first touch sends `Command::Ritual { Start }` — she waits for it at the piece (a
-//!   while at most);
+//! * the card opening sends `Command::Ritual { Start }` — she waits for it at the piece (a
+//!   while at most; 0.2.5: before, only the first touch did, and her own 0.8 s of work at the
+//!   piece often finished the item before the player could begin);
 //! * the finished gesture sends `Done { perfect }` — the item completes at once; a perfect one
 //!   floats a small "Perfect" and counts towards a perfect opening / closing;
-//! * untouched, it simply closes when she is done (same ticks as ever); Esc / right-click on
-//!   the card lets her finish it herself (`LetGo`).
+//! * untouched, she does it herself once her patience runs out; Esc / right-click on the card
+//!   lets her finish it at once (`LetGo`);
+//! * a finished card stays shut for that act — finished on her way, it no longer reopens
+//!   fresh until she reaches the piece (0.2.5: the player saw the gesture start over).
 //!
 //! It never opens at ×2 / ×3, under the autoplayer or screenshot automation (unless a scene
 //! stages it), over another card or panel, or for a piece off screen; pausing freezes it. The
@@ -191,6 +194,8 @@ pub fn sync(
         && o.gesture.finished().is_some()
     {
         if o.gesture.since_done >= DONE_HOLD {
+            // done: this act's card stays shut (she may still be on her way to the piece)
+            g.rituals.dismissed = Some(o.key.clone());
             close(g, content, false);
         }
         return;
@@ -245,11 +250,22 @@ fn open(
     let seed = seed_for(g.world.seed(), g.world.night(), &key);
     let gesture = Gesture::new(&kind, seed, relaxed, lines.len());
     let hint = !hints.contains(kind.id()) && !g.rituals.seen.iter().any(|s| s == kind.id());
+    // she waits for the player from the moment the card shows (at most her patience)
+    let started = g
+        .world
+        .apply(
+            content,
+            Command::Ritual {
+                key: key.clone(),
+                step: RitualStep::Start,
+            },
+        )
+        .is_ok();
     g.rituals.open = Some(RitualOpen {
         label: label_of(loc, &key),
         key,
         gesture,
-        started_sent: false,
+        started_sent: started,
         done_sent: false,
         shown: 0.0,
         hint,
@@ -842,7 +858,10 @@ mod tests {
     }
 
     #[test]
-    fn ignored_it_closes_by_itself_and_she_finishes_as_before() {
+    /// 0.2.5: the card holds her from the moment it shows — ignored, she does it herself
+    /// once her patience runs out (before, she never waited for an untouched card and the
+    /// player rarely had time to begin).
+    fn ignored_she_waits_her_patience_then_does_it_herself() {
         let c = content();
         let i18n = i18n();
         let loc = Locale::new(&i18n, crate::i18n::Lang::En);
@@ -883,9 +902,11 @@ mod tests {
         }
         headless(&mut a, &c, &loc, &hints, &MgInput::default(), 1.0 / 30.0);
         assert!(shown, "the float card showed");
+        let patience = c.handson.tuning.rituals.patience_ticks;
+        let (shown_t, plain) = (ticks[0].unwrap(), ticks[1].unwrap());
         assert!(
-            ticks[0].is_some() && ticks[0] == ticks[1],
-            "same ticks: {ticks:?}"
+            shown_t > plain && shown_t <= plain + patience + 2,
+            "she waited at most her patience: {ticks:?}"
         );
         assert!(a.rituals.open.is_none(), "the card went with her");
         assert_eq!(a.world.ritual_by_hand("count_float"), None);
