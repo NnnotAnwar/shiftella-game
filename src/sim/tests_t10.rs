@@ -23,6 +23,9 @@ fn content() -> Content {
     Content::load(DATA).unwrap_or_else(|e| panic!("{e}"))
 }
 
+/// The cutscenes in the order they played, each with its night.
+type SceneLog = Vec<(u32, String)>;
+
 /// Plays a whole story with the attentive player-bot; `pick` may override a scene's choices.
 fn play_story(
     c: &Content,
@@ -30,6 +33,18 @@ fn play_story(
     difficulty: Difficulty,
     pick: &dyn Fn(&str) -> Option<Vec<usize>>,
 ) -> World {
+    play_story_with(c, seed, difficulty, pick, &mut |_| {}).0
+}
+
+/// [`play_story`] with a hook run every day (after the bot's day) and the log of scenes.
+fn play_story_with(
+    c: &Content,
+    seed: u64,
+    difficulty: Difficulty,
+    pick: &dyn Fn(&str) -> Option<Vec<usize>>,
+    day: &mut dyn FnMut(&mut World),
+) -> (World, SceneLog) {
+    let mut log = SceneLog::new();
     let mut w = World::new_story_seeded(c, difficulty, seed);
     let mut b = bot::PlayerBot::new(bot::BotConfig {
         seed,
@@ -41,31 +56,50 @@ fn play_story(
         }
         if w.phase() == Phase::Day {
             b.day(&mut w, c);
-            answer(&mut w, c, pick);
+            day(&mut w);
+            answer(&mut w, c, pick, &mut log);
             w.start_night(c);
         }
         let mut guard = 0;
         while w.phase() == Phase::Night && !w.is_closed() && guard < 100_000 {
-            answer(&mut w, c, pick);
+            answer(&mut w, c, pick, &mut log);
             b.step(&mut w, c);
             w.tick(c);
             w.drain_events();
             guard += 1;
         }
-        answer(&mut w, c, pick);
+        answer(&mut w, c, pick, &mut log);
     }
-    w
+    (w, log)
 }
 
-fn answer(w: &mut World, c: &Content, pick: &dyn Fn(&str) -> Option<Vec<usize>>) {
+fn answer(
+    w: &mut World,
+    c: &Content,
+    pick: &dyn Fn(&str) -> Option<Vec<usize>>,
+    log: &mut SceneLog,
+) {
     for _ in 0..64 {
         let Some(id) = w.playing_cutscene().map(str::to_string) else {
             return;
         };
+        log.push((w.night(), id.clone()));
         let choices = pick(&id).unwrap_or_else(|| bot::attentive_choices(w, c, &id));
         w.apply(c, Command::CutsceneFinished { id, choices })
             .unwrap();
     }
+}
+
+/// The night scene `id` played on.
+fn night_of(log: &SceneLog, id: &str) -> Option<u32> {
+    log.iter().find(|(_, x)| x == id).map(|(n, _)| *n)
+}
+
+fn letter(w: &World) -> &str {
+    w.story()
+        .vars
+        .get("letter")
+        .map_or("hidden", String::as_str)
 }
 
 fn arc(w: &World, id: &str) -> i64 {
@@ -79,7 +113,7 @@ fn arc(w: &World, id: &str) -> i64 {
 #[test]
 fn an_attentive_cozy_story_finishes_every_arc_and_hears_the_answer() {
     let c = content();
-    let w = play_story(&c, 4242, Difficulty::Cozy, &|_| None);
+    let (w, log) = play_story_with(&c, 4242, Difficulty::Cozy, &|_| None, &mut |_| {});
     for r in STORY_REGULARS {
         let last = c
             .regular(r)
@@ -102,6 +136,82 @@ fn an_attentive_cozy_story_finishes_every_arc_and_hears_the_answer() {
         w.story().vars.get("letter"),
         w.story().notes.len()
     );
+    // the reveal order: Vera's story is the setup, the franchise decision the temptation, then
+    // Mirek's confession (the storm night at the earliest), then the letter
+    let n = |id| night_of(&log, id).unwrap_or_else(|| panic!("{id} played"));
+    assert!(
+        n("vera_jindrich") < n("mirek_confession"),
+        "Vera's story (night {}) before Mirek's confession (night {})",
+        n("vera_jindrich"),
+        n("mirek_confession")
+    );
+    assert!((19..=24).contains(&n("vera_jindrich")));
+    assert!(n("franchise_decision") < n("mirek_confession"));
+    assert!((25..=29).contains(&n("mirek_confession")));
+    assert!(n("mirek_confession") < n("mirek_letter"));
+    assert!((23..=25).contains(&n("radek_last_shift")));
+    assert!(n("filip_cake") >= 26);
+}
+
+#[test]
+fn saying_nothing_at_the_near_miss_still_leads_to_the_confession() {
+    // "Say nothing" used to end Mirek's arc (and lose the letter) for good: now the accident
+    // on the storm night makes Jana take his keys, and he confesses a few nights later
+    let c = content();
+    let (w, log) = play_story_with(
+        &c,
+        4242,
+        Difficulty::Cozy,
+        &|id| (id == "mirek_pedestrian").then(|| vec![2]),
+        &mut |_| {},
+    );
+    assert!(w.flag("mirek_silence"));
+    assert!(w.flag("mirek_jana_keys"), "the accident: Jana has his keys");
+    let night = night_of(&log, "mirek_confession").expect("Mirek still confesses");
+    assert!(night >= 26, "after the accident (night {night})");
+    assert!(w.story().played.contains("mirek_letter"));
+    assert!(
+        !["hidden", "confessed"].contains(&letter(&w)),
+        "the letter was decided: {}",
+        letter(&w)
+    );
+    // the near-miss still costs him the good ending of his arc
+    assert!(!w.flag("arc.mirek.good"));
+}
+
+#[test]
+fn the_answer_plays_once_the_letter_is_delivered_even_with_few_notes() {
+    // eight notes are a bonus inside the scene (the postscript), not a lock on it
+    let c = content();
+    let (w, _) = play_story_with(&c, 4242, Difficulty::Cozy, &|_| None, &mut |w| {
+        if w.night() == 30 {
+            w.story
+                .notes
+                .retain(|n| ["note_01", "note_04", "note_07"].contains(&n.as_str()));
+        }
+    });
+    assert!(w.story().notes.len() < 8, "{} notes", w.story().notes.len());
+    assert!(
+        ["delivered", "delivered_by_mirek"].contains(&letter(&w)),
+        "letter {}",
+        letter(&w)
+    );
+    assert!(w.story().played.contains("answer"));
+}
+
+#[test]
+fn lori_sent_away_gets_a_second_chance_in_the_storm() {
+    let c = content();
+    let (w, log) = play_story_with(
+        &c,
+        4242,
+        Difficulty::Cozy,
+        &|id| (id == "lori_platform").then(|| vec![1]),
+        &mut |_| {},
+    );
+    assert_eq!(night_of(&log, "lori_storm"), Some(25));
+    assert!(w.flag("lori_invited") && !w.flag("lori_sent_away"));
+    assert!(w.flag("arc.lori.good"));
 }
 
 #[test]
@@ -119,6 +229,12 @@ fn accepting_the_franchise_offer_ends_on_the_last_train() {
     );
     assert_eq!(w.ending_variant(), Some("sold"));
     assert!(!w.story().played.contains("answer"), "no answer once sold");
+    // the 3:33 guest doesn't come in any more: the sold night shows him on the platform, and
+    // Mirek's letter goes to the platform bench instead of "at 3:33"
+    assert!(w.story().played.contains("last_333_sold"));
+    assert!(!w.story().played.contains("last_333"));
+    assert!(w.story().played.contains("mirek_letter"));
+    assert_eq!(letter(&w), "bench");
 }
 
 #[test]
