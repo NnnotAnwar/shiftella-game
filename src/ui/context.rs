@@ -430,7 +430,8 @@ impl Ui {
     /// higher layer, the world won't get clicks there and lower widgets are blocked.
     pub fn region(&mut self, r: Rect) {
         self.z += 1;
-        self.regions.push((r, self.z));
+        self.regions
+            .push((clipped(r, self.clip.last().copied()), self.z));
     }
 
     /// Current layer (increments with every [`Ui::region`]).
@@ -456,15 +457,13 @@ impl Ui {
     /// Is `p` covered by a higher layer? A region with the widget's own rect (its glass /
     /// card background, often declared right after `interact`) never blocks the widget.
     fn blocked(&self, p: Vec2, own: Rect) -> bool {
-        let same = |a: &Rect| {
-            (a.x - own.x).abs() < 1.0
-                && (a.y - own.y).abs() < 1.0
-                && (a.w - own.w).abs() < 1.0
-                && (a.h - own.h).abs() < 1.0
-        };
-        self.prev_regions
-            .iter()
-            .any(|(r, z)| *z > self.z && r.contains(p) && !same(r))
+        blocked_by(
+            &self.prev_regions,
+            self.z,
+            p,
+            own,
+            self.clip.last().copied(),
+        )
     }
 
     /// Intersect with the current clip and enable the GPU scissor.
@@ -725,9 +724,61 @@ impl Ui {
     }
 }
 
+/// The part of `r` inside the clip: a card scrolled half out of a list only covers what is
+/// shown (0.2.5: the notification card below the list's edge lay over the app's tab bar and
+/// ate every click on it).
+fn clipped(r: Rect, clip: Option<Rect>) -> Rect {
+    match clip {
+        Some(c) => c.intersect_or_empty(r),
+        None => r,
+    }
+}
+
+/// Is `p` covered by a region above layer `z`? A region that is the widget's own rect (its
+/// glass / card background, often declared right after `interact`) never blocks it — also
+/// when both are cut by the same clip.
+fn blocked_by(regions: &[(Rect, u32)], z: u32, p: Vec2, own: Rect, clip: Option<Rect>) -> bool {
+    let own_cut = clipped(own, clip);
+    let same = |a: &Rect, b: Rect| {
+        (a.x - b.x).abs() < 1.0
+            && (a.y - b.y).abs() < 1.0
+            && (a.w - b.w).abs() < 1.0
+            && (a.h - b.h).abs() < 1.0
+    };
+    regions
+        .iter()
+        .any(|(r, rz)| *rz > z && r.contains(p) && !same(r, own) && !same(r, own_cut))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_card_cut_by_a_clip_only_covers_what_is_shown() {
+        let list = Rect::new(0.0, 0.0, 300.0, 200.0);
+        // the last card hangs 40 px below the list, over the tab bar under it
+        let card = Rect::new(0.0, 180.0, 300.0, 60.0);
+        let regions = [(clipped(card, Some(list)), 5)];
+        let tab = Rect::new(10.0, 210.0, 80.0, 40.0);
+        assert!(
+            !blocked_by(&regions, 2, tab.center(), tab, None),
+            "the tab under the list is free"
+        );
+        // inside the list the card still covers what is under it
+        let under = Rect::new(10.0, 185.0, 80.0, 10.0);
+        assert!(blocked_by(&regions, 2, under.center(), under, Some(list)));
+        // and never blocks itself (its widget rect, cut by the same clip)
+        assert!(!blocked_by(
+            &regions,
+            4,
+            vec2(20.0, 190.0),
+            card,
+            Some(list)
+        ));
+        // without a clip nothing changes
+        assert_eq!(clipped(card, None), card);
+    }
 
     #[test]
     fn approach_converges() {
