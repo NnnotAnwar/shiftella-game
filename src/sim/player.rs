@@ -5,6 +5,7 @@
 //! skill-independent speed.
 
 use super::grid;
+use super::claims::Work;
 use super::guests;
 use super::hands::*;
 use super::orders;
@@ -77,6 +78,16 @@ fn queue_room(w: &World) -> Result<(), CommandError> {
 /// as queued (a serve gets the party's other ready items on its tray).
 fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerAct, CommandError> {
     let me = me(w);
+    // one act per piece of work: a second one (the sink from another sink, the same table
+    // twice) would let go of the claim when the first one ends while it still waits
+    // (a blot is picked below, a tip goes with clearing the table)
+    if super::claims::of_act(&act, false)
+        .iter()
+        .filter(|x| !matches!(x, Work::Blot(_) | Work::Tip(_)))
+        .any(|x| super::claims::hers(w, x))
+    {
+        return Err(CommandError::Invalid("already on it".into()));
+    }
     match &act {
         PlayerAct::TakeOrder { party } => {
             let p = w
@@ -169,13 +180,42 @@ fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerA
             if !w.grid.walkable(tile.0, tile.1) || w.grid.room(tile.0, tile.1).staff_only() {
                 return Err(CommandError::OutOfBounds);
             }
-            if w.dirt <= 0.0 {
+            let spots = w.dirt_spots();
+            if w.dirt <= 0.0 || spots.is_empty() {
                 return Err(CommandError::Invalid("the floor is clean".into()));
             }
+            // the blot clicked, else the nearest one nobody is on yet (`sim::claims`): never
+            // a second swipe on a blot she or a helper is already going to
+            let free: Vec<(i32, i32)> = spots
+                .iter()
+                .copied()
+                .filter(|t| super::claims::blot_free(w, *t))
+                .collect();
+            let pick = if free.contains(tile) {
+                Some(*tile)
+            } else {
+                free.iter()
+                    .copied()
+                    .min_by_key(|t| (grid::manhattan(*tile, *t), *t))
+            };
+            return match pick {
+                Some(t) => Ok(PlayerAct::Mop { tile: t }),
+                None if spots
+                    .iter()
+                    .any(|t| super::claims::holder(w, &Work::Blot(*t)).is_some_and(|h| h != me)) =>
+                {
+                    Err(CommandError::InUse)
+                }
+                None => Err(CommandError::Invalid("already on it".into())),
+            };
         }
         PlayerAct::CollectTip { table } => {
             if !w.hands.tips.iter().any(|t| t.table == *table) {
                 return Err(CommandError::Invalid("no tip on that table".into()));
+            }
+            // a helper about to clear that table takes the coins with the cups
+            if super::claims::holder(w, &Work::Tip(*table)).is_some_and(|h| h != me) {
+                return Err(CommandError::InUse);
             }
         }
         PlayerAct::Checklist { id } => {
@@ -283,8 +323,11 @@ fn release_act(w: &mut World, content: &Content, act: &PlayerAct, stage: u8, cou
             }
         }
         PlayerAct::Checklist { id } => {
+            // (an appliance chore of hers that ticks it keeps it)
+            let keep = super::claims::checklist_still_hers(w, id);
             if let Some(c) = w.app.checklist.iter_mut().find(|c| &c.id == id)
                 && c.claim == Some(me)
+                && !keep
             {
                 c.claim = None;
             }
@@ -334,6 +377,19 @@ fn release_item(w: &mut World, item: u32, me: u32, here: Option<(i32, i32)>) {
             i.price_add = 0;
         }
     }
+}
+
+/// One swipe over the blot at `tile` (Karolina's or a helper's): it goes away — that very
+/// blot, the others stay where they are — and the hall loses `MOP_AMOUNT` of dirt. `false`
+/// (nothing happens) when there is no blot there any more.
+pub(crate) fn mop_blot(w: &mut World, tile: (i32, i32)) -> bool {
+    if !w.dirt_spots().contains(&tile) {
+        return false;
+    }
+    w.dirt = (w.dirt - MOP_AMOUNT).max(0.0);
+    w.mopped.retain(|t| *t != tile);
+    w.mopped.push(tile);
+    true
 }
 
 fn push(w: &mut World, act: PlayerAct, front: bool) {
@@ -1310,10 +1366,11 @@ fn act_target_alive(w: &World, a: &PlayerAct) -> bool {
         PlayerAct::ClearTable { table } | PlayerAct::CollectTip { table } => piece(*table),
         PlayerAct::Wash { sink } => piece(*sink),
         PlayerAct::Use { uid, .. } => piece(*uid),
-        PlayerAct::Checklist { .. }
-        | PlayerAct::Mop { .. }
-        | PlayerAct::GoTo { .. }
-        | PlayerAct::PlayRecord { .. } => true,
+        // a blot already gone (the trash run, a wipe-down) is not walked to for nothing
+        PlayerAct::Mop { tile } => w.dirt_spots().contains(tile),
+        PlayerAct::Checklist { .. } | PlayerAct::GoTo { .. } | PlayerAct::PlayRecord { .. } => {
+            true
+        }
     }
 }
 
@@ -1635,13 +1692,12 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                 }
             }
         }
-        PlayerAct::Mop { .. } => match cur.stage {
+        PlayerAct::Mop { tile } => match cur.stage {
             0 => set_work(w, 1, MOP_WORK),
             _ => {
                 w.staff[idx].pose = Pose::Work;
                 if work_tick(w, work_speed(w, content, None)) {
-                    w.dirt = (w.dirt - MOP_AMOUNT).max(0.0);
-                    if let PlayerAct::Mop { tile } = cur.act {
+                    if mop_blot(w, tile) {
                         w.emit(SimEvent::Mopped { tile });
                     }
                     finish(w);
@@ -1781,8 +1837,9 @@ fn use_step(
             }
             // (a helper may have done it meanwhile, the pot stopped bubbling…: then nothing)
             if !eq::possible(w, content, uid, action) {
-                eq::release(w, action);
-                return finish(w);
+                // (finished first: the claim is let go unless another act of hers needs it)
+                finish(w);
+                return eq::release(w, action);
             }
             if action == EquipAction::Trash
                 && let Some(t) = eq::outside_spot(w)

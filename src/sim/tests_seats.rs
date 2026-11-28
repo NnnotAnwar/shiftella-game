@@ -386,10 +386,10 @@ fn most_plain_parties_sit_and_order_at_the_table_a_few_at_the_bar() {
         for _ in 0..6 {
             b.run_night(&mut w, &c);
         }
-        // the next nights, arrival by arrival (each party's state the tick it came in; four
-        // nights so the sample stays big enough whatever a night brings)
+        // the next nights, arrival by arrival (each party's state the tick it came in); five
+        // nights, so the plain parties are enough whatever the mix of wishes and regulars
         let mut seen = std::collections::BTreeSet::new();
-        for _ in 0..4 {
+        for _ in 0..5 {
             b.run_night_watched(&mut w, &c, |w| {
                 for p in w.parties() {
                     if !seen.insert(p.id) {

@@ -366,6 +366,16 @@ FIFO, `PLAYER_QUEUE_MAX` = 5 (+ the current act, `current.progress()` for the ri
 claims what it works on (helpers leave it alone); cancel / unqueue releases it. She walks at
 `STAFF_SPEED × player_walk_mul` and works at `player_work_mul × WORK_SPEED` (skill-independent).
 
+**One claim rule** (`sim::claims`): every piece of shared work (`Work`: an order, an order item,
+a table — its cups and its tip coins, the sink, a dirt blot, a bucket, a checklist item) has one
+holder. She holds what she queued (from the click, also while walking there); a helper what they
+picked. Helpers never pick (and drop at once) work someone else holds. Her click on work a
+helper holds takes another free piece of the same kind (another blot; brew / serve pick a free
+cup of the party), else `InUse` — the helper is never pulled off it; `world.work_holder(&act)`
+names who has it (the UI: "{name} is already on it"). Dirt blots are stable: a swipe takes away
+the blot it was on (`mopped`), and a blot already gone is not walked to or swiped. The chaos
+invariant `claims::clashes` fails on any work two people are on at once.
+
 | command | what she does |
 |---|---|
 | `PlayerTakeOrder { guest }` (guest or party id) | walks to the table (waits for them to sit) or the register; `PlayerOrderTaken` → open the order card. `InUse` if a helper has it |

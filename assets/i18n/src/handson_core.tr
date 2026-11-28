@@ -201,6 +201,12 @@ en Not in yet — wait till they sit down (or reach the line at the register).
 uk Ще не зайшли — зачекай, поки сядуть (або стануть у чергу біля каси).
 ru Ещё не зашли — подожди, пока сядут (или встанут в очередь у кассы).
 
+ui.hands.taken
+cs {name} už na tom dělá — vezmi si něco jiného.
+en {name} is already on it — pick something else.
+uk {name} уже цим займається — візьми щось інше.
+ru {name} уже этим занимается — возьми что-нибудь другое.
+
 # --- tip jar ----------------------------------------------------------------------------------------
 ui.tipjar.tonight
 cs Dnes: {amount}

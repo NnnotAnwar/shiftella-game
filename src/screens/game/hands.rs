@@ -590,13 +590,21 @@ impl GameScreen {
         });
     }
 
-    /// A command from the hands-on loop: a full queue says so gently, other refusals stay
-    /// quiet (the click simply did nothing).
+    /// A command from the hands-on loop: a full queue says so gently, so does work a helper
+    /// already has ("Tomáš is already on it" — one claim rule, `sim::claims`); other refusals
+    /// stay quiet (the click simply did nothing).
     pub fn hand(&mut self, content: &Content, cmd: Command) -> bool {
+        let act = self.act_of(&cmd);
         match self.world.apply(content, cmd) {
             Ok(()) => true,
             Err(sim::CommandError::QueueFull) => {
                 self.toast_key(ToastKind::Info, Icon::Info, "ui.queue.full", &[]);
+                false
+            }
+            Err(sim::CommandError::InUse) => {
+                if let Some(h) = act.and_then(|a| self.world.work_holder(&a)) {
+                    self.toast_taken(h);
+                }
                 false
             }
             // an order before they are in: a soft hint, nothing else happens
@@ -606,6 +614,32 @@ impl GameScreen {
             }
             Err(_) => false,
         }
+    }
+
+    /// The act a hands-on command queues (to name who has its work on a refusal).
+    fn act_of(&self, cmd: &Command) -> Option<PlayerAct> {
+        match cmd {
+            Command::PlayerQueue { act, .. } => Some(act.clone()),
+            Command::PlayerTakeOrder { guest } => self
+                .world
+                .party_of_guest(*guest)
+                .map(|p| PlayerAct::TakeOrder { party: p.id }),
+            Command::TickChecklist { id } => Some(PlayerAct::Checklist { id: id.clone() }),
+            _ => None,
+        }
+    }
+
+    /// "{name} is already on it."
+    fn toast_taken(&mut self, helper: u32) {
+        let Some(name) = self
+            .world
+            .staff_by_id(helper)
+            .filter(|s| !s.owner)
+            .map(|s| s.name.clone())
+        else {
+            return;
+        };
+        self.toast_key(ToastKind::Info, Icon::Info, "ui.hands.taken", &[("name", name)]);
     }
 
     fn queue(&mut self, content: &Content, act: PlayerAct, front: bool) -> bool {
@@ -679,9 +713,18 @@ impl GameScreen {
                 if busy {
                     return false;
                 }
+                let before = karolina_acts(&self.world);
                 let ok = self.queue(content, PlayerAct::Mop { tile }, front);
                 if ok {
-                    self.scene.shine.push((tile, self.time + 0.6));
+                    // a blot a helper is on: she goes to another free one (`sim::claims`)
+                    let to = karolina_acts(&self.world)
+                        .into_iter()
+                        .find_map(|a| match a {
+                            PlayerAct::Mop { tile: t } if !before.contains(&a) => Some(t),
+                            _ => None,
+                        })
+                        .unwrap_or(tile);
+                    self.scene.shine.push((to, self.time + 0.6));
                 }
                 ok
             }
@@ -837,6 +880,12 @@ impl GameScreen {
                     } else {
                         self.hand(content, Command::PlayerTakeOrder { guest: leader })
                     };
+                } else if let Some(h) = self
+                    .world
+                    .work_holder(&PlayerAct::TakeOrder { party: p.id })
+                {
+                    // a helper is taking their order already
+                    self.toast_taken(h);
                 }
             }
             PartyState::WaitFood | PartyState::Eating => {
@@ -918,6 +967,7 @@ impl GameScreen {
                 .iter()
                 .find(|p| has_tag(content, w, p.uid, "sink"))
             && !acts.iter().any(|a| matches!(a, PlayerAct::Wash { .. }))
+            && w.work_holder(&PlayerAct::Wash { sink: s.uid }).is_none()
         {
             return Some(Intent::Sink {
                 sink: s.uid,
@@ -929,7 +979,8 @@ impl GameScreen {
             let queued = acts
                 .iter()
                 .any(|a| matches!(a, PlayerAct::Mop { tile } if *tile == t));
-            if !queued {
+            // (a blot a helper is mopping is theirs)
+            if !queued && w.work_holder(&PlayerAct::Mop { tile: t }).is_none() {
                 let at = vec2(t.0 as f32 + 0.5, t.1 as f32 + 0.5) * TILE;
                 consider(
                     &mut best,

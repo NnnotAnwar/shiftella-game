@@ -408,6 +408,8 @@ pub(crate) fn claim(
 pub(crate) fn release(w: &mut World, action: EquipAction) {
     let me = karolina_idx(w).map(|i| w.staff[i].id);
     if let Some(id) = action.checklist()
+        // (another act of hers on that item keeps it: `sim::claims`)
+        && !super::claims::checklist_still_hers(w, id)
         && let Some(c) = w.app.checklist.iter_mut().find(|c| c.id == id)
         && c.claim.is_some()
         && c.claim == me

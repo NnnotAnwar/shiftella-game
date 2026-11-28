@@ -368,6 +368,10 @@ pub(crate) fn check(w: &World, c: &Content) -> Vec<String> {
     {
         fail!("current act work {} / {}", cur.work_left, cur.work_total);
     }
+    // ── shared work: one holder at a time (sim::claims) ──
+    if let Some(x) = super::claims::clashes(w).first() {
+        fail!("work done twice: {x}");
+    }
     // ── the app ──
     for (k, x) in w.app.checklist.iter().enumerate() {
         if w.app.checklist[..k].iter().any(|o| o.id == x.id) {
