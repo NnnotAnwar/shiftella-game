@@ -1137,6 +1137,18 @@ en Light. That's all it ever was.
 uk Світло. Нічим іншим воно ніколи й не було.
 ru Свет. Ничем другим оно никогда и не было.
 
+scene.mirek_letter.10
+cs „Nechte ho na lavičce na nástupišti. Ve 3:33."
+en "Leave it on the platform bench. At 3:33."
+uk «Залиште його на лавці на пероні. О 3:33».
+ru «Оставьте его на скамейке на перроне. В 3:33».
+
+scene.mirek_letter.11
+cs Na lavičce. Tam, kde tu noc seděl. …Dobře. Jestli někde je, tak tam.
+en On the bench. Where he sat that night. …All right. If he's anywhere, he's there.
+uk На лавці. Там, де він сидів тієї ночі. …Гаразд. Якщо він десь є, то там.
+ru На скамейке. Там, где он сидел той ночью. …Ладно. Если он где-то есть, то там.
+
 # --- scene payment_4
 scene.payment_4.01
 cs Čtvrtá splátka. Zbývá poslední — třicet tisíc. Držím vám palce. Neříkejte to nikomu.
@@ -1278,6 +1290,42 @@ cs Moje mince jsi nechala na stole. Ona si je taky nikdy nevzala.
 en You left my coins on the table. She never took them either.
 uk Ти залишила мої монети на столі. Вона їх теж ніколи не брала.
 ru Ты оставила мои монеты на столе. Она их тоже никогда не брала.
+
+scene.last_333_sold.01
+cs 03:33. Na reklamní obrazovce v okně se střídají barvy: NONSTOP 24 — OTEVŘENO VŽDY.
+en 03:33. In the window, the promo screen runs through its colours: NONSTOP 24 — OTEVŘENO VŽDY.
+uk 03:33. У вікні рекламний екран перебирає кольори: NONSTOP 24 — OTEVŘENO VŽDY.
+ru 03:33. В окне рекламный экран перебирает цвета: NONSTOP 24 — OTEVŘENO VŽDY.
+
+scene.last_333_sold.02
+cs Na nástupišti stojí muž v šedém kabátě. Dlouho se dívá na rozzářené okno.
+en On the platform stands a man in a grey coat. He looks at the bright window for a long time.
+uk На пероні стоїть чоловік у сірому пальті. Він довго дивиться на яскраве вікно.
+ru На перроне стоит мужчина в сером пальто. Он долго смотрит на яркое окно.
+
+scene.last_333_sold.03
+cs Na lavičce vedle něj leží zažloutlá obálka. Mirek ji tam nechal a odešel domů, aniž by se ohlédl.
+en On the bench beside him lies a yellowed envelope. Mirek left it there and walked home without looking back.
+uk На лавці поруч із ним лежить пожовклий конверт. Мірек залишив його там і пішов додому, не озираючись.
+ru На скамейке рядом с ним лежит пожелтевший конверт. Мирек оставил его там и ушёл домой, не оглядываясь.
+
+scene.last_333_sold.04
+cs Pak si vyhrne límec a odejde po nástupišti. Ve 3:33 nezastaví žádný vlak.
+en Then he turns up his collar and walks off down the platform. No train stops at 3:33.
+uk Потім піднімає комір і йде пероном геть. О 3:33 не зупиняється жоден поїзд.
+ru Потом поднимает воротник и уходит по перрону. В 3:33 не останавливается ни один поезд.
+
+scene.last_333_sold.05
+cs Okno svítí pořád — a nikdo v něm nečeká.
+en The window is always lit — and nobody waits in it.
+uk Вікно світиться завжди — і ніхто в ньому не чекає.
+ru Окно светится всегда — и никто в нём не ждёт.
+
+scene.last_333_sold.06
+cs Lidin dopis máš pořád v kapse zástěry.
+en Lida's letter is still in your apron pocket.
+uk Лідин лист досі в тебе в кишені фартуха.
+ru Лидино письмо всё ещё у тебя в кармане фартука.
 
 # --- scene ending_light
 scene.ending_light.01

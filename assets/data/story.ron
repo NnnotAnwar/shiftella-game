@@ -222,7 +222,8 @@
     ],
     vars: [
         (id: "letter", default: "hidden",
-         values: ["hidden", "confessed", "with_player", "with_mirek", "burned", "persuaded", "delivered", "delivered_by_mirek"]),
+         // bench: after the sale Mirek leaves it on the platform bench (last_333_sold)
+         values: ["hidden", "confessed", "with_player", "with_mirek", "burned", "persuaded", "bench", "delivered", "delivered_by_mirek"]),
         (id: "offer", default: "none", values: ["none", "pending", "accepted", "rejected"]),
         (id: "answer_333", default: "none", values: ["none", "yes", "unsure", "gone"]),
         (id: "cat_name", default: "none", values: ["none", "vlak", "kofi", "lidka"]),
