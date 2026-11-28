@@ -5,7 +5,7 @@
 //!
 //! Test automation (env):
 //! * `SHIFTELLA_SHOT=path.png` — render `SHIFTELLA_FRAMES` (default 45) frames, save, exit
-//! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|build|crew|app|
+//! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|talk|build|crew|app|
 //!   crew_karolina|crew_helper|crew_classic|crew_day|crew_hire|
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
@@ -873,6 +873,24 @@ impl App {
                 });
                 let g = story_at(n, Some(minute.unwrap_or(150)), &self.i18n, lang);
                 self.game(g)
+            }
+            // a regular's talk in progress (`SHIFTELLA_CUTSCENE=<talk id>`, `SHIFTELLA_T=<s>`)
+            "talk" => {
+                let id = env("SHIFTELLA_CUTSCENE")
+                    .unwrap_or_else(|| game::talk_shot::DEFAULT_TALK.into());
+                let (n, m) = game::talk_shot::talk_defaults(&content, &id).unwrap_or((10, 180));
+                let loc = Locale::new(&self.i18n, lang);
+                let mut g = story_at(
+                    night.unwrap_or(n),
+                    Some(minute.unwrap_or(m)),
+                    &self.i18n,
+                    lang,
+                );
+                let t = env("SHIFTELLA_T")
+                    .and_then(|t| t.parse::<f32>().ok())
+                    .unwrap_or(0.0);
+                g.stage_talk(&content, &loc, &id, t);
+                self.game_instant_text(g, shot)
             }
             "night9_anwar" | "anwar" => {
                 let n = night.unwrap_or(9);

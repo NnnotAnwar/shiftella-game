@@ -208,8 +208,15 @@ impl GameScreen {
                     .find(|p| p.id == *party)
                     .and_then(|p| p.members.first().copied())?;
                 let talk = self.world.talk_available(content, leader)?;
-                // a story stage, not a talk they have every night
-                let once = content.cutscene(&talk).is_some_and(|c| !c.repeat);
+                // a talk for tonight only (Anwar's visits), not a talk they have every night nor
+                // the act's chat of a regular (talks.ron: open all act, no reason to stop the night)
+                let once = content.cutscene(&talk).is_some_and(|c| {
+                    !c.repeat
+                        && matches!(
+                            c.trigger,
+                            crate::content::CutsceneTrigger::Talk { night: Some(_), .. }
+                        )
+                });
                 once.then(|| Why::Regular(regular.clone()))
             }
             SimEvent::StoryNoticed { .. } => Some(Why::Story),
