@@ -809,14 +809,12 @@ fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             .to_string();
         let pr = Rect::new(left.x, left.bottom() - 28.0, left.w - 10.0, 28.0);
         let label = loc.trf("ui.app.thank_post", &[("name", &first)]);
-        // once a night per person: posted, the button says so
-        let posted = g
-            .world
-            .announcement_posted_tonight("thank_you", &[("name".to_string(), first.clone())]);
-        let label = if posted {
-            loc.trf("ui.app.thanked", &[("name", &first)])
-        } else {
-            label
+        // one thank-you a night for the whole crew: posted, the button names who got it
+        let thanked = g.world.thanked_tonight().map(str::to_string);
+        let posted = thanked.is_some();
+        let label = match &thanked {
+            Some(name) => loc.trf("ui.app.thanked", &[("name", name)]),
+            None => label,
         };
         let b = Button::new(&label)
             .secondary()

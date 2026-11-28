@@ -715,8 +715,10 @@ impl World {
                     .iter()
                     .find(|a| a.id == id)
                     .ok_or_else(|| CommandError::UnknownId(id.clone()))?;
-                // the same note twice a night is spam (a thank-you per person per night)
-                if self.announcement_posted_tonight(&id, &args) {
+                // the same note twice a night is spam; a thank-you is one a night for the crew
+                if self.announcement_posted_tonight(&id, &args)
+                    || (id == "thank_you" && self.thanked_tonight().is_some())
+                {
                     return Err(CommandError::Invalid("already posted".into()));
                 }
                 let args_copy = args.clone();

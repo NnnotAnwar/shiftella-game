@@ -457,7 +457,7 @@ fn time_off_or_a_swap_for_a_night_already_begun_cannot_be_answered() {
 }
 
 #[test]
-fn a_thank_you_is_posted_once_a_night_per_person() {
+fn a_thank_you_is_posted_once_a_night_for_the_whole_crew() {
     let c = content();
     let mut w = crew_day(&c, 4);
     let names: Vec<String> = w
@@ -480,9 +480,11 @@ fn a_thank_you_is_posted_once_a_night_per_person() {
     let before = snapshot(&w);
     assert!(post(&mut w, &names[0]).is_err(), "no mood farming");
     assert_eq!(snapshot(&w), before);
-    post(&mut w, &names[1]).unwrap();
+    assert!(post(&mut w, &names[1]).is_err(), "one thank-you a night in total");
+    assert_eq!(snapshot(&w), before);
+    assert_eq!(w.thanked_tonight(), Some(names[0].as_str()));
     to_next_day(&mut w, &c);
-    post(&mut w, &names[0]).unwrap();
+    post(&mut w, &names[1]).unwrap();
 }
 
 #[test]

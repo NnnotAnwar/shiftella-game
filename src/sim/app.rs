@@ -448,6 +448,16 @@ impl World {
             .iter()
             .any(|a| a.id == id && a.night == self.night && a.args == args)
     }
+
+    /// The crew member thanked tonight, if any: one thank-you a night for the whole crew.
+    pub fn thanked_tonight(&self) -> Option<&str> {
+        self.app
+            .announcements
+            .iter()
+            .find(|a| a.id == "thank_you" && a.night == self.night)
+            .and_then(|a| a.args.iter().find(|(k, _)| k == "name"))
+            .map(|(_, v)| v.as_str())
+    }
 }
 
 impl World {
