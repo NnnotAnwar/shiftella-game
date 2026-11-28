@@ -357,6 +357,8 @@ impl World {
                         charge: refund,
                     },
                 );
+                // her act at that piece (a sink she was walking to) goes with it at once
+                super::player::prune_gone(self, content);
                 self.emit(SimEvent::FurnitureRemoved { uid });
                 Ok(())
             }
@@ -1009,6 +1011,7 @@ impl World {
         let r = match op.clone() {
             UndoOp::Unplace { uid, refund } => remove_piece(self, content, uid).map(|_| {
                 super::economy::spend_on_cafe(self, -refund);
+                super::player::prune_gone(self, content);
                 self.emit(SimEvent::FurnitureRemoved { uid });
             }),
             UndoOp::Replace { piece, charge } => {
