@@ -697,7 +697,8 @@ pub(crate) fn pick_arrival_line(
     lines: &[String],
     greetings: &[String],
 ) -> Option<String> {
-    if lines.is_empty() {
+    // a stage whose only line names a dish the café can't make tonight still says hello
+    if lines.is_empty() && greetings.is_empty() {
         return None;
     }
     let st = w.story.regulars.get(regular);

@@ -67,11 +67,17 @@ fn a_regular_never_greets_with_the_same_line_twice_in_a_row() {
             for pair in lines.windows(2) {
                 assert_ne!(pair[0], pair[1], "{ctx}: the same line twice in a row");
             }
-            // the stage's own lines are all said before any hello
-            let n = stage.lines.len();
+            // the stage's own lines are all said before any hello (a line naming a dish the
+            // café can't make tonight is skipped altogether)
+            let sayable: Vec<&String> = stage
+                .lines
+                .iter()
+                .filter(|k| super::orders::line_ok(&w, &c, k))
+                .collect();
+            let n = sayable.len();
             let mut first: Vec<&String> = lines.iter().take(n).collect();
             first.sort();
-            let mut want: Vec<&String> = stage.lines.iter().collect();
+            let mut want: Vec<&String> = sayable;
             want.sort();
             assert_eq!(first, want, "{ctx}: the stage's lines first");
             let distinct: std::collections::BTreeSet<&String> = lines.iter().collect();
