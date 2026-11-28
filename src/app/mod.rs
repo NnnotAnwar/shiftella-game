@@ -32,7 +32,8 @@
 //!   fresh settings file; list the read ones in `minigame_guides` to skip it),
 //!   `SHIFTELLA_MOMENT=<id>` the moment (`SHIFTELLA_FORCE=1`: spawned at once), `SHIFTELLA_PAGE` / `SHIFTELLA_OPEN` the journal page
 //!   (the last one is Lida's notes) / the enlarged polaroid, `SHIFTELLA_CUTSCENE=<id>` the scene
-//!   `cutscene_choice` plays up to its choice, `SHIFTELLA_AUTOFILL=1` auto-fills the rozpis first)
+//!   `cutscene_choice` plays up to its choice (with `SHIFTELLA_T=<s>`: that many seconds in),
+//!   `SHIFTELLA_AUTOFILL=1` auto-fills the rozpis first)
 //! * `SHIFTELLA_AUTOPLAY=1|keys|skip` — Karolina plays the night by herself through the same
 //!   intents as the mouse and keyboard (`keys`: mini-games by keyboard, `skip`: every
 //!   mini-game skipped);
@@ -793,7 +794,10 @@ impl App {
                 });
                 let loc = Locale::new(&self.i18n, lang);
                 let mut g = story_at(n, Some(minute.unwrap_or(240)), &self.i18n, lang);
-                if !g.stage_cutscene_choice(&content, &loc, &id) {
+                // `SHIFTELLA_T=<s>`: that far into the scene instead (scenes without a choice)
+                if let Some(t) = env("SHIFTELLA_T").and_then(|t| t.parse::<f32>().ok()) {
+                    g.stage_cutscene_at(&content, &loc, &id, t);
+                } else if !g.stage_cutscene_choice(&content, &loc, &id) {
                     eprintln!("cutscene_choice: `{id}` has no choice to show");
                 }
                 self.game_instant_text(g, shot)

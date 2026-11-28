@@ -714,6 +714,19 @@ impl GameScreen {
         self.player.fast_forward_to_choice(loc, 180.0)
     }
 
+    /// `SHIFTELLA_SCENE=cutscene_choice` with `SHIFTELLA_T=<s>`: scene `id` over the live café,
+    /// auto-played `seconds` (scenes without a choice; a choice on the way picks its first option).
+    pub fn stage_cutscene_at(
+        &mut self,
+        content: &Rc<Content>,
+        loc: &Locale,
+        id: &str,
+        seconds: f32,
+    ) {
+        self.start_cutscene(content, id);
+        self.player.fast_forward(loc, seconds);
+    }
+
     /// The player finished a scene (or a test fast-forwarded it).
     pub fn cutscene_finished(&mut self, content: &Rc<Content>, id: String, choices: Vec<usize>) {
         if self.intro {
