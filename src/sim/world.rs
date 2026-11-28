@@ -31,11 +31,14 @@ pub const PREP_MINUTES: u32 = 30;
 pub const QUIET_TICKS_PER_MINUTE: u32 = 25;
 pub const PREP_TICKS: u32 = PREP_MINUTES * QUIET_TICKS_PER_MINUTE;
 /// The quiet closing half hour after the doors close (06:00–06:30): no guests, the crew and
-/// Karolina do the closing list. The night ends when she closes up (`Command::CloseUp`), or
-/// by itself at 06:29 once the closing list is done; otherwise the clock waits at 06:29. The
-/// night clock (`minute()`) stands at 480 meanwhile.
+/// Karolina do the closing list. The night ends when she counts the till, the list's last
+/// step (automation: `Command::CloseUp`); until then the clock waits at 06:29. The night
+/// clock (`minute()`) stands at 480 meanwhile.
 pub const CLOSE_MINUTES: u32 = 30;
 pub const CLOSE_TICKS: u32 = CLOSE_MINUTES * QUIET_TICKS_PER_MINUTE;
+/// Quiet ticks between counting the till and the morning (~1.5 s at ×1): her "done", the
+/// night's take on a toast.
+pub const TILL_BEAT_TICKS: u32 = 12;
 /// The night-flow rules a world was made with: 0 = 0.2.0 and older (prep ticks were night
 /// ticks, the night ended at 06:00), 1 = the waiting doors and the closing half hour.
 pub const NIGHT_FLOW: u32 = 1;
@@ -839,6 +842,10 @@ pub struct World {
     /// Ticks gone in the closing half hour (06:00–06:30); 0 before 06:00 and in the day.
     #[serde(default)]
     pub(crate) close_tick: u32,
+    /// Ticks since the till was counted in the closing half hour (the night ends at
+    /// [`TILL_BEAT_TICKS`]).
+    #[serde(default)]
+    pub(crate) till_beat: u32,
     /// [`NIGHT_FLOW`] of the rules this world runs (older saves: 0, migrated on load).
     #[serde(default)]
     pub(crate) flow: u32,
@@ -945,6 +952,7 @@ impl World {
             tick: 0,
             prep_left: 0,
             close_tick: 0,
+            till_beat: 0,
             flow: NIGHT_FLOW,
             auto_doors: auto_doors_default(),
             cafe_name: STORY_CAFE.into(),
@@ -1439,6 +1447,7 @@ impl World {
         self.tick = 0;
         self.prep_left = 0;
         self.close_tick = 0;
+        self.till_beat = 0;
         self.undo.clear();
         // last night's beat indices must not block today's day beats (e.g. night 17's 21:59
         // franchise offer shares index 0 with night 16's first beat)
@@ -1515,6 +1524,7 @@ impl World {
         // the night begins at 21:30 with the doors closed (the preparation half hour)
         self.prep_left = PREP_TICKS;
         self.close_tick = 0;
+        self.till_beat = 0;
         self.undo.clear();
         self.tonight = NightSummary {
             night: self.night,
@@ -1617,7 +1627,7 @@ impl World {
         if self.tick >= NIGHT_TICKS {
             self.closing_tick(content);
             if self.auto_doors && self.waiting_to_close() {
-                self.end_night(content);
+                self.close_up_now(content);
             }
             return;
         }
@@ -1748,6 +1758,7 @@ impl World {
     fn close_doors(&mut self, content: &Content) {
         self.tick = NIGHT_TICKS;
         self.close_tick = 0;
+        self.till_beat = 0;
         super::guests::close_up(self, content);
         self.spawns.clear();
         self.emit(SimEvent::DoorsClosed);
@@ -1755,8 +1766,9 @@ impl World {
 
     /// One tick of the closing half hour (06:00–06:30): Karolina's queue, the crew's closing
     /// duties, the stranded walking out, the appliances. No guests, story, narrator or wages.
-    /// At 06:29 the clock waits ([`World::waiting_to_close`]): the night ends when she closes
-    /// up (`Command::CloseUp`) or by itself once the closing list is done.
+    /// At 06:29 the clock waits ([`World::waiting_to_close`]): the night ends when she has
+    /// counted the till, the closing's last step (`tool::TILL_ITEM`; automation may still
+    /// `Command::CloseUp`).
     fn closing_tick(&mut self, content: &Content) {
         if self.close_tick.is_multiple_of(QUIET_TICKS_PER_MINUTE) && !self.waiting_to_close() {
             let m = self.minutes_since_open();
@@ -1773,16 +1785,35 @@ impl World {
         super::staff::tick_staff(self, content);
         super::guests::tick_guests(self, content);
         self.quiet_emotes();
-        if self.waiting_to_close() && super::tool::list_done(self, content, ChecklistKind::Closing)
+        if super::tool::has_till(content) {
+            // the till counted: a short beat (her "done", the night's take) and the morning
+            if super::tool::till_counted(self) {
+                self.till_beat += 1;
+                if self.till_beat >= TILL_BEAT_TICKS {
+                    self.end_night(content);
+                }
+            }
+        } else if self.waiting_to_close()
+            && super::tool::list_done(self, content, ChecklistKind::Closing)
         {
             self.end_night(content);
         }
     }
 
     /// "Close up" (`Command::CloseUp`): the night ends now (anything left on the closing list
-    /// counts as missed).
+    /// counts as missed). Automation only (headless runs, "to the morning", the bot's last
+    /// resort): in the game the night ends when she counts the till.
     pub(crate) fn close_up_now(&mut self, content: &Content) {
         if self.in_closing() {
+            // (unattended: with the rest of the list done the till is counted too — the
+            // proper close it was when a helper used to count it)
+            if super::tool::has_till(content)
+                && !super::tool::till_counted(self)
+                && super::tool::rest_of_closing_done(self, content)
+            {
+                let me = super::pacing::owner_id(self);
+                super::app::tick_checklist(self, content, super::tool::TILL_ITEM, me);
+            }
             self.end_night(content);
         }
     }
@@ -1879,6 +1910,7 @@ impl World {
     fn end_night(&mut self, content: &Content) {
         self.tick = NIGHT_TICKS;
         self.close_tick = 0;
+        self.till_beat = 0;
         // Everybody still inside pays and leaves; uncollected tips go into the jar.
         super::guests::close_up(self, content);
         super::player::collect_all_tips(self, content);
@@ -2043,6 +2075,7 @@ impl World {
                 .max(1);
         }
         self.close_tick = 0;
+        self.till_beat = 0;
         self.flow = NIGHT_FLOW;
     }
 

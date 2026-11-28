@@ -57,6 +57,42 @@ en Done by {name}
 uk Готово: {name}
 ru Готово: {name}
 
+hux.check.lock.from_five
+cs Od 5:00
+en From 5:00
+uk З 5:00
+ru С 5:00
+
+hux.check.lock.last_call
+cs Po poslední objednávce, 5:15
+en After last call, 5:15
+uk Після останнього замовлення, 5:15
+ru После последнего заказа, 5:15
+
+hux.check.lock.brewing
+cs Až budou hotové poslední kávy
+en Once the last coffees are made
+uk Коли зварять останню каву
+ru Когда сварят последний кофе
+
+hux.check.lock.guests
+cs Až odejdou poslední hosté
+en Once the last guests have left
+uk Коли підуть останні гості
+ru Когда уйдут последние гости
+
+hux.check.lock.doors
+cs Poslední krok, po 6:00
+en The last step, after 6:00
+uk Останній крок, після 6:00
+ru Последний шаг, после 6:00
+
+hux.check.lock.too_late
+cs Dnes už pozdě
+en Too late tonight
+uk Сьогодні вже пізно
+ru Сегодня уже поздно
+
 hux.check.hint
 cs Klik = Karolina jde (hodiny). Další klik to zruší. Fajfka = hotovo.
 en Click = Karolina goes (clock). Click again to cancel. Tick = done.

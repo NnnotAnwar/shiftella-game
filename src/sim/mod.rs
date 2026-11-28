@@ -150,6 +150,7 @@ pub use stories::{ActiveStory, AnswerDef, GUEST_LEFT, StoriesState, StoryDef, pe
 pub use storm::{StormAct, StormState, TalkDef, TalkLine};
 pub use story::{ambient_line_for, talk_available};
 pub use systems::*;
+pub use tool::{ChecklistLock, TILL_ITEM};
 pub use types::*;
 pub use world::*;
 

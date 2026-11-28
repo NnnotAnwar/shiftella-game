@@ -122,34 +122,153 @@ pub(crate) fn helper_may(content: &Content, id: &str, duty: crate::content::hand
     })
 }
 
-/// Closing-list items that wait for closing time ([`World::closing_time`]: the closing half
-/// hour, or after last call in an empty café) — the till, the group head, the window light.
-/// The others (the dishes, the fridge, the handover note) are open from 05:00.
-pub const CLOSING_TIME_ITEMS: &[&str] = &["cash_up", "clean_machine", "light_off_at_six"];
+/// The closing list's last step: Karolina counts the till and the night ends (the clock
+/// waits at 06:29 until she does; `World::closing_tick`).
+pub const TILL_ITEM: &str = "cash_up";
+/// The group head: cleaned once the last coffees are made (from last call).
+pub const MACHINE_ITEM: &str = "clean_machine";
+/// The light in the window: off once the café is empty (it is the street's "open" sign).
+pub const LIGHT_OFF_ITEM: &str = "light_off_at_six";
+/// The closing items open from 05:00 (minutes since 22:00); the group head from last call
+/// once nobody waits for a coffee, the window light once the café is empty, the till once
+/// the doors are closed.
+pub const CLOSING_FROM: u32 = 7 * 60;
 
-/// Can a closing-list item be done now?
-pub(crate) fn closing_item_open(w: &World, id: &str) -> bool {
-    if w.phase != Phase::Night || w.in_prep() {
-        return false;
-    }
-    if CLOSING_TIME_ITEMS.contains(&id) {
-        w.closing_time()
-    } else {
-        w.in_closing() || w.minute() >= 420
+/// Why a checklist item can't be done right now — the UI shows it greyed with this short
+/// reason instead of a box that does nothing when clicked (the owner's report).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChecklistLock {
+    /// A closing item before 05:00.
+    FromFive,
+    /// The group head before last call (05:15).
+    AfterLastCall,
+    /// The group head after last call while a coffee is still to be made.
+    Brewing,
+    /// The window light while guests are still in.
+    GuestsInside,
+    /// The till: the last step, once the doors are closed (06:00).
+    DoorsClosed,
+    /// An opening item in the closing half hour (missed tonight).
+    TooLate,
+}
+
+impl ChecklistLock {
+    /// i18n key of the short reason.
+    pub fn key(self) -> &'static str {
+        match self {
+            ChecklistLock::FromFive => "hux.check.lock.from_five",
+            ChecklistLock::AfterLastCall => "hux.check.lock.last_call",
+            ChecklistLock::Brewing => "hux.check.lock.brewing",
+            ChecklistLock::GuestsInside => "hux.check.lock.guests",
+            ChecklistLock::DoorsClosed => "hux.check.lock.doors",
+            ChecklistLock::TooLate => "hux.check.lock.too_late",
+        }
     }
 }
 
+/// Someone inside still waits for a coffee: an order not taken yet, or a drink at the
+/// coffee station not made yet.
+fn coffee_pending(w: &World, content: &Content) -> bool {
+    w.parties.iter().any(|p| {
+        matches!(
+            p.state,
+            PartyState::Arriving | PartyState::Queue | PartyState::WaitOrder
+        )
+    }) || w.items.iter().any(|i| {
+        matches!(i.state, ItemState::Pending | ItemState::Preparing)
+            && content
+                .menu_item(&i.menu)
+                .is_some_and(|m| m.station == "station:coffee")
+    })
+}
+
+/// Why a closing-list item can't be done now (`None` = it can).
+fn closing_item_lock(w: &World, content: &Content, id: &str) -> Option<ChecklistLock> {
+    if w.phase != Phase::Night || w.in_prep() {
+        return Some(ChecklistLock::FromFive);
+    }
+    let m = w.minute();
+    let early = |lock| {
+        Some(if m < CLOSING_FROM {
+            ChecklistLock::FromFive
+        } else {
+            lock
+        })
+    };
+    match id {
+        TILL_ITEM => (!w.in_closing()).then_some(ChecklistLock::DoorsClosed),
+        LIGHT_OFF_ITEM if w.closing_time() => None,
+        LIGHT_OFF_ITEM => early(ChecklistLock::GuestsInside),
+        MACHINE_ITEM if w.closing_time() => None,
+        MACHINE_ITEM if m < super::guests::LAST_CALL => early(ChecklistLock::AfterLastCall),
+        MACHINE_ITEM => coffee_pending(w, content).then_some(ChecklistLock::Brewing),
+        _ if w.in_closing() || m >= CLOSING_FROM => None,
+        _ => Some(ChecklistLock::FromFive),
+    }
+}
+
+/// Can a closing-list item be done now?
+pub(crate) fn closing_item_open(w: &World, content: &Content, id: &str) -> bool {
+    closing_item_lock(w, content, id).is_none()
+}
+
+/// The till's been counted tonight (the closing's last step).
+pub(crate) fn till_counted(w: &World) -> bool {
+    w.app.checklist.iter().any(|c| c.id == TILL_ITEM && c.done)
+}
+
+/// The closing list has the till (content without it: the night ends by itself at 06:29
+/// once the list is done, as before).
+pub(crate) fn has_till(content: &Content) -> bool {
+    content.app.checklists.iter().any(|c| c.id == TILL_ITEM)
+}
+
+/// The closing list is done but for the till.
+pub(crate) fn rest_of_closing_done(w: &World, content: &Content) -> bool {
+    content
+        .app
+        .checklists
+        .iter()
+        .filter(|c| c.list == ChecklistKind::Closing && c.id != TILL_ITEM)
+        .all(|c| w.app.checklist.iter().any(|s| s.id == c.id && s.done))
+}
+
 impl World {
-    /// Is this checklist item open now? Opening items until they're done (before 05:00);
-    /// closing items by [`CLOSING_TIME_ITEMS`] (closing time) or from 05:00.
+    /// Is this checklist item open now? Opening items until the doors close; closing items
+    /// unless [`World::checklist_lock`] says why not.
     pub fn checklist_item_open(&self, content: &Content, id: &str) -> bool {
-        let Some(def) = content.app.checklists.iter().find(|c| c.id == id) else {
-            return false;
-        };
-        match def.list {
-            ChecklistKind::Opening => self.phase == Phase::Night && !self.in_closing(),
-            ChecklistKind::Closing => closing_item_open(self, id),
+        self.phase == Phase::Night
+            && content.app.checklists.iter().any(|c| c.id == id)
+            && self.checklist_lock(content, id).is_none()
+    }
+
+    /// Why this checklist item can't be done right now (`None` = it can — or by day, or an
+    /// unknown id: the UI has its own words for those).
+    pub fn checklist_lock(&self, content: &Content, id: &str) -> Option<ChecklistLock> {
+        let def = content.app.checklists.iter().find(|c| c.id == id)?;
+        if self.phase != Phase::Night {
+            return None;
         }
+        match def.list {
+            ChecklistKind::Opening => self.in_closing().then_some(ChecklistLock::TooLate),
+            ChecklistKind::Closing => closing_item_lock(self, content, id),
+        }
+    }
+
+    /// The closing's last step can be done now: the doors are closed, the till isn't
+    /// counted yet.
+    pub fn till_open(&self, content: &Content) -> bool {
+        has_till(content) && !till_counted(self) && self.checklist_item_open(content, TILL_ITEM)
+    }
+
+    /// The till's been counted tonight.
+    pub fn till_counted(&self) -> bool {
+        till_counted(self)
+    }
+
+    /// The closing list is done but for the till.
+    pub fn closing_rest_done(&self, content: &Content) -> bool {
+        rest_of_closing_done(self, content)
     }
 }
 

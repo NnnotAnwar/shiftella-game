@@ -44,6 +44,12 @@ en Each coin to its stack — or ← ↓ →
 uk Кожну монету на її стовпчик — або ← ↓ →
 ru Каждую монету на её столбик — или ← ↓ →
 
+ritual.till.title
+cs Spočítat kasu · {money}
+en Count the till · {money}
+uk Перерахувати касу · {money}
+ru Пересчитать кассу · {money}
+
 ritual.hint.lines
 cs Vyberte řádek na zítra — nebo ↑ ↓ a Mezerník
 en Pick a line for tomorrow — or ↑ ↓ and Space

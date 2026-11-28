@@ -108,6 +108,10 @@ pub struct Gesture {
     finished: Option<bool>,
     /// Seconds since the gesture finished (the card's little "done" beat).
     pub since_done: f32,
+    /// The cord's lamp: (lit before the pull, lit after) — the light in the window as the
+    /// sim has it and as the item leaves it (on at opening, off at closing). Default: it
+    /// lights up.
+    pub lamp: (bool, bool),
     cool: f32,
     st: State,
 }
@@ -258,6 +262,7 @@ impl Gesture {
             flawless: true,
             finished: None,
             since_done: 0.0,
+            lamp: (false, true),
             cool: 0.25,
             st,
         }
@@ -929,7 +934,9 @@ impl Gesture {
         let done = self.finished.is_some();
         match &self.st {
             State::Cord { pull, .. } => {
-                let lit = self.finished.is_some() || *pull > 0.97;
+                // the lamp as it is until the pull is through, then as the item leaves it
+                let pulled = self.finished.is_some() || *pull > 0.97;
+                let lit = if pulled { self.lamp.1 } else { self.lamp.0 };
                 // a small lamp shade, the cord, the knob
                 let shade = at(vec2(STAGE.x * 0.5, 14.0));
                 if lit {
@@ -950,7 +957,7 @@ impl Gesture {
                 stroke_circle(knob, 5.5, 1.0, with_alpha(WHITE, 0.4));
                 // the pull mark
                 let end = at(vec2(STAGE.x * 0.5, 34.0 + 30.0));
-                if !lit {
+                if !pulled {
                     for k in 0..3 {
                         let y = end.y + 6.0 + k as f32 * 5.0 - ((time * 2.0) % 1.0) * 5.0;
                         let a = 0.25 + 0.2 * (1.0 - k as f32 / 3.0);

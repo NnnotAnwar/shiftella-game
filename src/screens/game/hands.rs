@@ -552,6 +552,24 @@ impl GameScreen {
         self.hands.overlay() || self.panel == Some(Panel::App) || self.sig.open
     }
 
+    /// The closing's last step from the doors chip / **O**: she counts the till (the night
+    /// ends with it; a locked till says why). Content without the till closes up as before.
+    pub fn count_till(&mut self, content: &std::rc::Rc<Content>) -> bool {
+        let Some(i) = content
+            .app
+            .checklists
+            .iter()
+            .position(|c| c.id == sim::TILL_ITEM)
+        else {
+            return self.command(content, sim::Command::CloseUp).is_ok();
+        };
+        match self.world.checklist_mark(sim::TILL_ITEM) {
+            sim::ChecklistMark::Open => self.intent(content, Intent::Checklist(i)),
+            // (already in her hands: she's on her way)
+            _ => false,
+        }
+    }
+
     fn toast_key(&mut self, kind: ToastKind, icon: Icon, key: &str, args: &[(&str, String)]) {
         self.notices.push(Notice::Key {
             kind,
@@ -707,6 +725,14 @@ impl GameScreen {
                 let Some(id) = content.app.checklists.get(i).map(|c| c.id.clone()) else {
                     return false;
                 };
+                // not yet (the till before the doors close, the window light with guests in…):
+                // say why, gently — never a click that does nothing
+                if self.world.checklist_mark(&id) == sim::ChecklistMark::Open
+                    && let Some(lock) = self.world.checklist_lock(content, &id)
+                {
+                    self.toast_key(ToastKind::Info, Icon::Lock, lock.key(), &[]);
+                    return false;
+                }
                 match self.world.checklist_mark(&id) {
                     // the record is picked at the jukebox
                     sim::ChecklistMark::Open if id == "record_on" => {
@@ -1901,11 +1927,18 @@ impl GameScreen {
         {
             return Some("moment");
         }
-        // the rituals: warm up the machine, count the float, cash up…
+        // the rituals: warm up the machine, count the float, clean the group head… (the till
+        // ends the night: `autoplay_doors`)
         if self.world.player().queue.len() < 2
             && let Some((i, _)) = super::hands_view::open_rituals(self, content)
-                .first()
-                .copied()
+                .into_iter()
+                .find(|(i, _)| {
+                    content
+                        .app
+                        .checklists
+                        .get(*i)
+                        .is_some_and(|c| c.id != sim::TILL_ITEM)
+                })
             && let Some(id) = content.app.checklists.get(i).map(|c| c.id.clone())
             && self.hand(content, Command::TickChecklist { id })
         {
@@ -2012,7 +2045,8 @@ impl GameScreen {
 }
 
 impl GameScreen {
-    /// The autoplayer at the doors (see `autoplay_step`): "open" / "close_up" when it pressed.
+    /// The autoplayer at the doors (see `autoplay_step`): "open" / "count_till" when it
+    /// pressed (the till is the closing's last step; content without it: "close_up").
     fn autoplay_doors(&mut self, content: &Content) -> Option<&'static str> {
         let w = &self.world;
         let idle = w.player().queue.is_empty() && w.player().current.is_none();
@@ -2034,20 +2068,38 @@ impl GameScreen {
                 && done(crate::content::ChecklistKind::Opening))
                 || (w.in_closing()
                     && w.close_minute() >= 2
-                    && (done(crate::content::ChecklistKind::Closing) || w.close_minute() >= 20)));
+                    && (done(crate::content::ChecklistKind::Closing)
+                        || w.closing_rest_done(content)
+                        || w.close_minute() >= 20)));
         if waiting {
             self.hands.door_wait += AUTOPLAY_REACT;
         }
         if !(early || (waiting && (idle || self.hands.door_wait > 12.0))) {
             return None;
         }
-        let (cmd, name) = if w.in_prep() {
-            (Command::OpenDoors, "open")
-        } else {
-            (Command::CloseUp, "close_up")
-        };
         self.hands.door_wait = 0.0;
-        self.hand(content, cmd).then_some(name)
+        if w.in_prep() {
+            return self.hand(content, Command::OpenDoors).then_some("open");
+        }
+        // the closing's last step: she counts the till (the night ends with it)
+        let has_till = content
+            .app
+            .checklists
+            .iter()
+            .any(|c| c.id == sim::TILL_ITEM);
+        if !has_till {
+            return self.hand(content, Command::CloseUp).then_some("close_up");
+        }
+        if self.world.karolina_checklist_slot(sim::TILL_ITEM).is_some() {
+            return None;
+        }
+        let i = content
+            .app
+            .checklists
+            .iter()
+            .position(|c| c.id == sim::TILL_ITEM)?;
+        self.intent(content, Intent::Checklist(i))
+            .then_some("count_till")
     }
 
     /// The autoplayer's morning and day: keep the polaroid, let the sim's player-bot plan

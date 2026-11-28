@@ -420,21 +420,8 @@ fn closing_count_the_till_and_take_the_trash_out() {
         let _ = w.apply(&c, Command::PlayerCancel);
         let _ = w.apply(&c, Command::PlayerUnqueue { index: 0 });
     }
-    assert_eq!(
-        w.equipment_action(&c, register),
-        Some(EquipAction::CountTill)
-    );
-    use_it(&mut w, &c, register, EquipAction::CountTill).unwrap();
-    let ev = until_done(&mut w, &c, 900);
-    let me = w.karolina().unwrap().id;
-    let revenue = w.tonight().revenue;
-    assert!(ev.iter().any(|e| matches!(
-        e,
-        SimEvent::TillCounted { revenue: r, .. } if *r <= revenue
-    )));
-    assert!(checklist_done(&w, "cash_up").is_some());
-    assert_eq!(w.equipment_action(&c, register), None, "once a night");
     // the trash: out of the door, a moment outside, the cat by the bins
+    let me = w.karolina().unwrap().id;
     let counter = c.handson.extras.cat.counter.clone();
     let cat_before = w.story().counters.get(&counter).copied().unwrap_or(0);
     let dirt = w.dirt();
@@ -463,6 +450,26 @@ fn closing_count_the_till_and_take_the_trash_out() {
     let after = w.story().counters.get(&counter).copied().unwrap_or(0);
     assert!(after > cat_before, "the cat came for a scratch");
     assert_eq!(w.equipment_action(&c, bin), None, "once a night");
+    assert_eq!(
+        w.equipment_action(&c, register),
+        Some(EquipAction::CountTill)
+    );
+    use_it(&mut w, &c, register, EquipAction::CountTill).unwrap();
+    let ev = until_done(&mut w, &c, 900);
+    let revenue = w.tonight().revenue;
+    assert!(ev.iter().any(|e| matches!(
+        e,
+        SimEvent::TillCounted { revenue: r, .. } if *r <= revenue
+    )));
+    assert!(checklist_done(&w, "cash_up").is_some());
+    assert_eq!(w.equipment_action(&c, register), None, "once a night");
+    // the till is the closing's last step: the night ends a beat later
+    let mut guard = 0;
+    while w.phase() == Phase::Night && guard < 100 {
+        w.tick(&c);
+        guard += 1;
+    }
+    assert_eq!(w.phase(), Phase::Day, "counting the till ends the night");
 }
 
 #[test]

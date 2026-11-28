@@ -405,6 +405,58 @@ impl PlayerBot {
         // the clock waits at 21:59 / 06:29: open the doors / close up once her hands are free
         // (and like a player she opens / closes up early once the list is done)
         let idle = w.player().queue.is_empty() && w.player().current.is_none();
+        // the closing's last step: she counts the till (the night ends with it) once the rest
+        // of the list is done, at 06:20 at the latest, or when the clock waits
+        if w.in_closing() && super::tool::has_till(content) {
+            if !self.hold_doors && self.count_till(w, content, idle) {
+                self.cur.decisions += 1;
+                return;
+            }
+        } else if self.open_or_close(w, content, idle) {
+            return;
+        }
+        if self.busy > 0 {
+            self.busy -= 1;
+            return;
+        }
+        let react = Self::ticks(w, content, self.cfg.react_seconds);
+        if let Some(cost) = self.decide(w, content) {
+            self.cur.decisions += 1;
+            self.busy = react.max(cost);
+        } else {
+            // look again in a moment
+            self.busy = react / 4;
+        }
+    }
+
+    /// The closing half hour: counts the till when it's due (`true` = queued it now). The
+    /// till already in her hands: waits for her. Automation never hangs on the waiting clock:
+    /// a till she can't get to closes up after a long while.
+    fn count_till(&mut self, w: &mut World, content: &Content, idle: bool) -> bool {
+        let id = super::tool::TILL_ITEM;
+        let hers = w.karolina_checklist_slot(id).is_some();
+        let due = w.waiting_to_close()
+            || (w.close_minute() >= 2 && (w.closing_rest_done(content) || w.close_minute() >= 20));
+        if !due {
+            self.waited = 0;
+            return false;
+        }
+        self.waited += 1;
+        if !hers && w.till_open(content) && (idle || self.waited > BOT_WAIT_CAP) {
+            self.waited = 0;
+            return w
+                .apply(content, Command::TickChecklist { id: id.into() })
+                .is_ok();
+        }
+        if w.waiting_to_close() && self.waited > BOT_WAIT_CAP * 6 {
+            self.waited = 0;
+            return w.apply(content, Command::CloseUp).is_ok();
+        }
+        false
+    }
+
+    /// The doors at 21:59 / the end at 06:29 without a till: `true` = done now.
+    fn open_or_close(&mut self, w: &mut World, content: &Content, idle: bool) -> bool {
         let list = |k| super::tool::list_done(w, content, k);
         let early = idle
             && ((w.in_prep() && w.prep_minute() >= 15 && list(ChecklistKind::Opening))
@@ -422,24 +474,13 @@ impl PlayerBot {
                 self.waited = 0;
                 if w.apply(content, cmd).is_ok() {
                     self.cur.decisions += 1;
-                    return;
+                    return true;
                 }
             }
         } else {
             self.waited = 0;
         }
-        if self.busy > 0 {
-            self.busy -= 1;
-            return;
-        }
-        let react = Self::ticks(w, content, self.cfg.react_seconds);
-        if let Some(cost) = self.decide(w, content) {
-            self.cur.decisions += 1;
-            self.busy = react.max(cost);
-        } else {
-            // look again in a moment
-            self.busy = react / 4;
-        }
+        false
     }
 
     /// One decision; `Some(ticks busy)` when the bot did something.
@@ -1000,6 +1041,8 @@ impl PlayerBot {
                 .checklists
                 .iter()
                 .filter(|c| c.list == list)
+                // (the till ends the night: `count_till`)
+                .filter(|c| c.id != super::tool::TILL_ITEM)
                 .filter(|c| {
                     w.app()
                         .checklist
@@ -1093,7 +1136,9 @@ impl PlayerBot {
                 A::Stir | A::TakeOut => queued == 0,
                 A::PullTray => queued == 0 && soon_train,
                 A::Service => queued <= 1,
-                A::CleanUp | A::CountTill | A::Trash => m >= 430 && queued == 0,
+                A::CleanUp | A::Trash => m >= 430 && queued == 0,
+                // (the till ends the night: `count_till`)
+                A::CountTill => false,
             };
             if now
                 && w.apply(content, Command::UseEquipment { uid, action: a })

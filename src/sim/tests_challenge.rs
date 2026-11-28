@@ -336,8 +336,9 @@ fn rivals_open_cut_the_walk_ins_and_strengths_win_them_back() {
     let mut none = challenge_world(&c, 9, Difficulty::Cozy);
     let mut three = challenge_world(&c, 9, Difficulty::Cozy);
     three.challenge.rivals = vec!["Café Kompas".into(), "Bean Station".into(), "X".into()];
+    // (four nights: two were within the night-to-night noise of the arrivals)
     let (mut a, mut b) = (0, 0);
-    for _ in 0..2 {
+    for _ in 0..4 {
         none.run_night_headless(&c);
         three.run_night_headless(&c);
         a += none.last_summary().unwrap().guests_arrived;

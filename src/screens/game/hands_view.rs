@@ -105,6 +105,8 @@ pub struct RitualMark {
     /// The furniture it sits on.
     pub uid: u32,
     pub mark: sim::ChecklistMark,
+    /// An open item that can't be done yet (a lock and its reason on hover, never a dead box).
+    pub locked: bool,
     /// 0..1 how far a done tick has faded (0 = just ticked).
     pub fade: f32,
     /// Its centre over the piece (world px; several items on one piece sit side by side).
@@ -124,13 +126,14 @@ pub fn ritual_piece(w: &sim::World, content: &Content, item: usize) -> Option<u3
         .map(|p| p.uid)
 }
 
-/// Is a checklist item due now (a closing item only once closing comes near)?
+/// Is a checklist item due now (a closing item only once closing comes near; an opening
+/// one no longer once the doors have closed)?
 fn ritual_in_time(g: &GameScreen, id: &str, list: crate::content::ChecklistKind) -> bool {
     let m = g.world.minute();
     match id {
         "light_off_at_six" | "handover_note" => m >= 466,
         _ => match list {
-            crate::content::ChecklistKind::Opening => true,
+            crate::content::ChecklistKind::Opening => !g.world.in_closing(),
             crate::content::ChecklistKind::Closing => m >= 7 * 60,
         },
     }
@@ -173,10 +176,13 @@ pub fn ritual_marks(g: &GameScreen, content: &Content) -> Vec<RitualMark> {
             .map(|d| sim::grid::rotated_size(d, p.rot))
             .unwrap_or((1, 1));
         let base = vec2(p.x as f32 + sw as f32 * 0.5, p.y as f32 - 0.45) * TILE;
+        let locked =
+            mark == sim::ChecklistMark::Open && w.checklist_lock(content, &it.id).is_some();
         out.push(RitualMark {
             item: i,
             uid,
             mark,
+            locked,
             fade,
             at: base,
         });
@@ -199,12 +205,30 @@ pub fn ritual_marks(g: &GameScreen, content: &Content) -> Vec<RitualMark> {
 /// The marker's box (world px) at time `t` (it bobs gently while open).
 pub fn ritual_rect(m: &RitualMark, t: f32) -> Rect {
     let s = crate::render::world_icon_scale();
-    let bob = if m.mark == sim::ChecklistMark::Open {
+    let bob = if m.mark == sim::ChecklistMark::Open && !m.locked {
         (t * 2.0).sin() * 1.5
     } else {
         0.0
     };
     Rect::new(m.at.x - 9.0 * s, m.at.y - 9.0 * s + bob, 18.0 * s, 18.0 * s)
+}
+
+/// An open checklist item that can't be done yet: a dim box with a small lock (never an
+/// empty box that does nothing when clicked). World or UI space alike.
+pub fn draw_locked_box(c: Vec2, size: f32, alpha: f32) {
+    use crate::ui::draw::{fill_rrect, stroke_rrect};
+    use crate::ui::{Icon, draw_icon};
+    let k = size / 18.0;
+    let r = Rect::new(c.x - size / 2.0, c.y - size / 2.0, size, size);
+    let a = |col: Color| Color::new(col.r, col.g, col.b, col.a * alpha);
+    fill_rrect(r, 5.0 * k, a(Color::new(0.11, 0.1, 0.2, 0.7)));
+    stroke_rrect(r, 5.0 * k, 1.2 * k, a(Color::new(0.6, 0.6, 0.75, 0.45)));
+    draw_icon(
+        Icon::Lock,
+        c,
+        10.0 * k,
+        a(Color::new(0.75, 0.75, 0.88, 0.85)),
+    );
 }
 
 /// A checklist box in its state, centred on `c`, `size` px: open = an empty box, Karolina's =
@@ -684,6 +708,10 @@ pub fn draw_world(
         let r = ritual_rect(m, t);
         let c = r.center();
         let alpha = 1.0 - m.fade * m.fade;
+        if m.locked {
+            draw_locked_box(c, 18.0 * s, if hov { 1.0 } else { 0.8 });
+            continue;
+        }
         if m.mark == sim::ChecklistMark::Open || hov {
             draw_circle(
                 c.x,

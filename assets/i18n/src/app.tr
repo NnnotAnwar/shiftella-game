@@ -169,10 +169,10 @@ uk Почистити кавоварку
 ru Почистить кофемашину
 
 app.checklist.cash_up
-cs Uzavřít pokladnu
-en Cash up
-uk Закрити касу
-ru Закрыть кассу
+cs Spočítat kasu
+en Count the till
+uk Перерахувати касу
+ru Пересчитать кассу
 
 app.checklist.fridge_check
 cs Zkontrolovat lednici

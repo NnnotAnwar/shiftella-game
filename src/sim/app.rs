@@ -450,6 +450,17 @@ pub(crate) fn tick_checklist(w: &mut World, content: &Content, id: &str, by: Opt
                 p.on = false;
             }
         }
+        // the closing's last step: the night's take (the night ends a beat later)
+        super::tool::TILL_ITEM => {
+            w.hands.equip.till_counted = true;
+            let s = &w.tonight;
+            let ev = SimEvent::TillCounted {
+                revenue: s.revenue,
+                guests: s.guests_served,
+                tips: s.tips,
+            };
+            w.emit(ev);
+        }
         _ => {}
     }
     for s in w.staff.iter_mut().filter(|s| s.on_duty()) {
