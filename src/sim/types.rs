@@ -190,6 +190,8 @@ pub enum RequestStatus {
     Pending,
     Approved,
     Declined,
+    /// Nobody answered before its night began ("I'll manage").
+    Lapsed,
 }
 
 /// Reference to anything with a body on the map.

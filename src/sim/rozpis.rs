@@ -874,13 +874,13 @@ fn expire_requests(w: &mut World, content: &Content) {
             continue;
         }
         for s in w.app.swaps.iter_mut().filter(|s| s.id == rid) {
-            s.status = RequestStatus::Declined;
+            s.status = RequestStatus::Lapsed;
         }
         for s in w.app.time_off.iter_mut().filter(|s| s.id == rid) {
-            s.status = RequestStatus::Declined;
+            s.status = RequestStatus::Lapsed;
         }
         for s in w.sys.rozpis.early_leave.iter_mut().filter(|s| s.id == rid) {
-            s.status = RequestStatus::Declined;
+            s.status = RequestStatus::Lapsed;
         }
         if let Some(i) = w.staff.iter().position(|s| s.id == staff) {
             super::logic::change_mood(w, content, i, no_answer, false);
@@ -984,7 +984,7 @@ pub(crate) fn shared_shifts(w: &World, a: &str, b: &str) -> u32 {
 // Requests from preferences and life events (§13.3)
 // ---------------------------------------------------------------------------------------------
 
-fn note_request(
+pub(crate) fn note_request(
     w: &mut World,
     id: u32,
     kind: RequestKind,

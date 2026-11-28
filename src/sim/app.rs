@@ -80,11 +80,17 @@ fn bot_full(
                 });
                 request = Some(rid);
                 subject = Some(a);
-                w.emit(SimEvent::RequestCreated {
-                    id: rid,
-                    kind: crate::content::handson::RequestKind::Swap,
-                    staff: a,
-                });
+                // about the next night on that weekday: it lapses when that night begins
+                let night = w.night + (wd as u32 + 7 - w.weekday as u32 % 7) % 7;
+                super::rozpis::note_request(
+                    w,
+                    rid,
+                    crate::content::handson::RequestKind::Swap,
+                    a,
+                    None,
+                    false,
+                    night,
+                );
             }
         }
         BotKind::TimeOffRequest => {
@@ -115,15 +121,20 @@ fn bot_full(
                 });
                 request = Some(rid);
                 subject = Some(a);
-                w.emit(SimEvent::RequestCreated {
-                    id: rid,
-                    kind: if toil {
+                let night = w.night + 1;
+                super::rozpis::note_request(
+                    w,
+                    rid,
+                    if toil {
                         crate::content::handson::RequestKind::Toil
                     } else {
                         crate::content::handson::RequestKind::TimeOff
                     },
-                    staff: a,
-                });
+                    a,
+                    None,
+                    false,
+                    night,
+                );
             }
         }
         _ => {}
@@ -194,6 +205,313 @@ fn bot_full(
     });
 }
 
+// ---------------------------------------------------------------------------------------------
+// One answer, everywhere (owner, 2026-11-28): a request answered in the inbox is answered in
+// the Requests list and the other way round; nothing whose moment has passed can be pressed.
+// The UI asks these; the commands refuse the rest.
+// ---------------------------------------------------------------------------------------------
+
+/// Where a bot message's buttons stand, as every screen shows it.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum BotMsgState {
+    /// A message without buttons.
+    Plain,
+    /// Its buttons act now.
+    Open,
+    /// Answered with one of its own buttons.
+    Answered(String),
+    /// Its request was answered elsewhere (the Requests list) or lapsed unanswered.
+    Resolved(RequestStatus),
+    /// Its moment has passed: its night is over, the regular's time has come, the late
+    /// helper is in, the request's night has begun.
+    Expired,
+}
+
+/// The status of a swap / time-off / early-leave request.
+pub(crate) fn request_status(w: &World, id: u32) -> Option<RequestStatus> {
+    w.app
+        .swaps
+        .iter()
+        .find(|s| s.id == id)
+        .map(|s| s.status)
+        .or_else(|| w.app.time_off.iter().find(|s| s.id == id).map(|s| s.status))
+        .or_else(|| {
+            w.sys
+                .rozpis
+                .early_leave
+                .iter()
+                .find(|s| s.id == id)
+                .map(|s| s.status)
+        })
+}
+
+/// The night a request is about (a swap without a record: the next night on its weekday).
+pub(crate) fn request_night(w: &World, id: u32) -> Option<u32> {
+    if let Some(m) = w.sys.rozpis.requests.get(&id) {
+        return Some(m.night);
+    }
+    if let Some(r) = w.app.time_off.iter().find(|r| r.id == id) {
+        return Some(r.night);
+    }
+    if let Some(r) = w.sys.rozpis.early_leave.iter().find(|r| r.id == id) {
+        return Some(r.night);
+    }
+    w.app
+        .swaps
+        .iter()
+        .find(|s| s.id == id)
+        .map(|s| w.night + (s.weekday as u32 % 7 + 7 - w.weekday as u32 % 7) % 7)
+}
+
+/// Can the manager still answer it: pending, and its night hasn't begun.
+pub(crate) fn request_open(w: &World, id: u32) -> bool {
+    request_status(w, id) == Some(RequestStatus::Pending)
+        && request_night(w, id)
+            .is_some_and(|n| n > w.night || (n == w.night && w.phase == Phase::Day))
+}
+
+/// `Ok` when the request can be answered now; else why not (answered / too late).
+pub(crate) fn check_request(w: &World, id: u32) -> Result<(), CommandError> {
+    match request_status(w, id) {
+        None => Err(CommandError::UnknownId(id.to_string())),
+        Some(RequestStatus::Pending) if request_open(w, id) => Ok(()),
+        Some(RequestStatus::Pending) => Err(CommandError::Invalid("too late".into())),
+        Some(_) => Err(CommandError::Invalid("already answered".into())),
+    }
+}
+
+/// Has the clock (tonight) reached `minute` since 22:00? By day and in the preparation
+/// half hour nothing of tonight has passed yet.
+pub(crate) fn clock_reached(w: &World, minute: u32) -> bool {
+    w.phase == Phase::Night && !w.in_prep() && w.minute() >= minute
+}
+
+fn msg_arg<'a>(m: &'a BotMsg, k: &str) -> Option<&'a str> {
+    m.args.iter().find(|a| a.0 == k).map(|a| a.1.as_str())
+}
+
+/// Is the moment of an unanswered message with buttons over?
+fn msg_expired(w: &World, content: &Content, m: &BotMsg, t: &crate::content::BotTemplate) -> bool {
+    use crate::content::handson::BotHandler as H;
+    // a link (to the money panel…) is never too late
+    if t.actions
+        .iter()
+        .all(|a| matches!(a.handler, Some(H::Open(_))))
+    {
+        return false;
+    }
+    // every other button is about the night it came on (by day: the coming night)
+    if m.night < w.night {
+        return true;
+    }
+    let at = msg_arg(m, "minute").and_then(|x| x.parse::<u32>().ok());
+    for a in &t.actions {
+        match &a.handler {
+            // the regular is due (or already in): no seat to keep any more
+            Some(H::ReserveSeat) => {
+                let came = msg_arg(m, "regular").is_some_and(|r| {
+                    w.story
+                        .regulars
+                        .get(r)
+                        .and_then(|s| s.visits.last())
+                        .is_some_and(|v| v.night == w.night)
+                });
+                let due = at.is_some_and(|at| {
+                    clock_reached(w, at.saturating_sub(super::tool::RESERVE_LEAD_MINUTES))
+                });
+                if came || due {
+                    return true;
+                }
+            }
+            // the reminder would ring in the past
+            Some(H::RemindBefore(min)) => {
+                if at.is_some_and(|at| clock_reached(w, at.saturating_sub(*min))) {
+                    return true;
+                }
+            }
+            // the late helper is in (or not coming at all): nothing to cover
+            Some(H::CoverSelf | H::CoverOther) => {
+                let late = msg_arg(m, "name").and_then(|n| {
+                    w.staff
+                        .iter()
+                        .find(|s| !s.owner && s.name == n)
+                        .map(|s| s.status)
+                });
+                if w.phase == Phase::Night
+                    && late.is_some_and(|s| !matches!(s, StaffStatus::Expected { .. }))
+                {
+                    return true;
+                }
+            }
+            _ => {}
+        }
+    }
+    let _ = content;
+    false
+}
+
+/// Where message `m`'s buttons stand.
+pub(crate) fn msg_state(w: &World, content: &Content, m: &BotMsg) -> BotMsgState {
+    if let Some(a) = &m.answered {
+        return BotMsgState::Answered(a.clone());
+    }
+    let Some(t) = content.app.bot_template(&m.template) else {
+        return BotMsgState::Plain;
+    };
+    if t.actions.is_empty() {
+        return BotMsgState::Plain;
+    }
+    if let Some(r) = m.request
+        && let Some(st) = request_status(w, r)
+    {
+        return if st != RequestStatus::Pending {
+            BotMsgState::Resolved(st)
+        } else if request_open(w, r) {
+            BotMsgState::Open
+        } else {
+            BotMsgState::Expired
+        };
+    }
+    if msg_expired(w, content, m, t) {
+        BotMsgState::Expired
+    } else {
+        BotMsgState::Open
+    }
+}
+
+impl World {
+    /// Where a bot message's buttons stand (`Plain` for an unknown id).
+    pub fn bot_msg_state(&self, content: &Content, msg: u32) -> BotMsgState {
+        self.app
+            .inbox
+            .iter()
+            .find(|m| m.id == msg)
+            .map(|m| msg_state(self, content, m))
+            .unwrap_or(BotMsgState::Plain)
+    }
+
+    /// The status of request `id` (swap / time off / early leave), if there is one.
+    pub fn request_status(&self, id: u32) -> Option<RequestStatus> {
+        request_status(self, id)
+    }
+
+    /// Can request `id` (swap / time off / early leave) still be answered?
+    pub fn request_open(&self, id: u32) -> bool {
+        request_open(self, id)
+    }
+
+    /// Requests the manager can still answer (the app's badge).
+    pub fn open_requests(&self) -> u32 {
+        let ids = self
+            .app
+            .swaps
+            .iter()
+            .map(|s| s.id)
+            .chain(self.app.time_off.iter().map(|s| s.id))
+            .chain(self.sys.rozpis.early_leave.iter().map(|s| s.id));
+        ids.filter(|id| request_open(self, *id)).count() as u32
+    }
+
+    /// Bot messages whose buttons still act (the badge; a request's message counts once,
+    /// with its request).
+    pub fn open_bot_messages(&self, content: &Content) -> u32 {
+        self.app
+            .inbox
+            .iter()
+            .filter(|m| msg_state(self, content, m) == BotMsgState::Open)
+            .count() as u32
+    }
+}
+
+impl World {
+    /// The rozpis was published by hand this week and the draft changes more than new
+    /// people's rows: publishing waits for next week (owner, 2026-11-27: once a week).
+    pub fn rozpis_publish_locked(&self) -> bool {
+        let week = week_of(self.night);
+        self.app.manual_rozpis
+            && self.app.published_week == Some(week)
+            && !self
+                .app
+                .draft
+                .iter()
+                .all(|(id, row)| match self.app.published.get(id) {
+                    Some(p) if p == row => true,
+                    Some(p) => p.iter().all(|s| *s == Shift::Off),
+                    None => true,
+                })
+    }
+
+    /// Was this announcement (with these args) already posted tonight?
+    pub fn announcement_posted_tonight(&self, id: &str, args: &[(String, String)]) -> bool {
+        self.app
+            .announcements
+            .iter()
+            .any(|a| a.id == id && a.night == self.night && a.args == args)
+    }
+}
+
+impl World {
+    /// Verification shots (`SHIFTELLA_SCENE=app_resolved`): requests answered in each place —
+    /// time off approved in the inbox, a swap declined in the Requests list, náhradní volno
+    /// nobody answered, a reservation whose time has passed — and one still open.
+    #[doc(hidden)]
+    pub fn debug_seed_app_resolved(&mut self, content: &Content) {
+        let ctx = EffectCtx::default();
+        let last = |w: &World| w.app.inbox.last().map(|m| (m.id, m.request));
+        bot(self, content, "time_off_toil", &ctx);
+        if let Some((_, Some(r))) = last(self) {
+            for x in self.app.time_off.iter_mut().filter(|x| x.id == r) {
+                x.status = RequestStatus::Lapsed;
+            }
+            let staff = self
+                .app
+                .time_off
+                .iter()
+                .find(|x| x.id == r)
+                .map(|x| x.staff);
+            let ctx = EffectCtx {
+                staff,
+                ..Default::default()
+            };
+            bot(self, content, "manage_alone", &ctx);
+        }
+        bot(self, content, "swap_request", &ctx);
+        if let Some((_, Some(r))) = last(self) {
+            let _ = self.apply(
+                content,
+                Command::AnswerSwap {
+                    id: r,
+                    approve: false,
+                },
+            );
+        }
+        bot(self, content, "time_off_vacation", &ctx);
+        if let Some((m, Some(_))) = last(self) {
+            let _ = self.apply(
+                content,
+                Command::BotAction {
+                    msg: m,
+                    action: "approve".into(),
+                },
+            );
+        }
+        bot_with(
+            self,
+            content,
+            "regular_tonight",
+            &ctx,
+            vec![
+                ("name".into(), "regular.vera.name".into()),
+                ("time".into(), "23:00".into()),
+                ("regular".into(), "vera".into()),
+                ("minute".into(), "60".into()),
+            ],
+        );
+        bot(self, content, "time_off_vacation", &ctx);
+        self.events.clear();
+    }
+}
+
 /// A button on a bot message.
 pub(crate) fn bot_action(
     w: &mut World,
@@ -204,9 +522,6 @@ pub(crate) fn bot_action(
     let Some(i) = w.app.inbox.iter().position(|m| m.id == msg) else {
         return Err(CommandError::UnknownId(msg.to_string()));
     };
-    if w.app.inbox[i].answered.is_some() {
-        return Err(CommandError::Invalid("already answered".into()));
-    }
     let template = w.app.inbox[i].template.clone();
     let t = content
         .app
@@ -217,6 +532,20 @@ pub(crate) fn bot_action(
         .iter()
         .find(|a| a.id == action)
         .ok_or_else(|| CommandError::UnknownId(action.to_string()))?;
+    // nothing changes unless the button can act: answered here or elsewhere, or too late
+    match msg_state(w, content, &w.app.inbox[i]) {
+        BotMsgState::Open => {}
+        BotMsgState::Answered(_) | BotMsgState::Resolved(_) => {
+            return Err(CommandError::Invalid("already answered".into()));
+        }
+        BotMsgState::Expired => return Err(CommandError::Invalid("too late".into())),
+        BotMsgState::Plain => return Err(CommandError::UnknownId(action.to_string())),
+    }
+    let request = w.app.inbox[i].request;
+    let answers = matches!(action, "approve" | "decline");
+    if answers && let Some(r) = request {
+        check_request(w, r)?;
+    }
     let handler = a.handler.clone();
     if let Some(h) = &handler {
         // a button that can't act now leaves the message open
@@ -224,7 +553,6 @@ pub(crate) fn bot_action(
         super::tool::handle(w, content, &msg_copy, h)?;
     }
     w.app.inbox[i].answered = Some(action.to_string());
-    let request = w.app.inbox[i].request;
     let mut ctx = EffectCtx::default();
     logic::run(
         w,
@@ -234,7 +562,7 @@ pub(crate) fn bot_action(
         &mut ctx,
     );
     if let Some(r) = request
-        && matches!(action, "approve" | "decline")
+        && answers
     {
         let approve = action == "approve";
         if w.app.swaps.iter().any(|s| s.id == r) {

@@ -720,6 +720,14 @@ pub(crate) fn handle(
             Ok(())
         }
         BotHandler::OrderDrone { minutes } => {
+            // it flies tonight and must land before six (a drone after closing is money
+            // for nothing; tonight's drones are cleared when the next night begins)
+            if w.phase != Phase::Night {
+                return Err(CommandError::Invalid("night only".into()));
+            }
+            if w.minute() + minutes >= NIGHT_MINUTES {
+                return Err(CommandError::Invalid("too late".into()));
+            }
             let dock = w.furniture.iter().any(|p| {
                 content
                     .furniture_def(&p.def)
@@ -784,6 +792,10 @@ pub(crate) fn handle(
     }
 }
 
+/// A seat is kept for a regular at least this long before they're due (the card on the
+/// table, the chair pulled out); closer to their time the "Reserve" button is over.
+pub const RESERVE_LEAD_MINUTES: u32 = 5;
+
 /// Day start: a regular likely tonight → `regular_tonight` / `regular_to_go` (one message).
 pub(crate) fn on_day_start(w: &mut World, content: &Content) {
     if w.mode != Mode::Story || w.night < 2 {
@@ -803,7 +815,9 @@ pub(crate) fn on_day_start(w: &mut World, content: &Content) {
         .filter_map(|r| {
             let v = r.visits.first()?;
             let m = v.from.minutes_since_open();
-            (m >= 0 && v.chance >= 0.5).then(|| (r.id.clone(), m as u32))
+            // a time inside opening hours, with room to keep their seat first
+            let inside = m >= RESERVE_LEAD_MINUTES as i32 && m < super::guests::LAST_CALL as i32;
+            (inside && v.chance >= 0.5).then(|| (r.id.clone(), m as u32))
         })
         .collect();
     if regs.is_empty() {

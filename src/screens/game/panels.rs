@@ -22,6 +22,12 @@ pub fn command_error(g: &mut GameScreen, loc: &Locale, e: &str) {
         "ui.error.no_seat"
     } else if e.contains("no drone dock") {
         "ui.error.no_dock"
+    } else if e.contains("too late") {
+        "ui.error.too_late"
+    } else if e.contains("already answered") {
+        "ui.error.already_answered"
+    } else if e.contains("already posted") {
+        "ui.error.already_posted"
     } else if e.starts_with("NotEnoughMoney") {
         "ui.error.money"
     } else if e.starts_with("WrongPhase") {

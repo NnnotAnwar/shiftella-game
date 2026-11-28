@@ -284,6 +284,7 @@ pub fn rozpis_tab(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
         },
         autofill_line,
         dirty: app.draft_dirty,
+        publish_locked: g.world.rozpis_publish_locked(),
     };
     let labels = RozpisLabels {
         shift: [
@@ -302,6 +303,13 @@ pub fn rozpis_tab(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
         cell_tip: loc.tr_owned("ui.app.cell_tip"),
         locked_tip: loc.tr_owned("ui.rozpis.locked"),
         coverage_tip: loc.tr_owned("ui.rozpis.coverage_tip"),
+        publish_locked_tip: loc.trf(
+            "ui.app.rozpis_weekly",
+            &[(
+                "night",
+                &((g.world.night().max(1) - 1) / 7 * 7 + 8).to_string(),
+            )],
+        ),
     };
     g.anchors.push((
         "rozpis.prefs",

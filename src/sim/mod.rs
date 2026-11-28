@@ -62,6 +62,8 @@ mod tests;
 #[cfg(test)]
 mod tests_access;
 #[cfg(test)]
+mod tests_app_resolve;
+#[cfg(test)]
 mod tests_balance;
 #[cfg(test)]
 mod tests_bar;
@@ -124,7 +126,7 @@ mod tests_talks;
 #[cfg(test)]
 mod tests_walk;
 
-pub use app::{ChecklistMark, act_ticks, digest_lines};
+pub use app::{BotMsgState, ChecklistMark, act_ticks, digest_lines};
 pub use attention::PATIENCE_NEARLY_OUT;
 pub use attic::{AtticOffer, AtticView};
 pub use backroom::{BACK_COLS, BackRoomView};

@@ -42,13 +42,9 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     ui.region(r);
     let labels: Vec<(Icon, &str)> = TABS.iter().map(|(i, k)| (*i, loc.tr(k))).collect();
     let time = g.world.clock_label();
-    let unread = super::hud::pending_requests(&g.world)
-        + g.world
-            .app()
-            .inbox
-            .iter()
-            .filter(|m| m.answered.is_none() && has_actions(cx, &m.template))
-            .count() as u32;
+    // what can still be answered (an answered or lapsed request, a reservation whose time has
+    // passed: nothing waits any more)
+    let unread = super::hud::pending_requests(&g.world) + g.world.open_bot_messages(cx.content);
     let sub = format!("{} · {}", g.world.cafe_name(), g.world.town().name);
     let out = ui.phone_frame(
         "shiftella_tablet",
@@ -97,13 +93,6 @@ pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     {
         g.panel = None;
     }
-}
-
-fn has_actions(cx: &Ctx, template: &str) -> bool {
-    cx.content
-        .app
-        .bot_template(template)
-        .is_some_and(|t| !t.actions.is_empty())
 }
 
 fn shift_label(s: Shift) -> &'static str {
@@ -421,11 +410,21 @@ fn schedule(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     }
 }
 
-fn status_chip(ui: &mut Ui, loc: &Locale, pos: Vec2, s: RequestStatus) {
-    let (k, tone) = match s {
+fn status_key(s: RequestStatus) -> (&'static str, Tone) {
+    match s {
         RequestStatus::Pending => ("ui.app.pending", Tone::Warn),
         RequestStatus::Approved => ("ui.app.approved", Tone::Ok),
         RequestStatus::Declined => ("ui.app.declined", Tone::Danger),
+        RequestStatus::Lapsed => ("ui.app.lapsed", Tone::Neutral),
+    }
+}
+
+/// The request's chip: its status, or "too late" for a pending one whose night has begun.
+fn status_chip(ui: &mut Ui, loc: &Locale, pos: Vec2, s: RequestStatus, open: bool) {
+    let (k, tone) = if s == RequestStatus::Pending && !open {
+        ("ui.app.too_late", Tone::Neutral)
+    } else {
+        status_key(s)
     };
     ui.chip(pos, loc.tr(k), tone, None);
 }
@@ -490,8 +489,9 @@ fn requests(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             &t.strong(),
             Align::Left,
         );
-        status_chip(ui, &loc, vec2(c.right() - 100.0, c.y - 2.0), e.status);
-        if e.status == RequestStatus::Pending {
+        let open = g.world.request_open(e.id);
+        status_chip(ui, &loc, vec2(c.right() - 100.0, c.y - 2.0), e.status, open);
+        if open {
             let br = Rect::new(c.x + 24.0, c.bottom() - 26.0, (c.w - 24.0).min(300.0), 26.0);
             let (a, b) = br.split_left(br.w / 2.0 - 3.0, 6.0);
             let ok = ui
@@ -527,13 +527,24 @@ fn requests(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     if items.is_empty() {
         return;
     }
-    let card_h = 92.0;
-    let sa = ui.begin_scroll("req_scroll", r, items.len() as f32 * (card_h + 8.0));
+    // an answered (or too late) request has no button row: a shorter card
+    let heights: Vec<f32> = items
+        .iter()
+        .map(|(_, id)| {
+            if g.world.request_open(*id) {
+                92.0
+            } else {
+                60.0
+            }
+        })
+        .collect();
+    let total: f32 = heights.iter().map(|h| h + 8.0).sum();
+    let sa = ui.begin_scroll("req_scroll", r, total);
     let mut y = sa.top();
     let w = r.w - 10.0;
-    for (swap, id) in items {
-        let cr = Rect::new(r.x, y, w, card_h);
-        y += card_h + 8.0;
+    for ((swap, id), h) in items.into_iter().zip(heights) {
+        let cr = Rect::new(r.x, y, w, h);
+        y += h + 8.0;
         if !sa.visible(cr.y, cr.h) {
             continue;
         }
@@ -581,7 +592,8 @@ fn requests(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             &t.strong(),
             Align::Left,
         );
-        status_chip(ui, &loc, vec2(c.right() - 100.0, c.y - 2.0), status);
+        let open = g.world.request_open(id);
+        status_chip(ui, &loc, vec2(c.right() - 100.0, c.y - 2.0), status, open);
         // why they ask (a life event, a Need the draft breaks)
         let reason = g
             .world
@@ -605,7 +617,8 @@ fn requests(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             &t.small_medium().color(t.indigo_300),
             Align::Left,
         );
-        if status == RequestStatus::Pending {
+        // answered anywhere (here, in the inbox) or too late: no buttons
+        if open {
             let br = Rect::new(c.x, c.bottom() - 26.0, c.w.min(320.0), 26.0);
             let (a, b) = br.split_left(br.w / 2.0 - 3.0, 6.0);
             let ok = ui
@@ -654,12 +667,11 @@ fn messages(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     for m in inbox.iter().rev() {
         let txt = wv::tr_args(&loc, &format!("app.bot.{}", m.template), &m.args);
         let lines = ui.fonts.wrap(&txt, wrap_w, &style).len().max(1) as f32;
-        // room for the buttons, or for the chip of the answer once one was chosen
-        let acts = has_actions(cx, &m.template);
-        let foot = match (acts, m.answered.is_some()) {
-            (true, false) => 32.0,
-            (true, true) => 28.0,
-            _ => 0.0,
+        // room for the buttons, or for the chip of the answer / its end
+        let foot = match g.world.bot_msg_state(content, m.id) {
+            sim::BotMsgState::Open => 32.0,
+            sim::BotMsgState::Plain => 0.0,
+            _ => 28.0,
         };
         heights.push(lines * style.line_h().max(16.0) + 40.0 + foot);
     }
@@ -695,9 +707,10 @@ fn messages(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             Align::Left,
             None,
         );
-        if m.answered.is_none()
+        let state = g.world.bot_msg_state(content, m.id);
+        let chip_at = vec2(c.x + 32.0, c.bottom() - 22.0);
+        if state == sim::BotMsgState::Open
             && let Some(tpl) = content.app.bot_template(&m.template)
-            && !tpl.actions.is_empty()
         {
             let mut fr = Flow::row(
                 Rect::new(c.x + 32.0, c.bottom() - 26.0, c.w - 32.0, 26.0),
@@ -726,14 +739,44 @@ fn messages(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
                     }
                 }
             }
-        } else if let Some(a) = &m.answered {
-            let label = loc.tr_owned(&format!("app.bot.{}.action.{a}", m.template));
-            ui.chip(
-                vec2(c.x + 32.0, c.bottom() - 22.0),
-                &label,
-                Tone::Ok,
-                Some(Icon::Check),
-            );
+        } else {
+            match state {
+                // a request answered here reads like one answered in the list
+                sim::BotMsgState::Answered(_)
+                    if let Some(st) = m.request.and_then(|r| g.world.request_status(r)) =>
+                {
+                    let (k, tone) = status_key(st);
+                    let icon = if st == RequestStatus::Approved {
+                        Icon::Check
+                    } else {
+                        Icon::Close
+                    };
+                    ui.chip(chip_at, loc.tr(k), tone, Some(icon));
+                }
+                sim::BotMsgState::Answered(a) => {
+                    let label = loc.tr_owned(&format!("app.bot.{}.action.{a}", m.template));
+                    ui.chip(chip_at, &label, Tone::Ok, Some(Icon::Check));
+                }
+                // answered in the Requests list, or nobody answered in time
+                sim::BotMsgState::Resolved(st) => {
+                    let (k, tone) = status_key(st);
+                    let icon = match st {
+                        RequestStatus::Approved => Icon::Check,
+                        RequestStatus::Lapsed => Icon::Clock,
+                        _ => Icon::Close,
+                    };
+                    ui.chip(chip_at, loc.tr(k), tone, Some(icon));
+                }
+                sim::BotMsgState::Expired => {
+                    ui.chip(
+                        chip_at,
+                        loc.tr("ui.app.too_late"),
+                        Tone::Neutral,
+                        Some(Icon::Clock),
+                    );
+                }
+                _ => {}
+            }
         }
     }
     ui.end_scroll(sa);
@@ -766,7 +809,19 @@ fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
             .to_string();
         let pr = Rect::new(left.x, left.bottom() - 28.0, left.w - 10.0, 28.0);
         let label = loc.trf("ui.app.thank_post", &[("name", &first)]);
-        let b = Button::new(&label).secondary().icon(Icon::Megaphone);
+        // once a night per person: posted, the button says so
+        let posted = g
+            .world
+            .announcement_posted_tonight("thank_you", &[("name".to_string(), first.clone())]);
+        let label = if posted {
+            loc.trf("ui.app.thanked", &[("name", &first)])
+        } else {
+            label
+        };
+        let b = Button::new(&label)
+            .secondary()
+            .icon(if posted { Icon::Check } else { Icon::Megaphone })
+            .disabled(posted);
         let (next_r, br) = pr.split_right(28.0, 6.0);
         if ui
             .icon_button(

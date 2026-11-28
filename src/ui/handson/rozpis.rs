@@ -319,6 +319,9 @@ pub struct RozpisView {
     pub autofill_line: Option<String>,
     /// The draft differs from the published week.
     pub dirty: bool,
+    /// Published by hand this week already: the button shows a lock and says when (it still
+    /// answers a click with the same line).
+    pub publish_locked: bool,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -337,6 +340,8 @@ pub struct RozpisLabels {
     pub locked_tip: String,
     /// "{on} of {suggested} helpers" (placeholders replaced here).
     pub coverage_tip: String,
+    /// "The rozpis changes once a week — next changes from night N…" (the locked Publish).
+    pub publish_locked_tip: String,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -678,10 +683,17 @@ pub fn rozpis_board(
 
     // action row: auto-fill line · fairness · Auto-fill · Clear · Publish
     let ar = Rect::new(r.x, cov.bottom() + 10.0, r.w, 30.0);
-    let publish = Button::new(&l.publish)
-        .primary()
-        .icon(Icon::Check)
-        .disabled(!v.dirty);
+    let publish = if v.publish_locked && v.dirty {
+        Button::new(&l.publish)
+            .secondary()
+            .icon(Icon::Lock)
+            .tooltip(&l.publish_locked_tip)
+    } else {
+        Button::new(&l.publish)
+            .primary()
+            .icon(Icon::Check)
+            .disabled(!v.dirty)
+    };
     let auto = Button::new(&l.autofill).icon(Icon::Sparkle);
     let clear = Button::new(&l.clear).ghost();
     let pw = ui.button_width(&publish);
