@@ -36,6 +36,7 @@ mod purchases_ui;
 mod rituals_ui;
 pub mod scene;
 mod scene_fx;
+pub mod seat_shot;
 pub mod signature_ui;
 mod staff_life_view;
 mod stories_ui;
@@ -155,6 +156,12 @@ pub enum Notice {
         key: String,
         args: Vec<(String, String)>,
     },
+}
+
+/// A guest's speech that stops the night as a card to read (Enter): only the lines of the
+/// night's story (`story.line.*`). A regular's hello on walking in (`regular.*`) is a bubble.
+fn speech_held_to_read(key: &str) -> bool {
+    key.starts_with("story.line.")
 }
 
 /// Seconds a toast stays at night: short, so they never pile over the café.
@@ -660,6 +667,7 @@ impl GameScreen {
                 Some(sim::TileKind::Wall) => Tile::Wall,
                 Some(sim::TileKind::Window) => Tile::Window,
                 Some(sim::TileKind::Door) => Tile::Door,
+                _ if g.walkable(x, y) && g.is_seat(x, y) => Tile::Chair,
                 _ if g.walkable(x, y) => Tile::Floor,
                 _ => Tile::Table,
             }
@@ -673,8 +681,34 @@ impl GameScreen {
             .map(|v| (v.look.source.clone(), vec2(v.feet.0, v.feet.1)))
             .collect();
         self.player.set_live_cast(live);
-        self.player
-            .set_free_seats(self.world.free_seat_tiles(content));
+        // who sits where (a regular the scene plays stays in their seat), the crew stands
+        let views: Vec<sim::AgentView> = self
+            .world
+            .staff_views()
+            .into_iter()
+            .chain(self.world.guest_views())
+            .collect();
+        self.player.set_live_seated(views.iter().filter_map(|v| {
+            let tile = v.seat_tile.filter(|_| v.pose == sim::Pose::Sit)?;
+            Some((v.look.source.clone(), tile, wv::facing(v.facing)))
+        }));
+        self.player.set_standing_cast(
+            views
+                .iter()
+                .filter(|v| v.look.staff)
+                .map(|v| v.look.source.clone()),
+        );
+        self.player.set_seats(
+            self.world
+                .seat_spots(content)
+                .into_iter()
+                .map(|(tile, facing, free)| crate::cutscene::StageSeat {
+                    tile,
+                    facing: wv::facing(facing),
+                    free,
+                })
+                .collect(),
+        );
     }
 
     fn start_cutscene(&mut self, content: &Rc<Content>, id: &str) {
@@ -1064,11 +1098,15 @@ impl GameScreen {
                 speaker,
             } => {
                 let text = tr(&key, &[]);
-                // a regular's story line (not small talk): held to be read
-                if key.starts_with("regular.") || key.starts_with("story.line.") {
-                    let who = tr(&format!("regular.{speaker}.name"), &[]);
-                    if !who.starts_with("regular.") {
+                let who = tr(&format!("regular.{speaker}.name"), &[]);
+                if !who.starts_with("regular.") {
+                    if speech_held_to_read(&key) {
+                        // a line of the night's story: held to be read
                         self.read_card(Icon::Heart, who, text.clone());
+                    } else if key.starts_with("regular.") {
+                        // a regular walking in says hello: a bubble over them and a line in the
+                        // ticker, nothing to click away (0.2.7: the same card every visit)
+                        self.push_ticker(Icon::Heart, format!("{who}: {text}"));
                     }
                 }
                 if self.bubble.as_ref().is_none_or(|b| !b.pinned) {
@@ -1883,6 +1921,8 @@ impl GameScreen {
                 self.toast_clicked(content, ev.toast, ev.tag);
             }
         }
+        // after the walk home / the back step: the café comes up from their dusk
+        walk_home::after_veil(self, ui, dt);
         let ms = |a: std::time::Instant, b: std::time::Instant| (b - a).as_secs_f32() * 1000.0;
         let t_end = std::time::Instant::now();
         self.times = FrameTimes {
@@ -2481,6 +2521,8 @@ mod tests_auto_pause;
 mod tests_chaos;
 #[cfg(test)]
 mod tests_combos;
+#[cfg(test)]
+mod tests_scenes;
 
 #[cfg(test)]
 mod capitalize_tests {

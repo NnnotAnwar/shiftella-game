@@ -311,3 +311,173 @@ cs Dnes hraju doopravdy. Řekni to všem.
 en Tonight I'm playing for real. Tell everyone.
 uk Сьогодні граю по-справжньому. Скажи всім.
 ru Сегодня играю по-настоящему. Скажи всем.
+
+# Everyday hellos on walking in (regulars.ron `greetings`), in turn with the stage lines
+
+regular.mirek.hello.1
+cs Dobrý večer, děvče. To samé co vždycky.
+en Evening, girl. The usual.
+uk Добрий вечір, дівчинко. Як завжди.
+ru Добрый вечер, девочка. Как обычно.
+
+regular.mirek.hello.2
+cs Na silnicích je dnes klid.
+en Quiet on the roads tonight.
+uk На дорогах сьогодні тихо.
+ru На дорогах сегодня тихо.
+
+regular.mirek.hello.3
+cs Kolena hlásí déšť. Nikdy se nepletou.
+en My knees say rain. They're never wrong.
+uk Коліна кажуть, буде дощ. Вони не помиляються.
+ru Колени говорят — будет дождь. Они не ошибаются.
+
+regular.mirek.hello.4
+cs Černou, a nešetři.
+en Black coffee, and don't be stingy.
+uk Чорну каву, і не шкодуй.
+ru Чёрный кофе, и не жалей.
+
+regular.hana.hello.1
+cs Ahoj! Neptej se, to byla noc.
+en Hi! Don't ask, it's been a night.
+uk Привіт! Не питай, ну й ніч.
+ru Привет! Не спрашивай, ну и ночка.
+
+regular.hana.hello.2
+cs Pět minut klidu. Jen pět.
+en Five minutes of quiet. Just five.
+uk П'ять хвилин тиші. Лише п'ять.
+ru Пять минут тишины. Всего пять.
+
+regular.hana.hello.3
+cs Tvoje káva je o parník lepší než ta naše.
+en Your coffee beats ours by a mile.
+uk Твоя кава в сто разів краща за нашу.
+ru Твой кофе в сто раз лучше нашего.
+
+regular.hana.hello.4
+cs Ještě stojíš? Já taky, nějak.
+en Still standing? Me too, somehow.
+uk Ще тримаєшся? Я теж, якось.
+ru Ещё держишься? Я тоже, кое-как.
+
+regular.guest_333.hello.1
+cs Čaj. S citronem.
+en Tea. With lemon.
+uk Чай. З лимоном.
+ru Чай. С лимоном.
+
+regular.guest_333.hello.2
+cs Zase ta samá hodina.
+en The same hour again.
+uk Знову та сама година.
+ru Снова тот же час.
+
+regular.guest_333.hello.3
+cs Dobrý večer. Nebo už ráno.
+en Good evening. Or is it morning.
+uk Добрий вечір. Чи вже ранок.
+ru Добрый вечер. Или уже утро.
+
+regular.guest_333.hello.4
+cs Děkuju za to světlo.
+en Thank you for the light.
+uk Дякую за світло.
+ru Спасибо за свет.
+
+regular.vera.hello.1
+cs Dobrý večer. Je můj stůl čistý?
+en Good evening. Is my table clean?
+uk Добрий вечір. Мій стіл чистий?
+ru Добрый вечер. Мой стол чистый?
+
+regular.vera.hello.2
+cs Nová křížovka. Ať tě ani nenapadne mi radit.
+en A new crossword. Don't you dare help me.
+uk Новий кросворд. Навіть не думай підказувати.
+ru Новый кроссворд. Даже не думай подсказывать.
+
+regular.vera.hello.3
+cs Lida už touhle dobou měla konvici na plotně.
+en Lida always had the kettle on by now.
+uk Ліда в цей час уже ставила чайник.
+ru Лида в это время уже ставила чайник.
+
+regular.vera.hello.4
+cs Hm. Zase to tu voní jako u ní.
+en Mm. It smells like her café again.
+uk Гм. Тут знову пахне, як у неї.
+ru Хм. Здесь снова пахнет, как у неё.
+
+regular.filip.hello.1
+cs Ahoj! Je moje zásuvka volná?
+en Hi! Is my socket free?
+uk Привіт! Моя розетка вільна?
+ru Привет! Моя розетка свободна?
+
+regular.filip.hello.2
+cs Další noc s učením. Kávu, prosím.
+en Another night of studying. Coffee, please.
+uk Ще одна ніч за навчанням. Каву, будь ласка.
+ru Ещё одна ночь за учёбой. Кофе, пожалуйста.
+
+regular.filip.hello.3
+cs Já a můj notebook přejeme dobrý večer.
+en My laptop and I say good evening.
+uk Я і мій ноутбук кажемо: добрий вечір.
+ru Я и мой ноутбук говорим: добрый вечер.
+
+regular.filip.hello.4
+cs Kdybych usnul, vzbuď mě ve čtyři.
+en If I fall asleep, wake me at four.
+uk Якщо засну, розбуди мене о четвертій.
+ru Если усну, разбуди меня в четыре.
+
+regular.radek.hello.1
+cs Dobrý večer. S sebou, jako vždycky.
+en Evening. To go, as always.
+uk Добрий вечір. З собою, як завжди.
+ru Добрый вечер. С собой, как всегда.
+
+regular.radek.hello.2
+cs Dneska všechno na čas. Skoro.
+en Everything on time tonight. Almost.
+uk Сьогодні все за розкладом. Майже.
+ru Сегодня всё по расписанию. Почти.
+
+regular.radek.hello.3
+cs Vedete to tu jako jízdní řád. Myslím to hezky.
+en You run this place like a timetable. I mean that kindly.
+uk Ви ведете це місце, як розклад. Кажу це по-доброму.
+ru Вы ведёте это место, как расписание. Я по-доброму.
+
+regular.radek.hello.4
+cs Pět minut, pak zpátky k vlakům.
+en Five minutes, then back to my trains.
+uk П'ять хвилин, і назад до потягів.
+ru Пять минут, и обратно к поездам.
+
+regular.lori.hello.1
+cs Ahoj! Mám v hlavě novou písničku.
+en Hey! Got a new song stuck in my head.
+uk Привіт! У мене в голові нова пісня.
+ru Привет! У меня в голове новая песня.
+
+regular.lori.hello.2
+cs Prsty mám zmrzlé. Něco teplého?
+en My fingers are cold. Something warm?
+uk Пальці змерзли. Щось тепле?
+ru Пальцы замёрзли. Что-нибудь тёплое?
+
+regular.lori.hello.3
+cs Vlaky dnes bzučí v C dur.
+en The trains are humming in C major tonight.
+uk Потяги сьогодні гудуть у до мажорі.
+ru Поезда сегодня гудят в до мажоре.
+
+regular.lori.hello.4
+cs Ahoj, to jsem zase já a kytara.
+en Hi, it's me and my guitar again.
+uk Привіт, це знову я і гітара.
+ru Привет, это снова я и гитара.

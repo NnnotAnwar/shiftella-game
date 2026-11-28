@@ -8,8 +8,8 @@ use macroquad::prelude::*;
 use crate::content::{
     ChoiceOption, Condition, Content, CutsceneDef, CutsceneLib, CutsceneStep, Effect, Focus, Place,
 };
-use crate::map::{Map, TILE};
-use crate::render::{Expression, draw_portrait};
+use crate::map::{Map, TILE, Tile};
+use crate::render::{Expression, Facing, draw_portrait};
 use crate::settings::Locale;
 use crate::ui::{
     ChoiceItem, DialogueBox, DialogueLabels, DialogueLine, RectExt, TextStyle, Ui, Weight,
@@ -199,11 +199,33 @@ pub struct CutscenePlayer {
     nav: Option<Map>,
     /// Feet of people already in the live café, by cast id (regulars, `guest_anwar` …).
     live: HashMap<String, Vec2>,
-    /// Free seats of the live café (tiles): a spot somebody already sits on sends the actor to
-    /// the nearest of these instead (0.2.6).
-    free_seats: Vec<(i32, i32)>,
+    /// Seats of the live café (`None` = the stage's own chairs). A spot on a seat makes the
+    /// actor sit down; a spot somebody already holds, or one on a table, sends them to the
+    /// nearest free seat (0.2.6, 0.2.7).
+    seats: Option<Vec<StageSeat>>,
+    /// People of the live café sitting on a seat right now: tile, the way they face.
+    live_seated: HashMap<String, ((i32, i32), Facing)>,
+    /// Cast ids that never sit down in a scene (Karolina, the crew): they stand beside a seat.
+    standing: HashSet<String>,
     /// Cast ids that left the stage during this scene (the live copy stays hidden).
     exited: HashSet<String>,
+}
+
+/// A seat of the café an actor may sit on.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct StageSeat {
+    pub tile: (i32, i32),
+    /// The way a sitter faces (to the table, or the way a sofa faces).
+    pub facing: Facing,
+    /// Nobody of the live café sits there or is on the way to it.
+    pub free: bool,
+}
+
+/// Where an actor ends a walk.
+#[derive(Debug, Clone, Copy, PartialEq)]
+enum Dest {
+    Stand(Vec2),
+    Sit((i32, i32), Facing),
 }
 
 /// Story-condition callback supplied by the integration.
@@ -264,7 +286,9 @@ impl CutscenePlayer {
             auto_advance: false,
             nav: None,
             live: HashMap::new(),
-            free_seats: Vec::new(),
+            seats: None,
+            live_seated: HashMap::new(),
+            standing: HashSet::new(),
             exited: HashSet::new(),
         }
     }
@@ -297,19 +321,93 @@ impl CutscenePlayer {
         self.live = cast.into_iter().collect();
     }
 
-    /// The live café's free seats (tiles). Call before [`CutscenePlayer::start`].
-    pub fn set_free_seats(&mut self, seats: Vec<(i32, i32)>) {
-        self.free_seats = seats;
+    /// The live café's seats. Call before [`CutscenePlayer::start`].
+    pub fn set_seats(&mut self, seats: Vec<StageSeat>) {
+        self.seats = Some(seats);
     }
 
-    /// Where `actor` goes for `place`: the place itself — unless another person (a live guest,
-    /// the crew, an actor of the scene) is already there. Then the nearest free seat close by,
-    /// else the nearest free floor tile (0.2.6: the stranger sat down on a guest at the window
-    /// table, the spots are fixed tiles of grandma's layout).
-    fn free_place(&self, actor: &str, place: &Place) -> Vec2 {
+    /// People of the live café who sit right now (cast id, seat tile, facing): a scene that
+    /// plays one of them starts with them in their seat, and one sent near it keeps it.
+    pub fn set_live_seated(
+        &mut self,
+        seated: impl IntoIterator<Item = (String, (i32, i32), Facing)>,
+    ) {
+        self.live_seated = seated
+            .into_iter()
+            .map(|(id, tile, f)| (id, (tile, f)))
+            .collect();
+    }
+
+    /// Cast ids of the live crew: like Karolina they never sit down in a scene.
+    pub fn set_standing_cast(&mut self, ids: impl IntoIterator<Item = String>) {
+        self.standing = ids.into_iter().collect();
+    }
+
+    /// The seats actors may use: the live café's, else the stage's own chairs (facing the
+    /// table beside them).
+    fn stage_seats(&self) -> Vec<StageSeat> {
+        if let Some(s) = &self.seats {
+            return s.clone();
+        }
+        let m = self.nav.as_ref().unwrap_or(&self.scene.map);
+        let mut out = Vec::new();
+        for y in 0..m.height {
+            for x in 0..m.width {
+                if m.get(x, y) != Some(Tile::Chair) {
+                    continue;
+                }
+                let (x, y) = (x as i32, y as i32);
+                let facing = [(1, 0), (-1, 0), (0, 1), (0, -1)]
+                    .into_iter()
+                    .find(|(dx, dy)| {
+                        x + dx >= 0
+                            && y + dy >= 0
+                            && m.get((x + dx) as usize, (y + dy) as usize) == Some(Tile::Table)
+                    })
+                    .map_or(Facing::Down, |(dx, dy)| {
+                        Facing::from_dir(vec2(dx as f32, dy as f32))
+                    });
+                out.push(StageSeat {
+                    tile: (x, y),
+                    facing,
+                    free: true,
+                });
+            }
+        }
+        out
+    }
+
+    /// Where `actor` goes for `place` (0.2.6, 0.2.7 — Mrs Vera stood on the corner table):
+    /// * a free floor tile: stands there;
+    /// * a free seat: sits down on it (Karolina and the crew stand on the floor beside it);
+    /// * a regular already sitting close by keeps their own seat;
+    /// * a table, the counter, a seat or a floor tile somebody holds: the nearest free seat
+    ///   close by, else the nearest free floor tile.
+    ///
+    /// Street spots (outside the café's grid) are taken as they are.
+    fn destination(&self, actor: &str, place: &Place) -> Dest {
         let to = self.place_px(place);
         let t = |p: Vec2| ((p.x / TILE).floor() as i32, (p.y / TILE).floor() as i32);
         let goal = t(to);
+        let m = self.nav.as_ref().unwrap_or(&self.scene.map);
+        let inside = |c: (i32, i32)| {
+            c.0 >= 0 && c.1 >= 0 && (c.0 as usize) < m.width && (c.1 as usize) < m.height
+        };
+        if !inside(goal) {
+            return Dest::Stand(to);
+        }
+        let can_sit = actor != "player" && !self.standing.contains(actor);
+        let seats = self.stage_seats();
+        let near = |a: (i32, i32)| (a.0 - goal.0).abs().max((a.1 - goal.1).abs());
+        let dist2 = |a: (i32, i32)| (a.0 - goal.0).pow(2) + (a.1 - goal.1).pow(2);
+        // already sitting close by (a regular at their table): stays in their seat
+        if can_sit
+            && let Some(&(tile, facing)) = self.live_seated.get(actor)
+            && near(tile) <= 2
+            && !self.actors.iter().any(|a| a.id == actor && !a.seated())
+        {
+            return Dest::Sit(tile, facing);
+        }
         let taken: HashSet<(i32, i32)> = self
             .live
             .iter()
@@ -319,37 +417,47 @@ impl CutscenePlayer {
                 self.actors
                     .iter()
                     .filter(|a| a.id != actor && !a.gone)
-                    .flat_map(|a| [t(a.pos), t(a.target())]),
+                    .flat_map(|a| {
+                        [t(a.pos), t(a.target())]
+                            .into_iter()
+                            .chain(a.sit.map(|(s, _)| s))
+                    }),
             )
             .collect();
-        if !taken.contains(&goal) {
-            return to;
-        }
-        let near = |a: (i32, i32)| (a.0 - goal.0).abs().max((a.1 - goal.1).abs());
-        let dist2 = |a: (i32, i32)| (a.0 - goal.0).pow(2) + (a.1 - goal.1).pow(2);
-        let seat = self
-            .free_seats
-            .iter()
-            .copied()
-            .filter(|s| !taken.contains(s) && near(*s) <= 3)
-            .min_by_key(|s| (dist2(*s), *s));
-        if let Some((x, y)) = seat {
-            return tile_feet(x, y);
-        }
-        let m = self.nav.as_ref().unwrap_or(&self.scene.map);
-        let floor = {
-            (-3..=3)
-                .flat_map(|dy| (-3..=3).map(move |dx| (goal.0 + dx, goal.1 + dy)))
-                .filter(|c| c.0 >= 0 && c.1 >= 0 && !taken.contains(c))
-                .filter(|c| {
-                    m.get(c.0 as usize, c.1 as usize)
-                        .is_some_and(|k| k.walkable())
-                })
-                .min_by_key(|c| (dist2(*c), *c))
+        let seat_at = |c: (i32, i32)| seats.iter().find(|s| s.tile == c);
+        let standable = |c: (i32, i32)| {
+            inside(c)
+                && seat_at(c).is_none()
+                && matches!(
+                    m.get(c.0 as usize, c.1 as usize),
+                    Some(Tile::Floor | Tile::Door)
+                )
         };
+        if !taken.contains(&goal) {
+            if standable(goal) {
+                return Dest::Stand(to);
+            }
+            if can_sit && let Some(s) = seat_at(goal).filter(|s| s.free) {
+                return Dest::Sit(s.tile, s.facing);
+            }
+        }
+        if can_sit
+            && let Some(s) = seats
+                .iter()
+                .filter(|s| s.free && !taken.contains(&s.tile) && near(s.tile) <= 3)
+                .min_by_key(|s| (dist2(s.tile), s.tile))
+        {
+            return Dest::Sit(s.tile, s.facing);
+        }
+        let floor = (1..=6).find_map(|r| {
+            (-r..=r)
+                .flat_map(|dy| (-r..=r).map(move |dx| (goal.0 + dx, goal.1 + dy)))
+                .filter(|c| standable(*c) && !taken.contains(c))
+                .min_by_key(|c| (dist2(*c), *c))
+        });
         match floor {
-            Some((x, y)) => tile_feet(x, y),
-            None => to,
+            Some((x, y)) => Dest::Stand(tile_feet(x, y)),
+            None => Dest::Stand(to),
         }
     }
 
@@ -879,6 +987,44 @@ impl CutscenePlayer {
         self.actors.last_mut().expect("just pushed")
     }
 
+    /// An actor goes to a [`Dest`]: walks there and stands, or walks there and sits down
+    /// (one already sitting in that seat just stays).
+    fn go(&mut self, id: &str, to: Dest, enter: bool) {
+        match to {
+            Dest::Stand(p) => self.walk(id, p, false, enter),
+            Dest::Sit(tile, facing) => {
+                let seated_there = |p: &CutscenePlayer| {
+                    p.actors.iter().any(|a| {
+                        a.id == id && !a.gone && a.seated() && a.sit.map(|s| s.0) == Some(tile)
+                    })
+                };
+                if !seated_there(self) && self.actor_mut(id).is_none() {
+                    // a live sitter on that very seat: on stage as they are, still sitting
+                    if self.live_seated.get(id).map(|s| s.0) == Some(tile) {
+                        let at = self
+                            .live
+                            .get(id)
+                            .copied()
+                            .unwrap_or(tile_feet(tile.0, tile.1));
+                        let a = self.spawn(id, at);
+                        a.alpha = 1.0;
+                        a.sit = Some((tile, facing));
+                    }
+                }
+                if seated_there(self) {
+                    if let Some(a) = self.actor_mut(id) {
+                        a.facing = facing;
+                    }
+                    return;
+                }
+                self.walk(id, tile_feet(tile.0, tile.1), false, enter);
+                if let Some(a) = self.actor_mut(id) {
+                    a.sit = Some((tile, facing));
+                }
+            }
+        }
+    }
+
     fn walk(&mut self, id: &str, to: Vec2, exit: bool, enter: bool) {
         let exists = self.actor_mut(id).is_some();
         if !exists && let Some(at) = self.live.get(id).copied() {
@@ -977,12 +1123,12 @@ impl CutscenePlayer {
                 }
             }
             CutsceneStep::ActorEnter { actor, to_tile } => {
-                let to = self.free_place(&actor, &to_tile);
-                self.walk(&actor, to, false, true);
+                let to = self.destination(&actor, &to_tile);
+                self.go(&actor, to, true);
             }
             CutsceneStep::ActorMove { actor, to_tile } => {
-                let to = self.free_place(&actor, &to_tile);
-                self.walk(&actor, to, false, false);
+                let to = self.destination(&actor, &to_tile);
+                self.go(&actor, to, false);
             }
             CutsceneStep::ActorExit { actor, to_tile } => {
                 let to = self.place_px(&to_tile);
@@ -1881,8 +2027,13 @@ mod tests {
         };
         // a guest of the live café sits there; a free seat two tiles away
         let seat = (chair.0 + 2, chair.1);
+        let at = |tile: (i32, i32), free: bool| StageSeat {
+            tile,
+            facing: Facing::Right,
+            free,
+        };
         p.set_live_cast([("night_wanderer".to_string(), tile_feet(chair.0, chair.1))]);
-        p.set_free_seats(vec![(30, 30), seat]);
+        p.set_seats(vec![at((30, 30), true), at(chair, false), at(seat, true)]);
         p.start(&def(
             "t",
             vec![enter("guest_333"), narration("scene.guest333_first.01")],
@@ -1891,6 +2042,7 @@ mod tests {
         assert_eq!(tile_of(&p, "guest_333"), seat, "the nearest free seat");
         // nobody there: the spot itself
         p.set_live_cast(Vec::<(String, Vec2)>::new());
+        p.set_seats(vec![at(chair, true), at(seat, true)]);
         p.start(&def(
             "t",
             vec![enter("guest_333"), narration("scene.guest333_first.01")],
@@ -1898,7 +2050,7 @@ mod tests {
         p.fast_forward(&loc, 30.0);
         assert_eq!(tile_of(&p, "guest_333"), chair);
         // two actors for one chair: the second one takes another place
-        p.set_free_seats(vec![]);
+        p.set_seats(vec![at(chair, true)]);
         p.start(&def(
             "t",
             vec![
@@ -1910,6 +2062,149 @@ mod tests {
         p.fast_forward(&loc, 30.0);
         assert_eq!(tile_of(&p, "guest_333"), chair);
         assert_ne!(tile_of(&p, "mirek"), chair);
+    }
+
+    /// Where an actor is, as the stage sees it: (tile, sitting).
+    fn place_of(a: &Actor) -> ((i32, i32), bool) {
+        match a.sit.filter(|_| a.seated()) {
+            Some((tile, _)) => (tile, true),
+            None => (
+                (
+                    (a.pos.x / TILE).floor() as i32,
+                    (a.pos.y / TILE).floor() as i32,
+                ),
+                false,
+            ),
+        }
+    }
+
+    /// 0.2.7: Mrs Vera walked onto the corner table (the spot is grandma's table tile) and
+    /// stood there. A spot on a table sends a guest to a chair at it — sitting, facing the
+    /// table — and Karolina to the floor beside it; a spot on a free chair sits them down.
+    #[test]
+    fn a_spot_on_a_table_seats_the_actor_at_it() {
+        let (mut p, i18n, content) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        let table = content.cutscenes.spots["corner_table"];
+        assert_eq!(
+            p.scene.map.get(table.0 as usize, table.1 as usize),
+            Some(Tile::Table)
+        );
+        let enter = |a: &str, spot: &str| CutsceneStep::ActorEnter {
+            actor: a.into(),
+            to_tile: Place::Spot(spot.into()),
+        };
+        p.start(&def(
+            "t",
+            vec![
+                enter("vera", "corner_table"),
+                enter("player", "corner_table"),
+                enter("guest_333", "window_chair"),
+                narration("scene.vera_first.01"),
+            ],
+        ));
+        p.fast_forward(&loc, 30.0);
+        let find = |id: &str| p.actors.iter().find(|a| a.id == id).expect("on stage");
+        let vera = find("vera");
+        let (tile, sitting) = place_of(vera);
+        assert!(sitting, "Vera sits");
+        assert_eq!(
+            p.scene.map.get(tile.0 as usize, tile.1 as usize),
+            Some(Tile::Chair)
+        );
+        assert_eq!(
+            (tile.0 - table.0).abs() + (tile.1 - table.1).abs(),
+            1,
+            "at the table"
+        );
+        let pose = vera.pose(0.0);
+        assert_eq!(pose.pose, crate::render::Pose::Sit);
+        let to_table = vec2((table.0 - tile.0) as f32, (table.1 - tile.1) as f32);
+        assert_eq!(pose.facing, Facing::from_dir(to_table), "facing the table");
+        let (tile, sitting) = place_of(find("player"));
+        assert!(!sitting, "Karolina stands");
+        assert_eq!(
+            p.scene.map.get(tile.0 as usize, tile.1 as usize),
+            Some(Tile::Floor)
+        );
+        let chair = content.cutscenes.spots["window_chair"];
+        assert_eq!(
+            place_of(find("guest_333")),
+            (chair, true),
+            "sits on the chair"
+        );
+    }
+
+    /// A regular already sitting near the spot keeps their seat (no walk over to the table
+    /// they're sitting at); one sitting far away gets up and comes.
+    #[test]
+    fn a_regular_sitting_near_the_spot_stays_seated() {
+        let (mut p, i18n, content) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        let table = content.cutscenes.spots["corner_table"];
+        let seat = (table.0 + 1, table.1);
+        p.set_live_cast([("vera".to_string(), tile_feet(seat.0, seat.1))]);
+        p.set_live_seated([("vera".to_string(), seat, Facing::Left)]);
+        let enter = CutsceneStep::ActorEnter {
+            actor: "vera".into(),
+            to_tile: Place::Spot("corner_table".into()),
+        };
+        p.start(&def(
+            "t",
+            vec![enter.clone(), narration("scene.vera_first.01")],
+        ));
+        // at once: she's on stage, sitting where she was, nobody walks
+        p.fast_forward(&loc, 0.05);
+        let vera = p.actors.iter().find(|a| a.id == "vera").expect("on stage");
+        assert_eq!(place_of(vera), (seat, true));
+        assert!(!vera.walking());
+        assert_eq!(vera.alpha, 1.0, "no fade-in for someone already there");
+        // far away (the window table): she gets up and sits down at the corner table
+        let far = (3, 5);
+        p.set_live_cast([("vera".to_string(), tile_feet(far.0, far.1))]);
+        p.set_live_seated([("vera".to_string(), far, Facing::Right)]);
+        p.start(&def("t", vec![enter, narration("scene.vera_first.01")]));
+        p.fast_forward(&loc, 30.0);
+        let vera = p.actors.iter().find(|a| a.id == "vera").expect("on stage");
+        let (tile, sitting) = place_of(vera);
+        assert!(sitting && tile != far);
+        assert_eq!((tile.0 - table.0).abs() + (tile.1 - table.1).abs(), 1);
+    }
+
+    /// Every actor of every real scene, at every moment it isn't walking, stands on the
+    /// floor (or the street) or sits on a chair — never on a table, the counter or a chair.
+    #[test]
+    fn no_scene_leaves_anybody_standing_on_furniture() {
+        let (mut p, i18n, content) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        // the endings' "good" branches bring everybody in
+        p.set_condition_check(|_| true);
+        for def in &content.cutscenes.cutscenes {
+            p.start(def);
+            let mut guard = 0;
+            while p.is_playing() && guard < 4000 {
+                p.fast_forward_with(&loc, 0.25, &[0]);
+                let map = &p.scene.map;
+                for a in p.actors.iter().filter(|a| !a.walking() && !a.gone) {
+                    let (tile, sitting) = place_of(a);
+                    let kind = (tile.0 >= 0 && tile.1 >= 0)
+                        .then(|| map.get(tile.0 as usize, tile.1 as usize))
+                        .flatten();
+                    let ok = match (kind, sitting) {
+                        (None, false) => true, // the street, the platform
+                        (Some(Tile::Floor | Tile::Door), false) => true,
+                        (Some(Tile::Chair), true) => a.id != "player",
+                        _ => false,
+                    };
+                    assert!(
+                        ok,
+                        "{}: {} at {tile:?} ({kind:?}, sitting {sitting})",
+                        def.id, a.id
+                    );
+                }
+                guard += 1;
+            }
+        }
     }
 
     #[test]

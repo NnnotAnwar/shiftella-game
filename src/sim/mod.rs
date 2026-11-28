@@ -106,6 +106,8 @@ mod tests_rituals;
 #[cfg(test)]
 mod tests_sandbox;
 #[cfg(test)]
+mod tests_scenes;
+#[cfg(test)]
 mod tests_seats;
 #[cfg(test)]
 mod tests_signature;
@@ -276,6 +278,69 @@ impl World {
     }
     pub fn debug_fire_event(&mut self, content: &Content, id: &str) {
         narrator::fire(self, content, id, EffectCtx::default(), true);
+    }
+    /// Screenshots of seated guests (`SHIFTELLA_SCENE=seats`): every other seat is held for a
+    /// moment, guests who always sit come in for the free seats of the pieces `uids` (a party
+    /// per piece, as many as it seats) and the world runs until they sit. Returns how many sit.
+    pub fn debug_fill_seats(&mut self, content: &Content, uids: &[u32]) -> usize {
+        let held: Vec<(u32, usize)> = guests::seats(self, content)
+            .into_iter()
+            .filter(|s| s.free && !uids.contains(&s.uid))
+            .map(|s| (s.uid, s.idx as usize))
+            .collect();
+        let hold = |w: &mut World, by: Option<u32>| {
+            for &(u, i) in &held {
+                if let Some(slot) = w
+                    .furniture
+                    .iter_mut()
+                    .find(|p| p.uid == u)
+                    .and_then(|p| p.seat_by.get_mut(i))
+                {
+                    *slot = by;
+                }
+            }
+        };
+        hold(self, Some(u32::MAX));
+        let want = guests::seats(self, content)
+            .iter()
+            .filter(|s| s.free)
+            .count();
+        for &uid in uids {
+            let n = guests::seats(self, content)
+                .iter()
+                .filter(|s| s.free && s.uid == uid)
+                .count() as u32;
+            if n > 0 {
+                guests::spawn_party(
+                    self,
+                    content,
+                    "students",
+                    n,
+                    None,
+                    50.0,
+                    1.0,
+                    &[],
+                    None,
+                    true,
+                );
+            }
+        }
+        let sitting = |w: &World| {
+            w.guests
+                .iter()
+                .filter(|g| {
+                    !g.gone && g.pose == Pose::Sit && g.seat.is_some_and(|(u, _)| uids.contains(&u))
+                })
+                .count()
+        };
+        for _ in 0..600 {
+            if sitting(self) >= want {
+                break;
+            }
+            self.tick(content);
+        }
+        hold(self, None);
+        sitting(self)
     }
 }
 

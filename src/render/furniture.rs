@@ -164,6 +164,9 @@ pub fn furniture_sort_key(sprite: &str, tile_origin: Vec2, size: (u8, u8)) -> f3
         "rug" => tile_origin.y - 100_000.0,
         "pendant_lamp" => tile_origin.y + 100_000.0,
         "grandma_photo" => tile_origin.y,
+        // a seat piece turned along the y axis sorts by its first row, so whoever sits on
+        // that row (drawn at their seat's row) is drawn after it, not sunk into it
+        "sofa" | "armchair" | "window_seat" => tile_origin.y + TILE,
         // counter-top props: after the counter on the same tile
         "tip_jar" | "advent_wreath" => tile_origin.y + d + 0.5,
         _ => tile_origin.y + d,
@@ -1374,14 +1377,7 @@ pub fn draw_furniture(sprite: &str, tile_origin: Vec2, size: (u8, u8), state: &F
             draw_pendant_shade(cx, ly, state.active, t);
         }
         "sofa" | "armchair" | "window_seat" => {
-            let st = decor();
-            let fabric = match sprite {
-                "sofa" => st.textile,
-                "armchair" => st.textile_alt,
-                _ if st == super::theme::ThemeStyle::DEFAULT => c::FABRIC_ROSE,
-                _ => mix(st.textile, st.accent, 0.35),
-            };
-            draw_seat(o, w, d, fabric, sprite == "window_seat", seed);
+            draw_seat_part(sprite, o, size, state, SeatPart::All);
         }
         "bookshelf" => draw_bookshelf(o, w, d, seed),
         "jukebox" => draw_jukebox(o, w, d, state),
@@ -2106,12 +2102,195 @@ fn draw_chair(o: Vec2, facing: Facing) {
     }
 }
 
-fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u32) {
+/// Which part of a seat piece to draw: a sofa or an armchair whose sitter faces away from the
+/// camera has its backrest in front of them, so that backrest is drawn after the sitter.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum SeatPart {
+    All,
+    /// Everything but a front backrest (`Facing::Up`).
+    Base,
+    /// Only the front backrest (`Facing::Up`).
+    FrontBack,
+}
+
+/// A sofa / armchair / window seat, turned so its sitters face `facing` (0.2.7: it was always
+/// drawn facing the camera, and guests sitting the other way or on a turned sofa sank into it).
+#[allow(clippy::too_many_arguments)]
+fn draw_seat(
+    o: Vec2,
+    w: f32,
+    d: f32,
+    fabric: Color,
+    window_seat: bool,
+    seed: u32,
+    facing: Facing,
+    part: SeatPart,
+) {
+    let seat_h = 18.0;
+    let arm = if window_seat { 0.0 } else { 9.0 };
+    let throw = |px: f32, py: f32, pw: f32, ph: f32| {
+        rrect_v(
+            px,
+            py,
+            pw,
+            ph,
+            5.0,
+            tint_light(decor().accent, 0.2),
+            decor().accent,
+        )
+    };
+    match facing {
+        Facing::Left | Facing::Right if !window_seat => {
+            // the backrest runs along the side behind the sitters, the arms close the ends
+            if part == SeatPart::FrontBack {
+                return;
+            }
+            let (x, y0) = (o.x + 4.0, o.y + 4.0);
+            let (sw, sd) = (w - 8.0, d - 8.0);
+            let back_h = 34.0;
+            let left = facing == Facing::Left;
+            let bx = if left { x + sw - 12.0 } else { x };
+            let sx = if left { x } else { x + 12.0 };
+            soft_shadow(x + sw / 2.0 + 3.0, y0 + sd * 0.6, sw * 0.6, sd * 0.55, 0.45);
+            box3(
+                bx,
+                y0,
+                12.0,
+                sd,
+                seat_h + back_h,
+                tint_light(fabric, 0.1),
+                shade(fabric, 0.85),
+                6.0,
+            );
+            let arm_box = |ay: f32| {
+                box3(
+                    sx,
+                    ay,
+                    sw - 12.0,
+                    arm,
+                    seat_h + 6.0,
+                    tint_light(fabric, 0.12),
+                    shade(fabric, 0.8),
+                    4.0,
+                )
+            };
+            arm_box(y0);
+            box3(
+                sx,
+                y0 + arm,
+                sw - 12.0,
+                sd - 2.0 * arm,
+                seat_h - 4.0,
+                shade(fabric, 0.9),
+                shade(fabric, 0.7),
+                5.0,
+            );
+            let n = ((sd - 2.0 * arm) / 50.0).round().max(1.0) as i32;
+            let ch = (sd - 2.0 * arm) / n as f32;
+            for i in 0..n {
+                let py = y0 + arm + i as f32 * ch;
+                rrect_v(
+                    sx + 1.0,
+                    py + 1.0 - seat_h,
+                    sw - 14.0,
+                    ch - 2.0,
+                    6.0,
+                    tint_light(fabric, 0.18),
+                    fabric,
+                );
+            }
+            // a throw cushion against the backrest
+            let tx = if left { sx + sw - 24.0 } else { sx };
+            throw(
+                tx,
+                y0 + arm + 6.0 + hash01(seed) * 8.0 - seat_h - 6.0,
+                10.0,
+                16.0,
+            );
+            arm_box(y0 + sd - arm);
+        }
+        Facing::Up if !window_seat => {
+            // seen from behind: the seat, then the sitter, then the backrest in front of them
+            // (as low as a chair's, so their shoulders and head stay in view)
+            let (x, y0) = (o.x + 4.0, o.y + 8.0);
+            let (sw, sd) = (w - 8.0, d - 12.0);
+            if part != SeatPart::FrontBack {
+                soft_shadow(x + sw / 2.0 + 3.0, y0 + sd * 0.6, sw * 0.6, sd * 0.6, 0.45);
+                box3(
+                    x,
+                    y0,
+                    sw,
+                    sd - 10.0,
+                    seat_h - 4.0,
+                    shade(fabric, 0.9),
+                    shade(fabric, 0.7),
+                    5.0,
+                );
+                let n = ((sw - 2.0 * arm) / 50.0).round().max(1.0) as i32;
+                let cw = (sw - 2.0 * arm) / n as f32;
+                for i in 0..n {
+                    let px = x + arm + i as f32 * cw;
+                    rrect_v(
+                        px + 1.0,
+                        y0 + 2.0 - seat_h,
+                        cw - 2.0,
+                        sd - 16.0,
+                        6.0,
+                        tint_light(fabric, 0.18),
+                        fabric,
+                    );
+                }
+                for ax in [x, x + sw - arm] {
+                    box3(
+                        ax,
+                        y0,
+                        arm,
+                        sd - 2.0,
+                        seat_h + 6.0,
+                        tint_light(fabric, 0.12),
+                        shade(fabric, 0.8),
+                        4.0,
+                    );
+                }
+            }
+            if part != SeatPart::Base {
+                box3(
+                    x,
+                    y0 + sd - 12.0,
+                    sw,
+                    12.0,
+                    seat_h + 22.0,
+                    tint_light(fabric, 0.1),
+                    shade(fabric, 0.85),
+                    7.0,
+                );
+            }
+        }
+        _ => {
+            if part == SeatPart::FrontBack {
+                return;
+            }
+            draw_seat_down(o, w, d, fabric, window_seat, seed, arm, throw);
+        }
+    }
+}
+
+/// The seat facing the camera (and every window seat): the backrest behind the sitters.
+#[allow(clippy::too_many_arguments)]
+fn draw_seat_down(
+    o: Vec2,
+    w: f32,
+    d: f32,
+    fabric: Color,
+    window_seat: bool,
+    seed: u32,
+    arm: f32,
+    throw: impl Fn(f32, f32, f32, f32),
+) {
     let (x, y0) = (o.x + 4.0, o.y + 10.0);
     let (sw, sd) = (w - 8.0, d - 16.0);
     let seat_h = 18.0;
     let back_h = if window_seat { 0.0 } else { 34.0 };
-    let arm = if window_seat { 0.0 } else { 9.0 };
     soft_shadow(x + sw / 2.0 + 3.0, y0 + sd * 0.7, sw * 0.6, sd * 0.6, 0.45);
     // backrest
     if back_h > 0.0 {
@@ -2169,15 +2348,7 @@ fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u3
     }
     // throw cushion
     let px = x + arm + 12.0 + hash01(seed) * 8.0;
-    rrect_v(
-        px,
-        y0 + 2.0 - seat_h - 8.0,
-        16.0,
-        14.0,
-        5.0,
-        tint_light(decor().accent, 0.2),
-        decor().accent,
-    );
+    throw(px, y0 + 2.0 - seat_h - 8.0, 16.0, 14.0);
     if window_seat {
         let px2 = x + sw - 30.0;
         rrect_v(
@@ -2190,6 +2361,47 @@ fn draw_seat(o: Vec2, w: f32, d: f32, fabric: Color, window_seat: bool, seed: u3
             c::INDIGO,
         );
     }
+}
+
+/// Seat pieces with a backrest that turns with the piece (a sitter facing away from the camera
+/// has it in front of them: the render queue draws it after the sitter).
+pub fn is_backed_seat(sprite: &str) -> bool {
+    matches!(sprite, "sofa" | "armchair")
+}
+
+/// Where the seat (without its front backrest) of a piece facing away from the camera sorts:
+/// before its sitters (`person_sort_key` of a sitter facing up is 0.2 tile into the piece),
+/// after everything on the row above.
+pub fn seat_base_sort_key(tile_origin: Vec2) -> f32 {
+    tile_origin.y + 0.1 * TILE
+}
+
+pub(crate) fn draw_seat_part(
+    sprite: &str,
+    o: Vec2,
+    size: (u8, u8),
+    state: &FurnitureState,
+    part: SeatPart,
+) {
+    let (w, d) = dims(size);
+    let seed = (o.x as i32 as u32).wrapping_mul(31) ^ (o.y as i32 as u32).wrapping_mul(17);
+    let st = decor();
+    let fabric = match sprite {
+        "sofa" => st.textile,
+        "armchair" => st.textile_alt,
+        _ if st == super::theme::ThemeStyle::DEFAULT => c::FABRIC_ROSE,
+        _ => mix(st.textile, st.accent, 0.35),
+    };
+    draw_seat(
+        o,
+        w,
+        d,
+        fabric,
+        sprite == "window_seat",
+        seed,
+        state.facing,
+        part,
+    );
 }
 
 fn draw_bookshelf(o: Vec2, w: f32, d: f32, seed: u32) {

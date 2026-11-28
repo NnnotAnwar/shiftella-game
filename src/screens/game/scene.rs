@@ -618,6 +618,17 @@ impl WorldScene {
         }
         let poses: Vec<PersonPose> = people.iter().map(|v| wv::person_pose(v, t)).collect();
 
+        // tiles under a table (a seated guest's cup goes on the table in front of them)
+        let table_tiles: std::collections::HashSet<(i32, i32)> = world
+            .furniture()
+            .iter()
+            .filter_map(|p| {
+                let d = content.furniture_def(&p.def)?;
+                d.has_tag("table")
+                    .then(|| sim::grid::footprint(d, p.x, p.y, p.rot))
+            })
+            .flatten()
+            .collect();
         let mut q = RenderQueue::new();
         for (sprite, origin, size, st) in &pieces {
             q.push_furniture(sprite, *origin, *size, *st);
@@ -668,7 +679,18 @@ impl WorldScene {
                     Facing::Up => vec2(0.0, -1.0),
                     Facing::Down => vec2(0.0, 1.0),
                 };
-                if let Some((sx, sy)) = v.seat_tile {
+                // (a sofa facing away from its table: the cup stays in hand)
+                let at_table = v.seat_tile.is_some_and(|(sx, sy)| {
+                    table_tiles.contains(&(sx + dir.x as i32, sy + dir.y as i32))
+                });
+                if v.seat_tile.is_some() && !at_table && v.holding.is_some() {
+                    let side = if f == Facing::Left { -13.0 } else { 13.0 };
+                    let at = pose.feet + vec2(side, -34.0);
+                    let phase = pose.feet.x * 0.03;
+                    q.push_custom(person_sort_key(pose) + 0.02, move || {
+                        draw_cup(at, 0.75, t + phase, true)
+                    });
+                } else if let Some((sx, sy)) = v.seat_tile {
                     let table = vec2(sx as f32, sy as f32) + dir;
                     if v.look.preset.as_deref() == Some("anwar") {
                         let side = if f == Facing::Left { 0.58 } else { 0.42 };

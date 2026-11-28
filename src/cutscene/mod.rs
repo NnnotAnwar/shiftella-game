@@ -25,7 +25,7 @@ pub mod staging;
 
 pub use cast::Cast;
 pub use player::{
-    AudioRequest, ChoiceMade, CutsceneOutcome, CutscenePlayer, CutsceneStatus, StepInput,
+    AudioRequest, ChoiceMade, CutsceneOutcome, CutscenePlayer, CutsceneStatus, StageSeat, StepInput,
 };
 pub use scene::CafeScene;
 

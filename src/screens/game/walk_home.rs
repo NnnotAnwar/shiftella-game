@@ -35,6 +35,18 @@ const WALK_S: f32 = 15.0;
 const ARRIVE_S: f32 = 3.4;
 const FADE_IN_S: f32 = 0.9;
 const FADE_OUT_S: f32 = 0.9;
+/// Picking the way home: the street dims into the blue hour over this long, the chosen way's
+/// street replaces it while it's dark (0.2.7: the street swapped in one frame before her eyes)…
+const DIP_OUT_S: f32 = 0.45;
+/// …and comes up again over this long, while she sets off.
+const DIP_IN_S: f32 = 0.6;
+/// She sets off this long after the pick (in the dip, once the new street is there).
+const SET_OFF_S: f32 = DIP_OUT_S + 0.15;
+/// After the walk / the back step the café (the day planning, the night) comes up from the
+/// same dusk over this long instead of popping in.
+const AFTER_S: f32 = 0.7;
+/// The colour every transition of these scenes passes through.
+const DUSK: Color = Color::new(0.05, 0.04, 0.1, 1.0);
 /// The back step closes by itself after this long.
 const BACKSTEP_S: f32 = 32.0;
 /// The phone buzzes.
@@ -44,6 +56,8 @@ const MESSAGE_AT: f32 = 3.5;
 #[derive(Debug, Default)]
 pub struct WalkUi {
     scene: Option<Scene>,
+    /// Seconds left of the café's fade-in after a scene (see [`AFTER_S`]).
+    after: f32,
 }
 
 impl WalkUi {
@@ -168,13 +182,25 @@ pub fn begin(g: &mut GameScreen, content: &Content, weather: Option<Weather>) {
 
 /// Screenshots: pick a route at once and jump `t` seconds into the scene.
 pub fn debug_seek(g: &mut GameScreen, content: &Rc<Content>, route: Option<&str>, t: f32) {
+    debug_seek_picked(g, content, route, t, 0.0);
+}
+
+/// Screenshots of the pick's transition: the route counts as picked at `picked_at` s
+/// (`SHIFTELLA_PICK_AT`), the scene shows `t` s.
+pub fn debug_seek_picked(
+    g: &mut GameScreen,
+    content: &Rc<Content>,
+    route: Option<&str>,
+    t: f32,
+    picked_at: f32,
+) {
     if let Some(r) = route {
         pick(g, content, r);
     }
     match &mut g.walk.scene {
         Some(Scene::Walk(w)) => {
             if route.is_some() {
-                w.picked_at = 0.0;
+                w.picked_at = picked_at.min(t);
             }
             w.t = t;
         }
@@ -297,7 +323,7 @@ pub fn frame(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) -> bool {
             {
                 done = true;
             }
-            if w.route.is_some() && w.t - w.picked_at > 0.4 + WALK_S + ARRIVE_S + FADE_OUT_S {
+            if w.route.is_some() && w.t - w.picked_at > SET_OFF_S + WALK_S + ARRIVE_S + FADE_OUT_S {
                 done = true;
             }
         }
@@ -361,8 +387,28 @@ pub fn frame(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, dt: f32) -> bool {
     }
     if done {
         g.walk.scene = None;
+        g.walk.after = AFTER_S;
     }
     true
+}
+
+/// The café coming up from the dusk the walk / the back step ended in (over everything,
+/// the last thing of a game frame).
+pub fn after_veil(g: &mut GameScreen, ui: &Ui, dt: f32) {
+    if g.walk.after <= 0.0 || g.walk.scene.is_some() {
+        return;
+    }
+    let k = after_alpha(g.walk.after);
+    g.walk.after = (g.walk.after - dt.min(0.1)).max(0.0);
+    if k > 0.0 {
+        let s = ui.screen();
+        draw_rectangle(0.0, 0.0, s.w, s.h, Color { a: k, ..DUSK });
+    }
+}
+
+/// The veil over the café `left` seconds before its fade-in ends.
+fn after_alpha(left: f32) -> f32 {
+    ease(left / AFTER_S)
 }
 
 fn set_view_camera(view: Rect) {
@@ -426,7 +472,7 @@ fn walk_sounds(w: &mut Walk, c: &mut Cues) {
     if w.route.is_none() {
         return;
     }
-    let u = (w.t - w.picked_at - 0.4) / WALK_S;
+    let u = (w.t - w.picked_at - SET_OFF_S) / WALK_S;
     if f.route == Some(DawnRoute::Tram) {
         // the tram comes in, rings as it leaves the stop, and goes on without her
         if u > 0.2 && once(&mut w.sounds, 4) {
@@ -490,14 +536,46 @@ fn stroll(u: f32) -> f32 {
     }
 }
 
+/// The route the street shows: the chosen one only once the dip is dark.
+fn shown_route(w: &Walk) -> Option<&str> {
+    w.route
+        .as_deref()
+        .filter(|_| w.t - w.picked_at >= DIP_OUT_S)
+}
+
+/// The dusk over the walk (0 clear … 1 dark): it opens from dark, dips around the pick (dark
+/// when the street changes), closes at home or on a skip. Continuous — no scene change shows.
+fn walk_veil(w: &Walk) -> f32 {
+    let fade_in = 1.0 - ease(w.t / FADE_IN_S);
+    let dip = if w.route.is_some() {
+        let a = w.t - w.picked_at;
+        if a < DIP_OUT_S {
+            ease(a / DIP_OUT_S)
+        } else {
+            1.0 - ease((a - DIP_OUT_S) / DIP_IN_S)
+        }
+    } else {
+        0.0
+    };
+    let fade_out = w
+        .closing
+        .map_or(0.0, |c| ease((w.t - c) / (FADE_OUT_S * 0.6)));
+    let end = if w.route.is_some() {
+        ease((w.t - w.picked_at - SET_OFF_S - WALK_S - ARRIVE_S) / FADE_OUT_S)
+    } else {
+        0.0
+    };
+    fade_in.max(dip).max(fade_out).max(end)
+}
+
 fn walk_frame(w: &Walk) -> DawnFrame {
-    let route = w.route.as_deref().and_then(DawnRoute::from_id);
+    let route = shown_route(w).and_then(DawnRoute::from_id);
     let home = dawn::home_x(route);
     // the blue hour while she locks up, then the sun comes up on the way
     let pre = |t: f32| 0.1 + 0.12 * ease(t / AUTO_PICK_S);
-    let light = if route.is_some() {
+    let light = if w.route.is_some() {
         let l0 = pre(w.picked_at);
-        l0 + (1.0 - l0) * ease((w.t - w.picked_at - 0.4) / (WALK_S + 1.0))
+        l0 + (1.0 - l0) * ease((w.t - w.picked_at - SET_OFF_S) / (WALK_S + 1.0))
     } else {
         pre(w.t)
     };
@@ -523,7 +601,7 @@ fn walk_frame(w: &Walk) -> DawnFrame {
         }
         return f;
     }
-    let tw = w.t - w.picked_at - 0.4;
+    let tw = w.t - w.picked_at - SET_OFF_S;
     if tw < 0.0 {
         f.pose = Pose::Idle;
         f.facing = Facing::Right;
@@ -614,7 +692,7 @@ fn walk_ui(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let (wt, route, picked_at, closing) = (w.t, w.route.clone(), w.picked_at, w.closing);
     let lines = w.lines.clone();
     // the place and the time, top left
-    let tw = wt - picked_at - 0.4;
+    let tw = wt - picked_at - SET_OFF_S;
     let minute = 2 + (wt / 2.5) as u32;
     let label = format!("06:{:02} · {}", minute.min(40), loc.tr("walk.place"));
     let a_top = ease(wt / 1.2) * (1.0 - ease((tw - 3.0) / 1.5) * route.is_some() as i32 as f32);
@@ -630,8 +708,14 @@ fn walk_ui(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     }
     // the route chips while she locks the door
     let usual = g.world.usual_route().to_string();
-    if route.is_none() && closing.is_none() {
-        let a = ease((wt - 0.5) / 0.6);
+    // the chips fade out with the street once a way is picked (not gone in one frame)
+    let chips_out = if route.is_some() {
+        1.0 - ease((wt - picked_at) / DIP_OUT_S)
+    } else {
+        1.0
+    };
+    if chips_out > 0.0 && closing.is_none() {
+        let a = ease((wt - 0.5) / 0.6) * chips_out;
         crate::ui::draw::push_alpha(a);
         let routes = &sim::walk::data().routes;
         let buttons: Vec<(String, String, String)> = routes
@@ -685,7 +769,7 @@ fn walk_ui(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 .selected(*id == usual)
                 .tooltip(hint);
             let resp = ui.button(("walk_route", i), r, &b);
-            if resp.clicked {
+            if resp.clicked && route.is_none() {
                 clicked = Some(id.clone());
             }
             // the usual way fills a thin line until she just goes
@@ -702,7 +786,8 @@ fn walk_ui(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         crate::ui::draw::pop_alpha();
         let digits = [KeyCode::Key1, KeyCode::Key2, KeyCode::Key3, KeyCode::Key4];
         for (i, k) in digits.iter().enumerate() {
-            if ui.key(*k)
+            if route.is_none()
+                && ui.key(*k)
                 && let Some(b) = buttons.get(i)
             {
                 clicked = Some(b.0.clone());
@@ -747,17 +832,13 @@ fn walk_ui(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     if closing.is_none() {
         skip_button(g, ui, cx);
     }
-    // fades
-    let fade_in = 1.0 - ease(wt / FADE_IN_S);
-    let fade_out = closing.map_or(0.0, |c| ease((wt - c) / (FADE_OUT_S * 0.6)));
-    let end = if route.is_some() {
-        ease((tw - WALK_S - ARRIVE_S) / FADE_OUT_S)
-    } else {
-        0.0
-    };
-    let k = fade_in.max(fade_out).max(end);
+    // fades (one veil: the opening, the dip around the pick, home / skip)
+    let k = g.walk.scene.as_ref().map_or(0.0, |sc| match sc {
+        Scene::Walk(w) => walk_veil(w),
+        Scene::Back(_) => 0.0,
+    });
     if k > 0.0 {
-        draw_rectangle(0.0, 0.0, s.w, s.h, Color::new(0.05, 0.04, 0.1, k));
+        draw_rectangle(0.0, 0.0, s.w, s.h, Color { a: k, ..DUSK });
     }
 }
 
@@ -926,7 +1007,7 @@ mod tests {
     fn walk_cues(route: &str) -> (Vec<Sfx>, usize) {
         let mut w = walk_with(route);
         let (mut sfx, mut steps) = (Vec::new(), 0);
-        while w.t < 0.4 + WALK_S + ARRIVE_S {
+        while w.t < SET_OFF_S + WALK_S + ARRIVE_S {
             let mut c = Cues::default();
             walk_sounds(&mut w, &mut c);
             sfx.extend(c.sfx.iter().map(|s| s.0));
@@ -1011,7 +1092,7 @@ mod tests {
             let mut last_light = 0.0;
             let mut prev_x = 0.0_f32;
             let mut steps = 0;
-            while w.t < 0.4 + WALK_S + ARRIVE_S {
+            while w.t < SET_OFF_S + WALK_S + ARRIVE_S {
                 let f = walk_frame(&w);
                 assert!(f.light + 1e-4 >= last_light, "{id}: light never dims");
                 last_light = f.light;
@@ -1039,11 +1120,71 @@ mod tests {
         }
     }
 
+    /// 0.2.7: "the world changes abruptly depending on the chosen way home". Locking up, the
+    /// pick, the walk, home: one veil that never jumps, dark whenever the street changes, and
+    /// the café comes up from the same dusk afterwards.
+    #[test]
+    fn the_way_home_changes_only_under_a_soft_dusk() {
+        for id in ["embankment", "park", "bakery", "tram"] {
+            let mut w = walk_with(id);
+            w.route = None;
+            let dt = 1.0 / 60.0;
+            let picked = 3.0;
+            let (mut prev_veil, mut prev_route, mut prev_frame) =
+                (walk_veil(&w), None::<DawnRoute>, walk_frame(&w).route);
+            let mut changes = 0;
+            let mut darkest = 0.0_f32;
+            while w.t < picked + SET_OFF_S + WALK_S + ARRIVE_S + FADE_OUT_S {
+                w.t += dt;
+                if w.route.is_none() && w.t >= picked {
+                    w.route = Some(id.into());
+                    w.picked_at = w.t;
+                }
+                let veil = walk_veil(&w);
+                assert!(
+                    (veil - prev_veil).abs() < 0.1,
+                    "{id}: the veil jumps at {:.2}s ({prev_veil} → {veil})",
+                    w.t
+                );
+                let f = walk_frame(&w);
+                if f.route != prev_frame {
+                    changes += 1;
+                    assert!(veil > 0.95, "{id}: the street changed in the open ({veil})");
+                }
+                if w.t > picked && w.t < picked + 1.5 {
+                    darkest = darkest.max(veil);
+                }
+                prev_veil = veil;
+                prev_frame = f.route;
+                prev_route = f.route.or(prev_route);
+            }
+            assert_eq!(changes, 1, "{id}: the street changes once, at the pick");
+            assert_eq!(prev_route, DawnRoute::from_id(id));
+            assert!(darkest > 0.95, "{id}: the pick dips into the dusk");
+            assert!(prev_veil > 0.99, "{id}: home fades out to the dusk");
+            // she was standing at the door until the new street was there
+            w.t = picked + DIP_OUT_S * 0.5;
+            w.picked_at = picked;
+            assert_eq!(walk_frame(&w).karolina.x, CAFE_DOOR_X);
+        }
+        // the café after it: from the dusk to clear, smoothly
+        let mut left = AFTER_S;
+        let mut prev = after_alpha(left);
+        assert!(prev > 0.99);
+        while left > 0.0 {
+            left = (left - 1.0 / 60.0).max(0.0);
+            let k = after_alpha(left);
+            assert!(k <= prev && prev - k < 0.1);
+            prev = k;
+        }
+        assert_eq!(prev, 0.0);
+    }
+
     #[test]
     fn the_tram_carries_her_out_of_sight_and_lets_her_off_near_home() {
         let mut w = walk_with("tram");
         let mut hidden = false;
-        while w.t < 0.4 + WALK_S {
+        while w.t < SET_OFF_S + WALK_S {
             let f = walk_frame(&w);
             if !f.visible {
                 hidden = true;

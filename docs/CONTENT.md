@@ -233,6 +233,10 @@ Steps run in order; dialogue steps wait for a click, `Camera`/`Music`/`Sfx`/`Let
 `Wait{seconds}` · `Fade{to_black, seconds}` · `Music{track: Option}` (`MUSIC_TRACKS`; `None` fades out) · `Sfx{id}` (`SFX_IDS`) · `TrainPass` · `Letterbox{on}` ·
 `ShowNote{note_id}` (also marks it found) · `If{conditions, then, otherwise}` · `Call{cutscene}` · `Apply{effects}`.
 `Place`/`Focus` spots are named tiles on the default café map (`cutscenes.ron` → `spots`); move them if the map changes.
+Over the live café (the player's own furniture) an actor sent to a spot stands there only if it's free floor; a spot on
+a free seat sits them down; a spot on a table / the counter / somebody else sends them to the nearest free seat close
+by (sitting, facing its table), else to the nearest free floor tile. Karolina (`player`) and the crew never sit. A
+regular already sitting within two tiles of the spot keeps their seat (0.2.7).
 Actors/speakers: regular ids, staff archetype ids, cast ids (`player`, `grandma`, `bot`, `announcer`, `sindelar`, `landlord`, `jana`), or guest archetype ids (extras).
 Skipping (`skippable: true`) jumps to the end but still applies every `Apply` step and runs `ShowNote`; a skipped `Choice` is not answered
 (scenes whose choices matter are `skippable: false`). If an actor a scene enters is already in the café (a regular on their
@@ -260,6 +264,10 @@ languages; placeholder parity. Hands-on: see §10.12.
 * **Ambient bubble (hover / click):** `RegularDef.ambient_lines: Vec<AmbientLine { key, when: Vec<Condition> }>`.
   Pick randomly among lines whose non-empty `when` holds; if none, among lines with empty `when` (fallbacks).
   Shown as a small speech bubble, no cutscene. (Arc-stage `lines` remain the generic per-stage bubbles.)
+* **Walking in:** a regular says a line as a bubble over them (and in the ticker) — never a card to click away.
+  A line of the current arc stage they haven't said yet comes first; after that the stage's `lines` take turns with
+  `RegularDef.greetings` (everyday hellos, `regular.<id>.hello.<n>`), never the same line twice in a row
+  (`RegularState.lines_heard` / `last_line`, saved).
 * **Talk:** `CutsceneTrigger::Talk { regular, night: Option<u32> }`. Offer a "Talk" action on the regular while an
   unplayed talk cutscene matches (`night: None` = any night); choosing it plays the cutscene. Usable for any regular.
 * **Act talks (`talks.ron`):** one short talk per act for each of the six story regulars who comes in that act
