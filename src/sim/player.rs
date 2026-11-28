@@ -503,6 +503,7 @@ pub(crate) fn brew(
         p.items.push(iid);
         p.wish_open = false;
         w.hands.player.last_mode_wish = mode;
+        drop_clashing_side(w, content, party_id, leader, &r.base_item);
         iid
     } else {
         let pick = w
@@ -593,6 +594,41 @@ pub(crate) fn brew(
     let front = for_wish && w.parties[pi].regular.is_some();
     push(w, PlayerAct::Brew { item: iid, extra }, front);
     Ok(())
+}
+
+/// Karolina answers the leader's wish with `menu`: a plain item for the leader that would
+/// serve them the same thing twice — another drink when hers is a drink, the very same dish
+/// when hers is a dish (a soup with a toast is a meal) — and that nobody has finished yet is
+/// dropped (its supplies come back), so the guest never gets the crew's cup and then hers for
+/// the same order. A helper on it lets it go (their task is no longer valid); something
+/// already made stays.
+fn drop_clashing_side(w: &mut World, content: &Content, party: u32, leader: u32, menu: &str) {
+    let drink = content.menu_item(menu).is_some_and(guests::drink_item);
+    let mut refund = 0i64;
+    for i in w.items.iter_mut() {
+        if i.party != party
+            || i.guest != leader
+            || i.wish
+            || !matches!(i.state, ItemState::Pending | ItemState::Preparing)
+            || i.origin.by_player()
+        {
+            continue;
+        }
+        let Some(m) = content.menu_item(&i.menu) else {
+            continue;
+        };
+        let clash = if drink {
+            guests::drink_item(m)
+        } else {
+            i.menu == menu
+        };
+        if !clash {
+            continue;
+        }
+        i.state = ItemState::Cancelled;
+        refund += m.cost as i64;
+    }
+    w.econ.supplies += refund;
 }
 
 /// `Command::PlayerUsual`.

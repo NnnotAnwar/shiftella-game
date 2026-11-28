@@ -80,6 +80,8 @@ mod tests_closing;
 #[cfg(test)]
 mod tests_combos;
 #[cfg(test)]
+mod tests_double_serve;
+#[cfg(test)]
 mod tests_equipment;
 #[cfg(test)]
 mod tests_floor;

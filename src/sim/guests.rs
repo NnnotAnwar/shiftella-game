@@ -572,6 +572,36 @@ fn pick_wishes(
     size: u32,
     spend_mult: f32,
 ) -> Vec<String> {
+    pick_orders(w, content, favourites, orders, size, spend_mult)
+        .into_iter()
+        .flatten()
+        .collect()
+}
+
+/// A drink (or the café's special) rather than something to eat.
+pub(crate) fn drink_item(m: &MenuItem) -> bool {
+    matches!(m.category, MenuCategory::Drink | MenuCategory::Special)
+}
+
+/// Is the leader's wish answered with a drink? (A Food wish with a dish; any other wish is
+/// taken as the leader's drink — mostly it is.)
+pub(crate) fn wish_is_drink(content: &Content, kind: &super::hands::OrderKind) -> bool {
+    !kind
+        .wish()
+        .and_then(|id| content.handson.wish(id))
+        .is_some_and(|d| d.kind == crate::content::handson::WishKind::Food)
+}
+
+/// What each of `size` people orders, person by person (one drink, maybe one thing to eat —
+/// or one dish and maybe a drink with it).
+fn pick_orders(
+    w: &mut World,
+    content: &Content,
+    favourites: &[String],
+    orders: &[String],
+    size: u32,
+    spend_mult: f32,
+) -> Vec<Vec<String>> {
     let orderable: Vec<&MenuItem> = content
         .menu
         .iter()
@@ -603,22 +633,20 @@ fn pick_wishes(
         // and maybe a drink with it) — never three drinks or two soups
         let i = w.rng.weighted(&weights).unwrap_or(0);
         let main = pool[i];
-        out.push(main.id.clone());
-        let main_is_drink = matches!(main.category, MenuCategory::Drink | MenuCategory::Special);
+        let mut person = vec![main.id.clone()];
+        let main_is_drink = drink_item(main);
         let chance = if main_is_drink {
             SECOND_ITEM_CHANCE * spend_mult
         } else {
             DRINK_WITH_FOOD_CHANCE * spend_mult
         };
         if !w.rng.chance(chance.min(0.95)) {
+            out.push(person);
             continue;
         }
         let side: Vec<&MenuItem> = orderable
             .iter()
-            .filter(|m| {
-                let drink = matches!(m.category, MenuCategory::Drink | MenuCategory::Special);
-                drink != main_is_drink
-            })
+            .filter(|m| drink_item(m) != main_is_drink)
             .copied()
             .collect();
         let fav_side: Vec<&MenuItem> = side
@@ -632,8 +660,9 @@ fn pick_wishes(
             &fav_side
         };
         if let Some(m) = w.rng.pick(src) {
-            out.push(m.id.clone());
+            person.push(m.id.clone());
         }
+        out.push(person);
     }
     out
 }
@@ -682,9 +711,13 @@ pub(crate) fn spawn_party(
         // the regular's wish is Karolina's: no plain items
         Vec::new()
     } else if wish_party {
-        // the leader's main order is the wish (it may still come with something on the
-        // side); the others order plain items
-        let mut v = pick_wishes(
+        // the wish takes the place of the leader's drink (of their dish for a Food wish); what
+        // they eat (or drink) with it stays a plain item; the others order plain items.
+        // (Before 0.2.6 the leader's first item was dropped whatever it was: when that was a
+        // dish, their side coffee became a crew ticket, and the guest got the crew's cup and
+        // then Karolina's for the same order.)
+        let wish_drink = wish_is_drink(content, &order_kind);
+        let mut people = pick_orders(
             w,
             content,
             &favourites,
@@ -692,10 +725,14 @@ pub(crate) fn spawn_party(
             size,
             arch.spend_mult * spend_mul,
         );
-        if !v.is_empty() {
-            v.remove(0);
+        if let Some(leader) = people.first_mut() {
+            leader.retain(|id| {
+                content
+                    .menu_item(id)
+                    .is_some_and(|m| drink_item(m) != wish_drink)
+            });
         }
-        v
+        people.into_iter().flatten().collect()
     } else if reg.is_some() {
         // regulars: their first orderable order (+ maybe the second)
         let ok: Vec<String> = order_list
@@ -1654,20 +1691,26 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
     let wishes = w.parties[pi].wishes.clone();
     let members = w.parties[pi].members.clone();
     let wish_party = w.parties[pi].order_kind.is_wish() && w.parties[pi].wish_open;
-    // plain items go to the members who didn't wish
-    let eaters: Vec<u32> = if wish_party && members.len() > 1 {
-        members[1..].to_vec()
-    } else {
-        members.clone()
-    };
     let mut names = Vec::new();
-    for (k, wish) in wishes.iter().enumerate() {
+    // who gets what: each person one drink and at most one thing to eat; the leader's wish
+    // counts as their drink (their dish for a Food wish)
+    let wish_drink = wish_is_drink(content, &w.parties[pi].order_kind);
+    let mut held: Vec<(u32, bool, bool)> = members
+        .iter()
+        .enumerate()
+        .map(|(k, &g)| {
+            let wish = wish_party && k == 0;
+            (g, wish && wish_drink, wish && !wish_drink)
+        })
+        .collect();
+    for wish in wishes.iter() {
         let Some(mi) = content.menu_item(wish) else {
             continue;
         };
         if !item_orderable(w, content, mi) {
             continue;
         }
+        let guest = eater_for(&mut held, drink_item(mi));
         let iid = w.alloc_id();
         w.econ.supplies -= mi.cost as i64;
         let prep = mi.prep_minutes
@@ -1677,7 +1720,7 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         w.items.push(OrderItem {
             id: iid,
             party: pid,
-            guest: eaters[k.min(eaters.len() - 1)],
+            guest,
             menu: wish.clone(),
             state: ItemState::Pending,
             prep_left: prep,
@@ -1755,6 +1798,32 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         };
         w.emit(ev);
     }
+}
+
+/// The eater a new plain item of the round goes to: the first who has nothing of its kind
+/// (drink / food) yet, the fewest items first; when everyone has one, the fewest items.
+/// (Before 0.2.6 the k-th item went to the k-th eater, so a person's side slid onto the next
+/// one and the last eater collected the rest — two coffees for one guest.) `held` keeps
+/// (guest, has a drink, has something to eat) per eater as items are handed out.
+fn eater_for(held: &mut [(u32, bool, bool)], drink: bool) -> u32 {
+    let count = |h: &(u32, bool, bool)| h.1 as u8 + h.2 as u8;
+    let lacks = |h: &(u32, bool, bool)| if drink { !h.1 } else { !h.2 };
+    let pick = held
+        .iter()
+        .enumerate()
+        .filter(|(_, h)| lacks(h))
+        .min_by_key(|(i, h)| (count(h), *i))
+        .or_else(|| held.iter().enumerate().min_by_key(|(i, h)| (count(h), *i)))
+        .map(|(i, _)| i);
+    let Some(i) = pick else {
+        return 0;
+    };
+    if drink {
+        held[i].1 = true;
+    } else {
+        held[i].2 = true;
+    }
+    held[i].0
 }
 
 /// Tonight's prep × for a new plain item: "the machine is cold" for the first few, the
