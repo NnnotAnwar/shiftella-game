@@ -253,6 +253,7 @@
                 (who: 0, key: "storm.talk.trains.4"),
                 (who: None, key: "storm.talk.trains.5"),
                 (who: 2, key: "storm.talk.trains.6"),
+                (who: None, key: "storm.talk.trains.8"),
                 (who: 1, key: "storm.talk.trains.7"),
             ]),
         ],

@@ -63,6 +63,9 @@
         (night: 8, act: 2, weekday: Mon, beats: [
             (at: "21:40", what: Hint("story.hint.new_staff")),
             (at: "22:00", what: Hint("story.hint.app")),
+            // 14 Nov 2039: sixty years to the night since the Rn 333 ticket (scene.guest333_ticket.01)
+            (at: "23:25", what: Line(speaker: "mirek", text_key: "story.line.08_mirek"),
+             conditions: [RegularPresent("mirek")]),
         ]),
         (night: 9, act: 2, weekday: Tue, beats: [
             (at: "22:10", what: Hint("story.hint.special")),

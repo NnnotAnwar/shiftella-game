@@ -146,6 +146,7 @@
                 (label_key: "scene.mirek_curb.06", effects: [Trust("mirek", 5.0)]),
                 (label_key: "scene.mirek_curb.07", effects: []),
             ]),
+                If(conditions: [Flag("big_font_menu")], then: [Line(speaker: "mirek", expression: Laugh, text_key: "scene.mirek_curb.09")]),
                 Line(speaker: "mirek", expression: Smile, text_key: "scene.mirek_curb.08"),
             ],
         ),
