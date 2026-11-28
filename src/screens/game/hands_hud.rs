@@ -602,12 +602,7 @@ impl GameScreen {
                 } else {
                     self.open_crew_card("karolina");
                     // a closer camera (the overview can't move: the whole café fits)
-                    self.cam = self.scene.overview_camera(Rect::new(
-                        0.0,
-                        0.0,
-                        screen_width(),
-                        screen_height(),
-                    ));
+                    self.cam = self.scene.overview_camera(crate::camera::screen_px());
                     self.cam.zoom *= 2.0;
                     self.cam_ready = true;
                     if let Some(k) = self.world.karolina() {

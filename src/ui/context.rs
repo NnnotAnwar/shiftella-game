@@ -737,6 +737,29 @@ fn clipped(r: Rect, clip: Option<Rect>) -> Rect {
 /// Is `p` covered by a region above layer `z`? A region that is the widget's own rect (its
 /// glass / card background, often declared right after `interact`) never blocks it — also
 /// when both are cut by the same clip.
+/// Developer build (`--features dev`): the dev panel's overlays read and switch these.
+#[cfg(feature = "dev")]
+impl Ui {
+    /// Last frame's opaque UI regions with their layers.
+    pub fn dev_regions(&self) -> &[(Rect, u32)] {
+        &self.prev_regions
+    }
+    /// `SHIFTELLA_LAYOUT_DEBUG` at run time.
+    pub fn dev_layout_debug(&self) -> bool {
+        self.layout_debug
+    }
+    pub fn dev_set_layout_debug(&mut self, on: bool) {
+        self.layout_debug = on;
+        super::text::LAYOUT_DEBUG.store(on, std::sync::atomic::Ordering::Relaxed);
+    }
+    /// Raises the layer of what is declared next above everything drawn so far this frame
+    /// and last frame (the dev panel sits over any screen and takes its clicks).
+    pub fn dev_raise(&mut self) {
+        let top = self.prev_regions.iter().map(|r| r.1).max().unwrap_or(0);
+        self.z = self.z.max(top) + 1;
+    }
+}
+
 fn blocked_by(regions: &[(Rect, u32)], z: u32, p: Vec2, own: Rect, clip: Option<Rect>) -> bool {
     let own_cut = clipped(own, clip);
     let same = |a: &Rect, b: Rect| {

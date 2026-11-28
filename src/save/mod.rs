@@ -152,18 +152,19 @@ pub fn saves_dir() -> PathBuf {
         .unwrap_or_else(|| PathBuf::from("saves"))
 }
 
-fn platform_dir() -> Option<PathBuf> {
+pub(crate) fn platform_dir() -> Option<PathBuf> {
+    use crate::platform::{DATA_DIR, DATA_DIR_LOWER};
     let home = std::env::var_os("HOME").map(PathBuf::from);
     if cfg!(target_os = "macos") {
-        return home.map(|h| h.join("Library/Application Support/Shiftella"));
+        return home.map(|h| h.join("Library/Application Support").join(DATA_DIR));
     }
     if cfg!(target_os = "windows") {
-        return std::env::var_os("APPDATA").map(|a| PathBuf::from(a).join("Shiftella"));
+        return std::env::var_os("APPDATA").map(|a| PathBuf::from(a).join(DATA_DIR));
     }
     std::env::var_os("XDG_CONFIG_HOME")
         .map(PathBuf::from)
         .or_else(|| home.map(|h| h.join(".config")))
-        .map(|d| d.join("shiftella"))
+        .map(|d| d.join(DATA_DIR_LOWER))
 }
 
 /// A folder of save slots.

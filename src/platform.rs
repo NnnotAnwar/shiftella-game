@@ -19,6 +19,42 @@
 //! from its own loop, not from `drawRect:`), so `get_screen_data()` returns the real image.
 //! App Nap is held off so hidden runs keep their frame rate.
 
+/// The folder name of the game's saves and settings (macOS / Windows; `~/.config/<lower>`
+/// elsewhere). The developer build (`--features dev`) keeps its own folder, so trying things in
+/// it never touches the real saves and settings.
+pub const RELEASE_DATA_DIR: &str = "Shiftella";
+#[cfg(not(feature = "dev"))]
+pub const DATA_DIR: &str = RELEASE_DATA_DIR;
+#[cfg(feature = "dev")]
+pub const DATA_DIR: &str = "Shiftella Dev";
+/// [`DATA_DIR`] under `~/.config` (Linux and the like).
+#[cfg(not(feature = "dev"))]
+pub const DATA_DIR_LOWER: &str = "shiftella";
+#[cfg(feature = "dev")]
+pub const DATA_DIR_LOWER: &str = "shiftella-dev";
+
+/// A release build has no developer panel at all — the `dev` module isn't even compiled
+/// (`cargo test` without `--features dev` checks it at compile time):
+///
+/// ```compile_fail
+/// use shiftella_game::dev::DevPanel;
+/// ```
+#[cfg(not(feature = "dev"))]
+pub const DEV_BUILD: bool = false;
+/// The developer build (`--features dev`, docs/DEV-BUILD.md).
+#[cfg(feature = "dev")]
+pub const DEV_BUILD: bool = true;
+
+#[cfg(all(test, not(feature = "dev")))]
+mod release_tests {
+    #[test]
+    fn a_release_build_uses_the_real_folder_and_no_dev_code() {
+        assert!(!std::hint::black_box(super::DEV_BUILD));
+        assert_eq!(super::DATA_DIR, super::RELEASE_DATA_DIR);
+        assert_eq!(super::DATA_DIR_LOWER, "shiftella");
+    }
+}
+
 /// True when this run should stay invisible (see the module docs).
 pub fn automation_hidden() -> bool {
     let var = |k: &str| std::env::var(k).ok().filter(|v| !v.is_empty());

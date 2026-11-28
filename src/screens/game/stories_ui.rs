@@ -793,8 +793,7 @@ pub fn talk_hotkeys(g: &mut GameScreen, ui: &mut Ui) -> bool {
 pub fn scene_setup(g: &mut GameScreen, content: &std::rc::Rc<Content>, loc: &Locale, name: &str) {
     match name {
         "story_marker" | "story_card" => {
-            let until = std::env::var("SHIFTELLA_TIME")
-                .ok()
+            let until = crate::app::scene_env("SHIFTELLA_TIME")
                 .and_then(|t| crate::content::ClockTime::parse(&t).ok())
                 .map(|t| t.minutes_since_open().max(0))
                 .unwrap_or(60);
@@ -804,7 +803,8 @@ pub fn scene_setup(g: &mut GameScreen, content: &std::rc::Rc<Content>, loc: &Loc
             });
             // none came on its own by then: put the wanted one on a seated stranger
             if g.world.stories_active().is_empty() {
-                let want = std::env::var("SHIFTELLA_STORY").unwrap_or_else(|_| "call".into());
+                let want =
+                    crate::app::scene_env("SHIFTELLA_STORY").unwrap_or_else(|| "call".into());
                 let pick = g
                     .world
                     .parties()
@@ -833,8 +833,7 @@ pub fn scene_setup(g: &mut GameScreen, content: &std::rc::Rc<Content>, loc: &Loc
             }
         }
         "storm" | "storm_talk" => {
-            let until = std::env::var("SHIFTELLA_TIME")
-                .ok()
+            let until = crate::app::scene_env("SHIFTELLA_TIME")
                 .and_then(|t| crate::content::ClockTime::parse(&t).ok())
                 .map(|t| t.minutes_since_open().max(0))
                 .unwrap_or(if name == "storm" { 200 } else { 302 });
@@ -853,8 +852,7 @@ pub fn scene_setup(g: &mut GameScreen, content: &std::rc::Rc<Content>, loc: &Loc
             g.drain_and_handle(content, Some(loc));
             // shots: the talk on screen at its N-th line (SHIFTELLA_LINE)
             if let Some(tp) = g.stories.talk.as_mut() {
-                tp.line = std::env::var("SHIFTELLA_LINE")
-                    .ok()
+                tp.line = crate::app::scene_env("SHIFTELLA_LINE")
                     .and_then(|l| l.parse().ok())
                     .unwrap_or(1);
                 tp.t = 2.0;

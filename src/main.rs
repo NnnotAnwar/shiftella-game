@@ -34,12 +34,18 @@ fn icon() -> Icon {
 /// `SHIFTELLA_DC_INDICES=n` overrides it for perf checks.
 const DRAW_CALL_INDICES: usize = 30_000;
 
+#[cfg(not(feature = "dev"))]
+const WINDOW_TITLE: &str = "Shiftella";
+/// The developer build (`--features dev`, docs/DEV-BUILD.md) says so in its title bar.
+#[cfg(feature = "dev")]
+const WINDOW_TITLE: &str = "Shiftella Dev";
+
 fn window_conf() -> macroquad::conf::Conf {
     // screenshot / autoplay / QA runs: no window, no Dock icon, no focus steal
     shiftella_game::platform::hide_for_automation();
     let (window_width, window_height) = window_size();
     let window = Conf {
-        window_title: "Shiftella".to_owned(),
+        window_title: WINDOW_TITLE.to_owned(),
         window_width,
         window_height,
         high_dpi: true, // crisp on Retina

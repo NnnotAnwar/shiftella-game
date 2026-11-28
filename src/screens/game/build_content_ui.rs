@@ -239,9 +239,7 @@ pub fn scene_setup(
 ) {
     use sim::Command;
     let focus = |g: &mut GameScreen, t: (i32, i32), zoom: f32| {
-        g.cam = g
-            .scene
-            .overview_camera(Rect::new(0.0, 0.0, screen_width(), screen_height()));
+        g.cam = g.scene.overview_camera(crate::camera::screen_px());
         g.cam.center = vec2(
             (t.0 as f32 + 0.5) * crate::map::TILE,
             (t.1 as f32 + 0.5) * crate::map::TILE,

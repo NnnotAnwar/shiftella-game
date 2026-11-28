@@ -3,6 +3,11 @@ name = "shiftella-game"
 version = "0.2.6"
 edition = "2024"
 
+[features]
+# Developer / test build (`cargo run --features dev`): the dev panel (` or F1), a DEV badge and
+# its own save + settings folder. Off by default; release builds carry none of it (docs/DEV-BUILD.md).
+dev = []
+
 [dependencies]
 macroquad = { version = "0.4", features = ["audio"] }
 ron = "0.10"
