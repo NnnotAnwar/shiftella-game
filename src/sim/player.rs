@@ -5,6 +5,7 @@
 //! skill-independent speed.
 
 use super::grid;
+use super::claims::Work;
 use super::guests;
 use super::hands::*;
 use super::orders;
@@ -169,13 +170,42 @@ fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerA
             if !w.grid.walkable(tile.0, tile.1) || w.grid.room(tile.0, tile.1).staff_only() {
                 return Err(CommandError::OutOfBounds);
             }
-            if w.dirt <= 0.0 {
+            let spots = w.dirt_spots();
+            if w.dirt <= 0.0 || spots.is_empty() {
                 return Err(CommandError::Invalid("the floor is clean".into()));
             }
+            // the blot clicked, else the nearest one nobody is on yet (`sim::claims`): never
+            // a second swipe on a blot she or a helper is already going to
+            let free: Vec<(i32, i32)> = spots
+                .iter()
+                .copied()
+                .filter(|t| super::claims::blot_free(w, *t))
+                .collect();
+            let pick = if free.contains(tile) {
+                Some(*tile)
+            } else {
+                free.iter()
+                    .copied()
+                    .min_by_key(|t| (grid::manhattan(*tile, *t), *t))
+            };
+            return match pick {
+                Some(t) => Ok(PlayerAct::Mop { tile: t }),
+                None if spots
+                    .iter()
+                    .any(|t| super::claims::holder(w, &Work::Blot(*t)).is_some_and(|h| h != me)) =>
+                {
+                    Err(CommandError::InUse)
+                }
+                None => Err(CommandError::Invalid("already on it".into())),
+            };
         }
         PlayerAct::CollectTip { table } => {
             if !w.hands.tips.iter().any(|t| t.table == *table) {
                 return Err(CommandError::Invalid("no tip on that table".into()));
+            }
+            // a helper about to clear that table takes the coins with the cups
+            if super::claims::holder(w, &Work::Tip(*table)).is_some_and(|h| h != me) {
+                return Err(CommandError::InUse);
             }
         }
         PlayerAct::Checklist { id } => {
@@ -334,6 +364,19 @@ fn release_item(w: &mut World, item: u32, me: u32, here: Option<(i32, i32)>) {
             i.price_add = 0;
         }
     }
+}
+
+/// One swipe over the blot at `tile` (Karolina's or a helper's): it goes away — that very
+/// blot, the others stay where they are — and the hall loses `MOP_AMOUNT` of dirt. `false`
+/// (nothing happens) when there is no blot there any more.
+pub(crate) fn mop_blot(w: &mut World, tile: (i32, i32)) -> bool {
+    if !w.dirt_spots().contains(&tile) {
+        return false;
+    }
+    w.dirt = (w.dirt - MOP_AMOUNT).max(0.0);
+    w.mopped.retain(|t| *t != tile);
+    w.mopped.push(tile);
+    true
 }
 
 fn push(w: &mut World, act: PlayerAct, front: bool) {
@@ -1274,10 +1317,11 @@ fn act_target_alive(w: &World, a: &PlayerAct) -> bool {
         PlayerAct::ClearTable { table } | PlayerAct::CollectTip { table } => piece(*table),
         PlayerAct::Wash { sink } => piece(*sink),
         PlayerAct::Use { uid, .. } => piece(*uid),
-        PlayerAct::Checklist { .. }
-        | PlayerAct::Mop { .. }
-        | PlayerAct::GoTo { .. }
-        | PlayerAct::PlayRecord { .. } => true,
+        // a blot already gone (the trash run, a wipe-down) is not walked to for nothing
+        PlayerAct::Mop { tile } => w.dirt_spots().contains(tile),
+        PlayerAct::Checklist { .. } | PlayerAct::GoTo { .. } | PlayerAct::PlayRecord { .. } => {
+            true
+        }
     }
 }
 
@@ -1599,13 +1643,12 @@ fn step(w: &mut World, content: &Content, idx: usize) {
                 }
             }
         }
-        PlayerAct::Mop { .. } => match cur.stage {
+        PlayerAct::Mop { tile } => match cur.stage {
             0 => set_work(w, 1, MOP_WORK),
             _ => {
                 w.staff[idx].pose = Pose::Work;
                 if work_tick(w, work_speed(w, content, None)) {
-                    w.dirt = (w.dirt - MOP_AMOUNT).max(0.0);
-                    if let PlayerAct::Mop { tile } = cur.act {
+                    if mop_blot(w, tile) {
                         w.emit(SimEvent::Mopped { tile });
                     }
                     finish(w);

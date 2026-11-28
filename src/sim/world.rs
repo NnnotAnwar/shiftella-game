@@ -873,6 +873,10 @@ pub struct World {
     pub(crate) sink_dishes: u32,
     pub(crate) sink_claim: Option<u32>,
     pub(crate) mop_claim: Option<u32>,
+    /// Tonight's dirt blots mopped away, oldest first (`World::dirt_spots`: a swipe takes away
+    /// the blot it was on, and a mopped spot gets dirty again last).
+    #[serde(default)]
+    pub(crate) mopped: Vec<(i32, i32)>,
     /// (tile, removable from minute, claim).
     pub(crate) buckets: Vec<((i32, i32), u32, Option<u32>)>,
     pub(crate) guest_stay_add: i32,
@@ -983,6 +987,7 @@ impl World {
             sink_dishes: 0,
             sink_claim: None,
             mop_claim: None,
+            mopped: Vec::new(),
             buckets: Vec::new(),
             guest_stay_add: 0,
             spawns: Vec::new(),
@@ -1545,6 +1550,7 @@ impl World {
         self.grid.rebuild(&self.furniture, content);
         self.sink_claim = None;
         self.mop_claim = None;
+        self.mopped.clear();
         self.econ.sold.clear();
         let n = &mut self.narrator;
         n.fired_tonight.clear();

@@ -1,5 +1,6 @@
 //! Staff: generation & hiring, shifts, needs, traits, relationships, job selection and the work loop.
 
+use super::claims;
 use super::duties;
 use super::grid::{self, Room};
 use super::guests;
@@ -1073,7 +1074,7 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
                     });
                 }
             }
-            out.extend(mop_work(w, here));
+            out.extend(mop_work(w, here, me));
         }
     }
     // checklist items this duty may do (`owner: Either(duty)`)
@@ -1083,19 +1084,21 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
 
 /// The dirt blot to mop: the floor helper goes to the dirt the player sees
 /// (`World::dirt_spots`, one blot per `MOP_AMOUNT`), from the first visible blot on —
-/// not only once the hall is really dirty. She takes the blot one swipe removes (the last
-/// one listed), else the nearest one she can walk to.
-fn mop_work(w: &World, here: (i32, i32)) -> Option<Work> {
+/// not only once the hall is really dirty. She takes the newest blot (the last one listed),
+/// else the nearest one she can walk to — never one Karolina is on (`sim::claims`).
+fn mop_work(w: &World, here: (i32, i32), me: u32) -> Option<Work> {
     if w.mop_claim.is_some() {
         return None;
     }
     let spots = w.dirt_spots();
-    let walkable = |t: &(i32, i32)| w.grid.reached(t.0, t.1);
-    let t = spots.last().copied().filter(walkable).or_else(|| {
+    let open = |t: &(i32, i32)| {
+        w.grid.reached(t.0, t.1) && claims::free_for(w, &claims::Work::Blot(*t), me)
+    };
+    let t = spots.last().copied().filter(open).or_else(|| {
         spots
             .iter()
             .copied()
-            .filter(walkable)
+            .filter(open)
             .min_by_key(|t| (grid::manhattan(here, *t), *t))
     })?;
     Some(Work {
@@ -1176,10 +1179,18 @@ fn find_work(w: &World, content: &Content, idx: usize) -> Option<Work> {
         return None;
     }
     let here = s.tile();
+    let me = s.id;
     let mut best: Option<(i32, Work)> = None;
     let mut consider = |wk: Work| {
         // a goal in a pocket nobody can walk to: picked, no path, dropped, picked again…
         if w.grid.walkable(wk.goal.0, wk.goal.1) && !w.grid.reached(wk.goal.0, wk.goal.1) {
+            return;
+        }
+        // the one claim rule: never what Karolina (or another helper) already has
+        if !claims::of_task(&wk.task)
+            .iter()
+            .all(|x| claims::free_for(w, x, me))
+        {
             return;
         }
         let score = wk.rank as i32 * 40 + grid::manhattan(here, wk.goal);
@@ -1197,7 +1208,7 @@ fn find_work(w: &World, content: &Content, idx: usize) -> Option<Work> {
         && effects_of(content, s)
             .iter()
             .any(|e| matches!(e, TraitEffect::AutoClean))
-        && let Some(mut wk) = mop_work(w, here)
+        && let Some(mut wk) = mop_work(w, here, me)
     {
         wk.rank = 6;
         consider(wk);
@@ -1353,9 +1364,14 @@ pub(crate) fn abandon(w: &mut World, idx: usize) {
     }
 }
 
-/// Is the task still meaningful?
+/// Is the task still meaningful? (Never while somebody else holds its work.)
 fn task_valid(w: &World, idx: usize) -> bool {
     let me = w.staff[idx].id;
+    if let Some(t) = &w.staff[idx].task
+        && !claims::of_task(t).iter().all(|x| claims::free_for(w, x, me))
+    {
+        return false;
+    }
     match &w.staff[idx].task {
         Some(Task::TakeOrder { party, register }) => w.parties.iter().any(|p| {
             p.id == *party
@@ -1376,6 +1392,8 @@ fn task_valid(w: &World, idx: usize) -> bool {
                 && matches!(i.state, ItemState::Ready | ItemState::Carrying)
         }),
         Some(Task::Checklist { id, .. }) => w.app.checklist.iter().any(|c| &c.id == id && !c.done),
+        // the blot is still there (the trash run or a wipe-down may have cleared it)
+        Some(Task::Mop { tile }) => w.dirt_spots().contains(tile),
         Some(_) => true,
         None => false,
     }
@@ -1919,8 +1937,11 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
                     f.dirt = 0.0;
                     f.claim = None;
                 }
-                // a dishes helper puts the tip coins in the jar
-                super::player::collect_tips_on(w, content, table, Some(me));
+                // a dishes helper puts the tip coins in the jar (not the ones Karolina is
+                // coming for: those stay for her)
+                if claims::free_for(w, &claims::Work::Tip(table), me) {
+                    super::player::collect_tips_on(w, content, table, Some(me));
+                }
                 w.staff[idx].carrying = Some("dishes".into());
                 let sink = w
                     .furniture
@@ -1962,13 +1983,15 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
             learn(w, idx, Job::Cleaning);
             mishap(w, content, idx);
         }
-        Task::Mop { .. } => {
-            // one blot, like Karolina's swipe (her skill already sets how fast she mops)
-            w.dirt = (w.dirt - super::player::MOP_AMOUNT).max(0.0);
+        Task::Mop { tile } => {
+            // one blot, like Karolina's swipe (her skill already sets how fast she mops) —
+            // the very blot she stands on, and only if it is still there
             w.mop_claim = None;
-            credit(w, idx, Duty::Floor, 1);
             w.staff[idx].task = None;
-            learn(w, idx, Job::Cleaning);
+            if super::player::mop_blot(w, tile) {
+                credit(w, idx, Duty::Floor, 1);
+                learn(w, idx, Job::Cleaning);
+            }
         }
         Task::Bucket { tile } => {
             w.buckets.retain(|b| b.0 != tile);

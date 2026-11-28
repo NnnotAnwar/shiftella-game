@@ -16,6 +16,7 @@ mod build_content;
 mod build_ux;
 mod build_wishes;
 pub mod challenge;
+mod claims;
 mod commands;
 pub mod companions;
 mod corners;
@@ -117,6 +118,8 @@ mod tests_story_large;
 mod tests_sys;
 #[cfg(test)]
 mod tests_t10;
+#[cfg(test)]
+mod tests_task_claims;
 #[cfg(test)]
 mod tests_talks;
 #[cfg(test)]
@@ -503,7 +506,9 @@ impl World {
     pub fn assist_wishes(&self) -> bool {
         self.hands.assist_wishes
     }
-    /// Dirt blots to render and mop: one per 0.1 of hall dirt (max 6), on fixed hall tiles.
+    /// Dirt blots to render and mop: one per 0.1 of hall dirt (max 6), on fixed hall tiles
+    /// in tonight's order. A blot mopped away goes to the back of that order, so a swipe
+    /// takes away the very blot it was on (not the last one listed) and the others stay put.
     pub fn dirt_spots(&self) -> Vec<(i32, i32)> {
         let n = ((self.dirt - 0.02) / MOP_AMOUNT).ceil().clamp(0.0, 6.0) as usize;
         if n == 0 {
@@ -525,10 +530,19 @@ impl World {
         while out.len() < n && k < 64 {
             let h = rng::hash_str(&format!("dirt{}:{k}", self.night));
             let t = hall[(h % hall.len() as u64) as usize];
-            if !out.contains(&t) {
+            if !out.contains(&t) && !self.mopped.contains(&t) {
                 out.push(t);
             }
             k += 1;
+        }
+        // (a small hall: the spots mopped first get dirty again first)
+        for t in &self.mopped {
+            if out.len() >= n {
+                break;
+            }
+            if !out.contains(t) && hall.contains(t) {
+                out.push(*t);
+            }
         }
         out
     }

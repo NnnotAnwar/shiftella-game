@@ -3614,6 +3614,7 @@
     "ui.guest.wants": "čeká na: {item}",
     "ui.hands.brew_later": "Tohle teď udělat nejde — objednávka zůstává na liště.",
     "ui.hands.practised": "{recipe} — vypilováno. Rychlá příprava teď dopadá líp.",
+    "ui.hands.taken": "{name} už na tom dělá — vezmi si něco jiného.",
     "ui.hands.tip_float": "+{amount}",
     "ui.help.app.body": "Rozpis směn (klik změní koncept, Zveřejnit ho pošle všem), žádosti o výměnu a volno, zprávy od @shiftella_bot, nástěnka, checklisty, noční přehled a podklady pro mzdy.",
     "ui.help.app.title": "Shiftella ({key.app})",

@@ -3614,6 +3614,7 @@
     "ui.guest.wants": "waiting for: {item}",
     "ui.hands.brew_later": "That one can't be made just now — the order is still on the rail.",
     "ui.hands.practised": "{recipe} — practised. Quick brews of it come out better now.",
+    "ui.hands.taken": "{name} is already on it — pick something else.",
     "ui.hands.tip_float": "+{amount}",
     "ui.help.app.body": "The shift schedule (click to change the draft, Publish sends it out), swap and time-off requests, messages from @shiftella_bot, the board, checklists, the night digest and payroll.",
     "ui.help.app.title": "Shiftella ({key.app})",
