@@ -1630,8 +1630,13 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     // Drop guests who left the map.
     w.guests.retain(|g| !g.gone);
     let alive: Vec<u32> = w.guests.iter().map(|g| g.party).collect();
+    let before = w.parties.len();
     w.parties
         .retain(|p| p.state != PartyState::Leaving || alive.contains(&p.id));
+    if w.parties.len() != before {
+        // Karolina's acts for a party that is gone now (staff tick before guests)
+        super::player::prune_gone(w, content);
+    }
     if w.tick.is_multiple_of(50) {
         refresh_queue_goals(w, content);
     }

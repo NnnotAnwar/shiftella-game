@@ -1209,7 +1209,7 @@ fn hand_over(w: &mut World, content: &Content, idx: usize, tray: &[u32]) {
 }
 
 pub(crate) fn tick(w: &mut World, content: &Content, idx: usize) {
-    prune_queue(w);
+    prune_gone(w, content);
     super::rituals::tidy(w, content);
     if !w.staff[idx].path.is_empty() {
         walk(w, content, idx);
@@ -1228,18 +1228,11 @@ pub(crate) fn tick(w: &mut World, content: &Content, idx: usize) {
     step(w, content, idx);
 }
 
-/// Queued acts whose target is gone (the party went home, the item was dropped, the piece
-/// was removed) leave her queue at once: before, they kept a slot (a full queue refused new
-/// clicks) and showed a chip for nobody until she reached them and dropped them.
-pub(crate) fn prune_queue(w: &mut World) {
-    if w.hands.player.queue.is_empty() {
-        return;
-    }
-    let mut q = std::mem::take(&mut w.hands.player.queue);
-    let before = q.len();
+/// The act's target still exists (the party, the item, the piece, …).
+fn act_target_alive(w: &World, a: &PlayerAct) -> bool {
     let piece = |uid: u32| w.furniture.iter().any(|f| f.uid == uid);
     let item = |id: u32| w.items.iter().any(|i| i.id == id);
-    q.retain(|a| match a {
+    match a {
         PlayerAct::TakeOrder { party } => w.parties.iter().any(|p| p.id == *party),
         PlayerAct::Brew { item: i, .. } | PlayerAct::Serve { item: i, .. } => item(*i),
         PlayerAct::ClearTable { table } | PlayerAct::CollectTip { table } => piece(*table),
@@ -1249,11 +1242,36 @@ pub(crate) fn prune_queue(w: &mut World) {
         | PlayerAct::Mop { .. }
         | PlayerAct::GoTo { .. }
         | PlayerAct::PlayRecord { .. } => true,
-    });
+    }
+}
+
+/// Queued acts whose target is gone (the party went home, the item was dropped, the piece
+/// was removed) leave her queue at once: before, they kept a slot (a full queue refused new
+/// clicks) and showed a chip for nobody until she reached them and dropped them.
+pub(crate) fn prune_queue(w: &mut World) {
+    if w.hands.player.queue.is_empty() {
+        return;
+    }
+    let mut q = std::mem::take(&mut w.hands.player.queue);
+    let before = q.len();
+    q.retain(|a| act_target_alive(w, a));
     let changed = q.len() != before;
     w.hands.player.queue = q;
     if changed {
         w.emit(SimEvent::PlayerQueueChanged);
+    }
+}
+
+/// `prune_queue`, and the act she is on is dropped too when its target is gone — also
+/// while she is still walking there (a party that walked out of the door while she was on
+/// her way to take their order). Her dishes on the way to the sink stay: the table may go.
+pub(crate) fn prune_gone(w: &mut World, content: &Content) {
+    prune_queue(w);
+    if let Some(cur) = &w.hands.player.current
+        && !(matches!(cur.act, PlayerAct::ClearTable { .. }) && cur.stage >= 2)
+        && !act_target_alive(w, &cur.act)
+    {
+        drop_current(w, content);
     }
 }
 
