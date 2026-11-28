@@ -84,16 +84,16 @@ ru Особая гостья. Краска на рукаве и шутка на�
 
 # --- the easter egg: Anwar on night 24, only if she answered her ex (no names, ever)
 regular.guest_anwar.ambient.recommended
-cs Tohle místo mi někdo doporučil. No… ne jen tak někdo.
-en Someone recommended this place to me. Well… not just someone.
-uk Мені хтось порадив це місце. Ну… не просто хтось.
-ru Мне кто-то посоветовал это место. Ну… не просто кто-то.
+cs Prý sem chodí i někdo, koho znám. Jen v jiné noci. No… není to jen tak někdo.
+en Turns out someone I know comes here too. Just on other nights. Well… not just someone.
+uk Виявляється, сюди ходить і дехто, кого я знаю. Тільки в інші ночі. Ну… не просто дехто.
+ru Оказывается, сюда ходит и кое-кто, кого я знаю. Только в другие ночи. Ну… не просто кое-кто.
 
 scene.anwar_talk_24.07
-cs Tohle místo mi někdo doporučil. No… ne jen tak někdo.
-en Someone recommended this place to me. Well… not just someone.
-uk Мені хтось порадив це місце. Ну… не просто хтось.
-ru Мне кто-то посоветовал это место. Ну… не просто кто-то.
+cs Prý sem chodí i někdo, koho znám. Jen v jiné noci. No… není to jen tak někdo.
+en Turns out someone I know comes here too. Just on other nights. Well… not just someone.
+uk Виявляється, сюди ходить і дехто, кого я знаю. Тільки в інші ночі. Ну… не просто дехто.
+ru Оказывается, сюда ходит и кое-кто, кого я знаю. Только в другие ночи. Ну… не просто кое-кто.
 
 # --- night 3: the meeting; Karolina has just started, Kseniia is the first to encourage her
 scene.kseniia_talk_3.01
