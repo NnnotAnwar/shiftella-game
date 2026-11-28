@@ -171,6 +171,8 @@ pub enum TopStyle {
     Jacket,
     Coat,
     Scrubs,
+    /// An oversized blazer with paint stains (Kseniia, the art-studio manager).
+    Blazer,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -186,6 +188,10 @@ pub enum Accessory {
     Hairclip,
     /// A small Shiftella logo on the chest (hoodie / sweater).
     ShiftellaLogo,
+    /// Kseniia's set: a bridge piercing between the brows, a ring low on the nose, a labret
+    /// under the lower lip and one small ring in one ear — worn with dark lipstick and a few
+    /// loose strands from hair put up loosely.
+    Piercings,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -561,6 +567,26 @@ impl PersonLook {
                 bot: false,
                 tired: true,
             },
+            // Kseniia — a cameo guest, the art-studio manager (34): hair loosely up, an oversized
+            // paint-stained blazer, piercings and dark lipstick (`Accessory::Piercings`)
+            "kseniia" => PersonLook {
+                skin: hex(0xf0c6a6),
+                hair: hex(0x2a1f22),
+                hair_style: HairStyle::Bun,
+                top: hex(0x4b4456),
+                top_style: TopStyle::Blazer,
+                bottom: hex(0x24222e),
+                accessory: Accessory::Piercings,
+                accent: hex(0xe6e3ee),
+                facial_hair: FacialHair::None,
+                apron: false,
+                height: 0.98,
+                elder: false,
+                tone: Tone::Normal,
+                phase: 0.27,
+                bot: false,
+                tired: false,
+            },
             "shiftella_bot" | "bot" => PersonLook {
                 bot: true,
                 height: 0.8,
@@ -574,7 +600,7 @@ impl PersonLook {
     }
 
     /// All story preset ids.
-    pub const PRESETS: [&'static str; 11] = [
+    pub const PRESETS: [&'static str; 12] = [
         "grandma_lida",
         "mirek",
         "hana",
@@ -585,6 +611,7 @@ impl PersonLook {
         "lori",
         "player",
         "anwar",
+        "kseniia",
         "shiftella_bot",
     ];
 }
@@ -640,6 +667,10 @@ mod tests {
         let a = PersonLook::preset("anwar");
         assert!(a.tired && a.top_style == TopStyle::Hoodie && !a.apron);
         assert_eq!(a.accessory, Accessory::None, "identity stays subtle");
+        let k = PersonLook::preset("guest_kseniia");
+        assert_eq!(k, PersonLook::preset("kseniia"));
+        assert!(k.accessory == Accessory::Piercings && k.top_style == TopStyle::Blazer);
+        assert!(k.hair_style == HairStyle::Bun && !k.apron && !k.elder);
         assert_eq!(
             PersonLook::preset("someone_new"),
             PersonLook::preset("someone_new")

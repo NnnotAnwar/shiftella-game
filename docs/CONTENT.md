@@ -101,12 +101,12 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | staff.ron | `StaffFile { archetypes, name_pools }` | 7 archetypes (barista, cook, porter, cashier, sound_tech, quiet_one, server), 4 name pools (cs, sk, uk, intl) |
 | menu.ron | `Vec<MenuItem>` | 16 items |
 | guests.ron | `Vec<GuestArchetype>` | 12 pools |
-| regulars.ron | `Vec<RegularDef>` | 7 story regulars with staged arcs + the `guest_anwar` cameo |
+| regulars.ron | `Vec<RegularDef>` | 7 story regulars with staged arcs + the `guest_anwar` and `guest_kseniia` cameos |
 | furniture.ron | `Vec<FurnitureDef>` | 38 pieces incl. floors / walls / window / door |
 | events.ron | `Vec<EventDef>` | 41 events |
 | narrator.ron | `NarratorDef` | night curve, witching hour, story act pacing |
 | story.ron | `StoryDef` | 30 nights, payments, 10 notes, **2 endings** + the optional "Answer" extra, declared flags/vars/counters/items |
-| cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 45 cutscenes (43 story + 2 Anwar talks), 8 cast members (`mum` is a voice on the phone, no portrait), named map spots |
+| cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 48 cutscenes (43 story + 2 Anwar + 3 Kseniia talks), 8 cast members (`mum` is a voice on the phone, no portrait), named map spots |
 | talks.ron | `Vec<CutsceneDef>` (appended to `cutscenes.ron`'s) | 22 talk dialogues of the regulars, one per act each (§9); texts in `talks.tr` |
 | shiftella.ron | `ShiftellaApp` | announcements, checklists, bot templates, digest / payroll / handover lines |
 | trains.ron | `TrainLine` | stations Adamov → … → Praha-Holešovice (home), 5 night trains incl. `Rn 333` + the `Nex 9047` freight at 21:47 (a train before 22:00 only passes by in the preparation half hour, nobody gets off) |
@@ -280,6 +280,13 @@ Exactly two visits per game: nights 9 and 24 (story and sandbox), 23:00–02:00,
 8 ambient lines (rain, fog, train, midnight, late, busy, quiet, coffee fallback) and talk cutscenes `anwar_talk_9`,
 `anwar_talk_24` (no choices, flags or effects; not in the endings). Credits line: `ui.ending.credits_thanks`.
 Texts: `assets/i18n/src/cameo_anwar.tr`.
+
+`guest_kseniia` ("Kseniia", render preset `kseniia`) is the second cameo: nights 3, 15 and 20 (story and sandbox),
+02:40–04:10 (gone before `karolina_backstep` at 04:20 on night 3), oat flat white. 9 ambient lines and talks
+`kseniia_talk_3` / `_15` / `_20`. Night 15's choice sets var `kseniia_ex` = `answered` | `silent` (no other effects);
+night 20 branches on it (unset → a neutral variant), and `answered` adds `scene.anwar_talk_24.07` to Anwar's night-24
+talk plus the ambient line `regular.guest_anwar.ambient.recommended`. Journal kind `KseniiaCameo`. Cameos are
+`RegularDef::is_cameo()` (a `look_preset`). Texts: `assets/i18n/src/cameo_kseniia.tr`.
 
 ---
 

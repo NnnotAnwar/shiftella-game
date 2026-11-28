@@ -43,15 +43,15 @@ fn the_promised_amounts() {
     // v0.2 package I adds the by-name house-drink wishes (1 generic + 6 personal)
     let by_name = |w: &&super::WishDef| w.favourite.iter().any(|f| f == super::SIGNATURE_RECIPE);
     assert_eq!(h.wishes.wishes.iter().filter(by_name).count(), 7);
-    // purchases: + 3 "like home" wishes of the top coziness tier
-    assert_eq!(h.wishes.wishes.len(), 44 + 7 + 3);
+    // purchases: + 3 "like home" wishes of the top coziness tier; + Kseniia's oat flat white
+    assert_eq!(h.wishes.wishes.len(), 44 + 7 + 3 + 1);
     assert_eq!(
         h.wishes
             .wishes
             .iter()
             .filter(|w| w.regular().is_some() && !by_name(w))
             .count(),
-        17 + 3
+        17 + 3 + 1
     );
     let must_moments: Vec<&str> = h
         .moments

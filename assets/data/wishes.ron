@@ -87,6 +87,7 @@
         (id: "guest_333.two_sugars", want: [Warm, Sweet, Mild], who: ["guest_333"],
          favourite: ["r_rn333_tea"], favourite_items: ["lemon_tea"]),
         (id: "guest_anwar.oat", want: [Warm, Mild], who: ["guest_anwar"], favourite: ["r_oat_flat_white"]),
+        (id: "guest_kseniia.oat", want: [Warm, Mild], who: ["guest_kseniia"], favourite: ["r_oat_flat_white"]),
     ],
     reactions: (
         generic_per_tier: 5,

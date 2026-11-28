@@ -90,6 +90,8 @@ mod tests_fridge;
 #[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
+mod tests_kseniia;
+#[cfg(test)]
 mod tests_life;
 #[cfg(test)]
 mod tests_names;

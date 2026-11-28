@@ -29,6 +29,7 @@
         (kind: RecipeDiscovered, score: 30, placeholders: ["recipe"]),
         (kind: RozpisHappy, score: 25),
         (kind: AnwarCameo, score: 20),
+        (kind: KseniiaCameo, score: 20),
         (kind: QuietNight, score: 10),
         // package C: the hall changed in a day (always offered next morning)
         (kind: BeforeAfter, score: 58, placeholders: ["what"]),

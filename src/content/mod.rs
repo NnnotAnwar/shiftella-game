@@ -282,7 +282,7 @@ mod tests {
         assert_eq!(c.traits.len(), 16);
         assert!(c.menu.len() >= 12 && c.menu.len() <= 16, "{}", c.menu.len());
         assert!(c.guests.len() >= 10);
-        assert_eq!(c.regulars.len(), 8, "7 story regulars + the Anwar cameo");
+        assert_eq!(c.regulars.len(), 9, "7 story regulars + the Anwar and Kseniia cameos");
         assert!(c.events.len() >= 35);
         assert_eq!(c.story.nights.len(), 30);
         assert_eq!(c.story.notes.len(), 10);

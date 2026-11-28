@@ -2212,6 +2212,10 @@ impl World {
     pub fn debug_set_counter(&mut self, name: &str, value: i32) {
         self.story.counters.insert(name.to_string(), value);
     }
+    /// Sets a story var (screenshots: `kseniia_ex=silent` before her night-20 talk).
+    pub fn debug_set_var(&mut self, name: &str, value: &str) {
+        self.story.vars.insert(name.to_string(), value.to_string());
+    }
     /// The first fallback of `night` whose `needs` fail now.
     pub(crate) fn live_night_fallback(&self, content: &Content, night: u32) -> Option<usize> {
         let mut rng = self.rng.clone();

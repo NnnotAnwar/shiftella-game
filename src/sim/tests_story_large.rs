@@ -11,7 +11,7 @@ use crate::content::{Content, CutsceneStep};
 /// The text keys (and `call:<id>` markers) a cutscene shows for the world as it is now: `If`
 /// steps follow the current state, `Call` steps are walked into. For the ending scenes, which
 /// have no choices, this is exactly what the player read.
-fn visible(w: &World, c: &Content, id: &str) -> Vec<String> {
+pub(super) fn visible(w: &World, c: &Content, id: &str) -> Vec<String> {
     fn walk(w: &World, c: &Content, steps: &[CutsceneStep], out: &mut Vec<String>, depth: u32) {
         if depth > 6 {
             return;
