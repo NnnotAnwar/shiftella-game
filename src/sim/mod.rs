@@ -116,6 +116,8 @@ mod tests_sys;
 #[cfg(test)]
 mod tests_t10;
 #[cfg(test)]
+mod tests_talks;
+#[cfg(test)]
 mod tests_walk;
 
 pub use app::{ChecklistMark, act_ticks, digest_lines};
