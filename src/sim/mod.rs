@@ -20,6 +20,8 @@ mod commands;
 pub mod companions;
 mod corners;
 mod crew;
+#[cfg(feature = "dev")]
+mod dev_cheats;
 mod duties;
 mod economy;
 mod equipment;

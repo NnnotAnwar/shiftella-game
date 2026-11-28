@@ -13,6 +13,19 @@ const MAX_ZOOM: f32 = 3.0;
 /// Keyboard pan speed, in screen pixels per second.
 const PAN_SPEED: f32 = 900.0;
 
+/// The window in pixels — a fixed 1280×720 in unit tests, which build screens headless (no
+/// macroquad context there: the dev build's tests open every screen).
+pub fn screen_px() -> Rect {
+    #[cfg(test)]
+    {
+        Rect::new(0.0, 0.0, 1280.0, 720.0)
+    }
+    #[cfg(not(test))]
+    {
+        Rect::new(0.0, 0.0, screen_width(), screen_height())
+    }
+}
+
 pub struct WorldCamera {
     /// The world point at the centre of the screen.
     pub center: Vec2,
@@ -36,7 +49,7 @@ impl WorldCamera {
         let zoom = (area.w / world_size.x)
             .min(area.h / world_size.y)
             .clamp(MIN_ZOOM, MAX_ZOOM);
-        let screen_center = vec2(screen_width(), screen_height()) / 2.0;
+        let screen_center = screen_px().size() / 2.0;
         let center = world_size / 2.0 - (area.center() - screen_center) / zoom;
         Self {
             center,

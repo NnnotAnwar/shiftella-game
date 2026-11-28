@@ -1494,9 +1494,7 @@ impl GameScreen {
         });
         self.speed = 0;
         if let Some(g) = self.world.guests().iter().find(|g| g.id == guest) {
-            self.cam =
-                self.scene
-                    .overview_camera(Rect::new(0.0, 0.0, screen_width(), screen_height()));
+            self.cam = self.scene.overview_camera(crate::camera::screen_px());
             self.cam.center = vec2(g.pos.0, g.pos.1 - 20.0);
             self.cam.zoom *= 2.2;
             self.cam_ready = true;

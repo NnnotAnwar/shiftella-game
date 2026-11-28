@@ -718,7 +718,7 @@ impl GameScreen {
     /// `SHIFTELLA_MOOD_TIPS=<Kč>` the evening mood's tips, `SHIFTELLA_HABITS_SCROLL=1` the
     /// app's checklists scrolled to the habits, `SHIFTELLA_HABIT_CARD=<id>`: that habit's card.
     pub fn stage_by_hand(&mut self, content: &Content, loc: &Locale) {
-        let env = |k: &str| std::env::var(k).ok().filter(|v| !v.is_empty());
+        let env = crate::app::scene_env;
         if let Some(n) = env("SHIFTELLA_HABITS").and_then(|n| n.parse().ok()) {
             self.world.debug_habit_nights(content, n);
         }

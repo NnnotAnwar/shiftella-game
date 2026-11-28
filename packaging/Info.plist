@@ -3,11 +3,11 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>Shiftella</string>
+    <string>__NAME__</string>
     <key>CFBundleDisplayName</key>
-    <string>Shiftella</string>
+    <string>__NAME__</string>
     <key>CFBundleIdentifier</key>
-    <string>app.shiftella.game</string>
+    <string>__BUNDLE_ID__</string>
     <key>CFBundleExecutable</key>
     <string>Shiftella</string>
     <key>CFBundleIconFile</key>

@@ -1,7 +1,10 @@
 #!/bin/sh
 # Builds dist/Shiftella.app and dist/Shiftella-macos.zip.
 #
-#   ./scripts/package-macos.sh
+#   ./scripts/package-macos.sh          # the release build
+#   ./scripts/package-macos.sh --dev    # the developer build (docs/DEV-BUILD.md):
+#                                       # dist/Shiftella Dev.app, dist/Shiftella-Dev-macos.zip,
+#                                       # `--features dev`, bundle id app.shiftella.game.dev
 #
 # The game loads resources by relative paths (assets/...), so the bundle's
 # executable is a tiny launcher script: it cds into Contents/Resources and
@@ -17,10 +20,29 @@ cd "$ROOT"
 export PATH="/opt/homebrew/opt/rustup/bin:$HOME/.cargo/bin:$PATH"
 
 VERSION="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)"
-APP="dist/Shiftella.app"
+NAME="Shiftella"
+BUNDLE_ID="app.shiftella.game"
+ZIP="dist/Shiftella-macos.zip"
+FEATURES=""
+for arg in "$@"; do
+    case "$arg" in
+        --dev)
+            NAME="Shiftella Dev"
+            BUNDLE_ID="app.shiftella.game.dev"
+            ZIP="dist/Shiftella-Dev-macos.zip"
+            FEATURES="--features dev"
+            ;;
+        *)
+            echo "unknown option: $arg (use --dev)" >&2
+            exit 2
+            ;;
+    esac
+done
+APP="dist/$NAME.app"
 
-echo "→ release build v$VERSION"
-cargo build --release --bin shiftella-game
+echo "→ release build v$VERSION ${FEATURES:+($FEATURES)}"
+# shellcheck disable=SC2086
+cargo build --release --bin shiftella-game $FEATURES
 
 # Make sure the generated translations are up to date
 cargo run --release --quiet --example content_i18n_build >/dev/null
@@ -41,7 +63,8 @@ chmod +x "$APP/Contents/MacOS/Shiftella"
 # Game resources
 mkdir -p "$APP/Contents/Resources/assets"
 for d in audio data fonts i18n icon; do
-    [ -d "assets/$d" ] && cp -R "assets/$d" "$APP/Contents/Resources/assets/$d"
+    # -L: a symlinked folder (the generated audio linked in from another checkout) is copied
+    [ -d "assets/$d" ] && cp -RL "assets/$d" "$APP/Contents/Resources/assets/$d"
 done
 
 # Icon
@@ -55,7 +78,8 @@ for s in 16 32 128 256 512; do
 done
 iconutil -c icns "$ICONSET" -o "$APP/Contents/Resources/AppIcon.icns"
 
-sed "s/__VERSION__/$VERSION/g" packaging/Info.plist > "$APP/Contents/Info.plist"
+sed -e "s/__VERSION__/$VERSION/g" -e "s/__NAME__/$NAME/g" -e "s/__BUNDLE_ID__/$BUNDLE_ID/g" \
+    packaging/Info.plist > "$APP/Contents/Info.plist"
 
 # Licences next to the game
 cp assets/fonts/OFL.txt "$APP/Contents/Resources/OFL-Inter.txt"
@@ -64,8 +88,8 @@ echo "→ ad-hoc signature"
 codesign --force --deep --sign - "$APP" >/dev/null
 
 echo "→ zip"
-rm -f dist/Shiftella-macos.zip
-ditto -c -k --keepParent "$APP" dist/Shiftella-macos.zip
+rm -f "$ZIP"
+ditto -c -k --keepParent "$APP" "$ZIP"
 
-du -sh "$APP" dist/Shiftella-macos.zip
+du -sh "$APP" "$ZIP"
 echo "done: $APP"

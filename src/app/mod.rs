@@ -70,6 +70,10 @@ use crate::screens::{boot, game};
 use crate::settings::{Locale, Settings, load_i18n};
 use crate::ui::{Fonts, Ui};
 
+/// The developer build's panel over every screen (`--features dev`, docs/DEV-BUILD.md).
+#[cfg(feature = "dev")]
+mod dev;
+
 /// Where the app is.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Route {
@@ -240,6 +244,17 @@ impl DebugOverlay {
 }
 
 fn env(name: &str) -> Option<String> {
+    scene_env(name)
+}
+
+/// A scene / screenshot option (`SHIFTELLA_*`, see the module docs) from the environment. In
+/// the developer build the dev panel sets them for this thread instead
+/// (`crate::dev::opts`), so its screen openers call the same scene code as the env vars do.
+pub fn scene_env(name: &str) -> Option<String> {
+    #[cfg(feature = "dev")]
+    if let Some(v) = crate::dev::opts::get(name) {
+        return v;
+    }
     std::env::var(name).ok().filter(|s| !s.trim().is_empty())
 }
 
@@ -355,8 +370,91 @@ impl App {
         }
     }
 
-    /// Builds the screen asked for by `SHIFTELLA_SCENE`.
+    /// Builds the screen asked for by `SHIFTELLA_SCENE` (see [`SceneBuilder::scene`]).
     fn scene(&mut self, name: &str) -> Screen {
+        let built = SceneBuilder {
+            content: self.content.clone(),
+            i18n: &self.i18n,
+            settings: &self.settings,
+        }
+        .scene(name);
+        self.realize(built)
+    }
+
+    /// A built scene on screen: the menu on its page, the game screen (with the session
+    /// options of [`App::game`]) or the credits.
+    fn realize(&mut self, built: Built) -> Screen {
+        match built {
+            Built::Game(g) => self.game(*g),
+            Built::GameInstantText(g, shot) => self.game_instant_text(*g, shot),
+            Built::Menu { page, challenge } => {
+                let mut s = self.menu(Some(page));
+                if challenge && let Screen::Menu(m) = &mut s {
+                    m.set_sandbox_challenge(true);
+                }
+                s
+            }
+            Built::Credits {
+                ending,
+                variant,
+                epilogue,
+                challenge,
+            } => {
+                let mut c = Credits::new(&self.ui, ending, variant, epilogue);
+                if let Some((r, best)) = challenge {
+                    c = c.with_challenge(r, best);
+                }
+                Screen::Credits(Box::new(c))
+            }
+        }
+    }
+}
+
+/// What [`SceneBuilder::scene`] built (no window needed: headless tests build every scene).
+pub enum Built {
+    Game(Box<GameScreen>),
+    /// A game screen whose cutscene text appears at once in screenshot runs.
+    GameInstantText(Box<GameScreen>, bool),
+    Menu {
+        page: MenuPage,
+        /// The sandbox setup with the «Challenge» mode picked.
+        challenge: bool,
+    },
+    Credits {
+        ending: Option<String>,
+        variant: Option<String>,
+        epilogue: bool,
+        challenge: Option<(sim::challenge::ChallengeReport, Option<u32>)>,
+    },
+}
+
+/// Builds the `SHIFTELLA_SCENE` scenes from content, translations and settings alone.
+pub struct SceneBuilder<'a> {
+    pub content: Rc<Content>,
+    pub i18n: &'a I18n,
+    pub settings: &'a Settings,
+}
+
+impl SceneBuilder<'_> {
+    fn game(&mut self, g: GameScreen) -> Built {
+        Built::Game(Box::new(g))
+    }
+
+    fn game_instant_text(&mut self, g: GameScreen, shot: bool) -> Built {
+        Built::GameInstantText(Box::new(g), shot)
+    }
+
+    fn menu(&mut self, page: Option<MenuPage>) -> Built {
+        Built::Menu {
+            page: page.unwrap_or(MenuPage::Main),
+            challenge: false,
+        }
+    }
+
+    /// Builds the screen asked for by `SHIFTELLA_SCENE`; its options come from [`scene_env`].
+    // (`&self.i18n` is a `&&I18n` here: the scene code reads as it did inside `App`)
+    #[allow(clippy::needless_borrow)]
+    pub fn scene(&mut self, name: &str) -> Built {
         let content = self.content.clone();
         let night = env("SHIFTELLA_NIGHT").and_then(|n| n.parse().ok());
         let minute = env_minute();
@@ -375,9 +473,9 @@ impl App {
                 let mut s = self.menu(Some(MenuPage::Sandbox));
                 // SHIFTELLA_SB_MODE=challenge: the setup with the Challenge mode picked
                 if env("SHIFTELLA_SB_MODE").as_deref() == Some("challenge")
-                    && let Screen::Menu(m) = &mut s
+                    && let Built::Menu { challenge, .. } = &mut s
                 {
-                    m.set_sandbox_challenge(true);
+                    *challenge = true;
                 }
                 s
             }
@@ -966,12 +1064,12 @@ impl App {
                 }
                 self.game_instant_text(g, shot)
             }
-            "credits" => Screen::Credits(Box::new(Credits::new(
-                &self.ui,
-                Some("light".into()),
-                Some("full".into()),
-                true,
-            ))),
+            "credits" => Built::Credits {
+                ending: Some("light".into()),
+                variant: Some("full".into()),
+                epilogue: true,
+                challenge: None,
+            },
             // the sandbox «Challenge»: a morning with the rivals' line (`SHIFTELLA_NIGHT`,
             // default 40, Cozy), or the final page after the player-bot played the run to its
             // end (Classic, `SHIFTELLA_SEED`)
@@ -994,12 +1092,12 @@ impl App {
                 let loc = Locale::new(&self.i18n, lang);
                 if final_page {
                     g.fast_forward(&content, &loc, 2000, None, true);
-                    let report = g.world.challenge_report();
-                    let mut c = Credits::new(&self.ui, Some("challenge".into()), None, false);
-                    if let Some(r) = report {
-                        c = c.with_challenge(r, Some(2));
+                    Built::Credits {
+                        ending: Some("challenge".into()),
+                        variant: None,
+                        epilogue: false,
+                        challenge: g.world.challenge_report().map(|r| (r, Some(2))),
                     }
-                    Screen::Credits(Box::new(c))
                 } else {
                     g.fast_forward(&content, &loc, night.unwrap_or(40), Some(479), true);
                     g.run_to_morning(&content, &loc);
@@ -1026,7 +1124,9 @@ impl App {
             _ => self.menu(Some(MenuPage::Main)),
         }
     }
+}
 
+impl App {
     fn handle_menu(&mut self, a: MenuAction) -> Option<Route> {
         if let Screen::Menu(m) = &self.screen {
             self.settings = m.settings.clone();
@@ -1266,6 +1366,10 @@ pub async fn run() {
 
     let mut frame = 0u32;
     let mut route_now = Route::Menu;
+    #[cfg(feature = "dev")]
+    let mut dev = dev::DevLayer::new();
+    #[cfg(feature = "dev")]
+    dev::boot_jump(&mut dev, &app.content);
     let mut debug = DebugOverlay {
         on: env("SHIFTELLA_FPS").is_some_and(|v| v != "0"),
         ..Default::default()
@@ -1286,6 +1390,10 @@ pub async fn run() {
         log_scene(&app);
         sync_access(&mut app);
         app.ui.begin_frame();
+        #[cfg(feature = "dev")]
+        dev.begin(&mut app.ui, &mut debug.on);
+        #[cfg(feature = "dev")]
+        let dev_act: Option<crate::dev::DevAction>;
         let dt = if shot.is_some() {
             1.0 / 60.0
         } else {
@@ -1300,6 +1408,12 @@ pub async fn run() {
                 let reqs = m.drain_audio_requests();
                 for r in reqs {
                     app.audio.request(&r);
+                }
+                #[cfg(feature = "dev")]
+                {
+                    let main = m.page() == MenuPage::Main;
+                    let lang = m.settings.lang();
+                    dev_act = dev::draw(&mut dev, &mut app.ui, &app.content, None, main, lang);
                 }
                 app.ui.end_frame();
                 if let Some(a) = action {
@@ -1320,6 +1434,10 @@ pub async fn run() {
                 };
                 g.frame(&mut app.ui, &mut cx, dt);
                 ducked = g.dialogue_on_screen();
+                #[cfg(feature = "dev")]
+                {
+                    dev_act = dev::draw(&mut dev, &mut app.ui, &app.content, Some(g), false, lang);
+                }
                 app.ui.end_frame();
                 g.hotkeys(&mut app.ui, &mut cx);
                 if let Some(e) = g.exit() {
@@ -1329,11 +1447,27 @@ pub async fn run() {
             Screen::Credits(c) => {
                 let loc = Locale::new(&app.i18n, app.settings.lang());
                 let done = c.frame(&mut app.ui, &loc, dt);
+                #[cfg(feature = "dev")]
+                {
+                    let lang = app.settings.lang();
+                    dev_act = dev::draw(&mut dev, &mut app.ui, &app.content, None, false, lang);
+                }
                 app.ui.end_frame();
                 if done {
                     app.screen = app.menu(Some(MenuPage::Main));
                     next = Some(route(Route::Credits, &AppEvent::CreditsDone));
                 }
+            }
+        }
+        #[cfg(feature = "dev")]
+        {
+            if let Some(a) = dev_act
+                && let Some(r) = app.dev_apply(&mut dev, a)
+            {
+                next = Some(r);
+            }
+            if let Some(r) = app.dev_tick(&mut dev) {
+                next = Some(r);
             }
         }
         let times = match &app.screen {

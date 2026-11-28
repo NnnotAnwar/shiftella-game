@@ -8,6 +8,8 @@ pub mod clock;
 pub mod content;
 pub mod crashlog;
 pub mod cutscene;
+#[cfg(feature = "dev")]
+pub mod dev;
 pub mod i18n;
 pub mod map;
 pub mod minigame;

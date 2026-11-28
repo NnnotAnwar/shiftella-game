@@ -349,18 +349,19 @@ impl Settings {
     }
 }
 
-fn config_dir() -> Option<PathBuf> {
+pub(crate) fn config_dir() -> Option<PathBuf> {
+    use crate::platform::{DATA_DIR, DATA_DIR_LOWER};
     let home = std::env::var_os("HOME").map(PathBuf::from);
     if cfg!(target_os = "macos") {
-        return home.map(|h| h.join("Library/Application Support/Shiftella"));
+        return home.map(|h| h.join("Library/Application Support").join(DATA_DIR));
     }
     if cfg!(target_os = "windows") {
-        return std::env::var_os("APPDATA").map(|a| PathBuf::from(a).join("Shiftella"));
+        return std::env::var_os("APPDATA").map(|a| PathBuf::from(a).join(DATA_DIR));
     }
     if let Some(x) = std::env::var_os("XDG_CONFIG_HOME").filter(|x| !x.is_empty()) {
-        return Some(PathBuf::from(x).join("shiftella"));
+        return Some(PathBuf::from(x).join(DATA_DIR_LOWER));
     }
-    home.map(|h| h.join(".config/shiftella"))
+    home.map(|h| h.join(".config").join(DATA_DIR_LOWER))
 }
 
 #[cfg(test)]
