@@ -739,6 +739,12 @@ en Black, like Lida made it. Yes. Every night.
 uk Чорну, як робила Ліда. Так. Щоночі.
 ru Чёрный, как делала Лида. Да. Каждую ночь.
 
+scene.mirek_confession.08
+cs Poprosil, ať vlak zdrží. Dvě minuty. Pořád se díval na rozsvícené okno. A já měl celou dobu ten dopis v kapse.
+en He'd asked them to hold the train. Two minutes. He kept looking at the lit window. I had the letter in my pocket the whole time.
+uk Він попросив затримати поїзд. На дві хвилини. Весь час дивився на освітлене вікно. А лист увесь цей час лежав у мене в кишені.
+ru Он попросил задержать поезд. На две минуты. Всё смотрел на освещённое окно. А письмо всё это время лежало у меня в кармане.
+
 # --- scene payment_3
 scene.payment_3.01
 cs Třetí splátka. Víte, že mi o vás píšou lidi? Normálně mi lidi píšou jen kvůli plísni.
@@ -811,14 +817,14 @@ ru Последняя смена. С завтрашнего дня вокзал 
 scene.radek_last_shift.02
 cs Něco jsem ti přinesl. Starý jízdní řád z dopravní kanceláře. Rok 1979. Měl jsem ho dát do skartovačky.
 en I brought you something. The old timetable from the dispatcher's office. 1979. I was supposed to shred it.
-uk Я тобі дещо приніс. Старий розклад із диспетчерської. 1979 рік. Мав його знищити.
-ru Я тебе кое-что принёс. Старое расписание из диспетчерской. 1979 год. Должен был его уничтожить.
+uk Я вам дещо приніс. Старий розклад із диспетчерської. 1979 рік. Мав його знищити.
+ru Я вам кое-что принёс. Старое расписание из диспетчерской. 1979 год. Должен был его уничтожить.
 
 scene.radek_last_shift.03
-cs Podívej na poslední řádek. Někdo k němu tužkou připsal: „dvě minuty".
-en Look at the last line. Somebody wrote next to it in pencil: "two minutes".
-uk Подивись на останній рядок. Хтось дописав біля нього олівцем: «дві хвилини».
-ru Посмотри на последнюю строку. Кто-то приписал рядом карандашом: «две минуты».
+cs Podívej na poslední řádek. Tužkou: „zdržen 2 min — na přání cestujícího". To je tátovo písmo. Tu noc měl službu.
+en Look at the last line. In pencil: "held 2 min — passenger's request". That's my dad's hand. He was on duty that night.
+uk Подивіться на останній рядок. Олівцем: «затримано на 2 хв — на прохання пасажира». Це почерк мого тата. Тієї ночі чергував він.
+ru Посмотрите на последнюю строку. Карандашом: «задержан на 2 мин — по просьбе пассажира». Это почерк моего отца. В ту ночь дежурил он.
 
 # --- scene lori_evening
 scene.lori_evening.01
@@ -919,6 +925,12 @@ cs Proto jsem sem chodila a stěžovala si na stoly. Někdo jí musel dělat spo
 en That's why I came here and complained about the tables. Somebody had to keep her company.
 uk Тому я й приходила сюди й скаржилася на столи. Хтось мав складати їй компанію.
 ru Поэтому я и приходила сюда и жаловалась на столы. Кто-то должен был составлять ей компанию.
+
+scene.vera_jindrich.06
+cs Šedesát let nalévala čaj tomu pánovi u okna, dítě. Ani jednou to neřekla. On se ani jednou nezeptal. Pýcha. Z té jsme byli všichni.
+en Sixty years she poured tea for the gentleman by the window, child. Never once said it. He never once asked. Pride. We were all made of it.
+uk Шістдесят років вона наливала чай тому панові біля вікна, дитино. Жодного разу цього не сказала. Він жодного разу не спитав. Гордість. Ми всі були з неї.
+ru Шестьдесят лет она наливала чай тому господину у окна, деточка. Ни разу этого не сказала. Он ни разу не спросил. Гордость. Мы все были из неё.
 
 # --- scene mirek_letter
 scene.mirek_letter.01
@@ -1343,10 +1355,10 @@ uk Отже, вона чекала.
 ru Значит, она ждала.
 
 scene.answer.05
-cs Šedesát let jsem si myslel, že nikdo. Šedesát let jsem se chodil přesvědčit.
-en For sixty years I thought nobody had. For sixty years I came to check.
-uk Шістдесят років я думав, що ніхто не чекав. Шістдесят років приходив переконатися.
-ru Шестьдесят лет я думал, что никто не ждал. Шестьдесят лет приходил убедиться.
+cs Šedesát let mi nalévala čaj. Šedesát let jsem ho pil a nikdy se nezeptal. Myslel jsem, že to světlo je zvyk.
+en Sixty years she poured my tea. Sixty years I drank it and never asked. I thought the light was a habit.
+uk Шістдесят років вона наливала мені чай. Шістдесят років я пив його й ні разу не спитав. Я думав, що світло — то звичка.
+ru Шестьдесят лет она наливала мне чай. Шестьдесят лет я пил его и ни разу не спросил. Я думал, свет — просто привычка.
 
 scene.answer.06
 cs Děkuju, Mirku. Líp pozdě než v dešti.
