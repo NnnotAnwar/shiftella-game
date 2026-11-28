@@ -309,6 +309,15 @@ pub enum XEffect {
     },
     /// Open swap requests are more likely to be picked up by colleagues tonight.
     SwapBoard,
+    /// The stock counted by hand: the bot says what is on the shelves now and warns of low
+    /// stock earlier tonight (`app.bot.stock_check`).
+    StockWatch,
+    /// Wishes for the tastes of tonight's specials (each special's first tag) are picked
+    /// × `mul` more often.
+    SpecialsBoost {
+        mul: f32,
+        minutes: Option<u32>,
+    },
 }
 
 /// Variant names of [`XEffect`] (keep in sync; a test checks every name parses).
@@ -363,6 +372,8 @@ pub const XEFFECT_NAMES: &[&str] = &[
     "FixTable",
     "ItemSpotlight",
     "SwapBoard",
+    "StockWatch",
+    "SpecialsBoost",
 ];
 
 // ---------------------------------------------------------------------------------------------
@@ -484,7 +495,9 @@ impl Fx {
                 | RememberRegular { .. }
                 | FixTable { .. }
                 | ItemSpotlight { .. }
-                | SwapBoard => {}
+                | SwapBoard
+                | StockWatch
+                | SpecialsBoost { .. } => {}
             },
         }
     }

@@ -44,6 +44,8 @@ pub(crate) fn on_checklist_done(w: &mut World, content: &Content, id: &str) {
     };
     let fx = def.extra_done.clone();
     xlogic::run(w, content, &fx, &XTarget::default());
+    // by hand: stronger, the evening mood, grandma's habits (`sim::rituals`)
+    super::rituals::on_item_done(w, content, id);
     if id == "handover_note" && w.sys.tool.picks.is_empty() {
         w.sys.tool.suggestions = suggestions(w, content);
         w.sys.tool.picks = w
@@ -346,7 +348,9 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
         w.sys.fx.radio = None;
     }
     // low stock: once a night
-    if !w.sys.tool.low_stock_sent && w.econ.supplies < 400 && m < 420 {
+    // (counted by hand: she warns while there is still time to order — `StockWatch`)
+    let low = if w.sys.fx.stock_watch { 700 } else { 400 };
+    if !w.sys.tool.low_stock_sent && w.econ.supplies < low && m < 420 {
         w.sys.tool.low_stock_sent = true;
         let item = w
             .econ

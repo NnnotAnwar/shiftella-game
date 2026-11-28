@@ -87,6 +87,8 @@ pub struct FxState {
     pub remember: BTreeMap<String, f32>,
     /// Open swaps are more likely to be picked up by colleagues tonight.
     pub swap_board: bool,
+    /// The stock was counted by hand: the low-stock warning comes earlier tonight.
+    pub stock_watch: bool,
     /// Beauty added by fixed tables tonight (coziness beauty).
     pub table_beauty: f32,
     /// The trainspotting logbook (LATER): train ids logged.

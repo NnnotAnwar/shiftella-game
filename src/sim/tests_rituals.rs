@@ -370,6 +370,7 @@ fn the_bot_plays_the_story_as_before() {
             let _ = b.run_night(&mut w, &c);
             assert!(w.ritual_hold().is_none());
             assert!(w.hands.rituals.by_hand.is_empty());
+            assert_eq!(w.habits(), &Habits::default(), "no habit without a gesture");
         }
         let _ = b.run_night(&mut w, &c);
         assert!(w.ending().is_some(), "{diff:?}: an ending");

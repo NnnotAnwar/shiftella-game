@@ -375,6 +375,9 @@ pub struct HandsState {
     /// Tonight's ritual gestures (`sim::rituals`): the one in the player's hands, the items
     /// done by hand.
     pub rituals: super::rituals::RitualState,
+    /// Grandma's habits (`sim::rituals`): nights each item was done by hand, the habits
+    /// learned, the crew's mood waiting for the next night. Kept for the whole game.
+    pub habits: super::rituals::Habits,
 }
 
 /// Who holds a ticket on the rail.
