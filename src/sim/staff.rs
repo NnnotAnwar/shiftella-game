@@ -1115,7 +1115,7 @@ fn checklist_works(w: &World, content: &Content, job: Job, duty: Duty) -> Vec<Wo
         }
         let window = match c.list {
             ChecklistKind::Opening => m < 120 && !w.in_closing(),
-            ChecklistKind::Closing => super::tool::closing_item_open(w, &c.id),
+            ChecklistKind::Closing => super::tool::closing_item_open(w, content, &c.id),
         };
         if !window {
             continue;

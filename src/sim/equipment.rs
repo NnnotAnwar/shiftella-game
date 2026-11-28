@@ -323,7 +323,10 @@ pub(crate) fn possible(w: &World, content: &Content, uid: u32, action: EquipActi
     match action {
         Service => def.wear_per_night > 0.0 && p.wear >= c.service_wear,
         WarmUp => checklist_open(w, "coffee_warmup", me),
-        CleanUp => closing && checklist_open(w, "clean_machine", me),
+        CleanUp => {
+            w.checklist_item_open(content, super::tool::MACHINE_ITEM)
+                && checklist_open(w, super::tool::MACHINE_ITEM, me)
+        }
         PullTray => {
             open && !closing
                 && power
@@ -351,7 +354,10 @@ pub(crate) fn possible(w: &World, content: &Content, uid: u32, action: EquipActi
             (!e.milk_done && m <= c.milk.until_minute)
                 || checklist_open(w, "check_stock", me) && !closing
         }
-        CountTill => closing && !e.till_counted,
+        // the closing's last step (the night ends with it): hers, once the doors are closed
+        CountTill => {
+            !e.till_counted && w.till_open(content) && checklist_open(w, super::tool::TILL_ITEM, me)
+        }
         Trash => closing && !e.trash_out,
     }
 }
@@ -545,16 +551,8 @@ pub(crate) fn complete(
                 };
             }
         }
-        CountTill => {
-            w.hands.equip.till_counted = true;
-            let s = &w.tonight;
-            let ev = SimEvent::TillCounted {
-                revenue: s.revenue,
-                guests: s.guests_served,
-                tips: s.tips,
-            };
-            w.emit(ev);
-        }
+        // (the till item ticked above says the night's take: `app::tick_checklist`)
+        CountTill => w.hands.equip.till_counted = true,
         Trash => {
             w.hands.equip.trash_out = true;
             w.dirt = (w.dirt - c.closing.trash_dirt).max(0.0);
@@ -709,27 +707,16 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             complete(w, content, oven, EquipAction::Bake, Some(helper));
         }
     }
-    // the closing half hour: the register helper counts the till, the floor / dishes helper
-    // takes the trash out (unless Karolina has it in her hands)
-    if w.in_closing() && w.close_minute() >= 2 {
-        if !w.hands.equip.till_counted
-            && let Some(helper) = helper_with(w, Duty::Register)
-            && let Some(reg) = first_with(w, content, EquipKind::Register)
-            && !in_hands(w, reg, EquipAction::CountTill)
-            && w.app
-                .checklist
-                .iter()
-                .any(|x| x.id == "cash_up" && x.claim.is_none())
-        {
-            complete(w, content, reg, EquipAction::CountTill, Some(helper));
-        } else if !w.hands.equip.trash_out
-            && let Some(helper) =
-                helper_with(w, Duty::Floor).or_else(|| helper_with(w, Duty::Dishes))
-            && let Some(bin) = first_with(w, content, EquipKind::Trash)
-            && !in_hands(w, bin, EquipAction::Trash)
-        {
-            complete(w, content, bin, EquipAction::Trash, Some(helper));
-        }
+    // the closing half hour: the floor / dishes helper takes the trash out (unless Karolina
+    // has it in her hands). The till is hers: counting it ends the night.
+    if w.in_closing()
+        && w.close_minute() >= 2
+        && !w.hands.equip.trash_out
+        && let Some(helper) = helper_with(w, Duty::Floor).or_else(|| helper_with(w, Duty::Dishes))
+        && let Some(bin) = first_with(w, content, EquipKind::Trash)
+        && !in_hands(w, bin, EquipAction::Trash)
+    {
+        complete(w, content, bin, EquipAction::Trash, Some(helper));
     }
     // the oven timer
     if let Cake::Baking { ready_at, .. } = w.hands.equip.cake

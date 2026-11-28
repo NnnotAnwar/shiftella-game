@@ -141,6 +141,18 @@ pub fn eligible(g: &GameScreen, content: &Content) -> Option<(String, Vec2)> {
     (g.rituals.staged || on_screen(g, at)).then_some((key, at))
 }
 
+/// The cord's lamp on the card: (lit now, lit after the pull) — the light in the window as
+/// the sim has it (a power cut counts as off), and as the item leaves it: lit at the
+/// opening, dark at the closing (the owner: "at closing it looks like I turn the lamp ON").
+pub fn cord_lamp(g: &GameScreen, content: &Content, key: &str) -> (bool, bool) {
+    let now = g.world.window_light_on(content);
+    match key {
+        "light_off_at_six" => (now, false),
+        "light_window" => (now, !g.world.blackout()),
+        _ => (false, true),
+    }
+}
+
 /// The label of a gesture key.
 fn label_of(loc: &Locale, key: &str) -> String {
     match key.strip_prefix("equip.") {
@@ -251,7 +263,8 @@ fn open(
         _ => Vec::new(),
     };
     let seed = seed_for(g.world.seed(), g.world.night(), &key);
-    let gesture = Gesture::new(&kind, seed, relaxed, lines.len());
+    let mut gesture = Gesture::new(&kind, seed, relaxed, lines.len());
+    gesture.lamp = cord_lamp(g, content, &key);
     let hint = !hints.contains(kind.id()) && !g.rituals.seen.iter().any(|s| s == kind.id());
     // she waits for the player from the moment the card shows (at most her patience)
     let started = g
@@ -264,8 +277,16 @@ fn open(
             },
         )
         .is_ok();
+    let label = if key == sim::TILL_ITEM {
+        // the closing's last step: tonight's take on the card (as the HUD counts it)
+        let t = g.world.tonight();
+        let take = crate::i18n::format_money(loc.lang, t.revenue + t.tips);
+        loc.trf("ritual.till.title", &[("money", &take)])
+    } else {
+        label_of(loc, &key)
+    };
     g.rituals.open = Some(RitualOpen {
-        label: label_of(loc, &key),
+        label,
         key,
         gesture,
         started_sent: started,
@@ -787,6 +808,19 @@ impl GameScreen {
             c.minute = None;
             c.claim = None;
         }
+        // (and the window lamp as it was before it: lit for the closing, dark for the opening)
+        let lamp = match key {
+            "light_off_at_six" => Some(true),
+            "light_window" => Some(false),
+            _ => None,
+        };
+        if let Some(on) = lamp
+            && let Some(uid) = self.world.window_light(content)
+        {
+            let _ = self
+                .world
+                .apply(content, Command::SetFurnitureOn { uid, on });
+        }
         let cmd = match key.strip_prefix("equip.") {
             Some(a) => {
                 let action = sim::EquipAction::ALL.iter().copied().find(|x| x.id() == a);
@@ -839,21 +873,37 @@ impl GameScreen {
                 },
             );
         }
-        // played a little by the script (never to the end: the picture shows it in play)
+        // played a little by the script (never to the end: the picture shows it in play) —
+        // or, `SHIFTELLA_GESTURE_DONE=1`, to its end: the card's done beat and the café after
+        // it (the lamp as the item leaves it)
+        let to_end = std::env::var("SHIFTELLA_GESTURE_DONE").is_ok_and(|v| v == "1");
         let dt = 1.0 / 30.0;
         let mut t = 0.0;
-        while t < secs {
+        while t < secs || to_end {
             let Some(o) = self.rituals.open.as_ref() else {
                 break;
             };
+            if o.gesture.finished().is_some() || t > 20.0 {
+                break;
+            }
             let input = o.gesture.autoplay_input();
             let mut probe = o.gesture.clone();
             probe.step(&input, dt);
-            if probe.finished().is_some() || probe.progress() > 0.85 {
+            if !to_end && (probe.finished().is_some() || probe.progress() > 0.85) {
                 break;
             }
             let _ = step(self, content, &input, dt);
             t += dt;
+        }
+        if to_end {
+            // her work tick finishes the item (the lamp switches); the card keeps its beat
+            for _ in 0..40 {
+                if !self.world.ritual_hold().is_some_and(|h| h.done) {
+                    break;
+                }
+                self.world.tick(content);
+            }
+            self.world.tick(content);
         }
         let _ = self.world.drain_events();
     }
@@ -885,6 +935,15 @@ mod tests {
 
     /// Queues `id` for her and steps the screen until the card opens (or she is done).
     fn until_card(g: &mut GameScreen, c: &Rc<Content>, loc: &Locale, hints: &BTreeSet<String>) {
+        // (nothing else on screen: a fast-forwarded night may leave a card to read)
+        g.reading.clear();
+        g.summary = None;
+        g.panel = None;
+        g.speed = 1;
+        g.hands.order = None;
+        g.hands.moment = None;
+        g.hands.book = None;
+        g.hands.minigame = None;
         for _ in 0..400 {
             headless(g, c, loc, hints, &MgInput::default(), 1.0 / 30.0);
             if g.rituals.open.is_some() {
@@ -1119,5 +1178,177 @@ mod tests {
         }
         let o = g.rituals.open.as_ref().expect("still there, waiting");
         assert!(!o.gesture.started() && o.gesture.progress() == 0.0);
+    }
+
+    /// Plays the open card to its end (the player's gesture), stepping the sim; returns the
+    /// card's lamp (before, after) as it was drawn.
+    fn play_card(
+        g: &mut GameScreen,
+        c: &Rc<Content>,
+        loc: &Locale,
+        hints: &BTreeSet<String>,
+        id: &str,
+    ) -> (bool, bool) {
+        let lamp = g
+            .rituals
+            .open
+            .as_ref()
+            .expect("the cord shows")
+            .gesture
+            .lamp;
+        for _ in 0..600 {
+            let input = g
+                .rituals
+                .open
+                .as_ref()
+                .map(|o| o.gesture.autoplay_input())
+                .unwrap_or_default();
+            headless(g, c, loc, hints, &input, 1.0 / 30.0);
+            g.world.tick(c);
+            if matches!(g.world.checklist_mark(id), sim::ChecklistMark::Done { .. }) {
+                break;
+            }
+        }
+        assert!(matches!(
+            g.world.checklist_mark(id),
+            sim::ChecklistMark::Done { .. }
+        ));
+        lamp
+    }
+
+    /// fix/closing (the owner: "when I close the night it looks like I turn the lamp ON, and
+    /// visually it is on; same at opening"): the cord card starts from the window lamp as the
+    /// sim has it and ends where the item leaves it — lit at the opening, dark at the closing.
+    #[test]
+    fn the_cord_card_shows_the_lamp_the_way_the_sim_has_it() {
+        let c = content();
+        let i18n = i18n();
+        let loc = Locale::new(&i18n, crate::i18n::Lang::En);
+        let hints = BTreeSet::new();
+        // the opening: off → on
+        let mut g = prep(&c);
+        g.rituals.staged = true;
+        assert!(!g.world.window_light_on(&c));
+        g.world
+            .apply(
+                &c,
+                Command::TickChecklist {
+                    id: "light_window".into(),
+                },
+            )
+            .unwrap();
+        until_card(&mut g, &c, &loc, &hints);
+        let lamp = play_card(&mut g, &c, &loc, &hints, "light_window");
+        assert_eq!(lamp, (false, true));
+        assert_eq!(
+            g.world.window_light_on(&c),
+            lamp.1,
+            "the card ends as the café"
+        );
+        // the closing: lit → off (the card used to light it up)
+        let mut g = GameScreen::new_story(&c, "cozy", true);
+        g.fast_forward(&c, &loc, 2, Some(485), true);
+        g.cam_ready = true;
+        g.rituals.staged = true;
+        assert!(g.world.in_closing());
+        let _ = g.world.apply(&c, Command::PlayerClearQueue);
+        let _ = g.world.apply(&c, Command::PlayerCancel);
+        if let Some(it) = g
+            .world
+            .app
+            .checklist
+            .iter_mut()
+            .find(|i| i.id == "light_off_at_six")
+        {
+            it.done = false;
+            it.claim = None;
+        }
+        let lamp_uid = g.world.window_light(&c).expect("the window lamp");
+        g.world
+            .apply(
+                &c,
+                Command::SetFurnitureOn {
+                    uid: lamp_uid,
+                    on: true,
+                },
+            )
+            .unwrap();
+        assert!(g.world.window_light_on(&c));
+        assert_eq!(cord_lamp(&g, &c, "light_off_at_six"), (true, false));
+        g.world
+            .apply(
+                &c,
+                Command::TickChecklist {
+                    id: "light_off_at_six".into(),
+                },
+            )
+            .unwrap();
+        until_card(&mut g, &c, &loc, &hints);
+        let lamp = play_card(&mut g, &c, &loc, &hints, "light_off_at_six");
+        assert_eq!(
+            lamp,
+            (true, false),
+            "at closing the cord puts the light out"
+        );
+        assert!(!g.world.window_light_on(&c));
+        assert_eq!(
+            g.world.window_light_on(&c),
+            lamp.1,
+            "the card ends as the café"
+        );
+        // a power cut counts as off (the lamp has no light to show)
+        let mut g = prep(&c);
+        g.world.blackout_until = Some(60);
+        assert_eq!(cord_lamp(&g, &c, "light_window"), (false, false));
+    }
+
+    /// The closing's last step on its card: the night's take beside the title.
+    #[test]
+    fn the_till_card_shows_the_nights_take() {
+        let c = content();
+        let i18n = i18n();
+        let loc = Locale::new(&i18n, crate::i18n::Lang::En);
+        let hints = BTreeSet::new();
+        let mut g = GameScreen::new_story(&c, "cozy", true);
+        g.fast_forward(&c, &loc, 2, Some(482), true);
+        g.cam_ready = true;
+        g.rituals.staged = true;
+        assert!(g.world.in_closing());
+        assert!(
+            g.world.till_open(&c),
+            "{:?}",
+            g.world.checklist_mark(sim::TILL_ITEM)
+        );
+        let _ = g.world.apply(&c, Command::PlayerClearQueue);
+        let _ = g.world.apply(&c, Command::PlayerCancel);
+        g.world
+            .apply(
+                &c,
+                Command::TickChecklist {
+                    id: sim::TILL_ITEM.into(),
+                },
+            )
+            .unwrap();
+        until_card(&mut g, &c, &loc, &hints);
+        let o = g.rituals.open.as_ref().expect("the till's card");
+        let t = g.world.tonight();
+        let take = crate::i18n::format_money(loc.lang, t.revenue + t.tips);
+        assert!(
+            o.label.starts_with("Count the till") && o.label.contains(&take),
+            "{}",
+            o.label
+        );
+        // done by hand: the night ends a beat later
+        play_card(&mut g, &c, &loc, &hints, sim::TILL_ITEM);
+        let mut guard = 0;
+        while g.world.phase() == sim::Phase::Night && guard < 200 {
+            g.world.tick(&c);
+            guard += 1;
+        }
+        assert_eq!(g.world.phase(), sim::Phase::Day);
+        assert!(
+            guard >= sim::TILL_BEAT_TICKS / 2,
+            "a short beat first: {guard}"
+        );
     }
 }

@@ -491,6 +491,29 @@ impl GameScreen {
             .map(|c| c.id.clone())
             .collect();
         match which {
+            // fix/closing: after last call with guests still in — the closing list as it was
+            // before the bot touched it: what she can do now, what's locked and why
+            "closing" | "closing_app" => {
+                let _ = self.world.apply(content, Command::PlayerClearQueue);
+                let _ = self.world.apply(content, Command::PlayerCancel);
+                for c in self.world.app.checklist.iter_mut() {
+                    let closing =
+                        content.app.checklists.iter().any(|d| {
+                            d.id == c.id && d.list == crate::content::ChecklistKind::Closing
+                        });
+                    if closing {
+                        c.done = false;
+                        c.by = None;
+                        c.minute = None;
+                        c.claim = None;
+                    }
+                }
+                let _ = self.world.drain_events();
+                if which == "closing_app" {
+                    self.ui_state.app_tab = 4;
+                    self.panel = Some(Panel::App);
+                }
+            }
             "checklist" | "rituals" => {
                 // the opening list back to open (the fast-forward did it all), then: one
                 // done, one on her way, one queued after it, the rest open

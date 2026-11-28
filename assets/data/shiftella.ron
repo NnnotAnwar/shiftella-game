@@ -83,11 +83,6 @@
          hand_done: [Wear(tag: "station:coffee", add: -0.02)],
          perfect_done: [Wear(tag: "station:coffee", add: -0.01)],
          habit: [Wear(tag: "station:coffee", add: -0.01)]),
-        (id: "cash_up", list: Closing, job: Register, minutes: 10,
-         owner: Either(Register), anchor: "register", gesture: Click, extra_done: [CashUp],
-         hand_done: [NextNight([WorkSpeed(job: Register, mul: 1.1, minutes: 60)])],
-         perfect_done: [Tip(min: 10, max: 20)],
-         habit: [NextNight([WorkSpeed(job: Register, mul: 1.05, minutes: 60)])]),
         (id: "fridge_check", list: Closing, job: Kitchen, minutes: 5,
          owner: Either(Kitchen), anchor: "station:fridge", gesture: Click,
          extra_done: [Wear(tag: "station:fridge", add: -0.01)],
@@ -102,6 +97,13 @@
          hand_done: [Reputation(0.25)],
          perfect_done: [Reputation(0.25)],
          habit: [NextNight([Coziness(add: 0.5, minutes: None)])]),
+        // the closing's last step: Karolina counts the till and the night ends (the clock
+        // waits at 06:29 until she does; sim::tool::TILL_ITEM). Hers, never a helper's.
+        (id: "cash_up", list: Closing, job: Register, minutes: 10,
+         owner: Karolina, anchor: "register", gesture: Click, extra_done: [CashUp],
+         hand_done: [NextNight([WorkSpeed(job: Register, mul: 1.1, minutes: 60)])],
+         perfect_done: [Tip(min: 10, max: 20)],
+         habit: [NextNight([WorkSpeed(job: Register, mul: 1.05, minutes: 60)])]),
     ],
     rituals: [
         // `perfect`: a tiny extra for a list done with ≥ rituals.perfect_min perfect gestures

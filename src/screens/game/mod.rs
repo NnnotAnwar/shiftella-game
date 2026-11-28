@@ -2369,7 +2369,8 @@ impl GameScreen {
                 if self.world.in_prep() {
                     let _ = self.command(content, Command::OpenDoors);
                 } else if self.world.in_closing() {
-                    let _ = self.command(content, Command::CloseUp);
+                    // the closing's last step: count the till (the night ends with it)
+                    self.count_till(content);
                 }
             }
             // F: the nearest night moment's card

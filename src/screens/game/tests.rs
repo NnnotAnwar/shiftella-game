@@ -728,6 +728,37 @@ fn open_the_doors_from_the_hud_and_the_door_toast() {
     assert!((p - want).abs() < 1e-4, "{p}");
 }
 
+/// fix/closing: in the closing half hour the doors chip / O count the till — the closing's
+/// last step — and that brings the morning (the clock waits at 06:29 until she does).
+#[test]
+fn counting_the_till_brings_the_morning() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut g = GameScreen::new_story(&c, "cozy", true);
+    g.fast_forward(&c, &loc, 2, Some(485), true);
+    assert!(g.world.in_closing());
+    assert!(!g.world.till_counted());
+    // the chip's action: Karolina has the till in her hands
+    assert!(g.count_till(&c));
+    assert!(matches!(
+        g.world.checklist_mark(sim::TILL_ITEM),
+        sim::ChecklistMark::Taken { karolina: true, .. }
+    ));
+    // a second press doesn't cancel it (the chip is "Counting the till…")
+    assert!(!g.count_till(&c));
+    let mut guard = 0;
+    while g.world.phase() == sim::Phase::Night && guard < 20_000 {
+        g.world.tick(&c);
+        g.drain_and_handle(&c, Some(&loc));
+        guard += 1;
+    }
+    assert_eq!(g.world.phase(), sim::Phase::Day);
+    assert!(g.summary.is_some() || g.summary_pending.is_some());
+    let s = g.world.summaries().last().unwrap();
+    assert_eq!(s.night, 2);
+}
+
 /// The closing half hour on screen: at 06:00 the sign flips back with a toast, the chip
 /// says "Close up" and closing up brings the morning summary.
 #[test]

@@ -52,12 +52,25 @@ fn who(g: &GameScreen, loc: &Locale, id: Option<u32>) -> String {
     }
 }
 
+/// Why an open item can't be done yet (greyed with this reason; `None` = it can, or it is
+/// already someone's / done).
+pub fn lock(g: &GameScreen, content: &Content, item: usize) -> Option<sim::ChecklistLock> {
+    let it = content.app.checklists.get(item)?;
+    if g.world.checklist_mark(&it.id) != ChecklistMark::Open {
+        return None;
+    }
+    g.world.checklist_lock(content, &it.id)
+}
+
 /// (the line at the right of the row, the hover text) for an item in its state.
 pub fn texts(g: &GameScreen, loc: &Locale, content: &Content, item: usize) -> (String, String) {
     let Some(it) = content.app.checklists.get(item) else {
         return (String::new(), String::new());
     };
     let night = g.world.phase() == sim::Phase::Night;
+    if let Some(l) = lock(g, content, item) {
+        return (loc.tr_owned(l.key()), loc.tr_owned(l.key()));
+    }
     match g.world.checklist_mark(&it.id) {
         ChecklistMark::Open => (
             owner_text(loc, content, item),
@@ -243,16 +256,23 @@ pub fn row(
         return false;
     };
     let mark = g.world.checklist_mark(&it.id);
+    let locked = lock(g, content, item).is_some();
     let (meta, tip) = texts(g, loc, content, item);
     let id = ui.id(("chk_row", it.id.as_str()));
     let resp = ui.interact(id, r);
-    if resp.hover_t > 0.01 {
+    // (a locked row isn't a button: no hover wash, the reason on the right and in the tip)
+    if resp.hover_t > 0.01 && !locked {
         fill_rrect(r, 6.0, Color::new(1.0, 1.0, 1.0, 0.04 * resp.hover_t));
     }
     let done = matches!(mark, ChecklistMark::Done { .. });
     let bc = vec2(r.x + 8.0 + 8.0, r.center_y());
-    hands_view::draw_check_box(bc, 16.0, mark, resp.hovered, 1.0);
+    if locked {
+        hands_view::draw_locked_box(bc, 16.0, 1.0);
+    } else {
+        hands_view::draw_check_box(bc, 16.0, mark, resp.hovered, 1.0);
+    }
     let ms = t.small().color(match mark {
+        _ if locked => with_a(t.text_dim, 0.8),
         ChecklistMark::Taken { karolina: true, .. } => t.indigo_300,
         _ => t.text_dim,
     });
@@ -274,7 +294,9 @@ pub fn row(
         (r.w - 34.0 - mw - 18.0 - marks_w).max(0.0),
         r.h,
     );
-    let ls = t.body().color(if done { t.text_dim } else { t.text });
+    let ls = t
+        .body()
+        .color(if done || locked { t.text_dim } else { t.text });
     let lw = ui.fonts.draw_in(&label, lr, &ls, Align::Left);
     if done {
         hline(lr.x - 1.0, lr.x + lw + 1.0, lr.center_y() - 0.5, t.text_dim);
@@ -331,6 +353,7 @@ pub fn row_clicked(g: &mut GameScreen, loc: &Locale, content: &Content, item: us
     {
         return;
     }
+    // (a locked item says why; `intent` does the same for the box over its piece)
     if g.intent(content, Intent::Checklist(item)) {
         g.extra.checklist_tip = g.extra.checklist_tip.saturating_add(1);
     }
@@ -512,5 +535,53 @@ mod tests {
         assert!(g.intent(&c, Intent::Checklist(i)));
         assert_eq!(g.world.checklist_mark("count_float"), ChecklistMark::Open);
         assert!(g.world.player().current.is_none() && g.world.player().queue.is_empty());
+    }
+
+    /// fix/closing: an item that can't be done yet is never an empty box that does nothing —
+    /// greyed with its reason in the row, a lock over its piece, a click says why.
+    #[test]
+    fn a_locked_item_says_why_and_never_looks_clickable() {
+        let c = content();
+        let i18n = {
+            let root = env!("CARGO_MANIFEST_DIR");
+            crate::settings::load_i18n(&format!("{root}/assets/i18n")).expect("i18n")
+        };
+        let loc = Locale::new(&i18n, crate::i18n::Lang::En);
+        let mut g = GameScreen::new_story(&c, "cozy", true);
+        g.start_night(&c);
+        g.world.skip_prep(&c);
+        let at = |id: &str| c.app.checklists.iter().position(|x| x.id == id).unwrap();
+        // 22:00: the closing list is for later
+        let dishes = at("wash_dishes");
+        assert_eq!(lock(&g, &c, dishes), Some(sim::ChecklistLock::FromFive));
+        let (meta, tip) = texts(&g, &loc, &c, dishes);
+        assert_eq!(meta, "From 5:00");
+        assert_eq!(tip, meta);
+        let before = g.notices.len();
+        assert!(!g.intent(&c, Intent::Checklist(dishes)));
+        assert_eq!(g.notices.len(), before + 1, "a click says why");
+        assert_eq!(g.world.checklist_mark("wash_dishes"), ChecklistMark::Open);
+        assert!(g.world.player().current.is_none() && g.world.player().queue.is_empty());
+        // the opening list is doable: no lock
+        assert_eq!(lock(&g, &c, at("count_float")), None);
+        // near closing: the till's marker over the register is a lock (the last step, after
+        // the doors close), the dishes' one an open box
+        g.world.tick = 470 * sim::TICKS_PER_MINUTE;
+        let marks = hands_view::ritual_marks(&g, &c);
+        let till = marks
+            .iter()
+            .find(|m| m.item == at(sim::TILL_ITEM))
+            .expect("the till's marker");
+        assert!(till.locked);
+        assert_eq!(
+            texts(&g, &loc, &c, at(sim::TILL_ITEM)).0,
+            "The last step, after 6:00"
+        );
+        let d = marks.iter().find(|m| m.item == dishes).expect("the sink's");
+        assert!(!d.locked);
+        // the opening markers are gone once the doors close (missed tonight, not dead boxes)
+        assert!(marks.iter().all(|m| c.app.checklists[m.item].list
+            == crate::content::ChecklistKind::Closing
+            || !g.world.in_closing()));
     }
 }

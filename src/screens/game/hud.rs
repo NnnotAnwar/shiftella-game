@@ -158,14 +158,26 @@ fn clock_card(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
 /// The two quiet halves: a chip beside the atmosphere meter. Before the doors open
 /// (21:30–22:00) "Doors at 22:00" + "Open the doors [O]"; at 21:59 the clock waits for her and
 /// the button turns primary ("The café is waiting for you"). In the closing half hour
-/// (06:00–06:30) "Closing up" + "Close up [O]" (the night ends at once); the same wait at 06:29.
+/// (06:00–06:30) "Closing up" + "Count the till [O]" — the closing's last step, the night
+/// ends with it; primary once the rest of the list is done or the clock waits at 06:29, and
+/// "Counting the till…" while she's on it.
 fn doors_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let w = &g.world;
     let (prep, closing) = (w.in_prep(), w.in_closing());
     if !(prep || closing) || w.playing_cutscene().is_some() {
         return;
     }
-    let waiting = w.waiting_for_doors() || w.waiting_to_close();
+    let content = cx.content;
+    let has_till = content
+        .app
+        .checklists
+        .iter()
+        .any(|c| c.id == sim::TILL_ITEM);
+    let hers = closing && w.karolina_checklist_slot(sim::TILL_ITEM).is_some();
+    let counted = closing && w.till_counted();
+    let waiting = w.waiting_for_doors()
+        || (w.waiting_to_close() && !hers && !counted)
+        || (closing && has_till && w.closing_rest_done(content) && !hers && !counted);
     let t = ui.theme.clone();
     let loc = cx.loc;
     let (label, note, tip) = if prep {
@@ -177,6 +189,18 @@ fn doors_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 loc.tr("prep.hud.doors_at")
             },
             loc.tr("prep.hud.open_now_tip"),
+        )
+    } else if has_till {
+        (
+            loc.tr("close.hud.count_till"),
+            if hers || counted {
+                loc.tr("close.hud.counting")
+            } else if waiting {
+                loc.tr("close.hud.till_waiting")
+            } else {
+                loc.tr("close.hud.closing")
+            },
+            loc.tr("close.hud.count_till_tip"),
         )
     } else {
         (
@@ -190,10 +214,16 @@ fn doors_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         )
     };
     let key = crate::settings::keys::label(crate::settings::keys::Action::Doors);
+    let icon = if closing && has_till {
+        Icon::CashRegister
+    } else {
+        Icon::Door
+    };
     let mut b = Button::new(label)
-        .icon(Icon::Door)
+        .icon(icon)
         .shortcut(&key)
-        .tooltip(tip);
+        .tooltip(tip)
+        .disabled(hers || counted);
     b = if waiting { b.primary() } else { b.secondary() };
     let bw = ui.button_width(&b);
     let st = t.small().color(if waiting { t.text } else { t.text_dim });
@@ -216,12 +246,11 @@ fn doors_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         .draw(note, r.x + 12.0, ui.fonts.baseline_in(r, &st), &st);
     let br = Rect::new(r.right() - bw - 4.0, r.y + 4.0, bw, r.h - 8.0);
     if ui.button("open_doors", br, &b).clicked {
-        let cmd = if prep {
-            sim::Command::OpenDoors
+        if prep {
+            let _ = g.command(cx.content, sim::Command::OpenDoors);
         } else {
-            sim::Command::CloseUp
-        };
-        let _ = g.command(cx.content, cmd);
+            g.count_till(cx.content);
+        }
     }
 }
 

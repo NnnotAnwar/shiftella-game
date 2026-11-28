@@ -781,10 +781,10 @@ uk Тихо. Можна пустити годинник трохи швидше.
 ru Тихо. Можно пустить часы чуть быстрее.
 
 tutorial.closing
-cs Dveře jsou zavřené. Vzkaz pro zítřejší já, zhasnout okno — a pak „Zavřít“ ({key.doors}).
-en The doors are closed. A note for tomorrow's me, the window light off — then Close up ({key.doors}).
-uk Двері зачинено. Записка для завтрашньої себе, світло у вікні — і «Зачинити» ({key.doors}).
-ru Двери закрыты. Записка для завтрашней себя, свет в окне — и «Закрыть» ({key.doors}).
+cs Dveře jsou zavřené. Vzkaz pro zítřejší já, zhasnout okno — a nakonec spočítat kasu ({key.doors}).
+en The doors are closed. A note for tomorrow's me, the window light off — and last, count the till ({key.doors}).
+uk Двері зачинено. Записка для завтрашньої себе, світло у вікні — і наостанок перерахувати касу ({key.doors}).
+ru Двери закрыты. Записка для завтрашней себя, свет в окне — и напоследок пересчитать кассу ({key.doors}).
 
 tutorial.journal
 cs Babička měla za pokladnou krabici fotek. Budu si jednu vést taky. ({key.journal})

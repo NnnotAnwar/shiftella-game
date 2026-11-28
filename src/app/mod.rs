@@ -16,9 +16,11 @@
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
 //!   story_marker|story_card|storm|storm_talk|auto_pause|hands_ux` (`auto_pause`: the night paused
 //!   itself for `SHIFTELLA_EVENT=<id>`, default `storm`, and shows why) (`SHIFTELLA_HUX=checklist|rituals|
-//!   queue|follow|gesture`: the checklist states, the queue strip with 8 acts, the follow chip,
-//!   a ritual gesture over its piece — `SHIFTELLA_GESTURE=<checklist id | equip.<chore>>`,
-//!   `SHIFTELLA_GESTURE_T=<s>` played that long first, default 21:40 with the list untouched;
+//!   queue|follow|gesture|closing|closing_app`: the checklist states, the queue strip with 8 acts,
+//!   the follow chip, the closing list after last call with guests still in (over the café / in
+//!   the app), a ritual gesture over its piece — `SHIFTELLA_GESTURE=<checklist id | equip.<chore>>`,
+//!   `SHIFTELLA_GESTURE_T=<s>` played that long first, `SHIFTELLA_GESTURE_DONE=1` played to its
+//!   end (the card's done beat, the café after it), default 21:40 with the list untouched;
 //!   `SHIFTELLA_STORY=<id>`: the vignette put on a
 //!   stranger when none came by itself; `SHIFTELLA_LINE=n`: the storm talk's line)
 //!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states;
@@ -545,11 +547,21 @@ impl App {
                 let loc = Locale::new(&self.i18n, lang);
                 let which = env("SHIFTELLA_HUX").unwrap_or_else(|| "queue".into());
                 let early = matches!(which.as_str(), "checklist" | "rituals" | "gesture");
-                let n = night.unwrap_or(if early { 1 } else { 8 });
+                // (`closing` / `closing_app`: 05:17, after last call with guests still in)
+                let closing = which.starts_with("closing");
+                let n = night.unwrap_or(if early {
+                    1
+                } else if closing {
+                    6
+                } else {
+                    8
+                });
                 let m = minute.unwrap_or(if which == "gesture" {
                     -20
                 } else if early {
                     2
+                } else if closing {
+                    sim::LAST_CALL as i32 + 2
                 } else {
                     150
                 });

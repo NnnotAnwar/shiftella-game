@@ -15,10 +15,10 @@ uk Зачинено — час прибрати
 ru Закрыто — пора прибраться
 
 close.toast.doors_closed.body
-cs Poslední hosté jdou domů. Spočítej pokladnu, vyčisti hlavu kávovaru, vynes koš, napiš předávku a zhasni okno — pak „Zavřít“ ({key.doors}).
-en The last guests are on their way home. Count the till, clean the group head, take the trash out, write the handover note and switch off the window light — then Close up ({key.doors}).
-uk Останні гості йдуть додому. Порахуй касу, почисти групу кавоварки, винеси сміття, напиши передачу зміни й вимкни світло у вікні — тоді «Зачинити» ({key.doors}).
-ru Последние гости идут домой. Пересчитай кассу, почисти группу кофемашины, вынеси мусор, напиши передачу смены и выключи свет в окне — потом «Закрыть» ({key.doors}).
+cs Poslední hosté jdou domů. Vyčisti hlavu kávovaru, vynes koš, napiš předávku a zhasni okno — a nakonec spočítej kasu ({key.doors}), tím noc končí.
+en The last guests are on their way home. Clean the group head, take the trash out, write the handover note and switch off the window light — and last, count the till ({key.doors}): that ends the night.
+uk Останні гості йдуть додому. Почисти групу кавоварки, винеси сміття, напиши передачу зміни й вимкни світло у вікні — а наостанок перерахуй касу ({key.doors}): нею ніч і закінчується.
+ru Последние гости идут домой. Почисти группу кофемашины, вынеси мусор, напиши передачу смены и выключи свет в окне — а напоследок пересчитай кассу ({key.doors}): ею ночь и заканчивается.
 
 close.hud.closing
 cs Zavíráme
@@ -44,11 +44,35 @@ en End the night now — whatever is left on the closing list counts as missed. 
 uk Завершити ніч зараз — усе, що лишилося у списку на закриття, рахується як невиконане. О 6:29 годинник чекає на тебе; коли список виконано, ніч скінчиться сама.
 ru Закончить ночь сейчас — всё, что осталось в списке на закрытие, считается невыполненным. В 6:29 часы ждут тебя; когда список выполнен, ночь закончится сама.
 
+close.hud.count_till
+cs Spočítat kasu
+en Count the till
+uk Перерахувати касу
+ru Пересчитать кассу
+
+close.hud.counting
+cs Počítá kasu…
+en Counting the till…
+uk Рахує касу…
+ru Считает кассу…
+
+close.hud.till_waiting
+cs Klid — spočítej kasu a noc skončí
+en All quiet — count the till to end the night
+uk Тихо — перерахуй касу, і ніч скінчиться
+ru Тихо — пересчитай кассу, и ночь закончится
+
+close.hud.count_till_tip
+cs Poslední krok zavírání: Karolina spočítá kasu a noc skončí. Co na seznamu na zavření ještě zbývá, se počítá jako nesplněné. V 6:29 hodiny počkají.
+en The closing's last step: Karolina counts the till and the night ends. Whatever is still left on the closing list counts as missed. At 6:29 the clock waits for you.
+uk Останній крок закриття: Кароліна перераховує касу, і ніч закінчується. Те, що ще лишилося у списку на закриття, рахується як невиконане. О 6:29 годинник чекає на тебе.
+ru Последний шаг закрытия: Каролина пересчитывает кассу, и ночь заканчивается. То, что ещё осталось в списке на закрытие, считается невыполненным. В 6:29 часы ждут тебя.
+
 access.action.doors
-cs Otevřít dveře / Zavřít
-en Open the doors / Close up
-uk Відчинити двері / Зачинити
-ru Открыть двери / Закрыть
+cs Otevřít dveře / Spočítat kasu
+en Open the doors / Count the till
+uk Відчинити двері / Перерахувати касу
+ru Открыть двери / Пересчитать кассу
 
 ui.app.checklist.doing
 cs {name} na tom dělá
