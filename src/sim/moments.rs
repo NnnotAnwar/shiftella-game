@@ -656,6 +656,13 @@ pub(crate) fn options_now(w: &World, content: &Content, id: &str) -> Vec<String>
     def.options
         .iter()
         .filter(|o| xlogic::holds(w, content, &o.show_if))
+        // "A koláč for each" only while she can make one tonight
+        .filter(|o| match &o.interaction {
+            Some(Interaction::QuickBrews { recipe, .. }) => w
+                .recipe_def(content, recipe)
+                .is_some_and(|r| super::orders::recipe_available(w, content, r)),
+            _ => true,
+        })
         .filter(|o| {
             o.within_minutes
                 .is_none_or(|n| m.saturating_sub(a.spawned) <= n)

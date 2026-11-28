@@ -390,6 +390,12 @@ it isn't in `recipes.ron`: it is the café's own drink, composed in the game and
 (v0.2 package I, `sim::signature`; data `signature.ron`, compiled in; text `signature_photo.tr`).
 The `house_special` wishes ask for it by name — their `wish.*` lines are fallbacks, the game fills
 the name into `signature.wish.<id or regular>`.
+`WishesFile.line_items: { "<i18n key>": [menu item or recipe ids] }` lists the lines that name a
+dish — wishes (`wish.<id>`) and regulars' arrival / hover lines (`regular.<id>.line.*`,
+`regular.<id>.ambient.*`). Such a line is only said (a wish only picked) while one of them can be
+made tonight (`sim::orders::line_ok`: a recipe known, its item on the menu, its station there — the
+koláč needs the oven); the order card's four chips always include the named dish, and "the
+usual" for it is that dish. A new line that orders something by name needs an entry here.
 
 ### 10.4 Moments (`moments.ron`)
 

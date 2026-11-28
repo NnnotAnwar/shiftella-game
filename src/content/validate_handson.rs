@@ -482,6 +482,22 @@ fn recipes(v: &mut Ctx, c: &Content) {
 
 fn wishes(v: &mut Ctx, c: &Content) {
     let h = &c.handson;
+    for (key, items) in &h.wishes.line_items {
+        let ctx = format!("wishes.ron line_items `{key}`");
+        if items.is_empty() {
+            v.push(format!("{ctx}: names no dish"));
+        }
+        for i in items {
+            if c.menu_item(i).is_none() && !v.hx.recipes.contains(i.as_str()) {
+                v.push(format!("{ctx}: `{i}` is neither a menu item nor a recipe"));
+            }
+        }
+        if let Some(id) = key.strip_prefix("wish.")
+            && !h.wishes.wishes.iter().any(|w| w.id == id)
+        {
+            v.push(format!("{ctx}: no such wish"));
+        }
+    }
     for w in &h.wishes.wishes {
         let ctx = format!("wish `{}`", w.id);
         if w.any != w.want.is_empty() {

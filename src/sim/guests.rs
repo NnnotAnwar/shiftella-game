@@ -18,6 +18,9 @@ pub const BASE_PARTIES_PER_HOUR: f32 = 1.3;
 /// Waiting for food allows this many × the archetype patience (T9: 2.4 → 3.0, so a Classic
 /// party waiting for a round Karolina makes by hand doesn't walk out mid-brew).
 pub const FOOD_PATIENCE: f32 = 3.0;
+/// Once the order is taken a guest waits at least this many game minutes for it (a quick
+/// regular like Radek too: time for Karolina to walk back to the bar and make it).
+pub const FAIR_FOOD_WAIT: f32 = 15.0;
 /// Sandbox bills × this on top of the difficulty's `income_mul` (T9: endless mode has no debt to
 /// pay off, so the café doesn't pile up money it can't spend; story money is the difficulty's).
 pub const SANDBOX_INCOME_MUL: f32 = 0.85;
@@ -789,6 +792,7 @@ pub(crate) fn spawn_party(
         served_at: None,
         patience,
         patience_max: patience,
+        wait_full: patience,
         wishes,
         items: Vec::new(),
         satisfaction: 60.0 + super::app::checklist_bonus(w),
@@ -988,6 +992,7 @@ pub(crate) fn spawn_party(
                 // sitting down is more comfortable than standing in line
                 party.patience *= 1.5;
                 party.patience_max *= 1.5;
+                party.wait_full = party.patience;
             } else {
                 let (reg_uid, _) = best.unwrap_or((0, 0));
                 party.register = Some(reg_uid);
@@ -1544,10 +1549,9 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
                 .first()
                 .and_then(|l| w.guests.iter().find(|g| g.id == *l))
                 .is_some_and(|g| g.path.is_empty()),
-            PartyState::WaitOrder => p
-                .members
-                .iter()
-                .any(|m| w.guests.iter().any(|g| g.id == *m && g.pose == Pose::Sit)),
+            // the clock starts when the order can be taken: the leader has sat down
+            // (`settled`; before 0.2.x anyone sitting started it while the leader walked on)
+            PartyState::WaitOrder => settled(w, p),
             PartyState::WaitFood => true,
             _ => false,
         })
@@ -1568,8 +1572,11 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
                 if p.patience <= 0.0 {
                     if !cozy {
                         leave.push((p.id, Exit::Angry));
-                    } else if p.forgiven + 1 < forgive.runs || p.regular.is_some() {
+                    } else if p.forgiven + 1 < forgive.runs
+                        || (p.regular.is_some() && p.leave_by.is_none_or(|lb| m < lb))
+                    {
                         // a glass of water; regulars never leave before their window ends
+                        // (after it their bar runs out like anyone's)
                         p.forgiven += 1;
                         p.patience = p.patience_max * forgive.refill;
                         refilled.push(p.id);
@@ -1589,19 +1596,15 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
             }
             _ => {}
         }
+        // A regular's visit window ends: once served they finish up and go. A waiting one
+        // stays on their ticket's timer — the window used to walk them out with the bar still
+        // full (Radek ordered at 01:20 and left at 01:25), a second timer nobody could see.
         if let Some(lb) = p.leave_by
             && m >= lb
-            && p.state != PartyState::Leaving
+            && p.state == PartyState::Eating
             && !leave.iter().any(|l| l.0 == p.id)
         {
-            let exit = if p.state == PartyState::Eating {
-                Exit::Normal
-            } else if cozy {
-                Exit::Forgiven
-            } else {
-                Exit::Angry
-            };
-            leave.push((p.id, exit));
+            leave.push((p.id, Exit::Normal));
         }
     }
     let tick = w.tick;
@@ -1737,7 +1740,7 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         names.push(wish.clone());
     }
     let reg = w.parties[pi].register;
-    let food_patience = food_patience(w);
+    let food_mul = food_patience(w);
     {
         let p = &mut w.parties[pi];
         p.items = items;
@@ -1745,7 +1748,8 @@ pub(crate) fn order_taken(w: &mut World, content: &Content, pid: u32, staff: u32
         p.wait_at_order = p.wait_clock;
         p.order_claim = None;
         p.satisfaction += 10.0 * (1.0 - (wait / pmax.max(1.0)).min(1.5));
-        p.patience = (pmax * food_patience).max(15.0);
+        p.patience = (pmax * food_mul).max(FAIR_FOOD_WAIT);
+        p.wait_full = p.patience;
         p.state = if p.items.is_empty() && !p.wish_open {
             PartyState::Eating
         } else {
@@ -1913,7 +1917,7 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
     let reg = w.parties[pi].regular.clone();
     let by_karolina = w.staff_by_id(staff).is_some_and(|s| s.owner);
     let karolina_made = w.items[ii].origin.by_player();
-    let food_patience = food_patience(w);
+    let food_mul = food_patience(w);
     super::orders::on_served(w, content, ii, pi, by_karolina);
     {
         let p = &mut w.parties[pi];
@@ -1924,7 +1928,13 @@ pub(crate) fn item_served(w: &mut World, content: &Content, iid: u32, staff: u32
         p.satisfaction = p.satisfaction.clamp(0.0, 100.0);
         p.served = true;
         p.served_by = Some(staff);
-        p.patience = (p.patience + 4.0).min(p.patience_max * food_patience);
+        // a little breathing room for the rest of the round (never past the full bar)
+        let full = if p.wait_full > 0.0 {
+            p.wait_full
+        } else {
+            p.patience_max * food_mul
+        };
+        p.patience = (p.patience + 4.0).min(full);
     }
     if let Some(r) = &reg {
         let st = w.story.regulars.entry(r.clone()).or_default();

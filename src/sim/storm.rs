@@ -272,6 +272,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
                 }
                 PartyState::Queue | PartyState::WaitOrder | PartyState::WaitFood => {
                     p.patience = p.patience.max(p.patience_max * 0.3).max(2.0);
+                    p.wait_full = p.wait_full.max(p.patience);
                 }
                 _ => {}
             }

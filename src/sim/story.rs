@@ -660,6 +660,11 @@ pub(crate) fn regular_line(w: &mut World, content: &Content, regular: &str, part
         .max_by_key(|s| s.stage)
         .map(|s| s.lines.clone())
         .unwrap_or_default();
+    // "Cappuccino, please" only on a night the café can make one
+    let lines: Vec<String> = lines
+        .into_iter()
+        .filter(|k| super::orders::line_ok(w, content, k))
+        .collect();
     let Some(key) = w.rng.pick(&lines).cloned() else {
         return;
     };
@@ -697,12 +702,13 @@ pub fn ambient_line_for(w: &World, content: &Content, guest: u32) -> Option<Stri
         .ambient_lines
         .iter()
         .filter(|l| !l.when.is_empty() && logic::all_with(w, content, &l.when, &mut ctx, &mut rng))
+        .filter(|l| super::orders::line_ok(w, content, &l.key))
         .map(|l| &l.key)
         .collect();
     let pool: Vec<&String> = if ctxual.is_empty() {
         r.ambient_lines
             .iter()
-            .filter(|l| l.when.is_empty())
+            .filter(|l| l.when.is_empty() && super::orders::line_ok(w, content, &l.key))
             .map(|l| &l.key)
             .collect()
     } else {

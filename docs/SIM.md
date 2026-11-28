@@ -289,7 +289,7 @@ Hands-on (§9): `PlayerOrderTaken { guest, party, wish, kind }` (open the order 
   Helpers: `Register` takes bar orders (settled queue front) and table orders (rank 0);
   `Serving` takes table orders too (rank 1, after carrying; credited to Serving unless the
   helper also holds Register). Patience runs on the wait clock (§9.4); food waits
-  get `FOOD_PATIENCE` 2.4× (Cozy `COZY_FOOD_PATIENCE` 3.0×). Satisfaction: wait times, item
+  get `FOOD_PATIENCE` 3.0× (Cozy `COZY_FOOD_PATIENCE` 3.0×), at least `FAIR_FOOD_WAIT` 15 min. Satisfaction: wait times, item
   `mood_bonus`, quality, server traits, seat comfort, beauty, dirt, music, + the hands-on serve
   formula. Pay = (price + recipe `price_add`) × spend × `income_mul`; tips → coins (§9.5); review
   → reputation (forgiven guests write none).
@@ -410,7 +410,14 @@ Per party `wait_clock`: rate 1.0, × `claimed_wait_rate` 0.5 while Karolina is o
 claim or her items), × `cozy_rush_wait_rate` in a Cozy rush; patience drains at the same rate.
 Cozy: patience out → a glass of water (`GuestPatienceRefilled`, refill 50 %), the second time
 they leave content (`GuestForgiven`, satisfaction ≥ 50, no review); regulars keep refilling until
-their `leave_by`; the regular patience floor is 12 min. Classic: the old angry leave. Rush: ≥ 3
+their `leave_by`; the regular patience floor is 12 min. Classic: the old angry leave.
+**The ticket is the timer:** `Party::wait_full` is the patience the current wait started with
+(arrival, sitting down ×1.5, the order: `FOOD_PATIENCE` × patience, at least `FAIR_FOOD_WAIT`
+15 min, a second round), and the rail shows `1 − patience / wait_full` — nothing else makes a
+waiting guest leave before closing time. A regular's visit window (`leave_by`) only ends an
+*eating* visit (and stops the Cozy refills); a waiting regular stays on their bar (0.2.x: Radek
+used to order at 01:20 and walk out at 01:25 with a full bar). The patience clock of a table
+party starts when the leader sits down (`settled`, the moment the order can be taken). Rush: ≥ 3
 arrivals in 10 min (story from night 3) → `RushStarted` for 20 min. Rhythm: serves within 4 min
 build steps (+4 % tips each, ≤ +20 %), a gap resets silently. Quiet hour 03:00–04:00:
 `QuietHour` + toast, guest rate × 0.5, house music → piano trio. Lull director: Karolina idle

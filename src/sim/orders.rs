@@ -31,6 +31,32 @@ pub(crate) fn recipe_available(w: &World, content: &Content, r: &RecipeDef) -> b
             .is_some_and(|m| super::guests::item_orderable(w, content, m))
 }
 
+/// Can the café make what this line names tonight? (`wishes.ron` → `line_items`: a menu item
+/// — any recipe on it known, the item on the menu, its station there — or one recipe.) A line
+/// that names nothing is always fine. Guests only say a line naming a dish while this holds
+/// (wishes, regulars' arrival and hover lines): the owner was asked for a koláč with no oven.
+pub(crate) fn line_ok(w: &World, content: &Content, key: &str) -> bool {
+    let Some(items) = content.handson.wishes.line_items.get(key) else {
+        return true;
+    };
+    items.iter().any(|id| named_available(w, content, id))
+}
+
+/// A named dish (menu item or recipe id) can be made tonight.
+fn named_available(w: &World, content: &Content, id: &str) -> bool {
+    if let Some(r) = w.recipe_def(content, id) {
+        return recipe_available(w, content, r);
+    }
+    w.all_recipes(content)
+        .any(|r| r.base_item == id && recipe_available(w, content, r))
+}
+
+/// Does recipe `r` answer what the wish's line names (`line_items`)? `None`: it names nothing.
+pub(crate) fn names_recipe(content: &Content, wish: &WishDef, r: &RecipeDef) -> Option<bool> {
+    let items = content.handson.wishes.line_items.get(&wish.key())?;
+    Some(items.iter().any(|id| *id == r.id || *id == r.base_item))
+}
+
 pub(crate) fn learn(w: &mut World, recipe: &str, source: String) {
     if known(w, recipe) {
         return;
@@ -206,6 +232,10 @@ fn wish_weight(w: &World, content: &Content, wish: &WishDef) -> f32 {
     if !xlogic::holds(w, content, &wish.when) {
         return 0.0;
     }
+    // a wish that names a dish ("show me your koláč") only while the café can make one
+    if !line_ok(w, content, &wish.key()) {
+        return 0.0;
+    }
     let best = best_match(w, content, wish);
     if best < t.fair_wishes.skip_below {
         return 0.0;
@@ -335,10 +365,18 @@ pub(crate) fn usual_recipe(w: &World, content: &Content, wish: &str) -> Option<S
             return Some(f.clone());
         }
     }
-    matches_for(w, content, def)
-        .into_iter()
-        .find(|(_, m)| *m >= content.handson.tuning.match_tiers.good)
-        .map(|(r, _)| r)
+    let good = content.handson.tuning.match_tiers.good;
+    let matches = matches_for(w, content, def);
+    // the usual for a wish that names a dish is that dish
+    let named = matches.iter().find(|(id, m)| {
+        *m >= good
+            && w.recipe_def(content, id)
+                .and_then(|r| names_recipe(content, def, r))
+                .unwrap_or(false)
+    });
+    named
+        .or_else(|| matches.iter().find(|(_, m)| *m >= good))
+        .map(|(r, _)| r.clone())
 }
 
 /// The best plain recipe for a handed-off wish (starter / grandma's-card recipes only).
@@ -545,7 +583,11 @@ pub(crate) fn ticket_rail(w: &World, content: &Content) -> Vec<Ticket> {
             continue;
         }
         let Some(leader) = p.leader() else { continue };
-        let full = if p.ordered_at.is_some() {
+        // the guest's real timer: the patience the current wait started with (old saves:
+        // the estimate from before `wait_full`)
+        let full = if p.wait_full > 0.0 {
+            p.wait_full.max(p.patience)
+        } else if p.ordered_at.is_some() {
             p.patience_max * super::guests::food_patience(w)
         } else {
             p.patience_max

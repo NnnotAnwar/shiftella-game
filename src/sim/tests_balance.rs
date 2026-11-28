@@ -141,8 +141,10 @@ fn a_cozy_story_pays_off_grandmas_debt_with_room_to_spare() {
     assert_eq!(w.ending(), Some("light"));
     let forgiven = r.forgiven as f32 / r.parties.max(1) as f32;
     assert!(forgiven <= 0.12, "forgiven {forgiven:.2}");
+    // (0.2.x fair timers: regulars no longer walk out of a wish at their window's end, so this
+    // seed's Karolina makes ~1 more a night: 12.9 → 14.1; sim_balance's 12-seed mean 13.1 → 13.9)
     let mg = mean_u(&r.minigames);
-    assert!((8.0..=14.0).contains(&mg), "mini-games {:?}", r.minigames);
+    assert!((8.0..=14.5).contains(&mg), "mini-games {:?}", r.minigames);
     let len = mean_f(&r.real_minutes);
     assert!((12.0..=14.2).contains(&len), "{len:.1} min (doors open)");
     let quiet = mean_f(&r.quiet_minutes);
