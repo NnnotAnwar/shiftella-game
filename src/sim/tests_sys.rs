@@ -1492,3 +1492,33 @@ fn the_auto_fill_alone_plans_a_happy_week_for_the_story_crew() {
         assert!(w.systems().rozpis.happy_week.is_some(), "night {night}");
     }
 }
+
+#[test]
+fn a_locked_moment_option_is_on_the_card_but_cannot_be_resolved() {
+    let c = content();
+    let mut w = night(&c, 4);
+    no_director(&mut w);
+    assert!(
+        super::moments::spawn(&mut w, &c, "m_busker", XTarget::default(), true),
+        "the busker appears"
+    );
+    // no stage in the café: "Ask them in" is greyed out with its reason, not on offer
+    assert!(
+        !w.moment_options(&c, "m_busker")
+            .contains(&"ask_in".to_string())
+    );
+    let card = w.moment_card_options(&c, "m_busker");
+    assert!(card.contains(&(
+        "ask_in".to_string(),
+        Some("story_ui.moment.needs_stage".to_string())
+    )));
+    assert!(card.contains(&("tea".to_string(), None)));
+    let r = w.apply(
+        &c,
+        Command::ResolveMoment {
+            id: "m_busker".into(),
+            option: "ask_in".into(),
+        },
+    );
+    assert!(r.is_err(), "a locked option can't be resolved");
+}

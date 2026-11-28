@@ -22,6 +22,8 @@ pub struct MomentOption {
     /// e.g. "Needs a stage" — the option is shown but can't be picked.
     pub disabled: bool,
     pub tooltip: Option<String>,
+    /// Why it's disabled, drawn small on the right of the row ("Needs a stage").
+    pub reason: Option<String>,
 }
 
 impl MomentOption {
@@ -33,7 +35,17 @@ impl MomentOption {
             icon: None,
             disabled: false,
             tooltip: None,
+            reason: None,
         }
+    }
+    /// Disabled with a visible one-line reason (also the tooltip).
+    pub fn locked(mut self, reason: impl Into<String>) -> Self {
+        let r = reason.into();
+        self.disabled = true;
+        self.tooltip = Some(r.clone());
+        self.reason = Some(r);
+        self.cost = None;
+        self
     }
     pub fn cost(mut self, c: impl Into<String>) -> Self {
         self.cost = Some(c.into());
@@ -78,6 +90,12 @@ pub enum MomentAction {
 
 const W: f32 = 272.0;
 const OPT_H: f32 = 30.0;
+/// A locked option's row: the label, its reason on a small line under it.
+const LOCKED_H: f32 = 40.0;
+
+fn opt_h(o: &MomentOption) -> f32 {
+    if o.reason.is_some() { LOCKED_H } else { OPT_H }
+}
 
 /// Width left for the title (icon on the left; expiry ring and × on the right).
 fn title_w(v: &MomentView) -> f32 {
@@ -103,7 +121,8 @@ pub fn moment_card_size(ui: &Ui, v: &MomentView) -> Vec2 {
                 .wrapped_height(tx, W - 24.0, &ui.theme.small(), Some(3));
     }
     let n = v.options.len().clamp(1, 3) as f32;
-    h += 10.0 + n * OPT_H + (n - 1.0) * 4.0 + 12.0;
+    let rows: f32 = v.options.iter().take(3).map(opt_h).sum::<f32>().max(OPT_H);
+    h += 10.0 + rows + (n - 1.0) * 4.0 + 12.0;
     vec2(W, h.ceil())
 }
 
@@ -199,8 +218,8 @@ pub fn moment_card(
 
     // options
     for (i, o) in v.options.iter().take(3).enumerate() {
-        let br = Rect::new(inner.x, y, inner.w, OPT_H);
-        y += OPT_H + 4.0;
+        let br = Rect::new(inner.x, y, inner.w, opt_h(o));
+        y += opt_h(o) + 4.0;
         let resp = ui.interact(id.with(("opt", i)), br);
         let (h, p) = if o.disabled {
             (0.0, 0.0)
@@ -237,11 +256,21 @@ pub fn moment_card(
             1.0,
             mix(Color::new(1.0, 1.0, 1.0, 0.1), with_a(t.indigo_300, 0.8), h),
         );
-        corner_key(
-            ui,
-            vec2(br2.x + 8.0, br2.center_y() - 7.0),
-            &(i + 1).to_string(),
-        );
+        if o.reason.is_some() {
+            // locked: a lock where the number key would be (the key does nothing)
+            draw_icon(
+                Icon::Lock,
+                vec2(br2.x + 15.0, br2.y + 13.0),
+                11.0,
+                t.text_dim,
+            );
+        } else {
+            corner_key(
+                ui,
+                vec2(br2.x + 8.0, br2.center_y() - 7.0),
+                &(i + 1).to_string(),
+            );
+        }
         let mut x = br2.x + 30.0;
         if let Some(ic) = o.icon {
             draw_icon(ic, vec2(x + 7.0, br2.center_y()), 14.0, t.text_dim);
@@ -251,12 +280,21 @@ pub fn moment_card(
             .cost
             .as_ref()
             .map_or(0.0, |c| mini_chip_width(ui, c, false) + 8.0);
+        let why_st = t.small().size(11.0).color(t.text_dim);
+        // a locked row: the label on top, the reason on a line under it
+        let (label_y, label_h) = if o.reason.is_some() {
+            (br2.y + 3.0, 20.0)
+        } else {
+            (br2.y, br2.h)
+        };
+        let why_r = Rect::new(x, br2.y + 21.0, br2.right() - x - 8.0, 15.0);
         ui.fonts.draw_in(
             &o.label,
-            Rect::new(x, br2.y, br2.right() - x - cost_w - 6.0, br2.h),
+            Rect::new(x, label_y, br2.right() - x - cost_w - 6.0, label_h),
             &t.strong().size(12.5),
             Align::Left,
         );
+
         if let Some(c) = &o.cost {
             let cw = mini_chip_width(ui, c, false);
             let fg = if o.gain { t.emerald_400 } else { t.amber };
@@ -271,6 +309,10 @@ pub fn moment_card(
         }
         if o.disabled {
             draw::pop_alpha();
+        }
+        // the reason stays legible (not dimmed with the row)
+        if let Some(why) = &o.reason {
+            ui.fonts.draw_in(why, why_r, &why_st, Align::Left);
         }
         if let Some(tip) = &o.tooltip {
             ui.tooltip(&resp, tip);

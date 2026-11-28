@@ -664,6 +664,30 @@ pub(crate) fn options_now(w: &World, content: &Content, id: &str) -> Vec<String>
         .collect()
 }
 
+/// The options a moment's card draws now, in data order: the ones on offer (`None`) and the
+/// locked ones that say why (`Some(locked_hint)`: `show_if` fails, the option has a hint).
+pub(crate) fn card_options(
+    w: &World,
+    content: &Content,
+    id: &str,
+) -> Vec<(String, Option<String>)> {
+    let open = options_now(w, content, id);
+    let Some(def) = content.handson.moment(id) else {
+        return Vec::new();
+    };
+    def.options
+        .iter()
+        .filter_map(|o| {
+            if open.contains(&o.id) {
+                Some((o.id.clone(), None))
+            } else {
+                let hint = o.locked_hint.as_ref()?;
+                (!xlogic::holds(w, content, &o.show_if)).then(|| (o.id.clone(), Some(hint.clone())))
+            }
+        })
+        .collect()
+}
+
 /// `Command::ResolveMoment`: Karolina walks to the anchor; the option applies on arrival.
 pub(crate) fn resolve(
     w: &mut World,

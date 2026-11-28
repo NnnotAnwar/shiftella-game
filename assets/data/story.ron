@@ -21,6 +21,34 @@
         (act: 3, nights: (17, 24)),
         (act: 4, nights: (25, 30)),
     ],
+    // A night title / hint that announces a scene of a floating arc stage gets a fallback: when
+    // `needs` doesn't hold (on the day screen; recorded at 22:00 for the journal), `title` /
+    // `hint` replace story.night.NN.title / .hint (either may be left out). Several per night:
+    // the first whose `needs` fails wins. Keys live in story_ui.tr. Keep `needs` in step with
+    // the stage conditions in regulars.ron.
+    night_fallbacks: [
+        // mirek_curb = Mirek stage 2 (needs stage 1: fast or well-matched coffees)
+        (night: 8, needs: [ArcAtLeast("mirek", 1)],
+         title: "story_ui.night.08.title", hint: "story_ui.night.08.hint"),
+        // hana_asleep = Hana stage 2 (needs stage 1)
+        (night: 12, needs: [ArcAtLeast("hana", 1)],
+         title: "story_ui.night.12.title", hint: "story_ui.night.12.hint"),
+        // vera_recipe = Vera stage 2 (stage 1 + trust 25)
+        (night: 14, needs: [ArcAtLeast("vera", 1), TrustAtLeast("vera", 25.0)],
+         title: "story_ui.night.14.title", hint: "story_ui.night.14.hint"),
+        // guest333_question = stage 2 of 333 (needs stage 1: the window table kept free)
+        (night: 15, needs: [ArcAtLeast("guest_333", 1)],
+         title: "story_ui.night.15.title", hint: "story_ui.night.15.hint"),
+        // mirek_pedestrian = Mirek stage 3 (needs stage 2)
+        (night: 20, needs: [ArcAtLeast("mirek", 2)],
+         title: "story_ui.night.20.title", hint: "story_ui.night.20.hint"),
+        // hana_decision = Hana stage 4 (needs stage 3)
+        (night: 26, needs: [ArcAtLeast("hana", 3)],
+         title: "story_ui.night.26.title", hint: "story_ui.night.26.hint"),
+        // mirek_letter = Mirek stage 5 (the confession happened)
+        (night: 28, needs: [ArcAtLeast("mirek", 4), VarIs("letter", "confessed")],
+         title: "story_ui.night.28.title", hint: "story_ui.night.28.hint"),
+    ],
     nights: [
         (night: 1, act: 1, weekday: Mon, weather: Rain, beats: [
             (at: "21:55", what: Bot("hello")),

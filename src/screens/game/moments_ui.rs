@@ -228,12 +228,17 @@ fn view(
     let now = g.world.minute();
     let span = m.expires.saturating_sub(m.spawned).max(1) as f32;
     let left = m.expires.saturating_sub(now) as f32 / span;
-    let ids = g.world.moment_options(content, id);
-    let options = ids
+    let card = g.world.moment_card_options(content, id);
+    let ids: Vec<String> = card.iter().map(|(o, _)| o.clone()).collect();
+    let options = card
         .iter()
-        .filter_map(|o| def.option(o))
-        .map(|o| {
+        .filter_map(|(o, why)| Some((def.option(o)?, why)))
+        .map(|(o, why)| {
             let mut b = MomentOption::new(loc.tr_owned(&def.option_key(&o.id)));
+            if let Some(k) = why {
+                // shown greyed out with its reason, never picked
+                return b.locked(loc.tr_owned(k));
+            }
             if o.cost > 0 {
                 b = b.cost(format!("−{}", format_money(loc.lang, o.cost)));
             }

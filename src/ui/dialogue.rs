@@ -595,6 +595,24 @@ impl Ui {
     /// 2–4 stacked choices above `above` (the dialogue box). Keys 1–4 pick directly,
     /// ↑/↓ move the highlight, Enter picks. Returns the picked index.
     pub fn choice_list(&mut self, key: impl Hash, above: Rect, choices: &[&str]) -> Option<usize> {
+        let items: Vec<ChoiceItem> = choices
+            .iter()
+            .map(|label| ChoiceItem {
+                label,
+                locked: None,
+            })
+            .collect();
+        self.choice_list_items(key, above, &items)
+    }
+
+    /// [`Ui::choice_list`] with locked rows: a locked option is greyed out with a lock and its
+    /// one-line reason under the label; the mouse, the number keys, ↑/↓ and Enter skip it.
+    pub fn choice_list_items(
+        &mut self,
+        key: impl Hash,
+        above: Rect,
+        choices: &[ChoiceItem],
+    ) -> Option<usize> {
         let id = self.id(key);
         let t = self.theme.clone();
         let n = choices.len().min(9);
@@ -602,18 +620,27 @@ impl Ui {
             return None;
         }
         let st = t.body_medium().size(14.0);
+        let why_st = t.small().size(11.5).color(t.text_dim);
         let widest = choices
             .iter()
-            .map(|c| self.fonts.measure(c, &st))
+            .take(n)
+            .map(|c| {
+                let l = self.fonts.measure(c.label, &st);
+                let w = c
+                    .locked
+                    .map_or(0.0, |w| self.fonts.measure(w, &why_st) + 16.0);
+                l.max(w)
+            })
             .fold(0.0, f32::max);
         let w = (widest + 82.0)
             .clamp(300.0, 560.0)
             .min(self.screen().w - 32.0);
-        let row_h = 36.0;
+        let row_h = |c: &ChoiceItem| if c.locked.is_some() { 46.0 } else { 36.0 };
         let gap = 6.0;
-        let total_h = n as f32 * row_h + (n - 1) as f32 * gap;
+        let total_h = choices.iter().take(n).map(row_h).sum::<f32>() + (n - 1) as f32 * gap;
         let x = above.x + (above.w - w) / 2.0;
         let y0 = above.y - 30.0 - total_h;
+        let locked: Vec<bool> = choices.iter().take(n).map(|c| c.locked.is_some()).collect();
         // appear animation
         let appear = {
             let dt = self.dt();
@@ -621,17 +648,15 @@ impl Ui {
             a.v = (a.v + dt / 0.22).min(1.0);
             ease_out(a.v)
         };
-        let mut hl = self.anim(id).t as usize;
-        if hl >= n {
-            hl = 0;
-        }
-        let mut picked = None;
-        if self.key_repeat(KeyCode::Down) {
-            hl = (hl + 1) % n;
+        let mut nav = ChoiceNav {
+            down: self.key_repeat(KeyCode::Down),
+            up: self.key_repeat(KeyCode::Up),
+            ..Default::default()
+        };
+        if nav.down {
             self.consume_key(KeyCode::Down);
         }
-        if self.key_repeat(KeyCode::Up) {
-            hl = (hl + n - 1) % n;
+        if nav.up {
             self.consume_key(KeyCode::Up);
         }
         const NUMS: [KeyCode; 9] = [
@@ -646,34 +671,56 @@ impl Ui {
             KeyCode::Key9,
         ];
         for (i, k) in NUMS.iter().enumerate().take(n) {
-            if self.take_key(*k) {
-                picked = Some(i);
+            // a locked row's number key is left alone (not consumed)
+            if !locked[i] && self.take_key(*k) {
+                nav.number = Some(i);
             }
         }
-        if self.enter() {
-            picked = Some(hl);
-        }
-        for (i, choice) in choices.iter().enumerate().take(n) {
+        nav.enter = self.enter();
+        let stored = self.anim(id).t as usize;
+        let mut rows = Vec::with_capacity(n);
+        let mut y = y0;
+        for (i, c) in choices.iter().enumerate().take(n) {
             let delay = i as f32 * 0.12;
             let k = ((appear - delay) / (1.0 - delay).max(0.01)).clamp(0.0, 1.0);
-            let r = Rect::new(
-                x,
-                y0 + i as f32 * (row_h + gap) + (1.0 - k) * 10.0,
-                w,
-                row_h,
-            );
+            let r = Rect::new(x, y + (1.0 - k) * 10.0, w, row_h(c));
+            y += row_h(c) + gap;
             self.region(r);
             let resp = self.interact(id.with(i), r);
             if resp.hovered && self.mouse_delta().length_squared() > 0.0 {
-                hl = i;
+                nav.hovered = Some(i);
             }
             if resp.clicked {
-                picked = Some(i);
+                nav.clicked = Some(i);
             }
+            rows.push((r, k, resp));
+        }
+        let (hl, picked) = choice_nav(stored, &locked, nav);
+        for (i, (c, (r, k, resp))) in choices.iter().zip(rows).enumerate() {
             let on = i == hl;
             let hk = self.ease_value(id.with(("hl", i)), if on { 1.0 } else { 0.0 }, 0.05);
             draw::push_alpha(k);
             draw_glass(&t, r, &Glass::hud().radius(10.0).solid());
+            if let Some(why) = c.locked {
+                // greyed: the label dimmed, a lock instead of the number, the reason below
+                draw::push_alpha(0.55);
+                super::icons::draw_icon(Icon::Lock, vec2(r.x + 21.0, r.y + 15.0), 12.0, t.text_dim);
+                self.fonts.draw_in(
+                    c.label,
+                    Rect::new(r.x + 42.0, r.y + 4.0, r.w - 54.0, 22.0),
+                    &st.color(t.text_dim),
+                    Align::Left,
+                );
+                draw::pop_alpha();
+                self.fonts.draw_in(
+                    why,
+                    Rect::new(r.x + 42.0, r.y + 24.0, r.w - 54.0, 16.0),
+                    &why_st,
+                    Align::Left,
+                );
+                draw::pop_alpha();
+                continue;
+            }
             if hk > 0.01 {
                 draw::push_alpha(hk);
                 paint_surface(
@@ -702,7 +749,7 @@ impl Ui {
             let kc = self.keycap(vec2(r.x + 12.0, r.center_y()), &label, on);
             let tr = Rect::new(kc.right() + 12.0, r.y, r.right() - kc.right() - 40.0, r.h);
             self.fonts.draw_in(
-                choice,
+                c.label,
                 tr,
                 &st.color(if on { WHITE } else { t.text }),
                 Align::Left,
@@ -759,9 +806,120 @@ impl Ui {
     }
 }
 
+/// One row of [`Ui::choice_list_items`]: the label, and the reason when it's locked.
+#[derive(Clone, Copy, Debug)]
+pub struct ChoiceItem<'a> {
+    pub label: &'a str,
+    pub locked: Option<&'a str>,
+}
+
+/// This frame's input to a choice list (pure, see [`choice_nav`]).
+#[derive(Clone, Copy, Debug, Default)]
+pub(crate) struct ChoiceNav {
+    pub up: bool,
+    pub down: bool,
+    /// A number key (row index).
+    pub number: Option<usize>,
+    pub enter: bool,
+    pub clicked: Option<usize>,
+    /// The mouse moved over this row.
+    pub hovered: Option<usize>,
+}
+
+/// The highlighted row and the picked one: locked rows are never highlighted nor picked
+/// (↑/↓ step over them; a click or a number key on one does nothing).
+pub(crate) fn choice_nav(hl: usize, locked: &[bool], nav: ChoiceNav) -> (usize, Option<usize>) {
+    let n = locked.len();
+    let open = |i: usize| i < n && !locked[i];
+    if !(0..n).any(open) {
+        return (0, None);
+    }
+    let step = |from: usize, fwd: bool| {
+        let mut i = from;
+        for _ in 0..n {
+            i = if fwd { (i + 1) % n } else { (i + n - 1) % n };
+            if open(i) {
+                return i;
+            }
+        }
+        from
+    };
+    let mut hl = if open(hl) { hl } else { step(n - 1, true) };
+    if nav.down {
+        hl = step(hl, true);
+    }
+    if nav.up {
+        hl = step(hl, false);
+    }
+    if let Some(i) = nav.hovered.filter(|i| open(*i)) {
+        hl = i;
+    }
+    let mut picked = None;
+    if let Some(i) = nav.number.filter(|i| open(*i)) {
+        picked = Some(i);
+    }
+    if nav.enter {
+        picked = Some(hl);
+    }
+    if let Some(i) = nav.clicked.filter(|i| open(*i)) {
+        picked = Some(i);
+    }
+    (hl, picked)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn locked_rows_are_skipped_by_keys_and_clicks() {
+        let locked = [false, true, false];
+        // starting on a locked row moves to the first open one
+        assert_eq!(choice_nav(1, &locked, ChoiceNav::default()).0, 0);
+        // ↓ from row 0 steps over the locked row 1
+        let down = ChoiceNav {
+            down: true,
+            ..Default::default()
+        };
+        assert_eq!(choice_nav(0, &locked, down).0, 2);
+        let up = ChoiceNav {
+            up: true,
+            ..Default::default()
+        };
+        assert_eq!(choice_nav(2, &locked, up).0, 0);
+        // click, number key and hover on the locked row: nothing
+        for nav in [
+            ChoiceNav {
+                clicked: Some(1),
+                ..Default::default()
+            },
+            ChoiceNav {
+                number: Some(1),
+                ..Default::default()
+            },
+            ChoiceNav {
+                hovered: Some(1),
+                ..Default::default()
+            },
+        ] {
+            let (hl, picked) = choice_nav(0, &locked, nav);
+            assert_eq!((hl, picked), (0, None), "{nav:?}");
+        }
+        // Enter picks the highlighted (open) row; a click on an open row picks it
+        let enter = ChoiceNav {
+            enter: true,
+            down: true,
+            ..Default::default()
+        };
+        assert_eq!(choice_nav(0, &locked, enter), (2, Some(2)));
+        let click = ChoiceNav {
+            clicked: Some(2),
+            ..Default::default()
+        };
+        assert_eq!(choice_nav(0, &locked, click).1, Some(2));
+        // all locked: nothing at all
+        assert_eq!(choice_nav(0, &[true, true], enter), (0, None));
+    }
 
     #[test]
     fn history_tracks_previous_lines() {

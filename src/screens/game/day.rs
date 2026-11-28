@@ -61,9 +61,10 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         Align::Left,
     );
     y += 22.0;
-    if story && let Some(n) = content.story.night(night) {
-        let title = loc.tr_owned(&n.title_key());
-        let hint = loc.tr_owned(&n.hint_key());
+    if story && let Some((title_key, hint_key)) = g.world.night_text_keys(content, night) {
+        // (a fallback when the scene it announces isn't ready, `NightFallback`)
+        let title = loc.tr_owned(&title_key);
+        let hint = loc.tr_owned(&hint_key);
         let card = Rect::new(c.x, y, c.w, 76.0);
         fill_rrect(card, 10.0, with_a(t.violet, 0.14));
         draw_icon(

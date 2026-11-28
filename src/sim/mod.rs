@@ -266,6 +266,10 @@ impl World {
         economy::spend_on_cafe(self, amount);
     }
     /// Debug helper: fire an event now (ignores conditions).
+    /// Spawns moment `id` now, past the night's budget (screenshots). False if it can't appear.
+    pub fn debug_spawn_moment(&mut self, content: &Content, id: &str) -> bool {
+        moments::spawn(self, content, id, systems::XTarget::default(), true)
+    }
     pub fn debug_fire_event(&mut self, content: &Content, id: &str) {
         narrator::fire(self, content, id, EffectCtx::default(), true);
     }
@@ -551,6 +555,15 @@ impl World {
     /// The options a moment's card shows right now (`show_if`, `within_minutes`).
     pub fn moment_options(&self, content: &Content, id: &str) -> Vec<String> {
         moments::options_now(self, content, id)
+    }
+    /// What the moment's card draws: the options on offer (`None`) plus the locked ones with
+    /// a `locked_hint` (`Some(reason key)`, greyed out, not pickable), in data order.
+    pub fn moment_card_options(
+        &self,
+        content: &Content,
+        id: &str,
+    ) -> Vec<(String, Option<String>)> {
+        moments::card_options(self, content, id)
     }
     /// Unlocked pantry jars.
     pub fn pantry(&self) -> &BTreeSet<String> {

@@ -89,6 +89,11 @@ pub(crate) fn on_day_start(w: &mut World, content: &Content) {
 }
 
 pub(crate) fn on_night_start(w: &mut World, content: &Content) {
+    // the night's title / hint as it starts (the journal keeps showing this one)
+    if w.mode == Mode::Story {
+        let fb = w.live_night_fallback(content, w.night);
+        w.story.night_texts.insert(w.night, fb);
+    }
     // who visits tonight
     let night = w.night;
     let mut tonight: Vec<String> = Vec::new();

@@ -18,7 +18,8 @@ use crate::render::{
 use crate::settings::Locale;
 use crate::ui::Ui;
 use crate::ui::handson::{
-    JOURNAL_SIZE, JournalEntry, JournalLabels, JournalState, JournalView, PolaroidView, journal,
+    JOURNAL_SIZE, JournalEntry, JournalLabels, JournalState, JournalView, NoteSlip, PolaroidView,
+    journal,
 };
 use sim::{Highlight, SceneSnapData, SnapExpression, SnapTileData};
 
@@ -357,10 +358,9 @@ pub fn journal_panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     let mut entries = Vec::with_capacity(nights.len());
     for (i, n) in nights.iter().enumerate() {
         let title = if story {
-            content
-                .story
-                .night(*n)
-                .map(|d| loc.tr_owned(&d.title_key()))
+            g.world
+                .night_text_keys(content, *n)
+                .map(|(t, _)| loc.tr_owned(&t))
                 .unwrap_or_default()
         } else {
             String::new()
@@ -422,6 +422,8 @@ pub fn journal_panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         close: loc.tr_owned("ui.common.close"),
         prev: loc.tr_owned("ui.journal.prev"),
         next: loc.tr_owned("ui.journal.next"),
+        notes: loc.tr_owned("story_ui.journal.notes"),
+        not_found: loc.tr_owned("story_ui.journal.not_found"),
     };
     let s = ui.screen();
     let size = vec2(
@@ -436,10 +438,38 @@ pub fn journal_panel(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     );
     g.anchors.push(("panel", r));
     ui.region(r);
-    let view = JournalView { entries };
+    let notes = if story {
+        note_slips(&g.world, content, &loc)
+    } else {
+        Vec::new()
+    };
+    let view = JournalView { entries, notes };
     if journal(ui, "journal", r, &view, &labels, &mut g.photos.journal).is_some() {
         g.panel = None;
     }
+}
+
+/// Lída's notes for the journal's last page, in number order: a found one with where it was
+/// and its text, an unfound one with its `note.<id>.where` as a riddle (where to look).
+pub(crate) fn note_slips(w: &sim::World, content: &Content, loc: &Locale) -> Vec<NoteSlip> {
+    let mut notes: Vec<_> = content.story.notes.iter().collect();
+    notes.sort_by_key(|n| n.number);
+    notes
+        .into_iter()
+        .map(|n| {
+            let found = w.notes_found().contains(&n.id);
+            NoteSlip {
+                number: n.number,
+                found,
+                place: loc.tr_owned(&format!("note.{}.where", n.id)),
+                text: if found {
+                    loc.tr_owned(&format!("note.{}.text", n.id))
+                } else {
+                    String::new()
+                },
+            }
+        })
+        .collect()
 }
 
 /// The morning pick in the summary: the best candidate develops, the others sit beside it.

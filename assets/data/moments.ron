@@ -109,7 +109,7 @@
      options: [
         (id: "tea", cost: -20, effects: [Money(-20), Reputation(1.0), StreetMusic(20), Highlight(MomentWarm)]),
         (id: "coin", cost: -10, effects: [Money(-10)]),
-        (id: "ask_in", show_if: [HasFurnitureTag("stage")], effects: [HallMood(mood: Lively, minutes: 30)]),
+        (id: "ask_in", show_if: [HasFurnitureTag("stage")], locked_hint: "story_ui.moment.needs_stage", effects: [HallMood(mood: Lively, minutes: 30)]),
      ]),
 
     (id: "m_first_snow", kind: Season, tier: Should, anchor: Tag("window"), max_per_game: 1, expires_minutes: 40,
@@ -161,7 +161,7 @@
      conditions: [HasFurniture("radio"), TimeBetween("02:00", "04:00")],
      options: [
         (id: "jazz", effects: [RadioTrack(track: "jukebox_piano_trio", volume: 0.6, minutes: 30)]),
-        (id: "waltz", show_if: [RecordUnlocked("rec_cafe_waltz")],
+        (id: "waltz", show_if: [RecordUnlocked("rec_cafe_waltz")], locked_hint: "story_ui.moment.needs_waltz",
          effects: [RadioTrack(track: "jukebox_cafe_waltz", volume: 0.6, minutes: 30)]),
         (id: "static", show_if: [NightAtLeast(15), TimeBetween("03:00", "03:33")],
          // rain through the speaker and a faint 1979 announcement, as text (the result line)

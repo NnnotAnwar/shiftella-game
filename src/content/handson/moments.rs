@@ -107,6 +107,10 @@ pub struct MomentOption {
     /// Option hidden unless these hold.
     #[serde(default)]
     pub show_if: Vec<Cond>,
+    /// With a reason key, a failing `show_if` greys the option out (with that one-line reason)
+    /// instead of hiding it. Leave unset for options that are meant to be a surprise.
+    #[serde(default)]
+    pub locked_hint: Option<String>,
     /// Only offered within N game minutes of the moment appearing ("run after them").
     #[serde(default)]
     pub within_minutes: Option<u32>,

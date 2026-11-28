@@ -206,7 +206,8 @@ Control: `Maybe{chance, effects}`, `Later{minutes, effects}` (dropped at night e
 
 * 30 `StoryNight { act, weekday, weather?, beats }`. `Beat { at, what, conditions }`, `at < 22:00` = day phase. `BeatKind`: `Line{speaker, text_key}` (bubble), `Event(id)`, `Note(id)`, `PaymentDue` (collect `payment_on(night)` at that time), `Train(id)` (board announcement with `train.announce.arrival`), `Hint(key)`, `Bot(template)`, `Weather`, `Apply(effects)`.
 * Payments: nights 7/14/21/28 × 15 000 + night 30 × 30 000 (final) = debt 90 000. Missing one: apply `difficulty.missed_payment_effects`; Classic closes after `close_after_missed` (2) or a missed final (`final_payment_missed` flag) → Last Train ending early.
-* Notes: `found_when` (empty = only via `FindNote` / `Beat::Note` / `ShowNote`) checked each game minute + at night end.
+* Notes: `found_when` (empty = only via `FindNote` / `Beat::Note` / `ShowNote`) checked each game minute + at night end. The journal's last page lists all ten: a found one with its `.where` and text, an unfound one with its `.where` as a riddle (so every `where` should read as a hint of where/when to look).
+* `night_fallbacks: [NightFallback { night, needs, title?, hint? }]`: a night title / hint that announces a floating arc-stage scene names the stage's readiness in `needs`; when it fails, `title` / `hint` (keys, `story_ui.night.*`) replace `story.night.NN.*` (live on the day screen, recorded at 22:00 in `StoryState.night_texts` for the journal). Several per night: the first failing one wins. Keep `needs` in step with `regulars.ron`.
 * **Endings (exactly two)**, checked in `order` at the end of night 30 (or on a Classic closure): `last_train` (franchise accepted, or Classic payment failure, or reputation < 20 with no good arc) → otherwise `light` (fallback). Each plays its `cutscene` (trigger `Ending(id)`), which branches with `If` steps. `variants` (first match) name the outcome for the summary screen: last_train = `sold` / `farewell` / `closed`; light = `full` / `quiet`.
 * `ending_extra` "Answer" (letter delivered + offer not accepted) is **not an ending**: both ending cutscenes `Call` the `answer` cutscene when it holds; show `ending.extra.answer.title` as an epilogue badge. Eight notes or more add Lida's postscript inside the scene (a reward, not a lock).
 * State: vars `letter` (hidden → confessed → with_player / with_mirek / burned / persuaded → delivered / delivered_by_mirek; after the sale `bench`: Mirek leaves it on the platform bench, shown in `last_333_sold`), `offer` (none/pending/accepted/rejected), `answer_333`; counters `missed_payments`, `payments_made`, `cat_fed_nights`, `coins_collected`, `filip_kicked_out`. The sim owns `payments_made`/`missed_payments` bookkeeping.
@@ -219,7 +220,7 @@ Triggers: `NightStart(n)` (before the night), `NightEnd(n)` (after 06:00, before
 
 Steps run in order; dialogue steps wait for a click, `Camera`/`Music`/`Sfx`/`Letterbox` don't block:
 `Narration{text_key}` (no speaker) · `Line{speaker, expression, text_key}` (portrait + name; `Expression` Neutral/Smile/Sad/Surprised/Thinking/Laugh/Tired) ·
-`Choice{options: [ChoiceOption{label_key, effects, set_flag, conditions}]}` (blocking inside the scene; options whose conditions fail are hidden) ·
+`Choice{options: [ChoiceOption{label_key, effects, set_flag, conditions, locked_hint?, hidden_when_locked}]}` (blocking inside the scene; an option whose conditions fail stays on screen **greyed out with a one-line reason** and can't be picked — by mouse, number key, ↑/↓ or Enter; the reason is `locked_hint`, else `<label_key>.locked` if that key exists, else derived from the first failing condition kind (`story_ui.locked.furniture` "Needs in the café: Armchair, Floor lamp", `.trait`, `.staff`, `.money`, `.trust`, `.item`, `.menu`, `.furniture_any`), else `story_ui.locked.generic`; `hidden_when_locked: true` keeps the old behaviour — the option is hidden — for alternatives that exclude each other rather than content to unlock, e.g. two variants of one line depending on the sale; a choice with no open option is skipped) ·
 `Camera{focus: Tile(x,y) | Spot(name) | Actor(id) | Overview, zoom}` · `ActorEnter{actor, to_tile}` (appears at the door, walks) · `ActorMove` · `ActorExit` (walks there, disappears) ·
 `Wait{seconds}` · `Fade{to_black, seconds}` · `Music{track: Option}` (`MUSIC_TRACKS`; `None` fades out) · `Sfx{id}` (`SFX_IDS`) · `TrainPass` · `Letterbox{on}` ·
 `ShowNote{note_id}` (also marks it found) · `If{conditions, then, otherwise}` · `Call{cutscene}` · `Apply{effects}`.
@@ -381,7 +382,7 @@ max_per_game, cooldown_nights, expires_minutes (25), quiet, follow_up, options, 
 Agent(RegularWantsRecord | StaffLowEnergy(e) | Guest(GuestFilter { archetypes, regulars,
 not_regulars, at_door, seated_minutes, fed, party_min, accessory })) }` — an agent anchor is also a
 condition. A `Furniture` anchor that isn't placed falls back to `Counter`.
-`MomentOption { id, cost (display), effects: Vec<Fx>, interaction, show_if, within_minutes }`;
+`MomentOption { id, cost (display), effects: Vec<Fx>, interaction, show_if, locked_hint?, within_minutes }` (a failing `show_if` hides the option, unless it has a `locked_hint`: then it's greyed out on the card with that reason — leave it unset for surprise options);
 `Interaction { Swipe, Hold(s), TrainPicker { trains }, LightEachTable, HangSpots(n), QuickBrews {
 recipe, count }, ByHandFavourite }`. Keys `moment.<id>.title/.text/.opt.<o>/.result.<o>` and
 `.expired` when `on_expire` is set (plus toasts named in effects).
