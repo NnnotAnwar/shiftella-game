@@ -65,7 +65,7 @@ pub fn setup(g: &mut GameScreen, content: &Rc<Content>) {
     let _ = g.world.drain_events();
     g.cam = g
         .scene
-        .overview_camera(Rect::new(0.0, 0.0, screen_width(), screen_height()));
+        .overview_camera(crate::camera::screen_px());
     g.cam.center = vec2(20.0, 4.4) * crate::map::TILE;
     g.cam.zoom *= 2.3;
     g.speed = 0;

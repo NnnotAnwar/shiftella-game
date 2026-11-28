@@ -1573,7 +1573,7 @@ impl GameScreen {
         if !self.cam_ready {
             self.cam =
                 self.scene
-                    .overview_camera(Rect::new(0.0, 0.0, screen_width(), screen_height()));
+                    .overview_camera(crate::camera::screen_px());
             self.cam_ready = true;
         }
 

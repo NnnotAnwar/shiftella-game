@@ -189,6 +189,11 @@ impl Head<'_> {
                     self.rr(-16.0, -12.0, 32.0, 28.0, 9.0, t, b);
                 }
             }
+            HairStyle::LongBob => {
+                if !up {
+                    self.rr(-16.4, -12.0, 32.8, 26.5, 8.5, t, b);
+                }
+            }
             HairStyle::Bun => {
                 if !up {
                     let (x, y) = if side { (-9.0, -12.0) } else { (0.0, -15.5) };
@@ -494,6 +499,7 @@ impl Head<'_> {
             self.ell_v(0.0, -1.0, 15.0, 14.6, t, b);
             match l.hair_style {
                 HairStyle::Bob => self.rr(-15.8, -4.0, 31.6, 15.0, 7.0, b, shade(b, 0.92)),
+                HairStyle::LongBob => self.rr(-16.2, -4.0, 32.4, 19.0, 7.5, b, shade(b, 0.9)),
                 HairStyle::Long => self.rr(-15.5, -4.0, 31.0, 30.0, 8.0, b, shade(b, 0.88)),
                 HairStyle::Ponytail => {
                     self.ell_v(0.0, 15.0, 4.4, 9.0, b, shade(b, 0.85));
@@ -519,7 +525,7 @@ impl Head<'_> {
             let cut = if buzz { -5.5 } else { -4.4 };
             self.dome(-0.5, -0.8, if buzz { 14.6 } else { 15.3 }, cut, t, b);
             let back_r = match l.hair_style {
-                HairStyle::Long | HairStyle::Bob => (11.0, 15.5),
+                HairStyle::Long | HairStyle::Bob | HairStyle::LongBob => (11.0, 15.5),
                 HairStyle::Curly => (11.0, 14.0),
                 _ => (9.0, 11.5),
             };
@@ -527,6 +533,11 @@ impl Head<'_> {
             match l.hair_style {
                 HairStyle::Long => self.rr(-14.0, 2.0, 14.0, 22.0, 7.0, b, shade(b, 0.85)),
                 HairStyle::Bob => self.rr(-14.0, 2.0, 15.0, 10.0, 5.0, b, shade(b, 0.9)),
+                HairStyle::LongBob => {
+                    self.rr(-14.5, 2.0, 15.5, 13.0, 5.5, b, shade(b, 0.88));
+                    // the fringe swept forward over the brow
+                    self.ell_v(6.5, -5.0, 6.0, 3.0, t, b);
+                }
                 HairStyle::Side | HairStyle::Short => self.ell_v(6.0, -5.4, 6.5, 3.2, t, b),
                 HairStyle::Curly => {
                     // curls only on top and at the back — the face in profile stays open
@@ -538,7 +549,10 @@ impl Head<'_> {
                 _ => {}
             }
             // the ear over short hair
-            if !matches!(l.hair_style, HairStyle::Long | HairStyle::Bob) {
+            if !matches!(
+                l.hair_style,
+                HairStyle::Long | HairStyle::Bob | HairStyle::LongBob
+            ) {
                 self.ell(-0.5, 2.0, 2.4, 3.2, shade(l.skin, 0.9));
                 self.ell(-0.3, 2.0, 1.1, 1.8, shade(l.skin, 0.8));
             }
@@ -566,6 +580,13 @@ impl Head<'_> {
                 self.dome(0.0, -0.6, 15.6, -3.4, t, b);
                 self.rr(-15.8, -6.0, 5.0, 16.5, 2.5, b, shade(b, 0.9));
                 self.rr(10.8, -6.0, 5.0, 16.5, 2.5, b, shade(b, 0.9));
+            }
+            HairStyle::LongBob => {
+                self.dome(0.0, -0.6, 15.6, -3.6, t, b);
+                // a side-swept fringe, the parting on her right
+                self.cap(-11.0, -6.0, 6.0, -9.0, 2.4, b);
+                self.rr(-16.2, -6.0, 5.4, 20.0, 3.6, b, shade(b, 0.86));
+                self.rr(10.8, -6.0, 5.4, 20.0, 3.6, b, shade(b, 0.86));
             }
             HairStyle::Long => {
                 self.dome_arched(-0.8, 15.6, -2.5, -7.0, t, b);
@@ -693,7 +714,7 @@ impl Head<'_> {
     }
 
     /// Kseniia's piercings (see [`Accessory::Piercings`]): silver beads and rings with a dark
-    /// rim so they read on skin at the café's small scale; plus loose strands of her hair.
+    /// rim so they read on skin at the café's small scale.
     fn piercings(&self) {
         let l = self.l;
         let side = matches!(self.facing, Facing::Left | Facing::Right);
@@ -713,20 +734,20 @@ impl Head<'_> {
             ring(13.6, 4.4, 1.3);
             return;
         }
-        let (t, b) = (self.hair_top(), self.hair_bot());
         if side {
-            // a loose strand in front of the ear, the ear ring, then the face (profile)
-            self.cap(1.5, -4.0, 2.6, 4.0, 0.55, b);
-            ring(-0.4, 5.2, 1.3);
+            // the ear ring when the ear shows (a bob or longer hides it in profile), the face
+            if !matches!(
+                l.hair_style,
+                HairStyle::Long | HairStyle::Bob | HairStyle::LongBob
+            ) {
+                ring(-0.4, 5.2, 1.3);
+            }
             bead(12.2, -1.2, 0.5);
             ring(13.0, 5.0, 1.1);
             bead(9.3, 8.9, 0.5);
         } else {
-            // loose wisps along the cheeks (hair put up loosely)
-            self.arc(0.0, -0.5, 13.0, 13.0, PI * 0.88, PI * 1.12, 0.5, t);
-            self.arc(0.0, -0.5, 13.0, 13.0, PI * 1.9, PI * 2.06, 0.45, b);
-            // one small ring in the left ear (her right)
-            ring(-13.6, 5.2, 1.4);
+            // one small ring in the left ear (her right), peeking out under the hair
+            ring(-13.4, 6.2, 1.4);
             // the bridge piercing between the brows
             bead(-1.5, -1.6, 0.5);
             bead(1.5, -1.6, 0.5);

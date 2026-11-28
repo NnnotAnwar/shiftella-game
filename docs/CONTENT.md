@@ -290,7 +290,7 @@ Exactly two visits per game: nights 9 and 24 (story and sandbox), 23:00–02:00,
 Texts: `assets/i18n/src/cameo_anwar.tr`.
 
 `guest_kseniia` ("Kseniia", render preset `kseniia`) is the second cameo: nights 3, 15 and 20 (story and sandbox),
-02:40–04:10 (gone before `karolina_backstep` at 04:20 on night 3), oat flat white. 9 ambient lines and talks
+02:40–03:50 (served, she is gone before `karolina_backstep` at 04:20 on night 3), oat flat white. 9 ambient lines and talks
 `kseniia_talk_3` / `_15` / `_20`. Night 15's choice sets var `kseniia_ex` = `answered` | `silent` (no other effects);
 night 20 branches on it (unset → a neutral variant), and `answered` adds `scene.anwar_talk_24.07` to Anwar's night-24
 talk plus the ambient line `regular.guest_anwar.ambient.recommended`. Journal kind `KseniiaCameo`. Cameos are

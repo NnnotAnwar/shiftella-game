@@ -29,7 +29,7 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   (`ambient_lines`); a "Talk" action on a regular plays their talk dialogue for that night if one exists.
 - **Anwar (cameo):** appears only on nights 9 and 24, quiet guy working on a laptop; identity not obvious;
   talk dialogue about making a small game about a night café; no story impact.
-- **Kseniia (cameo):** nights 3, 15 and 20, late (02:40–04:10); manages an art studio in an old factory in
+- **Kseniia (cameo):** nights 3, 15 and 20, late (02:40–03:50); manages an art studio in an old factory in
   Holešovice, jokes with double meanings (never explicit), keeps bringing up her ex (never named: they worked
   together at an Italian place, he now writes an app for night shifts). Night 15: "Answer him" / "Don't answer"
   → var `kseniia_ex`, which only changes lines (her night 20, Anwar's night 24). Flavour only; she and Anwar

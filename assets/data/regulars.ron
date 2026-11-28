@@ -259,7 +259,7 @@
         // A second cameo guest (render preset `kseniia`): the art-studio manager who comes in late.
         // Flavour only like Anwar: no flags, effects, arc or endings. Her night-15 talk sets the
         // var `kseniia_ex` (answered | silent), which only changes lines in her night-20 talk and
-        // Anwar's night-24 one. She and Anwar (9, 24) never meet. Leaves by 04:10, before
+        // Anwar's night-24 one. She and Anwar (9, 24) never meet. Served, she leaves by 03:50, before
         // Karolina's back-step call on night 3 (04:20).
         id: "guest_kseniia",
         full_name: "Kseniia",
@@ -269,16 +269,16 @@
         story_nights: [3, 15, 20],
         sandbox_nights: [3, 15, 20],
         look_preset: "kseniia",
-        visits: [(from: "02:40", to: "04:10")],
+        visits: [(from: "02:40", to: "03:50")],
         orders: ["oat_flat_white"],
         patience_minutes: 20.0,
-        look: (body: "slim", height: 0.98, hair: ["bun"], hair_colors: ["#2A1F22"],
+        look: (body: "slim", height: 0.98, hair: ["lob"], hair_colors: ["#B4532A"],
                outfit: "jacket", outfit_colors: ["#3A3442"], accessories: ["earrings"]),
         ambient_lines: [
             (key: "regular.guest_kseniia.ambient.rain", when: [Raining]),
             (key: "regular.guest_kseniia.ambient.fog", when: [Weather(Fog)]),
             (key: "regular.guest_kseniia.ambient.train", when: [TrainNear(5)]),
-            (key: "regular.guest_kseniia.ambient.late", when: [TimeBetween("03:30", "04:10")]),
+            (key: "regular.guest_kseniia.ambient.late", when: [TimeBetween("03:30", "04:30")]),
             (key: "regular.guest_kseniia.ambient.busy", when: [GuestsAtLeast(10)]),
             (key: "regular.guest_kseniia.ambient.quiet", when: [Not(GuestsAtLeast(5))]),
             (key: "regular.guest_kseniia.ambient.coffee"),

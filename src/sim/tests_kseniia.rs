@@ -135,11 +135,12 @@ fn she_comes_on_her_nights_only_with_a_talk_each_visit() {
     let (w, log) = play_story_with(&c, 4242, Difficulty::Cozy, &|_| None, &mut |_| {});
     assert_eq!(visit_nights(&w, ID), vec![3, 15, 20]);
     assert_eq!(visit_nights(&w, "guest_anwar"), vec![9, 24]);
-    // the bot talks when it has a free minute: on night 20 (the concert crowd) it never has
-    // one, so that talk is checked by hand in `the_night_15_choice_sets_the_var_once`
-    for (n, talk) in &TALKS[..2] {
-        assert_eq!(night_of(&log, talk), Some(*n), "{talk}");
+    // (the bot takes a talk pinned to tonight at once, as the night auto-pauses for it)
+    for (n, talk) in TALKS {
+        assert_eq!(night_of(&log, talk), Some(n), "{talk}");
     }
+    assert_eq!(night_of(&log, "anwar_talk_9"), Some(9));
+    assert_eq!(night_of(&log, "anwar_talk_24"), Some(24));
     assert!(log.iter().all(|(n, id)| !id.starts_with("kseniia") || [3, 15, 20].contains(n)));
     assert_eq!(w.ending(), Some("light"));
 }
@@ -226,27 +227,44 @@ fn she_is_gone_before_the_back_step_call_on_night_3() {
             v.to
         );
     }
-    // night 3 played on: she comes, talks, and has left by the time the call comes
-    let mut w = World::new_story(&c, Difficulty::Cozy);
-    skip_to_night(&mut w, &c, 3);
-    let g = until_present(&mut w, &c, ID);
-    w.apply(&c, Command::Talk { guest: g }).expect("talk 3");
-    finish(&mut w, &c, vec![]);
+    // night 3 played by the player-bot: she comes, talks, is served, and has left by the
+    // time the call comes. (Left unserved she would wait on: since 0.3.0 a waiting regular
+    // goes only when her visible patience bar runs out, so only the served visit has an end.)
+    let mut w = World::new_story_seeded(&c, Difficulty::Cozy, 4242);
+    let mut b = bot::PlayerBot::new(bot::BotConfig {
+        seed: 4242,
+        ..Default::default()
+    });
+    while w.night() < 3 {
+        b.run_night(&mut w, &c);
+    }
+    if w.phase() == Phase::Day {
+        b.day(&mut w, &c);
+        bot::finish_cutscenes_attentive(&mut w, &c);
+        w.start_night(&c);
+    }
     let mut seen = false;
-    for _ in 0..NIGHT_TICKS * 2 {
-        if w.playing_cutscene() == Some("karolina_backstep") {
-            seen = true;
-            assert!(guest_of(&w, ID).is_none(), "Kseniia still in the café at 04:20");
-            assert!(!w.story().queue.iter().any(|q| q.starts_with("kseniia")));
-            break;
+    let mut talked = false;
+    for _ in 0..NIGHT_TICKS * 4 {
+        match w.playing_cutscene() {
+            Some("karolina_backstep") => {
+                seen = true;
+                assert!(guest_of(&w, ID).is_none(), "Kseniia still in the café at 04:20");
+                assert!(!w.story().queue.iter().any(|q| q.starts_with("kseniia")));
+                break;
+            }
+            Some("kseniia_talk_3") => talked = true,
+            _ => {}
         }
-        finish(&mut w, &c, vec![]);
+        bot::finish_cutscenes_attentive(&mut w, &c);
         if w.phase() != Phase::Night {
             break;
         }
+        b.step(&mut w, &c);
         w.tick(&c);
         let _ = w.drain_events();
     }
+    assert!(talked, "her night-3 talk played");
     assert!(seen, "the back step played on night 3");
 }
 
@@ -472,3 +490,4 @@ fn the_story_ends_the_same_without_her() {
     };
     assert_eq!(arcs(&with), arcs(&without));
 }
+

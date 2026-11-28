@@ -415,6 +415,13 @@ impl PlayerBot {
         } else if self.open_or_close(w, content, idle) {
             return;
         }
+        // a talk pinned to tonight (the cameos'): the game pauses the night for it as the
+        // guest walks in, so a player always gets it; it stops the clock, it costs no time
+        if let Some(g) = pinned_talk(w, content)
+            && w.apply(content, Command::Talk { guest: g }).is_ok()
+        {
+            return;
+        }
         if self.busy > 0 {
             self.busy -= 1;
             return;
@@ -1339,6 +1346,26 @@ fn longest_run(v: &[String]) -> u32 {
         best = best.max(run);
     }
     best
+}
+
+/// A present guest whose regular has a once-only talk pinned to tonight (`Talk { night:
+/// Some(_) }`: Anwar's, Kseniia's) — the talks the night auto-pauses for (`auto_pause.rs`).
+fn pinned_talk(w: &World, content: &Content) -> Option<u32> {
+    w.guests()
+        .iter()
+        .filter(|g| g.leader && !g.gone)
+        .map(|g| g.id)
+        .find(|g| {
+            w.talk_available(content, *g)
+                .and_then(|id| content.cutscene(&id))
+                .is_some_and(|cs| {
+                    !cs.repeat
+                        && matches!(
+                            cs.trigger,
+                            crate::content::CutsceneTrigger::Talk { night: Some(_), .. }
+                        )
+                })
+        })
 }
 
 /// Ends every playing cutscene with no choices (their defaults).

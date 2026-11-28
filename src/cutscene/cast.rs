@@ -149,6 +149,7 @@ fn apply_look(l: &mut PersonLook, look: &Look) {
         l.hair_style = match h.as_str() {
             "buzz" => HairStyle::Buzz,
             "bob" => HairStyle::Bob,
+            "lob" | "long_bob" => HairStyle::LongBob,
             "long" | "braid" => HairStyle::Long,
             "bun" => HairStyle::Bun,
             "ponytail" => HairStyle::Ponytail,
