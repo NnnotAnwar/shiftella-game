@@ -38,6 +38,10 @@
 //!   `SHIFTELLA_SPEED=1|2|3` — the starting speed;
 //!   `SHIFTELLA_SHOT_EVERY=n` — also save `<shot>_<frame>.png` every n frames;
 //!   `SHIFTELLA_SKIP_SCENES=1` — story scenes finish at once
+//! * `SHIFTELLA_BYHAND=all|opening|closing|<id>[:p],…` on `night` / `summary` / `hands_ux`:
+//!   those checklist items done by hand tonight (`:p` perfect), `SHIFTELLA_HABITS=<n>` each
+//!   done by hand on n nights before, `SHIFTELLA_HABIT_CARD=<id>` grandma's habit card open,
+//!   `SHIFTELLA_MOOD_TIPS=<Kč>`, `SHIFTELLA_HABITS_SCROLL=1` (`GameScreen::stage_by_hand`)
 //! * `SHIFTELLA_LANG=cs|en|uk|ru`, `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`,
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
 //! * `SHIFTELLA_DIRT=0.4` — dirt blots on the floor; `SHIFTELLA_SETTINGS_TAB=0|1|2` — the
@@ -466,6 +470,7 @@ impl App {
                 if name == "pause" {
                     g.pause = Some(Default::default());
                 }
+                g.stage_by_hand(&content, &Locale::new(&self.i18n, lang));
                 self.game(g)
             }
             // 0.2.2: a full house — every seat taken (the bar stools too), the overflow taking
@@ -556,6 +561,7 @@ impl App {
                     g.stage_ritual(&content, &loc, &key, secs);
                 } else {
                     g.stage_hands_ux(&content, &which);
+                    g.stage_by_hand(&content, &loc);
                 }
                 self.game(g)
             }
@@ -892,6 +898,7 @@ impl App {
                 if let Some(v) = env("SHIFTELLA_BOUGHT").and_then(|v| v.parse::<i64>().ok()) {
                     g.world.debug_buy_for_cafe(v);
                 }
+                g.stage_by_hand(&content, &Locale::new(&self.i18n, lang));
                 g.run_to_morning(&content, &Locale::new(&self.i18n, lang));
                 self.game(g)
             }

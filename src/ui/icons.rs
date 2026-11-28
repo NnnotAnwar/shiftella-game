@@ -91,10 +91,11 @@ pub enum Icon {
     Flask,
     Sunrise,
     ChevronLeft,
+    Hand,
 }
 
 impl Icon {
-    pub const ALL: [Icon; 78] = [
+    pub const ALL: [Icon; 79] = [
         Icon::Pause,
         Icon::Play,
         Icon::Fast,
@@ -173,6 +174,7 @@ impl Icon {
         Icon::Flask,
         Icon::Sunrise,
         Icon::ChevronLeft,
+        Icon::Hand,
     ];
 
     /// Stable snake_case name (for data files / debugging).
@@ -257,6 +259,7 @@ impl Icon {
             Flask => "flask",
             Sunrise => "sunrise",
             ChevronLeft => "chevron_left",
+            Hand => "hand",
         }
     }
 
@@ -988,6 +991,29 @@ pub fn draw_icon(icon: Icon, center: Vec2, size: f32, color: Color) {
             );
             pen.line((8.4, 3.4), (15.6, 3.4));
             pen.line((7.2, 15.2), (16.8, 15.2));
+        }
+        Hand => {
+            // an open palm: four fingers, the thumb out to the left
+            pen.poly(&[(8.4, 12.2), (8.4, 5.6)], false);
+            pen.poly(&[(11.6, 11.4), (11.6, 3.6)], false);
+            pen.poly(&[(14.8, 11.4), (14.8, 4.6)], false);
+            pen.poly(&[(18.0, 12.6), (18.0, 7.4)], false);
+            pen.poly(
+                &[
+                    (18.0, 12.6),
+                    (18.0, 15.4),
+                    (16.6, 19.2),
+                    (13.8, 21.0),
+                    (10.4, 21.0),
+                    (7.8, 19.2),
+                    (4.6, 14.4),
+                    (4.8, 12.4),
+                    (6.4, 12.4),
+                    (8.4, 14.6),
+                    (8.4, 12.2),
+                ],
+                false,
+            );
         }
         Sunrise => {
             pen.arc(12.0, 16.0, 5.0, 180.0, 360.0);

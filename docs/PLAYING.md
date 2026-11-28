@@ -214,6 +214,34 @@ to finish the story.
   gesture shows, a one-line hint sits under it (remembered in the settings, shown once).
   *Relaxed mini-games* widen the needle's green and the record's groove. While the card plays,
   Space and the arrows belong to it (pause with the button, or once it is done).
+* **What doing it by hand gives** — nothing is lost if you let her do it herself; done with
+  its gesture, each item gets a ✋ in the app's checklist (hover it: what it added) and:
+
+  | item | by hand | perfect, on top | grandma's habit (for good) |
+  |---|---|---|---|
+  | the window lamp | reputation +0.5, guests ×1.2 for 30 min | reputation +0.25 | +1 coziness all night |
+  | warm up the machine | the bar ×1.35 for 90 min (instead of ×1.25 for 60), quick drinks +0.03 | quick drinks +0.02 more | the bar ×1.1 the first 30 min |
+  | check the stock | the bot says what's on the shelves and warns of low stock early (under 700 Kč instead of 400) | — | the early warning, whoever counts |
+  | wipe the tables | dirt −5 % more, +1 coziness for an hour | dirt builds ×0.85 for an hour | dirt −3 % |
+  | count the float | the till ×1.2 all night (not only 2 h) | the till ×1.05 more | the till ×1.05 all night |
+  | the specials board | wishes for the specials' tastes ×1.2 tonight | ×1.1 more | ×1.1 |
+  | put a record on | +2 coziness for an hour | +1 more | +1 for an hour |
+  | the dishes | the dishes ×1.1 the next night's first hour | +0.5 coziness then | dirt −3 % |
+  | clean the group head | the machine's wear −0.02 more | −0.01 more | −0.01 |
+  | cash up | the till ×1.1 the next night's first hour | a small tip (10–20 Kč) | ×1.05 |
+  | the fridge check | the fridge's wear −0.01 more | −0.01 more | −0.005 |
+  | the handover note | the next opening ×0.85 the time | +0.5 coziness next night | ×0.9 |
+  | the light off at six | reputation +0.25 | +0.25 more | +0.5 coziness next night |
+
+  **The evening mood**: each opening item done by hand is a point (0–7; a perfect gesture counts
+  the same). Points made before 23:00 make the guests 4 % more patient and 3 % more generous
+  each until 23:00 — a chip by the clock ("Mood 4/7") shows it from 21:30. Each closing item by
+  hand puts +1 on the whole crew's mood when the next night starts. The morning summary says
+  how many you did by hand and what it gave (the mood's tips in Kč).
+  **Grandma's habits**: an item done by hand on 5 nights (in total, any nights) becomes one of
+  Lída's habits — her note in her own words, and the perk above for good, whoever does the
+  item. One a night at most (another one due comes the next time its item is done); the
+  habits learned are listed under the app's checklists.
 * **The tip jar** — tonight's tips and the lifetime total. When the jar reaches a goal, a
   "Count the jar" chip appears: pick one of two decor pieces for the hall.
 * **Napkins** — a perfect cup for someone who needed it sometimes earns a folded thank-you
@@ -653,6 +681,14 @@ shows a ritual gesture over its piece (default night 1 at 21:40, `light_window`;
 `SHIFTELLA_DOORS=wait` so the list is still open, `SHIFTELLA_TIME=06:05` for a closing item);
 `SHIFTELLA_GESTURE_T=<s>` plays it by script that long first (never to the end). A fresh
 `SHIFTELLA_SETTINGS` file shows the first-time hint.
+
+`SHIFTELLA_BYHAND=all|opening|closing|<id>[:p],…` on `night` / `summary` / `hands_ux` marks
+those checklist items done by hand tonight (`:p` = perfect; `all` = every other one perfect);
+`SHIFTELLA_HABITS=4` counts every item done by hand on 4 nights before (so tonight learns a
+habit), `SHIFTELLA_MOOD_TIPS=<Kč>` the evening mood's tips for the summary,
+`SHIFTELLA_HABITS_SCROLL=1` scrolls the app's checklists to grandma's habits and
+`SHIFTELLA_HABIT_CARD=<id>` opens that habit's card (e.g. `SHIFTELLA_SCENE=night
+SHIFTELLA_TIME=21:45 SHIFTELLA_BYHAND=light_window:p,record_on` for the mood chip).
 
 `SHIFTELLA_FRIDGE=full|worn` on `SHIFTELLA_SCENE=day|summary` puts 4 200 Kč in stock (and
 wears grandma's fridge to 0.5 with `worn`): the planning card's fridge row turns amber and

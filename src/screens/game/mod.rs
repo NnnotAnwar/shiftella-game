@@ -808,6 +808,7 @@ impl GameScreen {
         self.names_event(&e, loc);
         self.signature_event(&e, loc);
         self.stories_event(&e, loc);
+        self.rituals_event(&e, loc);
         match e {
             SimEvent::DayStarted { .. } => {
                 self.autosave_due = true;

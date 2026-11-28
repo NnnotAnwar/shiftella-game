@@ -23,6 +23,7 @@ pub fn world_to_ui(g: &GameScreen, ui: &Ui, p: Vec2) -> Vec2 {
 pub fn draw(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     clock_card(g, ui, cx);
     doors_chip(g, ui, cx);
+    mood_chip(g, ui, cx);
     // the side cards first: the ticker takes the room between them
     resources(g, ui, cx);
     ticker(g, ui, cx);
@@ -222,6 +223,62 @@ fn doors_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         };
         let _ = g.command(cx.content, cmd);
     }
+}
+
+/// The evening mood (`sim::rituals`): a small chip by the clock from 21:30 until the mood
+/// ends (23:00) — "Mood 4/7", one point per opening item done by hand; the tooltip says what
+/// it does. In the preparation half hour it shows at 0 too (an invitation), then only once
+/// there is a mood. Beside the doors chip while that one shows.
+fn mood_chip(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
+    let w = &g.world;
+    let m = w.ritual_mood(cx.content);
+    if !m.active || w.playing_cutscene().is_some() || (m.points == 0 && !w.in_prep()) {
+        return;
+    }
+    let t = ui.theme.clone();
+    let loc = cx.loc;
+    let label = loc.trf(
+        "rituals.mood.chip",
+        &[("n", &m.points.to_string()), ("max", &m.max.to_string())],
+    );
+    let st = t
+        .small()
+        .color(if m.points > 0 { t.text } else { t.text_dim });
+    let size = crate::ui::handson::ATMO_SIZE;
+    let x = g
+        .anchors
+        .iter()
+        .find(|a| a.0 == "hud.open_doors")
+        .map_or(12.0 + size.x + 8.0, |a| a.1.right() + 6.0);
+    let r = Rect::new(
+        x,
+        12.0 + 64.0 + 6.0,
+        ui.fonts.measure(&label, &st) + 40.0,
+        size.y,
+    );
+    g.anchors.push(("hud.mood", r));
+    ui.glass(r, &Glass::hud().radius(8.0));
+    let heart = if m.points > 0 { t.amber } else { t.text_dim };
+    draw_icon(Icon::Hand, vec2(r.x + 16.0, r.center_y()), 14.0, heart);
+    ui.fonts
+        .draw(&label, r.x + 28.0, ui.fonts.baseline_in(r, &st), &st);
+    let resp = ui.interact(ui.id("hud_mood"), r);
+    let tip = if m.points == 0 {
+        loc.tr_owned("rituals.mood.tip_empty")
+    } else {
+        let pct = |v: f32| ((v - 1.0) * 100.0).round().max(0.0).to_string();
+        loc.trf(
+            "rituals.mood.tip",
+            &[
+                ("n", &m.points.to_string()),
+                ("max", &m.max.to_string()),
+                ("time", &wv::clock_of_minute(m.until)),
+                ("patience", &pct(m.patience)),
+                ("tips", &pct(m.tips)),
+            ],
+        )
+    };
+    ui.tooltip(&resp, &tip);
 }
 
 fn ticker(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {

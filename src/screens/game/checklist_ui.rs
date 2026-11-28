@@ -9,6 +9,11 @@
 //! The same states draw in the Shiftella app's list ([`row`]), on the box over the item's
 //! furniture (`hands_view::draw_check_box`, with [`world_tip`] for the hover text) and on
 //! Karolina's card (her queue reads "Checklist: …" with the same clock).
+//!
+//! By hand (0.2.6, `sim::rituals`): an item Karolina did with its gesture carries a small ✋
+//! (amber; brighter for a perfect one), one of grandma's habits a feather; the row's tooltip
+//! says what by hand adds, a habit's perk or how many nights are still to go. Under the lists,
+//! grandma's habits learned so far ([`habits`]).
 
 use macroquad::prelude::*;
 
@@ -18,7 +23,7 @@ use super::world_view::{self as wv, sim};
 use super::{GameScreen, hud::world_to_ui};
 use crate::content::Content;
 use crate::settings::Locale;
-use crate::ui::draw::{fill_rrect, hline};
+use crate::ui::draw::{fill_rrect, hline, with_a};
 use crate::ui::{Align, Glass, Icon, RectExt, Ui, draw_icon};
 use sim::ChecklistMark;
 
@@ -103,6 +108,126 @@ pub fn texts(g: &GameScreen, loc: &Locale, content: &Content, item: usize) -> (S
     }
 }
 
+/// The by-hand lines of an item's tooltip: what by hand adds (done or on offer), a perfect
+/// gesture, the habit's perk or its progress. Empty when there's nothing to say.
+pub fn hand_lines(g: &GameScreen, loc: &Locale, content: &Content, item: usize) -> Vec<String> {
+    let Some(it) = content.app.checklists.get(item) else {
+        return Vec::new();
+    };
+    let mut out = Vec::new();
+    let what_key = format!("ritual.hand.{}", it.id);
+    let has_what = !it.hand_done.is_empty() || !it.perfect_done.is_empty();
+    let what = loc.tr_owned(&what_key);
+    match g.world.ritual_by_hand(&it.id) {
+        Some(perfect) => {
+            if has_what {
+                out.push(loc.trf("rituals.hand.done", &[("what", &what)]));
+            }
+            if perfect {
+                out.push(loc.tr_owned("rituals.hand.perfect"));
+            }
+        }
+        None if has_what
+            && g.world.phase() == sim::Phase::Night
+            && matches!(
+                g.world.checklist_mark(&it.id),
+                ChecklistMark::Open | ChecklistMark::Taken { karolina: true, .. }
+            ) =>
+        {
+            out.push(loc.trf("rituals.hand.offer", &[("what", &what)]));
+        }
+        None => {}
+    }
+    if !it.habit.is_empty() {
+        if g.world.habit_learned(&it.id) {
+            let perk = loc.tr_owned(&format!("habit.{}.perk", it.id));
+            out.push(loc.trf("rituals.habit.mark", &[("perk", &perk)]));
+        } else {
+            let n = g.world.habits().nights.get(&it.id).copied().unwrap_or(0);
+            if n > 0 {
+                let max = content.handson.tuning.rituals.habit_nights;
+                out.push(loc.trf(
+                    "rituals.habit.progress",
+                    &[("n", &n.to_string()), ("max", &max.to_string())],
+                ));
+            }
+        }
+    }
+    out
+}
+
+/// Grandma's habits under the lists: the block's height.
+pub fn habits_height(g: &GameScreen) -> f32 {
+    30.0 + g.world.habits().learned.len().max(1) as f32 * 22.0 + 8.0
+}
+
+/// Grandma's habits under the lists (from `y`): the habits learned with their perk, or how to
+/// learn one. `visible` = the scroll area's row check.
+pub fn habits(
+    g: &GameScreen,
+    ui: &mut Ui,
+    loc: &Locale,
+    content: &Content,
+    r: Rect,
+    y: f32,
+    visible: &dyn Fn(f32, f32) -> bool,
+) {
+    let t = ui.theme.clone();
+    let learned = g.world.habits().learned.clone();
+    let total = content
+        .app
+        .checklists
+        .iter()
+        .filter(|c| !c.habit.is_empty())
+        .count();
+    let title = loc.trf(
+        "rituals.habits.title",
+        &[
+            ("n", &learned.len().to_string()),
+            ("total", &total.to_string()),
+        ],
+    );
+    if visible(y, 26.0) {
+        ui.section(Rect::new(r.x, y, r.w - 12.0, 26.0), &title);
+    }
+    let mut y = y + 30.0;
+    let style = t.small().color(t.text);
+    if learned.is_empty() {
+        if visible(y, 20.0) {
+            let max = content.handson.tuning.rituals.habit_nights.to_string();
+            draw_icon(Icon::Feather, vec2(r.x + 16.0, y + 10.0), 12.0, t.text_dim);
+            ui.fonts.draw_fit(
+                &loc.trf("rituals.habits.none", &[("max", &max)]),
+                Rect::new(r.x + 34.0, y, r.w - 50.0, 20.0),
+                &t.small().color(t.text_dim),
+                Align::Left,
+                0.8,
+            );
+        }
+        return;
+    }
+    for id in learned {
+        if visible(y, 20.0) {
+            draw_icon(
+                Icon::Feather,
+                vec2(r.x + 16.0, y + 10.0),
+                12.0,
+                t.violet_400,
+            );
+            let label = loc.tr_owned(&format!("app.checklist.{id}"));
+            let perk = loc.tr_owned(&format!("habit.{id}.perk"));
+            ui.fonts.draw_fit(
+                &format!("{label} — {perk}"),
+                Rect::new(r.x + 34.0, y, r.w - 50.0, 20.0),
+                &style,
+                Align::Left,
+                0.8,
+            );
+        }
+        y += 22.0;
+    }
+}
+
 /// One row of the app's checklist (28 pt): the box in its state, the label (struck through
 /// when done), who / when on the right. Returns whether it was clicked.
 pub fn row(
@@ -139,13 +264,48 @@ pub fn row(
         Align::Left,
     );
     let label = loc.tr_owned(&format!("app.checklist.{}", it.id));
-    let lr = Rect::new(r.x + 34.0, r.y, (r.w - 34.0 - mw - 18.0).max(0.0), r.h);
+    // by hand ✋ / grandma's habit (a feather) after the label
+    let hand = g.world.ritual_by_hand(&it.id);
+    let habit = g.world.habit_learned(&it.id);
+    let marks_w = 16.0 * (hand.is_some() as u8 + habit as u8) as f32;
+    let lr = Rect::new(
+        r.x + 34.0,
+        r.y,
+        (r.w - 34.0 - mw - 18.0 - marks_w).max(0.0),
+        r.h,
+    );
     let ls = t.body().color(if done { t.text_dim } else { t.text });
     let lw = ui.fonts.draw_in(&label, lr, &ls, Align::Left);
     if done {
         hline(lr.x - 1.0, lr.x + lw + 1.0, lr.center_y() - 0.5, t.text_dim);
     }
-    ui.tooltip(&resp, &tip);
+    let mut mx = lr.x + lw + 12.0;
+    if let Some(perfect) = hand {
+        let c = if perfect {
+            t.amber
+        } else {
+            with_a(t.amber, 0.75)
+        };
+        draw_icon(Icon::Hand, vec2(mx, r.center_y()), 13.0, c);
+        if perfect {
+            draw_icon(
+                Icon::Sparkle,
+                vec2(mx + 6.0, r.center_y() - 6.0),
+                7.0,
+                t.amber,
+            );
+        }
+        mx += 16.0;
+    }
+    if habit {
+        draw_icon(Icon::Feather, vec2(mx, r.center_y()), 12.0, t.violet_400);
+    }
+    let extra = hand_lines(g, loc, content, item);
+    if extra.is_empty() {
+        ui.tooltip(&resp, &tip);
+    } else {
+        ui.tooltip(&resp, &format!("{tip}\n{}", extra.join("\n")));
+    }
     resp.clicked
 }
 
