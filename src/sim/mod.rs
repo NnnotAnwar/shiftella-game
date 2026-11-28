@@ -80,6 +80,8 @@ mod tests_combos;
 #[cfg(test)]
 mod tests_equipment;
 #[cfg(test)]
+mod tests_floor;
+#[cfg(test)]
 mod tests_fridge;
 #[cfg(test)]
 mod tests_hands;

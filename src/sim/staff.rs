@@ -1073,7 +1073,7 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
                     });
                 }
             }
-            out.extend(mop_work(w, me));
+            out.extend(mop_work(w, here));
         }
     }
     // checklist items this duty may do (`owner: Either(duty)`)
@@ -1081,20 +1081,23 @@ fn works_for(w: &World, content: &Content, idx: usize, duty: Duty) -> Vec<Work> 
     out
 }
 
-/// A hall tile near the middle of the mess (deterministic by minute).
-fn mop_work(w: &World, me: u32) -> Option<Work> {
-    if w.dirt <= guests::MOP_DIRT || w.mop_claim.is_some() {
+/// The dirt blot to mop: the floor helper goes to the dirt the player sees
+/// (`World::dirt_spots`, one blot per `MOP_AMOUNT`), from the first visible blot on —
+/// not only once the hall is really dirty. She takes the blot one swipe removes (the last
+/// one listed), else the nearest one she can walk to.
+fn mop_work(w: &World, here: (i32, i32)) -> Option<Work> {
+    if w.mop_claim.is_some() {
         return None;
     }
-    let hall: Vec<(i32, i32)> = (0..w.grid.height)
-        .flat_map(|y| (0..w.grid.width).map(move |x| (x, y)))
-        .filter(|t| w.grid.room(t.0, t.1) == Room::Hall && w.grid.reached(t.0, t.1))
-        .filter(|t| w.grid.object_at(t.0, t.1).is_none())
-        .collect();
-    if hall.is_empty() {
-        return None;
-    }
-    let t = hall[(w.minute() as usize * 7 + me as usize) % hall.len()];
+    let spots = w.dirt_spots();
+    let walkable = |t: &(i32, i32)| w.grid.reached(t.0, t.1);
+    let t = spots.last().copied().filter(walkable).or_else(|| {
+        spots
+            .iter()
+            .copied()
+            .filter(walkable)
+            .min_by_key(|t| (grid::manhattan(here, *t), *t))
+    })?;
     Some(Work {
         task: Task::Mop { tile: t },
         goal: t,
@@ -1194,7 +1197,7 @@ fn find_work(w: &World, content: &Content, idx: usize) -> Option<Work> {
         && effects_of(content, s)
             .iter()
             .any(|e| matches!(e, TraitEffect::AutoClean))
-        && let Some(mut wk) = mop_work(w, s.id)
+        && let Some(mut wk) = mop_work(w, here)
     {
         wk.rank = 6;
         consider(wk);
@@ -1960,8 +1963,8 @@ fn complete(w: &mut World, content: &Content, idx: usize, task: Task, job: Job) 
             mishap(w, content, idx);
         }
         Task::Mop { .. } => {
-            let s = 0.5 + w.staff[idx].skill(Job::Cleaning, w.night) * 0.1;
-            w.dirt = (w.dirt - 0.07 * s).max(0.0);
+            // one blot, like Karolina's swipe (her skill already sets how fast she mops)
+            w.dirt = (w.dirt - super::player::MOP_AMOUNT).max(0.0);
             w.mop_claim = None;
             credit(w, idx, Duty::Floor, 1);
             w.staff[idx].task = None;
