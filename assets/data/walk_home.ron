@@ -60,7 +60,7 @@
         ),
         (
             id: "bakery",
-            // a fresh kolač waits on the counter: the hall smells of butter and plum jam
+            // a fresh koláč waits on the counter: the hall smells of butter and plum jam
             effects: [Coziness(add: 3.0, minutes: Some(240)), Toast("walk.route.bakery.tonight")],
             beats: [
                 [

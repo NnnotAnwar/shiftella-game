@@ -95,7 +95,7 @@
     ),
     (
         id: "vera",
-        full_name: "Vera Soukupova",
+        full_name: "Vera Soukupová",
         age: 83,
         base: "insomniacs",
         first_night: 5,

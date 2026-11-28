@@ -78,13 +78,13 @@ ru Мимо пекарни
 
 walk.route.bakery.hint
 cs Kolem pekárny, co otvírá v šest. Koláč na pult: první čtyři hodiny útulněji.
-en Past the bakery that opens at six. A kolač for the counter: cozier for the first four hours.
+en Past the bakery that opens at six. A koláč for the counter: cozier for the first four hours.
 uk Повз пекарню, що відчиняється о шостій. Колач на прилавок: перші чотири години затишніше.
 ru Мимо пекарни, что открывается в шесть. Колач на стойку: первые четыре часа уютнее.
 
 walk.route.bakery.tonight
 cs Koláč z ranní pekárny čeká na pultu. Kavárna voní máslem a povidly.
-en The kolač from the morning bakery waits on the counter. The café smells of butter and plum jam.
+en The koláč from the morning bakery waits on the counter. The café smells of butter and plum jam.
 uk Колач із ранкової пекарні чекає на прилавку. Кав'ярня пахне маслом і сливовим повидлом.
 ru Колач из утренней пекарни ждёт на стойке. В кафе пахнет маслом и сливовым повидлом.
 
@@ -212,7 +212,7 @@ ru Пряничные сердечки в витрине, и пекарша на
 
 walk.line.bakery.2
 cs „Pro tvoje noční sovy,“ říká pekařka a balí koláč do papíru.
-en "For your night owls," says the baker, wrapping a kolač in paper.
+en "For your night owls," says the baker, wrapping a koláč in paper.
 uk «Для твоїх нічних сов», — каже пекарка й загортає колач у папір.
 ru «Для твоих ночных сов», — говорит пекарша и заворачивает колач в бумагу.
 

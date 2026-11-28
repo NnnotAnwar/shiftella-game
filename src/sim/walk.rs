@@ -3,7 +3,7 @@
 //!
 //! * **The walk home** — `Command::WalkHome { route }` in the day after a night (once a day).
 //!   The route's small cozy modifier runs when the next night starts (`on_night_start`), e.g.
-//!   the bakery's kolač (coziness), the park (a calm hall), the embankment (steady hands), the
+//!   the bakery's koláč (coziness), the park (a calm hall), the embankment (steady hands), the
 //!   tram (a nurse she met drops by with a wish). Never required: no walk = no modifier.
 //! * **The back step** — `Command::StepOutBack` at night (doors open, not in a rush, within
 //!   `from_minute..until_minute`, once a night): Karolina steps out for a breath and a message

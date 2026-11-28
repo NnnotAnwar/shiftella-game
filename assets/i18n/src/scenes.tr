@@ -383,16 +383,16 @@ ru Конечно. Понимаю. Хорошей ночи.
 
 # --- scene hana_asleep
 scene.hana_asleep.01
-cs 02:20. Hana usnula nad cappuccinem, pořád v nemocničním.
-en 02:20. Hana has fallen asleep over her cappuccino, still in her scrubs.
-uk 02:20. Гана заснула над капучино, досі в медичному костюмі.
-ru 02:20. Гана уснула над капучино, всё ещё в медицинском костюме.
+cs Hana usnula nad cappuccinem, pořád v nemocničním.
+en Hana has fallen asleep over her cappuccino, still in her scrubs.
+uk Гана заснула над капучино, досі в медичному костюмі.
+ru Гана уснула над капучино, всё ещё в медицинском костюме.
 
 scene.hana_asleep.02
-cs Displej telefonu se rozsvítí: „Pauza končí 02:30." A znovu: „Nabídka z kliniky v Drážďanech — prosíme o odpověď."
-en Her phone lights up: "Break ends 02:30." And again: "Offer from the Dresden clinic — please reply."
-uk Екран телефону спалахує: «Перерва до 02:30». І ще раз: «Пропозиція від клініки в Дрездені — просимо відповісти».
-ru Экран телефона вспыхивает: «Перерыв до 02:30». И ещё раз: «Предложение от клиники в Дрездене — просим ответить».
+cs Displej telefonu se rozsvítí: „Pauza končí za 10 min." A znovu: „Nabídka z kliniky v Drážďanech — prosíme o odpověď."
+en Her phone lights up: "Break ends in 10 min." And again: "Offer from the Dresden clinic — please reply."
+uk Екран телефону спалахує: «Перерва закінчується за 10 хв». І ще раз: «Пропозиція від клініки в Дрездені — просимо відповісти».
+ru Экран телефона вспыхивает: «Перерыв заканчивается через 10 мин». И ещё раз: «Предложение от клиники в Дрездене — просим ответить».
 
 scene.hana_asleep.03
 cs Opatrně ji vzbudit — pauza jí končí
@@ -470,10 +470,10 @@ uk Другий платіж надійшов. Я починаю звикати.
 ru Второй платёж поступил. Я начинаю привыкать. Это опасно.
 
 scene.payment_2.02
-cs Zase chybí peníze. Kavárna je ale nějak plná. To nechápu.
-en Money's short again. And yet the café seems full. I don't understand it.
-uk Знову бракує грошей. А кав'ярня якимось дивом повна. Не розумію.
-ru Опять не хватает денег. А кафе каким-то чудом полное. Не понимаю.
+cs Chybí peníze. Kavárna je ale nějak plná. To nechápu.
+en Money's short. And yet the café seems full. I don't understand it.
+uk Бракує грошей. А кав'ярня якимось дивом повна. Не розумію.
+ru Не хватает денег. А кафе каким-то чудом полное. Не понимаю.
 
 scene.payment_2.03
 cs Polovina cesty k třicáté noci.
@@ -551,10 +551,10 @@ ru Обратной половиной так и не воспользовали
 
 # --- scene franchise_visit
 scene.franchise_visit.01
-cs Den sedmnáct. Kde obvykle parkuje Mirek, zastaví stříbrné auto bez řidiče.
-en Day seventeen. A silver car with no driver parks where Mirek usually does.
-uk День сімнадцятий. Там, де зазвичай паркується Мірек, зупиняється срібляста машина без водія.
-ru День семнадцатый. Там, где обычно паркуется Мирек, останавливается серебристая машина без водителя.
+cs Noc sedmnáctá. Kde obvykle parkuje Mirek, zastaví stříbrné auto bez řidiče.
+en Night seventeen. A silver car with no driver parks where Mirek usually does.
+uk Ніч сімнадцята. Там, де зазвичай паркується Мірек, зупиняється срібляста машина без водія.
+ru Ночь семнадцатая. Там, где обычно паркуется Мирек, останавливается серебристая машина без водителя.
 
 scene.franchise_visit.02
 cs Petr Šindelář, NONSTOP 24. Krásný podnik. Hrozná otevírací doba.
@@ -563,10 +563,10 @@ uk Петр Шинделарж, NONSTOP 24. Чудовий заклад. Жах�
 ru Петр Шинделарж, NONSTOP 24. Чудесное заведение. Ужасный график работы.
 
 scene.franchise_visit.03
-cs Nabídka: zaplatíme celý dluh. Vy zůstanete jako vedoucí. Otevřeno 24/7, naše menu, náš nápis. Všechno moderní.
-en Here's our offer: we pay off the entire debt. You stay on as manager. Open 24/7, our menu, our sign. Everything modern.
-uk Пропозиція така: ми гасимо весь борг. Ви лишаєтеся керувати. Відчинено 24/7, наше меню, наша вивіска. Усе сучасне.
-ru Предложение такое: мы гасим весь долг. Вы остаётесь управляющей. Открыто 24/7, наше меню, наша вывеска. Всё современное.
+cs Nabídka: zaplatíme celý dluh. Jestli chcete, můžete zůstat jako vedoucí. Otevřeno 24/7, naše menu, náš nápis. Všechno moderní.
+en Here's our offer: we pay off the entire debt. You can stay on as manager, if you like. Open 24/7, our menu, our sign. Everything modern.
+uk Пропозиція така: ми гасимо весь борг. Якщо захочете, можете лишитися керувати. Відчинено 24/7, наше меню, наша вивіска. Усе сучасне.
+ru Предложение такое: мы гасим весь долг. Если захотите, можете остаться управляющей. Открыто 24/7, наше меню, наша вывеска. Всё современное.
 
 scene.franchise_visit.04
 cs A světlo v okně?
@@ -747,10 +747,10 @@ uk Третій платіж. Знаєте, мені про вас пишуть 
 ru Третий платёж. Знаете, мне о вас пишут люди? Обычно мне пишут только про плесень.
 
 scene.payment_3.02
-cs Třetí splátka zase nesedí. Ale aspoň mi píšou, že máte dobrou polévku.
-en The third payment doesn't add up again. At least people write that your soup is good.
-uk Третій платіж знову не сходиться. Зате мені пишуть, що у вас добрий суп.
-ru Третий платёж снова не сходится. Зато мне пишут, что у вас хороший суп.
+cs Splátky nesedí. Ale aspoň mi píšou, že máte dobrou polévku.
+en The payments don't add up. At least people write that your soup is good.
+uk Платежі не сходяться. Зате мені пишуть, що у вас добрий суп.
+ru Платежи не сходятся. Зато мне пишут, что у вас хороший суп.
 
 # --- scene franchise_decision
 scene.franchise_decision.01
@@ -778,16 +778,16 @@ uk Відмовитися. Café Nocturne лишиться Café Nocturne.
 ru Отказаться. Café Nocturne останется Café Nocturne.
 
 scene.franchise_decision.05
-cs Výborně! Zítra přijede tým s novým nápisem. To osvětlení si zamilujete.
-en Excellent! Our team arrives tomorrow with the new sign. You'll love the lighting.
-uk Чудово! Завтра приїде команда з новою вивіскою. Ви закохаєтеся в це освітлення.
-ru Отлично! Завтра приедет команда с новой вывеской. Вы влюбитесь в это освещение.
+cs Výborně! Nový nápis přijede po vaší třicáté noci. To osvětlení si zamilujete.
+en Excellent! The new sign goes up after your thirtieth night. You'll love the lighting.
+uk Чудово! Нову вивіску повісять після вашої тридцятої ночі. Ви закохаєтеся в це освітлення.
+ru Отлично! Новую вывеску повесят после вашей тридцатой ночи. Вы влюбитесь в это освещение.
 
 scene.franchise_decision.06
-cs …Určitě.
-en …I'm sure.
-uk …Безперечно.
-ru …Не сомневаюсь.
+cs …Určitě. Já už tu nebudu, abych to viděla.
+en …I'm sure. I won't be staying to see it.
+uk …Безперечно. Тільки мене тут уже не буде.
+ru …Не сомневаюсь. Только меня здесь уже не будет.
 
 scene.franchise_decision.07
 cs Škoda. Sentiment je drahý, víte.
@@ -983,10 +983,10 @@ uk Четвертий платіж. Лишився останній — трид
 ru Четвёртый платёж. Остался последний — тридцать тысяч. Держу за вас кулаки. Только никому не говорите.
 
 scene.payment_4.02
-cs Čtvrtá splátka chybí. Zbývá poslední noc. Ukažte mi zázrak, nebo aspoň kalkulačku.
-en The fourth payment is missing. One night left. Show me a miracle, or at least a calculator.
-uk Четвертого платежу немає. Лишилась остання ніч. Покажіть мені диво. Або хоча б калькулятор.
-ru Четвёртого платежа нет. Осталась последняя ночь. Покажите мне чудо. Или хотя бы калькулятор.
+cs Ve splátkách něco chybí. Zbývají dvě noci. Ukažte mi zázrak, nebo aspoň kalkulačku.
+en The payments are short. Two nights left. Show me a miracle, or at least a calculator.
+uk Платежів бракує. Лишилося дві ночі. Покажіть мені диво. Або хоча б калькулятор.
+ru Платежей не хватает. Осталось две ночи. Покажите мне чудо. Или хотя бы калькулятор.
 
 # --- scene filip_cake
 scene.filip_cake.01
@@ -1310,6 +1310,12 @@ cs Třicet nocí. Dost na to, aby se to člověk naučil.
 en Thirty nights. Long enough to learn how.
 uk Тридцять ночей. Досить, щоб навчитися.
 ru Тридцать ночей. Достаточно, чтобы научиться.
+
+scene.ending_last_train.20
+cs Doprovodím tě na vlak. Pěšky. Vzala jsi mi klíče, pamatuješ?
+en I'll walk you to the train. Walk. You took my keys, remember?
+uk Я проведу тебе до поїзда. Пішки. Ти ж забрала в мене ключі, пам'ятаєш?
+ru Я провожу тебя до поезда. Пешком. Ты же забрала у меня ключи, помнишь?
 
 # --- scene answer
 scene.answer.01

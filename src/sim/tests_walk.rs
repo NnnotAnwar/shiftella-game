@@ -169,7 +169,7 @@ fn each_route_gives_only_the_next_night_a_small_modifier() {
     assert_eq!(baked.walk_tonight(), Some("bakery"));
     assert_eq!(plain.walk_tonight(), None);
     let (a, b) = (plain.coziness().value, baked.coziness().value);
-    assert!(b > a && b - a <= 3.01, "kolač on the counter: {a} → {b}");
+    assert!(b > a && b - a <= 3.01, "koláč on the counter: {a} → {b}");
     // the next night without a walk: nothing left over
     let mut next = baked.clone();
     next.run_night_headless(&c);

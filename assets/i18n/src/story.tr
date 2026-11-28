@@ -37,16 +37,16 @@ uk Ключ під килимком. Засвіти вікно й звари п�
 ru Ключ под ковриком. Зажги окно и свари первый кофе.
 
 story.night.02.title
-cs První kolega
-en The first colleague
-uk Перший колега
-ru Первый коллега
+cs Pod pokladnou
+en Under the register
+uk Під касою
+ru Под кассой
 
 story.night.02.hint
-cs Najmi někoho a sestav první rozpis.
-en Hire someone and build your first schedule.
-uk Найми когось і склади перший розклад.
-ru Найми кого-нибудь и составь первое расписание.
+cs Dnes jsi tu pořád sama. Babička ti něco nechala pod pokladnou.
+en Still just you tonight. Grandma left you something under the register.
+uk Сьогодні ти ще сама. Бабуся дещо залишила тобі під касою.
+ru Сегодня ты ещё одна. Бабушка кое-что оставила тебе под кассой.
 
 story.night.03.title
 cs Déšť a sestra
