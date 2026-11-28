@@ -721,10 +721,10 @@ uk Аварія біля вокзалу
 ru Авария у вокзала
 
 event.mirek_accident.text
-cs Mirkovo taxi skončilo v zábradlí. Nikomu se nic vážného nestalo. Mirek už nepřijde.
-en Mirek's taxi ended up in the railings. Nobody was badly hurt. Mirek won't be coming back.
-uk Міркове таксі врізалося в огорожу. Ніхто серйозно не постраждав. Мірек більше не прийде.
-ru Такси Мирека врезалось в ограждение. Никто серьёзно не пострадал. Мирек больше не придёт.
+cs Mirkovo taxi skončilo v zábradlí. Nikomu se nic vážného nestalo. Klíče má teď Jana.
+en Mirek's taxi ended up in the railings. Nobody was badly hurt. Jana has his keys now.
+uk Міркове таксі врізалося в огорожу. Ніхто серйозно не постраждав. Ключі тепер у Яни.
+ru Такси Мирека врезалось в ограждение. Никто серьёзно не пострадал. Ключи теперь у Яны.
 
 event.storm_blackout.title
 cs Celá čtvrť ve tmě

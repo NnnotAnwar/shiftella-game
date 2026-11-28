@@ -1406,7 +1406,7 @@ fn kindness(o: &crate::content::ChoiceOption) -> f32 {
         }
     }
     if let Some(f) = &o.set_flag
-        && ["_sent_away", "_alone", "_silence", "_woken"]
+        && ["_sent_away", "_alone", "_silence"]
             .iter()
             .any(|s| f.ends_with(s))
     {

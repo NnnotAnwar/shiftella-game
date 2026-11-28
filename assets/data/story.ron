@@ -132,6 +132,8 @@
         (night: 24, act: 3, weekday: Wed, weather: Rain, beats: [
             (at: "22:15", what: Hint("story.hint.lori_night"), conditions: [Flag("lori_invited")]),
         ]),
+        // night 25: the storm. Mirek's confession (arc stage 4) can come tonight at the earliest;
+        // Lori, sent away on night 11, gets a second chance under the awning (cutscene lori_storm)
         (night: 25, act: 4, weekday: Thu, weather: Storm, beats: [
             (at: "22:30", what: Event("storm_blackout")),
             (at: "23:30", what: Event("mirek_accident"), conditions: [Flag("mirek_silence")]),
@@ -141,6 +143,8 @@
         ]),
         (night: 27, act: 4, weekday: Sat, weather: Snow, beats: [
             (at: "22:00", what: Event("first_snow")),
+            (at: "01:00", what: Line(speaker: "vera", text_key: "story.line.27_vera_snow"),
+             conditions: [RegularPresent("vera")]),
         ]),
         (night: 28, act: 4, weekday: Sun, beats: [
             (at: "21:40", what: Bot("payment_reminder")),
@@ -160,7 +164,7 @@
         // found_when empty = only found through an effect / beat (FindNote, Beat::Note, ShowNote).
         (id: "note_01", number: 1),
         (id: "note_02", number: 2, found_when: [NightAtLeast(3), Not(DirtAtLeast(0.02)), TimeBetween("05:30", "06:00")]),
-        (id: "note_03", number: 3, found_when: [EventHappenedTonight("power_outage")]),
+        (id: "note_03", number: 3, found_when: [Any([EventHappenedTonight("power_outage"), EventHappenedTonight("storm_blackout")])]),
         (id: "note_04", number: 4, found_when: [ArcAtLeast("hana", 2)]),
         (id: "note_05", number: 5),
         (id: "note_06", number: 6),
@@ -195,11 +199,11 @@
             ],
         ),
     ],
+    // the letter delivered is enough; eight notes add Lida's postscript inside the scene
     ending_extra: (
         id: "answer",
         conditions: [
             Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]),
-            NotesFoundAtLeast(8),
             Not(VarIs("offer", "accepted")),
         ],
         cutscene: "answer",
@@ -208,9 +212,9 @@
         "tutorial_done", "recipe_kulajda", "big_font_menu",
         "lori_invited", "lori_sent_away",
         "hana_blanket", "hana_woken", "hana_quiet_corner", "hana_left", "hana_stays",
-        "mirek_keys_taken", "mirek_daughter_called", "mirek_silence", "mirek_gone",
+        "mirek_keys_taken", "mirek_daughter_called", "mirek_silence", "mirek_jana_keys",
         "filip_friends", "filip_talked", "filip_free_coffee", "filip_alone",
-        "radek_warns_trains", "vera_friends", "coins_refused",
+        "radek_warns_trains", "radek_walked", "vera_friends", "coins_refused",
         "franchise_met", "landlord_grumbling", "final_payment_missed",
         "roof_fixed", "cat_adopted",
         // hands-on

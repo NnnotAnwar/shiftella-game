@@ -85,7 +85,12 @@
                 Narration(text_key: "scene.guest333_first.05"),
                 ActorExit(actor: "guest_333", to_tile: Spot("door")),
                 Line(speaker: "player", expression: Thinking, text_key: "scene.guest333_first.06"),
-                Apply(effects: [GiveItem("old_coin"), AddCounter("coins_collected", 1)]),
+                // note_02 later says "Don't take his money"; echoed in last_333
+                Choice(options: [
+                (label_key: "scene.guest333_first.08", effects: [Trust("guest_333", 5.0)], set_flag: "coins_refused"),
+                (label_key: "scene.guest333_first.09", effects: []),
+            ]),
+                If(conditions: [Flag("coins_refused")], then: [Narration(text_key: "scene.guest333_first.10")], otherwise: [Apply(effects: [GiveItem("old_coin"), AddCounter("coins_collected", 1)])]),
                 Narration(text_key: "scene.guest333_first.07"),
                 Music(track: Some("mus_night_calm_loop")),
                 Letterbox(on: false),
@@ -191,7 +196,7 @@
                 Narration(text_key: "scene.hana_asleep.01"),
                 Narration(text_key: "scene.hana_asleep.02"),
                 Choice(options: [
-                (label_key: "scene.hana_asleep.03", effects: [Trust("hana", -5.0)], set_flag: "hana_woken"),
+                (label_key: "scene.hana_asleep.03", effects: [Trust("hana", 5.0)], set_flag: "hana_woken"),
                 (label_key: "scene.hana_asleep.04", effects: [Trust("hana", 10.0)], set_flag: "hana_blanket"),
                 (label_key: "scene.hana_asleep.05", effects: [Trust("hana", 20.0)], set_flag: "hana_quiet_corner", conditions: [HasFurniture("armchair"), HasFurniture("floor_lamp")]),
             ]),
@@ -213,9 +218,10 @@
         (
             id: "vera_tears",
             trigger: ArcStage(regular: "vera", stage: 3),
-            conditions: [ServedItem(regular: "vera", item: "grandma_kulajda")],
             steps: [
                 Camera(focus: Actor("vera"), zoom: 1.6),
+                // stage 3 by the night-20 fallback: nobody served her the kulajda yet, she asks
+                If(conditions: [Not(ServedItem(regular: "vera", item: "grandma_kulajda"))], then: [Line(speaker: "vera", expression: Thinking, text_key: "scene.vera_tears.04"), Narration(text_key: "scene.vera_tears.05")]),
                 Line(speaker: "vera", expression: Surprised, text_key: "scene.vera_tears.01"),
                 Line(speaker: "vera", expression: Sad, text_key: "scene.vera_tears.02"),
                 Narration(text_key: "scene.vera_tears.03"),
@@ -287,7 +293,8 @@
                 Narration(text_key: "scene.filip_exam.01"),
                 Line(speaker: "filip", expression: Sad, text_key: "scene.filip_exam.02"),
                 Choice(options: [
-                (label_key: "scene.filip_exam.03", effects: [Trust("filip", 15.0)], set_flag: "filip_talked", conditions: [Any([StaffWithTrait("kind"), StaffWithTrait("chatterbox")])]),
+                (label_key: "scene.filip_exam.07", effects: [Trust("filip", 15.0)], set_flag: "filip_talked"),
+                (label_key: "scene.filip_exam.03", effects: [Trust("filip", 20.0)], set_flag: "filip_talked", conditions: [Any([StaffWithTrait("kind"), StaffWithTrait("chatterbox")])]),
                 (label_key: "scene.filip_exam.04", effects: [Money(-45), Trust("filip", 10.0)], set_flag: "filip_free_coffee"),
                 (label_key: "scene.filip_exam.05", set_flag: "filip_alone"),
             ]),
@@ -305,6 +312,7 @@
                 ActorEnter(actor: "mirek", to_tile: Spot("bar_front")),
                 Narration(text_key: "scene.mirek_pedestrian.02"),
                 Line(speaker: "mirek", expression: Sad, text_key: "scene.mirek_pedestrian.03"),
+                If(conditions: [ArcAtLeast("hana", 2), Not(Flag("hana_left"))], then: [ActorEnter(actor: "hana", to_tile: Spot("entrance")), Line(speaker: "hana", expression: Smile, text_key: "scene.mirek_pedestrian.12"), Narration(text_key: "scene.mirek_pedestrian.13"), ActorExit(actor: "hana", to_tile: Spot("door"))]),
                 Line(speaker: "mirek", expression: Neutral, text_key: "scene.mirek_pedestrian.04"),
                 Choice(options: [
                 (label_key: "scene.mirek_pedestrian.05", effects: [Trust("mirek", 20.0)], set_flag: "mirek_keys_taken"),
@@ -325,6 +333,8 @@
                 Letterbox(on: true),
                 Music(track: None),
                 Camera(focus: Actor("mirek"), zoom: 1.7),
+                If(conditions: [Weather(Storm)], then: [Narration(text_key: "scene.mirek_confession.09")]),
+                If(conditions: [Flag("mirek_jana_keys")], then: [Line(speaker: "mirek", expression: Tired, text_key: "scene.mirek_confession.10")]),
                 Line(speaker: "mirek", expression: Sad, text_key: "scene.mirek_confession.01"),
                 Narration(text_key: "scene.mirek_confession.02"),
                 Line(speaker: "mirek", expression: Neutral, text_key: "scene.mirek_confession.03"),
@@ -369,12 +379,19 @@
         (
             id: "radek_last_shift",
             trigger: ArcStage(regular: "radek", stage: 2),
+            skippable: false,
             steps: [
                 Camera(focus: Actor("radek"), zoom: 1.5),
-                Line(speaker: "radek", expression: Tired, text_key: "scene.radek_last_shift.01"),
+                // night 23 is his last shift; on 24–25 he's back for his mug
+                If(conditions: [NightAtLeast(24)], then: [Line(speaker: "radek", expression: Neutral, text_key: "scene.radek_last_shift.04")], otherwise: [Line(speaker: "radek", expression: Tired, text_key: "scene.radek_last_shift.01")]),
                 Line(speaker: "radek", expression: Neutral, text_key: "scene.radek_last_shift.02"),
                 ShowNote(note_id: "note_08"),
                 Line(speaker: "radek", expression: Thinking, text_key: "scene.radek_last_shift.03"),
+                Choice(options: [
+                (label_key: "scene.radek_last_shift.05", effects: [Trust("radek", 15.0)], set_flag: "radek_walked"),
+                (label_key: "scene.radek_last_shift.06", effects: [Trust("radek", 10.0)]),
+            ]),
+                If(conditions: [Flag("radek_walked")], then: [Camera(focus: Spot("platform"), zoom: 1.4), If(conditions: [NightAtLeast(24)], then: [Narration(text_key: "scene.radek_last_shift.08")], otherwise: [Narration(text_key: "scene.radek_last_shift.07")])], otherwise: [Line(speaker: "radek", expression: Smile, text_key: "scene.radek_last_shift.09")]),
             ],
         ),
         (
@@ -409,12 +426,31 @@
             ],
         ),
         (
+            // Lori sent away on night 11 shelters from the storm under the awning: a second chance
+            id: "lori_storm",
+            trigger: At(night: 25, time: "22:40"),
+            conditions: [Flag("lori_sent_away")],
+            skippable: false,
+            steps: [
+                Letterbox(on: true),
+                Camera(focus: Spot("outside_window"), zoom: 1.4),
+                Narration(text_key: "scene.lori_storm.01"),
+                Line(speaker: "lori", expression: Sad, text_key: "scene.lori_storm.02"),
+                Choice(options: [
+                (label_key: "scene.lori_storm.03", effects: [Trust("lori", 10.0), ClearFlag("lori_sent_away")], set_flag: "lori_invited"),
+                (label_key: "scene.lori_storm.04", effects: []),
+            ]),
+                If(conditions: [Flag("lori_invited")], then: [ActorEnter(actor: "lori", to_tile: Spot("window_table")), Line(speaker: "lori", expression: Smile, text_key: "scene.lori_storm.05"), Narration(text_key: "scene.lori_storm.06"), Apply(effects: [ArcGood("lori"), Reputation(5.0)])], otherwise: [Narration(text_key: "scene.lori_storm.07")]),
+                Letterbox(on: false),
+            ],
+        ),
+        (
             id: "hana_decision",
             trigger: ArcStage(regular: "hana", stage: 4),
             steps: [
                 Camera(focus: Actor("hana"), zoom: 1.6),
                 Line(speaker: "hana", expression: Thinking, text_key: "scene.hana_decision.01"),
-                If(conditions: [Any([Flag("hana_blanket"), Flag("hana_quiet_corner")])], then: [Line(speaker: "hana", expression: Smile, text_key: "scene.hana_decision.02"), Apply(effects: [ArcGood("hana"), SetFlag("hana_stays")])], otherwise: [Line(speaker: "hana", expression: Sad, text_key: "scene.hana_decision.03"), Apply(effects: [SetFlag("hana_left"), Reputation(5.0)])]),
+                If(conditions: [Any([Flag("hana_blanket"), Flag("hana_quiet_corner"), TrustAtLeast("hana", 50.0)])], then: [Line(speaker: "hana", expression: Smile, text_key: "scene.hana_decision.02"), Apply(effects: [ArcGood("hana"), SetFlag("hana_stays")])], otherwise: [Line(speaker: "hana", expression: Sad, text_key: "scene.hana_decision.03"), Apply(effects: [SetFlag("hana_left"), Reputation(5.0)])]),
             ],
         ),
         (
@@ -423,7 +459,7 @@
             steps: [
                 Letterbox(on: true),
                 Camera(focus: Actor("vera"), zoom: 1.6),
-                Line(speaker: "vera", expression: Smile, text_key: "scene.vera_jindrich.01"),
+                If(conditions: [Raining], then: [Line(speaker: "vera", expression: Smile, text_key: "scene.vera_jindrich.01")], otherwise: [Line(speaker: "vera", expression: Neutral, text_key: "scene.vera_jindrich.07")]),
                 Line(speaker: "vera", expression: Neutral, text_key: "scene.vera_jindrich.02"),
                 Line(speaker: "vera", expression: Thinking, text_key: "scene.vera_jindrich.03"),
                 Line(speaker: "vera", expression: Sad, text_key: "scene.vera_jindrich.04"),
@@ -495,6 +531,10 @@
                 ActorEnter(actor: "guest_333", to_tile: Spot("window_chair")),
                 Camera(focus: Actor("guest_333"), zoom: 1.7),
                 Line(speaker: "guest_333", expression: Smile, text_key: "scene.last_333.02"),
+                If(conditions: [VarIs("answer_333", "yes")], then: [Line(speaker: "guest_333", expression: Smile, text_key: "scene.last_333.13")]),
+                If(conditions: [VarIs("answer_333", "unsure")], then: [Line(speaker: "guest_333", expression: Neutral, text_key: "scene.last_333.14")]),
+                If(conditions: [VarIs("answer_333", "gone")], then: [Line(speaker: "guest_333", expression: Neutral, text_key: "scene.last_333.15")]),
+                If(conditions: [Flag("coins_refused")], then: [Line(speaker: "guest_333", expression: Smile, text_key: "scene.last_333.16")]),
                 If(conditions: [VarIs("letter", "with_player")], then: [Choice(options: [
                 (label_key: "scene.last_333.03", effects: [SetVar("letter", "delivered"), TakeItem("letter")]),
                 (label_key: "scene.last_333.04", effects: []),
@@ -515,6 +555,7 @@
                 Narration(text_key: "scene.ending_light.01"),
                 ActorEnter(actor: "landlord", to_tile: Spot("bar_front")),
                 If(conditions: [AllPaymentsMade], then: [Line(speaker: "landlord", expression: Surprised, text_key: "scene.ending_light.02")], otherwise: [Line(speaker: "landlord", expression: Thinking, text_key: "scene.ending_light.03")]),
+                If(conditions: [Flag("landlord_grumbling")], then: [Line(speaker: "landlord", expression: Neutral, text_key: "scene.ending_light.18")]),
                 Line(speaker: "landlord", expression: Smile, text_key: "scene.ending_light.04"),
                 ActorExit(actor: "landlord", to_tile: Spot("door")),
                 Camera(focus: Overview, zoom: 1.0),
@@ -525,7 +566,7 @@
                 If(conditions: [Flag("arc.radek.good")], then: [ActorEnter(actor: "radek", to_tile: Spot("bar_front")), Line(speaker: "radek", expression: Laugh, text_key: "scene.ending_light.09")]),
                 If(conditions: [Flag("arc.lori.good")], then: [ActorEnter(actor: "lori", to_tile: Spot("stage")), Line(speaker: "lori", expression: Smile, text_key: "scene.ending_light.10")]),
                 If(conditions: [StaffArchetype("cook")], then: [Line(speaker: "cook", expression: Thinking, text_key: "scene.ending_light.11")]),
-                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]), NotesFoundAtLeast(8), Not(VarIs("offer", "accepted"))], then: [Call(cutscene: "answer")]),
+                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]), Not(VarIs("offer", "accepted"))], then: [Call(cutscene: "answer")]),
                 If(conditions: [ReputationAtLeast(60.0), ArcsGoodAtLeast(3)], then: [Narration(text_key: "scene.ending_light.12")], otherwise: [Narration(text_key: "scene.ending_light.13")]),
                 Camera(focus: Spot("outside_window"), zoom: 1.3),
                 Narration(text_key: "scene.ending_light.14"),
@@ -546,7 +587,7 @@
                 If(conditions: [VarIs("offer", "accepted")], then: [Narration(text_key: "scene.ending_last_train.01"), ActorEnter(actor: "sindelar", to_tile: Spot("center")), Line(speaker: "sindelar", expression: Smile, text_key: "scene.ending_last_train.02"), Narration(text_key: "scene.ending_last_train.03"), ActorExit(actor: "sindelar", to_tile: Spot("door"))], otherwise: [ActorEnter(actor: "landlord", to_tile: Spot("bar_front")), Line(speaker: "landlord", expression: Sad, text_key: "scene.ending_last_train.04"), ActorExit(actor: "landlord", to_tile: Spot("door")), Narration(text_key: "scene.ending_last_train.05")]),
                 Camera(focus: Overview, zoom: 1.0),
                 If(conditions: [ArcsGoodAtLeast(3)], then: [Narration(text_key: "scene.ending_last_train.06"), If(conditions: [Flag("arc.vera.good")], then: [ActorEnter(actor: "vera", to_tile: Spot("bar_front")), Line(speaker: "vera", expression: Neutral, text_key: "scene.ending_last_train.07")]), If(conditions: [Flag("arc.mirek.good")], then: [ActorEnter(actor: "mirek", to_tile: Spot("entrance")), If(conditions: [Flag("mirek_keys_taken")], then: [Line(speaker: "mirek", expression: Smile, text_key: "scene.ending_last_train.20")], otherwise: [Line(speaker: "mirek", expression: Smile, text_key: "scene.ending_last_train.08")])]), If(conditions: [Flag("arc.hana.good")], then: [ActorEnter(actor: "hana", to_tile: Spot("center")), Line(speaker: "hana", expression: Smile, text_key: "scene.ending_last_train.09")]), If(conditions: [Flag("arc.lori.good")], then: [ActorEnter(actor: "lori", to_tile: Spot("stage")), Line(speaker: "lori", expression: Smile, text_key: "scene.ending_last_train.10")]), If(conditions: [Flag("arc.filip.good")], then: [ActorEnter(actor: "filip", to_tile: Spot("corner_table")), Line(speaker: "filip", expression: Neutral, text_key: "scene.ending_last_train.11")]), If(conditions: [Flag("arc.radek.good")], then: [ActorEnter(actor: "radek", to_tile: Spot("bar_front")), Line(speaker: "radek", expression: Neutral, text_key: "scene.ending_last_train.12")])], otherwise: [Narration(text_key: "scene.ending_last_train.13")]),
-                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]), NotesFoundAtLeast(8), Not(VarIs("offer", "accepted"))], then: [Call(cutscene: "answer")]),
+                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]), Not(VarIs("offer", "accepted"))], then: [Call(cutscene: "answer")]),
                 Narration(text_key: "scene.ending_last_train.14"),
                 Line(speaker: "player", expression: Sad, text_key: "scene.ending_last_train.15"),
                 Line(speaker: "grandma", expression: Smile, text_key: "scene.ending_last_train.16"),
@@ -571,7 +612,9 @@
                 Line(speaker: "guest_333", expression: Smile, text_key: "scene.answer.03"),
                 Line(speaker: "guest_333", expression: Neutral, text_key: "scene.answer.04"),
                 Line(speaker: "guest_333", expression: Sad, text_key: "scene.answer.05"),
-                If(conditions: [VarIs("letter", "delivered_by_mirek")], then: [Line(speaker: "guest_333", expression: Neutral, text_key: "scene.answer.06"), Line(speaker: "mirek", expression: Sad, text_key: "scene.answer.07"), Line(speaker: "guest_333", expression: Smile, text_key: "scene.answer.08")]),
+                // eight notes or more: the postscript at the bottom of the letter (answer.08's "read the bottom")
+                If(conditions: [VarIs("letter", "delivered_by_mirek")], then: [Line(speaker: "guest_333", expression: Neutral, text_key: "scene.answer.06"), Line(speaker: "mirek", expression: Sad, text_key: "scene.answer.07"), Line(speaker: "guest_333", expression: Smile, text_key: "scene.answer.08"), If(conditions: [NotesFoundAtLeast(8)], then: [Narration(text_key: "scene.answer.13"), Line(speaker: "mirek", expression: Surprised, text_key: "scene.answer.14"), Line(speaker: "mirek", expression: Sad, text_key: "scene.answer.15")])], otherwise: [If(conditions: [NotesFoundAtLeast(8)], then: [Narration(text_key: "scene.answer.13"), Line(speaker: "guest_333", expression: Smile, text_key: "scene.answer.14")])]),
+                If(conditions: [NotesFoundAtLeast(8), NoteFound("note_07")], then: [Line(speaker: "player", expression: Smile, text_key: "scene.answer.16")]),
                 Line(speaker: "guest_333", expression: Smile, text_key: "scene.answer.09"),
                 ActorExit(actor: "guest_333", to_tile: Spot("platform")),
                 Camera(focus: Spot("platform"), zoom: 1.4),

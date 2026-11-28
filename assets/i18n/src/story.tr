@@ -343,10 +343,10 @@ uk Перший сніг
 ru Первый снег
 
 story.night.27.hint
-cs Sněží. Vera chce vyprávět.
-en It's snowing. Vera wants to tell a story.
-uk Іде сніг. Віра хоче розповісти історію.
-ru Идёт снег. Вера хочет рассказать историю.
+cs Sněží. Všichni přijdou zmrzlí — měj po ruce něco teplého.
+en It's snowing. Everyone comes in cold — keep something hot ready.
+uk Іде сніг. Усі приходять змерзлі — тримай напоготові щось гаряче.
+ru Идёт снег. Все приходят замёрзшие — держи наготове что-нибудь горячее.
 
 story.night.28.title
 cs Dopis
@@ -555,6 +555,12 @@ cs Tak tady už jen svítí. Nečeká.
 en So now it just shines here. It doesn't wait.
 uk Тепер тут просто світить. Не чекає.
 ru Теперь здесь просто светит. Не ждёт.
+
+story.line.27_vera_snow
+cs První sníh. Lida ho milovala. Otevřela by dveře, jen aby ho pustila dovnitř.
+en First snow. Lida loved it. She'd have opened the door just to let it in.
+uk Перший сніг. Ліда його любила. Вона б відчинила двері, аби тільки впустити його.
+ru Первый снег. Лида его любила. Она бы открыла дверь, лишь бы впустить его.
 
 story.line.29_radek
 cs Na důchodu se spí hrozně. Tak jsem tady.

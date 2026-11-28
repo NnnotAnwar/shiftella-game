@@ -165,6 +165,24 @@ en The clock ticks again. 03:34.
 uk Годинник знову цокає. 03:34.
 ru Часы снова тикают. 03:34.
 
+scene.guest333_first.08
+cs Nechat mince ležet
+en Leave the coins where they lie
+uk Залишити монети, де лежать
+ru Оставить монеты, где лежат
+
+scene.guest333_first.09
+cs Strčit je do kapsy
+en Pocket them
+uk Покласти їх у кишеню
+ru Положить их в карман
+
+scene.guest333_first.10
+cs Necháš je ležet. Když se podíváš znovu, stůl je prázdný.
+en You leave them where they lie. When you look again, the table is empty.
+uk Ти залишаєш їх лежати. Коли дивишся знову, стіл уже порожній.
+ru Ты оставляешь их лежать. Когда смотришь снова, стол уже пуст.
+
 # --- scene vera_first
 scene.vera_first.01
 cs Tak ty jsi ta vnučka. Lidina.
@@ -468,6 +486,18 @@ en Vera cries quietly into the soup. Then she asks for more bread.
 uk Віра тихо плаче над супом. Потім просить ще хліба.
 ru Вера тихо плачет над супом. Потом просит ещё хлеба.
 
+scene.vera_tears.04
+cs Její kuchařku máš dost dlouho. Uvař mi její kulajdu, dítě. Počkám.
+en You've had her book long enough. Make me her kulajda, child. I'll wait.
+uk Її книга в тебе вже досить довго. Звари мені її кулайду, дитино. Я почекаю.
+ru Её книга у тебя уже достаточно долго. Свари мне её кулайду, деточка. Я подожду.
+
+scene.vera_tears.05
+cs Uvaříš ji přesně podle kartičky. Vera ochutná první lžíci a zavře oči.
+en You cook it exactly the way the card says. Vera takes the first spoonful and closes her eyes.
+uk Ти вариш її точно за карткою. Віра куштує першу ложку й заплющує очі.
+ru Ты варишь её точно по карточке. Вера пробует первую ложку и закрывает глаза.
+
 # --- scene payment_2
 scene.payment_2.01
 cs Druhá splátka je tady. Začínám si zvykat. To je nebezpečné.
@@ -635,6 +665,12 @@ en …One more attempt. Fine. But if I fail again, I'm putting this café in my 
 uk …Ще одна спроба. Добре. Але якщо знову завалю, впишу кав'ярню в пояснювальну.
 ru …Ещё одна попытка. Ладно. Но если снова завалю, впишу кафе в объяснительную.
 
+scene.filip_exam.07
+cs Přisednout si k němu na chvilku
+en Sit with him for a minute
+uk Підсісти до нього на хвилинку
+ru Подсесть к нему на минутку
+
 # --- scene mirek_pedestrian
 scene.mirek_pedestrian.01
 cs Brzdy. Výkřik. Mirkovo auto zastaví na dlaň od sestřičky, která přecházela k nemocnici.
@@ -702,6 +738,18 @@ en Mirek finishes, pays the exact amount and drives off. His tail lights smear i
 uk Мірек допиває, платить без решти й їде. Задні вогні розпливаються в дощі.
 ru Мирек допивает, платит без сдачи и уезжает. Задние огни расплываются в дожде.
 
+scene.mirek_pedestrian.12
+cs Byla jsem to já. Jsem v pořádku, vážně. On vypadá hůř než já.
+en It was me. I'm fine — really. He looks worse than I do.
+uk Це була я. Зі мною все гаразд, справді. Він виглядає гірше за мене.
+ru Это была я. Со мной всё в порядке, правда. Он выглядит хуже меня.
+
+scene.mirek_pedestrian.13
+cs Cestou na oddělení mu Hana stiskne rameno. Mirek nezvedne oči.
+en On her way to the ward, Hana squeezes his shoulder. Mirek doesn't look up.
+uk Дорогою до відділення Гана стискає йому плече. Мірек не підводить очей.
+ru По пути в отделение Гана сжимает ему плечо. Мирек не поднимает глаз.
+
 # --- scene mirek_confession
 scene.mirek_confession.01
 cs Musím ti něco říct. Nosím to šedesát let. Váží to asi dvacet gramů.
@@ -750,6 +798,18 @@ cs Poprosil, ať vlak zdrží. Dvě minuty. Pořád se díval na rozsvícené ok
 en He'd asked them to hold the train. Two minutes. He kept looking at the lit window. I had the letter in my pocket the whole time.
 uk Він попросив затримати поїзд. На дві хвилини. Весь час дивився на освітлене вікно. А лист увесь цей час лежав у мене в кишені.
 ru Он попросил задержать поезд. На две минуты. Всё смотрел на освещённое окно. А письмо всё это время лежало у меня в кармане.
+
+scene.mirek_confession.09
+cs Venku jsou celé Holešovice potmě. Tady uvnitř jedna lampa a Mirkovy ruce kolem hrnku.
+en Outside, all of Holešovice is dark. In here: one lamp, and Mirek's hands around a cup.
+uk Надворі всі Голешовиці в темряві. А тут — одна лампа й Міркові руки довкола чашки.
+ru Снаружи все Голешовице в темноте. А здесь — одна лампа и руки Мирека вокруг чашки.
+
+scene.mirek_confession.10
+cs Klíče má teď Jana. Tak chodím pěšky. Při chůzi má člověk čas přemýšlet.
+en Jana has my keys now. So I walk. Walking gives a man time to think.
+uk Ключі тепер у Яни. Тож я ходжу пішки. Коли йдеш пішки, є час подумати.
+ru Ключи теперь у Яны. Так что хожу пешком. Когда идёшь пешком, есть время подумать.
 
 # --- scene payment_3
 scene.payment_3.01
@@ -832,6 +892,42 @@ en Look at the last line. In pencil: "held 2 min — passenger's request". That'
 uk Подивіться на останній рядок. Олівцем: «затримано на 2 хв — на прохання пасажира». Це почерк мого тата. Тієї ночі чергував він.
 ru Посмотрите на последнюю строку. Карандашом: «задержан на 2 мин — по просьбе пассажира». Это почерк моего отца. В ту ночь дежурил он.
 
+scene.radek_last_shift.04
+cs Poslední službu jsem měl v úterý. Vrátil jsem se pro svůj hrnek.
+en My last shift was on Tuesday. I came back for my mug.
+uk Остання зміна в мене була у вівторок. Я повернувся по свій кухоль.
+ru Последняя смена у меня была во вторник. Я вернулся за своей кружкой.
+
+scene.radek_last_shift.05
+cs Doprovodit ho na nástupiště
+en Walk him out to the platform
+uk Провести його на перон
+ru Проводить его на перрон
+
+scene.radek_last_shift.06
+cs Nalít mu jednu na cestu
+en Pour him one for the road
+uk Налити йому ще одну на доріжку
+ru Налить ему ещё одну на дорожку
+
+scene.radek_last_shift.07
+cs Na nástupišti Radek naposledy zvedne výpravku. Noční vlak odjede přesně načas. Na hodiny se nepodívá.
+en On the platform, Radek raises the signal paddle one last time. The night train leaves exactly on time. He doesn't look at the clock.
+uk На пероні Радек востаннє піднімає жезл. Нічний поїзд відходить хвилина в хвилину. На годинник він не дивиться.
+ru На перроне Радек в последний раз поднимает жезл. Ночной поезд уходит минута в минуту. На часы он не смотрит.
+
+scene.radek_last_shift.08
+cs Radek stojí na nástupišti s rukama v kapsách a noční vlak stejně vyprovodí mávnutím. Starý zvyk.
+en Radek stands on the platform with his hands in his pockets and waves the night train off anyway. Old habits.
+uk Радек стоїть на пероні, засунувши руки в кишені, і все одно проводжає нічний поїзд помахом руки. Стара звичка.
+ru Радек стоит на перроне, сунув руки в карманы, и всё равно провожает ночной поезд взмахом руки. Старая привычка.
+
+scene.radek_last_shift.09
+cs Na vlaky. Zvládnou to beze mě. Asi.
+en To the trains. They'll manage without me. Probably.
+uk За поїзди. Упораються без мене. Мабуть.
+ru За поезда. Справятся без меня. Наверное.
+
 # --- scene lori_evening
 scene.lori_evening.01
 cs Déšť na oknech. Všechny židle obsazené. Lori na malém pódiu ladí kytaru.
@@ -882,6 +978,48 @@ en The door opens and closes, again and again. Everyone who is awake is coming.
 uk Двері відчиняються й зачиняються. Приходять усі, хто не спить.
 ru Дверь открывается и закрывается. Приходят все, кто не спит.
 
+scene.lori_storm.01
+cs Venku pod markýzou, schovaná před bouřkou: žlutá pláštěnka a pouzdro s kytarou. Lori.
+en Outside under the awning, sheltering from the storm: a yellow raincoat and a guitar case. Lori.
+uk Надворі під навісом, ховаючись від грози: жовтий дощовик і футляр із гітарою. Лорі.
+ru Снаружи под навесом, прячась от грозы: жёлтый дождевик и чехол с гитарой. Лори.
+
+scene.lori_storm.02
+cs Neboj, dovnitř nejdu. Jen počkám, až to přejde.
+en Don't worry, I'm not coming in. I'm just waiting for it to pass.
+uk Не хвилюйся, я не заходжу. Просто перечекаю, поки мине.
+ru Не волнуйся, я не захожу. Просто пережду, пока пройдёт.
+
+scene.lori_storm.03
+cs Pozvat ji dovnitř, pryč z bouřky
+en Invite her in out of the storm
+uk Покликати її всередину, подалі від грози
+ru Позвать её внутрь, подальше от грозы
+
+scene.lori_storm.04
+cs Nechat ji být
+en Leave her be
+uk Не чіпати її
+ru Оставить её в покое
+
+scene.lori_storm.05
+cs Jediná lampa na celém nádraží, a zrovna tvoje. …Můžu hrát? Přes kytaru hrom nikdo neslyší.
+en One lamp in the whole station, and it's yours. …Can I play? Nobody hears thunder over a guitar.
+uk Одна лампа на весь вокзал — і та твоя. …Можна, я заграю? За гітарою грому ніхто не чує.
+ru Одна лампа на весь вокзал — и та твоя. …Можно, я сыграю? За гитарой грома никто не слышит.
+
+scene.lori_storm.06
+cs Hraje ve světle jediné lampy, dokud se hrom nevzdá první.
+en She plays by the light of one lamp until the thunder gives up first.
+uk Вона грає при світлі однієї лампи, доки грім не здасться першим.
+ru Она играет при свете одной лампы, пока гром не сдастся первым.
+
+scene.lori_storm.07
+cs Když se podíváš znovu, pod markýzou už nikdo není.
+en When you look again, there is nobody under the awning.
+uk Коли ти дивишся знову, під навісом уже нікого.
+ru Когда ты смотришь снова, под навесом уже никого.
+
 # --- scene hana_decision
 scene.hana_decision.01
 cs Rozhodla jsem se. Kvůli Drážďanům.
@@ -903,10 +1041,10 @@ ru Я уезжаю. Это хорошая работа. …Спасибо за �
 
 # --- scene vera_jindrich
 scene.vera_jindrich.01
-cs První sníh. Lida ho milovala. Sedni si, povím ti o Jindrovi.
-en First snow. Lida loved it. Sit down, I'll tell you about Jindra.
-uk Перший сніг. Ліда його любила. Сідай, розкажу тобі про Їндру.
-ru Первый снег. Лида его любила. Садись, расскажу тебе про Йиндру.
+cs Takový déšť. Tu noc taky pršelo. Sedni si, povím ti o Jindrovi.
+en Rain like this. It rained that night too. Sit down — I'll tell you about Jindra.
+uk Отакий дощ. Тієї ночі теж дощило. Сідай — розкажу тобі про Їндру.
+ru Вот такой дождь. В ту ночь тоже шёл дождь. Садись — расскажу тебе про Йиндру.
 
 scene.vera_jindrich.02
 cs Opravoval rádia. Vysoký, plachý, tancoval příšerně. Vybrala si ho před půlkou města. I před Mirkem.
@@ -937,6 +1075,12 @@ cs Šedesát let nalévala čaj tomu pánovi u okna, dítě. Ani jednou to neře
 en Sixty years she poured tea for the gentleman by the window, child. Never once said it. He never once asked. Pride. We were all made of it.
 uk Шістдесят років вона наливала чай тому панові біля вікна, дитино. Жодного разу цього не сказала. Він жодного разу не спитав. Гордість. Ми всі були з неї.
 ru Шестьдесят лет она наливала чай тому господину у окна, деточка. Ни разу этого не сказала. Он ни разу не спросил. Гордость. Мы все были из неё.
+
+scene.vera_jindrich.07
+cs Sedni si, dítě. Je načase, aby ti někdo řekl o Jindrovi.
+en Sit down, child. It's time somebody told you about Jindra.
+uk Сідай, дитино. Час, щоб хтось розповів тобі про Їндру.
+ru Садись, деточка. Пора, чтобы кто-то рассказал тебе про Йиндру.
 
 # --- scene mirek_letter
 scene.mirek_letter.01
@@ -1111,6 +1255,30 @@ en The train takes him away without a sound.
 uk Поїзд забирає його беззвучно.
 ru Поезд увозит его беззвучно.
 
+scene.last_333.13
+cs Řeklas mi, že čeká. Chodil jsem každou noc, abych viděl, jestli je to pravda.
+en You told me she was waiting. I came back every night to see if it was true.
+uk Ти сказала мені, що вона чекає. Я приходив щоночі, щоб побачити, чи це правда.
+ru Ты сказала мне, что она ждёт. Я приходил каждую ночь, чтобы увидеть, правда ли это.
+
+scene.last_333.14
+cs Nevěděla jsi. Já taky ne. To bylo upřímné.
+en You didn't know. Neither did I. That was honest.
+uk Ти не знала. Я теж. Це було чесно.
+ru Ты не знала. Я тоже. Это было честно.
+
+scene.last_333.15
+cs Když jsem se ptal, řeklas mi pravdu. Proto jsem se vrátil.
+en You told me the truth when I asked. That's why I came back.
+uk Коли я спитав, ти сказала мені правду. Тому я й повернувся.
+ru Когда я спросил, ты сказала мне правду. Поэтому я и вернулся.
+
+scene.last_333.16
+cs Moje mince jsi nechala na stole. Ona si je taky nikdy nevzala.
+en You left my coins on the table. She never took them either.
+uk Ти залишила мої монети на столі. Вона їх теж ніколи не брала.
+ru Ты оставила мои монеты на столе. Она их тоже никогда не брала.
+
 # --- scene ending_light
 scene.ending_light.01
 cs 06:00. Třicátá noc skončila.
@@ -1213,6 +1381,12 @@ cs Přesně v šest zhasneš světlo v okně. Poprvé jako ten, komu to tu patř
 en At exactly six, you switch off the light in the window. For the first time as the owner. And tomorrow at ten in the evening, you'll switch it on again.
 uk Рівно о шостій ти вимикаєш світло у вікні. Уперше — як власниця цього місця. А завтра о десятій вечора ввімкнеш його знову.
 ru Ровно в шесть ты выключаешь свет в окне. Впервые — как хозяйка этого места. А завтра в десять вечера включишь его снова.
+
+scene.ending_light.18
+cs Vím, že jsem celý měsíc bručel. Pronajímatelé bručí. Máme to v popisu práce.
+en I know I grumbled all month. Landlords grumble. It's in the job description.
+uk Знаю, я весь місяць бурчав. Орендодавці бурчать. Це в нас у посадовій інструкції.
+ru Знаю, я весь месяц ворчал. Арендодатели ворчат. Это у нас в должностной инструкции.
 
 # --- scene ending_last_train
 scene.ending_last_train.01
@@ -1407,3 +1581,27 @@ cs Toho rána Mirek poprvé za šedesát let prospí až do poledne.
 en That morning, for the first time in sixty years, Mirek sleeps until noon.
 uk Того ранку Мірек уперше за шістдесят років спить аж до обіду.
 ru В то утро Мирек впервые за шестьдесят лет спит до обеда.
+
+scene.answer.13
+cs Dole na stránce je drobnějším písmem připsané post scriptum.
+en At the bottom of the page, in smaller letters, there's a postscript.
+uk Унизу сторінки, дрібнішими літерами, — приписка.
+ru Внизу страницы, буквами помельче, — приписка.
+
+scene.answer.14
+cs „P.S. Buď na Mirka hodný. Je mu dvacet, je do mě blázen a poběží pro nás jakýmkoli deštěm."
+en "P.S. Be kind to Mirek. He's twenty and crazy about me, and he'd run through any rain for us."
+uk «P.S. Будь добрим до Мірека. Йому двадцять, він у мене закоханий до нестями, і для нас він пробіжить крізь будь-який дощ».
+ru «P.S. Будь добр к Миреку. Ему двадцать, он без ума от меня, и ради нас он пробежит сквозь любой дождь».
+
+scene.answer.15
+cs Věděla to. Celou dobu to věděla.
+en She knew. The whole time, she knew.
+uk Вона знала. Весь цей час вона знала.
+ru Она знала. Всё это время она знала.
+
+scene.answer.16
+cs Po letech to napsala znovu, na zadní stranu účtu: „Odpustila jsem mu dávno — ať je to cokoli."
+en Years later she wrote it again, on the back of a bill: "I forgave him long ago — whatever it is."
+uk Через роки вона написала це знову, на звороті рахунку: «Я давно йому пробачила — хоч би що це було».
+ru Годы спустя она написала это снова, на обороте счёта: «Я давно его простила — что бы это ни было».

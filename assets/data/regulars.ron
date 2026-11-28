@@ -15,7 +15,6 @@
         orders: ["black_coffee", "topinka"],
         patience_minutes: 20.0,
         pays: Exact,
-        absent_if: [Flag("mirek_gone")],
         look: (body: "average", height: 0.95, skin: ["#E6C3A8"], hair: ["grey_short"], hair_colors: ["#C8C3CF"],
                outfit: "jacket", outfit_colors: ["#4A3B2E"], accessories: ["cap", "glasses"]),
         stages: [
@@ -29,8 +28,14 @@
              lines: ["regular.mirek.line.2a"]),
             (stage: 3, nights: (20, 30), conditions: [NightAtLeast(20)],
              lines: ["regular.mirek.line.3a"]),
-            (stage: 4, nights: (20, 29),
-             conditions: [Any([Flag("mirek_keys_taken"), Flag("mirek_daughter_called")]), TrustAtLeast("mirek", 60.0)],
+            // the confession comes after Vera's story and the franchise decision: the storm night
+            // (25) at the earliest. "Say nothing" at the near-miss no longer ends the arc: after the
+            // accident on night 25 Jana takes his keys and he confesses later, with less trust.
+            (stage: 4, nights: (25, 29),
+             conditions: [NightAtLeast(25), Any([
+                 All([Any([Flag("mirek_keys_taken"), Flag("mirek_daughter_called")]), TrustAtLeast("mirek", 60.0)]),
+                 All([Flag("mirek_jana_keys"), NightAtLeast(26), TrustAtLeast("mirek", 40.0)]),
+             ])],
              lines: ["regular.mirek.line.4a"],
              effects: [SetVar("letter", "confessed")]),
             (stage: 5, nights: (28, 30), conditions: [NightAtLeast(28), VarIs("letter", "confessed")],
@@ -86,7 +91,7 @@
              effects: [FindNote("note_06"), GiveItem("old_coin")]),
             (stage: 2, nights: (15, 30), conditions: [NightAtLeast(15)],
              lines: ["regular.guest_333.line.2a"]),
-            (stage: 3, nights: (16, 29), conditions: [NotesFoundAtLeast(6)],
+            (stage: 3, nights: (16, 29), conditions: [NotesFoundAtLeast(4)],
              lines: ["regular.guest_333.line.3a"],
              effects: [GiveItem("rn333_ticket")]),
             (stage: 4, nights: (30, 30), conditions: [NightAtLeast(30)],
@@ -112,11 +117,15 @@
             (stage: 2, nights: (14, 30), conditions: [NightAtLeast(14), TrustAtLeast("vera", 25.0)],
              lines: ["regular.vera.line.2a"],
              effects: [FindNote("note_05"), SetFlag("recipe_kulajda"), UnlockMenu("grandma_kulajda"), GiveItem("recipe_book")]),
+            // from night 20 she asks for the kulajda herself (vera_tears), so her story still fits
+            // in before Mirek's confession
             (stage: 3, nights: (15, 30),
              when: [Any([ServedRecipe(regular: "vera", recipe: "r_kulajda"),
-                         ServedItem(regular: "vera", item: "grandma_kulajda"), NightAtLeast(22)])],
+                         ServedItem(regular: "vera", item: "grandma_kulajda"), NightAtLeast(20)])],
              lines: ["regular.vera.line.3a"]),
-            (stage: 4, nights: (27, 30), conditions: [NightAtLeast(27), NotesFoundAtLeast(6)],
+            // the setup before the twist: Vera tells about Jindra on nights 19–24 (Mirek confesses
+            // from 25); a player with fewer notes still hears it later, never not at all
+            (stage: 4, nights: (19, 30), conditions: [NightAtLeast(19), Any([NotesFoundAtLeast(4), NightAtLeast(25)])],
              lines: ["regular.vera.line.4a"],
              effects: [ArcGood("vera"), SetFlag("vera_friends")]),
         ],
@@ -143,7 +152,7 @@
              lines: ["regular.filip.line.2a"]),
             (stage: 3, nights: (19, 29), conditions: [Any([Flag("filip_talked"), Flag("filip_free_coffee")])],
              lines: ["regular.filip.line.3a"]),
-            (stage: 4, nights: (29, 30), conditions: [NightAtLeast(29)],
+            (stage: 4, nights: (26, 30), conditions: [NightAtLeast(26)],
              lines: ["regular.filip.line.4a"],
              effects: [ArcGood("filip")]),
         ],
@@ -165,10 +174,11 @@
              conditions: [Any([ServedFastStreak(regular: "radek", minutes: 7, visits: 4), NightAtLeast(22)])],
              lines: ["regular.radek.line.1a"],
              effects: [SetFlag("radek_warns_trains")]),
-            (stage: 2, nights: (23, 23), conditions: [NightAtLeast(23)],
+            // his last shift is night 23; if he isn't in then, he comes back for his mug (24–25)
+            (stage: 2, nights: (23, 25), conditions: [NightAtLeast(23)],
              lines: ["regular.radek.line.2a"],
              effects: [FindNote("note_08"), GiveItem("timetable_1979")]),
-            (stage: 3, nights: (24, 30), conditions: [TrustAtLeast("radek", 50.0)],
+            (stage: 3, nights: (24, 30), conditions: [Any([TrustAtLeast("radek", 50.0), Flag("radek_walked")])],
              lines: ["regular.radek.line.3a"],
              effects: [ArcGood("radek")]),
         ],

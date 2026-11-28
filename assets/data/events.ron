@@ -183,7 +183,7 @@
 
     // ---------------------------------------------------------------- story-only scripted events
     (id: "mirek_accident", kind: Bad, severity: 3, trigger: Scripted, modes: Story,
-     effects: [ArcBad("mirek"), SetFlag("mirek_gone"), Reputation(-3.0), StaffMood(-10.0)]),
+     effects: [Trust("mirek", -20.0), SetFlag("mirek_jana_keys"), Reputation(-3.0), StaffMood(-10.0)]),
     (id: "storm_blackout", kind: Uncanny, severity: 2, trigger: Scripted, modes: Story,
      effects: [SetWeather(Storm), GuestRate(mul: 1.8, minutes: None), GuestStay(40), StaffMood(5.0)]),
 ]
