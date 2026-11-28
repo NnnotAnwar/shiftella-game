@@ -13,6 +13,9 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
 - **Heroine (the player): Karolina** — grandma Lida's granddaughter, the heir (uk: Кароліна). Lines may use
   feminine grammatical forms in cs/uk/ru. In the Shiftella app her row reads "Karolina (you)" localized
   (cs "(ty)", uk "(ти)", ru "(ты)").
+  Before the café she was a night operator for NONSTOP 24 in Brno (forty staffless shops on forty
+  screens); her own arc K1–K4 runs from Mum's call on the back step (night 3) to the storm (night 25),
+  and the last word on the franchise is hers, on night 30 at 05:30 (design/story/characters.md §3.9).
 - **Names:** simplified, international-friendly with a Czech note: grandma **Lida**, her fiancé **Jindra**,
   regulars Mirek, Hana, **Vera**, Filip, Radek, Lori; the 3:33 guest; Anwar (cameo). Staff/guest name pools: an
   international mix (Czech, Slovak, Ukrainian, European) with few diacritics.
@@ -27,8 +30,12 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
 - **Anwar (cameo):** appears only on nights 9 and 24, quiet guy working on a laptop; identity not obvious;
   talk dialogue about making a small game about a night café; no story impact.
 - **Exactly two endings:** «Light in the Window» (café saved, stays itself) and «Last Train» (café closes /
-  sold to NONSTOP 24, bittersweet farewell). The letter / 3:33-guest resolution is an optional extra scene
-  inside either ending, not a third ending.
+  sold to NONSTOP 24, bittersweet farewell). Karolina decides: the offer stands from night 17, "Sign now" /
+  "Not yet" on night 22, the last word on night 30 at 05:30 after 3:33; «Last Train» = signed, or Classic
+  with failed payments. The letter / 3:33-guest resolution is an optional extra scene ("Answer") or a short
+  coda inside either ending, not a third ending.
+- **No cartoon villains:** Šindelář (NONSTOP 24) sells lights that never go out because his mother's bistro
+  in Cheb closed unnoticed; the landlord Kubíček counts the town's messages about the café (42 by the end).
 - **Modes:** Story (30 nights) and Sandbox (endless, random town/seed). Difficulty presets:
   **Cozy (default)** — no game over, debt payments soft (miss = mild story consequence),
   generous money; **Classic** — payments matter, the café can close (still an ending, not a fail screen).

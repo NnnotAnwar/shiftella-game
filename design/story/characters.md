@@ -147,6 +147,23 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
 - **Talking:** hovering shows one of 8 ambient lines (rain, fog, a passing train, midnight, late, busy, quiet, coffee). The **Talk** action plays `anwar_talk_9` / `anwar_talk_24`: he is making a small game about a night café.
 - **Flavour only:** no arc, choices, flags or effects, and no part in the endings. The credits thank him (`ui.ending.credits_thanks`).
 
+### 3.9 Karolina — the heroine (the player)
+- Lida's granddaughter, about thirty. Last here as a child: Mum (Lida's daughter) and Grandma talked twice a year, "both too proud to call first".
+- **Before the café:** three years as a **night operator for NONSTOP 24** in Brno — forty staffless shops on forty screens (doors, fridges, lights), "and not one of them waiting for anyone". She quit in the spring, the week she caught herself saying good night to a fridge.
+- **Her arc (K1–K4)**, in cutscenes, no stats:
+  | # | scene | when | what happens |
+  |---|---|---|---|
+  | K1 | `karolina_backstep` | night 3, 04:20 | Mum calls on the back step: Brno, the forty shops, "Grandma would say you came home" |
+  | K2 | `karolina_not_lida` | night 13, 01:20 (Vera in the café) | Vera's "Lida's best was better" once too often. **Choice:** Lida's way / my way → var `karolina_way` = `lida` / `own`. Cosmetic: the chalkboard by the counter in Lida's slanted hand or Karolina's own capitals, and her last line in both endings. Vera either way: "Good. Now you're arguing like her." |
+  | K3 | inside `franchise_visit` | night 17 | Šindelář recognises her from the Brno hub; the offer becomes "come back to us" |
+  | K4 | `karolina_storm` | with Mirek's confession (the storm night 25; later after "Say nothing") | she tells Mirek the truth about herself — "Forty shops lit all night, and nobody inside. Here — one lamp, and everyone came." — "Then I owe you a truth too." → `mirek_confession` |
+- **The last word is hers:** night 30 at 05:30, after 3:33 and the letter — sign, or keep the light (story.md §8).
+- **Payoff:** Vera's crossword, "Eight letters, 'one who waits'… K-A-R-O-L-I-N-A. It fits." (Karolina / Кароліна / Каролина — eight letters in every language.)
+
+### 3.10 The other side — Mr Šindelář and Mr Kubíček (no villains)
+- **Petr Šindelář, NONSTOP 24.** Polite, funny, sure he is right. His mother had a bistro in Cheb; it closed on a Tuesday and nobody noticed until Friday — "That's why I sell lights that never go out. I thought it was the same thing." Scenes: `franchise_visit` (17, knows Karolina from Brno), `franchise_decision` (22: "Sign now" / "Not yet"), `sindelar_storm` (25, 02:40: his driverless car lost the grid at the bridge; "All forty-one of our stores went dark at 22:31… Yours didn't."), `franchise_again` (Classic, 28, money short), `franchise_last` (30, 05:30). If she signs, he takes the lamp to his office — "Don't tell head office."
+- **Mr Kubíček, the landlord.** Dry, fair, keeps count. People write to him about the café: one message about the soup (night 14), eleven in a folder called "Not mould" (21), twenty-six and a poem (28), forty-two at the end. As a boy he did his sums at the corner table while his mother worked nights at the depot — Lida checked them. "That's where I learned arithmetic."
+
 ---
 
 ## 4. Odd guests (a rare pool, Story + Sandbox) **[later]**

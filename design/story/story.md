@@ -59,7 +59,7 @@ lost their diacritics.)*
 - Short, sharp with words, generous with deeds. She remembered what everyone drank but mixed up names.
 - For sixty years she kept the light in the window. Friends called it stubbornness; the neighbourhood called it a habit.
 - She left **10 notes** (see §6) — on napkins, on the back of bills, in the recipe book. She writes them "to whoever keeps the light".
-- The player is her grandchild (player lines are gender-neutral in every language). You were last here as a child.
+- The player is her granddaughter **Karolina** (characters.md §3.9). She was last here as a child — Mum and Grandma talked twice a year, both too proud to call first. Before the café she ran forty staffless NONSTOP 24 shops from a screen in Brno, at night.
 
 ---
 
@@ -89,7 +89,8 @@ In the shipped data these are vars and counters declared in `story.ron` (see `do
 | payments | 15 000 Kč on nights 7 / 14 / 21 / 28, a final 30 000 Kč on night 30 | made or missed |
 | `missed_payments` | how many payments were missed | on Classic, 2 → the «Last Train» ending early; on Cozy, a mild story consequence |
 | reputation | the café's reputation | 0–100, starts at 25 |
-| `offer` | the franchise offer | `none` / `pending` / `accepted` / `rejected` |
+| `offer` | the franchise offer | `none` / `pending` (from night 17 until she signs or says no on the last morning) / `accepted` / `rejected` |
+| `karolina_way` | K2: the board in Lida's hand or her own | `none` / `lida` / `own` |
 | notes found | Lida's notes found | 0–10 |
 | `arc.<regular>` | stage of a regular's personal arc | 0..N (see characters.md) |
 | `letter` | the letter's fate | `hidden` → `confessed` → `with_player` / `with_mirek` / `burned` / `persuaded` → `delivered` / `delivered_by_mirek` |
@@ -99,7 +100,7 @@ In the shipped data these are vars and counters declared in `story.ron` (see `do
 |---|---|
 | 1 | You arrive on the last train at 21:50. Dust, the key under the mat. The first guest is Mirek the taxi driver: "Black, like Lida made it." You learn to take an order, make coffee, take money. |
 | 2 | You hire your first colleague (a choice of candidates). You learn the rozpis in the Shiftella app and work priorities. Under the till lies **note no. 1**. |
-| 3 | At 2:10 Hana the nurse comes in for the first time. The first random event is always gentle (rain). |
+| 3 | At 2:10 Hana the nurse comes in for the first time. The first random event is always gentle (rain). At 4:20 Mum calls on the back step (K1): the forty NONSTOP 24 shops in Brno. |
 | 4 | **The first 3:33.** The clock on the wall stops for a minute. A guest in a grey coat comes in, orders tea with lemon and leaves without a word. Old Czechoslovak coins are left on the table. |
 | 5 | Mrs Vera arrives, Lida's old friend and rival. She is cold: "Lida wouldn't have done it like that." |
 | 6 | A scripted crowd after a concert — the first stress test. Filip the student appears. |
@@ -113,7 +114,7 @@ In the shipped data these are vars and counters declared in `story.ron` (see `do
 | 10 | A scripted power cut — candlelight service. **Note no. 3** turns up in the fuse box. |
 | 11 | Lori plays on the platform in the rain. Choice: invite her in or not (starts her arc). |
 | 12 | Hana falls asleep at a table. Choice: wake her / cover her with a blanket and let her be / set up a "quiet corner". |
-| 13 | A scripted health inspection. |
+| 13 | A scripted health inspection. At 1:20 Vera's "Lida's best was better" once too often (K2): Lida's way or her own. |
 | 14 | **Payment no. 2.** If Vera likes you enough, she brings Lida's recipe book (**note no. 5** + a new recipe). |
 | 15 | The 3:33 guest speaks for the first time: "Is she still waiting?" The player's answer (yes / I don't know / she's gone) is stored. |
 | 16 | A quiet night (guaranteed). Time for staff relationships: a romance or a quarrel may happen. |
@@ -121,24 +122,24 @@ In the shipped data these are vars and counters declared in `story.ron` (see `do
 ### Act III — "The Offer" (nights 17–24) — the big choice **[later]**
 | night | key moment |
 |---|---|
-| 17 | Mr Šindelář from the **NONSTOP 24** chain visits. The offer: the chain pays off the whole debt and you stay on as manager. The terms: open 24/7, their menu, their sign, "none of grandma's rules". You have until night 22. `offer = pending` |
+| 17 | Mr Šindelář from the **NONSTOP 24** chain visits — and recognises Karolina from the Brno hub (K3). The offer: the chain pays off the whole debt and she comes back to them. The terms: open 24/7, their menu, their sign. `offer = pending` — it stands until the last morning. |
 | 18 | Filip has failed an exam and sits there until morning. You can support him (arc) or stay out of it. |
 | 19 | A scripted downpour: twice the guests — a chance to earn. |
 | 20 | **Mirek nearly hits a pedestrian** by the station. Choice: take his keys / call his daughter / say nothing. If his trust is high, he confesses about the letter (`letter = confessed`). |
 | 21 | **Payment no. 3.** |
-| 22 | **The franchise decision.** Accept → `accepted`: the debt is paid off, but the café becomes a NONSTOP 24 — this leads to the «Last Train» ending. Decline → `rejected`. |
+| 22 | **The franchise, first round.** "Sign now" → `accepted`: the debt is paid off, but the café becomes a NONSTOP 24 — the «Last Train» ending (sold). "Not yet" → the offer stays `pending`. On Classic, if money is short, he asks again at the start of night 28. |
 | 23 | Radek's last shift. He gives you the old timetable with the line "Rn 333 Praha-Holešovice 3:33" (**note no. 8** tucked inside). |
 | 24 | If Lori was invited in — her evening at the microphone: reputation +10, a full house. The quiet guest with the laptop comes back for his second and last visit (the Anwar cameo). |
 
 ### Act IV — "The Last Train" (nights 25–30) — the resolution **[later]**
 | night | key moment |
 |---|---|
-| 25 | A storm. The station lights go out; only the café window glows. Everyone who can't sleep comes in. |
+| 25 | A storm: **the light as a beacon.** The station lights go out; only the café window glows ("The smart grid had a plan for everything. Grandma's lamp had a battery."). Everyone who can't sleep comes in. In order: Lori under the awning (a second chance, 22:40), Mirek's arrival — Karolina tells him about Brno (K4), "Then I owe you a truth too" → his confession — and at 02:40 Šindelář, whose driverless car gave up at the bridge: "All forty-one of our stores went dark at 22:31. Yours didn't." |
 | 26 | Hana decides: a job in Dresden, or stay. What the player did in her arc matters. |
 | 27 | First snow. Vera tells you about Jindra — if you have found enough notes. |
 | 28 | **Payment no. 4.** Mirek: "If I give him the letter myself — will he see me?" The letter decision (§7). |
-| 29 | A farewell night for the arcs: every regular comes to close their story. |
-| 30 | **The final night.** The final 30 000 Kč payment at 06:00. At 3:33 the Rn 333 "arrives" at the empty platform — if the light in the window is on. The letter scene. Then the ending. |
+| 29 | A farewell night for the arcs: every regular comes to close their story. The snowstorm: **warmth and togetherness** — the line is closed, the stranded passengers stay till morning (blankets, soup, the 03:00 talks). |
+| 30 | **The final night.** At 3:33 the Rn 333 "arrives" at the empty platform — if the light in the window is on. The letter scene. **At 05:30 the last word** (if she hasn't signed): Šindelář once more — "Sign" / "Keep the light". Karolina decides knowing the whole truth. The final 30 000 Kč payment at 06:00. Then the ending. |
 
 ---
 
@@ -166,7 +167,7 @@ The shipped wording is in `assets/i18n/src/notes.tr`; this table gives the meani
 The story is linear night by night, but **four axes** branch it:
 
 1. **Money** — the payments. This is the mechanics: how much the player earned.
-2. **The franchise** — `offer` (night 22). A moral choice: "safe" versus "our own".
+2. **The franchise** — `offer` (open from night 17; "Sign now" / "Not yet" on night 22, on Classic again on 28; the last word on night 30 at 05:30). A moral choice: "safe" versus "our own" — Karolina's, never the books' on Cozy.
 3. **People** — the regulars' arcs (how many end well) + reputation.
 4. **The letter** — `letter` (nights 20–30):
    - Mirek has confessed → the player can **keep the letter**, **leave it with Mirek**, **burn it** or **persuade Mirek to deliver it himself**.
@@ -184,9 +185,11 @@ There are **exactly two endings**. They are checked in order at the end of night
 
 | id | title | conditions | what it is |
 |---|---|---|---|
-| `last_train` | **«Last Train»** | the franchise was accepted, **or** the café failed its payments on Classic, **or** reputation is below 20 with no regular's arc ending well | Café Nocturne closes — or lives on under someone else's sign. A bittersweet farewell. Variants: **sold** (NONSTOP 24 — "The window is always lit, and nobody waits in it"; the 3:33 guest never returns), **farewell** (the regulars help you pack and talk you into opening something of your own; you leave on the morning train with the recipe book), **closed** (a quiet goodbye). |
-| `light` | **«Light in the Window»** | everything else (the fallback) | The café is saved and stays itself. Morning: you switch off the light at exactly 6:00 — for the first time as its owner. Variants: **full** (a full café at six in the morning; the regulars are your new family) and **quiet** (the café lives, but is empty: "The light is on. For now, there's nobody to wait for."). |
+| `last_train` | **«Last Train»** | she signed (night 22, Classic night 28, or the last morning at 05:30), **or** the café failed its payments on Classic | Café Nocturne closes — or lives on under someone else's sign. A bittersweet farewell. Variants: **sold** (NONSTOP 24 — "The window is always lit, and nobody waits in it"; signed early, the 3:33 guest never comes in again and stays on the platform; signed on the last morning, 3:33 happened as usual and the new sign comes tomorrow), **farewell** (the regulars help you pack and talk you into opening something of your own; you leave on the morning train with the recipe book), **closed** (a quiet goodbye). |
+| `light` | **«Light in the Window»** | not signed (on Classic the payments made, too) — the fallback | The café is saved and stays itself. Morning: you switch off the light at exactly 6:00 — for the first time as its owner. Variants: **full** (three regulars' stories closed well and reputation 50 — people over ratings: a full café at six in the morning; the regulars are your new family) and **quiet** (the café lives, but is empty: "The light is on. For now, there's nobody to wait for."). |
 
-**The "Answer" scene** is **not a third ending**. It is an optional extra scene that either ending plays when it holds: the letter was delivered at 3:33 on night 30 and the franchise offer was not accepted. With at least 8 notes found the guest also reads Lida's postscript at the bottom of the letter. The guest reads the letter and smiles: "So she waited." He walks out to the platform, and for a second the board shows "Rn 333 — ODJEL" (departed). If Mirek handed over the letter himself, he sleeps peacefully for the first time in sixty years. The ending screen shows it as an "Epilogue unlocked: The Answer" badge.
+**The letter in both endings** (right before the last look out of the window): delivered (by Karolina or by Mirek) → the "Answer" scene always plays; burned → Mirek's echo, "Light. That's all it ever was."; left with Mirek → "I'll carry it a little longer. It's lighter now that someone knows."; never delivered (no confession, kept in the pocket, Mirek persuaded but no 3:33) → Karolina: "Some letters never find the platform, Grandma."; after an early sale the 3:33 guest is shown on the platform at 3:33 (`last_333_sold`, with the letter on the bench if Mirek left it there). Karolina's last line follows `karolina_way`.
+
+**The "Answer" scene** is **not a third ending**. It is an optional extra scene that either ending plays when it holds: the letter was delivered at 3:33 on night 30 (signing on the last morning comes after it). With at least 8 notes found the guest also reads Lida's postscript at the bottom of the letter. The guest reads the letter and smiles: "So she waited." He walks out to the platform, and for a second the board shows "Rn 333 — ODJEL" (departed). If Mirek handed over the letter himself, he sleeps peacefully for the first time in sixty years. The ending screen shows it as an "Epilogue unlocked: The Answer" badge.
 
 *(historical)* Early drafts had a third ending, «Round the Clock» (`end_nonstop`), for accepting the franchise. In the shipped game it became the **sold** variant of «Last Train».

@@ -106,7 +106,7 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | events.ron | `Vec<EventDef>` | 41 events |
 | narrator.ron | `NarratorDef` | night curve, witching hour, story act pacing |
 | story.ron | `StoryDef` | 30 nights, payments, 10 notes, **2 endings** + the optional "Answer" extra, declared flags/vars/counters/items |
-| cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 38 cutscenes (36 story + 2 Anwar talks), 7 cast members, named map spots |
+| cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 45 cutscenes (43 story + 2 Anwar talks), 8 cast members (`mum` is a voice on the phone, no portrait), named map spots |
 | shiftella.ron | `ShiftellaApp` | announcements, checklists, bot templates, digest / payroll / handover lines |
 | trains.ron | `TrainLine` | stations Adamov → … → Praha-Holešovice (home), 5 night trains incl. `Rn 333` + the `Nex 9047` freight at 21:47 (a train before 22:00 only passes by in the preparation half hour, nobody gets off) |
 | difficulty.ron | `Vec<DifficultyDef>` | `cozy` (default), `classic` |
@@ -208,13 +208,20 @@ Control: `Maybe{chance, effects}`, `Later{minutes, effects}` (dropped at night e
 * Payments: nights 7/14/21/28 × 15 000 + night 30 × 30 000 (final) = debt 90 000. Missing one: apply `difficulty.missed_payment_effects`; Classic closes after `close_after_missed` (2) or a missed final (`final_payment_missed` flag) → Last Train ending early.
 * Notes: `found_when` (empty = only via `FindNote` / `Beat::Note` / `ShowNote`) checked each game minute + at night end. The journal's last page lists all ten: a found one with its `.where` and text, an unfound one with its `.where` as a riddle (so every `where` should read as a hint of where/when to look).
 * `night_fallbacks: [NightFallback { night, needs, title?, hint? }]`: a night title / hint that announces a floating arc-stage scene names the stage's readiness in `needs`; when it fails, `title` / `hint` (keys, `story_ui.night.*`) replace `story.night.NN.*` (live on the day screen, recorded at 22:00 in `StoryState.night_texts` for the journal). Several per night: the first failing one wins. Keep `needs` in step with `regulars.ron`.
-* **Endings (exactly two)**, checked in `order` at the end of night 30 (or on a Classic closure): `last_train` (franchise accepted, or Classic payment failure, or reputation < 20 with no good arc) → otherwise `light` (fallback). Each plays its `cutscene` (trigger `Ending(id)`), which branches with `If` steps. `variants` (first match) name the outcome for the summary screen: last_train = `sold` / `farewell` / `closed`; light = `full` / `quiet`.
-* `ending_extra` "Answer" (letter delivered + offer not accepted) is **not an ending**: both ending cutscenes `Call` the `answer` cutscene when it holds; show `ending.extra.answer.title` as an epilogue badge. Eight notes or more add Lida's postscript inside the scene (a reward, not a lock).
-* State: vars `letter` (hidden → confessed → with_player / with_mirek / burned / persuaded → delivered / delivered_by_mirek; after the sale `bench`: Mirek leaves it on the platform bench, shown in `last_333_sold`), `offer` (none/pending/accepted/rejected), `answer_333`; counters `missed_payments`, `payments_made`, `cat_fed_nights`, `coins_collected`, `filip_kicked_out`. The sim owns `payments_made`/`missed_payments` bookkeeping.
+* **The franchise (variant B):** `offer = pending` from night 17 (`franchise_visit`). Night 22 `franchise_decision`: "Sign now" (`accepted`, `Debt(-90000)`) / "Not yet" (stays `pending`). Classic, money short (a missed payment or under 15 000): `franchise_again` at the start of night 28, same choice. Still pending on night 30: `franchise_last` at **05:30** — after 3:33 and the letter, before the 06:00 payment — "Sign" (`accepted`, flag `signed_last_morning`) / "Keep the light" (`rejected`). A choice left unanswered never signs.
+* **Endings (exactly two)**, checked in `order` at the end of night 30 (or on a Classic closure): `last_train` (signed, or Classic payment failure) → otherwise `light` (fallback). Each plays its `cutscene` (trigger `Ending(id)`), which branches with `If` steps. `variants` (first match) name the outcome for the summary screen: last_train = `sold` / `farewell` (3 good arcs) / `closed`; light = `full` (3 good arcs and reputation ≥ 50) / `quiet`.
+* **The letter in both endings**, right before the last look out of the window: delivered → `Call("answer")`; otherwise `Call("letter_coda")` (burned → Mirek's echo; `with_mirek` → his coda; hidden / confessed / with_player / persuaded → Karolina's "Some letters never find the platform"; `bench` shows nothing more — `last_333_sold` showed it at 3:33). Karolina's last line follows var `karolina_way` (K2, `none` / `lida` / `own`; `none` = the plain line).
+* `ending_extra` "Answer" (letter delivered) is **not an ending**: both ending cutscenes `Call` the `answer` cutscene when it holds (signing on the last morning comes after 3:33, so it can play in «Last Train» too); show `ending.extra.answer.title` as an epilogue badge. Eight notes or more add Lida's postscript inside the scene (a reward, not a lock).
+* State: vars `letter` (hidden → confessed → with_player / with_mirek / burned / persuaded → delivered / delivered_by_mirek; after the sale `bench`: Mirek leaves it on the platform bench, shown in `last_333_sold`), `offer` (none/pending/accepted/rejected), `answer_333`, `karolina_way`; flag `signed_last_morning`; counters `missed_payments`, `payments_made`, `cat_fed_nights`, `coins_collected`, `filip_kicked_out`. The sim owns `payments_made`/`missed_payments` bookkeeping.
 
 ## 6. Cutscenes
 
 `CutsceneDef { id, trigger, conditions, skippable, repeat, steps }` — plays once per save unless `repeat`.
+One scene plays at a time (and pauses the night); scenes triggered together queue in data order —
+`karolina_storm` (K4) is listed before `mirek_confession` on the same `ArcStage(mirek, 4)`, so it always
+leads into it. The storm night 25 runs: `act4_storm` (night start) · 22:30 `storm_blackout` toast ·
+22:40 `lori_storm` (Lori sent away) · Mirek's arrival (~23:00): `karolina_storm` → `mirek_confession` ·
+23:30 `mirek_accident` (after "Say nothing") · 02:40 `sindelar_storm`.
 Triggers: `NightStart(n)` (before the night), `NightEnd(n)` (after 06:00, before the summary), `At{night, time}`,
 `FlagSet(flag)`, `ArcStage{regular, stage}`, `Ending(id)`, `Talk{regular, night}` (see §9), `Manual` (only via `Call` / `StartCutscene`).
 
