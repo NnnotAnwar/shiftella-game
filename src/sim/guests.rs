@@ -1188,6 +1188,25 @@ pub(crate) fn scene_handoff(w: &mut World, regular: &str, tile: (i32, i32)) {
     }
 }
 
+/// After a scene in which a regular walked out of the door (`ActorExit`): their party has
+/// left — it goes now, paying for what was served, and is not drawn walking back out (0.2.6:
+/// the stranger left in the scene, then popped back to his chair).
+pub(crate) fn scene_exit(w: &mut World, content: &Content, regular: &str) {
+    let Some((pid, members)) = w
+        .parties
+        .iter()
+        .find(|p| p.regular.as_deref() == Some(regular) && p.state != PartyState::Leaving)
+        .map(|p| (p.id, p.members.clone()))
+    else {
+        return;
+    };
+    finish_party(w, content, pid, Exit::Normal);
+    for g in w.guests.iter_mut().filter(|g| members.contains(&g.id)) {
+        g.gone = true;
+        g.path.clear();
+    }
+}
+
 pub(crate) fn set_goal(w: &mut World, gid: u32, goal: (i32, i32)) {
     let Some(i) = w.guests.iter().position(|g| g.id == gid) else {
         return;

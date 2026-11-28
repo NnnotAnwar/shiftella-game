@@ -53,6 +53,11 @@ impl Actor {
         !self.path.is_empty()
     }
 
+    /// Where the walk ends (where it stands when not walking).
+    pub fn target(&self) -> Vec2 {
+        self.path.back().copied().unwrap_or(self.pos)
+    }
+
     /// Done with its walk (and fully faded out, if it was leaving).
     pub fn arrived(&self) -> bool {
         self.path.is_empty() && (!self.exit_on_arrive || self.gone)

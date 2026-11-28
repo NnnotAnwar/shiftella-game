@@ -422,7 +422,7 @@ impl GameScreen {
         if skip_opening {
             g.extra.opening_seen = Some(Vec::new());
         } else if let Some(def) = content.cutscene("opening") {
-            g.stage_player();
+            g.stage_player(content);
             g.player.start(def);
             g.intro = true;
         }
@@ -650,7 +650,7 @@ impl GameScreen {
 
     /// Hands the live café to the cutscene player: walkability for actor paths (around the
     /// player's own furniture) and where tonight's people already are.
-    fn stage_player(&mut self) {
+    fn stage_player(&mut self, content: &Content) {
         use crate::map::{Map, Tile};
         let g = self.world.grid();
         let map = Map::from_fn(g.width.max(0) as usize, g.height.max(0) as usize, |x, y| {
@@ -672,6 +672,8 @@ impl GameScreen {
             .map(|v| (v.look.source.clone(), vec2(v.feet.0, v.feet.1)))
             .collect();
         self.player.set_live_cast(live);
+        self.player
+            .set_free_seats(self.world.free_seat_tiles(content));
     }
 
     fn start_cutscene(&mut self, content: &Rc<Content>, id: &str) {
@@ -699,7 +701,7 @@ impl GameScreen {
             return;
         };
         *self.snapshot.borrow_mut() = Some(self.world.clone());
-        self.stage_player();
+        self.stage_player(content);
         self.player.start(def);
         self.intro = false;
         self.bubble = None;
@@ -727,9 +729,19 @@ impl GameScreen {
                 )
             })
             .collect();
+        // regulars the scene walked out of the door: their party has gone (0.2.6)
+        let exits: Vec<String> = self
+            .player
+            .exited_cast()
+            .filter(|id| content.regular(id).is_some())
+            .map(str::to_string)
+            .collect();
         let _ = self
             .world
             .apply(content, Command::CutsceneFinished { id, choices });
+        for regular in exits {
+            let _ = self.world.apply(content, Command::SceneExit { regular });
+        }
         for (regular, tile) in handoff {
             let _ = self
                 .world
@@ -1421,7 +1433,7 @@ impl GameScreen {
     pub fn play_scene(&mut self, content: &Rc<Content>, id: &str) {
         if let Some(def) = content.cutscene(id) {
             *self.snapshot.borrow_mut() = Some(self.world.clone());
-            self.stage_player();
+            self.stage_player(content);
             self.player.start(def);
             self.intro = true;
         }

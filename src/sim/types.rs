@@ -967,6 +967,10 @@ pub enum Command {
         regular: String,
         tile: (i32, i32),
     },
+    /// After a scene: the regular walked out of the door in it, so their party leaves now.
+    SceneExit {
+        regular: String,
+    },
     /// "Talk" on a regular: plays their talk cutscene for tonight (see `World::talk_available`).
     Talk {
         guest: u32,

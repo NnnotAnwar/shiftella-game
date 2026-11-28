@@ -2316,6 +2316,15 @@ impl World {
     }
 
     /// Render view of every guest in or around the café.
+    /// Seats nobody sits on or is heading for (tiles), for the cutscene stage.
+    pub fn free_seat_tiles(&self, content: &Content) -> Vec<(i32, i32)> {
+        super::guests::seats(self, content)
+            .into_iter()
+            .filter(|s| s.free)
+            .map(|s| s.tile)
+            .collect()
+    }
+
     pub fn guest_views(&self) -> Vec<AgentView> {
         self.guests
             .iter()

@@ -187,6 +187,9 @@ pub struct CutscenePlayer {
     nav: Option<Map>,
     /// Feet of people already in the live café, by cast id (regulars, `guest_anwar` …).
     live: HashMap<String, Vec2>,
+    /// Free seats of the live café (tiles): a spot somebody already sits on sends the actor to
+    /// the nearest of these instead (0.2.6).
+    free_seats: Vec<(i32, i32)>,
     /// Cast ids that left the stage during this scene (the live copy stays hidden).
     exited: HashSet<String>,
 }
@@ -249,6 +252,7 @@ impl CutscenePlayer {
             auto_advance: false,
             nav: None,
             live: HashMap::new(),
+            free_seats: Vec::new(),
             exited: HashSet::new(),
         }
     }
@@ -281,6 +285,62 @@ impl CutscenePlayer {
         self.live = cast.into_iter().collect();
     }
 
+    /// The live café's free seats (tiles). Call before [`CutscenePlayer::start`].
+    pub fn set_free_seats(&mut self, seats: Vec<(i32, i32)>) {
+        self.free_seats = seats;
+    }
+
+    /// Where `actor` goes for `place`: the place itself — unless another person (a live guest,
+    /// the crew, an actor of the scene) is already there. Then the nearest free seat close by,
+    /// else the nearest free floor tile (0.2.6: the stranger sat down on a guest at the window
+    /// table, the spots are fixed tiles of grandma's layout).
+    fn free_place(&self, actor: &str, place: &Place) -> Vec2 {
+        let to = self.place_px(place);
+        let t = |p: Vec2| ((p.x / TILE).floor() as i32, (p.y / TILE).floor() as i32);
+        let goal = t(to);
+        let taken: HashSet<(i32, i32)> = self
+            .live
+            .iter()
+            .filter(|(id, _)| id.as_str() != actor)
+            .map(|(_, p)| t(*p))
+            .chain(
+                self.actors
+                    .iter()
+                    .filter(|a| a.id != actor && !a.gone)
+                    .flat_map(|a| [t(a.pos), t(a.target())]),
+            )
+            .collect();
+        if !taken.contains(&goal) {
+            return to;
+        }
+        let near = |a: (i32, i32)| (a.0 - goal.0).abs().max((a.1 - goal.1).abs());
+        let dist2 = |a: (i32, i32)| (a.0 - goal.0).pow(2) + (a.1 - goal.1).pow(2);
+        let seat = self
+            .free_seats
+            .iter()
+            .copied()
+            .filter(|s| !taken.contains(s) && near(*s) <= 3)
+            .min_by_key(|s| (dist2(*s), *s));
+        if let Some((x, y)) = seat {
+            return tile_feet(x, y);
+        }
+        let m = self.nav.as_ref().unwrap_or(&self.scene.map);
+        let floor = {
+            (-3..=3)
+                .flat_map(|dy| (-3..=3).map(move |dx| (goal.0 + dx, goal.1 + dy)))
+                .filter(|c| c.0 >= 0 && c.1 >= 0 && !taken.contains(c))
+                .filter(|c| {
+                    m.get(c.0 as usize, c.1 as usize)
+                        .is_some_and(|k| k.walkable())
+                })
+                .min_by_key(|c| (dist2(*c), *c))
+        };
+        match floor {
+            Some((x, y)) => tile_feet(x, y),
+            None => to,
+        }
+    }
+
     /// Cast ids the scene plays itself right now (on stage or gone through a door): the host
     /// hides its live copies of them.
     pub fn stage_cast(&self) -> impl Iterator<Item = &str> {
@@ -288,6 +348,15 @@ impl CutscenePlayer {
             .iter()
             .map(|a| a.id.as_str())
             .chain(self.exited.iter().map(String::as_str))
+    }
+
+    /// Cast ids the scene walked out of a door (`ActorExit`) and that did not come back.
+    pub fn exited_cast(&self) -> impl Iterator<Item = &str> {
+        self.exited.iter().map(String::as_str).filter(|id| {
+            self.actors
+                .iter()
+                .all(|a| a.id != *id || a.gone || a.exit_on_arrive)
+        })
     }
 
     /// Progress 0..1 of the scene's own train (`None` = no train).
@@ -868,11 +937,11 @@ impl CutscenePlayer {
                 }
             }
             CutsceneStep::ActorEnter { actor, to_tile } => {
-                let to = self.place_px(&to_tile);
+                let to = self.free_place(&actor, &to_tile);
                 self.walk(&actor, to, false, true);
             }
             CutsceneStep::ActorMove { actor, to_tile } => {
-                let to = self.place_px(&to_tile);
+                let to = self.free_place(&actor, &to_tile);
                 self.walk(&actor, to, false, false);
             }
             CutsceneStep::ActorExit { actor, to_tile } => {
@@ -1657,6 +1726,57 @@ mod tests {
                 .contains(&Effect::GiveItem("cafe_keys".into()))
         );
         assert!(p.actors.iter().any(|a| a.id == "player"));
+    }
+
+    /// 0.2.6: the stranger sat down on a guest who already had the window chair — a spot
+    /// somebody holds sends the actor to the nearest free seat (else free floor) instead.
+    #[test]
+    fn an_actor_never_takes_a_spot_somebody_is_on() {
+        let (mut p, i18n, content) = setup();
+        let loc = Locale::new(&i18n, Lang::En);
+        let chair = content.cutscenes.spots["window_chair"];
+        let enter = |a: &str| CutsceneStep::ActorEnter {
+            actor: a.into(),
+            to_tile: Place::Spot("window_chair".into()),
+        };
+        let tile_of = |p: &CutscenePlayer, id: &str| {
+            let a = p.actors.iter().find(|a| a.id == id).expect("on stage");
+            (
+                (a.pos.x / TILE).floor() as i32,
+                (a.pos.y / TILE).floor() as i32,
+            )
+        };
+        // a guest of the live café sits there; a free seat two tiles away
+        let seat = (chair.0 + 2, chair.1);
+        p.set_live_cast([("night_wanderer".to_string(), tile_feet(chair.0, chair.1))]);
+        p.set_free_seats(vec![(30, 30), seat]);
+        p.start(&def(
+            "t",
+            vec![enter("guest_333"), narration("scene.guest333_first.01")],
+        ));
+        p.fast_forward(&loc, 30.0);
+        assert_eq!(tile_of(&p, "guest_333"), seat, "the nearest free seat");
+        // nobody there: the spot itself
+        p.set_live_cast(Vec::<(String, Vec2)>::new());
+        p.start(&def(
+            "t",
+            vec![enter("guest_333"), narration("scene.guest333_first.01")],
+        ));
+        p.fast_forward(&loc, 30.0);
+        assert_eq!(tile_of(&p, "guest_333"), chair);
+        // two actors for one chair: the second one takes another place
+        p.set_free_seats(vec![]);
+        p.start(&def(
+            "t",
+            vec![
+                enter("guest_333"),
+                enter("mirek"),
+                narration("scene.guest333_first.01"),
+            ],
+        ));
+        p.fast_forward(&loc, 30.0);
+        assert_eq!(tile_of(&p, "guest_333"), chair);
+        assert_ne!(tile_of(&p, "mirek"), chair);
     }
 
     #[test]

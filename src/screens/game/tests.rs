@@ -1057,3 +1057,70 @@ fn an_opening_gesture_waits_for_the_player_and_never_starts_over() {
         );
     }
 }
+
+/// 0.2.6 (a player's report): in the stranger's first scene he walked to the window chair
+/// although a guest sat there, left through the door — and after the scene popped back to
+/// where the café had him. Now the scene seats him elsewhere and his party is gone after it.
+#[test]
+fn the_stranger_who_leaves_in_his_scene_is_gone_after_it() {
+    let c = content();
+    let i = i18n();
+    let loc = Locale::new(&i, crate::i18n::Lang::En);
+    let mut w = sim::World::new_story_seeded(&c, sim::Difficulty::Cozy, 77);
+    let mut bot = sim::bot::PlayerBot::new(Default::default());
+    while w.night() < 4 {
+        bot.run_night(&mut w, &c);
+    }
+    bot.day(&mut w, &c);
+    bot.finish_scenes(&mut w, &c);
+    let mut g = GameScreen::with_world(&c, w, Default::default());
+    g.start_night(&c);
+    let mut guard = 0;
+    while g.world.playing_cutscene() != Some("guest333_first") && guard < 400_000 {
+        if g.cutscene_playing() {
+            g.finish_cutscene_now(&c, &loc);
+        }
+        // keep the window lit (his visit needs it)
+        if !g.world.window_light_on(&c) {
+            let _ = g.world.apply(
+                &c,
+                sim::Command::TickChecklist {
+                    id: "light_window".into(),
+                },
+            );
+        }
+        g.advance(&c, 1.0 / 30.0, Some(&loc));
+        guard += 1;
+    }
+    assert_eq!(g.world.playing_cutscene(), Some("guest333_first"));
+    // someone sits on the window chair the scene asks for
+    let chair = c.cutscenes.spots["window_chair"];
+    g.player.set_live_cast([(
+        "someone".to_string(),
+        crate::cutscene::actors::tile_feet(chair.0, chair.1),
+    )]);
+    let mut guard = 0;
+    let mut sat_on = false;
+    while g.cutscene_playing() && guard < 20_000 {
+        g.player.fast_forward(&loc, 0.25);
+        if let Some(a) = g.player.actors.iter().find(|a| a.id == "guest_333") {
+            let t = crate::map::TILE;
+            let tile = ((a.pos.x / t).floor() as i32, (a.pos.y / t).floor() as i32);
+            sat_on |= tile == chair && !a.walking();
+        }
+        g.finish_cutscene_now(&c, &loc);
+        guard += 1;
+    }
+    assert!(!sat_on, "he never stood on the taken chair");
+    let present = |g: &GameScreen| {
+        g.world.parties().iter().any(|p| {
+            p.regular.as_deref() == Some("guest_333") && p.state != sim::PartyState::Leaving
+        })
+    };
+    assert!(!present(&g), "his party left with him");
+    // and he does not walk in a second time tonight
+    for _ in 0..(30 * 60) {
+        g.advance(&c, 1.0 / 30.0, Some(&loc));
+        assert!(!present(&g), "he came back");
+    }
+}

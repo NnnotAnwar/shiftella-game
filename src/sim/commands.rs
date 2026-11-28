@@ -646,6 +646,10 @@ impl World {
                 super::guests::scene_handoff(self, &regular, tile);
                 Ok(())
             }
+            Command::SceneExit { regular } => {
+                super::guests::scene_exit(self, content, &regular);
+                Ok(())
+            }
             Command::CutsceneFinished { id, choices } => {
                 super::story::finish_cutscene(self, content, &id, &choices)
             }
