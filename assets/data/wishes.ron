@@ -88,6 +88,31 @@
          favourite: ["r_rn333_tea"], favourite_items: ["lemon_tea"]),
         (id: "guest_anwar.oat", want: [Warm, Mild], who: ["guest_anwar"], favourite: ["r_oat_flat_white"]),
     ],
+    // Lines that name a dish (i18n key → menu items / recipes): a guest only says one while the
+    // café can make one of them tonight — a recipe known, its item on the menu and its station
+    // there (koláč needs the oven). Wishes by `wish.<id>`; regulars' arrival (stage) and hover
+    // (ambient) lines by their key. The order card's chips always include the named dish.
+    line_items: {
+        "wish.mirek.like_lida": ["black_coffee"],
+        "wish.vera.properly": ["lemon_tea"],
+        "wish.vera.lidas_kolac": ["kolac"],
+        "wish.filip.cheapest": ["black_coffee", "cappuccino", "oat_flat_white"],
+        "wish.kind_coffee": ["black_coffee", "cappuccino", "oat_flat_white"],
+        "wish.lori.one_song": ["hot_chocolate"],
+        "wish.guest_333.two_sugars": ["lemon_tea"],
+        "wish.guest_anwar.oat": ["oat_flat_white"],
+        "wish.house_special": ["r_signature"],
+        "wish.mirek.house_special": ["r_signature"],
+        "wish.hana.house_special": ["r_signature"],
+        "wish.vera.house_special": ["r_signature"],
+        "wish.filip.house_special": ["r_signature"],
+        "wish.radek.house_special": ["r_signature"],
+        "wish.lori.house_special": ["r_signature"],
+        "regular.hana.line.0a": ["cappuccino"],
+        "regular.filip.line.0b": ["black_coffee"],
+        "regular.vera.line.3a": ["grandma_kulajda"],
+        "regular.guest_anwar.ambient.coffee": ["oat_flat_white"],
+    },
     reactions: (
         generic_per_tier: 5,
         regulars: ["mirek", "hana", "guest_333", "vera", "filip", "radek", "lori"],

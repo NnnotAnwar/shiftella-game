@@ -205,4 +205,9 @@ pub struct Reactions {
 pub struct WishesFile {
     pub wishes: Vec<WishDef>,
     pub reactions: Reactions,
+    /// Lines that name a dish (i18n key → menu item / recipe ids): a guest says the line only
+    /// while the café can make one of them tonight (a recipe known with its item on the
+    /// menu). Wishes by `wish.<id>`, regulars' arrival / ambient lines by their own key.
+    #[serde(default)]
+    pub line_items: std::collections::BTreeMap<String, Vec<String>>,
 }

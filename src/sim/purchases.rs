@@ -606,6 +606,7 @@ pub(crate) fn second_round(w: &mut World, content: &Content, pid: u32) -> bool {
     p.ordered_at = Some(m);
     p.wait_at_order = p.wait_clock;
     p.patience = (p.patience_max * food_patience).max(20.0);
+    p.wait_full = p.patience;
     let tick = w.tick;
     if let Some(g) = w.guests.iter_mut().find(|g| g.id == leader) {
         g.emote = Some((SimEmote::Coffee, tick + 30));

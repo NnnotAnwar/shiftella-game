@@ -88,6 +88,8 @@ mod tests_floor;
 #[cfg(test)]
 mod tests_fridge;
 #[cfg(test)]
+mod tests_guest_timers;
+#[cfg(test)]
 mod tests_hands;
 #[cfg(test)]
 mod tests_life;
@@ -353,8 +355,20 @@ impl World {
         if p.wish_open
             && let Some(wish) = p.order_kind.wish().and_then(|w| content.handson.wish(w))
         {
-            let mut v = orders::matches_for(self, content, wish);
-            v.truncate(4);
+            let all = orders::matches_for(self, content, wish);
+            let mut v: Vec<(String, f32)> = all.iter().take(4).cloned().collect();
+            // the dish the wish names is among the chips (it may tie below four others)
+            let named = |id: &str| {
+                self.recipe_def(content, id)
+                    .and_then(|r| orders::names_recipe(content, wish, r))
+                    .unwrap_or(true)
+            };
+            if !v.iter().any(|(id, _)| named(id))
+                && let Some(n) = all.iter().find(|(id, _)| named(id))
+                && let Some(last) = v.last_mut()
+            {
+                *last = n.clone();
+            }
             return v;
         }
         let item = self

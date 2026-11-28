@@ -294,6 +294,11 @@ pub struct Party {
     /// Minutes of patience left in the current wait.
     pub patience: f32,
     pub patience_max: f32,
+    /// Patience at the start of the current wait — the ticket's full bar (`ticket_rail`
+    /// shows `1 − patience / wait_full`). Every stage that sets a new wait sets it too, so the
+    /// bar is the guest's real timer. 0 in saves from before it (the old estimate).
+    #[serde(default)]
+    pub wait_full: f32,
     pub wishes: Vec<String>,
     pub items: Vec<u32>,
     pub satisfaction: f32,
