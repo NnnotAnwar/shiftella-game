@@ -121,10 +121,10 @@ uk Я керую студією на старій фабриці в Голешо
 ru Я руковожу студией на старой фабрике в Голешовице. Мы всю ночь вешали выставку. Картины уже висят ровно. Художники — не очень.
 
 scene.kseniia_talk_3.05
-cs Dělali jsme spolu v italské restauraci, já a můj bývalý. Pořád se předváděl před kolegy — točil těsto na pizzu, jako by ho někdo natáčel. A mě měl za holku, která všechno odpustí.
-en We worked together at an Italian place, my ex and I. He was always showing off in front of the staff — spun pizza dough like someone was filming. And he took me for a girl who forgives everything.
-uk Ми працювали разом в італійському ресторані, я і мій колишній. Він вічно випендрювався перед колегами — крутив тісто для піци так, ніби його знімають. А мене мав за дівчину, яка все пробачить.
-ru Мы работали вместе в итальянском ресторане, я и мой бывший. Он вечно выпендривался перед коллегами — крутил тесто для пиццы так, будто его снимают. А меня держал за девушку, которая всё простит.
+cs Oba jsme obsluhovali v italské restauraci, já a můj bývalý. Na place byl k nevydržení — nosil pět talířů najednou, jen aby to všichni viděli. A mě měl za holku, která všechno odpustí.
+en We both waited tables at an Italian place, my ex and I. He was unbearable on the floor — carried five plates at once just so everyone would see. And he took me for a girl who forgives everything.
+uk Ми обоє працювали офіціантами в італійському ресторані, я і мій колишній. На плаці він був нестерпний — носив по п'ять тарілок за раз, аби всі бачили. А мене мав за дівчину, яка все пробачить.
+ru Мы оба работали официантами в итальянском ресторане, я и мой бывший. На плаце он был невыносим — носил по пять тарелок за раз, лишь бы все видели. А меня держал за девушку, которая всё простит.
 
 scene.kseniia_talk_3.06
 cs A ty neodpouštíš?
@@ -176,10 +176,10 @@ uk Він?
 ru Он?
 
 scene.kseniia_talk_15.05
-cs On. Hvězda naší kuchyně. Teď píše nějakou aplikaci pro noční směny. Aby se lidem žilo líp, prý.
-en Him. The star of our kitchen. He writes some app for night shifts now. To make people's lives easier, apparently.
-uk Він. Зірка нашої кухні. Тепер пише якийсь застосунок для нічних змін. Щоб людям жилося легше, кажуть.
-ru Он. Звезда нашей кухни. Теперь пишет какое-то приложение для ночных смен. Чтобы людям жилось легче, говорят.
+cs On. Hvězda sálu. Teď píše nějakou aplikaci pro noční směny. Aby se lidem žilo líp, prý.
+en Him. The star of the dining room. He writes some app for night shifts now. To make people's lives easier, apparently.
+uk Він. Зірка залу. Тепер пише якийсь застосунок для нічних змін. Щоб людям жилося легше, кажуть.
+ru Он. Звезда зала. Теперь пишет какое-то приложение для ночных смен. Чтобы людям жилось легче, говорят.
 
 scene.kseniia_talk_15.06
 cs Karolina mrkne na Shiftellu ve vlastním telefonu: dnešní rozpis, zásoby, malý indigový měsíc. Líp. Prý.
@@ -291,10 +291,10 @@ uk Я в порядку. А подвійний еспресо залишу. Ві
 ru В порядке. А вот двойной эспрессо оставлю. Он был моим ещё до него.
 
 scene.kseniia_talk_20.10
-cs Od hvězdy kuchyně ani slovo. I to je zpráva.
-en Not a word from the star of the kitchen. Which is also news.
-uk Від зірки кухні — ані слова. Що теж новина.
-ru От звезды кухни — ни слова. Что тоже новость.
+cs Od hvězdy sálu ani slovo. I to je zpráva.
+en Not a word from the star of the dining room. Which is also news.
+uk Від зірки залу — ані слова. Що теж новина.
+ru От звезды зала — ни слова. Что тоже новость.
 
 scene.kseniia_talk_20.11
 cs Dneska jsem ve dvě vyprovodila poslední umělkyni. Brečela u vlastního obrazu. Já trochu taky — visel nakřivo.
