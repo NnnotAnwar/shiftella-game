@@ -859,7 +859,7 @@
                 Camera(focus: Actor("guest_kseniia"), zoom: 1.6),
                 Narration(text_key: "scene.kseniia_talk_3.01"),
                 Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_3.02"),
-                Line(speaker: "player", expression: Surprised, text_key: "scene.kseniia_talk_3.03"),
+                Line(speaker: "player", expression: Smile, text_key: "scene.kseniia_talk_3.03"),
                 Line(speaker: "guest_kseniia", expression: Neutral, text_key: "scene.kseniia_talk_3.04"),
                 Line(speaker: "guest_kseniia", expression: Laugh, text_key: "scene.kseniia_talk_3.05"),
                 Line(speaker: "player", expression: Smile, text_key: "scene.kseniia_talk_3.06"),
