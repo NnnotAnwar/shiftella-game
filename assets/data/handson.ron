@@ -174,9 +174,17 @@
     // reward (shiftella.ron). Keys: checklist ids, or `equip.<action>` for appliance chores (a
     // chore without its own entry uses the gesture of the item it ticks: the warm-up, the
     // group head, the till).
+    // By hand (0.2.6): `mood` — one point per opening item done by hand (a perfect gesture
+    // counts the same: it strengthens the item itself); each point done before `minutes`
+    // after 22:00 makes guests × `patience` more patient and tip × `tips` more until then.
+    // `crew_mood` per closing item by hand on the crew's mood next night. `habit_nights`
+    // nights by hand (in total) make an item one of grandma's habits (shiftella.ron `habit`).
     rituals: (
         patience_ticks: 120,
         perfect_min: 3,
+        mood: (minutes: 60, patience: 1.04, tips: 1.03),
+        crew_mood: 1.0,
+        habit_nights: 5,
         gestures: {
             // the opening
             "light_window": Cord,

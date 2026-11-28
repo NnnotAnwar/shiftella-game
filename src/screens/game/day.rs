@@ -456,11 +456,13 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     // the night's polaroid develops beside the numbers (pick one of the three)
     let photo = g.world.pending_polaroids().is_some();
     let pw = if photo { 300.0 } else { 0.0 };
-    // "What the café gave you tonight": a heading + one row per line
-    let pay_h = if sm.payoff.is_empty() {
+    // "What the café gave you tonight": a heading + one row per line (the purchases' lines,
+    // then the rituals done by hand)
+    let gave = sm.payoff.len() + sm.rituals.len();
+    let pay_h = if gave == 0 {
         0.0
     } else {
-        24.0 + 18.0 * sm.payoff.len() as f32
+        24.0 + 18.0 * gave as f32
     } + if sm.challenge.is_empty() {
         0.0
     } else {
@@ -638,7 +640,7 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         );
         y += 24.0;
     }
-    if !sm.payoff.is_empty() {
+    if gave > 0 {
         hline(c.x, c.right(), y + 2.0, t.divider);
         y += 8.0;
         ui.fonts.draw(
@@ -656,6 +658,23 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
                 (Icon::Snowflake, t.amber)
             } else {
                 (Icon::Sparkle, t.amber)
+            };
+            draw_icon(icon, vec2(c.x + 7.0, y + 8.0), 11.0, color);
+            ui.fonts.draw_fit(
+                &payoff_text(&loc, l),
+                Rect::new(c.x + 18.0, y, c.w - 18.0, 16.0),
+                &t.small().color(t.text),
+                Align::Left,
+                0.8,
+            );
+            y += 18.0;
+        }
+        // the rituals by hand: a hand, grandma's habits a feather
+        for l in &sm.rituals {
+            let (icon, color) = if l.key.ends_with(".habit") {
+                (Icon::Feather, t.violet_400)
+            } else {
+                (Icon::Hand, t.amber)
             };
             draw_icon(icon, vec2(c.x + 7.0, y + 8.0), 11.0, color);
             ui.fonts.draw_fit(

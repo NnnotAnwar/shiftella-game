@@ -301,6 +301,10 @@ pub struct NightSummary {
     /// Sandbox «Challenge»: the season goal, the rivals' toll, a strike (`sim::challenge`).
     #[serde(default)]
     pub challenge: Vec<super::purchases::PayoffLine>,
+    /// The rituals done by hand tonight and what they gave (`sim::rituals`; shown in the
+    /// "What the café gave you tonight" block).
+    #[serde(default)]
+    pub rituals: Vec<super::purchases::PayoffLine>,
 }
 
 /// What an experiment in the pantry gave (handson.md §4.4); keys from `experiment.*`.
@@ -718,6 +722,11 @@ pub enum SimEvent {
     /// small `perfect` extra ran (`app.ritual.perfect.<list>`).
     RitualPerfect {
         list: ChecklistKind,
+    },
+    /// An item done by hand on enough nights became one of grandma's habits
+    /// (`sim::rituals`): her note `habit.<item>.note`, the perk `habit.<item>.perk`.
+    HabitLearned {
+        item: String,
     },
     /// Last night's handover notes acted (`app.handover.option.<id>`).
     HandoverApplied {

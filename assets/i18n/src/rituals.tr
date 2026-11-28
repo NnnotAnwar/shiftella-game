@@ -116,3 +116,351 @@ cs Dokonalé zavření — parta jde domů s úsměvem.
 en A perfect close — the crew heads home smiling.
 uk Ідеальне закриття — команда йде додому з усмішкою.
 ru Идеальное закрытие — команда идёт домой с улыбкой.
+
+# By hand (0.2.6, sim::rituals): what an item done by hand adds (lowercase, it follows
+# "By hand: "); keep it under ~50 characters — it sits in a tooltip and a checklist line.
+ritual.hand.light_window
+cs první hosté přijdou o něco dřív, +reputace
+en the first guests come a little sooner, +reputation
+uk перші гості прийдуть трохи раніше, +репутація
+ru первые гости придут чуть раньше, +репутация
+
+ritual.hand.coffee_warmup
+cs bar ×1,35 na 90 minut, nápoje o kousek lepší
+en the bar ×1.35 for 90 minutes, drinks a little better
+uk бар ×1,35 на 90 хвилин, напої трохи кращі
+ru бар ×1,35 на 90 минут, напитки чуть лучше
+
+ritual.hand.check_stock
+cs bot řekne, co je na policích, a varuje včas
+en the bot says what's on the shelves and warns early
+uk бот скаже, що на полицях, і попередить заздалегідь
+ru бот скажет, что на полках, и предупредит заранее
+
+ritual.hand.wipe_tables
+cs dvakrát čistěji, první hodina útulnější
+en twice as clean, a cozier first hour
+uk удвічі чистіше, перша година затишніша
+ru вдвое чище, первый час уютнее
+
+ritual.hand.count_float
+cs pokladna zůstane rychlá celou noc
+en the till stays quick all night
+uk каса лишається швидкою всю ніч
+ru касса остаётся быстрой всю ночь
+
+ritual.hand.menu_board
+cs speciality se prodávají o něco líp
+en the specials sell a little better
+uk фірмові страви продаються трохи краще
+ru фирменные блюда продаются чуть лучше
+
+ritual.hand.record_on
+cs první hodina mnohem útulnější
+en a much cozier first hour
+uk перша година набагато затишніша
+ru первый час намного уютнее
+
+ritual.hand.wash_dishes
+cs příští večer jde nádobí rychleji
+en the dishes go faster the next evening
+uk наступного вечора посуд миється швидше
+ru следующим вечером посуда моется быстрее
+
+ritual.hand.clean_machine
+cs stroj se opotřebuje méně
+en the machine wears less
+uk машина менше зношується
+ru машина меньше изнашивается
+
+ritual.hand.cash_up
+cs pokladna je rychlá při příštím otevření
+en the till is quick at the next opening
+uk каса швидка на наступному відкритті
+ru касса быстрая при следующем открытии
+
+ritual.hand.fridge_check
+cs lednice se opotřebuje méně
+en the fridge wears less
+uk холодильник менше зношується
+ru холодильник меньше изнашивается
+
+ritual.hand.handover_note
+cs příští otevření půjde rychleji
+en the next opening goes quicker
+uk наступне відкриття піде швидше
+ru следующее открытие пойдёт быстрее
+
+ritual.hand.light_off_at_six
+cs +reputace: slib dodržen
+en +reputation: a promise kept
+uk +репутація: обіцянку дотримано
+ru +репутация: обещание сдержано
+
+# the checklist: the mark on an item done by hand, an open item's offer, the habit's
+# progress and the habit itself ({what} = ritual.hand.<id>, {perk} = habit.<id>.perk)
+rituals.hand.done
+cs Rukama: {what}
+en By hand: {what}
+uk Власноруч: {what}
+ru Своими руками: {what}
+
+rituals.hand.perfect
+cs Dokonale — ještě o kousek víc
+en Perfect — a little more still
+uk Ідеально — ще трохи більше
+ru Идеально — ещё немного больше
+
+rituals.hand.offer
+cs Gestem, vlastníma rukama: {what}
+en With its gesture, by hand: {what}
+uk Жестом, власноруч: {what}
+ru Жестом, своими руками: {what}
+
+rituals.habit.progress
+cs Rukama {n} z {max} nocí — pak z toho bude babiččin zvyk
+en By hand on {n} of {max} nights — then it becomes grandma's habit
+uk Власноруч {n} з {max} ночей — тоді це стане бабусиною звичкою
+ru Своими руками {n} из {max} ночей — потом это станет бабушкиной привычкой
+
+rituals.habit.mark
+cs Babiččin zvyk: {perk}
+en Grandma's habit: {perk}
+uk Бабусина звичка: {perk}
+ru Бабушкина привычка: {perk}
+
+rituals.habits.title
+cs Babiččiny zvyky {n}/{total}
+en Grandma's habits {n}/{total}
+uk Бабусині звички {n}/{total}
+ru Бабушкины привычки {n}/{total}
+
+rituals.habits.none
+cs Udělejte úkol rukama {max} nocí a stane se z něj babiččin zvyk.
+en Do a task by hand on {max} nights and it becomes one of grandma's habits.
+uk Зробіть справу власноруч {max} ночей — і вона стане бабусиною звичкою.
+ru Сделайте дело своими руками {max} ночей — и оно станет бабушкиной привычкой.
+
+# the habit's card (title; her note, then this line)
+rituals.habit.title
+cs Babiččin zvyk
+en Grandma's habit
+uk Бабусина звичка
+ru Бабушкина привычка
+
+rituals.habit.from_now
+cs Od teď: {perk}.
+en From now on: {perk}.
+uk Відтепер: {perk}.
+ru Отныне: {perk}.
+
+# the evening mood: the chip by the clock (21:30–23:00) and its tooltip
+rituals.mood.chip
+cs Nálada {n}/{max}
+en Mood {n}/{max}
+uk Настрій {n}/{max}
+ru Настроение {n}/{max}
+
+rituals.mood.tip
+cs Večerní nálada: {n} z {max} úkolů otevření rukama. Do {time} jsou hosté trpělivější (+{patience} %) a dávají větší spropitné (+{tips} %).
+en Evening mood: {n} of {max} opening tasks done by hand. Until {time} guests are more patient (+{patience} %) and tip more (+{tips} %).
+uk Вечірній настрій: {n} з {max} справ відкриття — власноруч. До {time} гості терплячіші (+{patience} %) і дають більше чайових (+{tips} %).
+ru Вечернее настроение: {n} из {max} дел открытия — своими руками. До {time} гости терпеливее (+{patience} %) и оставляют больше чаевых (+{tips} %).
+
+rituals.mood.tip_empty
+cs Večerní nálada: udělejte úkoly otevření vlastníma rukama (drobná gesta) — každý udělá hosty první hodiny trpělivější a štědřejší.
+en Evening mood: do the opening tasks by hand (the little gestures) — each one makes the first hour's guests more patient and generous.
+uk Вечірній настрій: зробіть справи відкриття власноруч (маленькі жести) — кожна робить гостей першої години терплячішими й щедрішими.
+ru Вечернее настроение: сделайте дела открытия своими руками (маленькие жесты) — каждое делает гостей первого часа терпеливее и щедрее.
+
+# the morning summary ("What the café gave you tonight")
+rituals.line.opening
+cs Otevření rukama: {n} z {total} — každý úkol o kousek silnější
+en Opening by hand: {n} of {total} — each task a little stronger
+uk Відкриття власноруч: {n} з {total} — кожна справа трохи сильніша
+ru Открытие своими руками: {n} из {total} — каждое дело чуть сильнее
+
+rituals.line.opening_tips
+cs Otevření rukama: {n} z {total} — klidnější hosté, spropitné +{money}
+en Opening by hand: {n} of {total} — calmer guests, tips +{money}
+uk Відкриття власноруч: {n} з {total} — спокійніші гості, чайові +{money}
+ru Открытие своими руками: {n} из {total} — гости спокойнее, чаевые +{money}
+
+rituals.line.closing
+cs Zavření rukama: {n} z {total} — parta přijde příští noc veselejší (+{mood})
+en Closing by hand: {n} of {total} — the crew comes in happier next night (+{mood})
+uk Закриття власноруч: {n} з {total} — завтра команда прийде веселіша (+{mood})
+ru Закрытие своими руками: {n} из {total} — завтра команда придёт веселее (+{mood})
+
+rituals.line.habit
+cs Nový babiččin zvyk: {perk}
+en Grandma's habit learned: {perk}
+uk Нова бабусина звичка: {perk}
+ru Новая бабушкина привычка: {perk}
+
+# the bot after the stock was counted by hand, or by anyone once it is grandma's habit
+# (XEffect StockWatch)
+app.bot.stock_check
+cs Zásoby spočítané: vystačí asi na {n} porcí. Kdyby něco docházelo, dám vědět včas.
+en Shelves counted: about {n} portions in stock. I'll warn you early if anything runs low.
+uk Полиці пораховано: запасів приблизно на {n} порцій. Якщо щось закінчуватиметься, попереджу заздалегідь.
+ru Полки пересчитаны: запасов примерно на {n} порций. Если что-то будет заканчиваться, предупрежу заранее.
+
+# Grandma's habits (sim::rituals): Lída's note in her own hand once an item was done by hand
+# on rituals.habit_nights nights (same voice as note.*: short, plain, a little wise), and the
+# perk for good (lowercase; it follows "From now on: " / "Grandma's habit: ").
+habit.light_window.note
+cs Rozsvítit okno dřív, než přijde první host. Kdo jde nocí, hledá světlo, ne ceduli.
+en Light the window before the first guest comes. Whoever walks at night looks for a light, not a sign.
+uk Засвітити вікно раніше, ніж прийде перший гість. Хто йде вночі, шукає світло, а не вивіску.
+ru Зажечь окно раньше, чем придёт первый гость. Кто идёт ночью, ищет свет, а не вывеску.
+
+habit.light_window.perk
+cs lampa v okně dělá celou noc útulnější
+en the window lamp makes the whole night cozier
+uk лампа у вікні робить усю ніч затишнішою
+ru лампа в окне делает всю ночь уютнее
+
+habit.coffee_warmup.note
+cs Stroj je jako starý pes. Pohladit, počkat, a pak udělá všechno.
+en The machine is like an old dog. Stroke it, wait, and then it will do anything for you.
+uk Машина як старий пес. Погладити, почекати — і тоді вона зробить усе.
+ru Машина как старый пёс. Погладить, подождать — и тогда она сделает всё.
+
+habit.coffee_warmup.perk
+cs bar je první půlhodinu rychlejší
+en the bar is quicker for the first half hour
+uk бар швидший першу пів години
+ru бар быстрее первые полчаса
+
+habit.check_stock.note
+cs Police počítej rukou, ne očima. Oči lžou, prsty ne.
+en Count the shelves with your hands, not your eyes. Eyes lie, fingers don't.
+uk Полиці рахуй руками, не очима. Очі брешуть, пальці — ні.
+ru Полки считай руками, не глазами. Глаза врут, пальцы — нет.
+
+habit.check_stock.perk
+cs včasné varování, když zásoby docházejí
+en an early low-stock warning, whoever counts
+uk раннє попередження про запаси
+ru раннее предупреждение о запасах
+
+habit.wipe_tables.note
+cs Stůl utři, i když je čistý. Host to neuvidí, ale pozná.
+en Wipe the table even when it's clean. The guest won't see it, but they'll know.
+uk Протри стіл, навіть якщо він чистий. Гість цього не побачить, але відчує.
+ru Протри стол, даже если он чистый. Гость не увидит, но почувствует.
+
+habit.wipe_tables.perk
+cs sál začíná noc o kousek čistší
+en the hall starts the night a little cleaner
+uk зала починає ніч трохи чистішою
+ru зал начинает ночь чуть чище
+
+habit.count_float.note
+cs Drobné do misky večer co večer. Kdo zná svou kasu, nespěchá.
+en Small change into the tray, every evening. Whoever knows their till never hurries.
+uk Дрібні в лоток щовечора. Хто знає свою касу, той не поспішає.
+ru Мелочь в лоток каждый вечер. Кто знает свою кассу, тот не спешит.
+
+habit.count_float.perk
+cs pokladna je celou noc o kousek rychlejší
+en the till is a little quicker all night
+uk каса трохи швидша всю ніч
+ru касса чуть быстрее всю ночь
+
+habit.menu_board.note
+cs Na tabuli piš, jako bys psala dopis. Lidi si objednají to, co jim někdo napsal.
+en Write on the board as if you were writing a letter. People order what someone wrote for them.
+uk На дошці пиши, ніби пишеш листа. Люди замовляють те, що їм хтось написав.
+ru На доске пиши, будто пишешь письмо. Люди заказывают то, что им кто-то написал.
+
+habit.menu_board.perk
+cs speciality se prodávají o kousek líp
+en the specials sell a little better
+uk фірмові страви продаються трохи краще
+ru фирменные блюда продаются чуть лучше
+
+habit.record_on.note
+cs Desku pouštěj dřív, než odemkneš. Kavárna se musí zahřát jako hrnek.
+en Put the record on before you unlock the door. A café has to warm up, like a cup.
+uk Платівку став раніше, ніж відімкнеш двері. Кав'ярня має зігрітися, як чашка.
+ru Пластинку ставь раньше, чем отопрёшь дверь. Кафе должно согреться, как чашка.
+
+habit.record_on.perk
+cs první hodina je útulnější
+en the first hour is cozier
+uk перша година затишніша
+ru первый час уютнее
+
+habit.wash_dishes.note
+cs Hrnky myj na konci, ne ráno. Kdo přijde ráno, zaslouží si čistý hrnek.
+en Wash the cups at the end, not in the morning. Whoever comes in the morning deserves a clean cup.
+uk Чашки мий наприкінці, а не зранку. Хто прийде зранку, заслуговує на чисту чашку.
+ru Чашки мой в конце, а не утром. Кто придёт утром, заслуживает чистую чашку.
+
+habit.wash_dishes.perk
+cs sál zůstává o kousek čistší
+en the hall stays a little cleaner
+uk зала лишається трохи чистішою
+ru зал остаётся чуть чище
+
+habit.clean_machine.note
+cs Hlavu stroje vykartáčuj, i když jsi unavená. Hlavně když jsi unavená.
+en Brush the group head even when you're tired. Especially when you're tired.
+uk Почисть головку машини, навіть коли втомилася. Особливо коли втомилася.
+ru Почисти головку машины, даже когда устала. Особенно когда устала.
+
+habit.clean_machine.perk
+cs stroj se opotřebuje pomaleji
+en the machine wears more slowly
+uk машина зношується повільніше
+ru машина изнашивается медленнее
+
+habit.cash_up.note
+cs Peníze počítej pomalu. Kdo spěchá, splete se a pak nespí.
+en Count the money slowly. Whoever hurries makes a mistake and then can't sleep.
+uk Гроші рахуй повільно. Хто поспішає, той помиляється, а потім не спить.
+ru Деньги считай медленно. Кто спешит, тот ошибается, а потом не спит.
+
+habit.cash_up.perk
+cs pokladna je rychlejší na začátku další noci
+en the till is quicker at the start of the next night
+uk каса швидша на початку наступної ночі
+ru касса быстрее в начале следующей ночи
+
+habit.fridge_check.note
+cs Lednici zavírej, jako bys zavírala dveře za hostem. Potichu a s díky.
+en Close the fridge the way you'd close the door behind a guest. Quietly, and with thanks.
+uk Холодильник зачиняй, як двері за гостем. Тихо і з вдячністю.
+ru Холодильник закрывай, как дверь за гостем. Тихо и с благодарностью.
+
+habit.fridge_check.perk
+cs lednice se opotřebuje pomaleji
+en the fridge wears more slowly
+uk холодильник зношується повільніше
+ru холодильник изнашивается медленнее
+
+habit.handover_note.note
+cs Ranní směně napiš aspoň řádek. I „všechno v pořádku“ je dopis.
+en Leave the morning shift at least one line. Even "all is well" is a letter.
+uk Ранковій зміні залиш хоч рядок. Навіть «усе гаразд» — це лист.
+ru Утренней смене оставь хоть строчку. Даже «всё в порядке» — это письмо.
+
+habit.handover_note.perk
+cs další otevření jde o kousek rychleji
+en the next opening goes a little quicker
+uk наступне відкриття йде трохи швидше
+ru следующее открытие идёт чуть быстрее
+
+habit.light_off_at_six.note
+cs Zhasni v šest, ani o minutu dřív. Slib platí i za svítání.
+en Switch it off at six, not a minute before. A promise holds at dawn too.
+uk Гаси о шостій, ані хвилиною раніше. Обіцянка тримається й на світанку.
+ru Гаси в шесть, ни минутой раньше. Обещание держится и на рассвете.
+
+habit.light_off_at_six.perk
+cs další noc je útulnější
+en the next night is cozier
+uk наступна ніч затишніша
+ru следующая ночь уютнее

@@ -959,7 +959,11 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
     let content_h: f32 = kinds
         .iter()
         .map(|k| 30.0 + count(*k) as f32 * 30.0 + 8.0)
-        .sum();
+        .sum::<f32>()
+        + super::checklist_ui::habits_height(g);
+    if g.rituals.show_habits {
+        ui.scroll_to_end("checklists", content_h, view.h);
+    }
     let sa = ui.begin_scroll("checklists", view, content_h);
     let mut y = sa.top();
     for kind in kinds {
@@ -1007,6 +1011,8 @@ fn checklists(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx, r: Rect) {
         }
         y += 8.0;
     }
+    // grandma's habits learned so far (rituals done by hand on enough nights)
+    super::checklist_ui::habits(g, ui, &loc, content, r, y, &|y, h| sa.visible(y, h));
     ui.end_scroll(sa);
     if !night {
         ui.fonts.draw_in(

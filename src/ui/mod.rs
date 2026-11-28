@@ -49,7 +49,7 @@
 //!   `letterbox`, `fade`.
 //! * **Layout** — [`layout`]: `anchored(Anchor)`, [`RectExt`] (`inset split_left split_top
 //!   centered …`), `row column weighted_row grid grid_cell`, [`Flow`] cursor.
-//! * **Icons** — [`Icon`] (78 glyphs, `Icon::ALL`), [`draw_icon`].
+//! * **Icons** — [`Icon`] (79 glyphs, `Icon::ALL`), [`draw_icon`].
 //! * **Hands-on widgets** — [`handson`]: order card, ticket rail, moment card, duties board,
 //!   record picker, recipe book, atmosphere meter, rozpis puzzle, payroll, journal, coach marks.
 //!

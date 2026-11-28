@@ -272,6 +272,18 @@ pub struct ChecklistItem {
     /// Hands-on effects applied with `missed`.
     #[serde(default)]
     pub extra_missed: Vec<Fx>,
+    /// By hand (`sim::rituals`): applied with `done` when Karolina did it with its gesture —
+    /// the item's own effect a little stronger (`ritual.hand.<id>` says what).
+    #[serde(default)]
+    pub hand_done: Vec<Fx>,
+    /// A perfect gesture: applied on top of `hand_done`.
+    #[serde(default)]
+    pub perfect_done: Vec<Fx>,
+    /// Grandma's habit (`sim::rituals`): once the item was done by hand on
+    /// `rituals.habit_nights` nights, applied with `done` whoever does it
+    /// (`habit.<id>.note` / `habit.<id>.perk`).
+    #[serde(default)]
+    pub habit: Vec<Fx>,
 }
 
 impl ChecklistItem {

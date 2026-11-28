@@ -505,7 +505,9 @@ fn apply_x(w: &mut World, content: &Content, x: &XEffect, t: &XTarget, depth: u3
                 crate::content::world::ChecklistKind::Opening => 0,
                 crate::content::world::ChecklistKind::Closing => 1,
             };
-            w.sys.fx.checklist_speed[i] = *mul;
+            // (they add up: the closing ritual's quicker opening and a handover by hand)
+            let cur = w.sys.fx.checklist_speed[i];
+            w.sys.fx.checklist_speed[i] = if cur > 0.0 { cur * mul } else { *mul };
         }
         HelpersReady { minutes } => {
             if let Some(tm) = t.train_minute {
@@ -532,5 +534,31 @@ fn apply_x(w: &mut World, content: &Content, x: &XEffect, t: &XTarget, depth: u3
             }
         }
         SwapBoard => w.sys.fx.swap_board = true,
+        StockWatch => {
+            if w.sys.fx.stock_watch {
+                return;
+            }
+            w.sys.fx.stock_watch = true;
+            let ctx = EffectCtx::default();
+            let n = (w.econ.supplies / 25).max(0).to_string();
+            super::app::bot_with(w, content, "stock_check", &ctx, vec![("n".into(), n)]);
+        }
+        SpecialsBoost { mul, minutes } => {
+            let mut tags: Vec<crate::content::handson::Taste> = Vec::new();
+            for r in &w.sys.extras.specials {
+                if let Some(tag) = w
+                    .all_recipes(content)
+                    .find(|d| &d.id == r)
+                    .and_then(|d| d.tags.first())
+                    && !tags.contains(tag)
+                {
+                    tags.push(*tag);
+                }
+            }
+            if !tags.is_empty() {
+                let u = until(w, minutes);
+                w.sys.fx.wish_boosts.push((tags, *mul, u));
+            }
+        }
     }
 }

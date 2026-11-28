@@ -73,6 +73,9 @@ pub struct RitualUi {
     pub staged: bool,
     /// The card last frame (UI px).
     pub card: Option<Rect>,
+    /// Screenshot scenes (`SHIFTELLA_HABITS_SCROLL=1`): the app's checklists scrolled down to
+    /// grandma's habits.
+    pub show_habits: bool,
 }
 
 impl RitualUi {
@@ -681,7 +684,90 @@ pub fn headless(
     let _ = step(g, content, input, dt);
 }
 
+/// Grandma's habit learned (`SimEvent::HabitLearned`): her note to read with the night held,
+/// then what it gives from now on; a line in the ticker.
+fn habit_card(loc: &Locale, item: &str) -> (String, String) {
+    let perk = loc.tr_owned(&format!("habit.{item}.perk"));
+    let text = format!(
+        "{}\n\n{}",
+        loc.tr(&format!("habit.{item}.note")),
+        loc.trf("rituals.habit.from_now", &[("perk", &perk)])
+    );
+    (loc.tr_owned("rituals.habit.title"), text)
+}
+
 impl GameScreen {
+    /// The rituals' sim events: a habit learned opens grandma's note.
+    pub(super) fn rituals_event(&mut self, e: &sim::SimEvent, loc: Option<&Locale>) {
+        let (sim::SimEvent::HabitLearned { item }, Some(loc)) = (e, loc) else {
+            return;
+        };
+        let (title, text) = habit_card(loc, item);
+        // "Grandma's habit: Put a record on" (the perk is on the card)
+        let label = loc.tr_owned(&format!("app.checklist.{item}"));
+        self.push_ticker(
+            Icon::Feather,
+            loc.trf("rituals.habit.mark", &[("perk", &label)]),
+        );
+        self.read_card(Icon::Feather, title, text);
+    }
+
+    /// Screenshots: items done by hand tonight (`SHIFTELLA_BYHAND=all|opening|closing|
+    /// <id>[:p],…`, `:p` = a perfect gesture; `all` = every other one perfect), each item done
+    /// by hand on `SHIFTELLA_HABITS=<n>` nights before (so the 5th learns its habit),
+    /// `SHIFTELLA_MOOD_TIPS=<Kč>` the evening mood's tips, `SHIFTELLA_HABITS_SCROLL=1` the
+    /// app's checklists scrolled to the habits, `SHIFTELLA_HABIT_CARD=<id>`: that habit's card.
+    pub fn stage_by_hand(&mut self, content: &Content, loc: &Locale) {
+        let env = |k: &str| std::env::var(k).ok().filter(|v| !v.is_empty());
+        if let Some(n) = env("SHIFTELLA_HABITS").and_then(|n| n.parse().ok()) {
+            self.world.debug_habit_nights(content, n);
+        }
+        if let Some(spec) = env("SHIFTELLA_BYHAND") {
+            let list = |k: Option<crate::content::ChecklistKind>| -> Vec<(String, bool)> {
+                content
+                    .app
+                    .checklists
+                    .iter()
+                    .filter(|c| k.is_none_or(|k| c.list == k))
+                    .enumerate()
+                    .map(|(i, c)| (c.id.clone(), i % 2 == 0))
+                    .collect()
+            };
+            let items: Vec<(String, bool)> = match spec.as_str() {
+                "all" => list(None),
+                "opening" => list(Some(crate::content::ChecklistKind::Opening)),
+                "closing" => list(Some(crate::content::ChecklistKind::Closing)),
+                _ => spec
+                    .split(',')
+                    .map(|s| match s.strip_suffix(":p") {
+                        Some(id) => (id.to_string(), true),
+                        None => (s.to_string(), false),
+                    })
+                    .collect(),
+            };
+            for (id, perfect) in items {
+                self.world.debug_by_hand(content, &id, perfect);
+            }
+            for e in self.world.drain_events() {
+                if !matches!(e, sim::SimEvent::PlayCutscene(_)) {
+                    self.rituals_event(&e, Some(loc));
+                }
+            }
+        }
+        if let Some(kc) = env("SHIFTELLA_MOOD_TIPS").and_then(|v| v.parse().ok()) {
+            self.world.debug_mood_tips(kc);
+        }
+        self.rituals.show_habits = env("SHIFTELLA_HABITS_SCROLL").is_some();
+        if let Some(item) = env("SHIFTELLA_HABIT_CARD") {
+            let (title, text) = habit_card(loc, &item);
+            self.reading.push_back(super::ReadCard {
+                icon: Icon::Feather,
+                title,
+                text,
+            });
+        }
+    }
+
     /// Screenshots (`SHIFTELLA_SCENE=hands_ux`, `SHIFTELLA_HUX=gesture`,
     /// `SHIFTELLA_GESTURE=<key>`, `SHIFTELLA_GESTURE_T=<seconds>`): Karolina at the piece of
     /// that checklist item / chore with its gesture open, played by the script a little.

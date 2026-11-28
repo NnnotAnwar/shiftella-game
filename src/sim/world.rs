@@ -1889,6 +1889,7 @@ impl World {
         self.tonight.coziness_avg = super::atmos::night_avg(self);
         super::fridge::on_night_end(self, content);
         self.tonight.payoff = super::purchases::lines(self, content);
+        self.tonight.rituals = super::rituals::summary_lines(self, content);
         for s in self.staff.iter_mut() {
             if !s.owner && s.minutes_worked > 0 {
                 s.nights_worked += 1;

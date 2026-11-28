@@ -103,6 +103,13 @@ pub struct RitualTuning {
     /// Gesture per checklist id, or per appliance chore as `equip.<action>` (an appliance
     /// chore without its own entry uses the gesture of the checklist item it ticks).
     pub gestures: BTreeMap<String, RitualGesture>,
+    /// The evening mood: one point per opening item done by hand (a perfect gesture counts
+    /// the same — it strengthens the item itself, `perfect_done`).
+    pub mood: RitualMood,
+    /// Nights (in total) an item must be done by hand to become one of grandma's habits.
+    pub habit_nights: u32,
+    /// Crew mood next night per closing item done by hand (0–100 scale).
+    pub crew_mood: f32,
 }
 
 impl Default for RitualTuning {
@@ -111,6 +118,31 @@ impl Default for RitualTuning {
             patience_ticks: 120,
             perfect_min: 3,
             gestures: BTreeMap::new(),
+            mood: RitualMood::default(),
+            habit_nights: 5,
+            crew_mood: 0.75,
+        }
+    }
+}
+
+/// `rituals.mood`: what each point of the evening mood does until `minutes` after 22:00.
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize, Serialize)]
+#[serde(default, deny_unknown_fields)]
+pub struct RitualMood {
+    /// Minutes after 22:00 the mood lasts (and its chip shows).
+    pub minutes: u32,
+    /// Guest patience × this per point.
+    pub patience: f32,
+    /// Tips × this per point.
+    pub tips: f32,
+}
+
+impl Default for RitualMood {
+    fn default() -> Self {
+        RitualMood {
+            minutes: 60,
+            patience: 1.04,
+            tips: 1.03,
         }
     }
 }

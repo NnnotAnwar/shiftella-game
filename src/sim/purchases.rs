@@ -469,6 +469,8 @@ pub(crate) fn tips_mul(w: &World, content: &Content, pi: usize) -> f32 {
 
 /// A tip of `tip` Kč was left: books what the seat and the tier added.
 pub(crate) fn note_tip(w: &mut World, content: &Content, pi: usize, tip: i64) {
+    // the evening mood's share of it (rituals done by hand, the first hour)
+    super::rituals::note_tip(w, content, tip);
     let seat = party_comfort(w, content, pi);
     let cs = seat.as_ref().map_or(1.0, |(c, _)| comfort_at(*c).tips);
     let ts = 1.0 + tier(w).tips;

@@ -1045,6 +1045,9 @@ fn app(v: &mut Ctx, c: &Content) {
         }
         v.fx(&item.extra_done, &ctx);
         v.fx(&item.extra_missed, &ctx);
+        v.fx(&item.hand_done, &ctx);
+        v.fx(&item.perfect_done, &ctx);
+        v.fx(&item.habit, &ctx);
     }
     for r in &app.rituals {
         v.fx(&r.effects, &format!("ritual {:?}", r.list));
@@ -1322,6 +1325,16 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
     // the ritual gestures' first-time hints
     for g in h.tuning.rituals.gestures.values() {
         k.push(format!("ritual.hint.{}", g.id()));
+    }
+    // by hand (what it adds) and grandma's habits (her note, the perk)
+    for item in &app.checklists {
+        if !item.hand_done.is_empty() || !item.perfect_done.is_empty() {
+            k.push(format!("ritual.hand.{}", item.id));
+        }
+        if !item.habit.is_empty() {
+            k.push(format!("habit.{}.note", item.id));
+            k.push(format!("habit.{}.perk", item.id));
+        }
     }
     for o in &app.handover_options {
         k.push(o.key());

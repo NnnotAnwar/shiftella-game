@@ -70,6 +70,8 @@ mod tests_build;
 #[cfg(test)]
 mod tests_build_ux;
 #[cfg(test)]
+mod tests_by_hand;
+#[cfg(test)]
 mod tests_chairs;
 #[cfg(test)]
 mod tests_challenge;
@@ -135,7 +137,7 @@ pub use moments::CatView;
 pub use names::{Extra, Garment, Persona, StrangerLook, stranger_look};
 pub use orders::PLAIN_CREDIT;
 pub use player::{MOP_AMOUNT, NOT_IN_YET, WASH_PER_SECOND};
-pub use rituals::{RitualHold, RitualStep, ritual_gesture, ritual_key};
+pub use rituals::{Habits, MoodView, RitualHold, RitualStep, ritual_gesture, ritual_key};
 pub use signature::{NightPhoto, SIGNATURE_RECIPE, SignatureDrink};
 pub use staff::FIRST_HIRE_NIGHT;
 pub use stories::{ActiveStory, AnswerDef, GUEST_LEFT, StoriesState, StoryDef, persona_arg};
