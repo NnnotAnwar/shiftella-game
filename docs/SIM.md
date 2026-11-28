@@ -413,7 +413,8 @@ they leave content (`GuestForgiven`, satisfaction ≥ 50, no review); regulars k
 their `leave_by`; the regular patience floor is 12 min. Classic: the old angry leave.
 **The ticket is the timer:** `Party::wait_full` is the patience the current wait started with
 (arrival, sitting down ×1.5, the order: `FOOD_PATIENCE` × patience, at least `FAIR_FOOD_WAIT`
-15 min, a second round), and the rail shows `1 − patience / wait_full` — nothing else makes a
+15 min, a second round), and the rail shows `1 − patience / wait_full` (running on between the
+once-a-minute patience steps, `guests::wait_running`, so it reads empty as they get up) — nothing else makes a
 waiting guest leave before closing time. A regular's visit window (`leave_by`) only ends an
 *eating* visit (and stops the Cozy refills); a waiting regular stays on their bar (0.2.x: Radek
 used to order at 01:20 and walk out at 01:25 with a full bar). The patience clock of a table

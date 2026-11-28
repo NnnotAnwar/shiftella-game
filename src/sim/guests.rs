@@ -1563,18 +1563,7 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     let waiting: Vec<u32> = w
         .parties
         .iter()
-        .filter(|p| match p.state {
-            PartyState::Queue => p
-                .members
-                .first()
-                .and_then(|l| w.guests.iter().find(|g| g.id == *l))
-                .is_some_and(|g| g.path.is_empty()),
-            // the clock starts when the order can be taken: the leader has sat down
-            // (`settled`; before 0.2.x anyone sitting started it while the leader walked on)
-            PartyState::WaitOrder => settled(w, p),
-            PartyState::WaitFood => true,
-            _ => false,
-        })
+        .filter(|p| wait_running(w, p))
         .map(|p| p.id)
         .collect();
     let rates: Vec<f32> = (0..w.parties.len())
@@ -1699,6 +1688,23 @@ pub(crate) fn on_minute(w: &mut World, content: &Content) {
     }
     if w.tick.is_multiple_of(50) {
         refresh_queue_goals(w, content);
+    }
+}
+
+/// Is the party's patience running now? (In the queue: the leader stands at their spot; at a
+/// table: the leader has sat down — the clock starts when the order can be taken, `settled`;
+/// before 0.2.x anyone sitting started it while the leader walked on; waiting for food.)
+/// `on_minute` drains patience by `pacing::wait_rate` once a minute for exactly these.
+pub(crate) fn wait_running(w: &World, p: &Party) -> bool {
+    match p.state {
+        PartyState::Queue => p
+            .members
+            .first()
+            .and_then(|l| w.guests.iter().find(|g| g.id == *l))
+            .is_some_and(|g| g.path.is_empty()),
+        PartyState::WaitOrder => settled(w, p),
+        PartyState::WaitFood => true,
+        _ => false,
     }
 }
 

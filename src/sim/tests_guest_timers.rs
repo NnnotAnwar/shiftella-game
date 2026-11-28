@@ -219,14 +219,19 @@ fn the_ticket_drains_evenly_from_the_order() {
         "the fair minimum applies here: {full} vs {}",
         p.patience_max
     );
-    assert!(wait_frac(&w, &c, pid) < 0.01, "a fresh order shows a full bar");
+    // (the bar runs between the once-a-minute patience steps: at most one minute's worth)
+    let step = 1.0 / full;
+    assert!(
+        wait_frac(&w, &c, pid) <= step + 0.01,
+        "a fresh order shows a full bar"
+    );
     let half = w.minute() + (full / 2.0).round() as u32;
     tick_to(&mut w, &c, half);
     let p = w.parties().iter().find(|p| p.id == pid).unwrap();
     let truth = 1.0 - p.patience / full;
     let shown = wait_frac(&w, &c, pid);
     assert!(
-        (shown - truth).abs() < 0.05,
+        (shown - truth).abs() <= step + 0.02,
         "half-way the ticket shows {shown:.2} used, the guest has used {truth:.2}"
     );
 }
@@ -485,4 +490,26 @@ fn every_orderable_dish_has_a_recipe_to_choose() {
             }
         }
     }
+}
+
+/// A short wait (a nine-minute bar queue on release/0.3.0, Classic seed 3 night 7): patience
+/// drops once a minute, so the ticket used to show 10 % left until the guest got up. The bar
+/// runs between the steps and reads empty as they leave.
+#[test]
+fn a_short_wait_reads_empty_when_the_guest_gets_up() {
+    let c = content();
+    let mut w = quiet_night(&c, 9, Difficulty::Classic);
+    tick_to(&mut w, &c, 30);
+    let pid = guests::spawn_party(&mut w, &c, "taxi_drivers", 1, None, 1.0, 1.0, &[], None, false)
+        .expect("party");
+    for _ in 0..3 {
+        w.tick(&c);
+    }
+    guests::settle_now(&mut w, pid);
+    let pi = w.parties.iter().position(|p| p.id == pid).unwrap();
+    w.parties[pi].patience = 8.9;
+    w.parties[pi].wait_full = 8.9;
+    let (stayed, last) = wait_out(&mut w, &c, pid);
+    assert!(stayed >= 8, "gone after {stayed} min");
+    assert!(last >= 0.97, "left with {:.0} % on the ticket", (1.0 - last) * 100.0);
 }

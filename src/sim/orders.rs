@@ -578,11 +578,21 @@ pub(crate) fn ticket_rail(w: &World, content: &Content) -> Vec<Ticket> {
         }
     };
     let mut out = Vec::new();
-    for p in &w.parties {
+    // ticks since `on_minute` last drained patience (1..=TICKS_PER_MINUTE): the bar runs on
+    // between the once-a-minute steps, so it reads empty when the guest gets up (a 9-minute
+    // queue wait used to jump the last 11 % at once — "left with time still on the ticket")
+    let since_step = ((w.tick + TICKS_PER_MINUTE - 1) % TICKS_PER_MINUTE + 1) as f32
+        / TICKS_PER_MINUTE as f32;
+    for (pi, p) in w.parties.iter().enumerate() {
         if matches!(p.state, PartyState::Arriving | PartyState::Leaving) {
             continue;
         }
         let Some(leader) = p.leader() else { continue };
+        let patience = if super::guests::wait_running(w, p) {
+            p.patience - super::pacing::wait_rate(w, content, pi) * since_step
+        } else {
+            p.patience
+        };
         // the guest's real timer: the patience the current wait started with (old saves:
         // the estimate from before `wait_full`)
         let full = if p.wait_full > 0.0 {
@@ -593,7 +603,7 @@ pub(crate) fn ticket_rail(w: &World, content: &Content) -> Vec<Ticket> {
             p.patience_max
         };
         let wait_frac = if full > 0.0 {
-            (1.0 - p.patience / full).clamp(0.0, 1.0)
+            (1.0 - patience / full).clamp(0.0, 1.0)
         } else {
             0.0
         };
