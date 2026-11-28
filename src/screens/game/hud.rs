@@ -634,16 +634,9 @@ fn dock(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     }
 }
 
-/// Requests waiting for the manager in the Shiftella app.
+/// Requests waiting for the manager in the Shiftella app (still answerable).
 pub fn pending_requests(w: &sim::World) -> u32 {
-    let a = w.app();
-    let p = |s: &sim::RequestStatus| *s == sim::RequestStatus::Pending;
-    (a.swaps.iter().filter(|s| p(&s.status)).count()
-        + a.time_off.iter().filter(|s| p(&s.status)).count()
-        + w.early_leave_requests()
-            .iter()
-            .filter(|s| p(&s.status))
-            .count()) as u32
+    w.open_requests()
 }
 
 /// Fallback bubble text for a guest who is not a regular.

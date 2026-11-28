@@ -577,19 +577,8 @@ impl World {
                 // once a week: only new people (no shift in the published week yet) may be
                 // added before next week
                 let week = super::app::week_of(self.night);
-                if self.app.manual_rozpis && self.app.published_week == Some(week) {
-                    let only_new =
-                        self.app
-                            .draft
-                            .iter()
-                            .all(|(id, row)| match self.app.published.get(id) {
-                                Some(p) if p == row => true,
-                                Some(p) => p.iter().all(|s| *s == Shift::Off),
-                                None => true,
-                            });
-                    if !only_new {
-                        return Err(CommandError::Locked);
-                    }
+                if self.rozpis_publish_locked() {
+                    return Err(CommandError::Locked);
                 }
                 if self.app.manual_rozpis {
                     self.app.published_week = Some(week);
@@ -609,11 +598,13 @@ impl World {
                 Ok(())
             }
             Command::AnswerSwap { id, approve } => {
+                super::app::check_request(self, id)?;
                 super::app::answer_swap(self, id, approve)?;
                 super::app::answered(self, content, id, approve);
                 Ok(())
             }
             Command::AnswerTimeOff { id, approve } => {
+                super::app::check_request(self, id)?;
                 super::app::answer_time_off(self, id, approve)?;
                 super::app::crew_changed(self, content);
                 super::app::answered(self, content, id, approve);
@@ -636,6 +627,12 @@ impl World {
                     hours: 8.0,
                     status: RequestStatus::Pending,
                 });
+                // about that night: unanswered by then, it lapses ("I'll manage")
+                let rk = match kind {
+                    LeaveKind::Vacation => crate::content::handson::RequestKind::TimeOff,
+                    LeaveKind::Toil => crate::content::handson::RequestKind::Toil,
+                };
+                super::rozpis::note_request(self, rid, rk, staff, None, false, night);
                 Ok(())
             }
             Command::AnswerEvent { event, choice } => {
@@ -718,6 +715,10 @@ impl World {
                     .iter()
                     .find(|a| a.id == id)
                     .ok_or_else(|| CommandError::UnknownId(id.clone()))?;
+                // the same note twice a night is spam (a thank-you per person per night)
+                if self.announcement_posted_tonight(&id, &args) {
+                    return Err(CommandError::Invalid("already posted".into()));
+                }
                 let args_copy = args.clone();
                 self.app.announcements.push(PostedAnnouncement {
                     id: id.clone(),
@@ -938,6 +939,7 @@ impl World {
             }
             Command::PickPolaroid { index } => super::journal::keep(self, content, index),
             Command::AnswerEarlyLeave { id, approve } => {
+                super::app::check_request(self, id)?;
                 super::rozpis::answer_early_leave(self, content, id, approve)
             }
             Command::PickHandover { picks } => super::tool::pick_handover(self, content, picks),

@@ -1594,6 +1594,7 @@ pub fn rozpis_labels(l: Lang) -> RozpisLabels {
                 "{on} на смене · {suggested} советуем",
             ],
         ),
+        publish_locked_tip: String::new(),
     }
 }
 
@@ -1830,6 +1831,7 @@ pub fn rozpis_view(l: Lang, cells: &[[ShiftCell; 7]]) -> RozpisView {
             "Автозаполнение сохранило 6 из 7 пожеланий. «Выходные» Эмы не влезли в субботу.",
         ])),
         dirty: true,
+        publish_locked: false,
     }
 }
 

@@ -18,6 +18,42 @@ en declined
 uk відхилено
 ru отклонено
 
+ui.app.lapsed
+cs bez odpovědi
+en no answer
+uk без відповіді
+ru без ответа
+
+ui.app.too_late
+cs už je pozdě
+en too late now
+uk вже запізно
+ru уже поздно
+
+ui.app.thanked
+cs Poděkováno: {name}
+en {name} thanked tonight
+uk Подякувано: {name}
+ru Спасибо сказано: {name}
+
+ui.error.too_late
+cs Na to už je pozdě
+en Too late for that now
+uk На це вже запізно
+ru На это уже поздно
+
+ui.error.already_answered
+cs Už je vyřízeno
+en Already answered
+uk Уже вирішено
+ru Уже решено
+
+ui.error.already_posted
+cs Dnes už to na nástěnce visí
+en Already on the board tonight
+uk Сьогодні це вже на дошці
+ru Сегодня это уже на доске
+
 ui.app.cell_tip
 cs Klik — další směna · PTM — zpět
 en Click — next shift · RMB — back

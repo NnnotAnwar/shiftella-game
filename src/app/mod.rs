@@ -11,7 +11,7 @@
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
 //!   journal|cutscene_choice|polaroid|themes|rozpis|payroll|season_snow|night27_snow|night22|night14|day|
 //!   build_drag|attic|backroom|requests|corner|before_after|to_go|challenge_summary|
-//!   challenge_final` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
+//!   challenge_final|app_resolved` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
 //!   story_marker|story_card|storm|storm_talk|auto_pause|hands_ux` (`auto_pause`: the night paused
@@ -848,6 +848,20 @@ impl App {
                 self.game(g)
             }
             // package C: grandma's attic, the back room, requests, a corner, before / after
+            // the in-game app after answers in each place (SHIFTELLA_APP_TAB=1 Requests,
+            // 2 the inbox), by default night 9 at 01:00
+            "app_resolved" => {
+                let n = night.unwrap_or(9);
+                let mut g = story_at(n, Some(minute.unwrap_or(180)), &self.i18n, lang);
+                g.world.debug_seed_app_resolved(&content);
+                sim::bot::finish_cutscenes(&mut g.world, &content);
+                let _ = g.world.drain_events();
+                g.panel = Some(game::Panel::App);
+                g.ui_state.app_tab = env("SHIFTELLA_APP_TAB")
+                    .and_then(|t| t.parse().ok())
+                    .unwrap_or(1);
+                self.game(g)
+            }
             "attic" | "backroom" | "requests" | "corner" | "before_after" => {
                 let n = night.unwrap_or(match name {
                     "attic" => 13,
