@@ -65,10 +65,10 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
   | 0 | — | an ordinary guest who tells you how things were "in Lida's day" |
   | 1 | served quickly (≤ 5 min) three nights in a row | asks for his coffee "the way Lida poured it"; the first hint of the secret |
   | 2 | night 8 (scripted) | clips the kerb, squints at the menu → the player can offer a large-print menu (upgrade, +trust) |
-  | 3 | night 20 (scripted) | nearly hits a pedestrian. **Choice:** take his keys / call his daughter / say nothing |
-  | 4 | trust ≥ 60 (keys or daughter) | confesses about the letter → `letter = confessed` |
+  | 3 | night 20 (scripted) | nearly hits a pedestrian (the nurse is Hana, once you know her). **Choice:** take his keys / call his daughter / say nothing |
+  | 4 | nights 25–29 (the storm night at the earliest), trust ≥ 60 (keys or daughter) — or, after "say nothing", from night 26 with trust ≥ 40 | confesses about the letter → `letter = confessed` |
   | 5 | nights 28–30 | **The letter choice** (story.md §7) |
-- **Good ending:** Mirek stops driving (his daughter drives him, or he walks) and delivers the letter himself. **Bad:** you said nothing → on night 25 there is an accident (nobody hurt) and Mirek stops coming.
+- **Good ending:** Mirek stops driving (his daughter drives him, or he walks) and delivers the letter himself. **Say nothing:** on night 25 there is an accident (nobody hurt), Jana takes his keys (trust −20), he walks in and confesses later — but his arc doesn't end well.
 
 ### 3.2 Hana — the night nurse
 - `hana`, Hana Janoušková, 38, district hospital. Comes on her break 02:00–02:30 and after her shift 05:40–06:00.
@@ -78,7 +78,7 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
   |---|---|---|
   | 0 | — | silent, staring at her phone |
   | 1 | served within 4 min, three times | smiles, tells you about a hard night |
-  | 2 | night 12 (scripted): falls asleep at a table | **Choice:** wake her (−) / cover her with a blanket (+) / a "quiet corner" (furniture: armchair + lamp; ++) → `note_04` |
+  | 2 | night 12 (scripted): falls asleep at a table | **Choice:** wake her (+) / cover her with a blanket (+) / a "quiet corner" (furniture: armchair + lamp; ++) → `note_04`; on night 26 she stays with the blanket, the corner or trust ≥ 50 |
   | 3 | there is a quiet corner or a blanket | says she has been offered a job in Dresden |
   | 4 | night 26 | the decision. If stages 2–3 went well she stays ("people wait for me here"); otherwise she leaves, but says a warm goodbye |
 - **What the player can do:** put her order first, give her food for free; the hospital shift-change event brings her colleagues.
@@ -95,7 +95,7 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
   | 0 | night 4 | first appearance |
   | 1 | his table kept free three nights in a row | the coins add up → `note_06` |
   | 2 | night 15 | "Is she still waiting?" → the player's answer is stored in `answer_333` |
-  | 3 | 6 or more notes found | brings an Rn 333 ticket from 1979, lays it on the table and leaves it |
+  | 3 | 4 or more notes found | brings an Rn 333 ticket from 1979, lays it on the table and leaves it |
   | 4 | night 30, 3:33 | the letter scene → the optional "Answer" scene |
 
 ### 3.4 Mrs Vera — insomnia
@@ -108,7 +108,7 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
   | 1 | hall cleanliness ≥ 80 % on three of her visits | helps the staff with the crossword (a joke) |
   | 2 | night 14, relationship ≥ 30 | brings the recipe book → `note_05`, grandma's recipe |
   | 3 | you served her grandma's recipe | cries and tells you about young Lida |
-  | 4 | night 27, 6 or more notes found | tells you about Jindra and Rn 333 |
+  | 4 | nights 19–24, 4 or more notes found (later without the notes) | tells you about Jindra and Rn 333 — before Mirek's confession |
 - **Reward:** the recipe, a key to the mystery, and in the finale "Vera brought her friends" (+3 guests per night).
 
 ### 3.5 Filip — the student
@@ -118,7 +118,7 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
   - 0: "takes a table all night" — a dilemma for the player (a table versus a loyal guest).
   - 1: there is Wi-Fi → he starts bringing friends (+2 students in the pool).
   - 2: night 18, he has failed an exam. **Choice:** talk to him (a staff member with `kind` or `chatterbox`) / free coffee / stay out of it.
-  - 3: if supported — he passes the resit; on night 29 he brings a cake "for not throwing me out".
+  - 3: if supported — he passes the resit; from night 26 he brings a cake "for not throwing me out".
 - **Reward:** students as regulars; the downside: kick him off his table three times → a bad online review (reputation −5).
 
 ### 3.6 Radek — the night dispatcher

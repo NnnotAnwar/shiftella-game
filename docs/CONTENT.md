@@ -106,7 +106,7 @@ Times are `"HH:MM"` strings → `ClockTime`. Money is CZK (`i64`/`u32`). IDs are
 | events.ron | `Vec<EventDef>` | 41 events |
 | narrator.ron | `NarratorDef` | night curve, witching hour, story act pacing |
 | story.ron | `StoryDef` | 30 nights, payments, 10 notes, **2 endings** + the optional "Answer" extra, declared flags/vars/counters/items |
-| cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 36 cutscenes (34 story + 2 Anwar talks), 7 cast members, named map spots |
+| cutscenes.ron | `CutsceneLib { spots, cast, cutscenes }` | 38 cutscenes (36 story + 2 Anwar talks), 7 cast members, named map spots |
 | shiftella.ron | `ShiftellaApp` | announcements, checklists, bot templates, digest / payroll / handover lines |
 | trains.ron | `TrainLine` | stations Adamov → … → Praha-Holešovice (home), 5 night trains incl. `Rn 333` + the `Nex 9047` freight at 21:47 (a train before 22:00 only passes by in the preparation half hour, nobody gets off) |
 | difficulty.ron | `Vec<DifficultyDef>` | `cozy` (default), `classic` |
@@ -208,8 +208,8 @@ Control: `Maybe{chance, effects}`, `Later{minutes, effects}` (dropped at night e
 * Payments: nights 7/14/21/28 × 15 000 + night 30 × 30 000 (final) = debt 90 000. Missing one: apply `difficulty.missed_payment_effects`; Classic closes after `close_after_missed` (2) or a missed final (`final_payment_missed` flag) → Last Train ending early.
 * Notes: `found_when` (empty = only via `FindNote` / `Beat::Note` / `ShowNote`) checked each game minute + at night end.
 * **Endings (exactly two)**, checked in `order` at the end of night 30 (or on a Classic closure): `last_train` (franchise accepted, or Classic payment failure, or reputation < 20 with no good arc) → otherwise `light` (fallback). Each plays its `cutscene` (trigger `Ending(id)`), which branches with `If` steps. `variants` (first match) name the outcome for the summary screen: last_train = `sold` / `farewell` / `closed`; light = `full` / `quiet`.
-* `ending_extra` "Answer" (letter delivered + ≥ 8 notes + offer not accepted) is **not an ending**: both ending cutscenes `Call` the `answer` cutscene when it holds; show `ending.extra.answer.title` as an epilogue badge.
-* State: vars `letter` (hidden → confessed → with_player / with_mirek / burned / persuaded → delivered / delivered_by_mirek), `offer` (none/pending/accepted/rejected), `answer_333`; counters `missed_payments`, `payments_made`, `cat_fed_nights`, `coins_collected`, `filip_kicked_out`. The sim owns `payments_made`/`missed_payments` bookkeeping.
+* `ending_extra` "Answer" (letter delivered + offer not accepted) is **not an ending**: both ending cutscenes `Call` the `answer` cutscene when it holds; show `ending.extra.answer.title` as an epilogue badge. Eight notes or more add Lida's postscript inside the scene (a reward, not a lock).
+* State: vars `letter` (hidden → confessed → with_player / with_mirek / burned / persuaded → delivered / delivered_by_mirek; after the sale `bench`: Mirek leaves it on the platform bench, shown in `last_333_sold`), `offer` (none/pending/accepted/rejected), `answer_333`; counters `missed_payments`, `payments_made`, `cat_fed_nights`, `coins_collected`, `filip_kicked_out`. The sim owns `payments_made`/`missed_payments` bookkeeping.
 
 ## 6. Cutscenes
 
