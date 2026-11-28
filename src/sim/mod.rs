@@ -112,6 +112,8 @@ mod tests_signature;
 #[cfg(test)]
 mod tests_stories;
 #[cfg(test)]
+mod tests_story_large;
+#[cfg(test)]
 mod tests_sys;
 #[cfg(test)]
 mod tests_t10;

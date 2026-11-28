@@ -19,15 +19,15 @@ const STORY_REGULARS: [&str; 7] = [
     "guest_333",
 ];
 
-fn content() -> Content {
+pub(super) fn content() -> Content {
     Content::load(DATA).unwrap_or_else(|e| panic!("{e}"))
 }
 
 /// The cutscenes in the order they played, each with its night.
-type SceneLog = Vec<(u32, String)>;
+pub(super) type SceneLog = Vec<(u32, String)>;
 
 /// Plays a whole story with the attentive player-bot; `pick` may override a scene's choices.
-fn play_story(
+pub(super) fn play_story(
     c: &Content,
     seed: u64,
     difficulty: Difficulty,
@@ -37,7 +37,7 @@ fn play_story(
 }
 
 /// [`play_story`] with a hook run every day (after the bot's day) and the log of scenes.
-fn play_story_with(
+pub(super) fn play_story_with(
     c: &Content,
     seed: u64,
     difficulty: Difficulty,
@@ -91,11 +91,11 @@ fn answer(
 }
 
 /// The night scene `id` played on.
-fn night_of(log: &SceneLog, id: &str) -> Option<u32> {
+pub(super) fn night_of(log: &SceneLog, id: &str) -> Option<u32> {
     log.iter().find(|(_, x)| x == id).map(|(n, _)| *n)
 }
 
-fn letter(w: &World) -> &str {
+pub(super) fn letter(w: &World) -> &str {
     w.story()
         .vars
         .get("letter")
