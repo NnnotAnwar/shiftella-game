@@ -1,0 +1,84 @@
+# Walking as Karolina (sim::steer, screens/game/steer_ui): the prompt over the thing beside her
+# ("E · Take the order") and the follow camera toast. Short verbs: the chip is small.
+
+# --- E prompt -------------------------------------------------------------------------------------
+
+walk.do.take_order
+cs Vzít objednávku
+en Take the order
+uk Прийняти замовлення
+ru Принять заказ
+
+walk.do.order
+cs Objednávka
+en Their order
+uk Замовлення
+ru Заказ
+
+walk.do.brew
+cs Připravit
+en Make it
+uk Приготувати
+ru Приготовить
+
+walk.do.serve
+cs Donést
+en Serve
+uk Подати
+ru Подать
+
+walk.do.clear
+cs Sklidit stůl
+en Clear the table
+uk Прибрати стіл
+ru Убрать стол
+
+walk.do.tip
+cs Vzít dýško
+en Take the tip
+uk Забрати чайові
+ru Забрать чаевые
+
+walk.do.wash
+cs Umýt nádobí
+en Wash up
+uk Помити посуд
+ru Помыть посуду
+
+walk.do.mop
+cs Vytřít
+en Mop it
+uk Витерти
+ru Вытереть
+
+walk.do.records
+cs Desky
+en Records
+uk Платівки
+ru Пластинки
+
+walk.do.open
+cs Otevřít dveře
+en Open the doors
+uk Відчинити двері
+ru Открыть двери
+
+# --- follow camera ----------------------------------------------------------------------------------
+
+walk.follow.on
+cs Kamera jde s Karolinou
+en The camera follows Karolina
+uk Камера йде за Кароліною
+ru Камера следует за Каролиной
+
+walk.follow.off
+cs Kamera zůstává na místě
+en The camera stays put
+uk Камера лишається на місці
+ru Камера остаётся на месте
+
+access.action.follow_cam
+cs Kamera jde s ní
+en Camera follows her
+uk Камера йде за нею
+ru Камера идёт за ней

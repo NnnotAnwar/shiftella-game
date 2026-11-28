@@ -143,10 +143,10 @@ uk Гості
 ru Гости
 
 tutorial.guests.body
-cs Najeď myší na hosta: uvidíš, co si přeje a jak dlouho vydrží čekat. Štamgasti mají svůj příběh — klikni na ně, a když mají co říct, objeví se Promluvit si.
-en Hover a guest to see what they want and how long they'll wait. Regulars have their own stories — click one, and when they have something to say, Talk appears.
-uk Наведи на гостя — побачиш, чого хочуть і скільки чекатимуть. У постійних гостей свої історії: клацни, і коли їм є що сказати, з'явиться «Поговорити».
-ru Наведи на гостя — увидишь, чего он хочет и сколько будет ждать. У постоянных гостей свои истории: нажми, и когда им есть что сказать, появится «Поговорить».
+cs Najeď myší na hosta: uvidíš, co si přeje a jak dlouho vydrží čekat. Klikni na něj a Karolina k němu dojde sama — nebo ji tam doveď přes WASD a stiskni {key.chore}. Štamgasti mají svůj příběh: když mají co říct, objeví se Promluvit si.
+en Hover a guest to see what they want and how long they'll wait. Click them and Karolina goes over by herself — or walk her there with WASD and press {key.chore}. Regulars have their own stories: when they have something to say, Talk appears.
+uk Наведи на гостя — побачиш, чого хочуть і скільки чекатимуть. Клацни — і Кароліна підійде сама, або доведи її через WASD і натисни {key.chore}. У постійних гостей свої історії: коли їм є що сказати, з'явиться «Поговорити».
+ru Наведи на гостя — увидишь, чего он хочет и сколько будет ждать. Нажми — и Каролина подойдёт сама, или доведи её через WASD и нажми {key.chore}. У постоянных гостей свои истории: когда им есть что сказать, появится «Поговорить».
 
 tutorial.staff.title
 cs Tým pracuje sám
@@ -277,10 +277,10 @@ uk Ніч і гості
 ru Ночь и гости
 
 ui.help.night.body
-cs {Key.pause} je pauza, {key.speed1}/{key.speed2}/{key.speed3} rychlost, WASD a kolečko kamera, Home celá kavárna. Najetím na hosta uvidíš jeho přání; štamgasti občas chtějí promluvit.
-en {Key.pause} pauses, {key.speed1}/{key.speed2}/{key.speed3} set the speed, WASD and the wheel move the camera, Home shows the whole café. Hover a guest to see their wish; regulars sometimes want to talk.
-uk {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — швидкість, WASD і коліщатко — камера, Home — уся кав'ярня. Наведи на гостя, щоб побачити бажання; постійні гості часом хочуть поговорити.
-ru {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — скорость, WASD и колёсико — камера, Home — всё кафе. Наведи на гостя, чтобы увидеть желание; постоянные гости иногда хотят поговорить.
+cs {Key.pause} je pauza, {key.speed1}/{key.speed2}/{key.speed3} rychlost. V noci WASD / šipky vedou Karolinu a kamera jde s ní ({key.follow_cam} zap./vyp.); kamera sama: Shift+WASD, tah pravým tlačítkem a kolečko, Home celá kavárna. Najetím na hosta uvidíš jeho přání; štamgasti občas chtějí promluvit.
+en {Key.pause} pauses, {key.speed1}/{key.speed2}/{key.speed3} set the speed. At night WASD / the arrows walk Karolina and the camera follows her ({key.follow_cam} on / off); the camera alone: Shift+WASD, a right-button drag and the wheel, Home shows the whole café. Hover a guest to see their wish; regulars sometimes want to talk.
+uk {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — швидкість. Уночі WASD / стрілки ведуть Кароліну, і камера йде за нею ({key.follow_cam} — увімк./вимк.); сама камера: Shift+WASD, тягни правою кнопкою й коліщатко, Home — уся кав'ярня. Наведи на гостя, щоб побачити бажання; постійні гості часом хочуть поговорити.
+ru {Key.pause} — пауза, {key.speed1}/{key.speed2}/{key.speed3} — скорость. Ночью WASD / стрелки ведут Каролину, и камера идёт за ней ({key.follow_cam} — вкл./выкл.); сама камера: Shift+WASD, тяни правой кнопкой и колёсико, Home — всё кафе. Наведи на гостя, чтобы увидеть желание; постоянные гости иногда хотят поговорить.
 
 ui.help.events.title
 cs Události a deník

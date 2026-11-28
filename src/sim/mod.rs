@@ -44,6 +44,7 @@ pub mod rng;
 mod rozpis;
 pub mod signature;
 mod staff;
+mod steer;
 mod stories;
 mod storm;
 mod story;
@@ -110,6 +111,8 @@ mod tests_seats;
 #[cfg(test)]
 mod tests_signature;
 #[cfg(test)]
+mod tests_steer;
+#[cfg(test)]
 mod tests_stories;
 #[cfg(test)]
 mod tests_story_large;
@@ -146,6 +149,7 @@ pub use player::{MOP_AMOUNT, NOT_IN_YET, WASH_PER_SECOND};
 pub use rituals::{Habits, MoodView, RitualHold, RitualStep, ritual_gesture, ritual_key};
 pub use signature::{NightPhoto, SIGNATURE_RECIPE, SignatureDrink};
 pub use staff::FIRST_HIRE_NIGHT;
+pub use steer::{HOLD_TICKS, NearKind, Nearby};
 pub use stories::{ActiveStory, AnswerDef, GUEST_LEFT, StoriesState, StoryDef, persona_arg};
 pub use storm::{StormAct, StormState, TalkDef, TalkLine};
 pub use story::{ambient_line_for, talk_available};

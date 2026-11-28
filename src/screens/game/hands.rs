@@ -275,6 +275,8 @@ pub struct Hands {
     pub queue_drag: Option<(usize, f32)>,
     /// Real seconds the autoplayer has stood at the waiting clock (21:59 / 06:29).
     pub door_wait: f32,
+    /// Walking as Karolina: WASD, the follow camera, E's prompt (`steer_ui`).
+    pub steer: super::steer_ui::SteerUi,
 }
 
 impl Hands {
@@ -491,7 +493,7 @@ fn ready_item<'a>(w: &'a World, p: &Party) -> Option<&'a OrderItem> {
 }
 
 /// Can she wave at this party now?
-fn greetable(content: &Content, w: &World, p: &Party) -> bool {
+pub(super) fn greetable(content: &Content, w: &World, p: &Party) -> bool {
     !p.greeted
         && p.state != PartyState::Leaving
         && w.minute().saturating_sub(p.arrived) <= content.handson.tuning.greeting.window_minutes
@@ -552,7 +554,13 @@ impl GameScreen {
         self.hands.overlay() || self.panel == Some(Panel::App) || self.sig.open
     }
 
-    fn toast_key(&mut self, kind: ToastKind, icon: Icon, key: &str, args: &[(&str, String)]) {
+    pub(super) fn toast_key(
+        &mut self,
+        kind: ToastKind,
+        icon: Icon,
+        key: &str,
+        args: &[(&str, String)],
+    ) {
         self.notices.push(Notice::Key {
             kind,
             icon,

@@ -30,9 +30,12 @@ pub enum Action {
     Photo,
     Jukebox,
     Moment,
+    /// E: the thing beside her (walking as Karolina, `sim::steer`), else the nearest chore.
     Chore,
     Greet,
     Queue,
+    /// The camera follows Karolina's steps (WASD at night) / stays put.
+    FollowCam,
     /// "Open the doors" in the preparation, "Close up" in the closing half hour.
     Doors,
     Pause,
@@ -45,7 +48,7 @@ pub enum Action {
 
 impl Action {
     /// In the order of the Controls list.
-    pub const ALL: [Action; 20] = [
+    pub const ALL: [Action; 21] = [
         Action::Crew,
         Action::Duties,
         Action::App,
@@ -59,6 +62,7 @@ impl Action {
         Action::Chore,
         Action::Greet,
         Action::Queue,
+        Action::FollowCam,
         Action::Doors,
         Action::Pause,
         Action::Speed1,
@@ -84,6 +88,7 @@ impl Action {
             Action::Chore => "chore",
             Action::Greet => "greet",
             Action::Queue => "queue",
+            Action::FollowCam => "follow_cam",
             Action::Doors => "doors",
             Action::Pause => "pause",
             Action::Speed1 => "speed1",
@@ -118,6 +123,7 @@ impl Action {
             Action::Chore => KeyCode::E,
             Action::Greet => KeyCode::G,
             Action::Queue => KeyCode::Q,
+            Action::FollowCam => KeyCode::Z,
             Action::Doors => KeyCode::O,
             Action::Pause => KeyCode::Space,
             Action::Speed1 => KeyCode::Key1,
@@ -203,8 +209,8 @@ impl KeyBindings {
     }
 }
 
-/// Keys that keep a fixed meaning and can't be bound: Esc / Enter, the camera (WASD,
-/// arrows, Home), the ticket rail ([ ]), Backspace (cancel), build mode (R, X, Tab) and the
+/// Keys that keep a fixed meaning and can't be bound: Esc / Enter, the camera and walking
+/// as Karolina (WASD, arrows, Home), the ticket rail ([ ]), Backspace (cancel), build mode (R, X, Tab) and the
 /// modifiers. `None` = free to bind; otherwise the i18n key of the reason.
 pub fn reserved_reason(k: KeyCode) -> Option<&'static str> {
     use KeyCode::*;

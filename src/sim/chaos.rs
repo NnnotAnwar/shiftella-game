@@ -799,7 +799,7 @@ pub(crate) fn random_command(w: &World, c: &Content, r: &mut Rng) -> Command {
     } else {
         r.range_u32(0, 7) as u8
     };
-    match r.index(72) {
+    match r.index(74) {
         0..=2 => {
             let (x, y) = some_tile(r, w);
             Command::PlaceFurniture {
@@ -1144,6 +1144,21 @@ pub(crate) fn random_command(w: &World, c: &Content, r: &mut Rng) -> Command {
                 name: pick_str(r, &["Noční vlak".into(), String::new(), "q".repeat(200)]),
             }
         }
+        72 => Command::PlayerMove {
+            dir: if r.chance(0.05) {
+                (*r.pick(&[2i8, -7, i8::MAX, i8::MIN]).unwrap(), 1)
+            } else if r.chance(0.35) {
+                (0, 0)
+            } else {
+                (r.range_i64(-1, 2) as i8, r.range_i64(-1, 2) as i8)
+            },
+        },
+        73 => match w.nearby(c).and_then(|n| n.command()) {
+            Some(cmd) if r.chance(0.7) => cmd,
+            _ => Command::PlayerInteract {
+                act: random_act(w, c, r),
+            },
+        },
         _ => match r.index(5) {
             0 => Command::TakePhoto {
                 focus: (some_f32(r) * 1900.0, some_f32(r) * 1100.0),

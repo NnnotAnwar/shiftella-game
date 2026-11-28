@@ -1083,6 +1083,20 @@ pub enum Command {
     PlayerGreet {
         guest: u32,
     },
+    /// Manual walking (WASD, `sim::steer`): Karolina walks this way tile by tile while it is
+    /// held (each part −1..=1); `(0, 0)` lets go. Furniture, walls, seats and people block
+    /// her; she always stops on a tile's centre. A walk to her current act's first spot is
+    /// cancelled (as `PlayerCancel`); queued acts wait until she has stood still a moment.
+    /// Ignored while she works or carries. `WrongPhase` by day.
+    PlayerMove {
+        dir: (i8, i8),
+    },
+    /// Interact (E, `World::nearby`): `act` first in her queue, done from where she stands
+    /// (what she is on now finishes first), without the wait after steering. Lets go of the
+    /// manual direction. Errors as `PlayerQueue`, `Invalid` when the act is hers already.
+    PlayerInteract {
+        act: PlayerAct,
+    },
     /// Delegate / take back a duty. Capacity-checked (`CommandError::Capacity`); undoable.
     SetDuty {
         staff: u32,

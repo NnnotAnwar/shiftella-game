@@ -847,6 +847,8 @@ impl World {
                 super::player::wash_progress(self, content, sink, seconds)
             }
             Command::PlayerGreet { guest } => super::player::greet(self, content, guest),
+            Command::PlayerMove { dir } => super::steer::set_dir(self, dir),
+            Command::PlayerInteract { act } => super::player::interact(self, content, act),
             Command::PlayRecord { id, repeat } => super::player::queue(
                 self,
                 content,

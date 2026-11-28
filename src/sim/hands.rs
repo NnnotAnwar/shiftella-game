@@ -204,6 +204,25 @@ pub struct PlayerState {
     /// Last mode chosen for plain / wish orders (the order card remembers it).
     pub last_mode_plain: BrewMode,
     pub last_mode_wish: BrewMode,
+    /// Manual walking (`Command::PlayerMove`, WASD): the held direction, each part −1..=1;
+    /// `(0, 0)` = not steered (`sim::steer`).
+    #[serde(skip_serializing_if = "is_still")]
+    pub steer: (i8, i8),
+    /// Ticks her queue still waits after the last manual step (`steer::HOLD_TICKS`).
+    #[serde(skip_serializing_if = "is_zero")]
+    pub steer_hold: u32,
+    /// The last act **E** gave her and where she stood then: it starts right there when she
+    /// still does (beside the piece), not at the piece's usual spot (`steer::here_goal`).
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub interact_at: Option<(PlayerAct, (i32, i32))>,
+}
+
+fn is_still(d: &(i8, i8)) -> bool {
+    *d == (0, 0)
+}
+
+fn is_zero(n: &u32) -> bool {
+    *n == 0
 }
 
 /// A tip coin a guest left on their table (handson.md §1.2): click it to collect.

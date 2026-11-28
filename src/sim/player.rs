@@ -367,7 +367,34 @@ pub(crate) fn queue(
     queue_room(w)?;
     let act = claim_act(w, content, act)?;
     push(w, act, front);
+    // a click while she was steered a moment ago: no waiting (sim::steer)
+    w.hands.player.steer_hold = 0;
     Ok(())
+}
+
+/// `Command::PlayerInteract` (sim::steer): the act in front of her queue, done from where she
+/// stands; she lets go of the steering and stops waiting.
+pub(crate) fn interact(
+    w: &mut World,
+    content: &Content,
+    act: PlayerAct,
+) -> Result<(), CommandError> {
+    night_only(w)?;
+    if super::steer::in_hands(w, &act) {
+        return Err(CommandError::Invalid("already on it".into()));
+    }
+    queue(w, content, act.clone(), true)?;
+    w.hands.player.steer = (0, 0);
+    let here = karolina_idx(w)
+        .map(|i| w.staff[i].tile())
+        .unwrap_or_default();
+    w.hands.player.interact_at = Some((act, here));
+    Ok(())
+}
+
+/// Steering cancels a walk to her act's first spot (sim::steer): as `PlayerCancel`.
+pub(crate) fn cancel_walk(w: &mut World, content: &Content) {
+    drop_current(w, content);
 }
 
 /// `Command::PlayerTakeOrder`.
@@ -965,6 +992,7 @@ pub(crate) fn reset(w: &mut World) {
     w.hands.player.wash_bank = 0.0;
     w.sys.moments.walks.clear();
     w.sys.moments.walk_now = None;
+    super::steer::reset(w);
 }
 
 /// Queues a walk with work at its end (a moment's option, a night experiment).
@@ -1024,6 +1052,10 @@ fn checklist_anchor(w: &World, content: &Content, id: &str, from: (i32, i32)) ->
 
 /// Where the act's first stage happens.
 fn first_goal(w: &World, content: &Content, idx: usize, act: &PlayerAct) -> Goal {
+    // E beside it (sim::steer): right where she stands
+    if let Some(t) = super::steer::here_goal(w, content, idx, act) {
+        return Goal::At(t);
+    }
     let here = w.staff[idx].tile();
     let at = |t: Option<(i32, i32)>| t.map_or(Goal::Fail, Goal::At);
     match act {
@@ -1247,6 +1279,10 @@ fn hand_over(w: &mut World, content: &Content, idx: usize, tray: &[u32]) {
 pub(crate) fn tick(w: &mut World, content: &Content, idx: usize) {
     prune_gone(w, content);
     super::rituals::tidy(w, content);
+    // WASD: she walks where she's steered (sim::steer); her queue waits meanwhile
+    if super::steer::tick(w, content, idx) {
+        return;
+    }
     if !w.staff[idx].path.is_empty() {
         walk(w, content, idx);
         return;

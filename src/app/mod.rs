@@ -14,7 +14,10 @@
 //!   challenge_final` (`SHIFTELLA_BUILD_DEF` / `_AT=x,y`
 //!   / `_TAB` / `_TURNS`: a held or dragged piece)
 //!   equipment|guest_names|walk_home|walk_home_snow|walk_home_rain|backstep|backstep_snow|
-//!   story_marker|story_card|storm|storm_talk|auto_pause|hands_ux` (`auto_pause`: the night paused
+//!   story_marker|story_card|storm|storm_talk|auto_pause|hands_ux|walk` (`walk`: Karolina walked
+//!   up to `SHIFTELLA_WALK_TO=guest|table|sink` by the WASD keys, the camera following, the E
+//!   prompt; `SHIFTELLA_WALK_T=<s>` how long the keys are held, `SHIFTELLA_WALK_ZOOM=<k>`)
+//!   (`auto_pause`: the night paused
 //!   itself for `SHIFTELLA_EVENT=<id>`, default `storm`, and shows why) (`SHIFTELLA_HUX=checklist|rituals|
 //!   queue|follow|gesture`: the checklist states, the queue strip with 8 acts, the follow chip,
 //!   a ritual gesture over its piece — `SHIFTELLA_GESTURE=<checklist id | equip.<chore>>`,
@@ -541,6 +544,19 @@ impl App {
             }
             // the character card (C): Karolina's, a helper's (also Classic and by day), hiring
             // hands-ux shots: SHIFTELLA_HUX=checklist|rituals|queue|follow
+            "walk" => {
+                // walking as Karolina: SHIFTELLA_WALK_TO=guest|table|sink, _T=<s> held,
+                // _ZOOM=<k> (GameScreen::stage_walk)
+                let mut g = story_at(
+                    night.unwrap_or(3),
+                    Some(minute.unwrap_or(75)),
+                    &self.i18n,
+                    lang,
+                );
+                let to = env("SHIFTELLA_WALK_TO").unwrap_or_else(|| "guest".into());
+                g.stage_walk(&content, &to);
+                self.game(g)
+            }
             "hands_ux" => {
                 let loc = Locale::new(&self.i18n, lang);
                 let which = env("SHIFTELLA_HUX").unwrap_or_else(|| "queue".into());
