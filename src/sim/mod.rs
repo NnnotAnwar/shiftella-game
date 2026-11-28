@@ -254,6 +254,11 @@ impl World {
     pub fn debug_set_supplies(&mut self, supplies: i64) {
         self.econ.supplies = supplies.max(0);
     }
+    /// Debug helper: pay `amount` for something for the café, as a purchase would (screenshots
+    /// of the summary's «bought for the café» line).
+    pub fn debug_buy_for_cafe(&mut self, amount: i64) {
+        economy::spend_on_cafe(self, amount);
+    }
     /// Debug helper: fire an event now (ignores conditions).
     pub fn debug_fire_event(&mut self, content: &Content, id: &str) {
         narrator::fire(self, content, id, EffectCtx::default(), true);

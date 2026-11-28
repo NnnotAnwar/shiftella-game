@@ -476,9 +476,66 @@ fn guest_lifecycle_arrive_order_eat_pay_leave() {
             - s.supplies
             - s.rent
             - s.other_expenses
+            - s.purchases
             - s.payment,
         "ledger adds up"
     );
+}
+
+/// 0.2.5: what Karolina buys for the café during the night is its own ledger line, not a
+/// running cost (a player saw «supplies & running costs» of 8 098 Kč when 7 500 of it was
+/// new furniture); selling and undo count back, and the night still adds up.
+#[test]
+fn night_purchases_are_their_own_ledger_line() {
+    let c = content();
+    let mut w = World::new_story(&c, Difficulty::Cozy);
+    finish_cutscenes(&mut w, &c);
+    let money = w.money();
+    w.apply(&c, Command::StartNight).unwrap();
+    finish_cutscenes(&mut w, &c);
+    assert_eq!(w.phase(), Phase::Night);
+    // +350 plant, −225 a sold chair, +225 the chair undone back, −225 sold again
+    w.apply(&c, place("plant_small", 8, 7)).unwrap();
+    let chair = w.furniture().iter().find(|p| p.def == "chair").unwrap().uid;
+    w.apply(&c, Command::RemoveFurniture { uid: chair })
+        .unwrap();
+    w.undo(&c).unwrap();
+    w.apply(&c, Command::RemoveFurniture { uid: chair })
+        .unwrap();
+    assert_eq!(w.tonight.purchases, 350 - 225);
+    run_night(&mut w, &c);
+    let s = w.last_summary().unwrap().clone();
+    assert_eq!(s.purchases, 125);
+    assert_eq!(s.other_expenses, 0, "no event cost tonight: {:?}", s.events);
+    assert_eq!(
+        w.money(),
+        money + s.revenue + s.tips + s.other_income
+            - s.wages
+            - s.supplies
+            - s.rent
+            - s.other_expenses
+            - s.purchases
+            - s.payment,
+        "the night adds up"
+    );
+    assert_eq!(s.money_end, w.money());
+}
+
+/// A summary saved before 0.2.5 has no `purchases` field: it loads as 0.
+#[test]
+fn old_summaries_load_without_purchases() {
+    let c = content();
+    let mut w = World::new_story(&c, Difficulty::Cozy);
+    finish_cutscenes(&mut w, &c);
+    w.apply(&c, Command::StartNight).unwrap();
+    finish_cutscenes(&mut w, &c);
+    run_night(&mut w, &c);
+    let text = w.save_to_string().unwrap();
+    assert!(text.contains("purchases:0"));
+    let old = text.replace("purchases:0,", "");
+    assert!(!old.contains("purchases:"));
+    let back = World::load_from_str(&old).unwrap();
+    assert_eq!(back.last_summary().unwrap().purchases, 0);
 }
 
 #[test]

@@ -219,6 +219,11 @@ pub struct NightSummary {
     pub rent: i64,
     pub other_income: i64,
     pub other_expenses: i64,
+    /// Things bought for the café during the night — furniture, floors, attic pieces, the
+    /// back room, themes — less what selling or undoing gave back (0.2.5: they used to sit
+    /// in `other_expenses` and the summary showed them as running costs).
+    #[serde(default)]
+    pub purchases: i64,
     pub payment: i64,
     pub payment_missed: bool,
     pub net: i64,

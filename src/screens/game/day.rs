@@ -466,7 +466,14 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
     } else {
         24.0 + 18.0 * sm.challenge.len() as f32
     };
-    let (w, h) = (440.0 + pw, (430.0 + pay_h).min(s.h - 24.0));
+    // the money block: supplies and rent always, the rest only when they happened
+    let money_h = 22.0
+        * [sm.other_income, sm.purchases, sm.other_expenses]
+            .iter()
+            .filter(|v| **v != 0)
+            .count() as f32
+        + 22.0;
+    let (w, h) = (440.0 + pw, (430.0 + money_h + pay_h).min(s.h - 24.0));
     let pr = Rect::new((s.w - w) / 2.0, (s.h - h) / 2.0 - 10.0, w, h);
     ui.glass(pr, &Glass::panel().radius(14.0));
     let c = Rect::new(pr.x, pr.y, 440.0, pr.h).inset(22.0);
@@ -541,15 +548,30 @@ pub fn summary(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         t.text,
     );
     y += 22.0;
-    let other = sm.supplies + sm.rent + sm.other_expenses;
-    line(
-        ui,
-        y,
-        loc.tr("ui.summary.expenses"),
-        format_money(loc.lang, -other),
-        t.text,
-    );
-    y += 22.0;
+    if sm.other_income != 0 {
+        line(
+            ui,
+            y,
+            loc.tr("ui.summary.other_income"),
+            format_money(loc.lang, sm.other_income),
+            t.emerald_400,
+        );
+        y += 22.0;
+    }
+    // one line per kind of cost (0.2.5: furniture bought at night used to hide in one
+    // «supplies & running costs» line and looked like the café's daily costs)
+    let costs = [
+        ("ui.summary.supplies", sm.supplies, true),
+        ("ui.summary.rent", sm.rent, true),
+        ("ui.summary.purchases", sm.purchases, false),
+        ("ui.summary.other_costs", sm.other_expenses, false),
+    ];
+    for (key, amount, always) in costs {
+        if always || amount != 0 {
+            line(ui, y, loc.tr(key), format_money(loc.lang, -amount), t.text);
+            y += 22.0;
+        }
+    }
     if sm.payment != 0 || sm.payment_missed {
         let label = if sm.payment_missed {
             loc.tr("ui.summary.payment_missed")

@@ -300,10 +300,7 @@ impl World {
                     paid: d.price,
                 };
                 place_piece(self, content, piece)?;
-                self.econ.money -= price;
-                if self.phase == Phase::Night {
-                    self.tonight.other_expenses += price;
-                }
+                super::economy::spend_on_cafe(self, price);
                 push_undo(self, UndoOp::Unplace { uid, refund: price });
                 self.emit(SimEvent::FurniturePlaced { uid });
                 Ok(())
@@ -352,7 +349,7 @@ impl World {
                 self.hands.tips = rest;
                 super::player::collect_coins(self, content, coins, None);
                 let refund = (p.paid / 2) as i64;
-                self.econ.money += refund;
+                super::economy::spend_on_cafe(self, -refund);
                 push_undo(
                     self,
                     UndoOp::Replace {
@@ -384,7 +381,7 @@ impl World {
                         have: self.econ.money,
                     });
                 }
-                self.econ.money -= price;
+                super::economy::spend_on_cafe(self, price);
                 self.grid.tiles[i].floor = f;
                 self.grid.rebuild(&self.furniture, content);
                 push_undo(
@@ -1007,16 +1004,13 @@ impl World {
         let op = self.undo.pop().ok_or(CommandError::NothingToUndo)?;
         let r = match op.clone() {
             UndoOp::Unplace { uid, refund } => remove_piece(self, content, uid).map(|_| {
-                self.econ.money += refund;
-                if self.phase == Phase::Night {
-                    self.tonight.other_expenses -= refund;
-                }
+                super::economy::spend_on_cafe(self, -refund);
                 self.emit(SimEvent::FurnitureRemoved { uid });
             }),
             UndoOp::Replace { piece, charge } => {
                 let uid = piece.uid;
                 place_piece(self, content, piece).map(|_| {
-                    self.econ.money -= charge;
+                    super::economy::spend_on_cafe(self, charge);
                     self.emit(SimEvent::FurniturePlaced { uid });
                 })
             }
@@ -1029,7 +1023,7 @@ impl World {
             } => {
                 if let Some(i) = self.grid.idx(x, y) {
                     self.grid.tiles[i].floor = floor;
-                    self.econ.money += refund;
+                    super::economy::spend_on_cafe(self, -refund);
                     self.grid.rebuild(&self.furniture, content);
                 }
                 Ok(())

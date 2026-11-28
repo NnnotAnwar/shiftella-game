@@ -432,11 +432,29 @@ en Sandbox
 uk Пісочниця
 ru Песочница
 
-ui.summary.expenses
-cs Zásoby a provoz
-en Supplies & running costs
-uk Запаси й витрати
-ru Запасы и расходы
+ui.summary.rent
+cs Nájem a energie
+en Rent & utilities
+uk Оренда й комунальні
+ru Аренда и коммуналка
+
+ui.summary.purchases
+cs Nákupy pro kavárnu
+en Bought for the café
+uk Покупки для кав'ярні
+ru Покупки для кафе
+
+ui.summary.other_costs
+cs Ostatní výdaje
+en Other costs
+uk Інші витрати
+ru Прочие расходы
+
+ui.summary.other_income
+cs Ostatní příjmy
+en Other income
+uk Інші доходи
+ru Прочие доходы
 
 ui.summary.mood_good
 cs Hosté odcházeli s úsměvem. Babička by byla spokojená.

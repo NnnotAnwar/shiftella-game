@@ -22,7 +22,8 @@
 //!   `SHIFTELLA_STORY=<id>`: the vignette put on a
 //!   stranger when none came by itself; `SHIFTELLA_LINE=n`: the storm talk's line)
 //!   (`SHIFTELLA_EQUIP=prep|night|worn|closing`: the appliances' states;
-//!   `SHIFTELLA_FRIDGE=full|worn` on `day` / `summary`: an overfull or worn fridge)
+//!   `SHIFTELLA_FRIDGE=full|worn` on `day` / `summary`: an overfull or worn fridge;
+//!   `SHIFTELLA_BOUGHT=<Kč>` on `summary`: that much bought for the café tonight)
 //!   (hands-on scenes are played to their moment by the autoplayer;
 //!   `SHIFTELLA_MG=froth|chocolate|raf|encore|latte|flat_white|pour|turek|night_train|tonic|
 //!   tea|chai|linden|tatra|uzvar|rn333|plate|chlebicek|kolac|vera_kolac|medovnik|varenyky|
@@ -887,6 +888,10 @@ impl App {
                 let n = night.unwrap_or(1);
                 let mut g = story_at(n, Some(479), &self.i18n, lang);
                 fridge_setup(&mut g, &content);
+                // `SHIFTELLA_BOUGHT=<Kč>`: the night's purchases for the café (0.2.5 line)
+                if let Some(v) = env("SHIFTELLA_BOUGHT").and_then(|v| v.parse::<i64>().ok()) {
+                    g.world.debug_buy_for_cafe(v);
+                }
                 g.run_to_morning(&content, &Locale::new(&self.i18n, lang));
                 self.game(g)
             }

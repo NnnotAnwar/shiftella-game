@@ -100,10 +100,7 @@ pub(crate) fn buy_theme(w: &mut World, content: &Content, id: &str) -> Result<()
             have: w.econ.money,
         });
     }
-    w.econ.money -= price;
-    if w.phase == Phase::Night {
-        w.tonight.other_expenses += price;
-    }
+    super::economy::spend_on_cafe(w, price);
     w.sys.atmos.owned.insert(id.to_string());
     w.emit(SimEvent::ThemeUnlocked {
         id: id.to_string(),

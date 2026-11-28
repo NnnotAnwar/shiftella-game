@@ -52,6 +52,16 @@ pub(crate) fn restock(w: &mut World, _content: &Content) {
     w.tonight.supplies += std::mem::take(&mut w.econ.day_supplies);
 }
 
+/// Pays `amount` for something for the café (furniture, floor, attic piece, back room,
+/// theme); a negative amount is money back (selling, undo). Night purchases go into
+/// tonight's ledger as `purchases`; the day's are not part of a night.
+pub(crate) fn spend_on_cafe(w: &mut World, amount: i64) {
+    w.econ.money -= amount;
+    if w.phase == Phase::Night {
+        w.tonight.purchases += amount;
+    }
+}
+
 /// Manual purchase (day phase or night).
 pub(crate) fn buy_supplies(w: &mut World, amount: i64) -> Result<(), CommandError> {
     if amount <= 0 || amount > MAX_SUPPLY_ORDER {
@@ -195,6 +205,7 @@ pub(crate) fn on_night_end(w: &mut World, _content: &Content) {
         - t.supplies
         - t.rent
         - t.other_expenses
+        - t.purchases
         - t.payment;
     if w.econ.money < 0 {
         w.econ.nights_in_red += 1;

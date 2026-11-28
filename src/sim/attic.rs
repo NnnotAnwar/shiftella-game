@@ -161,7 +161,7 @@ pub(crate) fn buy(w: &mut World, content: &Content, id: &str) -> Result<(), Comm
         });
     }
     let uid = bring_down(w, content, id)?;
-    w.econ.money -= price;
+    super::economy::spend_on_cafe(w, price);
     if !owned {
         w.build.attic_owned.insert(id.to_string());
         w.build.attic_offer.retain(|o| o != id);

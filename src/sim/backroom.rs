@@ -192,7 +192,7 @@ pub(crate) fn open(w: &mut World, content: &Content) -> Result<(), CommandError>
     }
     let room = widen(w, content)
         .ok_or_else(|| CommandError::Invalid("no wall to open the back room".into()))?;
-    w.econ.money -= price;
+    super::economy::spend_on_cafe(w, price);
     furnish(w, content, &room);
     // the undo stack's tiles are still valid, but a widened café is not undoable
     w.undo.clear();
