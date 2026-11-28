@@ -2,7 +2,10 @@
 # Keep his identity understated: no lines about apps, releases or the café's software.
 
 regular.guest_anwar.name
-* Anwar
+cs Anwar
+en Anwar
+uk Ануар
+ru Ануар
 
 regular.guest_anwar.bio
 cs Tichý host, kolem třicítky. Sedne si k zásuvce, pracuje na notebooku, objedná ovesné flat white a kolem druhé odchází.
@@ -133,5 +136,5 @@ ru Мой поезд. Спокойной ночи — и пусть этот с�
 ui.ending.credits_thanks
 cs Díky, Anwar — za Shiftellu a za každou noční směnu, která je díky ní o kousek lehčí.
 en Thank you, Anwar — for Shiftella, and for every night shift it makes a little lighter.
-uk Дякуємо, Anwar, — за Shiftella і за кожну нічну зміну, яку вона робить трохи легшою.
-ru Спасибо, Anwar, — за Shiftella и за каждую ночную смену, которую она делает чуточку легче.
+uk Дякуємо, Ануаре, — за Shiftella і за кожну нічну зміну, яку вона робить трохи легшою.
+ru Спасибо, Ануар, — за Shiftella и за каждую ночную смену, которую она делает чуточку легче.
