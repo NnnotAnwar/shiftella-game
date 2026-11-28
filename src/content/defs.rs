@@ -1005,7 +1005,7 @@ pub struct RegularDef {
     pub look: Look,
     pub stages: Vec<ArcStage>,
     /// Story: comes only on these nights (empty = every night from `first_night`).
-    /// Used for cameo guests such as `guest_anwar`.
+    /// Used for cameo guests such as `guest_anwar` and `guest_kseniia`.
     #[serde(default)]
     pub story_nights: Vec<u32>,
     /// Sandbox: chance per night to drop in as a rare regular (0 = story only).
@@ -1058,6 +1058,12 @@ impl RegularDef {
 
     pub fn stage(&self, stage: u32) -> Option<&ArcStage> {
         self.stages.iter().find(|s| s.stage == stage)
+    }
+
+    /// A cameo guest (Anwar, Kseniia): drawn by a render preset, flavour only (no arc, not in
+    /// the day's "expected tonight" list).
+    pub fn is_cameo(&self) -> bool {
+        self.look_preset.is_some()
     }
 }
 

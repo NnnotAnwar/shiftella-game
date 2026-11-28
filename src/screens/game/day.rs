@@ -269,7 +269,7 @@ pub fn planning(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         let regs: Vec<String> = content
             .regulars
             .iter()
-            .filter(|r| r.visits_story_night(night) && !r.id.starts_with("guest_anwar"))
+            .filter(|r| r.visits_story_night(night) && !r.is_cameo())
             .map(|r| loc.tr_owned(&r.name_key()))
             .collect();
         // what still has to fit below: the header, the trains and crew lines, the buttons

@@ -35,6 +35,14 @@ fn tone_color(tone: Tone, col: Color) -> Color {
     }
 }
 
+/// Paint stains on Kseniia's blazer: (x, y from the shoulders — up is positive, radius, colour).
+const PAINT_STAINS: [(f32, f32, f32, u32); 4] = [
+    (-7.5, -6.0, 1.3, 0xe0a53a),
+    (6.5, -11.0, 1.1, 0x3f9494),
+    (-4.0, -15.0, 0.9, 0xd77fa6),
+    (8.0, -4.5, 0.8, 0xe8dcc6),
+];
+
 /// A copy of the look with the tone applied (memory sepia, the faded 3:33 guest).
 fn toned(l: &PersonLook) -> PersonLook {
     let f = |col| tone_color(l.tone, col);
@@ -239,7 +247,14 @@ impl Head<'_> {
         let l = self.l;
         let side = matches!(self.facing, Facing::Left | Facing::Right);
         let skin_d = shade(l.skin, 0.6);
-        let mouth_col = mix(Color::from_hex(0x8a3d4f), skin_d, 0.25);
+        // Kseniia's dark lipstick (worn with her piercings): a deeper colour, a fuller stroke
+        let lipstick = l.accessory == Accessory::Piercings;
+        let mouth_col = if lipstick {
+            Color::from_hex(0x4a1630)
+        } else {
+            mix(Color::from_hex(0x8a3d4f), skin_d, 0.25)
+        };
+        let lw = if lipstick { 1.3 } else { 1.0 };
         let brow_col = mix(shade(l.hair, 0.8), skin_d, 0.25);
 
         // blush
@@ -396,20 +411,50 @@ impl Head<'_> {
         let mx = if side { 9.2 } else { 0.0 };
         match expr {
             Expression::Neutral => {
-                self.arc(mx, 5.6, 2.1, 1.1, PI * 0.25, PI * 0.75, 0.9, mouth_col)
+                self.arc(mx, 5.6, 2.1, 1.1, PI * 0.25, PI * 0.75, 0.9 * lw, mouth_col)
             }
-            Expression::Smile => self.arc(mx, 5.2, 3.0, 2.0, PI * 0.15, PI * 0.85, 1.0, mouth_col),
+            Expression::Smile => {
+                self.arc(mx, 5.2, 3.0, 2.0, PI * 0.15, PI * 0.85, 1.0 * lw, mouth_col)
+            }
             Expression::Laugh => {
                 let w = if side { 2.0 } else { 3.2 };
                 self.ell(mx, 7.2, w, 2.4, Color::from_hex(0x5a2238));
                 self.ell(mx, 8.3, w * 0.6, 1.0, Color::from_hex(0xd8667a));
             }
-            Expression::Sad => self.arc(mx, 8.4, 2.4, 1.3, PI * 1.2, PI * 1.8, 0.9, mouth_col),
+            Expression::Sad => self.arc(mx, 8.4, 2.4, 1.3, PI * 1.2, PI * 1.8, 0.9 * lw, mouth_col),
             Expression::Surprised => {
                 self.ell(mx, 7.2, 1.4, 1.8, Color::from_hex(0x5a2238));
             }
-            Expression::Thinking => self.line(mx - 0.5, 7.0, mx + 2.8, 6.4, 0.9, mouth_col),
-            Expression::Tired => self.line(mx - 1.8, 7.0, mx + 1.8, 7.0, 0.8, mouth_col),
+            Expression::Thinking => self.line(mx - 0.5, 7.0, mx + 2.8, 6.4, 0.9 * lw, mouth_col),
+            Expression::Tired => self.line(mx - 1.8, 7.0, mx + 1.8, 7.0, 0.8 * lw, mouth_col),
+        }
+        if lipstick && matches!(expr, Expression::Neutral | Expression::Smile) {
+            // a second pass a hair lower: full lips, no gaps between the arc's segments
+            let (y, rx, ry, a0, a1) = if expr == Expression::Smile {
+                (5.45, 2.9, 1.9, PI * 0.17, PI * 0.83)
+            } else {
+                (5.85, 2.0, 1.0, PI * 0.27, PI * 0.73)
+            };
+            self.arc(mx, y, rx, ry, a0, a1, 1.0, mouth_col);
+        }
+        if lipstick && matches!(expr, Expression::Laugh | Expression::Surprised) {
+            // the lips around an open mouth
+            let w = if side { 2.0 } else { 3.2 };
+            let (y, rx, ry) = if expr == Expression::Laugh {
+                (7.2, w + 0.5, 2.9)
+            } else {
+                (7.2, 1.9, 2.3)
+            };
+            let p = self.p(mx, y);
+            draw_ellipse_lines(
+                p.x,
+                p.y,
+                rx * self.u,
+                ry * self.u,
+                0.0,
+                0.9 * self.u,
+                mouth_col,
+            );
         }
         if l.facial_hair == FacialHair::Mustache {
             if side {
@@ -642,7 +687,53 @@ impl Head<'_> {
                 let x = if side { -4.0 } else { 9.0 };
                 self.rr(x - 2.2, -8.6, 4.4, 2.0, 1.0, tint_light(a, 0.2), a);
             }
+            Accessory::Piercings => self.piercings(),
             _ => {}
+        }
+    }
+
+    /// Kseniia's piercings (see [`Accessory::Piercings`]): silver beads and rings with a dark
+    /// rim so they read on skin at the café's small scale; plus loose strands of her hair.
+    fn piercings(&self) {
+        let l = self.l;
+        let side = matches!(self.facing, Facing::Left | Facing::Right);
+        let up = self.facing == Facing::Up;
+        let metal = tint_light(l.accent, 0.3);
+        let rim = alpha(Color::from_hex(0x1c1622), 0.55);
+        let bead = |x: f32, y: f32, r: f32| {
+            self.ell(x, y, r + 0.35, r + 0.35, rim);
+            self.ell(x, y, r, r, metal);
+        };
+        let ring = |x: f32, y: f32, r: f32| {
+            self.arc(x, y, r, r, PI * 0.05, PI * 0.95, 1.05, rim);
+            self.arc(x, y, r, r, PI * 0.05, PI * 0.95, 0.6, metal);
+        };
+        if up {
+            // from behind only the ear ring shows
+            ring(13.6, 4.4, 1.3);
+            return;
+        }
+        let (t, b) = (self.hair_top(), self.hair_bot());
+        if side {
+            // a loose strand in front of the ear, the ear ring, then the face (profile)
+            self.cap(1.5, -4.0, 2.6, 4.0, 0.55, b);
+            ring(-0.4, 5.2, 1.3);
+            bead(12.2, -1.2, 0.5);
+            ring(13.0, 5.0, 1.1);
+            bead(9.3, 8.9, 0.5);
+        } else {
+            // loose wisps along the cheeks (hair put up loosely)
+            self.arc(0.0, -0.5, 13.0, 13.0, PI * 0.88, PI * 1.12, 0.5, t);
+            self.arc(0.0, -0.5, 13.0, 13.0, PI * 1.9, PI * 2.06, 0.45, b);
+            // one small ring in the left ear (her right)
+            ring(-13.6, 5.2, 1.4);
+            // the bridge piercing between the brows
+            bead(-1.5, -1.6, 0.5);
+            bead(1.5, -1.6, 0.5);
+            // a ring low on the nose (septum-style)
+            ring(0.0, 4.0, 1.05);
+            // the labret under the lower lip
+            bead(0.0, 9.0, 0.55);
         }
     }
 }
@@ -823,6 +914,11 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
             shade(l.skin, dark)
         };
         r.cap(mid, h, 3.3, fore);
+        if l.top_style == TopStyle::Blazer {
+            // paint on the cuff
+            let cuff = mid + (h - mid) * 0.78;
+            r.ell(cuff.x, cuff.y, 1.6, 1.3, shade(Color::from_hex(0xe0a53a), dark));
+        }
         r.ell(h.x, h.y, 3.0, 3.0, shade(l.skin, dark));
     };
 
@@ -925,12 +1021,14 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
     }
 
     // ── torso
-    let tw = if side { 17.0 } else { 25.0 };
-    let tx0 = if side { -8.0 } else { -12.5 };
-    let coat_ext = if l.top_style == TopStyle::Coat && !sitting {
-        12.0
-    } else {
-        0.0
+    let blazer = l.top_style == TopStyle::Blazer;
+    // an oversized blazer: a little wider, the hem over the hips
+    let tw = if side { 17.0 } else { 25.0 } + if blazer { 2.0 } else { 0.0 };
+    let tx0 = if side { -8.0 } else { -12.5 } - if blazer { 1.0 } else { 0.0 };
+    let coat_ext = match l.top_style {
+        TopStyle::Coat if !sitting => 12.0,
+        TopStyle::Blazer if !sitting => 5.0,
+        _ => 0.0,
     };
     let t_top = sh_y + 1.5;
     let t_h = t_top - hip_y + 3.0 + coat_ext;
@@ -1001,7 +1099,7 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
                     );
                 }
             }
-            TopStyle::Jacket | TopStyle::Coat => {
+            TopStyle::Jacket | TopStyle::Coat | TopStyle::Blazer => {
                 let d = shade(l.top, 0.7);
                 poly(
                     &[
@@ -1028,6 +1126,11 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
                     shade(l.top, 0.65),
                     shade(l.top, 0.6),
                 );
+                if blazer {
+                    for (x, y, rad, col) in PAINT_STAINS {
+                        r.ell(x, sh_y + y, rad, rad * 0.8, Color::from_hex(col));
+                    }
+                }
             }
             TopStyle::Scrubs => {
                 poly(
@@ -1087,6 +1190,10 @@ pub fn draw_person_ex(look: &PersonLook, pose: &PersonPose, expr: Expression) {
             }
             TopStyle::Tee => {}
         }
+    }
+
+    if blazer && side {
+        r.ell(2.0, sh_y - 12.0, 1.7, 1.3, Color::from_hex(PAINT_STAINS[0].3));
     }
 
     // ── staff apron
@@ -1662,7 +1769,7 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
                 );
             }
         }
-        TopStyle::Jacket | TopStyle::Coat => {
+        TopStyle::Jacket | TopStyle::Coat | TopStyle::Blazer => {
             let d = shade(l.top, 0.68);
             poly(
                 &[
@@ -1683,6 +1790,17 @@ pub fn draw_portrait(look: &PersonLook, expression: Expression, rect: Rect, t: f
                 d,
             );
             ellipse(cx, neck_y + 1.5 * u, 4.5 * u, 2.2 * u, shade(l.skin, 0.85));
+            if l.top_style == TopStyle::Blazer {
+                for (x, y, rad, col) in PAINT_STAINS {
+                    ellipse(
+                        cx + x * 1.6 * u,
+                        sh_top - y * 0.8 * u,
+                        rad * 1.2 * u,
+                        rad * 0.95 * u,
+                        Color::from_hex(col),
+                    );
+                }
+            }
         }
         _ => {
             ellipse(cx, neck_y + 0.6 * u, 5.0 * u, 2.4 * u, shade(l.skin, 0.84));

@@ -28,10 +28,12 @@ pub enum HighlightKind {
     QuietNight,
     /// The hall changed noticeably in a day (a corner, the back room, cozier): two photos.
     BeforeAfter,
+    /// The second cameo guest (`guest_kseniia`), like [`HighlightKind::AnwarCameo`].
+    KseniiaCameo,
 }
 
 impl HighlightKind {
-    pub const ALL: [HighlightKind; 18] = [
+    pub const ALL: [HighlightKind; 19] = [
         HighlightKind::Guest333,
         HighlightKind::FirstSnow,
         HighlightKind::ArcBeat,
@@ -50,6 +52,7 @@ impl HighlightKind {
         HighlightKind::AnwarCameo,
         HighlightKind::QuietNight,
         HighlightKind::BeforeAfter,
+        HighlightKind::KseniiaCameo,
     ];
 
     pub fn id(self) -> &'static str {
@@ -72,6 +75,7 @@ impl HighlightKind {
             HighlightKind::AnwarCameo => "anwar",
             HighlightKind::QuietNight => "quiet_night",
             HighlightKind::BeforeAfter => "before_after",
+            HighlightKind::KseniiaCameo => "kseniia",
         }
     }
 

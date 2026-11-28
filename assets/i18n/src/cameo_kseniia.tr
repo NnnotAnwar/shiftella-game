@@ -1,0 +1,315 @@
+# Cameo: Kseniia — the art-studio manager who comes in late (render preset `kseniia`). Flavour only.
+# A real person, referenced with her consent: name and look only, no other real-life details.
+# Her ex is never named. Tone: teasing, double meanings, never explicit, no swearing; warm and
+# the most observant guest in the room. uk/ru: she says ты/ти to Karolina, and Karolina mirrors
+# her (ты/ти); cs: they tykají. Night 15's choice sets `kseniia_ex` = answered | silent.
+
+regular.guest_kseniia.name
+cs Kseniia
+en Kseniia
+uk Ксенія
+ru Ксения
+
+regular.guest_kseniia.bio
+cs Vede výtvarný ateliér ve staré továrně v Holešovicích. Chodí po půl třetí, s barvou na rukávu a vtipem v záloze. Objedná si ovesné flat white — „hloupý zvyk po bývalém“.
+en Runs an art studio in an old factory in Holešovice. Comes in after half past two, paint on her sleeve and a joke ready. Orders an oat flat white — "a silly habit from my ex".
+uk Керує мистецькою студією на старій фабриці в Голешовицях. Приходить після пів на третю, з фарбою на рукаві й жартом напоготові. Замовляє вівсяний флет вайт — «дурна звичка від колишнього».
+ru Руководит арт-студией на старой фабрике в Голешовице. Приходит после половины третьего, с краской на рукаве и шуткой наготове. Заказывает флэт уайт на овсяном — «дурацкая привычка от бывшего».
+
+regular.guest_kseniia.ambient.rain
+cs Déšť? Skvělé. Lidi zůstanou déle a tváří se, že kvůli umění.
+en Rain? Perfect. People stay longer and pretend it's for the art.
+uk Дощ? Чудово. Люди лишаються довше й удають, що через мистецтво.
+ru Дождь? Отлично. Люди остаются подольше и делают вид, что ради искусства.
+
+regular.guest_kseniia.ambient.fog
+cs V téhle mlze bych mohla pověsit celou výstavu nakřivo. Nikdo by si toho nevšiml.
+en In this fog I could hang the whole exhibition crooked. Nobody would notice.
+uk У такому тумані я могла б повісити всю виставку криво. Ніхто б не помітив.
+ru В таком тумане я могла бы повесить всю выставку криво. Никто бы не заметил.
+
+regular.guest_kseniia.ambient.train
+cs Tenhle vlak se nikde dlouho nezdrží. S jedním takovým jsem kdysi chodila.
+en That train never stays anywhere long. I used to date one just like it.
+uk Цей поїзд ніде довго не затримується. Я колись з таким зустрічалася.
+ru Этот поезд нигде надолго не задерживается. Я когда-то с таким встречалась.
+
+regular.guest_kseniia.ambient.late
+cs Půl čtvrté. Umělci spí a obrazy konečně poslouchají.
+en Half past three. The artists are asleep and the paintings finally behave.
+uk Пів на четверту. Художники сплять, а картини нарешті слухаються.
+ru Половина четвёртого. Художники спят, а картины наконец слушаются.
+
+regular.guest_kseniia.ambient.busy
+cs Plno. Dobře. Já mám publikum ráda.
+en Full house. Good. I do love an audience.
+uk Повна зала. Добре. Я люблю публіку.
+ru Полный зал. Хорошо. Я люблю публику.
+
+regular.guest_kseniia.ambient.quiet
+cs Klid. Fajn — aspoň chvíli nemusím být okouzlující.
+en Quiet in here. Good — I can stop being charming for a bit.
+uk Тихо. Добре — хоч трохи можна не бути чарівною.
+ru Тихо. Хорошо — хоть немного можно не быть обаятельной.
+
+regular.guest_kseniia.ambient.coffee
+cs Ovesné flat white. Hloupý zvyk po bývalém. Jediný, který jsem si nechala.
+en Oat flat white. A silly habit from my ex. The only one I kept.
+uk Вівсяний флет вайт. Дурна звичка від колишнього. Єдина, яку я залишила.
+ru Флэт уайт на овсяном. Дурацкая привычка от бывшего. Единственная, которую я оставила.
+
+regular.guest_kseniia.ambient.paint
+cs Ta barva na rukávu? Moje modré období. Trvá už tři roky.
+en The paint on my sleeve? My blue period. It's been going on for three years.
+uk Фарба на рукаві? Мій блакитний період. Триває вже три роки.
+ru Краска на рукаве? Мой голубой период. Длится уже три года.
+
+regular.guest_kseniia.ambient.notice
+cs Když jsi unavená, utahuješ si zástěru pevněji. Všímám si věcí. Profesní deformace.
+en You tie your apron tighter when you're tired. I notice things. Occupational hazard.
+uk Коли ти втомлена, тугіше зав'язуєш фартух. Я помічаю такі речі. Професійна деформація.
+ru Когда ты устаёшь, туже завязываешь фартук. Я замечаю такие вещи. Профессиональная деформация.
+
+wish.guest_kseniia.oat
+cs Ovesné flat white, prosím. Hloupý zvyk po bývalém — ale dobrý.
+en An oat flat white, please. A silly habit from my ex — but a good one.
+uk Вівсяний флет вайт, будь ласка. Дурна звичка від колишнього — але добра.
+ru Флэт уайт на овсяном, пожалуйста. Дурацкая привычка от бывшего — но хорошая.
+
+journal.caption.kseniia
+cs Vzácný host. Barva na rukávu a vtip v záloze.
+en Special guest. Paint on her sleeve and a joke ready.
+uk Особлива гостя. Фарба на рукаві й жарт напоготові.
+ru Особая гостья. Краска на рукаве и шутка наготове.
+
+# --- the easter egg: Anwar on night 24, only if she answered her ex (no names, ever)
+regular.guest_anwar.ambient.recommended
+cs Tohle místo mi někdo doporučil. No… ne jen tak někdo.
+en Someone recommended this place to me. Well… not just someone.
+uk Мені хтось порадив це місце. Ну… не просто хтось.
+ru Мне кто-то посоветовал это место. Ну… не просто кто-то.
+
+scene.anwar_talk_24.07
+cs Tohle místo mi někdo doporučil. No… ne jen tak někdo.
+en Someone recommended this place to me. Well… not just someone.
+uk Мені хтось порадив це місце. Ну… не просто хтось.
+ru Мне кто-то посоветовал это место. Ну… не просто кто-то.
+
+# --- night 3: the meeting; Karolina has just started, Kseniia is the first to encourage her
+scene.kseniia_talk_3.01
+cs Žena s barvou na manžetách saka si Karolinu měří přes okraj šálku. Na špičce nosu se jí zaleskne malý kroužek, mezi obočím další.
+en The woman with paint on her blazer cuffs sizes Karolina up over her cup. A small ring glints at the tip of her nose, another stud between her brows.
+uk Жінка з фарбою на манжетах піджака оглядає Кароліну поверх чашки. На кінчику носа в неї зблискує маленьке кільце, ще одне — між бровами.
+ru Женщина с краской на манжетах пиджака разглядывает Каролину поверх чашки. На кончике носа у неё поблёскивает маленькое колечко, ещё одно — между бровями.
+
+scene.kseniia_talk_3.02
+cs Nová tvář za pultem. Lidina vnučka? Máš po ní obočí. To podezíravé.
+en A new face behind the counter. Lida's granddaughter? You've got her eyebrow. The suspicious one.
+uk Нове обличчя за прилавком. Онука Ліди? У тебе її брова. Та, підозріла.
+ru Новое лицо за стойкой. Внучка Лиды? У тебя её бровь. Та самая, подозрительная.
+
+scene.kseniia_talk_3.03
+cs Ty jsi znala babičku?
+en You knew my grandma?
+uk Ти знала мою бабусю?
+ru Ты знала мою бабушку?
+
+scene.kseniia_talk_3.04
+cs Znal ji každý, kdo tady po nocích dělá. Vedu ateliér ve staré továrně v Holešovicích. Celou noc jsme věšeli výstavu. Obrazy už visí rovně. Umělci méně.
+en Everyone who works nights around here knew her. I run a studio in the old factory in Holešovice. We hung an exhibition all night. The paintings are straight now. The artists, less so.
+uk Її знали всі, хто тут працює ночами. Я керую студією на старій фабриці в Голешовицях. Ми всю ніч вішали виставку. Картини вже висять рівно. Художники — не дуже.
+ru Её знали все, кто здесь работает по ночам. Я руковожу студией на старой фабрике в Голешовице. Мы всю ночь вешали выставку. Картины уже висят ровно. Художники — не очень.
+
+scene.kseniia_talk_3.05
+cs Dělali jsme spolu v italské restauraci, já a můj bývalý. Pletl si burratu s mozzarellou. A mě s holkou, která všechno odpustí.
+en We worked together at an Italian place, my ex and I. He mixed up burrata and mozzarella. And me with a girl who forgives everything.
+uk Ми працювали разом в італійському ресторані, я і мій колишній. Він плутав буррату з моцарелою. А мене — з дівчиною, яка все пробачає.
+ru Мы работали вместе в итальянском ресторане, я и мой бывший. Он путал буррату с моцареллой. А меня — с девушкой, которая всё прощает.
+
+scene.kseniia_talk_3.06
+cs A ty neodpouštíš?
+en And you don't forgive?
+uk А ти не пробачаєш?
+ru А ты не прощаешь?
+
+scene.kseniia_talk_3.07
+cs Ale odpouštím. Jen nikdy nezapomenu objednávku.
+en Oh, I forgive. I just never forget an order.
+uk Та пробачаю. Просто ніколи не забуваю замовлення.
+ru Да прощаю. Просто никогда не забываю заказ.
+
+scene.kseniia_talk_3.08
+cs Neboj se prvních nocí. Noční směna je chvíle, kdy je každý host o kousek upřímnější. Zvykneš si.
+en Don't be scared of the first nights. Night shift is when every guest is a bit more honest. You'll get used to it.
+uk Не бійся перших ночей. Нічна зміна — це коли кожен гість трохи щиріший. Звикнеш.
+ru Не бойся первых ночей. Ночная смена — это когда каждый гость чуть честнее. Привыкнешь.
+
+scene.kseniia_talk_3.09
+cs Díky. Tohle jsem dneska fakt potřebovala slyšet.
+en Thank you. I really needed to hear that tonight.
+uk Дякую. Мені сьогодні справді треба було це почути.
+ru Спасибо. Мне сегодня правда нужно было это услышать.
+
+# --- night 15: the message; the player's choice
+scene.kseniia_talk_15.01
+cs Vedle Kseniina šálku se rozsvítí telefon. Dlouho se na něj dívá — tak, jak se lidi dívají na obraz, o kterém nevědí, jestli se jim líbí.
+en Kseniia's phone lights up next to her cup. She looks at it for a long time, the way people look at a painting they're not sure they like.
+uk Біля чашки в Ксенії засвічується телефон. Вона довго на нього дивиться — так, як дивляться на картину, коли не певні, чи вона подобається.
+ru Рядом с чашкой у Ксении загорается телефон. Она долго на него смотрит — так смотрят на картину, когда не уверены, нравится ли она.
+
+scene.kseniia_talk_15.02
+cs Koukej. „Ahoj. Jak se máš?“
+en Look. "Hi. How are you?"
+uk Глянь. «Привіт. Як ти?»
+ru Смотри. «Привет. Как ты?»
+
+scene.kseniia_talk_15.03
+cs Tři slova. Dva roky. A otazník.
+en Three words. Two years. And a question mark.
+uk Три слова. Два роки. І знак питання.
+ru Три слова. Два года. И знак вопроса.
+
+scene.kseniia_talk_15.04
+cs On?
+en Him?
+uk Він?
+ru Он?
+
+scene.kseniia_talk_15.05
+cs On. Expert na burratu. Teď píše nějakou aplikaci pro noční směny. Aby se lidem žilo líp, prý.
+en Him. The burrata expert. He writes some app for night shifts now. To make people's lives easier, apparently.
+uk Він. Експерт із буррати. Тепер пише якийсь застосунок для нічних змін. Щоб людям жилося легше, кажуть.
+ru Он. Эксперт по буррате. Теперь пишет какое-то приложение для ночных смен. Чтобы людям жилось легче, говорят.
+
+scene.kseniia_talk_15.06
+cs Karolina mrkne na Shiftellu ve vlastním telefonu: dnešní rozpis, zásoby, malý indigový měsíc. Líp. Prý.
+en Karolina glances down at the Shiftella app on her own phone: tonight's rota, the stock list, a small indigo moon. Easier. Apparently.
+uk Кароліна зиркає на застосунок Shiftella у власному телефоні: сьогоднішній графік, запаси, маленький індиговий місяць. Легше. Кажуть.
+ru Каролина бросает взгляд на приложение Shiftella в своём телефоне: сегодняшний график, запасы, маленькая индиговая луна. Легче. Говорят.
+
+scene.kseniia_talk_15.07
+cs Piercing mezi obočím bolel jednou. On bolel každý den. I když snídaně dělal fakt slušné.
+en The piercing between my brows hurt once. He hurt every day. Though he did make a very decent breakfast.
+uk Пірсинг між бровами болів один раз. Він — щодня. Хоча сніданки робив дуже пристойні.
+ru Пирсинг между бровями болел один раз. Он — каждый день. Хотя завтраки делал очень приличные.
+
+scene.kseniia_talk_15.08
+cs Tak co, baristko? Vidíš lidi, když jsou nejupřímnější. Co mám dělat?
+en So, barista. You see people at their most honest. What do I do?
+uk Ну що, баристо? Ти бачиш людей, коли вони найщиріші. Що мені робити?
+ru Ну что, бариста? Ты видишь людей, когда они честнее всего. Что мне делать?
+
+scene.kseniia_talk_15.09
+cs Odepiš mu.
+en Answer him.
+uk Відповідай йому.
+ru Ответь ему.
+
+scene.kseniia_talk_15.10
+cs Neodpovídej.
+en Don't answer.
+uk Не відповідай.
+ru Не отвечай.
+
+scene.kseniia_talk_15.11
+cs Dobře. „Ahoj. Mám se fajn. A ty?“ Koukej — čtyři slova. Vedu.
+en Fine. "Hi. I'm fine. You?" Look — four words. I'm winning.
+uk Гаразд. «Привіт. Я добре. А ти?» Глянь — чотири слова. Я веду.
+ru Ладно. «Привет. Я хорошо. А ты?» Смотри — четыре слова. Я веду.
+
+scene.kseniia_talk_15.12
+cs Máš pravdu. Některé otázky je lepší nechat jen přečtené.
+en You're right. Some questions are better left on read.
+uk Маєш рацію. Деякі питання краще лишити просто прочитаними.
+ru Ты права. Некоторые вопросы лучше оставить просто прочитанными.
+
+scene.kseniia_talk_15.13
+cs Otočí telefon displejem dolů a obejme šálek oběma dlaněmi.
+en She turns the phone face down and wraps both hands around her cup.
+uk Вона перевертає телефон екраном донизу й обхоплює чашку обома долонями.
+ru Она переворачивает телефон экраном вниз и обхватывает чашку обеими ладонями.
+
+scene.kseniia_talk_15.14
+cs Víš, že ti to jde? Kafe i všechno ostatní.
+en You're good at this, you know. The coffee and the rest of it.
+uk Знаєш, у тебе це добре виходить. І кава, і все інше.
+ru Знаешь, у тебя это хорошо получается. И кофе, и всё остальное.
+
+# --- night 20: the consequence (answered / silent / the night-15 talk never happened)
+scene.kseniia_talk_20.01
+cs Zašli jsme na kafe. Přišel o dvě minuty pozdě. Zase.
+en We met for coffee. He was two minutes late. Again.
+uk Ми зустрілися на каву. Він запізнився на дві хвилини. Знову.
+ru Мы встретились на кофе. Он опоздал на две минуты. Опять.
+
+scene.kseniia_talk_20.02
+cs Dvě minuty nic nejsou.
+en Two minutes is nothing.
+uk Дві хвилини — це ніщо.
+ru Две минуты — это ничего.
+
+scene.kseniia_talk_20.03
+cs Záleží na tom, kdo čeká.
+en Depends who's waiting.
+uk Залежить від того, хто чекає.
+ru Смотря кто ждёт.
+
+scene.kseniia_talk_20.04
+cs Objednal za mě, ani se nezeptal. Ovesné flat white. Pamatoval si to. Hrozně otravné.
+en He ordered for me without asking. An oat flat white. He remembered. Very annoying.
+uk Замовив за мене, навіть не спитав. Вівсяний флет вайт. Запам'ятав. Страшенно дратує.
+ru Заказал за меня, даже не спросил. Флэт уайт на овсяном. Запомнил. Ужасно раздражает.
+
+scene.kseniia_talk_20.05
+cs Uvidíme.
+en We'll see.
+uk Побачимо.
+ru Посмотрим.
+
+scene.kseniia_talk_20.06
+cs Kseniia najde v telefonu jedno jméno, chvíli nad ním drží palec — a číslo smaže, rovnou tady nad šálkem.
+en Kseniia scrolls to a name, holds her thumb over it for a moment and deletes the number right there, over her cup.
+uk Ксенія знаходить у телефоні одне ім'я, якусь мить тримає над ним палець — і видаляє номер просто тут, над чашкою.
+ru Ксения находит в телефоне одно имя, мгновение держит над ним палец — и удаляет номер прямо здесь, над чашкой.
+
+scene.kseniia_talk_20.07
+cs Světlo v okně se nechává svítit těm, na které čekáš. Jemu jsem ho zhasla.
+en You keep the light in the window for those you wait for. For him I switched it off.
+uk Світло у вікні лишають для тих, на кого чекаєш. Для нього я його вимкнула.
+ru Свет в окне оставляют для тех, кого ждёшь. Для него я его выключила.
+
+scene.kseniia_talk_20.08
+cs Jsi v pohodě?
+en Are you all right?
+uk Ти в порядку?
+ru Ты в порядке?
+
+scene.kseniia_talk_20.09
+cs Jsem. Ovesné mléko si ale nechám. Dobré zvyky můžou přežít lidi, od kterých je máš.
+en I'm fine. The oat milk stays, though. Good habits can outlive the people who gave them to you.
+uk Так. А от вівсяне молоко лишу. Добрі звички можуть пережити людей, від яких вони тобі дісталися.
+ru В порядке. А вот овсяное молоко оставлю. Хорошие привычки могут пережить людей, от которых они тебе достались.
+
+scene.kseniia_talk_20.10
+cs Z burratové fronty žádné zprávy. I to je zpráva.
+en No news from the burrata front. Which is also news.
+uk З фронту буррати жодних новин. Що теж новина.
+ru С фронта бурраты никаких новостей. Что тоже новость.
+
+scene.kseniia_talk_20.11
+cs Dneska jsem ve dvě vyprovodila poslední umělkyni. Brečela u vlastního obrazu. Já trochu taky — visel nakřivo.
+en Tonight I saw off the last artist at two. She cried in front of her own painting. So did I, a bit — it was hanging crooked.
+uk Сьогодні о другій я провела останню художницю. Вона плакала перед власною картиною. Я теж трохи — та висіла криво.
+ru Сегодня в два я проводила последнюю художницу. Она плакала перед своей картиной. Я тоже немного — та висела криво.
+
+scene.kseniia_talk_20.12
+cs Přijď na další vernisáž. Je tam víno a umění nerozumí nikdo. Velmi upřímné.
+en Come to the next opening. There's wine, and nobody understands the art. Very honest.
+uk Приходь на наступне відкриття. Там є вино, і ніхто не розуміє мистецтва. Дуже щиро.
+ru Приходи на следующий вернисаж. Там есть вино, и никто не понимает искусства. Очень честно.
+
+scene.kseniia_talk_20.13
+cs Tak ti tu nechám svítit.
+en I'll keep the light on for you, then.
+uk Тоді я лишу для тебе світло.
+ru Тогда я оставлю для тебя свет.

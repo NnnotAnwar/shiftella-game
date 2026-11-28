@@ -98,6 +98,7 @@ fn main() {
     let mut problems: Vec<String> = Vec::new();
     let mut arcs: BTreeMap<String, Vec<i32>> = BTreeMap::new();
     let mut anwar_nights: Vec<u32> = Vec::new();
+    let mut kseniia_nights: Vec<u32> = Vec::new();
     let mut breaks = 0u32;
     let mut helper_nights = 0u32;
     let mut stuck = 0u32;
@@ -208,6 +209,9 @@ fn main() {
                     SimEvent::GuestForgiven { .. } => forgiven += 1,
                     SimEvent::RegularArrived { regular, .. } if regular == "guest_anwar" => {
                         anwar_nights.push(night);
+                    }
+                    SimEvent::RegularArrived { regular, .. } if regular == "guest_kseniia" => {
+                        kseniia_nights.push(night);
                     }
                     _ => {}
                 }
@@ -512,6 +516,9 @@ fn main() {
     anwar_nights.sort();
     anwar_nights.dedup();
     println!("anwar visited on nights {anwar_nights:?}");
+    kseniia_nights.sort();
+    kseniia_nights.dedup();
+    println!("kseniia visited on nights {kseniia_nights:?}");
     if problems.is_empty() {
         println!("problems: none");
     } else {

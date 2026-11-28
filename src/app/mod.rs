@@ -5,7 +5,7 @@
 //!
 //! Test automation (env):
 //! * `SHIFTELLA_SHOT=path.png` — render `SHIFTELLA_FRAMES` (default 45) frames, save, exit
-//! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|talk|build|crew|app|
+//! * `SHIFTELLA_SCENE=menu|language|opening|story_day1|night|night9_anwar|kseniia|talk|build|crew|app|
 //!   crew_karolina|crew_helper|crew_classic|crew_day|crew_hire|
 //!   duties|log|summary|pause|ending_light|ending_last_train|credits|sandbox|
 //!   night1_handson|order_card|minigame|jukebox|book|moments|garlands|cat|pantry|napkins|
@@ -49,6 +49,7 @@
 //! * `SHIFTELLA_LANG=cs|en|uk|ru`, `SHIFTELLA_NIGHT=n`, `SHIFTELLA_TIME=HH:MM`,
 //!   `SHIFTELLA_T=<seconds>` (cutscene fast-forward), `SHIFTELLA_SETTINGS`, `SHIFTELLA_SAVES`.
 //! * `SHIFTELLA_COUNTER=arc.vera=0,…` on `day`: story counters set first.
+//! * `SHIFTELLA_VAR=kseniia_ex=silent,…` on `talk`: story vars set first (the talk's variant).
 //! * `SHIFTELLA_DIRT=0.4` — dirt blots on the floor; `SHIFTELLA_SETTINGS_TAB=0|1|2` — the
 //!   settings scene opens on General / Accessibility / Controls (package J, access).
 //! * `SHIFTELLA_COMBO=story_card,crew,photo,…` — opens several layers at once over the scene
@@ -919,6 +920,12 @@ impl App {
                 let t = env("SHIFTELLA_T")
                     .and_then(|t| t.parse::<f32>().ok())
                     .unwrap_or(0.0);
+                // `SHIFTELLA_VAR=kseniia_ex=silent,…`: story vars set first (a talk's variant)
+                for kv in env("SHIFTELLA_VAR").unwrap_or_default().split(',') {
+                    if let Some((k, v)) = kv.split_once('=') {
+                        g.world.debug_set_var(k.trim(), v.trim());
+                    }
+                }
                 g.stage_talk(&content, &loc, &id, t);
                 self.game_instant_text(g, shot)
             }
@@ -933,6 +940,13 @@ impl App {
                 let n = night.unwrap_or(9);
                 let mut g = story_at(n, Some(minute.unwrap_or(85)), &self.i18n, lang);
                 g.focus_regular(&content, &Locale::new(&self.i18n, lang), "guest_anwar");
+                self.game(g)
+            }
+            // the Kseniia cameo in the café (night 3, 03:00 by default), hover bubble pinned
+            "kseniia" => {
+                let n = night.unwrap_or(3);
+                let mut g = story_at(n, Some(minute.unwrap_or(300)), &self.i18n, lang);
+                g.focus_regular(&content, &Locale::new(&self.i18n, lang), "guest_kseniia");
                 self.game(g)
             }
             // the walk home after the morning summary (design/v0.2.md F): SHIFTELLA_ROUTE picks

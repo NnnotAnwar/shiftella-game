@@ -248,9 +248,45 @@
             (key: "regular.guest_anwar.ambient.busy", when: [GuestsAtLeast(10)]),
             (key: "regular.guest_anwar.ambient.quiet", when: [Not(GuestsAtLeast(5))]),
             (key: "regular.guest_anwar.ambient.coffee"),
+            // Kseniia's easter egg: she answered her ex on night 15 (no names, ever)
+            (key: "regular.guest_anwar.ambient.recommended", when: [VarIs("kseniia_ex", "answered")]),
         ],
         stages: [
             (stage: 0, nights: (9, 30)),
+        ],
+    ),
+    (
+        // A second cameo guest (render preset `kseniia`): the art-studio manager who comes in late.
+        // Flavour only like Anwar: no flags, effects, arc or endings. Her night-15 talk sets the
+        // var `kseniia_ex` (answered | silent), which only changes lines in her night-20 talk and
+        // Anwar's night-24 one. She and Anwar (9, 24) never meet. Leaves by 04:10, before
+        // Karolina's back-step call on night 3 (04:20).
+        id: "guest_kseniia",
+        full_name: "Kseniia",
+        age: 34,
+        base: "night_wanderer",
+        first_night: 3,
+        story_nights: [3, 15, 20],
+        sandbox_nights: [3, 15, 20],
+        look_preset: "kseniia",
+        visits: [(from: "02:40", to: "04:10")],
+        orders: ["oat_flat_white"],
+        patience_minutes: 20.0,
+        look: (body: "slim", height: 0.98, hair: ["bun"], hair_colors: ["#2A1F22"],
+               outfit: "jacket", outfit_colors: ["#3A3442"], accessories: ["earrings"]),
+        ambient_lines: [
+            (key: "regular.guest_kseniia.ambient.rain", when: [Raining]),
+            (key: "regular.guest_kseniia.ambient.fog", when: [Weather(Fog)]),
+            (key: "regular.guest_kseniia.ambient.train", when: [TrainNear(5)]),
+            (key: "regular.guest_kseniia.ambient.late", when: [TimeBetween("03:30", "04:10")]),
+            (key: "regular.guest_kseniia.ambient.busy", when: [GuestsAtLeast(10)]),
+            (key: "regular.guest_kseniia.ambient.quiet", when: [Not(GuestsAtLeast(5))]),
+            (key: "regular.guest_kseniia.ambient.coffee"),
+            (key: "regular.guest_kseniia.ambient.paint"),
+            (key: "regular.guest_kseniia.ambient.notice"),
+        ],
+        stages: [
+            (stage: 0, nights: (3, 30)),
         ],
     ),
 ]

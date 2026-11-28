@@ -17,7 +17,7 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   screens); her own arc K1–K4 runs from Mum's call on the back step (night 3) to the storm (night 25),
   and the last word on the franchise is hers, on night 30 at 05:30 (design/story/characters.md §3.9).
 - **Names:** simplified, international-friendly with a Czech note: grandma **Lida**, her fiancé **Jindra**,
-  regulars Mirek, Hana, **Vera**, Filip, Radek, Lori; the 3:33 guest; Anwar (cameo). Staff/guest name pools: an
+  regulars Mirek, Hana, **Vera**, Filip, Radek, Lori; the 3:33 guest; Anwar and Kseniia (cameos). Staff/guest name pools: an
   international mix (Czech, Slovak, Ukrainian, European) with few diacritics.
 - **Story & content:** `design/story/*` (written in Russian — the *ideas* are canon, the text must be
   written fresh in the four game languages). Grandma Lida's café, 30 nights, regulars with arcs,
@@ -29,6 +29,11 @@ Read this first. Where `design/*` docs disagree with this file, **this file wins
   (`ambient_lines`); a "Talk" action on a regular plays their talk dialogue for that night if one exists.
 - **Anwar (cameo):** appears only on nights 9 and 24, quiet guy working on a laptop; identity not obvious;
   talk dialogue about making a small game about a night café; no story impact.
+- **Kseniia (cameo):** nights 3, 15 and 20, late (02:40–04:10); manages an art studio in an old factory in
+  Holešovice, jokes with double meanings (never explicit), keeps bringing up her ex (never named: they worked
+  together at an Italian place, he now writes an app for night shifts). Night 15: "Answer him" / "Don't answer"
+  → var `kseniia_ex`, which only changes lines (her night 20, Anwar's night 24). Flavour only; she and Anwar
+  never meet.
 - **Exactly two endings:** «Light in the Window» (café saved, stays itself) and «Last Train» (café closes /
   sold to NONSTOP 24, bittersweet farewell). Karolina decides: the offer stands from night 17, "Sign now" /
   "Not yet" on night 22, the last word on night 30 at 05:30 after 3:33; «Last Train» = signed, or Classic

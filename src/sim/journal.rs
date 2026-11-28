@@ -231,7 +231,7 @@ pub(crate) fn capture(
     let once_key = format!("{}:{}", kind.id(), sub.as_deref().unwrap_or(""));
     let mut score = rule.score;
     match kind {
-        HighlightKind::Guest333 | HighlightKind::AnwarCameo => {
+        HighlightKind::Guest333 | HighlightKind::AnwarCameo | HighlightKind::KseniiaCameo => {
             if !w.sys.journal.firsts.insert(once_key.clone()) {
                 score = rule.repeat_score.unwrap_or(score);
             }

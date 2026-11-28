@@ -147,6 +147,16 @@ An arc moves one stage per night when its condition holds. A good arc ending cou
 - **Talking:** hovering shows one of 8 ambient lines (rain, fog, a passing train, midnight, late, busy, quiet, coffee). The **Talk** action plays `anwar_talk_9` / `anwar_talk_24`: he is making a small game about a night café.
 - **Flavour only:** no arc, choices, flags or effects, and no part in the endings. The credits thank him (`ui.ending.credits_thanks`).
 
+### 3.8b Kseniia — a late cameo (shipped)
+- `guest_kseniia`, "Kseniia" (uk Ксенія, ru Ксения), 34. A real person referenced with her consent (name and look only). Hair loosely up, an oversized blazer with paint stains, dark lipstick; a bridge piercing between the brows, a ring low on the nose, a labret, one small ring in one ear (render preset `kseniia`, `Accessory::Piercings`, `TopStyle::Blazer`).
+- **Who:** manages an art studio in an old factory in Holešovice; comes in after half past two, after hanging an exhibition overnight or seeing off the last artist. Used to work at an Italian restaurant with her ex.
+- **Voice:** teasing, double meanings, never explicit, no swearing; keeps bringing up her ex, who is never named (he mixed up burrata and mozzarella; he now "writes some app for night shifts"). Underneath: warm, the most observant guest in the room.
+- **Visits:** **nights 3, 15 and 20** (Story and Sandbox), 02:40–04:10 — she is gone before Karolina's back-step call (night 3, 04:20). She and Anwar (9, 24) never meet.
+- **Order:** an oat flat white, "a silly habit from my ex" (Anwar orders the same).
+- **Talks:** `kseniia_talk_3` — she meets Karolina and is the first to encourage her ("Night shift is when every guest is a bit more honest."). `kseniia_talk_15` — "Hi. How are you?" from him after two years; **choice** "Answer him" / "Don't answer" → var `kseniia_ex` = `answered` / `silent`. `kseniia_talk_20` — answered: coffee, "He was two minutes late. Again."; silent: she deletes his number ("For him I switched it off."); the night-15 talk never opened (var unset): a neutral variant.
+- **Easter egg:** if `kseniia_ex == answered`, Anwar's night-24 talk gains "Someone recommended this place to me. Well… not just someone." (and the same ambient line). No names.
+- **Flavour only:** no arc, flags, trust or effects beyond the var; no part in the endings. Journal highlight `KseniiaCameo` ("Special guest"). Texts: `assets/i18n/src/cameo_kseniia.tr`.
+
 ### 3.9 Karolina — the heroine (the player)
 - Lida's granddaughter, about thirty. Last here as a child: Mum (Lida's daughter) and Grandma talked twice a year, "both too proud to call first".
 - **Before the café:** three years as a **night operator for NONSTOP 24** in Brno — forty staffless shops on forty screens (doors, fridges, lights), "and not one of them waiting for anyone". She quit in the spring, the week she caught herself saying good night to a fridge.

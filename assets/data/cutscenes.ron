@@ -841,10 +841,78 @@
                 Line(speaker: "guest_anwar", expression: Neutral, text_key: "scene.anwar_talk_24.02"),
                 Line(speaker: "player", expression: Surprised, text_key: "scene.anwar_talk_24.03"),
                 Line(speaker: "guest_anwar", expression: Laugh, text_key: "scene.anwar_talk_24.04"),
+                // Kseniia answered her ex on night 15 (cameo_kseniia.tr): no names
+                If(conditions: [VarIs("kseniia_ex", "answered")], then: [Line(speaker: "guest_anwar", expression: Smile, text_key: "scene.anwar_talk_24.07")]),
                 Narration(text_key: "scene.anwar_talk_24.05"),
                 Line(speaker: "guest_anwar", expression: Smile, text_key: "scene.anwar_talk_24.06"),
                 Sfx(id: "sfx_door_bell"),
                 ActorExit(actor: "guest_anwar", to_tile: Spot("door")),
+            ],
+        ),
+        // --- cameo: Kseniia — talk dialogues (player chooses "Talk"). Flavour only: the one choice
+        // (night 15) sets `kseniia_ex` = answered | silent; unset (talk never opened) → the neutral
+        // night-20 variant. Texts: assets/i18n/src/cameo_kseniia.tr ---
+        (
+            id: "kseniia_talk_3",
+            trigger: Talk(regular: "guest_kseniia", night: Some(3)),
+            steps: [
+                Camera(focus: Actor("guest_kseniia"), zoom: 1.6),
+                Narration(text_key: "scene.kseniia_talk_3.01"),
+                Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_3.02"),
+                Line(speaker: "player", expression: Surprised, text_key: "scene.kseniia_talk_3.03"),
+                Line(speaker: "guest_kseniia", expression: Neutral, text_key: "scene.kseniia_talk_3.04"),
+                Line(speaker: "guest_kseniia", expression: Laugh, text_key: "scene.kseniia_talk_3.05"),
+                Line(speaker: "player", expression: Smile, text_key: "scene.kseniia_talk_3.06"),
+                Line(speaker: "guest_kseniia", expression: Thinking, text_key: "scene.kseniia_talk_3.07"),
+                Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_3.08"),
+                Line(speaker: "player", expression: Smile, text_key: "scene.kseniia_talk_3.09"),
+            ],
+        ),
+        (
+            id: "kseniia_talk_15",
+            trigger: Talk(regular: "guest_kseniia", night: Some(15)),
+            steps: [
+                Camera(focus: Actor("guest_kseniia"), zoom: 1.6),
+                Narration(text_key: "scene.kseniia_talk_15.01"),
+                Line(speaker: "guest_kseniia", expression: Neutral, text_key: "scene.kseniia_talk_15.02"),
+                Line(speaker: "guest_kseniia", expression: Thinking, text_key: "scene.kseniia_talk_15.03"),
+                Line(speaker: "player", expression: Thinking, text_key: "scene.kseniia_talk_15.04"),
+                Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_15.05"),
+                // Karolina glances at her own Shiftella app
+                Narration(text_key: "scene.kseniia_talk_15.06"),
+                Line(speaker: "guest_kseniia", expression: Laugh, text_key: "scene.kseniia_talk_15.07"),
+                Line(speaker: "guest_kseniia", expression: Neutral, text_key: "scene.kseniia_talk_15.08"),
+                Choice(options: [
+                (label_key: "scene.kseniia_talk_15.09", effects: [SetVar("kseniia_ex", "answered")]),
+                (label_key: "scene.kseniia_talk_15.10", effects: [SetVar("kseniia_ex", "silent")]),
+                ]),
+                If(conditions: [VarIs("kseniia_ex", "answered")], then: [Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_15.11")], otherwise: [Line(speaker: "guest_kseniia", expression: Sad, text_key: "scene.kseniia_talk_15.12"), Narration(text_key: "scene.kseniia_talk_15.13")]),
+                Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_15.14"),
+            ],
+        ),
+        (
+            id: "kseniia_talk_20",
+            trigger: Talk(regular: "guest_kseniia", night: Some(20)),
+            steps: [
+                Camera(focus: Actor("guest_kseniia"), zoom: 1.6),
+                If(conditions: [VarIs("kseniia_ex", "answered")], then: [
+                    Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_20.01"),
+                    Line(speaker: "player", expression: Smile, text_key: "scene.kseniia_talk_20.02"),
+                    Line(speaker: "guest_kseniia", expression: Thinking, text_key: "scene.kseniia_talk_20.03"),
+                    Line(speaker: "guest_kseniia", expression: Laugh, text_key: "scene.kseniia_talk_20.04"),
+                    Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_20.05"),
+                ], otherwise: [If(conditions: [VarIs("kseniia_ex", "silent")], then: [
+                    Narration(text_key: "scene.kseniia_talk_20.06"),
+                    Line(speaker: "guest_kseniia", expression: Neutral, text_key: "scene.kseniia_talk_20.07"),
+                    Line(speaker: "player", expression: Sad, text_key: "scene.kseniia_talk_20.08"),
+                    Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_20.09"),
+                ], otherwise: [
+                    // the night-15 talk never happened: no news, which is also news
+                    Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_20.10"),
+                    Line(speaker: "guest_kseniia", expression: Thinking, text_key: "scene.kseniia_talk_20.11"),
+                ])]),
+                Line(speaker: "guest_kseniia", expression: Smile, text_key: "scene.kseniia_talk_20.12"),
+                Line(speaker: "player", expression: Smile, text_key: "scene.kseniia_talk_20.13"),
             ],
         ),
     ],

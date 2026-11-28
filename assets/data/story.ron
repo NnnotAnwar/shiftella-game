@@ -267,6 +267,9 @@
         (id: "cat_name", default: "none", values: ["none", "vlak", "kofi", "lidka"]),
         // K2 (karolina_not_lida, night 13): the board in Lida's hand or in Karolina's own
         (id: "karolina_way", default: "none", values: ["none", "lida", "own"]),
+        // the Kseniia cameo's night-15 talk: did she answer her ex? (flavour only: her night 20,
+        // Anwar's night 24; "none" = the talk never opened → the neutral variant)
+        (id: "kseniia_ex", default: "none", values: ["none", "answered", "silent"]),
     ],
     counters: ["missed_payments", "payments_made", "cat_fed_nights", "coins_collected", "filip_kicked_out", "cat_affection"],
     items: ["cafe_keys", "old_coin", "rn333_ticket", "letter", "recipe_book", "timetable_1979", "lost_umbrella"],

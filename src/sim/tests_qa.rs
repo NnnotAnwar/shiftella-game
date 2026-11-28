@@ -478,6 +478,7 @@ fn thirty_story_nights_arcs_cameo_and_a_light_ending() {
     let c = content();
     let mut w = World::new_story_seeded(&c, Difficulty::Cozy, 4242);
     let mut anwar = Vec::new();
+    let mut kseniia = Vec::new();
     let mut dishes_nights = 0;
     for night in 1..=30 {
         match night {
@@ -490,6 +491,11 @@ fn thirty_story_nights_arcs_cameo_and_a_light_ending() {
                 && regular == "guest_anwar"
             {
                 anwar.push(night);
+            }
+            if let SimEvent::RegularArrived { regular, .. } = &e
+                && regular == "guest_kseniia"
+            {
+                kseniia.push(night);
             }
         }
         let s = w.last_summary().unwrap();
@@ -511,6 +517,8 @@ fn thirty_story_nights_arcs_cameo_and_a_light_ending() {
     }
     anwar.dedup();
     assert_eq!(anwar, vec![9, 24], "Anwar only on nights 9 and 24");
+    kseniia.dedup();
+    assert_eq!(kseniia, vec![3, 15, 20], "Kseniia only on nights 3, 15 and 20");
     assert!(
         dishes_nights < 22,
         "broken dishes on {dishes_nights} of 30 nights"

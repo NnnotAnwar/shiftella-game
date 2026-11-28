@@ -1277,7 +1277,7 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
         }
     }
     for reg in &c.regulars {
-        if reg.id == "guest_anwar" {
+        if reg.is_cameo() {
             continue;
         }
         for st in reg.stages.iter().filter(|s| s.stage >= 1) {

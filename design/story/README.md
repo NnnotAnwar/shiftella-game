@@ -23,7 +23,7 @@ exactly 3:33 a quiet guest in an old coat comes in, and an old taxi driver keeps
 | file | what's inside |
 |---|---|
 | [story.md](story.md) | tone, world, grandma Lida, the 3:33 mystery, the 30 nights by act, notes, branching, the two endings |
-| [characters.md](characters.md) | staff archetypes, the menu, the 7 regulars and their arcs, the Anwar cameo, odd guests |
+| [characters.md](characters.md) | staff archetypes, the menu, the 7 regulars and their arcs, the Anwar and Kseniia cameos, odd guests |
 | [traits.md](traits.md) | base scales (needs, skills, relationships), 16 traits, an example in RON |
 | [events.md](events.md) | the event catalogue + how the Night paces things (night curve, 30-night curve, calm/chaotic) |
 | [sandbox.md](sandbox.md) | town generation, guest pools, difficulty, town legends, long-term goals |

@@ -1021,15 +1021,14 @@ pub(crate) fn spawn_party(
             if let Some(r) = reg_id {
                 super::tool::on_regular_arrived(w, &r);
                 super::atmos::on_regular_arrived(w, content, &r);
+                use crate::content::handson::HighlightKind;
                 let kind = match r.as_str() {
-                    "guest_333" => Some(crate::content::handson::HighlightKind::Guest333),
-                    _ if content
-                        .regular(&r)
-                        .is_some_and(|d| d.look_preset.as_deref() == Some("anwar")) =>
-                    {
-                        Some(crate::content::handson::HighlightKind::AnwarCameo)
-                    }
-                    _ => None,
+                    "guest_333" => Some(HighlightKind::Guest333),
+                    _ => match content.regular(&r).and_then(|d| d.look_preset.as_deref()) {
+                        Some("anwar") => Some(HighlightKind::AnwarCameo),
+                        Some("kseniia") => Some(HighlightKind::KseniiaCameo),
+                        _ => None,
+                    },
                 };
                 if let Some(kind) = kind
                     && let Some(&leader) = w
