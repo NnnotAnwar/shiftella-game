@@ -13,8 +13,8 @@ ru столик с розеткой
 build_wish.filip_socket.ask
 cs Promiňte… nemáte tu někde zásuvku? Notebook mi umírá a zkouška ne.
 en Sorry… is there a socket anywhere? My laptop is dying and the exam isn't.
-uk Вибачте… тут ніде немає розетки? Ноутбук помирає, а іспит — ні.
-ru Простите… здесь нигде нет розетки? Ноутбук умирает, а экзамен — нет.
+uk Вибач… тут ніде немає розетки? Ноутбук помирає, а іспит — ні.
+ru Извини… здесь нигде нет розетки? Ноутбук умирает, а экзамен — нет.
 
 build_wish.filip_socket.thanks
 cs Zásuvka! U stolu! Tohle je nejlepší kavárna ve městě. Vážně.
@@ -31,8 +31,8 @@ ru маленькая сцена
 build_wish.lori_stage.ask
 cs Kdyby tu byl kousek místa a trochu světla… zahrála bych vám. Jen tak, za čaj.
 en If there were a little space and a bit of light… I'd play for you. Just for a tea.
-uk Якби тут був клаптик місця і трохи світла… я б вам заграла. Просто так, за чай.
-ru Будь здесь немного места и чуть-чуть света… я бы вам сыграла. Просто так, за чай.
+uk Якби тут був клаптик місця і трохи світла… я б тобі заграла. Просто так, за чай.
+ru Будь здесь немного места и чуть-чуть света… я бы тебе сыграла. Просто так, за чай.
 
 build_wish.lori_stage.thanks
 cs Pódium… pro mě? Tak to musím hrát líp než kdy dřív.

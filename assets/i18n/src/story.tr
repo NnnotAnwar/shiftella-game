@@ -255,8 +255,8 @@ ru Будет ливень. Гостей вдвое больше — и гряз
 story.night.20.title
 cs Na dlaň
 en A hand's breadth
-uk За долоню
-ru На ладонь
+uk На волосині
+ru На волоске
 
 story.night.20.hint
 cs Mirek dnes přijede pozdě. Buď u dveří.
@@ -535,8 +535,8 @@ ru Коту бы здесь понравилось. Если бы он был. �
 story.line.18_filip
 cs Neptejte se. Prosím.
 en Don't ask. Please.
-uk Не питайте. Будь ласка.
-ru Не спрашивайте. Пожалуйста.
+uk Не питай. Будь ласка.
+ru Не спрашивай. Пожалуйста.
 
 story.line.22_vera
 cs Lida by byla pyšná. Neříkej jí… no, neříkej to nikomu.
@@ -591,8 +591,8 @@ ru Последний поезд
 ending.last_train.summary
 cs Café Nocturne končí. Poslední noc se štamgasty a ranní vlak do Berouna.
 en Café Nocturne closes. A last night with the regulars and the morning train to Beroun.
-uk Café Nocturne зачиняється. Остання ніч із постійними гостями й ранковий поїзд до Beroun.
-ru Café Nocturne закрывается. Последняя ночь с постоянными гостями и утренний поезд до Beroun.
+uk Café Nocturne зачиняється. Остання ніч із постійними гостями й ранковий поїзд до Бероуна.
+ru Café Nocturne закрывается. Последняя ночь с постоянными гостями и утренний поезд до Бероуна.
 
 ending.last_train.variant.sold
 cs Prodáno síti NONSTOP 24. Okno svítí pořád — a nikdo v něm nečeká.
@@ -601,10 +601,10 @@ uk Продано мережі NONSTOP 24. Вікно світиться зав�
 ru Продано сети NONSTOP 24. Окно светится всегда — и никто в нём не ждёт.
 
 ending.last_train.variant.farewell
-cs Štamgasti ti pomohli sbalit a přemlouvali tě, ať otevřeš něco svého.
+cs Štamgasti ti pomohli sbalit a přemluvili tě, ať otevřeš něco svého.
 en The regulars helped you pack and talked you into opening something of your own.
-uk Постійні гості допомогли спакуватися й умовляли відкрити щось своє.
-ru Постоянные гости помогли собраться и уговаривали открыть что-то своё.
+uk Постійні гості допомогли спакуватися й умовили відкрити щось своє.
+ru Постоянные гости помогли собраться и уговорили открыть что-то своё.
 
 ending.last_train.variant.closed
 cs Kavárna zavřela. Holešovice v noci nejsou na velká loučení.

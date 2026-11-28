@@ -44,8 +44,13 @@ cast.bot.name
 ```
 
 `\n` inside a text = line break. The train-line stations (Adamov, Beroun, Cheb, Děčín, Ejpovice,
-Frýdlant) stay Czech in Latin script in every language, like the `{from}`/`{to}` the data fills in;
-Prague and Holešovice are written the local way in Cyrillic (Прага-Голешовиці / Прага-Голешовице).
+Frýdlant) stay Czech in Latin script on boards, tickets, train names and station announcements, like
+the `{from}`/`{to}` the data fills in. In uk/ru narration and dialogue they are written in Cyrillic
+and declined like any noun («до Бероуна», «із Фрідланта», «из Адамова»), never Latin in a case
+position. Prague and Holešovice are written the local way in Cyrillic (Прага-Голешовиці / Прага-Голешовице).
+Forms of address in uk/ru: Mirek, Vera, Lori, Hana and Filip say ти/ты to Karolina; Radek, the
+landlord and Šindelář say ви/вы; Karolina says ви/вы to Mirek and Vera. «Ваш» meaning the café
+itself («ваш фирменный») is fine either way.
 Person names are transliterated in Cyrillic prose (Мірек, Ліда / Мирек, Лида); record, band and cat
 names stay as written. Lines around a `{name}` avoid case endings and gendered past tenses. The player is **Karolina**, Lida's
 granddaughter: feminine forms are fine where a language needs them (brief §1).

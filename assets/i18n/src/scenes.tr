@@ -22,8 +22,8 @@ ru Поезд сам тихо уходит в темноту — машинис�
 scene.opening.04
 cs Naposledy, co si pamatuju, mi ten pult sahal po nos.
 en Last I remember, that counter came up to my nose.
-uk Скільки пам'ятаю, цей прилавок тоді був мені по ніс.
-ru Сколько помню, этот прилавок тогда был мне по нос.
+uk Коли я була тут востаннє, прилавок сягав мені до носа.
+ru Когда я была здесь в последний раз, прилавок доставал мне до носа.
 
 scene.opening.05
 cs Vedle nádraží jedno tmavé okno. Nad ním holografický nápis s prasklým písmenem: CAFÉ NOCTURNE — kavárna u nádraží.
@@ -32,10 +32,10 @@ uk Поруч із вокзалом — одне темне вікно. Над �
 ru Рядом с вокзалом — одно тёмное окно. Над ним голографическая вывеска с треснувшей буквой: CAFÉ NOCTURNE — kavárna u nádraží.
 
 scene.opening.06
-cs V kapse máš dopis od notáře. A ještě jeden, psaný rukou. Na obálce: „Tomu, kdo bude držet světlo."
+cs V kapse máš dopis od notáře. A ještě jeden, psaný rukou. Na obálce: „Tomu, kdo drží světlo."
 en In your pocket, a letter from the notary. And one more, handwritten. On the envelope: "To whoever keeps the light."
-uk У кишені — лист від нотаря. І ще один, написаний від руки. На конверті: «Тому, хто триматиме світло».
-ru В кармане — письмо от нотариуса. И ещё одно, написанное от руки. На конверте: «Тому, кто будет хранить свет».
+uk У кишені — лист від нотаря. І ще один, написаний від руки. На конверті: «Тому, хто тримає світло».
+ru В кармане — письмо от нотариуса. И ещё одно, написанное от руки. На конверте: «Тому, кто хранит свет».
 
 scene.opening.07
 cs Jestli tohle čteš, kávovar mě přežil. Chovej se k němu hezky. Kouše.
@@ -187,8 +187,8 @@ ru Я делаю всё, что могу.
 scene.vera_first.04
 cs Každý dělá, co může. Lida mohla víc.
 en Everyone does their best. Lida's best was better.
-uk Усі роблять, що можуть. Ліда могла більше.
-ru Все делают, что могут. Лида могла больше.
+uk Усі роблять, що можуть. Ліда могла краще.
+ru Все делают, что могут. Лида могла лучше.
 
 scene.vera_first.05
 cs Otevře křížovku a už nevzhlédne. Ale zůstane až do tří.
@@ -200,8 +200,8 @@ ru Она разворачивает кроссворд и больше не п�
 scene.payment_1.01
 cs Ráno. První splátka odchází s vlakem v 6:12 do Berouna.
 en Morning. The first payment leaves with the 06:12 to Beroun.
-uk Ранок. Перший платіж їде поїздом о 6:12 до Beroun.
-ru Утро. Первый платёж уезжает поездом в 6:12 до Beroun.
+uk Ранок. Перший платіж їде поїздом о 6:12 до Бероуна.
+ru Утро. Первый платёж уезжает поездом в 6:12 до Бероуна.
 
 scene.payment_1.02
 cs Platba přišla. Upřímně? Nečekal jsem to.
@@ -335,8 +335,8 @@ ru Rn 333?
 scene.radek_news.05
 cs Dneska noční vlak odnikud nikam. Zeptej se pamětníků. Nebo radši ne.
 en These days, a night train from nowhere to nowhere. Ask the old-timers. Or better don't.
-uk Тепер — нічний поїзд нізвідки в нікуди. Спитай старожилів. Або краще не питай.
-ru Теперь — ночной поезд из ниоткуда в никуда. Спроси старожилов. Или лучше не спрашивай.
+uk Тепер — нічний поїзд нізвідки в нікуди. Спитайте старожилів. Або краще не питайте.
+ru Теперь — ночной поезд из ниоткуда в никуда. Спросите старожилов. Или лучше не спрашивайте.
 
 # --- scene lori_platform
 scene.lori_platform.01
@@ -583,8 +583,8 @@ ru У нас свет не гаснет никогда! В этом же и су
 scene.franchise_visit.06
 cs Rozmyslete si to do dvaadvacáté noci. Naše nabídky na rozdíl od našich prodejen nejsou otevřené věčně.
 en Think it over until the twenty-second night. Unlike our shops, our offers don't stay open forever.
-uk Подумайте до двадцять другої ночі. На відміну від наших магазинів, наші пропозиції не відкриті вічно.
-ru Подумайте до двадцать второй ночи. В отличие от наших магазинов, наши предложения не открыты вечно.
+uk Подумайте до двадцять другої ночі. Магазини в нас відчинені цілодобово, а от пропозиції — ні.
+ru Подумайте до двадцать второй ночи. Магазины у нас открыты круглосуточно, а вот предложения — нет.
 
 scene.franchise_visit.07
 cs Kalendář: „NONSTOP 24 — rozhodnutí" přidáno k noci 22.
@@ -633,8 +633,8 @@ ru …Ещё одна попытка. Ладно. Но если снова за�
 scene.mirek_pedestrian.01
 cs Brzdy. Výkřik. Mirkovo auto zastaví na dlaň od sestřičky, která přecházela k nemocnici.
 en Brakes. A shout. Mirek's car stops a hand's breadth from a nurse crossing to the hospital.
-uk Гальма. Крик. Міркова машина зупиняється за долоню від медсестри, що переходила до лікарні.
-ru Тормоза. Крик. Машина Мирека останавливается в ладони от медсестры, переходившей к больнице.
+uk Гальма. Крик. Міркова машина зупиняється за кілька сантиметрів від медсестри, що переходила до лікарні.
+ru Тормоза. Крик. Машина Мирека останавливается в считаных сантиметрах от медсестры, переходившей к больнице.
 
 scene.mirek_pedestrian.02
 cs Nikomu se nic nestalo. Mirek sedí u baru s roztřesenýma rukama a na kávu nesáhne.
@@ -849,8 +849,8 @@ ru Три песни подряд никто ничего не заказыва�
 scene.act4_storm.01
 cs Od Frýdlantu přes kopce přichází bouřka.
 en A storm comes over the hills from Frýdlant.
-uk Від Frýdlant через пагорби насувається гроза.
-ru Со стороны Frýdlant через холмы надвигается гроза.
+uk Від Фрідланта через пагорби насувається гроза.
+ru Со стороны Фридланта через холмы надвигается гроза.
 
 scene.act4_storm.02
 cs Ve 22:30 zhasnou světla na nádraží, pak lampy v ulicích, pak celé Holešovice.
@@ -890,10 +890,10 @@ uk Я лишаюся. Дрезден платить більше. А в Праз
 ru Я остаюсь. Дрезден платит больше. А в Праге есть кресло под лампой, где мне дают поспать.
 
 scene.hana_decision.03
-cs Jedu. Je to dobrá práce. …Díky za všechna kafe. Byli jste vždycky rychlí.
-en I'm going. It's a good job. …Thanks for all the coffee. You were always quick.
-uk Я їду. Це хороша робота. …Дякую за всю каву. Ви завжди були швидкі.
-ru Я уезжаю. Это хорошая работа. …Спасибо за весь кофе. Вы всегда были быстрыми.
+cs Jedu. Je to dobrá práce. …Díky za každé kafe ve dvě. Bude mi chybět ta lampa.
+en I'm going. It's a good job. …Thank you for every coffee at two. I'll miss the lamp.
+uk Я їду. Це хороша робота. …Дякую за кожну каву о другій. Сумуватиму за лампою.
+ru Я уезжаю. Это хорошая работа. …Спасибо за каждый кофе в два ночи. Буду скучать по лампе.
 
 # --- scene vera_jindrich
 scene.vera_jindrich.01
@@ -905,13 +905,13 @@ ru Первый снег. Лида его любила. Садись, расск
 scene.vera_jindrich.02
 cs Opravoval rádia. Vysoký, plachý, tancoval příšerně. Vybrala si ho před půlkou města. I před Mirkem.
 en He fixed radios. Tall, shy, a terrible dancer. She chose him over half the town. Over Mirek, too.
-uk Він лагодив радіоприймачі. Високий, сором'язливий, танцював жахливо. Вона обрала його з-поміж пів міста. І з-поміж Мірека теж.
-ru Он чинил радиоприёмники. Высокий, застенчивый, танцевал ужасно. Она выбрала его из полгорода. И из Мирека тоже.
+uk Він лагодив радіоприймачі. Високий, сором'язливий, танцював жахливо. Вона віддала йому перевагу перед половиною міста. І перед Міреком теж.
+ru Он чинил радиоприёмники. Высокий, застенчивый, танцевал ужасно. Она предпочла его половине города. И Миреку тоже.
 
 scene.vera_jindrich.03
 cs Tu noc, co odjížděl za prací do Ostravy, se pohádali. Kvůli hlouposti — peníze a pýcha. Řekla, že mu napíše.
 en The night he left for work in Ostrava, they quarrelled. Over something silly — money and pride. She said she'd write.
-uk Тієї ночі, коли він їхав на заробітки до Ostrava, вони посварилися. Через дурницю — гроші й гордість. Вона сказала, що напише.
+uk Тієї ночі, коли він їхав на заробітки до Острави, вони посварилися. Через дурницю — гроші й гордість. Вона сказала, що напише.
 ru В ту ночь, когда он уезжал на заработки в Остраву, они поссорились. Из-за ерунды — денег и гордости. Она сказала, что напишет.
 
 scene.vera_jindrich.04
@@ -1010,8 +1010,8 @@ ru Я сдал! Термодинамика на «четыре». Принёс �
 scene.filip_cake.02
 cs Díky, že jste mě nikdy nevyhodili od toho stolu se zásuvkou. Půlka mého studia se odehrála na něm.
 en Thanks for never kicking me off the table with the socket. Half my degree happened on it.
-uk Дякую, що ніколи не виганяли мене з-за того столика з розеткою. Половина мого навчання минула за ним.
-ru Спасибо, что ни разу не выгнали меня из-за того столика с розеткой. Половина моей учёбы прошла за ним.
+uk Дякую, що ніколи не виганяла мене з-за того столика з розеткою. Половина мого навчання минула за ним.
+ru Спасибо, что ни разу не выгнала меня из-за того столика с розеткой. Половина моей учёбы прошла за ним.
 
 # --- scene final_night
 scene.final_night.01
@@ -1042,8 +1042,8 @@ ru Впервые за шестьдесят лет в 3:33 останавлив�
 scene.last_333.02
 cs To je můj. Ještě čaj, prosím, než pojedu. Dva cukry.
 en That one's mine. Tea, please, before I go. Two sugars.
-uk Це мій. Ще чаю, будь ласка, перш ніж я поїду. Два цукри.
-ru Это мой. Ещё чаю, пожалуйста, прежде чем я уеду. Два сахара.
+uk Це мій поїзд. Ще чаю, будь ласка, перш ніж я поїду. Два цукри.
+ru Это мой поезд. Ещё чаю, пожалуйста, прежде чем я уеду. Два сахара.
 
 scene.last_333.03
 cs Položit vedle šálku Lidin dopis
@@ -1139,14 +1139,14 @@ ru Теперь меня возит Яна. Медленно. Водит, как
 scene.ending_light.06
 cs Drážďanům jsem řekla ne. Ve dvě jsem zpátky — nechte mi křeslo volné.
 en I told Dresden no. I'll be back at two — keep the armchair free.
-uk Я відмовила Дрездену. О другій повернуся — тримайте крісло вільним.
-ru Я отказала Дрездену. В два вернусь — держите кресло свободным.
+uk Я відмовила Дрездену. О другій повернуся — тримай крісло вільним.
+ru Я отказала Дрездену. В два вернусь — держи кресло свободным.
 
 scene.ending_light.07
 cs Přivedla jsem tři kamarádky. Stěžují si ještě víc než já. Zamilujete si je.
 en I've brought three friends. They complain even more than I do. You'll love them.
-uk Я привела трьох подруг. Вони скаржаться ще більше за мене. Ви їх полюбите.
-ru Я привела трёх подруг. Они жалуются ещё больше, чем я. Вы их полюбите.
+uk Я привела трьох подруг. Вони скаржаться ще більше за мене. Ти їх полюбиш.
+ru Я привела трёх подруг. Они жалуются ещё больше, чем я. Ты их полюбишь.
 
 scene.ending_light.08
 cs Příští semestr zase beru ten stůl v rohu. Rezervace. Pod zásuvkou.
@@ -1163,8 +1163,8 @@ ru Пенсионерам нужно место, где рассказывать
 scene.ending_light.10
 cs Pátky. Moje kytara. Vaše čokoláda. Platí?
 en Fridays. My guitar. Your hot chocolate. Deal?
-uk П'ятниці. Моя гітара. Ваш шоколад. Домовились?
-ru Пятницы. Моя гитара. Ваш шоколад. Договорились?
+uk П'ятниці. Моя гітара. Твій шоколад. Домовились?
+ru Пятницы. Моя гитара. Твой шоколад. Договорились?
 
 scene.ending_light.11
 cs Lida by řekla, že je to všechno špatně. A pak by si sedla a zůstala.
@@ -1212,8 +1212,8 @@ ru Ровно в шесть ты выключаешь свет в окне. Вп
 scene.ending_last_train.01
 cs Nový nápis přijede vlakem v 5:20 z Frýdlantu: NONSTOP 24, písmeny, která nikdy nespí.
 en The new sign arrives on the 05:20 from Frýdlant: NONSTOP 24, in letters that never sleep.
-uk Нова вивіска приїжджає поїздом о 5:20 із Frýdlant: NONSTOP 24, літерами, які ніколи не сплять.
-ru Новая вывеска приезжает поездом в 5:20 из Frýdlant: NONSTOP 24, буквами, которые никогда не спят.
+uk Нова вивіска приїжджає поїздом о 5:20 із Фрідланта: NONSTOP 24, літерами, які ніколи не сплять.
+ru Новая вывеска приезжает поездом в 5:20 из Фридланта: NONSTOP 24, буквами, которые никогда не спят.
 
 scene.ending_last_train.02
 cs Dluh vyrovnán, smlouva podepsaná. Gratuluji, pane vedoucí — nebo paní vedoucí? To je jedno. Od teď máme otevřeno nonstop.
@@ -1278,8 +1278,8 @@ ru Пришлю тебе адрес, когда будет своя кварти
 scene.ending_last_train.12
 cs Vlak v 6:12 do Berouna. Kontroloval jsem to. Jede načas. Jasně že jede, už ho neřídím já.
 en The 06:12 to Beroun. I checked. It's on time. Of course it is, I'm not the one running it anymore.
-uk Поїзд о 6:12 до Beroun. Я перевірив. Іде вчасно. Ну звісно, я ж ним більше не керую.
-ru Поезд в 6:12 до Beroun. Я проверил. Идёт по расписанию. Ну конечно, я же им больше не управляю.
+uk Поїзд о 6:12 до Бероуна. Я перевірив. Іде вчасно. Ну звісно, я ж ним більше не керую.
+ru Поезд в 6:12 до Бероуна. Я проверил. Идёт по расписанию. Ну конечно, я же им больше не управляю.
 
 scene.ending_last_train.13
 cs Štamgasti přijdou na poslední kafe. Pár slov, pár podání rukou. Holešovice v noci nejsou na velká loučení.
@@ -1296,8 +1296,8 @@ ru Ты берёшь бабушкину поваренную книгу, фот�
 scene.ending_last_train.15
 cs Promiň, babi. Nechala jsem ho svítit, dokud to šlo.
 en Sorry, Grandma. I kept it on as long as I could.
-uk Вибач, бабусю. Я тримала його світлим, скільки могла.
-ru Прости, бабушка. Я держала его зажжённым, сколько могла.
+uk Вибач, бабусю. Я не давала йому згаснути, скільки могла.
+ru Прости, бабушка. Я не давала ему погаснуть, сколько могла.
 
 scene.ending_last_train.16
 cs Tomu, kdo drží světlo: světlo není budova. Vezmi si ho s sebou.
@@ -1308,14 +1308,14 @@ ru Тому, кто хранит свет: свет — это не здание
 scene.ending_last_train.17
 cs Vlak v 6:12 odjíždí do Berouna. Za oknem se zmenšuje nádraží, pak město, pak mlha.
 en The 06:12 leaves for Beroun. Through the window, the station grows small, then the town, then the fog.
-uk Поїзд о 6:12 вирушає до Beroun. За вікном меншає вокзал, потім місто, потім туман.
-ru Поезд в 6:12 отправляется до Beroun. За окном уменьшается вокзал, потом город, потом туман.
+uk Поїзд о 6:12 вирушає до Бероуна. За вікном меншає вокзал, потім місто, потім туман.
+ru Поезд в 6:12 отправляется до Бероуна. За окном уменьшается вокзал, потом город, потом туман.
 
 scene.ending_last_train.18
 cs Někde na trati — Frýdlant, Ejpovice, Děčín — jsou města, která v noci nespí. A lidé, kteří by přišli, kdyby někde svítilo okno.
 en Somewhere down the line — Frýdlant, Ejpovice, Děčín — there are towns that stay awake at night. And people who would come, if a window were lit.
-uk Десь на лінії — Frýdlant, Ejpovice, Děčín — є міста, які не сплять уночі. І люди, які прийшли б, якби десь світилося вікно.
-ru Где-то на линии — Frýdlant, Ejpovice, Děčín — есть города, которые не спят по ночам. И люди, которые пришли бы, если бы где-то светилось окно.
+uk Десь на лінії — Фрідлант, Ейповиці, Дечин — є міста, які не сплять уночі. І люди, які прийшли б, якби десь світилося вікно.
+ru Где-то на линии — Фридлант, Эйповице, Дечин — есть города, которые не спят по ночам. И люди, которые пришли бы, если бы где-то светилось окно.
 
 scene.ending_last_train.19
 cs Třicet nocí. Dost na to, aby se to člověk naučil.

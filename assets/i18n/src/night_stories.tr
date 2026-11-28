@@ -72,8 +72,8 @@ ru {name} и звонок, который пришёл
 story.last_train.text
 cs Poslední vlak do Děčína ujel. Další jede až za svítání.
 en The last train to Děčín has gone. The next one leaves at dawn.
-uk Останній потяг на Děčín уже пішов. Наступний — аж на світанку.
-ru Последний поезд на Děčín ушёл. Следующий — только на рассвете.
+uk Останній потяг на Дечин уже пішов. Наступний — аж на світанку.
+ru Последний поезд на Дечин ушёл. Следующий — только на рассвете.
 
 story.last_train.opt.app
 cs Najít v aplikaci první ranní vlak
@@ -1424,14 +1424,14 @@ ru За снег. И за кафе, которое не спит вместе с
 storm.talk.trains.1
 cs Děčín si počká do rána.
 en Děčín will have to wait till morning.
-uk Děčín почекає до ранку.
-ru Děčín подождёт до утра.
+uk Дечин почекає до ранку.
+ru Дечин подождёт до утра.
 
 storm.talk.trains.2
 cs Frýdlant taky. Někdo tam drží večeři v teple. Teď už spíš snídani.
 en Frýdlant too. Someone there is keeping dinner warm. Breakfast now, I suppose.
-uk Frýdlant теж. Хтось там тримає вечерю теплою. Тепер уже, мабуть, сніданок.
-ru Frýdlant тоже. Кто-то там держит ужин тёплым. Теперь уже, наверное, завтрак.
+uk Фрідлант теж. Когось там чекає вечеря. Тепер уже, мабуть, сніданок.
+ru Фридлант тоже. Кого-то там ждёт ужин. Теперь уже, наверное, завтрак.
 
 storm.talk.trains.3
 cs Bydlím pět minut odsud. Jen se mi nechtělo domů.
