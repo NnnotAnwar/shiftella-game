@@ -62,8 +62,10 @@
         need_decay_mul: 1.0,
         // purchases (0.2.1 bar + honest seating): 1.55 → 1.65 so about half of the bot's runs
         // make the final 30 000 again (sim_balance 30 story classic 8). 0.2.2 seats: 1.65 → 1.5
-        // (fewer turned away; 1.5 → 3–4 of 8 runs make it, 1.52 → 6, 1.54 → all 8)
-        income_mul: 1.5,
+        // (fewer turned away; 1.5 → 3–4 of 8 runs make it, 1.52 → 6, 1.54 → all 8).
+        // 0.2.6 (clean floors, no double serving) made 1.5 too easy (11/12 light endings):
+        // 1.5 → 1.47 — 1.44 → 3/12, 1.46–1.48 → 5–6/12, 1.49 → 9/12 (sim_balance 30 story classic 12)
+        income_mul: 1.47,
         rent_growth_percent: 5.0,
         rent_growth_every: 10,
         rent_growth_max: 1.6,
