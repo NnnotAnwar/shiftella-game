@@ -110,8 +110,18 @@ fn karolina_on(w: &World) -> Option<u32> {
 }
 
 /// Does Karolina have an act on `work`?
-fn hers(w: &World, work: &Work) -> bool {
+pub(crate) fn hers(w: &World, work: &Work) -> bool {
     her_acts(w).any(|(a, carrying)| of_act(a, carrying).contains(work))
+}
+
+/// Does one of Karolina's acts still need checklist item `id` (ticking it, or an appliance
+/// chore that ticks it)? Then dropping another act must not let go of the item's claim.
+pub(crate) fn checklist_still_hers(w: &World, id: &str) -> bool {
+    her_acts(w).any(|(a, _)| match a {
+        PlayerAct::Checklist { id: x } => x == id,
+        PlayerAct::Use { action, .. } => action.checklist() == Some(id),
+        _ => false,
+    })
 }
 
 /// Who holds `work` now (a staff id; Karolina's too), if anybody.

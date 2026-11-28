@@ -710,3 +710,92 @@ fn a_busy_crew_night_never_has_two_people_on_the_same_work() {
         assert!(served > 0, "seed {seed}: Karolina served too");
     }
 }
+
+#[test]
+fn a_second_act_on_work_she_already_has_is_refused() {
+    // (chaos-screen seed 1062: a second sink, two washes queued; the first one let go of the
+    // sink while the second still waited, and the dishes helper took it)
+    let c = content();
+    let (mut w, i) = night_with(&c, &[Duty::Dishes]);
+    let sink = sink_uid(&w, &c);
+    w.sink_dishes = 6;
+    queue(&mut w, &c, PlayerAct::Wash { sink }).unwrap();
+    let other = w.furniture.iter().find(|p| p.uid != sink).unwrap().uid;
+    assert_eq!(
+        queue(&mut w, &c, PlayerAct::Wash { sink: other }),
+        Err(CommandError::Invalid("already on it".into()))
+    );
+    assert_eq!(her_acts(&w).len(), 1);
+    // she waits at the sink without washing, then gives up: the helper may wash after that,
+    // never before
+    for _ in 0..400 {
+        w.tick(&c);
+        assert!(claims::clashes(&w).is_empty(), "{:?}", claims::clashes(&w));
+        if her_acts(&w).iter().any(|a| matches!(a, PlayerAct::Wash { .. })) {
+            assert!(!matches!(w.staff[i].task, Some(Task::Wash { .. })));
+        }
+    }
+}
+
+#[test]
+fn dropping_one_of_two_acts_on_a_checklist_item_keeps_it_hers() {
+    // (chaos-screen seed 6031: the fridge chore and the stock check both tick `check_stock`;
+    // unqueuing one let go of the item while the other still waited, and the kitchen helper
+    // took it)
+    let c = content();
+    let (mut w, i) = night_with(&c, &[Duty::Kitchen]);
+    reopen(&mut w, "check_stock");
+    w.hands.equip.milk_done = true;
+    let fridge = w
+        .furniture
+        .iter()
+        .find(|p| {
+            c.furniture_def(&p.def)
+                .is_some_and(|d| EquipKind::of(d) == Some(EquipKind::Fridge))
+        })
+        .expect("a fridge")
+        .uid;
+    let me = w.karolina().unwrap().id;
+    queue(
+        &mut w,
+        &c,
+        PlayerAct::Checklist {
+            id: "check_stock".into(),
+        },
+    )
+    .unwrap();
+    queue(
+        &mut w,
+        &c,
+        PlayerAct::Use {
+            uid: fridge,
+            action: EquipAction::Milk,
+        },
+    )
+    .unwrap();
+    // she lets the chore go: the stock check still waits, the item stays hers
+    let k = w.player().queue.len() - 1;
+    w.apply(&c, Command::PlayerUnqueue { index: k }).unwrap();
+    let claim = |w: &World| {
+        w.app
+            .checklist
+            .iter()
+            .find(|x| x.id == "check_stock")
+            .unwrap()
+            .claim
+    };
+    assert_eq!(claim(&w), Some(me));
+    for _ in 0..3000 {
+        w.tick(&c);
+        assert!(claims::clashes(&w).is_empty(), "{:?}", claims::clashes(&w));
+        assert!(
+            !matches!(&w.staff[i].task, Some(Task::Checklist { id, .. }) if id == "check_stock"),
+            "the helper took the stock check she still has"
+        );
+        if !karolina_busy(&w) {
+            break;
+        }
+    }
+    let x = w.app.checklist.iter().find(|x| x.id == "check_stock").unwrap();
+    assert!(x.done && x.by == Some(me));
+}

@@ -78,6 +78,16 @@ fn queue_room(w: &World) -> Result<(), CommandError> {
 /// as queued (a serve gets the party's other ready items on its tray).
 fn claim_act(w: &mut World, content: &Content, act: PlayerAct) -> Result<PlayerAct, CommandError> {
     let me = me(w);
+    // one act per piece of work: a second one (the sink from another sink, the same table
+    // twice) would let go of the claim when the first one ends while it still waits
+    // (a blot is picked below, a tip goes with clearing the table)
+    if super::claims::of_act(&act, false)
+        .iter()
+        .filter(|x| !matches!(x, Work::Blot(_) | Work::Tip(_)))
+        .any(|x| super::claims::hers(w, x))
+    {
+        return Err(CommandError::Invalid("already on it".into()));
+    }
     match &act {
         PlayerAct::TakeOrder { party } => {
             let p = w
@@ -313,8 +323,11 @@ fn release_act(w: &mut World, content: &Content, act: &PlayerAct, stage: u8, cou
             }
         }
         PlayerAct::Checklist { id } => {
+            // (an appliance chore of hers that ticks it keeps it)
+            let keep = super::claims::checklist_still_hers(w, id);
             if let Some(c) = w.app.checklist.iter_mut().find(|c| &c.id == id)
                 && c.claim == Some(me)
+                && !keep
             {
                 c.claim = None;
             }
@@ -1788,8 +1801,9 @@ fn use_step(
             }
             // (a helper may have done it meanwhile, the pot stopped bubbling…: then nothing)
             if !eq::possible(w, content, uid, action) {
-                eq::release(w, action);
-                return finish(w);
+                // (finished first: the claim is let go unless another act of hers needs it)
+                finish(w);
+                return eq::release(w, action);
             }
             if action == EquipAction::Trash
                 && let Some(t) = eq::outside_spot(w)
