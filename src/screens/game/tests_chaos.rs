@@ -585,6 +585,8 @@ impl<'a> Chaos<'a> {
         let dt = *self.r.pick(&[1.0 / 30.0, 1.0 / 30.0, 0.1, 0.25]).unwrap();
         let before = self.g.world.tick_count() + self.g.world.prep_left_ticks();
         self.g.time += dt;
+        // WASD held (or not) as the frame does it (steer_ui)
+        steer_ui::input(&mut self.g, &c, false, dt);
         self.g.advance(&c, dt, Some(loc));
         let _ = self.g.hands_frame(&c, dt);
         if self.autoplay {
@@ -691,7 +693,7 @@ impl<'a> Chaos<'a> {
             .collect();
         let dirt = w.dirt_spots();
         let front = self.r.chance(0.25);
-        let intent = match self.r.index(46) {
+        let intent = match self.r.index(48) {
             0..=4 => self
                 .r
                 .pick(&guests)
@@ -917,6 +919,20 @@ impl<'a> Chaos<'a> {
                     let r = self.g.command(&c, cmd.clone());
                     self.note(format!("{cmd:?} → {r:?}"));
                 }
+                None
+            }
+            46 => {
+                // WASD held a while (walking as Karolina), sometimes let go at once
+                let d = (self.r.range_i64(-1, 2) as i8, self.r.range_i64(-1, 2) as i8);
+                let secs = self.r.f32() * 2.5;
+                self.g.hands.steer.fake = Some((d, secs));
+                self.note(format!("steer {d:?} {secs:.1}s"));
+                None
+            }
+            47 => {
+                let n = self.g.world.nearby(&c);
+                let ok = steer_ui::interact(&mut self.g, &c, self.r.chance(0.3));
+                self.note(format!("E {:?} → {ok}", n.map(|n| n.kind)));
                 None
             }
             _ => {

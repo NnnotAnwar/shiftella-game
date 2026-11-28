@@ -39,6 +39,7 @@ mod scene_fx;
 pub mod seat_shot;
 pub mod signature_ui;
 mod staff_life_view;
+mod steer_ui;
 mod stories_ui;
 pub mod talk_shot;
 pub mod tutorial;
@@ -1608,6 +1609,10 @@ impl GameScreen {
         for e in events_before {
             self.handle_event(content, e, Some(&loc));
         }
+        // WASD steers Karolina at night (sim::steer): the held direction goes in before the ticks
+        let keyboard =
+            !ui.wants_keyboard() && !(self.panel == Some(Panel::Crew) && crew_ui::arrows_held());
+        steer_ui::input(self, content, keyboard, dt);
         let (rate, tick) = self.sim_rate(content);
         if self.clock_stop > 0.0 {
             self.clock_stop = (self.clock_stop - dt).max(0.0);
@@ -1691,10 +1696,15 @@ impl GameScreen {
                 && !ui.wants_keyboard()
                 && !(self.panel == Some(Panel::Crew) && crew_ui::arrows_held())
             {
-                let moved = self.cam.update();
+                // (WASD steers her at night; Shift + WASD and a drag stay the camera's)
+                let keys = steer_ui::camera_keys(self, ui);
+                let moved = self.cam.update_keys(keys);
                 self.follow_frame(moved, dt);
+                let panned = self.cam.panned;
+                steer_ui::camera(self, panned, dt);
             } else {
                 self.follow_frame(false, dt);
+                steer_ui::camera(self, false, dt);
             }
             if let Some(tgt) = self.cam_target {
                 self.cam.center = self.cam.center.lerp(tgt, (dt * 2.5).min(1.0));
@@ -1850,6 +1860,8 @@ impl GameScreen {
             auto_pause::chip(self, ui, cx);
             if self.panel.is_none() {
                 checklist_ui::world_tip(self, ui, &loc, content);
+                // "E · Take the order" over the thing beside her
+                steer_ui::prompt(self, ui, cx);
             }
             match self.panel {
                 Some(Panel::Crew) => crew_ui::panel(self, ui, cx),
@@ -2369,6 +2381,11 @@ impl GameScreen {
         if ui.key(KeyCode::Home) {
             self.cam_ready = false;
             self.set_follow(None);
+            steer_ui::home(self);
+        }
+        // the camera follows her steps / stays put (Settings → Controls, default Z)
+        if pressed(ui, A::FollowCam) && self.world.phase() == Phase::Night {
+            steer_ui::toggle_follow(self);
         }
         // the queue strip opens / closes (Settings → Controls, default Q)
         if pressed(ui, A::Queue) && self.world.phase() == Phase::Night {
@@ -2396,7 +2413,11 @@ impl GameScreen {
                 .is_some_and(|c| matches!(c.act, sim::PlayerAct::Wash { .. }) && c.stage == 1);
             // (and at a hold chore at an appliance)
             let at_sink = at_sink || self.at_hold_chore();
-            if pressed(ui, A::Chore) && !at_sink {
+            // E: the thing beside her (WASD walks her there), else the nearest chore
+            if pressed(ui, A::Chore)
+                && !at_sink
+                && !steer_ui::interact(self, content, steer_ui::held() != (0, 0))
+            {
                 self.intent(content, Intent::Chore { front });
             }
             if pressed(ui, A::Greet) {

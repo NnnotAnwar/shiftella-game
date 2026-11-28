@@ -3,8 +3,9 @@
 //! The world is measured in world pixels: one tile = `map::TILE` (64).
 //! `zoom` = screen pixels per world pixel.
 //!
-//! Controls: WASD / arrows or right (middle) button drag to move,
-//! mouse wheel to zoom towards the cursor.
+//! Controls: WASD / arrows (Shift + WASD while they steer Karolina at night,
+//! `screens::game::steer_ui`) or right (middle) button drag to move, mouse wheel to zoom
+//! towards the cursor.
 
 use macroquad::prelude::*;
 
@@ -31,6 +32,9 @@ pub struct WorldCamera {
     pub center: Vec2,
     pub zoom: f32,
     drag_last: Option<Vec2>,
+    /// The last update panned it (keys or a drag — not the wheel): the walking follow stops
+    /// for that, not for a zoom.
+    pub panned: bool,
 }
 
 impl WorldCamera {
@@ -40,6 +44,7 @@ impl WorldCamera {
             center,
             zoom: zoom.clamp(MIN_ZOOM, MAX_ZOOM),
             drag_last: None,
+            panned: false,
         }
     }
 
@@ -55,6 +60,7 @@ impl WorldCamera {
             center,
             zoom,
             drag_last: None,
+            panned: false,
         }
     }
 
@@ -81,25 +87,33 @@ impl WorldCamera {
     /// Camera input. Works while paused too (uses real frame time). Returns whether the
     /// player moved it (keys, a drag, the wheel) — that ends a follow.
     pub fn update(&mut self) -> bool {
+        self.update_keys(true)
+    }
+
+    /// [`WorldCamera::update`]; `keys` = WASD / the arrows pan it (not while they steer
+    /// Karolina with them).
+    pub fn update_keys(&mut self, keys: bool) -> bool {
         let mut moved = false;
         let dt = get_frame_time();
 
         // Keys
         let mut dir = Vec2::ZERO;
-        if is_key_down(KeyCode::W) || is_key_down(KeyCode::Up) {
+        let key = |a: KeyCode, b: KeyCode| keys && (is_key_down(a) || is_key_down(b));
+        if key(KeyCode::W, KeyCode::Up) {
             dir.y -= 1.0;
         }
-        if is_key_down(KeyCode::S) || is_key_down(KeyCode::Down) {
+        if key(KeyCode::S, KeyCode::Down) {
             dir.y += 1.0;
         }
-        if is_key_down(KeyCode::A) || is_key_down(KeyCode::Left) {
+        if key(KeyCode::A, KeyCode::Left) {
             dir.x -= 1.0;
         }
-        if is_key_down(KeyCode::D) || is_key_down(KeyCode::Right) {
+        if key(KeyCode::D, KeyCode::Right) {
             dir.x += 1.0;
         }
         self.center += dir.normalize_or_zero() * PAN_SPEED * dt / self.zoom;
         moved |= dir != Vec2::ZERO;
+        self.panned = moved;
 
         // Drag with the right or middle button
         let mouse = Vec2::from(mouse_position());
@@ -107,6 +121,7 @@ impl WorldCamera {
             if let Some(last) = self.drag_last {
                 self.center -= (mouse - last) / self.zoom;
                 moved |= mouse.distance(last) > 0.5;
+                self.panned |= mouse.distance(last) > 0.5;
             }
             self.drag_last = Some(mouse);
         } else {

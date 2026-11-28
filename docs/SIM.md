@@ -114,7 +114,7 @@ Interpolation: agents move up to ~0.5 tile per tick. For smooth 60 fps keep the 
 | `Ritual { key, step: Start \| Done { perfect } \| LetGo }` | a hands-on ritual gesture over the piece of her **current** act (`key` = `ritual_key_now`; `Invalid` otherwise, `WrongPhase` by day): `Start` = she waits at the piece for it (≤ `rituals.patience_ticks` ticks of waiting), `Done` = the item completes on her next work tick (sooner than her own work; on her way: as she arrives), `LetGo` = she finishes it herself. See §10.8a |
 | `OpenDoors` | "Open the doors": ends the preparation half hour (only before 22:00 → `WrongPhase` otherwise; at 21:59 the clock waits for it); emits `DoorsOpened`, the clock jumps to 22:00 |
 | `CloseUp` | "Close up": ends the closing half hour and the night at once (only 06:00–06:30 → `WrongPhase` otherwise; at 06:29 the clock waits for it); what's left on the closing list counts as missed |
-| Karolina: `PlayerTakeOrder`, `PlayerBrew`, `PlayerUsual`, `PlayerHandOff`, `PlayerCancel`, `PlayerQueue`, `PlayerUnqueue`, `PlayerWashProgress`, `PlayerGreet` | §9.1 |
+| Karolina: `PlayerTakeOrder`, `PlayerBrew`, `PlayerUsual`, `PlayerHandOff`, `PlayerCancel`, `PlayerQueue`, `PlayerUnqueue`, `PlayerWashProgress`, `PlayerGreet`, `PlayerMove`, `PlayerInteract` | §9.1 |
 | `PlayRecord { id, repeat }`, `RecordFinished { id }`, `SetAssistWishes { on }` | §9.6; accessibility hand-off |
 | `UseEquipment { uid, action }`, `EquipmentHold { seconds }` | v0.2 appliances (§11): a queued chore at a piece; holding speeds a hold chore |
 | `AnswerStory { guest, answer }`, `StormBlankets`, `StormSoup` | v0.2 H: a stranger's little story, the storm night's chores (§12) |
@@ -376,6 +376,8 @@ claims what it works on (helpers leave it alone); cancel / unqueue releases it. 
 | `PlayerWashProgress { sink, seconds }` | while she stands at the sink (`current.stage == 1`): 2 dishes / real second |
 | `PlayerGreet { guest }` | a wave, no walk, within `greeting.window_minutes`: +3 satisfaction, regulars +0.5 trust |
 | `PlayerCancel`, `PlayerUnqueue { index }` | a cancelled wish brew re-opens the wish |
+| `PlayerMove { dir }` (each part −1..=1, `(0, 0)` lets go) | walking as Karolina (WASD, `sim::steer`): tile by tile at her walk speed while held; walls, furniture, seats and people block her (pushed against them she only turns), no corner cutting, she always stops on a tile's centre and never on a seat. A walk to her current act's first spot is cancelled as `PlayerCancel` (a sink she waits at too); working / carrying she finishes first. Queued acts wait while she is steered and `HOLD_TICKS` after (a new `PlayerQueue` ends the wait). `WrongPhase` by day |
+| `PlayerInteract { act }` | **E**: `act` first in her queue, started where she stands (beside the piece / the guest) instead of the piece's usual spot; lets go of the steering. `World::nearby(&c)` / `nearby_all` = what is in reach, best first (what she faces, then guests, a station with a plain order, tables, the sink, appliances, rituals, dirt, the doors in the preparation, the jukebox): `Nearby { kind: Act(act) \| Card { guest } \| Records { jukebox } \| OpenDoors, tile, label, faced }`, `.command()` |
 
 Queries for the order card: `order_kind(guest)`, `best_matches(&c, guest)` (top 4 `(recipe,
 match)`), `usual_available(&c, guest)`, `default_brew_mode(&c, wish, recipe)` (Quick after

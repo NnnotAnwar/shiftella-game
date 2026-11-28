@@ -114,10 +114,10 @@ uk меню й підтвердження
 ru меню и подтверждение
 
 access.reserved.camera
-cs kamera
-en the camera
-uk камера
-ru камера
+cs kamera a chůze
+en the camera and walking
+uk камера й ходьба
+ru камера и ходьба
 
 access.reserved.rail
 cs lišta objednávek a zrušení
@@ -205,10 +205,10 @@ uk Найближча мить
 ru Ближайший момент
 
 access.action.chore
-cs Nejbližší práce
-en Nearest chore
-uk Найближча справа
-ru Ближайшее дело
+cs Udělat, co je u ní
+en Do what's beside her
+uk Зробити те, що поруч
+ru Сделать то, что рядом
 
 access.action.greet
 cs Zamávat
