@@ -238,13 +238,16 @@ pub(crate) fn seats(w: &World, content: &Content) -> Vec<SeatInfo> {
                         .unwrap_or(9)
                 })
                 .map(|(u, _)| *u);
-            // Face the table if there is one, else the furniture's facing.
+            // Face the table if there is one, else the furniture's facing. A sofa or an
+            // armchair has a backrest: its sitters always face the way the piece does (0.2.7:
+            // a guest at a table behind a sofa sat backwards and sank into it).
+            let backed = matches!(d.sprite.as_str(), "sofa" | "armchair");
             let facing = match table.and_then(|t| tables.iter().find(|x| x.0 == t)) {
-                Some((_, tt)) => {
+                Some((_, tt)) if !backed => {
                     let c = tt[0];
                     Facing::from_delta((c.0 - tile.0) as f32, (c.1 - tile.1) as f32)
                 }
-                None => p.facing(),
+                _ => p.facing(),
             };
             let bar = table.is_none()
                 && [(0, 1), (0, -1), (1, 0), (-1, 0)].iter().any(|(dx, dy)| {
@@ -1213,15 +1216,32 @@ pub(crate) fn scene_handoff(w: &mut World, regular: &str, tile: (i32, i32)) {
     else {
         return;
     };
-    if !(w.grid.guest_ok(tile.0, tile.1) || w.grid.walkable(tile.0, tile.1)) {
-        return;
-    }
     let Some(i) = w.guests.iter().position(|g| g.id == leader) else {
         return;
     };
     if w.guests[i].tile() == tile {
         return;
     }
+    // left on a seat (the scene sat them down) or beside the floor: a guest with somewhere to
+    // go gets up and goes; one with nowhere to go stands on the floor beside it, never on a
+    // chair (0.2.7: Mrs Vera stayed standing on a chair after her scene)
+    let floor = |t: (i32, i32)| {
+        w.grid.walkable(t.0, t.1) && w.grid.guest_ok(t.0, t.1) && !w.grid.is_seat(t.0, t.1)
+    };
+    let tile = if floor(tile) || w.guests[i].goal.is_some() && w.grid.walkable(tile.0, tile.1) {
+        tile
+    } else {
+        let near = (1..=3).find_map(|r| {
+            (-r..=r)
+                .flat_map(|dy| (-r..=r).map(move |dx| (tile.0 + dx, tile.1 + dy)))
+                .filter(|t| floor(*t))
+                .min_by_key(|t| ((t.0 - tile.0).pow(2) + (t.1 - tile.1).pow(2), *t))
+        });
+        match near {
+            Some(t) => t,
+            None => return,
+        }
+    };
     w.guests[i].pos = grid::tile_center(tile);
     w.guests[i].stuck_ticks = 0;
     match w.guests[i].goal {

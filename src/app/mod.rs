@@ -922,6 +922,13 @@ impl App {
                 g.stage_talk(&content, &loc, &id, t);
                 self.game_instant_text(g, shot)
             }
+            // guests on sofas, armchairs and a window seat in every facing (`SHIFTELLA_NIGHT`)
+            "seats" => {
+                let n = night.unwrap_or(10);
+                let mut g = story_at(n, Some(minute.unwrap_or(150)), &self.i18n, lang);
+                game::seat_shot::setup(&mut g, &content);
+                self.game(g)
+            }
             "night9_anwar" | "anwar" => {
                 let n = night.unwrap_or(9);
                 let mut g = story_at(n, Some(minute.unwrap_or(85)), &self.i18n, lang);
@@ -929,7 +936,8 @@ impl App {
                 self.game(g)
             }
             // the walk home after the morning summary (design/v0.2.md F): SHIFTELLA_ROUTE picks
-            // the way, SHIFTELLA_T jumps into the walk, SHIFTELLA_WEATHER=rain|fog|snow|clear
+            // the way, SHIFTELLA_T jumps into the walk, SHIFTELLA_PICK_AT when the way was
+            // picked, SHIFTELLA_WEATHER=rain|fog|snow|clear
             "walk_home" | "walk_home_snow" | "walk_home_rain" | "backstep" | "backstep_snow" => {
                 let loc = Locale::new(&self.i18n, lang);
                 let weather = env("SHIFTELLA_WEATHER").and_then(|w| match w.as_str() {
@@ -962,11 +970,16 @@ impl App {
                     g
                 };
                 if route.is_some() || t.is_some() {
-                    game::walk_home::debug_seek(
+                    // `SHIFTELLA_PICK_AT=<s>`: the way picked that far in (the pick's dip)
+                    let picked = env("SHIFTELLA_PICK_AT")
+                        .and_then(|t| t.parse::<f32>().ok())
+                        .unwrap_or(0.0);
+                    game::walk_home::debug_seek_picked(
                         &mut g,
                         &content,
                         route.as_deref(),
                         t.unwrap_or(0.0),
+                        picked,
                     );
                 }
                 self.game(g)

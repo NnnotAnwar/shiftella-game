@@ -1017,6 +1017,10 @@ pub struct RegularDef {
     /// Context mood lines for the hover/click speech bubble (see [`AmbientLine`]).
     #[serde(default)]
     pub ambient_lines: Vec<AmbientLine>,
+    /// Everyday hellos (text keys) said on walking in, in turn with the arc stage's lines, so
+    /// a regular doesn't greet with the very same line every visit (0.2.7).
+    #[serde(default)]
+    pub greetings: Vec<String>,
     /// Render preset id when the render agent draws this character specially (e.g. `anwar`).
     #[serde(default)]
     pub look_preset: Option<String>,

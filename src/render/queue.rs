@@ -3,7 +3,11 @@
 
 use macroquad::prelude::*;
 
-use super::furniture::{FurnitureState, draw_furniture, furniture_sort_key};
+use super::furniture::{
+    FurnitureState, SeatPart, draw_furniture, draw_seat_part, furniture_sort_key, is_backed_seat,
+    seat_base_sort_key,
+};
+use super::look::Facing;
 use super::look::{Expression, PersonLook, PersonPose};
 use super::person::{draw_person_ex, draw_selection, person_sort_key};
 use super::tiles::{WallKind, WallMask, draw_wall, wall_sort_key};
@@ -11,6 +15,8 @@ use super::tiles::{WallKind, WallMask, draw_wall, wall_sort_key};
 enum Cmd<'a> {
     Person(&'a PersonLook, PersonPose, Expression),
     Furniture(&'a str, Vec2, (u8, u8), FurnitureState),
+    /// A part of a sofa / armchair whose sitters face away from the camera.
+    Seat(&'a str, Vec2, (u8, u8), FurnitureState, SeatPart),
     Wall(Vec2, WallMask, WallKind),
     Selection(Vec2),
     Custom(Box<dyn FnOnce() + 'a>),
@@ -60,6 +66,20 @@ impl<'a> RenderQueue<'a> {
         state: FurnitureState,
     ) {
         let key = furniture_sort_key(sprite, tile_origin, size);
+        // a sofa / armchair turned away from the camera: its seat goes before the sitters,
+        // its backrest (in front of them) after
+        if is_backed_seat(sprite) && state.facing == Facing::Up {
+            let base = seat_base_sort_key(tile_origin);
+            self.push(
+                base,
+                Cmd::Seat(sprite, tile_origin, size, state, SeatPart::Base),
+            );
+            self.push(
+                key,
+                Cmd::Seat(sprite, tile_origin, size, state, SeatPart::FrontBack),
+            );
+            return;
+        }
         self.push(key, Cmd::Furniture(sprite, tile_origin, size, state));
     }
 
@@ -96,6 +116,7 @@ impl<'a> RenderQueue<'a> {
             match cmd {
                 Cmd::Person(look, pose, expr) => draw_person_ex(look, &pose, expr),
                 Cmd::Furniture(sprite, o, size, st) => draw_furniture(sprite, o, size, &st),
+                Cmd::Seat(sprite, o, size, st, part) => draw_seat_part(sprite, o, size, &st, part),
                 Cmd::Wall(tile, mask, kind) => draw_wall(tile, mask, kind),
                 Cmd::Selection(feet) => draw_selection(feet),
                 Cmd::Custom(f) => f(),

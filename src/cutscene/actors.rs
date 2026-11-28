@@ -4,8 +4,8 @@ use std::collections::VecDeque;
 
 use macroquad::prelude::*;
 
-use crate::map::{Map, TILE};
-use crate::render::{Facing, PersonLook, PersonPose, Pose};
+use crate::map::{Map, TILE, Tile};
+use crate::render::{Facing, PersonLook, PersonPose, Pose, sit_anchor};
 
 /// Walking speed in world px / s (≈ 2.3 tiles/s — a cutscene walk, a bit brisk).
 pub const WALK_SPEED: f32 = 150.0;
@@ -30,6 +30,9 @@ pub struct Actor {
     pub suitcase: bool,
     /// Warm handheld light around the actor (dark café).
     pub hand_light: bool,
+    /// Sits down on this seat (tile, the way the sitter faces) once the walk ends — a scene
+    /// never leaves anybody standing on a chair or a table (0.2.7).
+    pub sit: Option<((i32, i32), Facing)>,
 }
 
 impl Actor {
@@ -46,7 +49,13 @@ impl Actor {
             gone: false,
             suitcase: false,
             hand_light: false,
+            sit: None,
         }
+    }
+
+    /// Sitting on its seat right now (not on the way to it).
+    pub fn seated(&self) -> bool {
+        self.sit.is_some() && self.path.is_empty()
     }
 
     pub fn walking(&self) -> bool {
@@ -72,6 +81,8 @@ impl Actor {
         }
         self.speed = WALK_SPEED.max(len / MAX_WALK_SECONDS);
         self.path = path.into();
+        // getting up: a new walk ends standing unless the caller seats it again
+        self.sit = None;
     }
 
     /// Jump to the end of the walk (skipping).
@@ -125,6 +136,16 @@ impl Actor {
     }
 
     pub fn pose(&self, t: f32) -> PersonPose {
+        if let Some(((x, y), facing)) = self.sit
+            && self.path.is_empty()
+        {
+            return PersonPose {
+                feet: sit_anchor(vec2(x as f32, y as f32) * TILE, facing),
+                facing,
+                pose: Pose::Sit,
+                t,
+            };
+        }
         PersonPose {
             feet: self.pos,
             facing: self.facing,
@@ -156,28 +177,36 @@ pub fn find_path(map: &Map, from: Vec2, to: Vec2) -> Vec<Vec2> {
     }
     let w = map.width;
     let idx = |x: i32, y: i32| y as usize * w + x as usize;
-    let walk = |x: i32, y: i32| {
-        inside(x, y)
-            && map
-                .get(x as usize, y as usize)
-                .is_some_and(|t| t.walkable())
-    };
-    let mut prev = vec![usize::MAX; w * map.height];
-    let mut q = VecDeque::new();
-    prev[idx(fx, fy)] = idx(fx, fy);
-    q.push_back((fx, fy));
-    while let Some((x, y)) = q.pop_front() {
-        if (x, y) == (tx, ty) {
-            break;
-        }
-        for (dx, dy) in [(0, -1), (1, 0), (0, 1), (-1, 0)] {
-            let (nx, ny) = (x + dx, y + dy);
-            let target = (nx, ny) == (tx, ty);
-            if inside(nx, ny) && (walk(nx, ny) || target) && prev[idx(nx, ny)] == usize::MAX {
-                prev[idx(nx, ny)] = idx(x, y);
-                q.push_back((nx, ny));
+    // around the chairs when there is a way (someone may sit there), over them if not
+    let bfs = |chairs: bool| {
+        let walk = |x: i32, y: i32| {
+            inside(x, y)
+                && map
+                    .get(x as usize, y as usize)
+                    .is_some_and(|t| t.walkable() && (chairs || t != Tile::Chair))
+        };
+        let mut prev = vec![usize::MAX; w * map.height];
+        let mut q = VecDeque::new();
+        prev[idx(fx, fy)] = idx(fx, fy);
+        q.push_back((fx, fy));
+        while let Some((x, y)) = q.pop_front() {
+            if (x, y) == (tx, ty) {
+                break;
+            }
+            for (dx, dy) in [(0, -1), (1, 0), (0, 1), (-1, 0)] {
+                let (nx, ny) = (x + dx, y + dy);
+                let target = (nx, ny) == (tx, ty);
+                if inside(nx, ny) && (walk(nx, ny) || target) && prev[idx(nx, ny)] == usize::MAX {
+                    prev[idx(nx, ny)] = idx(x, y);
+                    q.push_back((nx, ny));
+                }
             }
         }
+        prev
+    };
+    let mut prev = bfs(false);
+    if prev[idx(tx, ty)] == usize::MAX {
+        prev = bfs(true);
     }
     if prev[idx(tx, ty)] == usize::MAX {
         return vec![to];

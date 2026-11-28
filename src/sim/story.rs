@@ -647,7 +647,9 @@ pub(crate) fn advance_arc(w: &mut World, content: &Content, regular: &str) {
     }
 }
 
-/// Ambient arc-stage bubble when a regular arrives.
+/// Ambient bubble when a regular arrives: a line of their arc stage they haven't said yet,
+/// else any of the stage's lines and their everyday hellos — never the same one twice in a row
+/// (0.2.7: a one-line stage greeted with the very same words every visit).
 pub(crate) fn regular_line(w: &mut World, content: &Content, regular: &str, party: u32) {
     let Some(r) = content.regular(regular) else {
         return;
@@ -665,7 +667,13 @@ pub(crate) fn regular_line(w: &mut World, content: &Content, regular: &str, part
         .into_iter()
         .filter(|k| super::orders::line_ok(w, content, k))
         .collect();
-    let Some(key) = w.rng.pick(&lines).cloned() else {
+    let greetings: Vec<String> = r
+        .greetings
+        .iter()
+        .filter(|k| super::orders::line_ok(w, content, k))
+        .cloned()
+        .collect();
+    let Some(key) = pick_arrival_line(w, regular, &lines, &greetings) else {
         return;
     };
     let agent = w
@@ -679,6 +687,39 @@ pub(crate) fn regular_line(w: &mut World, content: &Content, regular: &str, part
         agent,
         key,
     });
+}
+
+/// The walking-in line of `regular` out of the stage's `lines` and `greetings` (one draw of
+/// the world RNG whenever the stage has lines, as before), remembered on the regular.
+pub(crate) fn pick_arrival_line(
+    w: &mut World,
+    regular: &str,
+    lines: &[String],
+    greetings: &[String],
+) -> Option<String> {
+    if lines.is_empty() {
+        return None;
+    }
+    let st = w.story.regulars.get(regular);
+    let heard = |k: &String| st.is_some_and(|s| s.lines_heard.contains(k));
+    let last = st.and_then(|s| s.last_line.clone());
+    let fresh: Vec<&String> = lines.iter().filter(|k| !heard(k)).collect();
+    let pool: Vec<&String> = if fresh.is_empty() {
+        let all: Vec<&String> = lines.iter().chain(greetings).collect();
+        let other: Vec<&String> = all
+            .iter()
+            .copied()
+            .filter(|k| Some(*k) != last.as_ref())
+            .collect();
+        if other.is_empty() { all } else { other }
+    } else {
+        fresh
+    };
+    let key = (*w.rng.pick(&pool)?).clone();
+    let s = w.story.regulars.entry(regular.to_string()).or_default();
+    s.lines_heard.insert(key.clone());
+    s.last_line = Some(key.clone());
+    Some(key)
 }
 
 fn regular_of_guest<'a>(

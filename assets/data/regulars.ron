@@ -17,6 +17,8 @@
         pays: Exact,
         look: (body: "average", height: 0.95, skin: ["#E6C3A8"], hair: ["grey_short"], hair_colors: ["#C8C3CF"],
                outfit: "jacket", outfit_colors: ["#4A3B2E"], accessories: ["cap", "glasses"]),
+        // everyday hellos on walking in, in turn with the stage lines (0.2.7)
+        greetings: ["regular.mirek.hello.1", "regular.mirek.hello.2", "regular.mirek.hello.3", "regular.mirek.hello.4"],
         stages: [
             (stage: 0, nights: (1, 30), lines: ["regular.mirek.line.0a", "regular.mirek.line.0b"]),
             (stage: 1, nights: (2, 30),
@@ -54,6 +56,8 @@
         absent_if: [Flag("hana_left")],
         look: (body: "slim", skin: ["#F1D2BE"], hair: ["bun"], hair_colors: ["#5A3A2A"],
                outfit: "scrubs", outfit_colors: ["#7C9CE0"], accessories: ["scarf"]),
+        // everyday hellos on walking in, in turn with the stage lines (0.2.7)
+        greetings: ["regular.hana.hello.1", "regular.hana.hello.2", "regular.hana.hello.3", "regular.hana.hello.4"],
         stages: [
             (stage: 0, nights: (3, 30), lines: ["regular.hana.line.0a", "regular.hana.line.0b"]),
             (stage: 1, nights: (4, 30),
@@ -83,6 +87,8 @@
         absent_if: [Not(WindowLightOn), VarIs("offer", "accepted")],
         look: (body: "slim", height: 1.02, skin: ["#E9D6CC"], hair: ["grey_short"], hair_colors: ["#9C97A8"],
                outfit: "coat", outfit_colors: ["#5B5670"], accessories: ["old_coat"]),
+        // everyday hellos on walking in, in turn with the stage lines (0.2.7)
+        greetings: ["regular.guest_333.hello.1", "regular.guest_333.hello.2", "regular.guest_333.hello.3", "regular.guest_333.hello.4"],
         stages: [
             (stage: 0, nights: (4, 30), lines: ["regular.guest_333.line.0a"]),
             (stage: 1, nights: (5, 30),
@@ -109,6 +115,8 @@
         patience_minutes: 12.0,
         look: (body: "small", height: 0.88, skin: ["#EDD3C4"], hair: ["bun"], hair_colors: ["#E4E0EA"],
                outfit: "cardigan", outfit_colors: ["#6B4E7A"], accessories: ["crossword", "glasses"]),
+        // everyday hellos on walking in, in turn with the stage lines (0.2.7)
+        greetings: ["regular.vera.hello.1", "regular.vera.hello.2", "regular.vera.hello.3", "regular.vera.hello.4"],
         stages: [
             (stage: 0, nights: (5, 30), lines: ["regular.vera.line.0a", "regular.vera.line.0b"]),
             (stage: 1, nights: (6, 30),
@@ -142,6 +150,8 @@
         seat: "power_socket",
         look: (body: "slim", height: 1.06, skin: ["#F0D0BA"], hair: ["curly"], hair_colors: ["#3B2A20"],
                outfit: "hoodie", outfit_colors: ["#4F46E5"], accessories: ["laptop", "headphones"]),
+        // everyday hellos on walking in, in turn with the stage lines (0.2.7)
+        greetings: ["regular.filip.hello.1", "regular.filip.hello.2", "regular.filip.hello.3", "regular.filip.hello.4"],
         stages: [
             (stage: 0, nights: (6, 30), lines: ["regular.filip.line.0a", "regular.filip.line.0b"]),
             (stage: 1, nights: (7, 30), conditions: [HasFurnitureTag("power_socket")],
@@ -168,6 +178,8 @@
         patience_minutes: 6.0,
         look: (body: "average", skin: ["#E3BFA3"], hair: ["short"], hair_colors: ["#6E6676"],
                outfit: "uniform", outfit_colors: ["#24306B"], accessories: ["badge_shiftella", "glasses"]),
+        // everyday hellos on walking in, in turn with the stage lines (0.2.7)
+        greetings: ["regular.radek.hello.1", "regular.radek.hello.2", "regular.radek.hello.3", "regular.radek.hello.4"],
         stages: [
             (stage: 0, nights: (9, 30), lines: ["regular.radek.line.0a"]),
             (stage: 1, nights: (10, 23),
@@ -197,6 +209,8 @@
         absent_if: [Flag("lori_sent_away")],
         look: (body: "slim", skin: ["#F3D7C6"], hair: ["braid"], hair_colors: ["#C9B8E8"],
                outfit: "raincoat", outfit_colors: ["#F2C14E"], accessories: ["guitar"]),
+        // everyday hellos on walking in, in turn with the stage lines (0.2.7)
+        greetings: ["regular.lori.hello.1", "regular.lori.hello.2", "regular.lori.hello.3", "regular.lori.hello.4"],
         stages: [
             (stage: 0, nights: (11, 30), lines: ["regular.lori.line.0a"]),
             (stage: 1, nights: (11, 30), conditions: [Flag("lori_invited")],

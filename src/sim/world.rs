@@ -482,6 +482,12 @@ pub struct RegularState {
     /// Recipes Karolina has served them (`ServedRecipe`).
     #[serde(default)]
     pub served_recipes: BTreeSet<String>,
+    /// Their walking-in lines already said (a new arc-stage line comes first) and the last one
+    /// (never twice in a row).
+    #[serde(default)]
+    pub lines_heard: BTreeSet<String>,
+    #[serde(default)]
+    pub last_line: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
@@ -2392,6 +2398,14 @@ impl World {
 
     /// Render view of every guest in or around the café.
     /// Seats nobody sits on or is heading for (tiles), for the cutscene stage.
+    /// Every seat: its tile, the way a sitter faces, whether it is free (cutscene actors).
+    pub fn seat_spots(&self, content: &Content) -> Vec<((i32, i32), Facing, bool)> {
+        super::guests::seats(self, content)
+            .into_iter()
+            .map(|s| (s.tile, s.facing, s.free))
+            .collect()
+    }
+
     pub fn free_seat_tiles(&self, content: &Content) -> Vec<(i32, i32)> {
         super::guests::seats(self, content)
             .into_iter()

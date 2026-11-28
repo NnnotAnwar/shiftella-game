@@ -67,6 +67,7 @@ pub(super) fn required_keys(c: &Content) -> Vec<String> {
             keys.extend(st.lines.iter().cloned());
         }
         keys.extend(r.ambient_lines.iter().map(|l| l.key.clone()));
+        keys.extend(r.greetings.iter().cloned());
     }
     for f in &c.furniture {
         keys.push(f.name_key());
