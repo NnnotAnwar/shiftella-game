@@ -148,9 +148,11 @@
             (at: "04:00", what: Bot("time_off_vacation")),
             (at: "06:00", what: PaymentDue),
         ]),
+        // night 22: "Sign now" or "Not yet" (franchise_decision); not yet keeps the offer pending
+        // until the last morning (franchise_last, night 30 at 05:30)
         (night: 22, act: 3, weekday: Mon, beats: [
             (at: "02:00", what: Line(speaker: "vera", text_key: "story.line.22_vera"),
-             conditions: [VarIs("offer", "rejected")]),
+             conditions: [Not(VarIs("offer", "accepted"))]),
             (at: "02:00", what: Line(speaker: "vera", text_key: "story.line.22_vera_sold"),
              conditions: [VarIs("offer", "accepted")]),
         ]),
@@ -160,8 +162,11 @@
         (night: 24, act: 3, weekday: Wed, weather: Rain, beats: [
             (at: "22:15", what: Hint("story.hint.lori_night"), conditions: [Flag("lori_invited")]),
         ]),
-        // night 25: the storm. Mirek's confession (arc stage 4) can come tonight at the earliest;
-        // Lori, sent away on night 11, gets a second chance under the awning (cutscene lori_storm)
+        // night 25: the storm, the light as a beacon. Running order (one scene at a time, each
+        // pauses the night): act4_storm before the doors open · 22:30 storm_blackout (toast) ·
+        // 22:40 lori_storm (only if Lori was sent away on night 11) · Mirek's arrival (~23:00):
+        // karolina_storm (K4) → mirek_confession, when his arc stage 4 holds · 23:30
+        // mirek_accident (only after "Say nothing") · 02:40 sindelar_storm · 03:33 as usual.
         (night: 25, act: 4, weekday: Thu, weather: Storm, beats: [
             (at: "22:30", what: Event("storm_blackout")),
             (at: "23:30", what: Event("mirek_accident"), conditions: [Flag("mirek_silence")]),
@@ -205,10 +210,11 @@
         (
             id: "last_train",
             order: 1,
+            // signed (night 22, the Classic repeat on night 28, or the last morning at 05:30),
+            // or Classic with failed payments. Karolina decides; the books never do on Cozy.
             conditions: [Any([
                 VarIs("offer", "accepted"),
                 All([Difficulty("classic"), Any([CounterAtLeast("missed_payments", 2), Flag("final_payment_missed")])]),
-                All([ReputationBelow(20.0), Not(ArcsGoodAtLeast(1))]),
             ])],
             cutscene: "ending_last_train",
             variants: [
@@ -222,17 +228,18 @@
             order: 2,
             cutscene: "ending_light",
             variants: [
-                (id: "full", conditions: [ReputationAtLeast(60.0), ArcsGoodAtLeast(3)]),
+                // people over ratings: three stories closed well, reputation 50
+                (id: "full", conditions: [ArcsGoodAtLeast(3), ReputationAtLeast(50.0)]),
                 (id: "quiet"),
             ],
         ),
     ],
-    // the letter delivered is enough; eight notes add Lida's postscript inside the scene
+    // the letter delivered is enough (in either ending: signing on the last morning comes after
+    // 3:33); eight notes add Lida's postscript inside the scene
     ending_extra: (
         id: "answer",
         conditions: [
             Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]),
-            Not(VarIs("offer", "accepted")),
         ],
         cutscene: "answer",
     ),
@@ -244,6 +251,8 @@
         "filip_friends", "filip_talked", "filip_free_coffee", "filip_alone",
         "radek_warns_trains", "radek_walked", "vera_friends", "coins_refused",
         "franchise_met", "landlord_grumbling", "final_payment_missed",
+        // signed on the last morning (franchise_last, night 30 at 05:30)
+        "signed_last_morning",
         "roof_fixed", "cat_adopted",
         // hands-on
         "garlands_up", "strange_tea_two_sugars", "reward_decor", "attic_piece", "mug_raindrop", "mug_heart",
@@ -252,9 +261,12 @@
         (id: "letter", default: "hidden",
          // bench: after the sale Mirek leaves it on the platform bench (last_333_sold)
          values: ["hidden", "confessed", "with_player", "with_mirek", "burned", "persuaded", "bench", "delivered", "delivered_by_mirek"]),
+        // pending from night 17 until signed (accepted) or the last morning's "Keep the light" (rejected)
         (id: "offer", default: "none", values: ["none", "pending", "accepted", "rejected"]),
         (id: "answer_333", default: "none", values: ["none", "yes", "unsure", "gone"]),
         (id: "cat_name", default: "none", values: ["none", "vlak", "kofi", "lidka"]),
+        // K2 (karolina_not_lida, night 13): the board in Lida's hand or in Karolina's own
+        (id: "karolina_way", default: "none", values: ["none", "lida", "own"]),
     ],
     counters: ["missed_payments", "payments_made", "cat_fed_nights", "coins_collected", "filip_kicked_out", "cat_affection"],
     items: ["cafe_keys", "old_coin", "rn333_ticket", "letter", "recipe_book", "timetable_1979", "lost_umbrella"],

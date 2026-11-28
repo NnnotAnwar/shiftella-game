@@ -787,7 +787,20 @@ pub fn board(g: &mut GameScreen, ui: &mut Ui, cx: &mut Ctx) {
         name_box.w,
         lh,
     );
-    crate::ui::handson::draw_handwritten_block(ui, &d.name, nb, &ns, Align::Center, 2);
+    // K2 (karolina_not_lida): "Do it my way" chalks the board in Karolina's own square
+    // capitals; otherwise it stays in Lida's slanted hand
+    let own_hand = g
+        .world
+        .story()
+        .vars
+        .get("karolina_way")
+        .is_some_and(|v| v == "own");
+    if own_hand {
+        ui.fonts
+            .draw_fit(&d.name.to_uppercase(), nb, &ns, Align::Center, 0.8);
+    } else {
+        crate::ui::handson::draw_handwritten_block(ui, &d.name, nb, &ns, Align::Center, 2);
+    }
     let pr = Rect::new(inner.x, inner.bottom() - 12.0 * k, inner.w, 12.0 * k);
     ui.fonts.draw_in(
         &format_money(loc.lang, price as i64),

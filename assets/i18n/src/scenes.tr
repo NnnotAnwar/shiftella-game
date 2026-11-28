@@ -122,6 +122,61 @@ en Take the order, make the coffee at the machine, and take the money at the reg
 uk Прийми замовлення, звари каву на кавоварці й візьми гроші на касі.
 ru Прими заказ, свари кофе на кофемашине и возьми деньги на кассе.
 
+# --- scene karolina_backstep
+scene.karolina_backstep.01
+cs Dvacet po čtvrté. Sál je na chvíli prázdný, tak vyjdeš na zadní schod. Přestalo pršet. Zabzučí telefon: máma.
+en Twenty past four. The hall is empty for a minute, so you step out onto the back step. The rain has stopped. Your phone buzzes: Mum.
+uk Двадцять на п'яту. Зала на хвилину порожня, тож ти виходиш на задній ґанок. Дощ ущух. Дзижчить телефон: мама.
+ru Двадцать минут пятого. Зал на минуту опустел, и ты выходишь на заднее крыльцо. Дождь кончился. Жужжит телефон: мама.
+
+scene.karolina_backstep.02
+cs Ještě vzhůru? No jasně. Tři roky nocí v Brně, a teď tohle.
+en Still up? Of course you are. Three years of nights in Brno, and now this.
+uk Ще не спиш? Ну звісно. Три роки нічних змін у Брні, а тепер ще й це.
+ru Не спишь? Ну конечно. Три года ночных смен в Брно, а теперь ещё и это.
+
+scene.karolina_backstep.03
+cs Tohle je jiné, mami. V Brně jsem tři roky každou noc držela rozsvícených čtyřicet obchodů. Nepotkala jsem jediného zákazníka.
+en It's different, Mum. In Brno I kept forty shops lit every night for three years. I never met a single customer.
+uk Це інше, мамо. У Брні я три роки щоночі тримала світло в сорока крамницях. І не бачила жодного покупця.
+ru Это другое, мам. В Брно я три года каждую ночь держала свет в сорока магазинах. И не видела ни одного покупателя.
+
+scene.karolina_backstep.04
+cs NONSTOP 24, brněnský dispečink, noční operátorka: čtyřicet obchodů bez personálu na čtyřiceti obrazovkách — dveře, lednice, světla. Dala jsi výpověď na jaře, ten týden, kdy jsi přistihla sama sebe, jak lednici přeješ dobrou noc.
+en NONSTOP 24, Brno hub, night operator: forty staffless shops on forty screens — doors, fridges, lights. You quit in the spring, the week you caught yourself saying good night to a fridge.
+uk NONSTOP 24, брненський диспетчерський центр, нічна операторка: сорок крамниць без персоналу на сорока екранах — двері, холодильники, світло. Ти звільнилася навесні, того тижня, коли спіймала себе на тому, що бажаєш холодильнику на добраніч.
+ru NONSTOP 24, брненский диспетчерский центр, ночной оператор: сорок магазинов без персонала на сорока экранах — двери, холодильники, свет. Ты уволилась весной, в ту неделю, когда поймала себя на том, что желаешь холодильнику спокойной ночи.
+
+scene.karolina_backstep.05
+cs Babička by řekla, že ses vrátila domů.
+en Grandma would say you came home.
+uk Бабуся сказала б, що ти повернулася додому.
+ru Бабушка сказала бы, что ты вернулась домой.
+
+scene.karolina_backstep.06
+cs Vy dvě jste spolu skoro nemluvily.
+en You two hardly ever talked.
+uk Ви з нею майже не розмовляли.
+ru Вы с ней почти не разговаривали.
+
+scene.karolina_backstep.07
+cs Dvakrát do roka. Obě jsme byly moc hrdé, než abychom volaly první.
+en Twice a year. Both too proud to call first.
+uk Двічі на рік. Обидві надто горді, щоб подзвонити першою.
+ru Два раза в год. Обе слишком гордые, чтобы позвонить первой.
+
+scene.karolina_backstep.08
+cs …Najez se. A zavolej mi. Klidně první.
+en …Eat something. And call me. First, if you like.
+uk …Поїж щось. І подзвони мені. Можеш першою.
+ru …Поешь что-нибудь. И позвони мне. Можно первой.
+
+scene.karolina_backstep.09
+cs Vrátíš se dovnitř. Za tebou mokrý dvůr a tma. Před tebou lampa v okně.
+en You go back in. Behind you, the wet yard and the dark. In front of you, the lamp in the window.
+uk Ти повертаєшся всередину. Позаду — мокре подвір'я й темрява. Попереду — лампа у вікні.
+ru Ты возвращаешься внутрь. Позади — мокрый двор и темнота. Впереди — лампа в окне.
+
 # --- scene guest333_first
 scene.guest333_first.01
 cs 03:33. Vteřinová ručička na nástěnných hodinách se zastaví.
@@ -498,6 +553,67 @@ en You cook it exactly the way the card says. Vera takes the first spoonful and 
 uk Ти вариш її точно за карткою. Віра куштує першу ложку й заплющує очі.
 ru Ты варишь её точно по карточке. Вера пробует первую ложку и закрывает глаза.
 
+# --- scene karolina_not_lida
+scene.karolina_not_lida.01
+cs Po jedné ráno. Křídou píšeš na tabuli u pultu dnešní nabídku. Vera to sleduje přes křížovku.
+en Past one in the morning. You're chalking tonight's specials on the board by the counter. Vera watches over her crossword.
+uk Двадцять по першій ночі. Ти пишеш крейдою на дошці біля прилавка сьогоднішні страви. Віра стежить поверх кросворду.
+ru Второй час ночи. Ты пишешь мелом на доске у прилавка сегодняшние блюда. Вера наблюдает поверх кроссворда.
+
+scene.karolina_not_lida.02
+cs Lida psala K větší. A polévku nedávala dolů, jako by se za ni omlouvala.
+en Lida wrote the K bigger. And she didn't put the soup at the bottom like an apology.
+uk Ліда писала «К» більшою. І суп не ставила в самий низ, ніби вибачалася за нього.
+ru Лида писала «К» крупнее. И суп не ставила в самый низ, будто извинялась за него.
+
+scene.karolina_not_lida.03
+cs Každý dělá, co může, děvenko. Lida mohla líp.
+en Everybody does their best, child. Lida's best was better.
+uk Кожен робить, що може, дитино. Ліда могла краще.
+ru Каждый делает, что может, деточка. Лида могла лучше.
+
+scene.karolina_not_lida.04
+cs Udělat to po Lidině
+en Do it Lida's way
+uk Зробити по-Лідиному
+ru Сделать по-Лидиному
+
+scene.karolina_not_lida.05
+cs Udělat to po svém
+en Do it my way
+uk Зробити по-своєму
+ru Сделать по-своему
+
+scene.karolina_not_lida.06
+cs Tak mi ukažte, jak to psala. Jestli je to lepší, udělám to po jejím. Nejsem pyšná.
+en Then show me how she wrote it. If it's better, I'll do it her way. I'm not proud.
+uk Тоді покажіть, як вона писала. Якщо так краще, зроблю по-її. Я не горда.
+ru Тогда покажите, как она писала. Если так лучше, сделаю по-её. Я не гордая.
+
+scene.karolina_not_lida.07
+cs Vera si vezme křídu. Za půl hodiny je tabule zase psaná Lidiným šikmým písmem, opsaným z kartiček s recepty.
+en Vera takes the chalk. Half an hour later the board is in Lida's slanted hand again, copied from the recipe cards.
+uk Віра бере крейду. За пів години дошка знову списана Лідиним похилим почерком, перемальованим із карток із рецептами.
+ru Вера берёт мел. Через полчаса доска снова исписана наклонным почерком Лиды, срисованным с карточек с рецептами.
+
+scene.karolina_not_lida.08
+cs Lidino nejlepší dělat nebudu. Dělám svoje. Bude to muset stačit.
+en I'm not doing Lida's best. I'm doing mine. It'll have to do.
+uk Я не повторюватиму Ліду. У мене своє «як можу». Доведеться звикнути.
+ru Я не буду повторять Лиду. У меня своё «как могу». Придётся привыкнуть.
+
+scene.karolina_not_lida.09
+cs Smažeš tabuli a napíšeš všechno znovu, svými hranatými velkými písmeny. Polévka jde nahoru.
+en You wipe the board clean and chalk it all again, in your own square capitals. The soup goes at the top.
+uk Ти стираєш дошку й пишеш усе наново — своїми квадратними великими літерами. Суп — нагору.
+ru Ты стираешь доску и пишешь всё заново — своими квадратными заглавными буквами. Суп — наверх.
+
+scene.karolina_not_lida.10
+cs Dobře. Teď se hádáš jako ona.
+en Good. Now you're arguing like her.
+uk Добре. Тепер ти сперечаєшся, як вона.
+ru Хорошо. Теперь ты споришь, как она.
+
 # --- scene payment_2
 scene.payment_2.01
 cs Druhá splátka je tady. Začínám si zvykat. To je nebezpečné.
@@ -516,6 +632,12 @@ cs Polovina cesty k třicáté noci.
 en Halfway to the thirtieth night.
 uk Половина шляху до тридцятої ночі.
 ru Половина пути до тридцатой ночи.
+
+scene.payment_2.04
+cs A ještě — někdo mi napsal kvůli vaší polévce. Pronajímatelům nikdo nepíše kvůli polévce.
+en Also — someone wrote to me about your soup. Nobody writes to landlords about soup.
+uk І ще: хтось написав мені про ваш суп. Орендодавцям ніхто не пише про суп.
+ru И ещё: кто-то написал мне про ваш суп. Арендодателям никто не пишет про суп.
 
 # --- scene guest333_question
 scene.guest333_question.01
@@ -599,10 +721,10 @@ uk Петр Шинделарж, NONSTOP 24. Чудовий заклад. Жах�
 ru Петр Шинделарж, NONSTOP 24. Чудесное заведение. Ужасный график работы.
 
 scene.franchise_visit.03
-cs Nabídka: zaplatíme celý dluh. Jestli chcete, můžete zůstat jako vedoucí. Otevřeno 24/7, naše menu, náš nápis. Všechno moderní.
-en Here's our offer: we pay off the entire debt. You can stay on as manager, if you like. Open 24/7, our menu, our sign. Everything modern.
-uk Пропозиція така: ми гасимо весь борг. Якщо захочете, можете лишитися керувати. Відчинено 24/7, наше меню, наша вивіска. Усе сучасне.
-ru Предложение такое: мы гасим весь долг. Если захотите, можете остаться управляющей. Открыто 24/7, наше меню, наша вывеска. Всё современное.
+cs Nabídka: zaplatíme celý dluh a vy se vrátíte. Povedete tohle místo, nebo klidně celou pražskou síť. Otevřeno 24/7, naše menu, náš nápis. Všechno moderní.
+en Here's the offer: we pay off the entire debt, and you come back. Run this place, or the whole Prague cluster, if you like. Open 24/7, our menu, our sign. Everything modern.
+uk Пропозиція така: ми гасимо весь борг, а ви повертаєтеся. Керуватимете цим місцем або, якщо захочете, усією празькою мережею. Відчинено 24/7, наше меню, наша вивіска. Усе сучасне.
+ru Предложение такое: мы гасим весь долг, а вы возвращаетесь. Будете управлять этим местом или, если захотите, всей пражской сетью. Открыто 24/7, наше меню, наша вывеска. Всё современное.
 
 scene.franchise_visit.04
 cs A světlo v okně?
@@ -627,6 +749,24 @@ cs Kalendář: „NONSTOP 24 — rozhodnutí" přidáno k noci 22.
 en Calendar: "NONSTOP 24 — decision" added to night 22.
 uk Календар: «NONSTOP 24 — рішення» додано на ніч 22.
 ru Календарь: «NONSTOP 24 — решение» добавлено на ночь 22.
+
+scene.franchise_visit.08
+cs …Moment. Karolina? Noční dispečink, Brno? Nejlepší reakční časy, jaké jsme kdy měli. Proč jste odešla?
+en …Wait. Karolina? Night ops, Brno hub? Best response times we ever had. Why did you leave?
+uk …Стривайте. Кароліна? Нічна диспетчерська, брненський центр? Найкращий час реагування за всю нашу історію. Чому ви пішли?
+ru …Погодите. Каролина? Ночная диспетчерская, брненский центр? Лучшее время реакции за всю нашу историю. Почему вы ушли?
+
+scene.franchise_visit.09
+cs Přistihla jsem se, že přeju lednici dobrou noc.
+en I caught myself saying good night to a fridge.
+uk Я спіймала себе на тому, що бажаю холодильнику на добраніч.
+ru Я поймала себя на том, что желаю холодильнику спокойной ночи.
+
+scene.franchise_visit.10
+cs Ha. Lednicím to nevadí. Vraťte se k nám, Karolino. Kvůli tomu tu vlastně jsem.
+en Ha. The fridges don't mind. Come back to us, Karolina. That's really what I'm here to say.
+uk Ха. Холодильники не проти. Повертайтеся до нас, Кароліно. Власне, я приїхав саме це сказати.
+ru Ха. Холодильники не против. Возвращайтесь к нам, Каролина. Собственно, я приехал сказать именно это.
 
 # --- scene filip_exam
 scene.filip_exam.01
@@ -750,6 +890,49 @@ en On her way to the ward, Hana squeezes his shoulder. Mirek doesn't look up.
 uk Дорогою до відділення Гана стискає йому плече. Мірек не підводить очей.
 ru По пути в отделение Гана сжимает ему плечо. Мирек не поднимает глаз.
 
+# --- scene karolina_storm
+scene.karolina_storm.01
+cs Babiččin lístek z pojistkové skříně měl pravdu: když zhasne světlo, lidi mluví pravdu.
+en Grandma's note from the fuse box was right: when the lights go out, people tell the truth.
+uk Бабусина записка з електрощитка мала рацію: коли гасне світло, люди кажуть правду.
+ru Бабушкина записка из электрощитка была права: когда гаснет свет, люди говорят правду.
+
+scene.karolina_storm.02
+cs Na minutu je kavárna prázdná. Jen lampa, bzučení lednice a Mirkovy ruce kolem hrnku.
+en For a minute the café is empty. Just the lamp, the hum of the fridge and Mirek's hands around a cup.
+uk На хвилину кав'ярня порожніє. Лише лампа, гудіння холодильника й Міркові руки довкола чашки.
+ru На минуту кафе пустеет. Только лампа, гудение холодильника и руки Мирека вокруг чашки.
+
+scene.karolina_storm.03
+cs Můžu vám něco říct, Mirku? Předtím jsem dělala noční pro NONSTOP 24. Tři roky, v Brně.
+en Can I tell you something, Mirek? Before this, I worked nights for NONSTOP 24. Three years, in Brno.
+uk Можна, я вам дещо скажу, Мірку? До цього я працювала нічними змінами на NONSTOP 24. Три роки, у Брні.
+ru Можно я вам кое-что скажу, Мирек? До этого я работала по ночам на NONSTOP 24. Три года, в Брно.
+
+scene.karolina_storm.04
+cs Čtyřicet obchodů na čtyřiceti obrazovkách. Každou lednici jsem poznala podle bzučení. Ani jedno jméno.
+en Forty shops on forty screens. I knew every fridge by its hum. I never knew a single name.
+uk Сорок крамниць на сорока екранах. Кожен холодильник я впізнавала за гудінням. А жодного імені не знала.
+ru Сорок магазинов на сорока экранах. Каждый холодильник я узнавала по гудению. А ни одного имени не знала.
+
+scene.karolina_storm.05
+cs Čtyřicet obchodů svítilo celou noc a uvnitř nikdo. Tady — jedna lampa, a přišli všichni.
+en Forty shops lit all night, and nobody inside. Here — one lamp, and everyone came.
+uk Сорок крамниць світилися цілу ніч, а всередині — нікого. А тут — одна лампа, і прийшли всі.
+ru Сорок магазинов светились всю ночь, а внутри — никого. А здесь — одна лампа, и пришли все.
+
+scene.karolina_storm.06
+cs Hm. Tak ty držíš světlo dýl, než sis myslela.
+en Hm. So you've been keeping a light longer than you thought.
+uk Гм. Тож ти тримаєш світло довше, ніж думала.
+ru Хм. Значит, ты хранишь свет дольше, чем думала.
+
+scene.karolina_storm.07
+cs Pak ti taky dlužím pravdu.
+en Then I owe you a truth too.
+uk Тоді я тобі теж винен правду.
+ru Тогда я тебе тоже должен правду.
+
 # --- scene mirek_confession
 scene.mirek_confession.01
 cs Musím ti něco říct. Nosím to šedesát let. Váží to asi dvacet gramů.
@@ -824,12 +1007,18 @@ en The payments don't add up. At least people write that your soup is good.
 uk Платежі не сходяться. Зате мені пишуть, що у вас добрий суп.
 ru Платежи не сходятся. Зато мне пишут, что у вас хороший суп.
 
+scene.payment_3.03
+cs Už jedenáct zpráv. Založil jsem si na ně složku. Jmenuje se „Není to plíseň".
+en Eleven messages now. I've started a folder. It's called 'Not mould'.
+uk Уже одинадцять повідомлень. Я завів для них папку. Називається «Не цвіль».
+ru Уже одиннадцать сообщений. Я завёл для них папку. Называется «Не плесень».
+
 # --- scene franchise_decision
 scene.franchise_decision.01
-cs Tak co? Smlouvu máte ve schránce Shiftelly. Jedno ťuknutí.
-en Well? The contract is in your Shiftella inbox. One tap.
-uk Ну що? Договір у вашій скриньці Shiftella. Один дотик.
-ru Ну что? Договор в вашем ящике Shiftella. Одно касание.
+cs Tak co? Smlouvu máte ve schránce Shiftelly. Jedno ťuknutí a jste zase u nás.
+en Well? The contract is in your Shiftella inbox. One tap, and you're back with us.
+uk Ну що? Договір у вашій скриньці Shiftella. Один дотик — і ви знову з нами.
+ru Ну что? Договор в вашем ящике Shiftella. Одно касание — и вы снова с нами.
 
 scene.franchise_decision.02
 cs Na zdi babiččina fotka. V okně lampa. Venku spí město — kromě lidí, kteří chodí sem.
@@ -838,16 +1027,16 @@ uk На стіні — бабусине фото. У вікні — лампа. 
 ru На стене — бабушкино фото. В окне — лампа. Снаружи спит город — кроме тех, кто приходит сюда.
 
 scene.franchise_decision.03
-cs Podepsat. Dluh zmizí, kavárna bude NONSTOP 24.
-en Sign. The debt disappears, the café becomes NONSTOP 24.
-uk Підписати. Борг зникне, кав'ярня стане NONSTOP 24.
-ru Подписать. Долг исчезнет, кафе станет NONSTOP 24.
+cs Podepsat hned. Dluh zmizí, kavárna bude NONSTOP 24.
+en Sign now. The debt disappears, the café becomes NONSTOP 24.
+uk Підписати зараз. Борг зникне, кав'ярня стане NONSTOP 24.
+ru Подписать сейчас. Долг исчезнет, кафе станет NONSTOP 24.
 
 scene.franchise_decision.04
-cs Odmítnout. Café Nocturne zůstane Café Nocturne.
-en Refuse. Café Nocturne stays Café Nocturne.
-uk Відмовитися. Café Nocturne лишиться Café Nocturne.
-ru Отказаться. Café Nocturne останется Café Nocturne.
+cs Ještě ne. Café Nocturne zůstane Café Nocturne — zatím.
+en Not yet. Café Nocturne stays Café Nocturne — for now.
+uk Ще ні. Café Nocturne лишається Café Nocturne — поки що.
+ru Не сейчас. Café Nocturne остаётся Café Nocturne — пока что.
 
 scene.franchise_decision.05
 cs Výborně! Nový nápis přijede po vaší třicáté noci. To osvětlení si zamilujete.
@@ -862,10 +1051,10 @@ uk …Безперечно. Тільки мене тут уже не буде.
 ru …Не сомневаюсь. Только меня здесь уже не будет.
 
 scene.franchise_decision.07
-cs Škoda. Sentiment je drahý, víte.
-en Pity. Sentiment is expensive, you know.
-uk Шкода. Сентименти — річ дорога, знаєте.
-ru Жаль. Сентиментальность — вещь дорогая, знаете ли.
+cs Ještě ne? …Dobře. Nabídka platí do vašeho posledního rána. Sentiment je drahý, víte.
+en Not yet? …Fine. The offer stands until your last morning. Sentiment is expensive, you know.
+uk Ще ні? …Гаразд. Пропозиція діє до вашого останнього ранку. Сентименти — річ дорога, знаєте.
+ru Не сейчас? …Хорошо. Предложение в силе до вашего последнего утра. Сентиментальность — вещь дорогая, знаете ли.
 
 scene.franchise_decision.08
 cs Káva taky. A zvládáme to.
@@ -961,10 +1150,10 @@ uk О 22:30 гасне світло на вокзалі, потім ліхтар
 ru В 22:30 гаснет свет на вокзале, потом фонари на улицах, потом все Голешовице.
 
 scene.act4_storm.03
-cs Svítí jen jedno okno. Babiččina lampa běží na baterku starší než ty.
-en Only one window is still lit. Grandma's lamp runs on a battery older than you.
-uk Світиться лише одне вікно. Бабусина лампа працює від батареї, старшої за тебе.
-ru Светится только одно окно. Бабушкина лампа работает от батареи, которая старше тебя.
+cs Svítí jen jedno okno.
+en Only one window is still lit.
+uk Світиться лише одне вікно.
+ru Светится только одно окно.
 
 scene.act4_storm.04
 cs Takže proto, babi.
@@ -977,6 +1166,12 @@ cs Dveře se otevírají a zavírají. Přichází každý, kdo nespí.
 en The door opens and closes, again and again. Everyone who is awake is coming.
 uk Двері відчиняються й зачиняються. Приходять усі, хто не спить.
 ru Дверь открывается и закрывается. Приходят все, кто не спит.
+
+scene.act4_storm.06
+cs Chytrá síť měla plán na všechno. Babiččina lampa měla baterku starší než ty.
+en The smart grid had a plan for everything. Grandma's lamp had a battery older than you.
+uk Розумна мережа мала план на все. Бабусина лампа мала батарею, старшу за тебе.
+ru У умной сети был план на всё. У бабушкиной лампы была батарея старше тебя.
 
 scene.lori_storm.01
 cs Venku pod markýzou, schovaná před bouřkou: žlutá pláštěnka a pouzdro s kytarou. Lori.
@@ -1017,8 +1212,69 @@ ru Она играет при свете одной лампы, пока гро�
 scene.lori_storm.07
 cs Když se podíváš znovu, pod markýzou už nikdo není.
 en When you look again, there is nobody under the awning.
-uk Коли ти дивишся знову, під навісом уже нікого.
-ru Когда ты смотришь снова, под навесом уже никого.
+uk Коли ти дивишся знову, під навісом уже нікого немає.
+ru Когда ты смотришь снова, под навесом уже никого нет.
+
+# --- scene sindelar_storm
+scene.sindelar_storm.01
+cs 02:40. Venku ve tmě zastaví světlomety a už se nehnou. Stříbrné auto bez řidiče, které neví, kde je.
+en 02:40. Headlights stop outside in the dark and stay there. A silver car with no driver, and no idea where it is.
+uk 02:40. Надворі в темряві зупиняються фари й більше не рухаються. Срібляста машина без водія, яка не знає, де вона.
+ru 02:40. Снаружи в темноте останавливаются фары и больше не двигаются. Серебристая машина без водителя, которая не знает, где она.
+
+scene.sindelar_storm.02
+cs Na mostě ztratilo síť. Moc se omlouvá. Řeklo mi to už jedenáctkrát.
+en It lost the grid at the bridge. It's very sorry about it. It has told me so eleven times.
+uk На мосту вона втратила мережу. Дуже перепрошує. Сказала мені це вже одинадцять разів.
+ru На мосту она потеряла сеть. Очень извиняется. Сказала мне это уже одиннадцать раз.
+
+scene.sindelar_storm.03
+cs Zůstane stát ve dveřích, mokrý, a dívá se do sálu: lidé se dělí o stoly, na každé židli mokrý kabát, v okně lampa.
+en He stops in the doorway, dripping, and looks at the hall: people sharing tables, wet coats on every chair, the lamp in the window.
+uk Він зупиняється у дверях, мокрий до нитки, і дивиться на залу: люди сидять за спільними столами, на кожному стільці мокре пальто, у вікні — лампа.
+ru Он останавливается в дверях, мокрый до нитки, и смотрит на зал: люди сидят за общими столами, на каждом стуле мокрое пальто, в окне — лампа.
+
+scene.sindelar_storm.04
+cs Všech našich čtyřicet jedna prodejen zhaslo ve 22:31. Závislé na síti. Dveře se samy zamkly, kvůli bezpečnosti. …Vaše ne.
+en All forty-one of our stores went dark at 22:31. Grid-dependent. The doors locked themselves, for safety. …Yours didn't.
+uk Усі наші крамниці — сорок одна — згасли о 22:31. Залежні від мережі. Двері замкнулися самі, задля безпеки. …А ваша — ні.
+ru Все наши магазины — сорок один — погасли в 22:31. Зависят от сети. Двери заперлись сами, ради безопасности. …А ваш — нет.
+
+scene.sindelar_storm.05
+cs Posaďte se. Káva je dnes na účet podniku. Pro všechny.
+en Sit down. Coffee's on the house tonight. Everyone's is.
+uk Сідайте. Кава сьогодні за рахунок закладу. Для всіх.
+ru Садитесь. Кофе сегодня за счёт заведения. Для всех.
+
+scene.sindelar_storm.06
+cs Moje máma měla bistro v Chebu. Zavřelo v úterý. Nikdo si toho nevšiml až do pátku.
+en My mother had a bistro in Cheb. It closed on a Tuesday. Nobody noticed until Friday.
+uk Моя мама мала бістро в Хебі. Воно закрилося у вівторок. Ніхто не помітив аж до п'ятниці.
+ru У моей мамы было бистро в Хебе. Оно закрылось во вторник. Никто не заметил до самой пятницы.
+
+scene.sindelar_storm.07
+cs Proto prodávám světla, která nikdy nezhasnou. Myslel jsem, že je to totéž.
+en That's why I sell lights that never go out. I thought it was the same thing.
+uk Тому я й продаю світло, яке ніколи не гасне. Я думав, що це одне й те саме.
+ru Поэтому я и продаю свет, который никогда не гаснет. Я думал, это одно и то же.
+
+scene.sindelar_storm.08
+cs Po vaší třicáté noci je tohle místo naše. …Tu lampu si nechám. Někde.
+en After your thirtieth night this place is ours. …I'm keeping the lamp. Somewhere.
+uk Після вашої тридцятої ночі це місце наше. …Лампу я залишу собі. Десь.
+ru После вашей тридцатой ночи это место наше. …Лампу я оставлю себе. Где-нибудь.
+
+scene.sindelar_storm.09
+cs Nabídka pořád platí. Jen o ní dnes nebudu mluvit.
+en The offer still stands. I'm just not going to bring it up tonight.
+uk Пропозиція досі в силі. Просто сьогодні я про неї не говоритиму.
+ru Предложение всё ещё в силе. Просто сегодня я о нём говорить не буду.
+
+scene.sindelar_storm.10
+cs Kávu vypije v rohu, v kabátě, a odejde dřív, než se rozsvítí pouliční lampy.
+en He drinks his coffee in the corner with his coat on, and leaves before the street lamps come back.
+uk Він п'є каву в кутку, не знімаючи пальта, і йде ще до того, як знову засвітяться ліхтарі.
+ru Он пьёт кофе в углу, не снимая пальто, и уходит ещё до того, как снова загорятся фонари.
 
 # --- scene hana_decision
 scene.hana_decision.01
@@ -1149,6 +1405,31 @@ en On the bench. Where he sat that night. …All right. If he's anywhere, he's t
 uk На лавці. Там, де він сидів тієї ночі. …Гаразд. Якщо він десь є, то там.
 ru На скамейке. Там, где он сидел той ночью. …Ладно. Если он где-то есть, то там.
 
+# --- scene franchise_again
+scene.franchise_again.01
+cs Slyšel jsem, že čísla jsou napjatá. Nepřišel jsem se škodolibě usmívat. Nabídka platí — jen je dnes větší než vaše pokladna.
+en I hear the numbers are tight. I'm not here to gloat. The offer stands — tonight it's simply bigger than your till.
+uk Чув, що з цифрами туго. Я не прийшов зловтішатися. Пропозиція в силі — просто сьогодні вона більша за вашу касу.
+ru Слышал, с цифрами туго. Я пришёл не злорадствовать. Предложение в силе — просто сегодня оно больше вашей кассы.
+
+scene.franchise_again.02
+cs Podepište dnes a čtvrtá splátka bude naše starost. Nebo ne, a já se zeptám ještě jednou, poslední ráno.
+en Sign tonight, and the fourth payment is ours to worry about. Or don't, and I'll ask once more, on the last morning.
+uk Підпишіть сьогодні — і четвертий платіж стане нашим клопотом. Або ні, і я спитаю ще раз, останнього ранку.
+ru Подпишите сегодня — и четвёртый платёж станет нашей заботой. Или нет, и я спрошу ещё раз, в последнее утро.
+
+scene.franchise_again.03
+cs Tak do posledního rána. Hodně štěstí s aritmetikou.
+en Then until the last morning. Good luck with the arithmetic.
+uk Тоді до останнього ранку. Хай щастить з арифметикою.
+ru Тогда до последнего утра. Удачи с арифметикой.
+
+scene.franchise_again.04
+cs Budeme počítat.
+en We'll do arithmetic.
+uk Рахуватимемо.
+ru Будем считать.
+
 # --- scene payment_4
 scene.payment_4.01
 cs Čtvrtá splátka. Zbývá poslední — třicet tisíc. Držím vám palce. Neříkejte to nikomu.
@@ -1161,6 +1442,12 @@ cs Ve splátkách něco chybí. Zbývají dvě noci. Ukažte mi zázrak, nebo as
 en The payments are short. Two nights left. Show me a miracle, or at least a calculator.
 uk Платежів бракує. Лишилося дві ночі. Покажіть мені диво. Або хоча б калькулятор.
 ru Платежей не хватает. Осталось две ночи. Покажите мне чудо. Или хотя бы калькулятор.
+
+scene.payment_4.03
+cs Dvacet šest zpráv. Jedna z nich je báseň. Nečetl jsem ji. …Četl jsem ji dvakrát.
+en Twenty-six messages. One of them is a poem. I didn't read it. …I read it twice.
+uk Двадцять шість повідомлень. Одне з них — вірш. Я його не читав. …Я прочитав його двічі.
+ru Двадцать шесть сообщений. Одно из них — стихотворение. Я его не читал. …Я прочитал его дважды.
 
 # --- scene filip_cake
 scene.filip_cake.01
@@ -1327,6 +1614,79 @@ en Lida's letter is still in your apron pocket.
 uk Лідин лист досі в тебе в кишені фартуха.
 ru Лидино письмо всё ещё у тебя в кармане фартука.
 
+# --- scene franchise_last
+scene.franchise_last.01
+cs 05:30. Venku stříbrné auto bez řidiče. Pan Šindelář vejde s ranní zimou na kabátě.
+en 05:30. Outside, a silver car with no driver. Mr Šindelář comes in with the morning cold on his coat.
+uk 05:30. Надворі — срібляста машина без водія. Пан Шинделарж заходить із ранковим холодом на пальті.
+ru 05:30. Снаружи — серебристая машина без водителя. Пан Шинделарж входит с утренним холодом на пальто.
+
+scene.franchise_last.02
+cs Vaše poslední ráno. Nabídka platí: dluh, nájem, všechno. A vaše staré místo, jestli o něj stojíte. Půl hodiny, pak se přestanu ptát.
+en Your last morning. The offer stands: the debt, the lease, all of it. And your old job, if you want it. Half an hour, then I'll stop asking.
+uk Ваш останній ранок. Пропозиція в силі: борг, оренда, усе. І ваша колишня робота, якщо захочете. Пів години — і я більше не питатиму.
+ru Ваше последнее утро. Предложение в силе: долг, аренда, всё. И ваша прежняя работа, если захотите. Полчаса — и я больше не буду спрашивать.
+
+scene.franchise_last.03
+cs U okna pořád čte muž v šedém kabátě babiččin dopis. Čaj mu vystydl. Zdá se, že mu to nevadí.
+en By the window, the man in the grey coat is still reading Grandma's letter. His tea has gone cold. He doesn't seem to mind.
+uk Біля вікна чоловік у сірому пальті досі читає бабусин лист. Його чай вихолов. Здається, йому байдуже.
+ru У окна мужчина в сером пальто всё ещё читает бабушкино письмо. Его чай остыл. Кажется, ему всё равно.
+
+scene.franchise_last.04
+cs Teď už víš, proč světlo svítilo šedesát let. Babiččina fotka se dívá ze zdi.
+en You know now why the light stayed on for sixty years. Grandma's photo watches from the wall.
+uk Тепер ти знаєш, чому світло горіло шістдесят років. Бабусине фото дивиться зі стіни.
+ru Теперь ты знаешь, почему свет горел шестьдесят лет. Бабушкино фото смотрит со стены.
+
+scene.franchise_last.05
+cs Pořád nevíš, proč světlo svítilo šedesát let. Možná to vědět nemusíš. Babiččina fotka se dívá ze zdi.
+en You still don't know why the light stayed on for sixty years. Maybe you don't have to. Grandma's photo watches from the wall.
+uk Ти досі не знаєш, чому світло горіло шістдесят років. Може, й не треба. Бабусине фото дивиться зі стіни.
+ru Ты до сих пор не знаешь, почему свет горел шестьдесят лет. Может, и не нужно. Бабушкино фото смотрит со стены.
+
+scene.franchise_last.06
+cs Pokladna na poslední splátku v šest nestačí. Bez podpisu může kavárna stejně zavřít.
+en The till won't cover the last payment at six. Without a signature, the café may close anyway.
+uk Каси не вистачить на останній платіж о шостій. Без підпису кав'ярня однаково може зачинитися.
+ru Кассы не хватит на последний платёж в шесть. Без подписи кафе всё равно может закрыться.
+
+scene.franchise_last.07
+cs Podepsat. Dluh zmizí, kavárna bude NONSTOP 24.
+en Sign. The debt is gone, the café becomes NONSTOP 24.
+uk Підписати. Борг зникне, кав'ярня стане NONSTOP 24.
+ru Подписать. Долг исчезнет, кафе станет NONSTOP 24.
+
+scene.franchise_last.08
+cs Nechat světlo svítit
+en Keep the light
+uk Зберегти світло
+ru Сохранить свет
+
+scene.franchise_last.09
+cs Děkuju. Upřímně. …Mojí mámě by se tu líbilo.
+en Thank you. Honestly. …My mother would have liked this place.
+uk Дякую. Чесно. …Моїй мамі тут сподобалося б.
+ru Спасибо. Честно. …Моей маме здесь понравилось бы.
+
+scene.franchise_last.10
+cs Já vím. Pojedu vlakem v 6:12.
+en I know. I'll be on the 06:12.
+uk Я знаю. Поїду поїздом о 6:12.
+ru Я знаю. Уеду поездом в 6:12.
+
+scene.franchise_last.11
+cs Tak se přestanu ptát. Nechte ho svítit. Někdo by měl.
+en Then I'll stop asking. Keep it on. Somebody should.
+uk Тоді я більше не питатиму. Хай світить. Хтось же має.
+ru Тогда я больше не спрашиваю. Пусть светит. Кто-то ведь должен.
+
+scene.franchise_last.12
+cs Někdo ho drží.
+en Somebody does.
+uk Хтось його й тримає.
+ru Кто-то его и хранит.
+
 # --- scene ending_light
 scene.ending_light.01
 cs 06:00. Třicátá noc skončila.
@@ -1436,6 +1796,36 @@ en I know I grumbled all month. Landlords grumble. It's in the job description.
 uk Знаю, я весь місяць бурчав. Орендодавці бурчать. Це в нас у посадовій інструкції.
 ru Знаю, я весь месяц ворчал. Арендодатели ворчат. Это у нас в должностной инструкции.
 
+scene.ending_light.19
+cs A město mi o téhle kavárně poslalo čtyřicet dva zpráv. Čtyřicet dva. Teď je čtu u snídaně.
+en And the town has sent me forty-two messages about this café. Forty-two. I read them at breakfast now.
+uk А місто надіслало мені сорок два повідомлення про цю кав'ярню. Сорок два. Тепер я читаю їх за сніданком.
+ru А город прислал мне сорок два сообщения об этом кафе. Сорок два. Теперь я читаю их за завтраком.
+
+scene.ending_light.20
+cs Když mi bylo devět, máma dělala noční v depu. Úkoly z matiky jsem psal u vašeho stolu v rohu, než si pro mě přišla. Lida mi je kontrolovala. Tam jsem se naučil aritmetiku.
+en When I was nine, my mother worked nights at the depot. I did my sums at your corner table until she came for me. Lida checked them. That's where I learned arithmetic.
+uk Коли мені було дев'ять, мама працювала нічні зміни в депо. Я робив уроки з математики за вашим кутовим столиком, поки вона по мене не приходила. Ліда їх перевіряла. Там я й навчився арифметики.
+ru Когда мне было девять, мама работала в ночную смену в депо. Я делал уроки по математике за вашим угловым столиком, пока она за мной не приходила. Лида их проверяла. Там я и научился арифметике.
+
+scene.ending_light.21
+cs Osm písmen, „ten, kdo čeká". Trvalo mi to šedesát let. …K-A-R-O-L-I-N-A. Sedí to.
+en Eight letters, 'one who waits'. Took me sixty years. …K-A-R-O-L-I-N-A. It fits.
+uk Вісім літер, «той, хто чекає». Мені знадобилося шістдесят років. …К-А-Р-О-Л-І-Н-А. Підходить.
+ru Восемь букв, «тот, кто ждёт». Понадобилось шестьдесят лет. …К-А-Р-О-Л-И-Н-А. Подходит.
+
+scene.ending_light.22
+cs Neprodám, babi. A na tabuli zůstane tvoje písmo.
+en I won't, Grandma. And the board stays in your handwriting.
+uk Не продам, бабусю. І на дошці лишиться твій почерк.
+ru Не продам, бабушка. И на доске останется твой почерк.
+
+scene.ending_light.23
+cs Neprodám, babi. Na tabuli je teď moje písmo. Ty by ses hádala.
+en I won't, Grandma. The board's in my handwriting now. You'd have argued.
+uk Не продам, бабусю. На дошці тепер мій почерк. Ти б посперечалася.
+ru Не продам, бабушка. На доске теперь мой почерк. Ты бы поспорила.
+
 # --- scene ending_last_train
 scene.ending_last_train.01
 cs Nový nápis přijede vlakem v 5:20 z Frýdlantu: NONSTOP 24, písmeny, která nikdy nespí.
@@ -1444,10 +1834,10 @@ uk Нова вивіска приїжджає поїздом о 5:20 із Фрі
 ru Новая вывеска приезжает поездом в 5:20 из Фридланта: NONSTOP 24, буквами, которые никогда не спят.
 
 scene.ending_last_train.02
-cs Dluh vyrovnán, smlouva podepsaná. Gratuluji, pane vedoucí — nebo paní vedoucí? To je jedno. Od teď máme otevřeno nonstop.
-en Debt settled, contract signed. Congratulations, manager. From now on, we're open round the clock.
-uk Борг погашено, договір підписано. Вітаю, керівництво! Відтепер ми відчинені цілодобово.
-ru Долг погашен, договор подписан. Поздравляю, управляющая! Отныне мы открыты круглосуточно.
+cs Dluh vyrovnán, smlouva podepsaná. …Tu lampu si vezmu do kanceláře, jestli dovolíte. Neříkejte to centrále.
+en Debt settled, contract signed. …I'll take the lamp to my office, if you don't mind. Don't tell head office.
+uk Борг погашено, договір підписано. …Лампу я заберу до свого кабінету, якщо дозволите. Тільки не кажіть головному офісу.
+ru Долг погашен, договор подписан. …Лампу я заберу к себе в кабинет, если позволите. Только не говорите головному офису.
 
 scene.ending_last_train.03
 cs Lampa z okna musí pryč, aby se tam vešla reklamní obrazovka. Už na ni nikdo nebude muset čekat. Prostě bude svítit pořád.
@@ -1556,6 +1946,67 @@ cs Doprovodím tě na vlak. Pěšky. Vzala jsi mi klíče, pamatuješ?
 en I'll walk you to the train. Walk. You took my keys, remember?
 uk Я проведу тебе до поїзда. Пішки. Ти ж забрала в мене ключі, пам'ятаєш?
 ru Я провожу тебя до поезда. Пешком. Ты же забрала у меня ключи, помнишь?
+
+scene.ending_last_train.21
+cs 05:41. Podepíšeš jedním ťuknutím. Nový nápis přijede zítra, vlakem v 5:20 z Frýdlantu.
+en 05:41. You sign with one tap. The new sign will come tomorrow, on the 05:20 from Frýdlant.
+uk 05:41. Ти підписуєш одним дотиком. Нова вивіска приїде завтра, поїздом о 5:20 із Фрідланта.
+ru 05:41. Ты подписываешь одним касанием. Новая вывеска приедет завтра, поездом в 5:20 из Фридланта.
+
+scene.ending_last_train.22
+cs Čtyřicet dva zpráv o téhle kavárně. Přečetl jsem každou. …Čísla stejně nevyšla.
+en Forty-two messages about this café. I read every one. …The numbers still didn't add up.
+uk Сорок два повідомлення про цю кав'ярню. Я прочитав кожне. …А цифри однаково не зійшлися.
+ru Сорок два сообщения об этом кафе. Я прочитал каждое. …А цифры всё равно не сошлись.
+
+scene.ending_last_train.23
+cs Tabuli si beru s sebou. Je na ní tvoje písmo.
+en The chalkboard comes with me. It's in your handwriting.
+uk Дошку я забираю з собою. На ній твій почерк.
+ru Доску я забираю с собой. На ней твой почерк.
+
+scene.ending_last_train.24
+cs Tabuli si beru s sebou. Je na ní moje písmo.
+en The chalkboard comes with me. It's in mine.
+uk Дошку я забираю з собою. На ній мій почерк.
+ru Доску я забираю с собой. На ней мой почерк.
+
+# --- scene letter_coda
+scene.letter_coda.01
+cs V šest přijde Mirek jako každé ráno a beze slova si sedne k baru. Slabě voní sirkami.
+en Mirek comes in at six, as every morning, and sits at the bar without a word. He smells faintly of matches.
+uk О шостій, як щоранку, приходить Мірек і мовчки сідає за стійку. Від нього ледь пахне сірниками.
+ru В шесть, как каждое утро, приходит Мирек и молча садится у стойки. От него слегка пахнет спичками.
+
+scene.letter_coda.02
+cs Světlo. Nic jiného to nikdy nebylo.
+en Light. That's all it ever was.
+uk Світло. Нічим іншим воно ніколи й не було.
+ru Свет. Ничем другим оно никогда и не было.
+
+scene.letter_coda.03
+cs Mirek si poklepe na náprsní kapsu, jako to dělá šedesát let. Tentokrát si všimne, že se díváš.
+en Mirek pats his inside pocket, the way he has for sixty years. This time he catches you looking.
+uk Мірек поплескує себе по внутрішній кишені, як робить це вже шістдесят років. Цього разу він помічає, що ти дивишся.
+ru Мирек похлопывает себя по внутреннему карману, как делает это уже шестьдесят лет. На этот раз он замечает, что ты смотришь.
+
+scene.letter_coda.04
+cs Ještě chvíli ho ponesu. Je lehčí, když o něm někdo ví.
+en I'll carry it a little longer. It's lighter now that someone knows.
+uk Ще трохи його поношу. Тепер, коли хтось знає, він легший.
+ru Ещё немного его поношу. Теперь, когда кто-то знает, оно легче.
+
+scene.letter_coda.05
+cs Dlouho se díváš na stůl u okna.
+en You look at the window table for a long time.
+uk Ти довго дивишся на столик біля вікна.
+ru Ты долго смотришь на столик у окна.
+
+scene.letter_coda.06
+cs Některé dopisy nástupiště nikdy nenajdou, babi.
+en Some letters never find the platform, Grandma.
+uk Деякі листи так і не знаходять перону, бабусю.
+ru Некоторые письма так и не находят перрона, бабушка.
 
 # --- scene answer
 scene.answer.01

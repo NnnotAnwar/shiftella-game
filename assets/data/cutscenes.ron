@@ -15,6 +15,8 @@
         (id: "announcer"),
         (id: "sindelar", look: (body: "slim", hair: ["short"], hair_colors: ["#2E2226"], outfit: "suit", outfit_colors: ["#C0C4D0"], accessories: [])),
         (id: "landlord", look: (body: "broad", hair: ["bald"], hair_colors: ["#8E8899"], outfit: "coat", outfit_colors: ["#4A4458"], accessories: ["umbrella"])),
+        // Karolina's mum, only ever a voice on the phone (no portrait)
+        (id: "mum"),
         (id: "jana", look: (body: "average", hair: ["ponytail"], hair_colors: ["#6E4A3A"], outfit: "raincoat", outfit_colors: ["#2F4858"], accessories: [])),
     ],
     cutscenes: [
@@ -66,6 +68,27 @@
                 Line(speaker: "player", expression: Neutral, text_key: "scene.mirek_first.04"),
                 Line(speaker: "mirek", expression: Sad, text_key: "scene.mirek_first.05"),
                 Narration(text_key: "scene.mirek_first.06"),
+            ],
+        ),
+        (
+            // K1: mum calls on the back step. Karolina ran forty staffless NONSTOP 24 shops from a
+            // screen in Brno for three years; Mum and Grandma, both too proud to call first.
+            id: "karolina_backstep",
+            trigger: At(night: 3, time: "04:20"),
+            skippable: true,
+            steps: [
+                Letterbox(on: true),
+                Camera(focus: Spot("kitchen"), zoom: 1.5),
+                Narration(text_key: "scene.karolina_backstep.01"),
+                Line(speaker: "mum", expression: Neutral, text_key: "scene.karolina_backstep.02"),
+                Line(speaker: "player", expression: Tired, text_key: "scene.karolina_backstep.03"),
+                Narration(text_key: "scene.karolina_backstep.04"),
+                Line(speaker: "mum", expression: Smile, text_key: "scene.karolina_backstep.05"),
+                Line(speaker: "player", expression: Thinking, text_key: "scene.karolina_backstep.06"),
+                Line(speaker: "mum", expression: Sad, text_key: "scene.karolina_backstep.07"),
+                Line(speaker: "mum", expression: Smile, text_key: "scene.karolina_backstep.08"),
+                Narration(text_key: "scene.karolina_backstep.09"),
+                Letterbox(on: false),
             ],
         ),
         (
@@ -228,11 +251,33 @@
             ],
         ),
         (
+            // K2: Vera's "Lida's best was better" once too often. The answer is cosmetic: the board
+            // by the counter in Lida's hand or in Karolina's own capitals, and a line in the endings.
+            id: "karolina_not_lida",
+            trigger: At(night: 13, time: "01:20"),
+            conditions: [RegularPresent("vera")],
+            skippable: false,
+            steps: [
+                Camera(focus: Actor("vera"), zoom: 1.5),
+                Narration(text_key: "scene.karolina_not_lida.01"),
+                Line(speaker: "vera", expression: Thinking, text_key: "scene.karolina_not_lida.02"),
+                Line(speaker: "vera", expression: Neutral, text_key: "scene.karolina_not_lida.03"),
+                Choice(options: [
+                (label_key: "scene.karolina_not_lida.04", effects: [SetVar("karolina_way", "lida")]),
+                (label_key: "scene.karolina_not_lida.05", effects: [SetVar("karolina_way", "own")]),
+            ]),
+                If(conditions: [VarIs("karolina_way", "own")], then: [Line(speaker: "player", expression: Neutral, text_key: "scene.karolina_not_lida.08"), Narration(text_key: "scene.karolina_not_lida.09")], otherwise: [Line(speaker: "player", expression: Neutral, text_key: "scene.karolina_not_lida.06"), Narration(text_key: "scene.karolina_not_lida.07")]),
+                Line(speaker: "vera", expression: Laugh, text_key: "scene.karolina_not_lida.10"),
+            ],
+        ),
+        (
             id: "payment_2",
             trigger: NightEnd(14),
             steps: [
                 Camera(focus: Spot("register"), zoom: 1.3),
                 If(conditions: [AllPaymentsMade], then: [Line(speaker: "landlord", expression: Neutral, text_key: "scene.payment_2.01")], otherwise: [Line(speaker: "landlord", expression: Neutral, text_key: "scene.payment_2.02")]),
+                // the landlord's thread: one message now, eleven on night 21, twenty-six on 28, forty-two at the end
+                Line(speaker: "landlord", expression: Thinking, text_key: "scene.payment_2.04"),
                 Narration(text_key: "scene.payment_2.03"),
             ],
         ),
@@ -276,6 +321,10 @@
                 Narration(text_key: "scene.franchise_visit.01"),
                 ActorEnter(actor: "sindelar", to_tile: Spot("center")),
                 Line(speaker: "sindelar", expression: Smile, text_key: "scene.franchise_visit.02"),
+                // K3: he knows her from the Brno hub; the offer becomes "come back"
+                Line(speaker: "sindelar", expression: Surprised, text_key: "scene.franchise_visit.08"),
+                Line(speaker: "player", expression: Tired, text_key: "scene.franchise_visit.09"),
+                Line(speaker: "sindelar", expression: Neutral, text_key: "scene.franchise_visit.10"),
                 Line(speaker: "sindelar", expression: Neutral, text_key: "scene.franchise_visit.03"),
                 Line(speaker: "player", expression: Thinking, text_key: "scene.franchise_visit.04"),
                 Line(speaker: "sindelar", expression: Laugh, text_key: "scene.franchise_visit.05"),
@@ -326,6 +375,26 @@
             ],
         ),
         (
+            // K4: same trigger as the confession and listed first, so it always plays right before
+            // it (the storm night 25 in the dark; after "Say nothing", a quiet night 26–29).
+            // Karolina tells Mirek the truth about herself; "Then I owe you a truth too."
+            id: "karolina_storm",
+            trigger: ArcStage(regular: "mirek", stage: 4),
+            skippable: false,
+            steps: [
+                Letterbox(on: true),
+                Music(track: None),
+                Camera(focus: Actor("mirek"), zoom: 1.6),
+                If(conditions: [Weather(Storm)], then: [Narration(text_key: "scene.mirek_confession.09"), If(conditions: [NoteFound("note_03")], then: [Narration(text_key: "scene.karolina_storm.01")])], otherwise: [Narration(text_key: "scene.karolina_storm.02")]),
+                If(conditions: [Flag("mirek_jana_keys")], then: [Line(speaker: "mirek", expression: Tired, text_key: "scene.mirek_confession.10")]),
+                Line(speaker: "player", expression: Thinking, text_key: "scene.karolina_storm.03"),
+                Line(speaker: "player", expression: Neutral, text_key: "scene.karolina_storm.04"),
+                Line(speaker: "player", expression: Smile, text_key: "scene.karolina_storm.05"),
+                Line(speaker: "mirek", expression: Thinking, text_key: "scene.karolina_storm.06"),
+                Line(speaker: "mirek", expression: Sad, text_key: "scene.karolina_storm.07"),
+            ],
+        ),
+        (
             id: "mirek_confession",
             trigger: ArcStage(regular: "mirek", stage: 4),
             skippable: false,
@@ -333,8 +402,6 @@
                 Letterbox(on: true),
                 Music(track: None),
                 Camera(focus: Actor("mirek"), zoom: 1.7),
-                If(conditions: [Weather(Storm)], then: [Narration(text_key: "scene.mirek_confession.09")]),
-                If(conditions: [Flag("mirek_jana_keys")], then: [Line(speaker: "mirek", expression: Tired, text_key: "scene.mirek_confession.10")]),
                 Line(speaker: "mirek", expression: Sad, text_key: "scene.mirek_confession.01"),
                 Narration(text_key: "scene.mirek_confession.02"),
                 Line(speaker: "mirek", expression: Neutral, text_key: "scene.mirek_confession.03"),
@@ -353,6 +420,7 @@
             steps: [
                 Camera(focus: Spot("register"), zoom: 1.3),
                 If(conditions: [AllPaymentsMade], then: [Line(speaker: "landlord", expression: Neutral, text_key: "scene.payment_3.01")], otherwise: [Line(speaker: "landlord", expression: Neutral, text_key: "scene.payment_3.02")]),
+                Line(speaker: "landlord", expression: Thinking, text_key: "scene.payment_3.03"),
             ],
         ),
         (
@@ -368,8 +436,9 @@
                 Camera(focus: Overview, zoom: 1.0),
                 Narration(text_key: "scene.franchise_decision.02"),
                 Choice(options: [
+                // "Not yet" keeps the offer pending: the last word is on the last morning (franchise_last)
                 (label_key: "scene.franchise_decision.03", effects: [SetVar("offer", "accepted"), Debt(-90000)]),
-                (label_key: "scene.franchise_decision.04", effects: [SetVar("offer", "rejected"), Reputation(3.0)]),
+                (label_key: "scene.franchise_decision.04", effects: []),
             ]),
                 If(conditions: [VarIs("offer", "accepted")], then: [Line(speaker: "sindelar", expression: Laugh, text_key: "scene.franchise_decision.05"), Line(speaker: "player", expression: Sad, text_key: "scene.franchise_decision.06")], otherwise: [Line(speaker: "sindelar", expression: Neutral, text_key: "scene.franchise_decision.07"), Line(speaker: "player", expression: Smile, text_key: "scene.franchise_decision.08")]),
                 ActorExit(actor: "sindelar", to_tile: Spot("door")),
@@ -420,6 +489,7 @@
                 Sfx(id: "sfx_power_outage"),
                 Narration(text_key: "scene.act4_storm.02"),
                 Narration(text_key: "scene.act4_storm.03"),
+                Narration(text_key: "scene.act4_storm.06"),
                 Line(speaker: "player", expression: Thinking, text_key: "scene.act4_storm.04"),
                 Narration(text_key: "scene.act4_storm.05"),
                 Letterbox(on: false),
@@ -441,6 +511,34 @@
                 (label_key: "scene.lori_storm.04", effects: []),
             ]),
                 If(conditions: [Flag("lori_invited")], then: [ActorEnter(actor: "lori", to_tile: Spot("window_table")), Line(speaker: "lori", expression: Smile, text_key: "scene.lori_storm.05"), Narration(text_key: "scene.lori_storm.06"), Apply(effects: [ArcGood("lori"), Reputation(5.0)])], otherwise: [Narration(text_key: "scene.lori_storm.07")]),
+                Letterbox(on: false),
+            ],
+        ),
+        (
+            // Šindelář's third scene: his driverless car gave up at the bridge in the blackout; he
+            // comes in to warm up and sees the full hall. His mother's bistro in Cheb.
+            id: "sindelar_storm",
+            trigger: At(night: 25, time: "02:40"),
+            conditions: [Flag("franchise_met")],
+            skippable: true,
+            steps: [
+                Letterbox(on: true),
+                Camera(focus: Spot("entrance"), zoom: 1.3),
+                Narration(text_key: "scene.sindelar_storm.01"),
+                Sfx(id: "sfx_door_bell"),
+                ActorEnter(actor: "sindelar", to_tile: Spot("entrance")),
+                Line(speaker: "sindelar", expression: Tired, text_key: "scene.sindelar_storm.02"),
+                Camera(focus: Overview, zoom: 1.0),
+                Narration(text_key: "scene.sindelar_storm.03"),
+                Camera(focus: Actor("sindelar"), zoom: 1.5),
+                Line(speaker: "sindelar", expression: Thinking, text_key: "scene.sindelar_storm.04"),
+                Line(speaker: "player", expression: Neutral, text_key: "scene.sindelar_storm.05"),
+                ActorMove(actor: "sindelar", to_tile: Spot("corner_table")),
+                Line(speaker: "sindelar", expression: Sad, text_key: "scene.sindelar_storm.06"),
+                Line(speaker: "sindelar", expression: Neutral, text_key: "scene.sindelar_storm.07"),
+                If(conditions: [VarIs("offer", "accepted")], then: [Line(speaker: "sindelar", expression: Thinking, text_key: "scene.sindelar_storm.08")], otherwise: [Line(speaker: "sindelar", expression: Smile, text_key: "scene.sindelar_storm.09")]),
+                Narration(text_key: "scene.sindelar_storm.10"),
+                ActorExit(actor: "sindelar", to_tile: Spot("door")),
                 Letterbox(on: false),
             ],
         ),
@@ -491,11 +589,34 @@
             ],
         ),
         (
+            // Classic, money short: Šindelář repeats the offer at the start of night 28
+            id: "franchise_again",
+            trigger: NightStart(28),
+            conditions: [Difficulty("classic"), VarIs("offer", "pending"), Any([Not(AllPaymentsMade), MoneyBelow(15000)])],
+            skippable: false,
+            steps: [
+                Letterbox(on: true),
+                Camera(focus: Spot("entrance"), zoom: 1.3),
+                ActorEnter(actor: "sindelar", to_tile: Spot("center")),
+                Camera(focus: Actor("sindelar"), zoom: 1.4),
+                Line(speaker: "sindelar", expression: Neutral, text_key: "scene.franchise_again.01"),
+                Line(speaker: "sindelar", expression: Thinking, text_key: "scene.franchise_again.02"),
+                Choice(options: [
+                (label_key: "scene.franchise_decision.03", effects: [SetVar("offer", "accepted"), Debt(-90000)]),
+                (label_key: "scene.franchise_decision.04", effects: []),
+            ]),
+                If(conditions: [VarIs("offer", "accepted")], then: [Line(speaker: "sindelar", expression: Smile, text_key: "scene.franchise_decision.05"), Line(speaker: "player", expression: Sad, text_key: "scene.franchise_decision.06")], otherwise: [Line(speaker: "sindelar", expression: Neutral, text_key: "scene.franchise_again.03"), Line(speaker: "player", expression: Neutral, text_key: "scene.franchise_again.04")]),
+                ActorExit(actor: "sindelar", to_tile: Spot("door")),
+                Letterbox(on: false),
+            ],
+        ),
+        (
             id: "payment_4",
             trigger: NightEnd(28),
             steps: [
                 Camera(focus: Spot("register"), zoom: 1.3),
                 If(conditions: [AllPaymentsMade], then: [Line(speaker: "landlord", expression: Neutral, text_key: "scene.payment_4.01")], otherwise: [Line(speaker: "landlord", expression: Neutral, text_key: "scene.payment_4.02")]),
+                Line(speaker: "landlord", expression: Thinking, text_key: "scene.payment_4.03"),
             ],
         ),
         (
@@ -569,6 +690,32 @@
             ],
         ),
         (
+            // the last word: night 30 at 05:30, after 3:33 and the letter, before the payment.
+            // Karolina decides knowing the whole truth.
+            id: "franchise_last",
+            trigger: At(night: 30, time: "05:30"),
+            conditions: [VarIs("offer", "pending")],
+            skippable: false,
+            steps: [
+                Letterbox(on: true),
+                Camera(focus: Spot("entrance"), zoom: 1.3),
+                Narration(text_key: "scene.franchise_last.01"),
+                ActorEnter(actor: "sindelar", to_tile: Spot("bar_front")),
+                Camera(focus: Actor("sindelar"), zoom: 1.4),
+                Line(speaker: "sindelar", expression: Neutral, text_key: "scene.franchise_last.02"),
+                Camera(focus: Overview, zoom: 1.0),
+                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")])], then: [Narration(text_key: "scene.franchise_last.03")], otherwise: [If(conditions: [VarIs("letter", "hidden")], then: [Narration(text_key: "scene.franchise_last.05")], otherwise: [Narration(text_key: "scene.franchise_last.04")])]),
+                If(conditions: [Difficulty("classic"), MoneyBelow(30000)], then: [Narration(text_key: "scene.franchise_last.06")]),
+                Choice(options: [
+                (label_key: "scene.franchise_last.07", effects: [SetVar("offer", "accepted"), Debt(-90000)], set_flag: "signed_last_morning"),
+                (label_key: "scene.franchise_last.08", effects: [SetVar("offer", "rejected"), Reputation(3.0)]),
+            ]),
+                If(conditions: [VarIs("offer", "accepted")], then: [Line(speaker: "sindelar", expression: Smile, text_key: "scene.franchise_last.09"), Line(speaker: "player", expression: Sad, text_key: "scene.franchise_last.10")], otherwise: [Line(speaker: "sindelar", expression: Neutral, text_key: "scene.franchise_last.11"), Line(speaker: "player", expression: Smile, text_key: "scene.franchise_last.12")]),
+                ActorExit(actor: "sindelar", to_tile: Spot("door")),
+                Letterbox(on: false),
+            ],
+        ),
+        (
             id: "ending_light",
             trigger: Ending("light"),
             steps: [
@@ -577,24 +724,28 @@
                 Camera(focus: Spot("register"), zoom: 1.3),
                 Narration(text_key: "scene.ending_light.01"),
                 ActorEnter(actor: "landlord", to_tile: Spot("bar_front")),
-                If(conditions: [AllPaymentsMade], then: [Line(speaker: "landlord", expression: Surprised, text_key: "scene.ending_light.02")], otherwise: [Line(speaker: "landlord", expression: Thinking, text_key: "scene.ending_light.03")]),
+                If(conditions: [AllPaymentsMade], then: [Line(speaker: "landlord", expression: Surprised, text_key: "scene.ending_light.02"), Line(speaker: "landlord", expression: Thinking, text_key: "scene.ending_light.19")], otherwise: [Line(speaker: "landlord", expression: Thinking, text_key: "scene.ending_light.03")]),
                 If(conditions: [Flag("landlord_grumbling")], then: [Line(speaker: "landlord", expression: Neutral, text_key: "scene.ending_light.18")]),
                 Line(speaker: "landlord", expression: Smile, text_key: "scene.ending_light.04"),
+                Line(speaker: "landlord", expression: Smile, text_key: "scene.ending_light.20"),
                 ActorExit(actor: "landlord", to_tile: Spot("door")),
                 Camera(focus: Overview, zoom: 1.0),
                 If(conditions: [Flag("arc.mirek.good")], then: [ActorEnter(actor: "mirek", to_tile: Spot("bar_front")), Line(speaker: "mirek", expression: Smile, text_key: "scene.ending_light.05")]),
                 If(conditions: [Flag("arc.hana.good")], then: [ActorEnter(actor: "hana", to_tile: Spot("quiet_corner")), Line(speaker: "hana", expression: Smile, text_key: "scene.ending_light.06")]),
-                If(conditions: [Flag("arc.vera.good")], then: [ActorEnter(actor: "vera", to_tile: Spot("corner_table")), Line(speaker: "vera", expression: Laugh, text_key: "scene.ending_light.07")]),
+                // Vera's crossword: eight letters, "one who waits" — Karolina in all four languages
+                If(conditions: [Flag("arc.vera.good")], then: [ActorEnter(actor: "vera", to_tile: Spot("corner_table")), Line(speaker: "vera", expression: Laugh, text_key: "scene.ending_light.07"), Line(speaker: "vera", expression: Thinking, text_key: "scene.ending_light.21")]),
                 If(conditions: [Flag("arc.filip.good")], then: [ActorEnter(actor: "filip", to_tile: Spot("corner_table")), Line(speaker: "filip", expression: Smile, text_key: "scene.ending_light.08")]),
                 If(conditions: [Flag("arc.radek.good")], then: [ActorEnter(actor: "radek", to_tile: Spot("bar_front")), Line(speaker: "radek", expression: Laugh, text_key: "scene.ending_light.09")]),
                 If(conditions: [Flag("arc.lori.good")], then: [ActorEnter(actor: "lori", to_tile: Spot("stage")), Line(speaker: "lori", expression: Smile, text_key: "scene.ending_light.10")]),
                 If(conditions: [StaffArchetype("cook")], then: [Line(speaker: "cook", expression: Thinking, text_key: "scene.ending_light.11")]),
-                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]), Not(VarIs("offer", "accepted"))], then: [Call(cutscene: "answer")]),
-                If(conditions: [ReputationAtLeast(60.0), ArcsGoodAtLeast(3)], then: [Narration(text_key: "scene.ending_light.12")], otherwise: [Narration(text_key: "scene.ending_light.13")]),
+                // same condition as the `full` variant in story.ron
+                If(conditions: [ArcsGoodAtLeast(3), ReputationAtLeast(50.0)], then: [Narration(text_key: "scene.ending_light.12")], otherwise: [Narration(text_key: "scene.ending_light.13")]),
+                // the letter's fate, right before the window: the answer, or a coda
+                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")])], then: [Call(cutscene: "answer")], otherwise: [Call(cutscene: "letter_coda")]),
                 Camera(focus: Spot("outside_window"), zoom: 1.3),
                 Narration(text_key: "scene.ending_light.14"),
                 Line(speaker: "grandma", expression: Smile, text_key: "scene.ending_light.15"),
-                Line(speaker: "player", expression: Smile, text_key: "scene.ending_light.16"),
+                If(conditions: [VarIs("karolina_way", "lida")], then: [Line(speaker: "player", expression: Smile, text_key: "scene.ending_light.22")], otherwise: [If(conditions: [VarIs("karolina_way", "own")], then: [Line(speaker: "player", expression: Smile, text_key: "scene.ending_light.23")], otherwise: [Line(speaker: "player", expression: Smile, text_key: "scene.ending_light.16")])]),
                 Narration(text_key: "scene.ending_light.17"),
                 Fade(to_black: true, seconds: 3.0),
                 Letterbox(on: false),
@@ -607,12 +758,17 @@
                 Letterbox(on: true),
                 Music(track: Some("mus_night_calm_loop")),
                 Camera(focus: Spot("outside_window"), zoom: 1.2),
-                If(conditions: [VarIs("offer", "accepted")], then: [Narration(text_key: "scene.ending_last_train.01"), ActorEnter(actor: "sindelar", to_tile: Spot("center")), Line(speaker: "sindelar", expression: Smile, text_key: "scene.ending_last_train.02"), Narration(text_key: "scene.ending_last_train.03"), ActorExit(actor: "sindelar", to_tile: Spot("door"))], otherwise: [ActorEnter(actor: "landlord", to_tile: Spot("bar_front")), Line(speaker: "landlord", expression: Sad, text_key: "scene.ending_last_train.04"), ActorExit(actor: "landlord", to_tile: Spot("door")), Narration(text_key: "scene.ending_last_train.05")]),
+                // sold: on night 22 / 28 the new sign comes on the 05:20; signed at 05:30 on the last
+                // morning, it comes tomorrow. Šindelář gets a human line, not "Congratulations, manager".
+                If(conditions: [VarIs("offer", "accepted")], then: [If(conditions: [Flag("signed_last_morning")], then: [Narration(text_key: "scene.ending_last_train.21")], otherwise: [Narration(text_key: "scene.ending_last_train.01")]), ActorEnter(actor: "sindelar", to_tile: Spot("center")), Line(speaker: "sindelar", expression: Neutral, text_key: "scene.ending_last_train.02"), Narration(text_key: "scene.ending_last_train.03"), ActorExit(actor: "sindelar", to_tile: Spot("door"))], otherwise: [ActorEnter(actor: "landlord", to_tile: Spot("bar_front")), Line(speaker: "landlord", expression: Sad, text_key: "scene.ending_last_train.04"), Line(speaker: "landlord", expression: Sad, text_key: "scene.ending_last_train.22"), ActorExit(actor: "landlord", to_tile: Spot("door")), Narration(text_key: "scene.ending_last_train.05")]),
                 Camera(focus: Overview, zoom: 1.0),
                 If(conditions: [ArcsGoodAtLeast(3)], then: [Narration(text_key: "scene.ending_last_train.06"), If(conditions: [Flag("arc.vera.good")], then: [ActorEnter(actor: "vera", to_tile: Spot("bar_front")), Line(speaker: "vera", expression: Neutral, text_key: "scene.ending_last_train.07")]), If(conditions: [Flag("arc.mirek.good")], then: [ActorEnter(actor: "mirek", to_tile: Spot("entrance")), If(conditions: [Flag("mirek_keys_taken")], then: [Line(speaker: "mirek", expression: Smile, text_key: "scene.ending_last_train.20")], otherwise: [Line(speaker: "mirek", expression: Smile, text_key: "scene.ending_last_train.08")])]), If(conditions: [Flag("arc.hana.good")], then: [ActorEnter(actor: "hana", to_tile: Spot("center")), Line(speaker: "hana", expression: Smile, text_key: "scene.ending_last_train.09")]), If(conditions: [Flag("arc.lori.good")], then: [ActorEnter(actor: "lori", to_tile: Spot("stage")), Line(speaker: "lori", expression: Smile, text_key: "scene.ending_last_train.10")]), If(conditions: [Flag("arc.filip.good")], then: [ActorEnter(actor: "filip", to_tile: Spot("corner_table")), Line(speaker: "filip", expression: Neutral, text_key: "scene.ending_last_train.11")]), If(conditions: [Flag("arc.radek.good")], then: [ActorEnter(actor: "radek", to_tile: Spot("bar_front")), Line(speaker: "radek", expression: Neutral, text_key: "scene.ending_last_train.12")])], otherwise: [Narration(text_key: "scene.ending_last_train.13")]),
-                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")]), Not(VarIs("offer", "accepted"))], then: [Call(cutscene: "answer")]),
+                // the letter's fate (signing on the last morning comes after 3:33: the answer still plays)
+                If(conditions: [Any([VarIs("letter", "delivered"), VarIs("letter", "delivered_by_mirek")])], then: [Call(cutscene: "answer")], otherwise: [Call(cutscene: "letter_coda")]),
                 Narration(text_key: "scene.ending_last_train.14"),
                 Line(speaker: "player", expression: Sad, text_key: "scene.ending_last_train.15"),
+                If(conditions: [VarIs("karolina_way", "lida")], then: [Line(speaker: "player", expression: Neutral, text_key: "scene.ending_last_train.23")]),
+                If(conditions: [VarIs("karolina_way", "own")], then: [Line(speaker: "player", expression: Neutral, text_key: "scene.ending_last_train.24")]),
                 Line(speaker: "grandma", expression: Smile, text_key: "scene.ending_last_train.16"),
                 TrainPass,
                 Camera(focus: Spot("platform"), zoom: 1.4),
@@ -621,6 +777,19 @@
                 Line(speaker: "player", expression: Thinking, text_key: "scene.ending_last_train.19"),
                 Fade(to_black: true, seconds: 3.0),
                 Letterbox(on: false),
+            ],
+        ),
+        (
+            // the letter not delivered, in either ending: burned → Mirek's echo; left with Mirek →
+            // his coda; never found the platform (no confession, kept in the pocket, or Mirek
+            // persuaded but no 3:33) → Karolina's line. The bench after the sale was shown at 3:33.
+            id: "letter_coda",
+            trigger: Manual,
+            skippable: true,
+            steps: [
+                If(conditions: [VarIs("letter", "burned")], then: [Camera(focus: Spot("bar_front"), zoom: 1.5), Narration(text_key: "scene.letter_coda.01"), Line(speaker: "mirek", expression: Sad, text_key: "scene.letter_coda.02")]),
+                If(conditions: [VarIs("letter", "with_mirek")], then: [Camera(focus: Spot("bar_front"), zoom: 1.5), Narration(text_key: "scene.letter_coda.03"), Line(speaker: "mirek", expression: Smile, text_key: "scene.letter_coda.04")]),
+                If(conditions: [Any([VarIs("letter", "hidden"), VarIs("letter", "confessed"), VarIs("letter", "with_player"), VarIs("letter", "persuaded")])], then: [Camera(focus: Spot("window_table"), zoom: 1.5), Narration(text_key: "scene.letter_coda.05"), Line(speaker: "player", expression: Sad, text_key: "scene.letter_coda.06")]),
             ],
         ),
         (

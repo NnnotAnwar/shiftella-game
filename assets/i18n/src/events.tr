@@ -733,7 +733,7 @@ uk Увесь район у темряві
 ru Весь район в темноте
 
 event.storm_blackout.text
-cs Svítí jen tvoje okno. Kdo nespí, jde za ním.
-en Only your window is lit. Everyone who's awake follows it.
-uk Світиться тільки твоє вікно. Усі, хто не спить, ідуть на нього.
-ru Светится только твоё окно. Все, кто не спит, идут на его свет.
+cs Od mostu až k vozovně svítí jen tvoje okno. Lidé podle něj hledají cestu jako podle majáku.
+en From the bridge to the tram depot, yours is the only lit window. People find their way by it, like a lighthouse.
+uk Від мосту до трамвайного депо світиться лише твоє вікно. Люди йдуть на нього, як на маяк.
+ru От моста до трамвайного депо светится только твоё окно. Люди идут на него, как на маяк.

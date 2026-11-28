@@ -283,10 +283,10 @@ uk Рішення
 ru Решение
 
 story.night.22.hint
-cs Dnes se rozhodne, čí bude nápis nad dveřmi.
-en Tonight decides whose sign hangs over the door.
-uk Сьогодні вирішиться, чия вивіска висітиме над дверима.
-ru Сегодня решится, чья вывеска будет висеть над дверью.
+cs Šindelář si přijde pro odpověď. I „ještě ne" je odpověď.
+en Šindelář comes back for an answer. 'Not yet' is an answer too.
+uk Шинделарж прийде по відповідь. «Ще ні» — теж відповідь.
+ru Шинделарж придёт за ответом. «Не сейчас» — тоже ответ.
 
 story.night.23.title
 cs Jízdní řád
@@ -545,10 +545,10 @@ uk Не питай. Будь ласка.
 ru Не спрашивай. Пожалуйста.
 
 story.line.22_vera
-cs Lida by byla pyšná. Neříkej jí… no, neříkej to nikomu.
-en Lida would have been proud. Don't tell her… well, don't tell anyone.
-uk Ліда б пишалася. Не кажи їй… ну, нікому не кажи.
-ru Лида бы гордилась. Не говори ей… ну, никому не говори.
+cs „Ještě ne," řeklas mu. Lida to pánům v oblecích říkala čtyřicet let. …Nikomu neříkej, že jsem na tebe pyšná.
+en 'Not yet,' you told him. Lida said that to men in suits for forty years. …Don't tell anyone I'm proud of you.
+uk «Ще ні», — сказала ти йому. Ліда казала це чоловікам у костюмах сорок років. …Нікому не кажи, що я тобою пишаюся.
+ru «Не сейчас», — сказала ты ему. Лида говорила это мужчинам в костюмах сорок лет. …Никому не говори, что я тобой горжусь.
 
 story.line.22_vera_sold
 cs Tak tady už jen svítí. Nečeká.

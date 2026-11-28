@@ -65,9 +65,9 @@ impl Cast {
         }
     }
 
-    /// The speaker has a face (the station announcer is only a voice).
+    /// The speaker has a face (the station announcer and Mum on the phone are only voices).
     pub fn has_portrait(&self, id: &str) -> bool {
-        id != "announcer"
+        !matches!(id, "announcer" | "mum")
     }
 
     /// Look for portraits and the world actor.

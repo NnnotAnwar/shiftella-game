@@ -1264,10 +1264,10 @@ uk Усі, хто всередині, залишаються до ранку.
 ru Все, кто внутри, остаются до утра.
 
 app.bot.storm_cancel
-cs Sněhová bouře: trať je do 6:00 zavřená. Vaše kavárna je dnes jediné teplé světlo na nádraží.
-en Snowstorm: the line is closed until 06:00. Your café is the only warm light at the station tonight.
-uk Снігова буря: колію закрито до 06:00. Ваша кав'ярня — сьогодні єдине тепле світло на вокзалі.
-ru Снежная буря: линия закрыта до 06:00. Ваше кафе — сегодня единственный тёплый свет на вокзале.
+cs Sněhová bouře: trať je do 6:00 zavřená. Uvízlí cestující míří k vám. Postavte na čaj.
+en Snowstorm: the line is closed until 06:00. The stranded passengers are heading your way. Put the kettle on.
+uk Снігова буря: колію закрито до 06:00. Пасажири, що застрягли, вже йдуть до вас. Ставте чайник.
+ru Снежная буря: линия закрыта до 06:00. Застрявшие пассажиры уже идут к вам. Ставьте чайник.
 
 app.bot.storm_cancel.action.noted
 cs Beru na vědomí
